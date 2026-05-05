@@ -2651,14 +2651,7 @@ def build_omnibus_post(today_str: str) -> tuple:
 .novel-body p b {{
   font-style: normal;
 }}
-.drop-cap-p::first-letter {{
-  float: left;
-  font-size: 3.5em;
-  line-height: 0.76;
-  margin: 0.07em 0.1em 0 0;
-  color: #7c3aed;
-  font-weight: 700;
-}}
+/* drop-cap via inline span — html2canvas 호환 */
 .novel-opening {{
   font-size: 15px;
   line-height: 2.1;
