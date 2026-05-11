@@ -676,7 +676,6 @@
                         <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
                         <p class="font-bold text-sm">파트너 페이지 불러오는 중...</p>
                     </div>`;
-                history.replaceState(null, '', location.pathname + '#partner');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 try {
                    const r = await fetch('./partner.html', { cache: 'no-store' });
@@ -708,12 +707,8 @@
             if (!pages[page]) return;
             // 매번 DOM 새로 생성 → 메뉴/H마크 재클릭 시 항상 fresh fetch
             contentDiv.innerHTML = pages[page];
-            // index 페이지는 hash 제거, 나머지는 hash 설정
-            if (page === 'index') {
-                history.replaceState(null, '', location.pathname);
-            } else {
-                history.replaceState(null, '', location.pathname + '#' + page);
-            }
+            // URL은 항상 깔끔하게 유지 (hash 표시 안 함)
+            history.replaceState(null, '', location.pathname);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (page === 'fortune') {
                 if(window.fortuneReady) {
@@ -764,9 +759,8 @@
         }
 
         window.onload = () => {
-            const hash = window.location.hash.replace('#', '');
-            if (hash === 'partner') { navigateTo('partner'); return; }
-            navigateTo(pages[hash] ? hash : 'index');
+            // hash 없이 항상 홈 페이지로 시작
+            navigateTo('index');
         };
 
         // 현재 활성 페이지에 nav 강조 표시

@@ -800,11 +800,13 @@ ${info.usage}`;
         }
 
         // ── Blogger 포스트 fetch ──
-        // orderBy=updated → 최신 글부터 반환, maxResults=40으로 여유있게 조회
+        // orderBy=updated → 최신 글부터 반환
         async function fetchByLabelAndTitle(label, keywords) {
+            // 라벨별 별자리명으로 조회하면 결과가 적어 pageToken 불필요
+            // maxResults=100 으로 월요일(주간운세 12개 추가) 등 대량 발행일도 커버
             const url = BASE_URL + '/blogs/' + BLOG_ID + '/posts?key=' + API_KEY
                 + '&labels=' + encodeURIComponent(label)
-                + '&maxResults=40&orderBy=updated'
+                + '&maxResults=100&orderBy=updated'
                 + '&fields=items(title,url,published,content)';
             try {
                 const r = await fetch(url, {cache: 'no-store'});
@@ -813,8 +815,10 @@ ${info.usage}`;
             } catch(e) { return null; }
         }
 
+        // 별자리 오늘 운세: 라벨을 '별자리운세' 대신 별자리명(e.g. '양자리')으로 조회
+        // → 해당 별자리 포스트만 반환되므로 maxResults 초과 누락 문제 완전 해결
         async function fetchFortunePost(label, name) {
-            return fetchByLabelAndTitle(label,
+            return fetchByLabelAndTitle(name,
                 [name, kstYear()+'년', kstMonth()+'월', kstDay()+'일', '오늘의 운세']);
         }
         async function fetchChinesePost(label, name) {
