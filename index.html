@@ -110,7 +110,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260511154909_972572da">
+  <meta name="build-version" content="20260511155849_6d37204c">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -677,7 +677,7 @@
                         <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
                         <p class="font-bold text-sm">파트너 페이지 불러오는 중...</p>
                     </div>`;
-                window.location.hash = page;
+                history.replaceState(null, '', location.pathname + '#partner');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 try {
                    const r = await fetch('./partner.html', { cache: 'no-store' });
@@ -709,7 +709,12 @@
             if (!pages[page]) return;
             // 매번 DOM 새로 생성 → 메뉴/H마크 재클릭 시 항상 fresh fetch
             contentDiv.innerHTML = pages[page];
-            window.location.hash = page;
+            // index 페이지는 hash 제거, 나머지는 hash 설정
+            if (page === 'index') {
+                history.replaceState(null, '', location.pathname);
+            } else {
+                history.replaceState(null, '', location.pathname + '#' + page);
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (page === 'fortune') {
                 if(window.fortuneReady) {
