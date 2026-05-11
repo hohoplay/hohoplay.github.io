@@ -955,7 +955,7 @@ def site_link():
     return """
 <div class="game-link">
     <p>🎮 운세와 함께 즐기는 무료 게임</p>
-    <a href="https://hoholog.github.io/hoholog/#index">🎮 호호로그게임 바로가기</a>
+    <a href="https://hoholog.github.io/">🎮 호호로그게임 바로가기</a>
 </div>"""
 
 # ─────────────────────────────────────────
