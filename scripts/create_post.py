@@ -2584,75 +2584,75 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx) -> str:
     connectors = [
         # 0
         (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들께, 오늘 하늘이 이런 말을 건네고 있어요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"마침 <b style='color:#b45309'>{c_kr}</b>도 비슷한 기운 위에 서 있어요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"두 기운이 만나는 오늘, {theme}의 흐름이 당신 편이에요."),
         # 1
         (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘 운세가 이렇게 이야기해요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"그리고 <b style='color:#b45309'>{c_kr}</b>에게도 오늘 비슷한 신호가 와 있어요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"두 기운이 겹치는 날, {theme}이 더 선명하게 빛납니다."),
         # 2
         (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 별이 속삭이는 게 있어요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"한편 <b style='color:#b45309'>{c_kr}</b>의 기운도 이렇게 흘러요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"이 두 흐름이 만나는 지점이 바로 오늘의 {theme}입니다."),
         # 3
         (f"<b style='color:#5b21b6'>{z_kr}</b>에게 오늘 하늘이 전하는 메시지예요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"<b style='color:#b45309'>{c_kr}</b>도 오늘 같은 방향을 바라보고 있어요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"두 별이 같은 곳을 가리키는 날, {theme}의 문이 열려 있어요."),
         # 4
         (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘의 기운을 들어보세요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"그 옆에서 <b style='color:#b45309'>{c_kr}</b>도 오늘 이렇게 흘러요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"함께 흐르는 두 기운, {theme}을 오늘 꼭 품어가세요."),
         # 5
         (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 별자리 기운이에요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"그리고 <b style='color:#b45309'>{c_kr}</b>의 기운이 그 곁에 있어요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"오늘 두 기운이 빚어내는 색깔, 그건 바로 {theme}이에요."),
         # 6
         (f"<b style='color:#5b21b6'>{z_kr}</b>에게 오늘 별이 이런 이야기를 해요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"<b style='color:#b45309'>{c_kr}</b>의 오늘도 크게 다르지 않아요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"두 기운이 나란히 걷는 오늘, {theme}의 흐름을 타세요."),
         # 7
         (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>에게 하늘이 이렇게 말해요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"<b style='color:#b45309'>{c_kr}</b>도 오늘 같은 에너지를 품고 있어요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"두 기운이 맞닿는 오늘, {theme}의 흐름이 자연스럽게 당신에게 오고 있어요."),
         # 8
         (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들에게 오늘 하늘이 건네는 말이에요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"마침 <b style='color:#b45309'>{c_kr}</b>의 오늘도 이런 방향이에요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"두 별의 이야기가 겹치는 날, {theme}이 가장 선명한 때예요."),
         # 9
         (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 운세가 이렇게 흘러요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"그리고 <b style='color:#b45309'>{c_kr}</b>의 기운도 오늘 이쪽으로 향해 있어요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"오늘 두 기운이 빚어내는 하루, {theme}이 키워드예요."),
         # 10
         (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘 이런 기운이 감돌아요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"<b style='color:#b45309'>{c_kr}</b>에게도 오늘 비슷한 바람이 불어요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"같은 방향으로 부는 바람, {theme}의 날이에요."),
         # 11
         (f"마지막으로 <b style='color:#5b21b6'>{z_kr}</b>인 분들께. 오늘 이런 이야기가 있어요. "
-         f""{z_core}" "
+         f"&#8220;{z_core}&#8221; "
          f"그 마무리를 <b style='color:#b45309'>{c_kr}</b>의 기운이 감싸줘요. "
-         f""{c_core}" "
+         f"&#8220;{c_core}&#8221; "
          f"오늘 하루, {theme}의 기운으로 조용히 마무리해 보세요."),
     ]
     return connectors[idx % len(connectors)]
