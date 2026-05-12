@@ -2556,9 +2556,113 @@ def _plain(text: str, max_len: int = 90) -> str:
     return t[:max_len] + ('…' if len(t) > max_len else '')
 
 
+def _extract_core_sentence(fortune_raw: str) -> str:
+    """
+    zodiac_fortune / chinese_fortune 원문에서 핵심 문장 1~2개 추출.
+    - HTML 태그 제거 → 첫 번째 완전한 문장(마침표/요/죠/다 로 끝나는 것) 반환
+    - 너무 짧으면(<20자) 두 번째 문장도 합침
+    """
+    import re
+    text = re.sub(r'<[^>]+>', '', str(fortune_raw))
+    text = text.replace('\n', ' ').strip()
+    # 문장 분리: 마침표·물음표·느낌표 기준
+    sentences = re.split(r'(?<=[다요죠])\s+', text)
+    sentences = [s.strip() for s in sentences if len(s.strip()) > 5]
+    if not sentences:
+        return text[:80]
+    core = sentences[0]
+    if len(core) < 20 and len(sentences) > 1:
+        core = core + ' ' + sentences[1]
+    return core[:120]
+
+
+def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx) -> str:
+    """
+    오늘 실제 별자리 운세 + 띠 운세를 자연스럽게 이어주는 브릿지 문장 생성.
+    idx 0~11 → 다양한 연결 표현 사용
+    """
+    connectors = [
+        # 0
+        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들께, 오늘 하늘이 이런 말을 건네고 있어요. "
+         f""{z_core}" "
+         f"마침 <b style='color:#b45309'>{c_kr}</b>도 비슷한 기운 위에 서 있어요. "
+         f""{c_core}" "
+         f"두 기운이 만나는 오늘, {theme}의 흐름이 당신 편이에요."),
+        # 1
+        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘 운세가 이렇게 이야기해요. "
+         f""{z_core}" "
+         f"그리고 <b style='color:#b45309'>{c_kr}</b>에게도 오늘 비슷한 신호가 와 있어요. "
+         f""{c_core}" "
+         f"두 기운이 겹치는 날, {theme}이 더 선명하게 빛납니다."),
+        # 2
+        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 별이 속삭이는 게 있어요. "
+         f""{z_core}" "
+         f"한편 <b style='color:#b45309'>{c_kr}</b>의 기운도 이렇게 흘러요. "
+         f""{c_core}" "
+         f"이 두 흐름이 만나는 지점이 바로 오늘의 {theme}입니다."),
+        # 3
+        (f"<b style='color:#5b21b6'>{z_kr}</b>에게 오늘 하늘이 전하는 메시지예요. "
+         f""{z_core}" "
+         f"<b style='color:#b45309'>{c_kr}</b>도 오늘 같은 방향을 바라보고 있어요. "
+         f""{c_core}" "
+         f"두 별이 같은 곳을 가리키는 날, {theme}의 문이 열려 있어요."),
+        # 4
+        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘의 기운을 들어보세요. "
+         f""{z_core}" "
+         f"그 옆에서 <b style='color:#b45309'>{c_kr}</b>도 오늘 이렇게 흘러요. "
+         f""{c_core}" "
+         f"함께 흐르는 두 기운, {theme}을 오늘 꼭 품어가세요."),
+        # 5
+        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 별자리 기운이에요. "
+         f""{z_core}" "
+         f"그리고 <b style='color:#b45309'>{c_kr}</b>의 기운이 그 곁에 있어요. "
+         f""{c_core}" "
+         f"오늘 두 기운이 빚어내는 색깔, 그건 바로 {theme}이에요."),
+        # 6
+        (f"<b style='color:#5b21b6'>{z_kr}</b>에게 오늘 별이 이런 이야기를 해요. "
+         f""{z_core}" "
+         f"<b style='color:#b45309'>{c_kr}</b>의 오늘도 크게 다르지 않아요. "
+         f""{c_core}" "
+         f"두 기운이 나란히 걷는 오늘, {theme}의 흐름을 타세요."),
+        # 7
+        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>에게 하늘이 이렇게 말해요. "
+         f""{z_core}" "
+         f"<b style='color:#b45309'>{c_kr}</b>도 오늘 같은 에너지를 품고 있어요. "
+         f""{c_core}" "
+         f"두 기운이 맞닿는 오늘, {theme}의 흐름이 자연스럽게 당신에게 오고 있어요."),
+        # 8
+        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들에게 오늘 하늘이 건네는 말이에요. "
+         f""{z_core}" "
+         f"마침 <b style='color:#b45309'>{c_kr}</b>의 오늘도 이런 방향이에요. "
+         f""{c_core}" "
+         f"두 별의 이야기가 겹치는 날, {theme}이 가장 선명한 때예요."),
+        # 9
+        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 운세가 이렇게 흘러요. "
+         f""{z_core}" "
+         f"그리고 <b style='color:#b45309'>{c_kr}</b>의 기운도 오늘 이쪽으로 향해 있어요. "
+         f""{c_core}" "
+         f"오늘 두 기운이 빚어내는 하루, {theme}이 키워드예요."),
+        # 10
+        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘 이런 기운이 감돌아요. "
+         f""{z_core}" "
+         f"<b style='color:#b45309'>{c_kr}</b>에게도 오늘 비슷한 바람이 불어요. "
+         f""{c_core}" "
+         f"같은 방향으로 부는 바람, {theme}의 날이에요."),
+        # 11
+        (f"마지막으로 <b style='color:#5b21b6'>{z_kr}</b>인 분들께. 오늘 이런 이야기가 있어요. "
+         f""{z_core}" "
+         f"그 마무리를 <b style='color:#b45309'>{c_kr}</b>의 기운이 감싸줘요. "
+         f""{c_core}" "
+         f"오늘 하루, {theme}의 기운으로 조용히 마무리해 보세요."),
+    ]
+    return connectors[idx % len(connectors)]
+
+
 def build_omnibus_post(today_str: str) -> tuple:
     """
-    '별과 띠가 만나는 시간' — 소설 목소리 스토리텔링 포스트
+    '별과 띠가 만나는 시간' — 오늘 발행된 별자리·띠 운세 원문을 실시간 조합
+    - 별자리 12개 + 띠 12개 → 그날 실제 운세 문장 추출 → 브릿지로 연결
+    - 날짜가 달라지면 내용이 자동으로 달라짐 (CSV 데이터 기반)
     라벨: 별과띠가만나는시간
     """
     kst_dt  = now_kst()
@@ -2571,10 +2675,24 @@ def build_omnibus_post(today_str: str) -> tuple:
         f"— 오늘 당신의 별자리와 띠가 전하는 이야기"
     )
 
-    # ── 12쌍 문단 생성 ──
+    # ── 오늘 실시간 별자리·띠 운세 원문 수집 ──
+    # ZODIACS / CHINESE 순서 그대로 12쌍 매핑
+    z_fortunes = {}
+    for z in ZODIACS:
+        raw = zodiac_fortune(z['kr'])          # 오늘 CSV에서 샘플링
+        z_fortunes[z['kr']] = _extract_core_sentence(raw)
+
+    c_fortunes = {}
+    for c in CHINESE:
+        raw = chinese_fortune(c['en'])         # 오늘 CSV에서 샘플링
+        c_fortunes[c['kr']] = _extract_core_sentence(raw)
+
+    # ── 12쌍 문단 생성 (실시간 운세 + 브릿지) ──
     paragraphs = []
-    for z_kr, c_kr, theme, tmpl in _CONNECT_MAP:
-        para = tmpl.format(z=z_kr, c=c_kr)
+    for idx, (z_kr, c_kr, theme, _) in enumerate(_CONNECT_MAP):
+        z_core = z_fortunes.get(z_kr, "")
+        c_core = c_fortunes.get(c_kr, "")
+        para   = _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx)
         paragraphs.append(
             f'<p style="margin:0 0 1.7em 0;text-indent:0">{para}</p>'
         )
