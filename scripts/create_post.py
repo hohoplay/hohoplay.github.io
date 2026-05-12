@@ -2576,86 +2576,209 @@ def _extract_core_sentence(fortune_raw: str) -> str:
     return core[:120]
 
 
-def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx) -> str:
+def _omnibus_bridge(
+    z_kr, z_core, c_kr, c_core, theme, idx,
+    z_item, z_color, z_lucky_num,
+    z_compatible, c_best, c_avoid,
+    best_time_label, avoid_action, z_signal
+) -> str:
     """
-    오늘 실제 별자리 운세 + 띠 운세를 자연스럽게 이어주는 브릿지 문장 생성.
-    idx 0~11 → 다양한 연결 표현 사용
+    오늘 실시간 데이터(운세 원문·행운아이템·색상·숫자·궁합·찰떡띠·거리두기띠·
+    최고시간대·피해야할행동·signal_kw)를 전부 사람 목소리로 녹여내는 문단 생성.
+    숫자 없이 — 모든 수치는 언어로 변환하여 소설 같은 진정성으로 표현.
+    idx 0~11 → 12가지 다른 서술 패턴
     """
-    connectors = [
-        # 0
-        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들께, 오늘 하늘이 이런 말을 건네고 있어요. "
-         f"&#8220;{z_core}&#8221; "
-         f"마침 <b style='color:#b45309'>{c_kr}</b>도 비슷한 기운 위에 서 있어요. "
-         f"&#8220;{c_core}&#8221; "
-         f"두 기운이 만나는 오늘, {theme}의 흐름이 당신 편이에요."),
-        # 1
-        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘 운세가 이렇게 이야기해요. "
-         f"&#8220;{z_core}&#8221; "
-         f"그리고 <b style='color:#b45309'>{c_kr}</b>에게도 오늘 비슷한 신호가 와 있어요. "
-         f"&#8220;{c_core}&#8221; "
-         f"두 기운이 겹치는 날, {theme}이 더 선명하게 빛납니다."),
-        # 2
-        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 별이 속삭이는 게 있어요. "
-         f"&#8220;{z_core}&#8221; "
-         f"한편 <b style='color:#b45309'>{c_kr}</b>의 기운도 이렇게 흘러요. "
-         f"&#8220;{c_core}&#8221; "
-         f"이 두 흐름이 만나는 지점이 바로 오늘의 {theme}입니다."),
-        # 3
-        (f"<b style='color:#5b21b6'>{z_kr}</b>에게 오늘 하늘이 전하는 메시지예요. "
-         f"&#8220;{z_core}&#8221; "
-         f"<b style='color:#b45309'>{c_kr}</b>도 오늘 같은 방향을 바라보고 있어요. "
-         f"&#8220;{c_core}&#8221; "
-         f"두 별이 같은 곳을 가리키는 날, {theme}의 문이 열려 있어요."),
-        # 4
-        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘의 기운을 들어보세요. "
-         f"&#8220;{z_core}&#8221; "
-         f"그 옆에서 <b style='color:#b45309'>{c_kr}</b>도 오늘 이렇게 흘러요. "
-         f"&#8220;{c_core}&#8221; "
-         f"함께 흐르는 두 기운, {theme}을 오늘 꼭 품어가세요."),
-        # 5
-        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 별자리 기운이에요. "
-         f"&#8220;{z_core}&#8221; "
-         f"그리고 <b style='color:#b45309'>{c_kr}</b>의 기운이 그 곁에 있어요. "
-         f"&#8220;{c_core}&#8221; "
-         f"오늘 두 기운이 빚어내는 색깔, 그건 바로 {theme}이에요."),
-        # 6
-        (f"<b style='color:#5b21b6'>{z_kr}</b>에게 오늘 별이 이런 이야기를 해요. "
-         f"&#8220;{z_core}&#8221; "
-         f"<b style='color:#b45309'>{c_kr}</b>의 오늘도 크게 다르지 않아요. "
-         f"&#8220;{c_core}&#8221; "
-         f"두 기운이 나란히 걷는 오늘, {theme}의 흐름을 타세요."),
-        # 7
-        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>에게 하늘이 이렇게 말해요. "
-         f"&#8220;{z_core}&#8221; "
-         f"<b style='color:#b45309'>{c_kr}</b>도 오늘 같은 에너지를 품고 있어요. "
-         f"&#8220;{c_core}&#8221; "
-         f"두 기운이 맞닿는 오늘, {theme}의 흐름이 자연스럽게 당신에게 오고 있어요."),
-        # 8
-        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들에게 오늘 하늘이 건네는 말이에요. "
-         f"&#8220;{z_core}&#8221; "
-         f"마침 <b style='color:#b45309'>{c_kr}</b>의 오늘도 이런 방향이에요. "
-         f"&#8220;{c_core}&#8221; "
-         f"두 별의 이야기가 겹치는 날, {theme}이 가장 선명한 때예요."),
-        # 9
-        (f"오늘 <b style='color:#5b21b6'>{z_kr}</b>의 운세가 이렇게 흘러요. "
-         f"&#8220;{z_core}&#8221; "
-         f"그리고 <b style='color:#b45309'>{c_kr}</b>의 기운도 오늘 이쪽으로 향해 있어요. "
-         f"&#8220;{c_core}&#8221; "
-         f"오늘 두 기운이 빚어내는 하루, {theme}이 키워드예요."),
-        # 10
-        (f"<b style='color:#5b21b6'>{z_kr}</b>인 분들, 오늘 이런 기운이 감돌아요. "
-         f"&#8220;{z_core}&#8221; "
-         f"<b style='color:#b45309'>{c_kr}</b>에게도 오늘 비슷한 바람이 불어요. "
-         f"&#8220;{c_core}&#8221; "
-         f"같은 방향으로 부는 바람, {theme}의 날이에요."),
-        # 11
-        (f"마지막으로 <b style='color:#5b21b6'>{z_kr}</b>인 분들께. 오늘 이런 이야기가 있어요. "
-         f"&#8220;{z_core}&#8221; "
-         f"그 마무리를 <b style='color:#b45309'>{c_kr}</b>의 기운이 감싸줘요. "
-         f"&#8220;{c_core}&#8221; "
-         f"오늘 하루, {theme}의 기운으로 조용히 마무리해 보세요."),
+
+    # ── 공통 조각 ──────────────────────────────────────────────
+    # 행운 아이템 문장 (3가지 패턴 순환)
+    item_phrases = [
+        f"오늘 <b style='color:#059669'>{z_item}</b>을 곁에 두면 그 흐름이 조금 더 부드럽게 열릴 거예요.",
+        f"작은 팁 하나 드리자면, 오늘 <b style='color:#059669'>{z_item}</b>이 당신 곁에 있을 때 기운이 가장 살아있어요.",
+        f"오늘 <b style='color:#059669'>{z_item}</b>을 챙겨보세요. 사소한 것 같아도 오늘만큼은 의미가 있거든요.",
     ]
-    return connectors[idx % len(connectors)]
+    item_str = item_phrases[idx % 3]
+
+    # 행운 색상 문장 (3가지 패턴 순환)
+    color_phrases = [
+        f"옷이든 소품이든 <b style='color:#7c3aed'>{z_color}</b> 컬러가 오늘 당신의 에너지를 살짝 끌어올려줄 거예요.",
+        f"오늘 <b style='color:#7c3aed'>{z_color}</b> 빛깔이 당신한테 유독 잘 어울리는 날이에요.",
+        f"무언가 막히는 느낌이 든다면 <b style='color:#7c3aed'>{z_color}</b> 색을 가까이 두어보세요.",
+    ]
+    color_str = color_phrases[(idx + 1) % 3]
+
+    # 궁합 문장 (별자리 + 띠 찰떡/거리두기)
+    compat_phrases = [
+        f"오늘 <b style='color:#d97706'>{z_compatible}</b>과 함께하는 시간이 있다면 놓치지 마세요. "
+        f"그리고 <b style='color:#b45309'>{c_kr}</b> 입장에서는 <b style='color:#059669'>{c_best}</b>와 오늘 특히 잘 통해요. "
+        f"반면 <b style='color:#dc2626'>{c_avoid}</b>와는 오늘 중요한 결정은 살짝 내일로 미뤄두는 게 현명할 수 있어요.",
+
+        f"두 기운이 오늘 가장 빛나는 순간은 <b style='color:#d97706'>{z_compatible}</b>이나 <b style='color:#059669'>{c_best}</b>와 연결될 때예요. "
+        f"<b style='color:#dc2626'>{c_avoid}</b>와의 자리는 오늘만큼은 감정이 차분할 때 갖는 게 서로를 위한 거예요.",
+
+        f"오늘 <b style='color:#d97706'>{z_compatible}</b>의 에너지가 {z_kr}에게 든든한 버팀목이 돼줘요. "
+        f"{c_kr}에겐 <b style='color:#059669'>{c_best}</b>가 오늘의 최고 파트너예요. "
+        f"<b style='color:#dc2626'>{c_avoid}</b>와의 마찰은 오늘 굳이 키울 필요 없어요.",
+    ]
+    compat_str = compat_phrases[idx % 3]
+
+    # 최고 시간대 문장
+    time_phrases = [
+        f"오늘 가장 에너지가 살아있는 시간대는 <b style='color:#1d4ed8'>{best_time_label}</b>이에요. 그 시간에 중요한 연락이나 결정을 담아두세요.",
+        f"뭔가 실행하고 싶은 게 있다면 <b style='color:#1d4ed8'>{best_time_label}</b>을 노려보세요. 오늘 그 시간이 당신 편이에요.",
+        f"<b style='color:#1d4ed8'>{best_time_label}</b>에 흐르는 기운이 오늘 하루 중 가장 맑아요. 그 흐름에 올라타 보세요.",
+    ]
+    time_str = time_phrases[(idx + 2) % 3]
+
+    # 피해야 할 행동 문장
+    avoid_str = (
+        f"한 가지만 조심하자면, 오늘 <b style='color:#dc2626'>{avoid_action}</b>은 살짝 내려놓는 게 좋아요. "
+        f"나쁜 뜻이 아니라, 오늘 그 방향은 기운이 잘 안 받쳐주거든요."
+    )
+
+    # signal_kw 문장
+    signal_str = (
+        f"오늘 두 기운이 함께 품고 있는 키워드는 바로 "
+        f"<b style='color:#5b21b6'>{z_signal}</b>이에요. 이 단어를 마음에 담고 하루를 보내보세요."
+    )
+
+    # ── 12가지 서술 패턴 ────────────────────────────────────────
+    zb  = f"<b style='color:#5b21b6'>{z_kr}</b>"
+    cb  = f"<b style='color:#b45309'>{c_kr}</b>"
+
+    patterns = [
+        # 0 ─ 도입 → 운세 → 아이템+색상 → 시간대 → 궁합 → 피할것 → signal
+        (f"먼저 {zb}인 분들, 오늘 하늘이 이런 말을 건네고 있어요. "
+         f"{z_core} "
+         f"마침 {cb}도 비슷한 결로 이야기해요. "
+         f"{c_core} "
+         f"{item_str} {color_str} "
+         f"{time_str} "
+         f"{compat_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 1 ─ 운세 먼저, 아이템 강조
+        (f"{zb}와 {cb}가 오늘 나란히 같은 방향을 보고 있어요. "
+         f"{z_core} "
+         f"그 옆에서 {cb}도 이렇게 속삭여요. "
+         f"{c_core} "
+         f"{item_str} "
+         f"{time_str} "
+         f"{compat_str} "
+         f"{color_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 2 ─ 시간대 먼저 강조
+        (f"오늘 {zb}와 {cb}에게 특별히 드리고 싶은 말이 있어요. "
+         f"{time_str} "
+         f"그 시간에 오늘 이 기운을 담아두세요. "
+         f"{z_core} "
+         f"{c_core} "
+         f"{compat_str} "
+         f"{item_str} {color_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 3 ─ 궁합 강조
+        (f"{zb}인 분, 오늘 주변 사람 한 명이 당신한테 특별한 에너지를 줄 거예요. "
+         f"{compat_str} "
+         f"그 흐름 위에서 {zb}의 오늘은 이래요. "
+         f"{z_core} "
+         f"{cb}도 오늘 이렇게 흘러요. "
+         f"{c_core} "
+         f"{item_str} {color_str} "
+         f"{time_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 4 ─ signal_kw 먼저
+        (f"오늘 {zb}와 {cb}를 관통하는 하나의 키워드가 있어요. "
+         f"{signal_str} "
+         f"그 키워드를 품고 오늘 이야기를 들어보면 더 와닿을 거예요. "
+         f"{z_core} "
+         f"{c_core} "
+         f"{item_str} "
+         f"{time_str} "
+         f"{compat_str} "
+         f"{color_str} "
+         f"{avoid_str}"),
+
+        # 5 ─ 색상 + 아이템 먼저
+        (f"오늘 {zb}와 {cb}에게 작은 팁부터 드릴게요. "
+         f"{color_str} {item_str} "
+         f"그리고 오늘의 기운은 이래요. "
+         f"{z_core} "
+         f"{c_core} "
+         f"{time_str} "
+         f"{compat_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 6 ─ 피할것 먼저 (경계심 자극 후 희망)
+        (f"{zb}와 {cb}, 오늘 딱 하나만 조심하면 나머지는 다 괜찮아요. "
+         f"{avoid_str} "
+         f"그것만 비켜가면 오늘은 이렇게 열려있어요. "
+         f"{z_core} "
+         f"{c_core} "
+         f"{compat_str} "
+         f"{item_str} {color_str} "
+         f"{time_str} "
+         f"{signal_str}"),
+
+        # 7 ─ 띠 먼저
+        (f"오늘 {cb}의 기운이 이런 말을 해요. "
+         f"{c_core} "
+         f"그 기운이 {zb}와 만나면 더 깊어져요. "
+         f"{z_core} "
+         f"{item_str} {color_str} "
+         f"{compat_str} "
+         f"{time_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 8 ─ 진중한 위로 톤
+        (f"오늘 하루가 쉽지 않은 분들도 있을 거예요. "
+         f"그런 분들을 위해 {zb}와 {cb}가 오늘 이렇게 말해요. "
+         f"{z_core} {c_core} "
+         f"{compat_str} "
+         f"{item_str} {color_str} "
+         f"{time_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 9 ─ 궁합 + 시간대 동시 강조
+        (f"오늘 {zb}와 {cb}의 기운이 겹치는 지점이 있어요. "
+         f"{z_core} {c_core} "
+         f"{compat_str} "
+         f"{time_str} "
+         f"{item_str} "
+         f"{color_str} "
+         f"{avoid_str} "
+         f"{signal_str}"),
+
+        # 10 ─ 설레는 예고 톤
+        (f"오늘 {zb}와 {cb}한테 좋은 소식이 있어요. "
+         f"{z_core} "
+         f"그리고 {cb}도 오늘 이렇게 열려있어요. "
+         f"{c_core} "
+         f"{signal_str} "
+         f"{item_str} {color_str} "
+         f"{compat_str} "
+         f"{time_str} "
+         f"{avoid_str}"),
+
+        # 11 ─ 마무리 감성 (조용하고 따뜻하게)
+        (f"마지막으로 {zb}와 {cb}인 분들께. "
+         f"{z_core} {c_core} "
+         f"{item_str} {color_str} "
+         f"{compat_str} "
+         f"{time_str} "
+         f"{avoid_str} "
+         f"오늘 하루, {signal_str.replace('오늘 두 기운이 함께 품고 있는 키워드는 바로 ', '').replace('이에요. 이 단어를 마음에 담고 하루를 보내보세요.', '을 마음에 담고 조용히 흘러가세요.')}"),
+    ]
+
+    return patterns[idx % len(patterns)]
 
 
 def build_omnibus_post(today_str: str) -> tuple:
@@ -2675,24 +2798,88 @@ def build_omnibus_post(today_str: str) -> tuple:
         f"— 오늘 당신의 별자리와 띠가 전하는 이야기"
     )
 
-    # ── 오늘 실시간 별자리·띠 운세 원문 수집 ──
-    # ZODIACS / CHINESE 순서 그대로 12쌍 매핑
-    z_fortunes = {}
+    # ── 오늘 실시간 데이터 수집 ──────────────────────────────────
+    # 띠 궁합 테이블 (chinese_post 와 동일)
+    _CHINESE_COMPAT = {
+        '쥐띠':    {'best':'용띠',   'avoid':'말띠'},
+        '소띠':    {'best':'닭띠',   'avoid':'양띠'},
+        '호랑이띠':{'best':'말띠',   'avoid':'원숭이띠'},
+        '토끼띠':  {'best':'양띠',   'avoid':'닭띠'},
+        '용띠':    {'best':'쥐띠',   'avoid':'개띠'},
+        '뱀띠':    {'best':'닭띠',   'avoid':'돼지띠'},
+        '말띠':    {'best':'호랑이띠','avoid':'쥐띠'},
+        '양띠':    {'best':'토끼띠', 'avoid':'소띠'},
+        '원숭이띠':{'best':'쥐띠',   'avoid':'호랑이띠'},
+        '닭띠':    {'best':'소띠',   'avoid':'토끼띠'},
+        '개띠':    {'best':'호랑이띠','avoid':'용띠'},
+        '돼지띠':  {'best':'토끼띠', 'avoid':'뱀띠'},
+    }
+
+    # 요일 기반 최고 시간대 레이블
+    dow = kst_dt.weekday()
+    _TIME_LABELS = {
+        0: "오전 시간대",   # 월: 오전 강세
+        1: "저녁 시간대",   # 화: 저녁 좋음
+        2: "오전 시간대",   # 수: 오전 강세
+        3: "저녁 시간대",   # 목: 저녁 최고
+        4: "오후~저녁",     # 금: 오후 이후
+        5: "저녁 시간대",   # 토: 저녁 강세
+        6: "오전 시간대",   # 일: 오전 무난
+    }
+    best_time_label = _TIME_LABELS[dow]
+
+    # 별자리별 데이터 수집
+    z_data = {}
     for z in ZODIACS:
-        raw = zodiac_fortune(z['kr'])          # 오늘 CSV에서 샘플링
-        z_fortunes[z['kr']] = _extract_core_sentence(raw)
+        raw          = zodiac_fortune(z['kr'])
+        z_item       = pick_lucky_item(z['kr'])
+        z_color      = pick_color()
+        z_lucky_num  = pick_number()
+        z_compatible = ZODIAC_INFO.get(z['kr'], {}).get('compatible', '').split(',')[0].strip()
+        _, z_signal  = _zodiac_seo_title(z['kr'], kst_dt.strftime("%Y년 %-m월 %-d일"),
+                                          *pick_score(z['kr']))
+        z_data[z['kr']] = {
+            'core':       _extract_core_sentence(raw),
+            'item':       z_item,
+            'color':      z_color,
+            'lucky_num':  z_lucky_num,
+            'compatible': z_compatible,
+            'signal':     z_signal,
+        }
 
-    c_fortunes = {}
+    # 띠별 데이터 수집
+    c_data = {}
     for c in CHINESE:
-        raw = chinese_fortune(c['en'])         # 오늘 CSV에서 샘플링
-        c_fortunes[c['kr']] = _extract_core_sentence(raw)
+        raw    = chinese_fortune(c['en'])
+        compat = _CHINESE_COMPAT.get(c['kr'], {})
+        c_data[c['kr']] = {
+            'core':  _extract_core_sentence(raw),
+            'best':  compat.get('best',  ''),
+            'avoid': compat.get('avoid', ''),
+        }
 
-    # ── 12쌍 문단 생성 (실시간 운세 + 브릿지) ──
+    # ── 12쌍 문단 생성 (모든 실시간 데이터 → 브릿지로 전달) ──
     paragraphs = []
     for idx, (z_kr, c_kr, theme, _) in enumerate(_CONNECT_MAP):
-        z_core = z_fortunes.get(z_kr, "")
-        c_core = c_fortunes.get(c_kr, "")
-        para   = _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx)
+        zd = z_data.get(z_kr, {})
+        cd = c_data.get(c_kr, {})
+        para = _omnibus_bridge(
+            z_kr        = z_kr,
+            z_core      = zd.get('core', ''),
+            c_kr        = c_kr,
+            c_core      = cd.get('core', ''),
+            theme       = theme,
+            idx         = idx,
+            z_item      = zd.get('item', ''),
+            z_color     = zd.get('color', ''),
+            z_lucky_num = zd.get('lucky_num', ''),
+            z_compatible= zd.get('compatible', ''),
+            c_best      = cd.get('best', ''),
+            c_avoid     = cd.get('avoid', ''),
+            best_time_label = best_time_label,
+            avoid_action= random.choice(_Z_AVOID_ACTIONS)[0],
+            z_signal    = zd.get('signal', theme),
+        )
         paragraphs.append(
             f'<p style="margin:0 0 1.7em 0;text-indent:0">{para}</p>'
         )
