@@ -2884,14 +2884,23 @@ def build_omnibus_post(today_str: str) -> tuple:
             f'<p style="margin:0 0 1.7em 0;text-indent:0">{para}</p>'
         )
 
-    # 첫 문단 드롭캡
-    first_para = paragraphs[0].replace(
+    # 상(0~5) / 하(6~11) 분리
+    paras_top = paragraphs[:6]
+    paras_bot = paragraphs[6:]
+
+    # 각각 첫 문단 드롭캡
+    paras_top[0] = paras_top[0].replace(
         '<p style="margin:0 0 1.7em 0;text-indent:0">',
         '<p style="margin:0 0 1.7em 0;text-indent:0" class="drop-cap-p">',
         1
     )
-    paragraphs[0] = first_para
-    story_html = "\n".join(paragraphs)
+    paras_bot[0] = paras_bot[0].replace(
+        '<p style="margin:0 0 1.7em 0;text-indent:0">',
+        '<p style="margin:0 0 1.7em 0;text-indent:0" class="drop-cap-p">',
+        1
+    )
+    story_top = "\n".join(paras_top)
+    story_bot = "\n".join(paras_bot)
 
     # ── 오늘의 명언 ──
     quote_text, _, _ = pick_quote()
@@ -2906,10 +2915,13 @@ def build_omnibus_post(today_str: str) -> tuple:
     )
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_tags)
 
-    card_id = (
-        f"omnibus-"
-        f"{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
-    )
+    date_slug = today_str.replace(' ','').replace('년','').replace('월','').replace('일','')
+    card_id_top = f"omnibus-top-{date_slug}"
+    card_id_bot = f"omnibus-bot-{date_slug}"
+
+    # 별자리 12개 이름 — 상/하 구분 표시용
+    z_names_top = "·".join(z['kr'] for z in ZODIACS[:6])   # 양자리~처녀자리
+    z_names_bot = "·".join(z['kr'] for z in ZODIACS[6:])   # 천칭자리~물고기자리
 
     content_html = f"""{style()}
 <style>
@@ -2940,6 +2952,14 @@ def build_omnibus_post(today_str: str) -> tuple:
   color: #9ca3af;
   margin-bottom: 2.6rem;
 }}
+.novel-part {{
+  font-size: 11px;
+  text-align: center;
+  color: #c4b5fd;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+}}
 .novel-rule {{
   text-align: center;
   color: #d1d5db;
@@ -2956,7 +2976,6 @@ def build_omnibus_post(today_str: str) -> tuple:
 .novel-body p b {{
   font-style: normal;
 }}
-/* drop-cap via inline span — html2canvas 호환 */
 .novel-opening {{
   font-size: 15px;
   line-height: 2.1;
@@ -2979,29 +2998,44 @@ def build_omnibus_post(today_str: str) -> tuple:
 </style>
 
 <div class="wrap">
-  <div class="novel-page" id="{card_id}">
 
+  <!-- ★ 1번 카드 (상) : 양자리~처녀자리 -->
+  <div class="novel-page" id="{card_id_top}">
     <div class="novel-date">{today_str} · {season}</div>
     <h1 class="novel-title">🌙 별과 띠가 만나는 시간</h1>
     <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
-
+    <div class="novel-part">상 · {z_names_top}</div>
     <div class="novel-rule">&middot; &middot; &middot;</div>
-
     <p class="novel-opening">{opening}</p>
-
     <div class="novel-body">
-{story_html}
+{story_top}
     </div>
-
     <div class="novel-rule">&middot; &middot; &middot;</div>
+  </div>
 
+  <!-- 1번 저장 버튼 -->
+  {share_buttons(card_id_top, f"별과띠가만나는시간_상_{today_str}")}
+
+  <div style="margin:32px 0 8px 0;border-top:2px dashed #e5e7eb;padding-top:32px"></div>
+
+  <!-- ★ 2번 카드 (하) : 천칭자리~물고기자리 -->
+  <div class="novel-page" id="{card_id_bot}">
+    <div class="novel-date">{today_str} · {season}</div>
+    <h1 class="novel-title">🌙 별과 띠가 만나는 시간</h1>
+    <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
+    <div class="novel-part">하 · {z_names_bot}</div>
+    <div class="novel-rule">&middot; &middot; &middot;</div>
+    <div class="novel-body">
+{story_bot}
+    </div>
+    <div class="novel-rule">&middot; &middot; &middot;</div>
     <div class="novel-footer">
       {closing}
     </div>
-
   </div>
 
-  {share_buttons(card_id, f"별과띠가만나는시간_{today_str}")}
+  <!-- 2번 저장 버튼 -->
+  {share_buttons(card_id_bot, f"별과띠가만나는시간_하_{today_str}")}
 
   <!-- 오늘의 한 마디 -->
   <div class="card" style="margin-top:12px">
