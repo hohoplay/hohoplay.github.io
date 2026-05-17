@@ -544,6 +544,308 @@ def chinese_fortune(en_name):
             return m.sample(1).iloc[0]['fortune']
     return sentence()
 
+# ═══════════════════════════════════════════════════════════════════
+# 별자리별 고유 성격 기반 현실 디테일 풀 (AI 티 제거 + "헉 맞는데?" 포인트)
+# ═══════════════════════════════════════════════════════════════════
+
+# ── 별자리별 구어체 오프닝 (사람이 쓴 느낌, 각 별자리 성격 반영) ──
+_ZODIAC_HUMAN_VOICE = {
+    "양자리": [
+        "솔직히 오늘 아침부터 뭔가 답답한 느낌 들지 않으셨어요?",
+        "오늘 유독 참을 성이 없어지는 날이에요. 그거 당신 잘못 아닙니다.",
+        "새로 뭔가 시작하고 싶은 충동이 생기는 날이에요. 나쁘지 않아요, 근데 지갑은 닫으세요.",
+    ],
+    "황소자리": [
+        "오늘 유독 '이거 꼭 사야 해' 싶은 물건이 눈에 밟힌다면, 내일 다시 보세요.",
+        "변하기 싫은 건데 상황이 바뀌려 하면 괜히 짜증나는 날이에요. 자연스러운 거예요.",
+        "오늘은 사실 혼자 있는 게 제일 편할 날입니다. 억지로 맞출 필요 없어요.",
+    ],
+    "쌍둥이자리": [
+        "오늘 대화 중에 말이 너무 많아지거나, 반대로 갑자기 하기 싫어지는 순간이 올 수 있어요.",
+        "머릿속에서 생각이 10개씩 동시에 돌아가는 날이에요. 그중 딱 2개만 오늘 처리하면 됩니다.",
+        "갑자기 옛날 연락처를 열어보고 싶어지는 날이에요. 한 번만 더 생각하고 누르세요.",
+    ],
+    "게자리": [
+        "오늘은 이유 없이 감수성이 올라오는 날이에요. 그냥 느끼게 두세요, 다 이유가 있습니다.",
+        "누군가 지나가는 말 한마디가 오늘은 유독 마음에 걸릴 수 있어요. 의도를 먼저 확인해보세요.",
+        "오늘 집에서 뭔가 따뜻한 거 먹고 싶은 날이에요. 그 감각, 무시하지 마세요.",
+    ],
+    "사자자리": [
+        "오늘 내가 당연히 인정받아야 하는데 그렇지 않으면 유독 속상한 날이에요. 당연한 감정입니다.",
+        "솔직히 오늘 약간 빛나고 싶은 날인데, 그 에너지를 잘 쓰면 진짜로 빛납니다.",
+        "오늘 혼자 너무 많이 짊어지고 있는 건 아닌지 돌아보세요. 주인공도 쉬어야 합니다.",
+    ],
+    "처녀자리": [
+        "오늘 뭔가 찝찝하게 마무리된 일이 계속 머릿속을 맴돌 수 있어요. 완벽주의 모드 잠깐 꺼도 돼요.",
+        "남이 대충 한 일이 눈에 밟히는 날이에요. 지적하고 싶은 마음, 오늘만큼은 잠깐 참아보세요.",
+        "사실 오늘은 억지로 힘내는 것보다 그냥 조금 쉬어가는 게 더 맞는 날 같아요.",
+    ],
+    "천칭자리": [
+        "오늘 결정 못 하고 계속 미루고 있는 게 있지 않으세요? 오늘 안에 하나만 끝내세요.",
+        "좋은 게 좋다 싶어서 참았는데 오늘은 괜히 그게 더 억울한 날이에요.",
+        "괜히 예민해지는 이유가 있습니다. 오늘은 당신 잘못만은 아닐 수도 있어요.",
+    ],
+    "전갈자리": [
+        "오늘 누군가의 행동이 뭔가 수상하게 느껴진다면, 그 직감 한 번은 믿어보세요.",
+        "겉으로 아무렇지 않은 척하고 있지만 오늘 속으로는 꽤 복잡한 날일 수 있어요.",
+        "오늘 말을 꺼내기 전에 한 번 더 생각하는 것만으로 꽤 많은 게 달라집니다.",
+    ],
+    "사수자리": [
+        "오늘 또 충동적으로 뭔가 계획 세우고 싶어지는 날인데, 이번엔 메모라도 해두세요.",
+        "솔직히 오늘 조금 갑갑한 느낌이 드는 날이에요. 잠깐이라도 바깥 바람 쐬면 달라집니다.",
+        "오늘은 말 한마디가 생각보다 멀리 퍼지는 날이에요. 농담도 조금 신경 써서 하세요.",
+    ],
+    "염소자리": [
+        "오늘 계획대로 안 풀리는 게 생길 수 있어요. 그래도 당신이 무너질 사람이 아니잖아요.",
+        "남들 눈에 안 보이는 데서 열심히 하고 있는 거 알아요. 오늘 그게 조금 보이기 시작합니다.",
+        "쉬는 것도 능력이에요. 오늘 하루 무리하지 않는 것 자체가 가장 현명한 선택일 수 있습니다.",
+    ],
+    "물병자리": [
+        "오늘 왜인지 모르게 혼자이고 싶은데 동시에 누군가 알아줬으면 하는 날이에요. 둘 다 자연스러워요.",
+        "오늘 아이디어가 갑자기 떠오르면 반드시 메모하세요. 나중에 기억 못 합니다.",
+        "남들이 이상하게 볼까봐 못 하고 있는 거 있으면, 오늘 한 번만 그냥 해보세요.",
+    ],
+    "물고기자리": [
+        "오늘 감이 유독 잘 맞는 날이에요. 논리보다 직감이 먼저 반응한다면 그쪽을 믿어보세요.",
+        "경계가 흐릿해지기 쉬운 날이에요. 내 기분인지 상대 기분인지 헷갈리면 잠깐 혼자 있어보세요.",
+        "오늘 유독 감성적인 콘텐츠나 음악이 당기는 날이에요. 그냥 느끼게 두세요.",
+    ],
+}
+
+# ── "헉 맞는데?" 현실 디테일 블록 (별자리별) ──
+_ZODIAC_REAL_DETAIL = {
+    "양자리": {
+        "contact_time": "오후 1시~3시",
+        "money_leak": "충동적으로 '일단 담아놓고 보기'",
+        "annoying_person": "말은 맞는데 타이밍이 너무 늦은 사람",
+        "regret_tonight": "화가 난 상태에서 보낸 메시지",
+    },
+    "황소자리": {
+        "contact_time": "저녁 7시~9시",
+        "money_leak": "할인이라는 이유만으로 사는 물건",
+        "annoying_person": "갑자기 계획을 바꾸자는 사람",
+        "regret_tonight": "잠들기 전 떠올리는 '그때 그 말 왜 했을까'",
+    },
+    "쌍둥이자리": {
+        "contact_time": "오전 10시~낮 12시",
+        "money_leak": "앱에서 '오늘만' 뜨는 세일",
+        "annoying_person": "대화 중에 핸드폰 보는 사람",
+        "regret_tonight": "너무 많이 말해버린 것",
+    },
+    "게자리": {
+        "contact_time": "저녁 8시~10시",
+        "money_leak": "선물 사다가 내 것도 같이 사기",
+        "annoying_person": "무심코 던진 말이 칼처럼 박히는 사람",
+        "regret_tonight": "말했어야 했는데 못 한 것",
+    },
+    "사자자리": {
+        "contact_time": "오후 2시~4시",
+        "money_leak": "분위기상 내가 계산하는 상황",
+        "annoying_person": "공은 다 가져가고 실수는 남기는 사람",
+        "regret_tonight": "너무 크게 반응한 것",
+    },
+    "처녀자리": {
+        "contact_time": "오전 9시~11시",
+        "money_leak": "더 좋은 버전이 있을 것 같아 계속 검색하기",
+        "annoying_person": "대충 마무리하고 OK라는 사람",
+        "regret_tonight": "완벽하게 못 끝낸 일 목록 떠올리기",
+    },
+    "천칭자리": {
+        "contact_time": "오후 4시~6시",
+        "money_leak": "분위기 맞추다가 원하지 않는 걸 같이 구매",
+        "annoying_person": "당신한테만 솔직한 척하는 사람",
+        "regret_tonight": "확실하게 말하지 못한 것",
+    },
+    "전갈자리": {
+        "contact_time": "밤 9시~11시",
+        "money_leak": "감정이 격해진 상태에서의 충동구매",
+        "annoying_person": "속 빤히 보이는데 모르는 척하는 사람",
+        "regret_tonight": "참을 걸 괜히 말해버린 것",
+    },
+    "사수자리": {
+        "contact_time": "낮 12시~오후 2시",
+        "money_leak": "여행·경험·체험 관련 즉흥 결제",
+        "annoying_person": "왜 그렇게 해야 하냐고 묻는 사람",
+        "regret_tonight": "또 미루기로 한 것",
+    },
+    "염소자리": {
+        "contact_time": "오전 8시~10시",
+        "money_leak": "장기적으로 필요하다는 명목의 과소비",
+        "annoying_person": "결과 없이 과정만 나열하는 사람",
+        "regret_tonight": "쉬지 않고 무리한 것",
+    },
+    "물병자리": {
+        "contact_time": "오후 3시~5시",
+        "money_leak": "독특하고 특이해서 사는 물건",
+        "annoying_person": "틀에 박힌 방식만 고집하는 사람",
+        "regret_tonight": "설명을 생략했더니 오해가 생긴 것",
+    },
+    "물고기자리": {
+        "contact_time": "저녁 6시~8시",
+        "money_leak": "누군가를 위한다는 이유로 쓰는 돈",
+        "annoying_person": "감정을 숫자로만 판단하는 사람",
+        "regret_tonight": "경계를 지키지 못한 것",
+    },
+}
+
+# ── 띠별 고유 구어체 오프닝 ──
+_CHINESE_HUMAN_VOICE = {
+    "쥐띠": [
+        "오늘 뭔가 기회가 보이는데 타이밍을 못 잡고 있는 느낌 드시나요?",
+        "머리가 너무 빠르게 돌아가다 보니 오히려 결정이 늦어지는 날이에요.",
+        "오늘은 계산보다 직감이 먼저인 날이에요. 두 번 생각하면 이미 늦습니다.",
+    ],
+    "소띠": [
+        "오늘 조용히 혼자 처리하고 싶은 일이 생길 수 있어요. 그렇게 해도 됩니다.",
+        "변하기 싫은 마음은 이해하는데, 오늘 딱 하나만 새로운 방식으로 해보세요.",
+        "당신이 말없이 해온 일들이 오늘 슬며시 빛을 발하기 시작합니다.",
+    ],
+    "호랑이띠": [
+        "오늘 에너지가 넘치는 날이에요. 그걸 엉뚱한 곳에 쓰지 않도록 방향을 잡아두세요.",
+        "충동적으로 결정 내리고 싶은 날이에요. 딱 10분만 기다려보세요.",
+        "솔직히 오늘 이겨야 직성이 풀리는 날인데, 꼭 이겨야 하는 싸움인지 먼저 확인하세요.",
+    ],
+    "토끼띠": [
+        "오늘 누군가 상처 주는 말을 할 수 있어요. 그 말이 진심인지 확인하고 받아들이세요.",
+        "부드럽게 흘러가는 날이에요. 억지로 뭔가 하려고 하지 않아도 됩니다.",
+        "오늘 본인 챙기는 것 잊지 마세요. 남 걱정하다가 정작 자신이 지칩니다.",
+    ],
+    "용띠": [
+        "오늘 크게 한 방 노리고 싶은 날인데, 그 전에 기초가 단단한지 확인하세요.",
+        "주목받고 싶은 마음, 오늘은 자연스럽게 드러내도 됩니다. 때가 맞아요.",
+        "혼자 다 하려고 하지 마세요. 오늘 도움을 받는 것이 더 빠른 길입니다.",
+    ],
+    "뱀띠": [
+        "오늘 직감이 맞는 날이에요. 뭔가 이상하다 싶으면 그냥 이상한 겁니다.",
+        "겉으로 말하지 않아도 속으로 다 보이는 날이에요. 표정 관리 약간 필요합니다.",
+        "오늘 설명 없이 행동하면 오해가 생겨요. 한마디 더 하는 게 낫습니다.",
+    ],
+    "말띠": [
+        "오늘 움직이고 싶어서 가만있기 힘든 날이에요. 에너지 쓸 곳을 미리 정해두세요.",
+        "자유롭게 하고 싶은데 뭔가 발목 잡히는 느낌이 드는 날이에요. 그 이유를 먼저 파악하세요.",
+        "오늘 결정이 빠른 날이에요. 그만큼 후회도 빠를 수 있으니 잠깐 숨 고르고 가세요.",
+    ],
+    "양띠": [
+        "오늘 감성이 예민하게 열려있는 날이에요. 나쁜 게 아니라 특별히 잘 느끼는 날입니다.",
+        "오늘은 거절을 잘 못하는 날이에요. 미리 '오늘은 힘들어'를 연습해두세요.",
+        "혼자 있는 시간이 오늘 특히 필요한 날이에요. 충전하고 나면 달라집니다.",
+    ],
+    "원숭이띠": [
+        "머리는 잘 돌아가는데 오늘 유독 말이 안 먹히는 상대가 있을 수 있어요.",
+        "오늘 꾀를 너무 많이 쓰다가 오히려 꼬이는 경우가 생길 수 있어요. 단순하게 가세요.",
+        "재치 있는 말이 오늘은 가끔 역효과가 날 수 있어요. 타이밍을 한 박자 늦추세요.",
+    ],
+    "닭띠": [
+        "오늘 기준이 너무 높아서 내 것도 남의 것도 다 마음에 안 드는 날이에요.",
+        "완벽하게 준비되지 않아도 시작할 수 있어요. 오늘이 그 날입니다.",
+        "솔직히 오늘은 칭찬 한마디가 유독 당기는 날이에요. 스스로 한마디 해주세요.",
+    ],
+    "개띠": [
+        "오늘 믿었던 사람이 약간 실망스러울 수 있어요. 기대치를 조금 내려두세요.",
+        "충성스럽게 다 해줬는데 돌아오는 게 없다면, 오늘 그 관계를 한 번 점검하세요.",
+        "오늘 의리 때문에 손해 보는 상황이 생길 수 있어요. 그래도 당신은 할 겁니다. 그게 당신입니다.",
+    ],
+    "돼지띠": [
+        "오늘 너무 좋은 게 많아서 욕심이 생기는 날이에요. 하나씩만 챙기세요.",
+        "사람들이 당신을 좋아하는 날이에요. 그 에너지 잘 받아서 오늘 하루 펼쳐보세요.",
+        "오늘 지갑이 열리기 쉬운 날이에요. 가격표 먼저 보는 습관을 오늘만큼은 지켜주세요.",
+    ],
+}
+
+# ── 띠별 "헉 맞는데?" 현실 디테일 ──
+_CHINESE_REAL_DETAIL = {
+    "쥐띠":     {"contact_time": "오전 11시~오후 1시", "money_leak": "비교 쇼핑하다가 세 곳에서 결제", "annoying_person": "준비 없이 즉흥으로 결정하는 사람", "regret_tonight": "정보를 너무 많이 모으다 결정 못 한 것"},
+    "소띠":     {"contact_time": "저녁 7시~9시",       "money_leak": "천천히 아껴쓰는 척하다가 한 번에 큰 것", "annoying_person": "갑자기 뭔가 바꾸자는 사람", "regret_tonight": "한마디 더 했으면 좋았을 것"},
+    "호랑이띠": {"contact_time": "낮 12시~오후 2시",   "money_leak": "지금 안 사면 후회할 것 같은 기분에", "annoying_person": "우물쭈물하며 결정 안 하는 사람", "regret_tonight": "너무 크게 반응한 것"},
+    "토끼띠":   {"contact_time": "오후 3시~5시",       "money_leak": "분위기 맞추다가 필요 없는 것 구매", "annoying_person": "배려가 당연하다고 여기는 사람", "regret_tonight": "거절 못 한 것"},
+    "용띠":     {"contact_time": "오전 10시~낮 12시",  "money_leak": "스케일 크게 시작했다가 유지비 폭탄", "annoying_person": "큰 그림 없이 디테일만 따지는 사람", "regret_tonight": "혼자 너무 많이 짊어진 것"},
+    "뱀띠":     {"contact_time": "밤 9시~11시",        "money_leak": "명품·희귀템 수집 욕심", "annoying_person": "표면만 보고 판단하는 사람", "regret_tonight": "직감을 무시한 것"},
+    "말띠":     {"contact_time": "오후 1시~3시",       "money_leak": "에너지 넘칠 때 즉흥 결제", "annoying_person": "느리게 진행하면서 설명도 없는 사람", "regret_tonight": "또 충동적으로 결정한 것"},
+    "양띠":     {"contact_time": "저녁 6시~8시",       "money_leak": "선물·나눔·후원에 쓰는 과도한 지출", "annoying_person": "감정을 이해 못 하는 척하는 사람", "regret_tonight": "No라고 못 한 것"},
+    "원숭이띠": {"contact_time": "오후 2시~4시",       "money_leak": "재미있을 것 같아서 시작한 구독 서비스", "annoying_person": "융통성 없이 원칙만 내세우는 사람", "regret_tonight": "너무 영리하게 굴려다 역효과 난 것"},
+    "닭띠":     {"contact_time": "오전 8시~10시",      "money_leak": "더 좋은 게 있을 것 같아서 계속 탐색", "annoying_person": "기준도 없이 '그냥 하면 되지'하는 사람", "regret_tonight": "완벽하게 못 끝낸 것에 집착한 것"},
+    "개띠":     {"contact_time": "오후 4시~6시",       "money_leak": "의리로 사줬는데 나만 손해인 상황", "annoying_person": "말만 하고 행동이 없는 사람", "regret_tonight": "감정을 표현하지 못한 것"},
+    "돼지띠":   {"contact_time": "낮 12시~오후 2시",   "money_leak": "맛있는 것, 좋은 것, 일단 사고 보기", "annoying_person": "부정적인 에너지를 계속 가져다주는 사람", "regret_tonight": "너무 많이 먹거나 쓴 것"},
+}
+
+def _get_zodiac_human_voice(kr_name):
+    """별자리별 구어체 오프닝 랜덤 선택"""
+    pool = _ZODIAC_HUMAN_VOICE.get(kr_name, [])
+    if pool:
+        return random.choice(pool)
+    return ""
+
+def _get_zodiac_real_detail_html(kr_name, lucky_color):
+    """'헉 맞는데?' 현실 디테일 블록 HTML 생성"""
+    d = _ZODIAC_REAL_DETAIL.get(kr_name, {})
+    if not d:
+        return ""
+    return f'''
+<div class="card" style="background:linear-gradient(135deg,#fefce8,#fff7ed);border-left:5px solid #f59e0b">
+  <span class="badge" style="background:#fef3c7;color:#92400e">🔍 오늘의 현실 체크 — {kr_name} 한정</span>
+  <div style="margin-top:14px;display:grid;gap:10px">
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fde68a">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">📱 연락 올 가능성 높은 시간</div>
+      <div style="font-size:15px;font-weight:700;color:#92400e">{d["contact_time"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">이 시간대에 진동이 울리면 바로 확인하세요.</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fee2e2">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">💸 오늘 돈 새기 가장 쉬운 행동</div>
+      <div style="font-size:14px;font-weight:700;color:#dc2626">{d["money_leak"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">결제 전 한 번만 더 생각하세요.</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">😤 오늘 은근히 신경 긁는 사람 유형</div>
+      <div style="font-size:14px;font-weight:700;color:#4338ca">{d["annoying_person"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">맞닥뜨려도 오늘만큼은 흘려보내세요.</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #d1fae5">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">🌙 오늘 밤 후회할 가능성 높은 행동</div>
+      <div style="font-size:14px;font-weight:700;color:#065f46">{d["regret_tonight"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">지금 알았으니 피할 수 있습니다.</div>
+    </div>
+  </div>
+</div>'''
+
+def _get_chinese_human_voice(kr_name):
+    """띠별 구어체 오프닝 랜덤 선택"""
+    pool = _CHINESE_HUMAN_VOICE.get(kr_name, [])
+    if pool:
+        return random.choice(pool)
+    return ""
+
+def _get_chinese_real_detail_html(kr_name):
+    """띠별 '헉 맞는데?' 현실 디테일 블록 HTML"""
+    d = _CHINESE_REAL_DETAIL.get(kr_name, {})
+    if not d:
+        return ""
+    return f'''
+<div class="card" style="background:linear-gradient(135deg,#fefce8,#fff7ed);border-left:5px solid #f59e0b">
+  <span class="badge" style="background:#fef3c7;color:#92400e">🔍 오늘의 현실 체크 — {kr_name} 한정</span>
+  <div style="margin-top:14px;display:grid;gap:10px">
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fde68a">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">📱 연락 올 가능성 높은 시간</div>
+      <div style="font-size:15px;font-weight:700;color:#92400e">{d["contact_time"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">이 시간대에 진동이 울리면 바로 확인하세요.</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fee2e2">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">💸 오늘 돈 새기 가장 쉬운 행동</div>
+      <div style="font-size:14px;font-weight:700;color:#dc2626">{d["money_leak"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">결제 전 한 번만 더 생각하세요.</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">😤 오늘 은근히 신경 긁는 사람 유형</div>
+      <div style="font-size:14px;font-weight:700;color:#4338ca">{d["annoying_person"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">맞닥뜨려도 오늘만큼은 흘려보내세요.</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #d1fae5">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">🌙 오늘 밤 후회할 가능성 높은 행동</div>
+      <div style="font-size:14px;font-weight:700;color:#065f46">{d["regret_tonight"]}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">지금 알았으니 피할 수 있습니다.</div>
+    </div>
+  </div>
+</div>'''
+
 def weekly_fortune_general():
     if not weekly_500.empty and 'sentence' in weekly_500.columns:
         row = weekly_500.sample(1).iloc[0]
@@ -952,10 +1254,16 @@ def share_buttons(card_id, filename):
 
 
 def site_link():
-    return """
+    _links = [
+        ("오늘 운이 따른다면 기록도 한번 남겨보세요 :)", "🎮 호호로그게임 바로가기"),
+        ("운세 보고 기분 전환이 필요하다면 여기로!", "🎮 무료 게임 하러 가기"),
+        ("오늘 운세가 좋다면, 게임도 잘 풀릴지도요 😄", "🎮 지금 바로 플레이"),
+    ]
+    msg, btn = random.choice(_links)
+    return f"""
 <div class="game-link">
-    <p>🎮 운세와 함께 즐기는 무료 게임</p>
-    <a href="https://hoholog.github.io/">🎮 호호로그게임 바로가기</a>
+    <p>🎮 {msg}</p>
+    <a href="https://hoholog.github.io/">{btn}</a>
 </div>"""
 
 # ─────────────────────────────────────────
@@ -1031,17 +1339,20 @@ def _zodiac_seo_title(z_kr, today_dot, total, money, health, love):
 # 파트5: 마무리(따뜻한 응원)
 # ─────────────────────────────────────────────────────────────────
 
-# ── 총운 서론 풀 ──
+# ── 총운 서론 풀 ── (다양한 리듬 추가로 반복감 제거)
 _Z_TOTAL_INTRO_UP = [
     "오늘 하루 별의 기운이 유독 당신 편입니다. 지금 이 순간, 주변에서 작은 행운의 신호들이 조용히 쌓이고 있다는 것을 느끼셨나요?",
     "오늘은 오랫동안 기다려온 흐름이 비로소 당신 곁으로 돌아오는 날입니다. 그동안 묵묵히 버텨온 시간이 오늘의 좋은 기운을 만들었습니다.",
     "새벽부터 긍정적인 에너지가 흐르기 시작했습니다. 평소보다 발걸음이 가볍게 느껴진다면, 그것이 오늘 기운의 신호입니다.",
     "오늘은 당신이 가진 강점이 특히 도드라지는 날입니다. 자신을 믿고 앞으로 나아가기에 이보다 좋은 타이밍이 없습니다.",
+    "오늘은 미뤄두었던 무언가를 꺼내기에 딱 좋은 날입니다.\n\n두려워서, 아직 때가 아닌 것 같아서 넣어뒀던 것들.\n\n오늘은 그 서랍을 열어도 됩니다.",
+    "솔직히 말하면 오늘 꽤 좋은 날이에요.\n\n대단한 일이 생기는 게 아니라, 작은 것들이 자꾸 맞아 떨어지는 날입니다.",
 ]
 _Z_TOTAL_INTRO_WARN = [
     "오늘은 서두르기보다 한 박자 쉬어가는 지혜가 필요한 날입니다. 조급함이 오히려 좋은 기회를 놓치게 만들 수 있습니다.",
     "오늘 하루는 에너지가 다소 분산되어 있습니다. 한 가지에 집중하고, 나머지는 내일로 미루는 전략이 현명합니다.",
     "오늘은 결과보다 과정에 집중하는 날입니다. 눈에 보이는 성과가 없더라도, 묵묵히 자신의 길을 걷는 것이 가장 현명한 선택입니다.",
+    "억지로 힘내지 않아도 되는 날이에요.\n\n오늘은 그냥 버티는 것만으로 충분합니다.\n\n내일이 다를 테니까요.",
 ]
 
 # ── 총운 지수 해석 풀 ──
@@ -1073,11 +1384,14 @@ _Z_LOVE_DETAIL_UP = [
     "평소 마음에 두고 있던 사람과 자연스러운 대화 기회가 생길 수 있습니다. 먼저 다가가는 용기가 빛을 발합니다. 부담 없는 가벼운 안부 한 마디가 큰 변화를 만들 수 있습니다.",
     "SNS나 메신저에서 뜻밖의 메시지가 도착할 수 있습니다. 가볍게 답하되 진심을 담아 보세요. 오늘의 짧은 대화가 새로운 관계의 시작이 될 수 있습니다.",
     "오늘 저녁 약속이 생긴다면 흘려 넘기지 마세요. 소중한 인연이 이어질 수 있는 자리입니다. 편안한 분위기에서 솔직한 대화를 나눠 보세요.",
+    "오늘 그냥 아무 이유 없이 안부를 묻고 싶은 사람이 있다면,\n\n그냥 연락하세요.\n\n핑계가 필요 없는 날이에요.",
+    "오늘 감이 좋은 날이에요. 특히 오후 늦게, 예상하지 못한 쪽에서 연락이 올 수 있습니다.\n\n진동이 울리면 바로 확인하세요.",
 ]
 _Z_LOVE_DETAIL_WARN = [
     "감정적으로 예민해지기 쉬운 날입니다. 중요한 대화는 감정이 가라앉은 저녁 이후로 미루세요. 말하기 전에 '이 말이 필요한 말인가'를 한 번 더 생각해 보세요.",
     "가까운 사람의 말 한마디가 상처로 느껴질 수 있습니다. 오늘은 상대 의도를 먼저 확인해 보세요. 오해에서 시작된 갈등은 빠를수록 해소하기 쉽습니다.",
     "혼자만의 시간이 오히려 관계에 활력을 줄 수 있습니다. 무리해서 연락하기보다 여유를 가져 보세요. 잠시 거리를 두는 것이 더 깊은 연결로 이어지는 법입니다.",
+    "오늘 상대방이 이상하게 느껴진다면, 상대가 이상한 게 아니라 내 상태가 예민한 것일 수도 있어요.\n\n먼저 내 감정을 확인해 보세요.",
 ]
 
 # ── 연애운 시간대 가이드 풀 ──
@@ -1291,16 +1605,32 @@ def build_zodiac_post(z, today_str):
     def _para(idx, fallback=""):
         return paras[idx] if idx < len(paras) else (paras[-1] if paras else fallback)
 
+    # ── 별자리별 고유 구어체 오프닝 & 현실 디테일 블록 ──
+    human_voice = _get_zodiac_human_voice(z['kr'])
+    real_detail_html = _get_zodiac_real_detail_html(z['kr'], lucky_color)
+
     # ── 1. 총운 (5파트 구조) ──
     total_color, total_level = _zodiac_score_badge(total)
     total_intro    = random.choice(_Z_TOTAL_INTRO_UP   if total >= 65 else _Z_TOTAL_INTRO_WARN)
     total_score_c  = random.choice(_Z_TOTAL_SCORE_UP   if total >= 65 else _Z_TOTAL_SCORE_WARN)
     total_cheer_c  = random.choice(_Z_CHEER)
+
+    # 구어체 오프닝: 별자리마다 다른 사람 말투 삽입 (AI 티 제거)
+    human_voice_html = ""
+    if human_voice:
+        human_voice_html = f'''
+  <p style="margin-top:10px;font-size:14px;line-height:1.9;color:#555;
+            background:#f9fafb;border-radius:8px;padding:10px 14px;
+            font-style:italic;border-left:3px solid #d1d5db">
+    💭 {human_voice}
+  </p>'''
+
     summary_html = f'''
 <div class="card" style="border-left:5px solid {total_color}">
   <span class="badge" style="background:#f0fdf4;color:{total_color}">🌟 오늘 총운 · {total}% {total_level}</span>
   <p style="margin-top:12px;font-size:15px;line-height:1.95;color:#333;font-weight:500">{total_intro}</p>
   <p style="margin-top:10px;font-size:14px;line-height:1.9;color:#444">{_para(0)}</p>
+  {human_voice_html}
   <p style="margin-top:6px;font-size:14px;line-height:1.9;color:#444">{_para(1)}</p>
   <div style="margin-top:12px;background:#f0fdf4;border-radius:10px;padding:12px 14px;
               font-size:13px;color:#166534;line-height:1.8;border-left:3px solid {total_color}">
@@ -1515,6 +1845,9 @@ def build_zodiac_post(z, today_str):
 
   <!-- 5. 오늘 피해야 할 행동 -->
   {avoid_html}
+
+  <!-- 5-1. 현실 디테일 블록 (별자리별 고유) -->
+  {real_detail_html}
 
   <!-- 6. 응원 토닥 메시지 -->
   {cheer_html}
@@ -1954,6 +2287,18 @@ def build_chinese_post(c, today_str):
     elif abs(total-money) >= 30: signal = random.choice(_SIG_REV)
     else:                        signal = random.choice(_SIG_MID)
 
+    # ── 띠별 구어체 오프닝 & 현실 디테일 ──
+    chinese_human_voice = _get_chinese_human_voice(c['kr'])
+    chinese_real_detail = _get_chinese_real_detail_html(c['kr'])
+    chinese_human_html = ""
+    if chinese_human_voice:
+        chinese_human_html = f'''
+<div class="card" style="background:#f9fafb;border-left:4px solid #d1d5db">
+  <p style="font-size:14px;line-height:1.9;color:#555;font-style:italic;margin:0">
+    💭 {chinese_human_voice}
+  </p>
+</div>'''
+
     score_html = f'''<div class="card" style="background:#f8f0ff">
   <span class="badge">📊 오늘의 운세 지수 · <strong style="color:#6c3483">{signal}</strong></span>
   <div style="margin-top:12px">
@@ -2011,6 +2356,9 @@ def build_chinese_post(c, today_str):
   {score_html}
   {calc_html}
 
+  <!-- 띠별 구어체 오프닝 -->
+  {chinese_human_html}
+
   <!-- 시간대별 운세 흐름 표 -->
   {time_flow_html}
 
@@ -2040,6 +2388,9 @@ def build_chinese_post(c, today_str):
   {checkpoint_section}
 
   {caution_html}
+
+  <!-- 현실 디테일 블록 (띠별 고유) -->
+  {chinese_real_detail}
 
   <!-- 띠별 궁합 -->
   {compat_html}
