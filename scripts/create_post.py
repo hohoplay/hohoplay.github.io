@@ -2510,81 +2510,249 @@ def build_zodiac_weekly_post(today_str):
 
 
 def build_chinese_monthly_post(today_str):
-    """띠별 월간운세 12개 개별 발행 — 매월 1일"""
+    """띠별 월간운세 12개 개별 발행 — 매월 1일 / v2 구조"""
     month_str = get_month()
-    results = []
+    results   = []
+
+    # ── v2 CSV 로드 ──
+    v2_path = os.path.join(DATA_DIR, "chinese_monthly_v2.csv")
+    v2_df   = pd.DataFrame()
+    if os.path.exists(v2_path):
+        v2_df = pd.read_csv(v2_path, encoding="utf-8")
+
+    def _v2_row(en_name):
+        """띠별 v2 데이터 랜덤 1행 반환. 없으면 None."""
+        if v2_df.empty:
+            return None
+        m = v2_df[v2_df['animal_zodiac'] == en_name]
+        return m.sample(1).iloc[0] if not m.empty else None
+
+    # ── 운세 지수 이유 문구 풀 ──
+    _SCORE_REASON = {
+        "total_up":   ["큰 대박보단 '작은 흐름 회복'에 강한 달", "조용히 쌓아온 것들이 빛나기 시작하는 흐름", "노력한 것이 결실로 돌아오는 달"],
+        "total_warn": ["무리하기보다 안정적으로 유지하는 게 맞는 달", "신중하게 움직일수록 손해가 줄어드는 흐름"],
+        "money_up":   ["충동구매만 줄이면 생각보다 돈이 남는 흐름", "작은 절약이 모여 큰 여유를 만드는 달", "수입보다 지출 관리가 핵심인 흐름"],
+        "money_warn": ["큰 지출 결정은 다음 달로 미루는 게 유리", "투자보다 저축이 맞는 흐름의 달"],
+        "health_up":  ["체력 회복운 강함. 활동량 늘릴수록 상승", "몸이 따라주는 달. 새로운 운동 시작하기 좋음", "에너지가 올라오는 달. 숙면이 핵심"],
+        "health_warn":["과로 주의. 무리하면 중순 이후 피로 누적", "소화·수면 챙기는 것이 이달의 건강 전략"],
+        "love_up":    ["썸보다 '편한 관계'에서 감정 발전 가능성 ↑", "먼저 다가가는 쪽이 유리한 달", "대화 한마디가 관계를 깊게 만드는 흐름"],
+        "love_warn":  ["감정적 반응보다 한 박자 여유가 관계를 지킴", "오해가 생기기 쉬운 달. 확인 후 판단하세요"],
+    }
+
+    def _score_reason(label, val):
+        if label == "total":
+            pool = _SCORE_REASON["total_up"] if val >= 65 else _SCORE_REASON["total_warn"]
+        elif label == "money":
+            pool = _SCORE_REASON["money_up"] if val >= 65 else _SCORE_REASON["money_warn"]
+        elif label == "health":
+            pool = _SCORE_REASON["health_up"] if val >= 65 else _SCORE_REASON["health_warn"]
+        else:
+            pool = _SCORE_REASON["love_up"] if val >= 65 else _SCORE_REASON["love_warn"]
+        return random.choice(pool)
+
+    def _bar(pct):
+        filled = round(pct / 10)
+        return "█" * filled + "░" * (10 - filled)
+
     for c in CHINESE:
-        fortune = chinese_monthly_fortune(c['en'])
+        v2  = _v2_row(c['en'])
         rating  = stars()
         card_id = f"cmfc-{c['en']}"
         total, money, health, love = pick_score(c['kr'])
 
-        # 제목 신호 키워드
+        # ── 제목 신호 ──
         scores = {"총운": total, "금전운": money, "건강운": health, "애정운": love}
         top = max(scores, key=scores.get)
-        if scores[top] >= 80:
-            signal = f"이번 달 {top} 상승"
-        elif min(scores.values()) <= 55:
-            signal = "이번 달 주의 필요"
-        else:
-            signal = "이번 달 흐름 확인"
+        if scores[top] >= 80:   signal = f"이번 달 {top} 상승"
+        elif min(scores.values()) <= 55: signal = "이번 달 주의 필요"
+        else:                    signal = "이번 달 흐름 확인"
         title = f"{c['kr']} {month_str} 월간운세 | {signal}"
 
-        # 기간별: sentence() 제거 → chinese_monthly_fortune 재사용
-        periods = [
-            ("상순 (1~10일)", chinese_monthly_fortune(c['en'])),
-            ("중순 (11~20일)", chinese_monthly_fortune(c['en'])),
-            ("하순 (21~말일)", chinese_monthly_fortune(c['en'])),
-        ]
-        period_html = "".join(
-            f'<div class="week-day"><strong>{p}</strong><br><span style="font-size:13px;color:#555">{s[:80]}{"…" if len(str(s))>80 else ""}</span></div>'
-            for p, s in periods
-        )
+        # ── v2 데이터 추출 ──
+        headline    = v2['headline']    if v2 is not None else chinese_monthly_fortune(c['en'])
+        upper_txt   = v2['upper']       if v2 is not None else chinese_monthly_fortune(c['en'])
+        mid_txt     = v2['mid']         if v2 is not None else chinese_monthly_fortune(c['en'])
+        lower_txt   = v2['lower']       if v2 is not None else chinese_monthly_fortune(c['en'])
+        lucky_color  = v2['lucky_color']  if v2 is not None else "골드"
+        lucky_number = v2['lucky_number'] if v2 is not None else "3"
+        lucky_place  = v2['lucky_place']  if v2 is not None else "카페"
+        avoid_kw     = v2['avoid']        if v2 is not None else "즉흥적인 결정"
+        sympathy     = v2['sympathy']     if v2 is not None else ""
 
-        kw_list = [
-            c['kr'], f"{c['kr']} 월간운세", f"{c['kr']} 이달운세",
-            "띠별 월간운세", f"{c['kr']} {month_str}", "월간운세", "띠운세"
-        ]
-        tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
-        score_html = f'''<div class="card" style="background:#fffbeb">
+        # ── 모바일 최적화: \n → <br> ──
+        def _mb(text):
+            return str(text).replace('\n', '<br>')
+
+        # ── 1. 핵심 한줄 운세 블록 ──
+        headline_html = f'''
+<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fef9c3);
+     border-left:5px solid #f59e0b;padding:18px 16px">
+  <p style="font-size:17px;font-weight:900;color:#92400e;
+            line-height:1.7;margin:0">{_mb(headline)}</p>
+</div>'''
+
+        # ── 2. 운세 지수 (이유 포함) ──
+        score_html = f'''
+<div class="card" style="background:#fffbeb">
   <span class="badge" style="background:#fef3c7;color:#92400e">📊 이번 달 운세 지수</span>
-  <div style="margin-top:10px">
-    {_zodiac_score_bar("종합운","🌟",total)}
-    {_zodiac_score_bar("금전운","💰",money)}
-    {_zodiac_score_bar("건강운","💪",health)}
-    {_zodiac_score_bar("애정운","❤️",love)}
+  <div style="margin-top:14px;display:grid;gap:10px">
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fde68a">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:700">🌟 종합운</span>
+        <span style="font-size:13px;font-weight:900;color:#d97706">{total}%</span>
+      </div>
+      <div style="font-family:monospace;font-size:13px;color:#f59e0b;letter-spacing:1px">{_bar(total)}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("total",total)}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fee2e2">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:700">💰 금전운</span>
+        <span style="font-size:13px;font-weight:900;color:#dc2626">{money}%</span>
+      </div>
+      <div style="font-family:monospace;font-size:13px;color:#f87171;letter-spacing:1px">{_bar(money)}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("money",money)}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #d1fae5">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:700">💪 건강운</span>
+        <span style="font-size:13px;font-weight:900;color:#059669">{health}%</span>
+      </div>
+      <div style="font-family:monospace;font-size:13px;color:#34d399;letter-spacing:1px">{_bar(health)}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("health",health)}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fce7f3">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:700">❤️ 애정운</span>
+        <span style="font-size:13px;font-weight:900;color:#db2777">{love}%</span>
+      </div>
+      <div style="font-family:monospace;font-size:13px;color:#f472b6;letter-spacing:1px">{_bar(love)}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("love",love)}</div>
+    </div>
   </div>
 </div>'''
 
+        # ── 3. 기간별 운세 (사건형, 모바일 최적화) ──
+        def _period_card(emoji, label, dates, text, grad_from, grad_to, border_color):
+            return f'''
+<div class="card" style="background:linear-gradient(135deg,{grad_from},{grad_to});
+     border-left:5px solid {border_color};padding:16px">
+  <div style="font-size:13px;font-weight:900;color:#374151;margin-bottom:10px">
+    {emoji} <span style="color:{border_color}">{label}</span>
+    <span style="font-size:11px;color:#9ca3af;margin-left:6px">{dates}</span>
+  </div>
+  <p style="font-size:14px;line-height:2;color:#374151;margin:0;
+            white-space:pre-line">{text}</p>
+</div>'''
+
+        period_html = (
+            _period_card("🌱","상순","1~10일",  upper_txt, "#f0fdf4","#ecfdf5","#10b981") +
+            _period_card("🌿","중순","11~20일", mid_txt,   "#eff6ff","#f0f9ff","#3b82f6") +
+            _period_card("🍂","하순","21~말일", lower_txt, "#faf5ff","#fdf4ff","#8b5cf6")
+        )
+
+        # ── 4. 행운 키워드 블록 ──
+        lucky_html = f'''
+<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);
+     border-left:5px solid #f59e0b">
+  <span class="badge" style="background:#fef3c7;color:#92400e">🍀 이달의 행운 키워드</span>
+  <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="background:#fff;border-radius:10px;padding:12px;
+                border:1px solid #fde68a;text-align:center">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">행운의 색</div>
+      <div style="font-size:14px;font-weight:700;color:#92400e">{lucky_color}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px;
+                border:1px solid #dbeafe;text-align:center">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">행운의 숫자</div>
+      <div style="font-size:14px;font-weight:700;color:#1d4ed8">{lucky_number}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px;
+                border:1px solid #d1fae5;text-align:center">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">행운의 장소</div>
+      <div style="font-size:13px;font-weight:700;color:#065f46">{lucky_place}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:12px;
+                border:1px solid #fee2e2;text-align:center">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">이달 피할 것</div>
+      <div style="font-size:13px;font-weight:700;color:#dc2626">{avoid_kw}</div>
+    </div>
+  </div>
+</div>'''
+
+        # ── 5. 현실 공감 문장 ──
+        sympathy_html = ""
+        if sympathy:
+            sympathy_html = f'''
+<div class="card" style="background:#f9fafb;border-left:4px solid #d1d5db">
+  <span class="badge" style="background:#f3f4f6;color:#374151">💬 지금 이런 느낌이라면</span>
+  <p style="margin-top:12px;font-size:14px;line-height:2;color:#374151;
+            font-style:italic;white-space:pre-line">{sympathy}</p>
+</div>'''
+
+        # ── 이미지 저장 카드 (게임링크 없음) ──
+        card_html = f'''
+<div id="{card_id}" class="fortune-card"
+     style="background:linear-gradient(135deg,#f59e0b,#92400e)">
+  <div class="fc-emoji">{c['emoji']}</div>
+  <div class="fc-title">{c['kr']} 월간운세</div>
+  <div class="fc-sub">{month_str}</div>
+  <div class="fc-stars">{rating}</div>
+  <div class="fc-text" style="white-space:pre-line">{_mb(headline)}</div>
+  <div class="fc-watermark">
+    todayhoroscopelaboratory.blogspot.com · {month_str}
+  </div>
+</div>'''
+
+        # ── 관련 키워드 ──
+        kw_list  = [c['kr'], f"{c['kr']} 월간운세", f"{c['kr']} 이달운세",
+                    "띠별 월간운세", f"{c['kr']} {month_str}", "월간운세", "띠운세"]
+        tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
+
         content_html = f"""{style()}
 <div class="wrap">
+
+  <!-- 히어로 -->
   <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
     <h1>🌙 {c['emoji']} {c['kr']} 월간운세</h1>
     <p>{month_str}</p>
-    <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
+    <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
+                padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
   </div>
-  <div id="{card_id}" class="fortune-card" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
-    <div class="fc-emoji">{c['emoji']}</div>
-    <div class="fc-title">{c['kr']} 월간운세</div>
-    <div class="fc-sub">{month_str}</div>
-    <div class="fc-stars">{rating}</div>
-    <div class="fc-text">{fortune}</div>
-    <div class="fc-watermark">todayhoroscopelaboratory.blogspot.com · {month_str}</div>
-  </div>
+
+  <!-- 1. 핵심 한줄 운세 -->
+  {headline_html}
+
+  <!-- 2. 이미지 저장 카드 -->
+  {card_html}
   {share_buttons(card_id, f"{c['kr']}_월간운세")}
 
   <!-- 대표 이미지 -->
   {post_img("monthly")}
 
+  <!-- 3. 운세 지수 (이유 포함) -->
   {score_html}
+
+  <!-- 4. 기간별 운세 (사건형) -->
+  <div style="margin:6px 0 4px;font-size:13px;font-weight:700;
+              color:#374151;padding:0 4px">📅 {month_str} 기간별 흐름</div>
+  {period_html}
+
+  <!-- 5. 행운 키워드 -->
+  {lucky_html}
+
+  <!-- 6. 현실 공감 문장 -->
+  {sympathy_html}
+
+  <!-- 관련 키워드 -->
   <div class="card">
-    <span class="badge">📅 {month_str} 기간별 운세</span>
-    <div style="margin-top:8px">{period_html}</div>
+    <span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html}</div>
   </div>
-  <div class="card"><span class="badge">🔍 관련 키워드</span><div class="tag-cloud">{tag_html}</div></div>
+
   {site_link()}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매월 업데이트</div>
 </div>"""
+
         results.append((title, content_html, ["띠별월간", c['kr'], "월간운세"]))
     return results
 
