@@ -419,24 +419,37 @@ ${info.usage}`;
             return parts.join('\n\n');
         }
 
-        // ── 타입 4: 띠 월간운세 ──
-        // 제목: "쥐띠 2026년 03월 월간운세"
-        // HTML: <div class="card"><p>{본문1}</p><br><p>{본문2}</p>
-        //         <div class="week-day"><strong>상순...</strong><br>내용</div>...
+        // ── 타입 4: 띠 월간운세 (v2 구조) ──
+        // 블록: headline카드 / score카드 / period카드×3 / lucky카드 / sympathy카드
         function parseFortune_Monthly(raw) {
-            // 키워드 card 전까지만 (두 번째 card = 관련 키워드 섹션)
-            const cardM = raw.match(
-                /<div[^>]*class="card"[^>]*>([\s\S]*?)<\/div>\s*<div[^>]*class="card"[^>]*><span[^>]*class="badge"[^>]*>🔍/
-            );
-            if (!cardM) return null;
-            const inner = cardM[1];
-            const ps = [...inner.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
-                .map(m2 => m2[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim())
-                .filter(Boolean);
-            const wds = [...inner.matchAll(/<div[^>]*class="week-day"[^>]*>([\s\S]*?)<\/div>/g)]
-                .map(m2 => m2[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim())
-                .filter(Boolean);
-            return { ps, wds };
+            const strip = h => h.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim();
+
+            // headline: 첫 번째 border-left:5px solid #f59e0b 카드의 <p>
+            let headline = '';
+            const hlM = raw.match(/<div[^>]*border-left:5px solid #f59e0b[^>]*>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/);
+            if (hlM) headline = strip(hlM[1]);
+
+            // 운세 지수: → 뒤 텍스트 4개
+            const reasons = [...raw.matchAll(/→\s*([^<\n]{5,})/g)].map(m=>m[1].trim()).slice(0,4);
+
+            // 기간별: 상순/중순/하순 white-space:pre-line <p>
+            const periods = [];
+            const pReg = /<div[^>]*class="card"[^>]*>[\s\S]*?(?:상순|중순|하순)[^<]*<\/span>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/g;
+            let pm;
+            while ((pm = pReg.exec(raw)) !== null) periods.push(strip(pm[1]));
+
+            // lucky: 행운의 색/숫자/장소/피할것
+            const luckyVals = [];
+            const lReg = /<div[^>]*font-size:14px[^>]*>([^<]{2,30})<\/div>/g;
+            let lm; let lc=0;
+            while ((lm=lReg.exec(raw))!==null && lc<4){ luckyVals.push(lm[1].trim()); lc++; }
+
+            // sympathy: 지금 이런 느낌이라면 카드의 <p>
+            let sympathy = '';
+            const syM = raw.match(/지금 이런 느낌이라면[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/);
+            if (syM) sympathy = strip(syM[1]);
+
+            return { headline, reasons, periods, luckyVals, sympathy };
         }
 
         // ── 통합 파서: 제목으로 타입 판별 후 파싱 ──
@@ -493,31 +506,76 @@ ${info.usage}`;
 `;
             }
 
-            // 타입 4: 띠 월간 — 본문 + 상중하순
+            // 타입 4: 띠 월간 (v2) — headline + 지수이유 + 기간별 + 행운키워드 + 공감
             if (info.type === 'monthly') {
-                const bodyHtml = (info.ps||[]).map(p =>
-                    `<p style="margin-bottom:10px;line-height:1.85">${p.replace(/\n/g,'<br>')}</p>`
-                ).join('');
-                const wdHtml = (info.wds||[]).map(w => {
-                    const lines = w.split('\n');
-                    return `<div style="background:rgba(255,255,255,.12);border-left:3px solid rgba(255,220,100,.6);border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:8px">
-                        <strong style="font-size:12px;opacity:.85">${lines[0]||''}</strong>
-                        <div style="font-size:13px;line-height:1.75;margin-top:4px">${(lines.slice(1).join('\n')||'').replace(/\n/g,'<br>')}</div>
-                    </div>`;
-                }).join('');
+                const hl   = (info.headline||'').replace(/\n/g,'<br>');
+                const [upper='',mid='',lower=''] = (info.periods||[]).map(p=>p.replace(/\n/g,'<br>'));
+                const [lcolor='',lnum='',lplace='',lavoid=''] = info.luckyVals||[];
+                const sym  = (info.sympathy||'').replace(/\n/g,'<br>');
+                const [r0='',r1='',r2='',r3=''] = info.reasons||[];
+
                 return `
-                <div id="${cardId}" style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px;padding:24px;color:#fff">
-                    <div style="text-align:center;margin-bottom:16px">
-                        <div style="font-size:44px">${emoji}</div>
-                        <div style="font-size:21px;font-weight:900;margin:6px 0">${name}</div>
-                        <div style="opacity:.8;font-size:13px">${sub}</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:16px;margin-bottom:10px">${bodyHtml}</div>
-                    ${wdHtml}
+                <div style="background:linear-gradient(135deg,#fffbeb,#fef9c3);
+                     border-left:5px solid #f59e0b;border-radius:14px;padding:16px;margin-bottom:12px">
+                  <p style="font-size:16px;font-weight:900;color:#92400e;line-height:1.7;margin:0">${hl}</p>
                 </div>
-                <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;flex-wrap:wrap">
-                    <button onclick="saveCard('${cardId}','${saveLabel}')"
-                        style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">📸 이미지 저장</button>
+                <div id="${cardId}" style="background:linear-gradient(135deg,#f59e0b,#92400e);
+                     border-radius:20px;padding:24px;color:#fff;text-align:center;margin-bottom:10px">
+                  <div style="font-size:44px">${emoji}</div>
+                  <div style="font-size:20px;font-weight:900;margin:6px 0">${name} 월간운세</div>
+                  <div style="opacity:.8;font-size:13px">${sub}</div>
+                  <div style="margin-top:12px;font-size:13px;line-height:1.8;opacity:.95">${hl}</div>
+                </div>
+                <div style="background:#fffbeb;border-radius:14px;padding:14px;margin-bottom:10px">
+                  <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:10px">📊 이번 달 운세 지수</div>
+                  ${[['🌟 종합운',r0],['💰 금전운',r1],['💪 건강운',r2],['❤️ 애정운',r3]].map(([lb,rs])=>`
+                  <div style="margin-bottom:8px;font-size:12px">
+                    <span style="font-weight:700">${lb}</span>
+                    ${rs ? `<span style="color:#6b7280;margin-left:6px">→ ${rs}</span>` : ''}
+                  </div>`).join('')}
+                </div>
+                ${[['🌱 상순','1~10일',upper,'#10b981'],['🌿 중순','11~20일',mid,'#3b82f6'],['🍂 하순','21~말일',lower,'#8b5cf6']].map(([lb,dt,txt,col])=>
+                  txt ? `<div style="border-left:4px solid ${col};border-radius:0 10px 10px 0;
+                          padding:12px 14px;margin-bottom:8px;background:#f9fafb">
+                    <div style="font-size:12px;font-weight:700;color:${col};margin-bottom:6px">${lb} <span style="color:#9ca3af">${dt}</span></div>
+                    <div style="font-size:13px;line-height:1.9;color:#374151">${txt}</div>
+                  </div>` : ''
+                ).join('')}
+                ${lcolor ? `
+                <div style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);border-radius:14px;
+                     padding:14px;margin-bottom:10px">
+                  <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:10px">🍀 이달의 행운 키워드</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+                    <div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
+                      <div style="color:#9ca3af;margin-bottom:2px">행운의 색</div>
+                      <div style="font-weight:700;color:#92400e">${lcolor}</div>
+                    </div>
+                    <div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
+                      <div style="color:#9ca3af;margin-bottom:2px">행운의 숫자</div>
+                      <div style="font-weight:700;color:#1d4ed8">${lnum}</div>
+                    </div>
+                    <div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
+                      <div style="color:#9ca3af;margin-bottom:2px">행운의 장소</div>
+                      <div style="font-weight:700;color:#065f46">${lplace}</div>
+                    </div>
+                    <div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
+                      <div style="color:#9ca3af;margin-bottom:2px">이달 피할 것</div>
+                      <div style="font-weight:700;color:#dc2626">${lavoid}</div>
+                    </div>
+                  </div>
+                </div>` : ''}
+                ${sym ? `
+                <div style="background:#f9fafb;border-left:4px solid #d1d5db;border-radius:0 10px 10px 0;
+                     padding:12px 14px;margin-bottom:10px">
+                  <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:6px">💬 지금 이런 느낌이라면</div>
+                  <div style="font-size:13px;line-height:1.9;color:#555;font-style:italic">${sym}</div>
+                </div>` : ''}
+                <div style="display:flex;gap:10px;margin-top:8px;justify-content:center">
+                  <button onclick="saveCard('${cardId}','${saveLabel}')"
+                    style="background:#f59e0b;color:#fff;border:none;padding:10px 22px;
+                           border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">
+                    📸 이미지 저장
+                  </button>
                 </div>`;
             }
 
@@ -4396,20 +4454,25 @@ ${info.usage}`;
             if (inner) {
                 area.innerHTML=`<div class="fcard">${inner}</div>`;
             } else {
-                const periods=[['상순 (1~10일)',rnd(MONTHLY_MSGS)],['중순 (11~20일)',rnd(MONTHLY_MSGS)],['하순 (21~말일)',rnd(MONTHLY_MSGS)]];
-                const periodRows=periods.map(([p,m])=>`<div style="background:#fffbf0;border-left:4px solid #f7b731;border-radius:8px;padding:12px 14px;margin-bottom:8px">
-                    <strong style="color:#92400e">${p}</strong><br>
-                    <span style="font-size:13px;color:#555;line-height:1.7">${m}</span>
+                const periods=[['🌱 상순','1~10일',rnd(MONTHLY_MSGS)],['🌿 중순','11~20일',rnd(MONTHLY_MSGS)],['🍂 하순','21~말일',rnd(MONTHLY_MSGS)]];
+                const borderColors={'🌱 상순':'#10b981','🌿 중순':'#3b82f6','🍂 하순':'#8b5cf6'};
+                const periodRows=periods.map(([p,d,m])=>`<div style="border-left:4px solid ${borderColors[p]||'#f59e0b'};border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:8px;background:#f9fafb">
+                    <div style="font-size:12px;font-weight:700;color:${borderColors[p]||'#f59e0b'};margin-bottom:6px">${p} <span style="color:#9ca3af">${d}</span></div>
+                    <span style="font-size:13px;color:#374151;line-height:1.9">${m}</span>
                 </div>`).join('');
                 area.innerHTML=`<div class="fcard">
-                    <div style="background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:16px;padding:20px;color:#fff;text-align:center;margin-bottom:16px" id="cmcard">
+                    <div style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-left:5px solid #f59e0b;border-radius:14px;padding:16px;margin-bottom:12px">
+                        <p style="font-size:16px;font-weight:900;color:#92400e;line-height:1.7;margin:0">${ch.emoji} ${ch.kr} 이번 달 운세를 확인하세요.</p>
+                    </div>
+                    <div style="background:linear-gradient(135deg,#f59e0b,#92400e);border-radius:16px;padding:20px;color:#fff;text-align:center;margin-bottom:12px" id="cmcard">
                         <div style="font-size:36px">${ch.emoji}</div>
                         <div style="font-size:20px;font-weight:900;margin:6px 0">${ch.kr} 월간운세</div>
                         <div style="opacity:.8;font-size:13px">${monthStr()}</div>
                         <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:14px;margin-top:14px;font-size:14px;line-height:1.8">${rnd(MONTHLY_MSGS)}</div>
-                        <div style="margin-top:14px">${periodRows}</div>
                     </div>
-                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                    <div style="margin:4px 0 10px;font-size:13px;font-weight:700;color:#374151">📅 ${monthStr()} 기간별 흐름</div>
+                    ${periodRows}
+                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
                         <button onclick="saveCard('cmcard','띠월간운세_${kr}')"
                             style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">📸 이미지 저장</button>
 
