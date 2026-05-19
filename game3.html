@@ -458,22 +458,475 @@
             #game-over p { font-size: 18px !important; }
             #game-over button { padding: 15px 30px !important; font-size: 18px !important; border-radius: 15px !important; }
         }
+        .boss-type-label {
+            font-size: 11px;
+            font-weight: 900;
+            color: #ff4d6d;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+/* Large boss */
+        #large-boss-container {
+            position: absolute;
+            top: -500px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 260;
+        }
+
+        #large-boss-container .boss-visual-wrapper {
+            width: 300px;
+            height: 300px;
+            animation: large-boss-float 2s ease-in-out infinite;
+        }
+
+        #large-boss-hp-bar {
+            width: 300px;
+            height: 16px;
+            background: #eee;
+            border-radius: 8px;
+            margin-top: 10px;
+            overflow: hidden;
+            border: 2px solid #c0392b;
+        }
+
+        #large-boss-hp-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #c0392b, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        #large-boss-word-display {
+            background: rgba(255,255,255,0.97);
+            padding: 14px 34px;
+            border-radius: 30px;
+            border: 4px solid #c0392b;
+            font-size: 34px;
+            font-weight: 900;
+            color: #c0392b;
+            margin-top: 15px;
+            box-shadow: 0 8px 30px rgba(192,57,43,0.25);
+            min-width: 220px;
+            text-align: center;
+        }
+
+        #large-boss-label {
+            font-size: 13px;
+            font-weight: 900;
+            color: #c0392b;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+            text-shadow: 0 0 8px rgba(192,57,43,0.3);
+        }
+
+        @keyframes large-boss-float {
+            0%,100% { transform: scale(1) rotate(0deg) translateY(0); }
+            25%  { transform: scale(1.05) rotate(4deg) translateY(-12px); }
+            50%  { transform: scale(1.1) rotate(0deg) translateY(-22px); }
+            75%  { transform: scale(1.05) rotate(-4deg) translateY(-12px); }
+        }
+
+        /* ── 타이틀 화면 ── */
+        #title-screen {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(160deg, #fff0f5 0%, #ffe4ec 50%, #ffd6e7 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+            gap: 0;
+        }
+
+        #title-petals {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .title-petal {
+            position: absolute;
+            font-size: 22px;
+            animation: title-fall linear infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes title-fall {
+            0%   { transform: translateY(-40px) rotate(0deg); opacity: 0.6; }
+            100% { transform: translateY(800px) rotate(360deg); opacity: 0; }
+        }
+
+        #title-logo {
+            font-size: 52px;
+            font-weight: 900;
+            color: #ff4d6d;
+            text-shadow: 0 4px 20px rgba(255,77,109,0.25), 0 0 0 4px rgba(255,255,255,0.8);
+            letter-spacing: -1px;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        #title-logo span {
+            color: #ffb7c5;
+        }
+
+        #title-sub {
+            font-size: 12px;
+            color: #ff8fa3;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 36px;
+        }
+
+        #speed-select-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ff4d6d;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+        }
+
+        #speed-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .speed-btn {
+            width: 72px;
+            height: 80px;
+            border: 3px solid #ffb7c5;
+            border-radius: 18px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-family: 'Pretendard', sans-serif;
+            gap: 4px;
+            box-shadow: 0 4px 12px rgba(255,77,109,0.08);
+        }
+
+        .speed-btn:hover {
+            border-color: #ff4d6d;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(255,77,109,0.2);
+        }
+
+        .speed-btn.selected {
+            border-color: #ff4d6d;
+            background: linear-gradient(135deg, #ff4d6d, #ff85a1);
+            box-shadow: 0 8px 24px rgba(255,77,109,0.35);
+            transform: translateY(-4px);
+        }
+
+        .speed-btn .speed-icon { font-size: 22px; }
+
+        .speed-btn .speed-val {
+            font-size: 15px;
+            font-weight: 900;
+            color: #ff4d6d;
+        }
+
+        .speed-btn.selected .speed-val { color: white; }
+
+        .speed-btn .speed-desc {
+            font-size: 9px;
+            font-weight: 600;
+            color: #ffb7c5;
+            letter-spacing: 0.5px;
+        }
+
+        .speed-btn.selected .speed-desc { color: rgba(255,255,255,0.85); }
+
+        #title-start-btn {
+            padding: 18px 60px;
+            background: linear-gradient(135deg, #ff4d6d, #ff85a1);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 22px;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: 'Pretendard', sans-serif;
+            box-shadow: 0 8px 28px rgba(255,77,109,0.35);
+            transition: all 0.18s ease;
+            letter-spacing: 1px;
+        }
+
+        #title-start-btn:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 12px 36px rgba(255,77,109,0.45);
+        }
+
+        #title-credit {
+            position: absolute;
+            bottom: 20px;
+            font-size: 11px;
+            color: #ffb7c5;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 600px) {
+            #title-logo { font-size: 36px; }
+            .speed-btn { width: 58px; height: 68px; }
+            .speed-btn .speed-val { font-size: 13px; }
+            #title-start-btn { font-size: 18px; padding: 15px 45px; }
+        }
+
+        
     
 </style>
 <div id="sky-game-wrapper">
 <div id="game-frame">
+        <div id="title-screen">
+                <div id="title-logo">호호<span>벚꽃</span>타자 🌸</div>
+                <div id="title-sub">이 게임은 호호로그 기획 및 프로그램으로 제작함</div>
+                <div id="speed-select-label">⚡ 속도 선택</div>
+                <div id="speed-buttons">
+                    <button class="speed-btn selected" data-mult="1.0" onclick="selectSpeed(this)">
+                        <span class="speed-icon">🐌</span>
+                        <span class="speed-val">1x</span>
+                        <span class="speed-desc">기본</span>
+                    </button>
+                    <button class="speed-btn" data-mult="1.2" onclick="selectSpeed(this)">
+                        <span class="speed-icon">🐢</span>
+                        <span class="speed-val">1.2x</span>
+                        <span class="speed-desc">입문</span>
+                    </button>
+                    <button class="speed-btn" data-mult="1.5" onclick="selectSpeed(this)">
+                        <span class="speed-icon">🐇</span>
+                        <span class="speed-val">1.5x</span>
+                        <span class="speed-desc">보통</span>
+                    </button>
+                    <button class="speed-btn" data-mult="2.0" onclick="selectSpeed(this)">
+                        <span class="speed-icon">🦊</span>
+                        <span class="speed-val">2x</span>
+                        <span class="speed-desc">빠름</span>
+                    </button>
+                    <button class="speed-btn" data-mult="2.5" onclick="selectSpeed(this)">
+                        <span class="speed-icon">🐆</span>
+                        <span class="speed-val">2.5x</span>
+                        <span class="speed-desc">격렬</span>
+                    </button>
+                    <button class="speed-btn" data-mult="3.0" onclick="selectSpeed(this)">
+                        <span class="speed-icon">⚡</span>
+                        <span class="speed-val">3x</span>
+                        <span class="speed-desc">지옥</span>
+                    </button>
+                </div>
+                <button id="title-start-btn" onclick="startFromTitle()">🌸 게임 시작</button>
+                <div id="title-credit">© 호호로그</div>
+            </div>
+
         <div id="game-field">
             <div id="fever-bg-layer"></div>
             <div id="judgment-line"></div>
             
             <div id="boss-container">
+                <div class="boss-type-label">🌸 중간보스</div>
                 <div class="boss-visual-wrapper">
                     <div id="boss-glow"></div>
-                    <div id="boss-bird-gray">🕊️</div>
-                    <div id="boss-bird-color">🕊️</div>
+                                        <!-- Gray blossom boss -->
+                    <div id="boss-bird-gray">
+                        <svg id="blossom-gray-svg" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 5 outer petals -->
+                            <g transform="translate(90,90)">
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ddd" opacity="0.85" transform="rotate(0)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ddd" opacity="0.85" transform="rotate(72)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ddd" opacity="0.85" transform="rotate(144)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ddd" opacity="0.85" transform="rotate(216)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ddd" opacity="0.85" transform="rotate(288)"/>
+                                <!-- inner smaller petals -->
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ccc" opacity="0.7" transform="rotate(36)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ccc" opacity="0.7" transform="rotate(108)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ccc" opacity="0.7" transform="rotate(180)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ccc" opacity="0.7" transform="rotate(252)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ccc" opacity="0.7" transform="rotate(324)"/>
+                                <!-- Center -->
+                                <circle cx="0" cy="0" r="18" fill="#e8e8e8"/>
+                                <circle cx="0" cy="0" r="10" fill="#d4d4d4"/>
+                                <!-- stamens -->
+                                <circle cx="0" cy="-13" r="2.5" fill="#bbb" transform="rotate(0)"/>
+                                <circle cx="0" cy="-13" r="2.5" fill="#bbb" transform="rotate(60)"/>
+                                <circle cx="0" cy="-13" r="2.5" fill="#bbb" transform="rotate(120)"/>
+                                <circle cx="0" cy="-13" r="2.5" fill="#bbb" transform="rotate(180)"/>
+                                <circle cx="0" cy="-13" r="2.5" fill="#bbb" transform="rotate(240)"/>
+                                <circle cx="0" cy="-13" r="2.5" fill="#bbb" transform="rotate(300)"/>
+                            </g>
+                        </svg>
+                    </div>
+                    <!-- Color blossom boss -->
+                    <div id="boss-bird-color">
+                        <svg id="blossom-color-svg" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+                            <g transform="translate(90,90)">
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ffb7c5" transform="rotate(0)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ffc2ce" transform="rotate(72)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ffafc0" transform="rotate(144)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ffb7c5" transform="rotate(216)"/>
+                                <ellipse cx="0" cy="-52" rx="20" ry="34" fill="#ffc2ce" transform="rotate(288)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ff85a1" opacity="0.85" transform="rotate(36)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ff85a1" opacity="0.85" transform="rotate(108)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ff85a1" opacity="0.85" transform="rotate(180)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ff85a1" opacity="0.85" transform="rotate(252)"/>
+                                <ellipse cx="0" cy="-30" rx="13" ry="22" fill="#ff85a1" opacity="0.85" transform="rotate(324)"/>
+                                <!-- Center -->
+                                <circle cx="0" cy="0" r="18" fill="#ff4d6d"/>
+                                <circle cx="0" cy="0" r="10" fill="#ff2952"/>
+                                <!-- stamens (yellow tips) -->
+                                <line x1="0" y1="-10" x2="0" y2="-16" stroke="#ffe066" stroke-width="1.5" transform="rotate(0)"/>
+                                <circle cx="0" cy="-17" r="2.5" fill="#ffe066" transform="rotate(0)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-16" stroke="#ffe066" stroke-width="1.5" transform="rotate(60)"/>
+                                <circle cx="0" cy="-17" r="2.5" fill="#ffe066" transform="rotate(60)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-16" stroke="#ffe066" stroke-width="1.5" transform="rotate(120)"/>
+                                <circle cx="0" cy="-17" r="2.5" fill="#ffe066" transform="rotate(120)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-16" stroke="#ffe066" stroke-width="1.5" transform="rotate(180)"/>
+                                <circle cx="0" cy="-17" r="2.5" fill="#ffe066" transform="rotate(180)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-16" stroke="#ffe066" stroke-width="1.5" transform="rotate(240)"/>
+                                <circle cx="0" cy="-17" r="2.5" fill="#ffe066" transform="rotate(240)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-16" stroke="#ffe066" stroke-width="1.5" transform="rotate(300)"/>
+                                <circle cx="0" cy="-17" r="2.5" fill="#ffe066" transform="rotate(300)"/>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
                 <div id="boss-hp-bar"><div id="boss-hp-fill"></div></div>
                 <div id="boss-word-display">보스 등장!</div>
+            </div>
+        </div>
+
+            <!-- 대형 보스 -->
+            <div id="large-boss-container">
+                <div id="large-boss-label">💀 대형보스</div>
+                <div class="boss-visual-wrapper" id="large-boss-wrapper">
+                    <div id="large-boss-glow"></div>
+                    <!-- Gray large blossom -->
+                    <div id="large-boss-gray">
+                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="280" height="280">
+                            <g transform="translate(150,150)">
+                                <!-- outermost ring petals x8 -->
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(0)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(45)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(90)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(135)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(180)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(225)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(270)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(315)"/>
+                                <!-- middle ring petals x8 -->
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(22.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(67.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(112.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(157.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(202.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(247.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(292.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="#bbb" opacity="0.8" transform="rotate(337.5)"/>
+                                <!-- inner petals x5 -->
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#aaa" opacity="0.9" transform="rotate(0)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#aaa" opacity="0.9" transform="rotate(72)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#aaa" opacity="0.9" transform="rotate(144)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#aaa" opacity="0.9" transform="rotate(216)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#aaa" opacity="0.9" transform="rotate(288)"/>
+                                <!-- core -->
+                                <circle cx="0" cy="0" r="26" fill="#ddd"/>
+                                <circle cx="0" cy="0" r="16" fill="#ccc"/>
+                                <circle cx="0" cy="0" r="8"  fill="#bbb"/>
+                                <!-- stamens -->
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(0)"/>
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(45)"/>
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(90)"/>
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(135)"/>
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(180)"/>
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(225)"/>
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(270)"/>
+                                <circle cx="0" cy="-20" r="3" fill="#aaa" transform="rotate(315)"/>
+                            </g>
+                        </svg>
+                    </div>
+                    <!-- Color large blossom (damaged) -->
+                    <div id="large-boss-color" style="position:absolute;width:280px;height:280px;opacity:0;transition:opacity 0.5s ease;filter:drop-shadow(0 0 18px rgba(192,57,43,0.9));">
+                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="280" height="280">
+                            <defs>
+                                <radialGradient id="petalGrad1" cx="50%" cy="80%" r="70%">
+                                    <stop offset="0%" stop-color="#ff6b8a"/>
+                                    <stop offset="100%" stop-color="#ffb7c5"/>
+                                </radialGradient>
+                                <radialGradient id="petalGrad2" cx="50%" cy="80%" r="70%">
+                                    <stop offset="0%" stop-color="#e74c3c"/>
+                                    <stop offset="100%" stop-color="#ff8fa3"/>
+                                </radialGradient>
+                                <radialGradient id="coreGrad" cx="40%" cy="35%" r="60%">
+                                    <stop offset="0%" stop-color="#ff2952"/>
+                                    <stop offset="100%" stop-color="#8b0000"/>
+                                </radialGradient>
+                            </defs>
+                            <g transform="translate(150,150)">
+                                <!-- outermost x8 -->
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(0)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(45)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(90)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(135)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(180)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(225)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(270)"/>
+                                <ellipse cx="0" cy="-90" rx="22" ry="42" fill="url(#petalGrad1)" transform="rotate(315)"/>
+                                <!-- middle x8 -->
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(22.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(67.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(112.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(157.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(202.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(247.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(292.5)"/>
+                                <ellipse cx="0" cy="-58" rx="18" ry="32" fill="url(#petalGrad2)" transform="rotate(337.5)"/>
+                                <!-- inner x5 -->
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#ff4d6d" transform="rotate(0)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#ff4d6d" transform="rotate(72)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#ff4d6d" transform="rotate(144)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#ff4d6d" transform="rotate(216)"/>
+                                <ellipse cx="0" cy="-35" rx="13" ry="22" fill="#ff4d6d" transform="rotate(288)"/>
+                                <!-- core rings -->
+                                <circle cx="0" cy="0" r="26" fill="url(#coreGrad)"/>
+                                <circle cx="0" cy="0" r="18" fill="#8b0000" opacity="0.7"/>
+                                <circle cx="0" cy="0" r="9"  fill="#ff2952"/>
+                                <!-- highlight -->
+                                <ellipse cx="-6" cy="-8" rx="5" ry="7" fill="white" opacity="0.25"/>
+                                <!-- stamens with glow -->
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(0)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(0)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(45)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(45)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(90)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(90)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(135)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(135)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(180)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(180)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(225)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(225)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(270)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(270)"/>
+                                <line x1="0" y1="-10" x2="0" y2="-20" stroke="#ffe066" stroke-width="2" transform="rotate(315)"/>
+                                <circle cx="0" cy="-21" r="3.5" fill="#ffe066" transform="rotate(315)"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <div id="large-boss-hp-bar"><div id="large-boss-hp-fill"></div></div>
+                <div id="large-boss-word-display">대형보스 등장!</div>
             </div>
         </div>
 
@@ -508,7 +961,40 @@
 
         <div id="game-over">
             <h1 id="over-title" style="font-size: 60px; color: #ff4d6d; margin-bottom: 20px;">GARDEN OVER</h1>
-            <p style="font-size: 24px; color: #ffb3c1; margin-bottom: 30px;">최종 점수: <span id="final-score" style="color: #ff4d6d; font-weight: 900;">0</span></p>
+            <p style="font-size: 24px; color: #ffb3c1; margin-bottom: 20px;">최종 점수: <span id="final-score" style="color: #ff4d6d; font-weight: 900;">0</span></p>
+            <div id="speed-select-label" style="font-size:13px;font-weight:700;color:#ff4d6d;letter-spacing:2px;margin-bottom:12px;">⚡ 속도 선택</div>
+            <div id="over-speed-buttons" style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;">
+                <button class="speed-btn selected" data-mult="1.0" onclick="selectSpeed(this)">
+                    <span class="speed-icon">🐌</span>
+                    <span class="speed-val">1x</span>
+                    <span class="speed-desc">기본</span>
+                </button>
+                <button class="speed-btn" data-mult="1.2" onclick="selectSpeed(this)">
+                    <span class="speed-icon">🐢</span>
+                    <span class="speed-val">1.2x</span>
+                    <span class="speed-desc">입문</span>
+                </button>
+                <button class="speed-btn" data-mult="1.5" onclick="selectSpeed(this)">
+                    <span class="speed-icon">🐇</span>
+                    <span class="speed-val">1.5x</span>
+                    <span class="speed-desc">보통</span>
+                </button>
+                <button class="speed-btn" data-mult="2.0" onclick="selectSpeed(this)">
+                    <span class="speed-icon">🦊</span>
+                    <span class="speed-val">2x</span>
+                    <span class="speed-desc">빠름</span>
+                </button>
+                <button class="speed-btn" data-mult="2.5" onclick="selectSpeed(this)">
+                    <span class="speed-icon">🐆</span>
+                    <span class="speed-val">2.5x</span>
+                    <span class="speed-desc">격렬</span>
+                </button>
+                <button class="speed-btn" data-mult="3.0" onclick="selectSpeed(this)">
+                    <span class="speed-icon">⚡</span>
+                    <span class="speed-val">3x</span>
+                    <span class="speed-desc">지옥</span>
+                </button>
+            </div>
             <button onclick="startGame()" style="background:#ff4d6d; color:white; border:none; padding:20px 40px; border-radius:20px; font-size:24px; font-weight:900; cursor:pointer;">다시 시작</button>
         </div>
     </div>
@@ -604,37 +1090,52 @@
 
         const wordBank = {
             1: ['봄', '꽃', '잎', '흙', '별', '꿈', '빛', '향', '해', '물', '씨', '들', '산', '길', '숲', '풀', '비', '눈', '낮', '밤'],
-            2: ['장미', '튤립', '백합', '새싹', '화분', '정원', '나무', '열매', '나비', '햇살', '하늘', '구름', '바람', '들꽃', '풀잎', '단비', '미소', '사랑', '행복', '우정', '마음', '향기', '노래', '풍경'],
+            2: ['장미', '백합', '새싹', '화분', '정원', '나무', '열매', '나비', '햇살', '하늘', '구름', '바람', '들꽃', '풀잎', '단비', '미소', '사랑', '행복', '마음', '향기', '노래', '풍경', '봄날', '꽃길'],
             3: ['코스모스', '카네이션', '개나리', '벚꽃길', '진달래', '무지개', '해바라기', '목련화', '수선화', '라벤더', '민들레', '함박꽃', '달맞이', '안개꽃', '구절초', '채송화', '봉선화', '백일홍', '꽃다발', '꽃바구니'],
-            4: ['장미꽃밭', '수레국화', '라일락향', '할미꽃잎', '코스모스길', '튤립축제', '벚꽃엔딩', '싱그러운운', '꽃가루날림', '아름다움', '꿈결같은', '햇살가득', '바람부는날', '비밀의정원'],
-            5: ['라벤더향기', '울긋불긋한', '해바라기밭', '싱그러운운봄', '아름다운숲', '비밀의화원', '눈부신햇살', '꽃들의축제', '바람의노래', '마음의정원']
+            4: ['장미꽃밭', '수레국화', '라일락향', '할미꽃잎', '벚꽃축제', '벚꽃엔딩', '꽃가루날림', '아름다움', '꿈결같은', '햇살가득', '봄날가득', '비밀정원'],
+            5: ['라벤더향기', '해바라기밭', '아름다운숲', '비밀의화원', '꽃들의축제', '바람의노래', '마음의정원', '봄날의향기', '하늘빛정원', '꽃비내리는날']
         };
 
-        const bossWordBank = ['벚꽃의숨결', '봄날의기적', '정원의요정', '하얀빛날개', '향기로운꿈', '햇살의축제', '바람의노래', '비밀의화원', '이슬의미소', '은하수정원'];
+        const bossWordBank = ['벚꽃비야', '꽃바람아', '봄향기야', '분홍빛이', '꽃잎춤을', '봄날꿈을', '벚꽃길로', '꽃물결아', '봄기운아', '화사한봄'];
+        const largeBossWordBank = ['벚꽃폭풍아', '꽃비내려라', '봄날에꿈아', '분홍세상아', '꽃잎이춤을', '봄바람불자', '벚꽃만개야', '꽃향기봄아', '봄에기운아', '화사한봄날'];
+        const projectileWordBank = ['꽃잎', '봄비', '바람', '향기', '꽃빛', '봄빛', '꽃눈', '봄꽃', '꽃물', '봄날'];
 
         let score = 0, lives = 3, combo = 0, gameActive = false, activeWords = [];
         let fallSpeed = isMobile ? 0.045 : 0.054;
         let isFever = false, feverEndTime = 0;
         let comboTimeRemaining = 0;
         const FEVER_DURATION = 10000, COMBO_TIME_LIMIT = 8000;
-        const MAX_INPUT_LENGTH = 15; 
-        
-        let isBossEvent = false;
-        let bossHP = 3; 
-        let maxBossHP = 3;
-        let bossY = -350;
-        let nextBossThreshold = 1000;
-        const BOSS_INTERVAL = 1000;
-        let bossDescentSpeed = isMobile ? 0.012 : 0.017; 
-        let currentBossWord = "";
+        const MAX_INPUT_LENGTH = 15;
 
-        let lastTime = 0; 
-        let lastFiredTime = 0; 
-        let resetTimer = null; 
+        // ── 중간보스 ──
+        let isBossEvent = false;
+        let bossHP = 3, maxBossHP = 3;
+        let bossY = -350;
+        let bossDescentSpeed = isMobile ? 0.018 : 0.025;
+        let currentBossWord = "";
+        let bossProjectileInterval = null;
+
+        // 중간보스 등장 점수: 500, 1500, 2500, 3500 ... (500점 시작, 1000 간격)
+        let nextMidBossScore = 500;
+
+        // ── 대형보스 ──
+        let isLargeBossEvent = false;
+        let largeBossHP = 5, maxLargeBossHP = 5;
+        let largeBossY = -500;
+        let largeBossDescentSpeed = isMobile ? 0.012 : 0.016;
+        let currentLargeBossWord = "";
+        let largeBossProjectileInterval = null;
+
+        // 대형보스 등장 점수: 1000, 2000, 3000 ... (1000점 간격)
+        let nextLargeBossScore = 1000;
+
+        let lastTime = 0;
+        let lastFiredTime = 0;
+        let resetTimer = null;
         let spawnTimeoutId = null;
-        let lastInputLength = 0; 
-        let isDeleting = false; 
-        let isComposing = false; 
+        let lastInputLength = 0;
+        let isDeleting = false;
+        let isComposing = false;
 
         function init() {
             // Audio init on click
@@ -706,7 +1207,9 @@
                 if (val !== "") startResetTimer();
             });
 
-            startGame();
+            // 타이틀 화면 표시 (게임은 startFromTitle() 버튼 클릭 시 시작)
+            const titleScreen = document.getElementById('title-screen');
+            if (titleScreen) titleScreen.style.display = 'flex';
         }
 
         function isCompleteHangul(char) {
@@ -753,20 +1256,23 @@
         }
 
         function triggerTextBurst(fullVal, charToDisplay) {
-            if (!fullVal || isDeleting || fullVal.length === 0) return; 
+            if (!fullVal || isDeleting || fullVal.length === 0) return;
             const now = Date.now();
-            if (now - lastFiredTime < 100) return; 
+            if (now - lastFiredTime < 100) return;
             lastFiredTime = now;
 
-            if (isBossEvent) {
-                triggerCharDamage(gameField.offsetWidth / 2, bossY + 150, charToDisplay);
-                launchFlowersFromInput({x: gameField.offsetWidth / 2, y: bossY + 150});
+            if (isLargeBossEvent) {
+                triggerCharDamage(gameField.offsetWidth / 2, 200, charToDisplay);
+                launchFlowersFromInput({x: gameField.offsetWidth / 2, y: 200});
+            } else if (isBossEvent) {
+                triggerCharDamage(gameField.offsetWidth / 2, 150, charToDisplay);
+                launchFlowersFromInput({x: gameField.offsetWidth / 2, y: 150});
             } else {
-                let targetCandidate = activeWords.filter(m => m.word.startsWith(fullVal)).sort((a,b)=>b.y-a.y)[0]; 
+                let targetCandidate = activeWords.filter(m => m.word.startsWith(fullVal)).sort((a,b)=>b.y-a.y)[0];
                 if (!targetCandidate && activeWords.length > 0) targetCandidate = activeWords.sort((a,b)=>b.y-a.y)[0];
                 if (targetCandidate) {
                     triggerCharDamage(targetCandidate.x, targetCandidate.y, charToDisplay);
-                    launchFlowersFromInput(targetCandidate); 
+                    launchFlowersFromInput(targetCandidate);
                 }
             }
         }
@@ -812,7 +1318,7 @@
         function spawnLoop() {
             if (!gameActive) return;
             if (!isBossEvent) spawnWord();
-            spawnTimeoutId = setTimeout(spawnLoop, (score < 3000 ? 3000 : 2500));
+            spawnTimeoutId = setTimeout(spawnLoop, (score < 3000 ? 2500 : 2000));
         }
 
         function spawnWord() {
@@ -838,20 +1344,30 @@
             activeWords.push({ el, word, y: -50, x, xPercent, speed: fallSpeed });
         }
 
+        // ══════════════════════════════
+        //  중간보스 함수들
+        // ══════════════════════════════
         function triggerBoss() {
+            if (isBossEvent || isLargeBossEvent) return;
             isBossEvent = true;
-            if (score >= 5000) maxBossHP = 4 + Math.floor((score - 5000) / 3000);
-            else maxBossHP = 3;
-            
+            maxBossHP = score >= 3000 ? 4 : 3;
             bossHP = maxBossHP;
-            bossY = -350;
+            // 고정 위치
+            bossContainer.style.top = '30px';
             bossContainer.style.display = 'flex';
             if (isMobile) bossContainer.style.transform = 'translateX(-50%) scale(0.7)';
             updateBossHPUI();
             setBossWord();
-            
-            // Boss sound hint remains
             SoundEngine.playType(200);
+            // 발사체 1개씩 - 바닥 닿으면 0.4초 뒤 다시
+            scheduleMidProjectile();
+        }
+
+        function scheduleMidProjectile() {
+            if (!isBossEvent || !gameActive) return;
+            fireProjectile('mid', () => {
+                setTimeout(() => scheduleMidProjectile(), 400);
+            });
         }
 
         function setBossWord() {
@@ -869,24 +1385,201 @@
         function hitBoss() {
             bossHP--;
             updateBossHPUI();
-            SoundEngine.playType(600); 
-            const wrapper = document.querySelector('.boss-visual-wrapper');
-            wrapper.style.transform = 'scale(1.25) rotate(5deg)';
+            SoundEngine.playType(600);
+            const wrapper = document.querySelector('#boss-container .boss-visual-wrapper');
+            wrapper.style.transform = 'scale(1.3) rotate(-12deg)';
             setTimeout(() => wrapper.style.transform = '', 150);
             if (bossHP <= 0) clearBoss();
             else setBossWord();
         }
 
         function clearBoss() {
-            bossWordDisplay.innerText = "정화 완료!";
+            isBossEvent = false; // 발사체 루프 중단용
+            // 남은 발사체 즉시 제거
+            clearAllProjectiles();
+            bossWordDisplay.innerText = "벚꽃 정화 완료! 🌸";
             SoundEngine.playSuccess();
             score += 200 + (maxBossHP * 50);
             scoreDisplay.innerText = score;
-            nextBossThreshold += BOSS_INTERVAL;
+            nextMidBossScore += 1000;
             setTimeout(() => {
-                bossContainer.style.top = '-400px';
-                setTimeout(() => { bossContainer.style.display = 'none'; isBossEvent = false; }, 1000);
-            }, 1000);
+                bossContainer.style.display = 'none';
+                bossContainer.style.top = '30px';
+            }, 1200);
+        }
+
+        // ══════════════════════════════
+        //  대형보스 함수들
+        // ══════════════════════════════
+        const largeBossContainer  = document.getElementById('large-boss-container');
+        const largeBossColor      = document.getElementById('large-boss-color');
+        const largeBossHpFill     = document.getElementById('large-boss-hp-fill');
+        const largeBossWordDisplay= document.getElementById('large-boss-word-display');
+        const largeBossGlow       = document.getElementById('large-boss-glow');
+
+        function triggerLargeBoss() {
+            if (isBossEvent || isLargeBossEvent) return;
+            isLargeBossEvent = true;
+            maxLargeBossHP = score >= 4000 ? 6 + Math.floor((score-4000)/2000) : 5;
+            largeBossHP = maxLargeBossHP;
+            // 고정 위치
+            largeBossContainer.style.top = '10px';
+            largeBossContainer.style.display = 'flex';
+            if (isMobile) largeBossContainer.style.transform = 'translateX(-50%) scale(0.65)';
+            updateLargeBossHPUI();
+            setLargeBossWord();
+            SoundEngine.playType(120);
+            SoundEngine.playType(160);
+            // 발사체 2개 - 둘 다 사라지면 0.4초 뒤 다시
+            scheduleLargeProjectileWave();
+        }
+
+        function scheduleLargeProjectileWave() {
+            if (!isLargeBossEvent || !gameActive) return;
+            let done = 0;
+            function onDone() {
+                done++;
+                if (done >= 2) setTimeout(() => scheduleLargeProjectileWave(), 400);
+            }
+            fireProjectile('large', onDone);
+            setTimeout(() => { if (isLargeBossEvent && gameActive) fireProjectile('large', onDone); }, 300);
+        }
+
+
+
+        function setLargeBossWord() {
+            currentLargeBossWord = largeBossWordBank[Math.floor(Math.random() * largeBossWordBank.length)];
+            largeBossWordDisplay.innerText = currentLargeBossWord;
+        }
+
+        function updateLargeBossHPUI() {
+            largeBossHpFill.style.width = `${(largeBossHP / maxLargeBossHP) * 100}%`;
+            const progress = 1 - (largeBossHP / maxLargeBossHP);
+            largeBossColor.style.opacity = progress;
+            if (largeBossGlow) largeBossGlow.style.opacity = progress;
+        }
+
+        function hitLargeBoss() {
+            largeBossHP--;
+            updateLargeBossHPUI();
+            SoundEngine.playType(400);
+            const wrapper = document.getElementById('large-boss-wrapper');
+            wrapper.style.transform = 'scale(1.25) rotate(-10deg)';
+            setTimeout(() => wrapper.style.transform = '', 180);
+            if (largeBossHP <= 0) clearLargeBoss();
+            else setLargeBossWord();
+        }
+
+        function clearLargeBoss() {
+            isLargeBossEvent = false; // 발사체 루프 중단용
+            // 남은 발사체 즉시 제거
+            clearAllProjectiles();
+            largeBossWordDisplay.innerText = "💀 대형보스 격파! 🌸";
+            SoundEngine.playSuccess(); SoundEngine.playSuccess();
+            score += 500 + (maxLargeBossHP * 100);
+            scoreDisplay.innerText = score;
+            nextLargeBossScore += 1000;
+            setTimeout(() => {
+                largeBossContainer.style.display = 'none';
+                largeBossContainer.style.top = '10px';
+            }, 1200);
+        }
+
+        // ══════════════════════════════
+        //  발사체 공통 함수
+        // ══════════════════════════════
+        // 발사체: 2글자 텍스트, 아주 천천히 내려옴, 입력 시 사라짐, 바닥 도달 후 콜백
+        let activeProjectiles = []; // { el, word, done }
+
+        function fireProjectile(type, onDone) {
+            if (!gameActive) { if (onDone) onDone(); return; }
+            const isMid = type === 'mid';
+            const fromX  = gameField.offsetWidth / 2;
+            // 고정 위치에서 발사
+            const fromY  = isMid ? 200 : 280;
+            const speed  = 10000; // 아주 천천히 (10초)
+            const wobble = (Math.random() - 0.5) * 200;
+            const word   = projectileWordBank[Math.floor(Math.random() * projectileWordBank.length)];
+
+            const p = document.createElement('div');
+            p.className = isMid ? 'boss-projectile' : 'large-boss-projectile';
+            p.innerText = word;
+            p.style.cssText = `
+                left: ${fromX + (Math.random()-0.5)*100}px;
+                top: ${fromY}px;
+                font-size: ${isMid ? '22px' : '28px'};
+                font-weight: 900;
+                color: ${isMid ? '#ff4d6d' : '#c0392b'};
+                background: rgba(255,255,255,0.92);
+                border: 2px solid ${isMid ? '#ffb7c5' : '#e74c3c'};
+                border-radius: 10px;
+                padding: 4px 10px;
+                transition: top ${speed}ms linear, left ${speed}ms ease-in-out, opacity 200ms;
+                opacity: 1;
+                cursor: default;
+                user-select: none;
+                z-index: 200;
+            `;
+            gameField.appendChild(p);
+
+            const proj = { el: p, word, done: false, onDone };
+            activeProjectiles.push(proj);
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const targetY = gameField.offsetHeight - 130;
+                    p.style.top  = `${targetY}px`;
+                    p.style.left = `${fromX + wobble}px`;
+
+                    setTimeout(() => {
+                        if (!gameActive || proj.done) return; // 게임 중이 아니면 무시
+                        proj.done = true;
+                        const idx = activeProjectiles.indexOf(proj);
+                        if (idx !== -1) activeProjectiles.splice(idx, 1);
+                        if (gameActive) {
+                            lives = Math.max(0, lives - 1);
+                            updateLivesUI();
+                            if (lives <= 0) { endGame(); return; }
+                        }
+                        p.style.opacity = '0';
+                        setTimeout(() => {
+                            p.remove();
+                            if (onDone) onDone();
+                        }, 300);
+                    }, speed);
+                });
+            });
+        }
+
+        // 보스 처치 시 화면에 남은 모든 발사체 즉시 제거
+        function clearAllProjectiles() {
+            for (let i = activeProjectiles.length - 1; i >= 0; i--) {
+                const proj = activeProjectiles[i];
+                proj.done = true;
+                proj.el.style.opacity = '0';
+                setTimeout(() => { if (proj.el.parentNode) proj.el.remove(); }, 200);
+            }
+            activeProjectiles = [];
+        }
+
+        // 발사체를 타이핑으로 제거
+        function checkProjectileWord(val) {
+            const trimmed = val.trim();
+            for (let i = activeProjectiles.length - 1; i >= 0; i--) {
+                const proj = activeProjectiles[i];
+                if (!proj.done && proj.word === trimmed) {
+                    proj.done = true;
+                    activeProjectiles.splice(i, 1);
+                    proj.el.style.opacity = '0';
+                    setTimeout(() => {
+                        proj.el.remove();
+                        if (proj.onDone) proj.onDone();
+                    }, 200);
+                    clearInput();
+                    return true;
+                }
+            }
+            return false;
         }
 
         function gameLoop(timestamp) {
@@ -894,26 +1587,31 @@
 
             const dt = timestamp - lastTime;
             lastTime = timestamp;
-            const safeDt = Math.min(dt, 50); 
+            const safeDt = Math.min(dt, 50);
 
-            if (!isBossEvent && score >= nextBossThreshold) triggerBoss();
+            // 보스 트리거 체크 (둘 다 없을 때만)
+            if (!isBossEvent && !isLargeBossEvent) {
+                if (score >= nextLargeBossScore) {
+                    triggerLargeBoss();
+                } else if (score >= nextMidBossScore) {
+                    triggerBoss();
+                }
+            }
 
-            if (isBossEvent) {
-                bossY += bossDescentSpeed * safeDt;
-                bossContainer.style.top = `${bossY}px`;
-                const limit = isMobile ? gameField.offsetHeight - 250 : gameField.offsetHeight - 380;
-                if (bossY > limit) endGame("벚꽃새가 정원을 떠났습니다!");
-            } else {
+            // 일반 단어 이동 (보스 이벤트 없을 때만)
+            if (!isBossEvent && !isLargeBossEvent) {
                 const currentMoveSpeed = isFever ? fallSpeed * 0.5 : fallSpeed;
                 const deadLine = isMobile ? gameField.offsetHeight - 100 : gameField.offsetHeight - 130;
                 for (let i = activeWords.length - 1; i >= 0; i--) {
                     const m = activeWords[i];
-                    m.y += currentMoveSpeed * safeDt;
-                    m.el.style.top = `${m.y}px`; 
-                    if (m.y > deadLine) {
+                    if (currentMoveSpeed > 0) {
+                        m.y += currentMoveSpeed * safeDt;
+                        m.el.style.top = `${m.y}px`;
+                    }
+                    if (currentMoveSpeed > 0 && m.y > deadLine) {
                         lives = Math.max(0, lives - 1);
-                        updateLivesUI(); 
-                        if(!isFever) { combo = 0; updateComboUI(); }
+                        updateLivesUI();
+                        if (!isFever) { combo = 0; updateComboUI(); }
                         m.el.remove(); activeWords.splice(i, 1);
                         if (lives <= 0) { endGame(); return; }
                     }
@@ -924,9 +1622,9 @@
             if (isFever) {
                 const remain = feverEndTime - now;
                 if (remain <= 0) endFever();
-                else { 
-                    feverBar.style.width = `${(remain/FEVER_DURATION)*100}%`; 
-                    if (Math.random() > 0.9) createFeverParticle(); 
+                else {
+                    feverBar.style.width = `${(remain/FEVER_DURATION)*100}%`;
+                    if (Math.random() > 0.9) createFeverParticle();
                 }
             }
             if (combo > 0 && !isFever) {
@@ -940,9 +1638,20 @@
 
         function checkWord(val) {
             const trimmedVal = val.trim();
-            if (isBossEvent) {
+
+            // 발사체 단어 먼저 체크
+            if ((isBossEvent || isLargeBossEvent) && checkProjectileWord(trimmedVal)) return true;
+
+            if (isLargeBossEvent) {
+                if (trimmedVal === currentLargeBossWord) {
+                    triggerCharDamage(gameField.offsetWidth / 2, 200, trimmedVal.slice(-1));
+                    hitLargeBoss();
+                    clearInput();
+                    return true;
+                }
+            } else if (isBossEvent) {
                 if (trimmedVal === currentBossWord) {
-                    triggerCharDamage(gameField.offsetWidth / 2, bossY + 150, trimmedVal.slice(-1));
+                    triggerCharDamage(gameField.offsetWidth / 2, 150, trimmedVal.slice(-1));
                     hitBoss();
                     clearInput();
                     return true;
@@ -955,10 +1664,10 @@
                     SoundEngine.playSuccess();
                     let gain = (m.word.length * 20);
                     if (isFever) gain *= 2;
-                    m.el.remove(); 
+                    m.el.remove();
                     activeWords.splice(idx, 1);
                     if (!isFever) {
-                        combo++; 
+                        combo++;
                         comboTimeRemaining = COMBO_TIME_LIMIT;
                         if (combo >= 10) startFever();
                     }
@@ -1022,33 +1731,63 @@
             if (lives < 3 && lives > 0) SoundEngine.playType(150); 
         }
 
+        // ── 타이틀 화면 ──
+        let selectedSpeedMult = 1.0; // 기본 1x
+
+        function selectSpeed(btn) {
+            document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('selected'));
+            // 같은 data-mult 값을 가진 모든 버튼 선택
+            const mult = btn.dataset.mult;
+            document.querySelectorAll(`.speed-btn[data-mult="${mult}"]`).forEach(b => b.classList.add('selected'));
+            selectedSpeedMult = parseFloat(mult);
+        }
+
+        function startFromTitle() {
+            const titleScreen = document.getElementById('title-screen');
+            titleScreen.style.opacity = '0';
+            titleScreen.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => { titleScreen.style.display = 'none'; }, 500);
+            startGame();
+        }
+
         function startGame() {
-            score = 0; lives = 3; combo = 0; 
-            fallSpeed = isMobile ? 0.045 : 0.054; 
-            gameActive = true; activeWords = []; isBossEvent = false; 
-            nextBossThreshold = 1000;
+            score = 0; lives = 3; combo = 0;
+            const baseSpeed = isMobile ? 0.045 : 0.054;
+            fallSpeed = baseSpeed * selectedSpeedMult;
+            gameActive = true; activeWords = []; activeProjectiles = []; isBossEvent = false; isLargeBossEvent = false;
+            nextMidBossScore = 500;
+            nextLargeBossScore = 1000;
+            clearInterval(bossProjectileInterval);
+            clearInterval(largeBossProjectileInterval);
             scoreDisplay.innerText = "0"; updateLivesUI(); updateComboUI();
-            gameOverScreen.style.display = 'none'; bossContainer.style.display = 'none';
-            
+            gameOverScreen.style.display = 'none';
+            bossContainer.style.display = 'none';
+            largeBossContainer.style.display = 'none';
+
             const bg = document.getElementById('fever-bg-layer');
             const line = document.getElementById('judgment-line');
-            gameField.innerHTML = ''; gameField.appendChild(bg); gameField.appendChild(line); gameField.appendChild(bossContainer);
-            
+
+            // 활성 단어 엘리먼트만 제거 (타이틀/보스 컨테이너 건드리지 않음)
+            gameField.querySelectorAll('.word-item, .boss-projectile, .large-boss-projectile, .fever-particle, .char-damage, .flower-particle').forEach(el => el.remove());
+
+            if (!gameField.contains(bg)) gameField.appendChild(bg);
+            if (!gameField.contains(line)) gameField.appendChild(line);
+            if (!gameField.contains(bossContainer)) gameField.appendChild(bossContainer);
+            if (!gameField.contains(largeBossContainer)) gameField.appendChild(largeBossContainer);
+
             endFever(); clearInput(); updateLangIndicator('en');
             if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
-            
-            if (SoundEngine.ctx) {
-                SoundEngine.resume();
-                // BGM start removed
-            }
+
+            if (SoundEngine.ctx) SoundEngine.resume();
 
             lastTime = performance.now();
-            spawnLoop(); 
+            spawnLoop();
             requestAnimationFrame(gameLoop);
             inputField.focus();
         }
 
         function endGame(msg = "GARDEN OVER") {
+            if (!gameActive) return; // 타이틀 화면 중엔 무시
             gameActive = false;
             document.getElementById('over-title').innerText = msg;
             document.getElementById('final-score').innerText = score;
@@ -1058,8 +1797,8 @@
             SoundEngine.playType(100); 
         }
 
-        window.onload = init;
-    </script>
+        window.onload = () => { init(); };
+        </script>
 </div>
 <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->
 </div><!-- /game-wrapper-outer -->
