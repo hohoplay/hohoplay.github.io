@@ -1270,24 +1270,183 @@ def site_link():
 # HTML 빌더
 # ─────────────────────────────────────────
 
+# ═══════════════════════════════════════════════════════════════════
+# 현실 위로형 스토리텔링 데이터 풀
+# 구조: 공감 → 감정 흐름 → 위로 → 마지막 한 줄 (명언 연결)
+# 원칙: 구어체, AI 티 제거, 현실 디테일, 반복 패턴 금지
+# ═══════════════════════════════════════════════════════════════════
+
+# ── 공감 파트: 요즘 세상 현실 디테일 (직장·관계·돈·피로·사회 불안) ──
+_EMPATHY_POOL = [
+    "요즘 이상하게 아침이 무거운 날이 많아요. 뉴스 켜면 속상하고, 끄면 불안하고. 열심히 살고 있는데 뭔가 점점 좁아지는 느낌이 드는 거 나만 그런 게 아니에요.",
+    "월급은 그대로인데 나가는 건 자꾸 늘어나고, 잘하고 있는 건지 모르겠는 날들이 쌓이죠. 그 무게가 어느 순간부터 그냥 일상이 돼버린 것 같아서 더 무서워요.",
+    "요즘 '이렇게 살아도 되나' 싶은 날이 가끔 있지 않아요? 남들은 다 앞으로 가는 것 같은데, 나만 제자리인 것 같고. 그 감각이 하루에 한 번씩은 꼭 찾아와요.",
+    "세상이 하도 어수선하다 보니까, 뭘 믿어야 할지 모르겠는 날들이 늘었어요. 뉴스 보다가 무기력해지고, 그렇다고 안 보자니 더 불안하고. 그 사이에서 오늘도 버티고 있는 거잖아요.",
+    "직장에서 힘들어도 집에 가면 쉬어야 하는데, 집에 와도 머릿속은 계속 일 생각이고. 언제부터 쉬는 시간도 불안해진 건지 모르겠어요.",
+    "아무리 해도 안 풀리는 시기가 있어요. 딱히 내 탓도 아닌데, 그냥 세상이 나한테 좀 냉정한 느낌이 드는 그런 시기요. 요즘 그런 시간을 지나고 있는 분들 꽤 많을 거예요.",
+    "누군가한테 '요즘 어때?' 라는 말을 들으면 '그냥 그렇죠'라고 대답하는 날이 늘었어요. 다 설명하기도 애매하고, 그렇다고 괜찮은 것도 아니고.",
+    "마음이 허한데 이유를 딱 집어서 말하기가 어려운 날이 있어요. 크게 잘못된 것도 없고, 그렇다고 좋은 것도 없고. 그냥 다 흐릿한 날요.",
+    "열심히 준비하고, 참고, 기다렸는데 생각했던 것보다 결과가 안 나올 때 — 그 실망감이 말로 잘 안 나와요. 티 내기도 뭐하고.",
+    "요즘 같은 때는 그냥 평범하게 사는 것도 보통 일이 아닌 것 같아요. 물가도 오르고, 불안도 오르고. 그러면서도 하루하루 버티고 있는 거잖아요.",
+    "잘하고 싶은 마음은 있는데 몸이 따라주지 않는 날이 있어요. 의지가 없는 게 아니라, 그냥 너무 쌓인 거예요. 그 차이가 생각보다 중요한데, 자기한테 제일 못 봐주는 게 자기 자신이잖아요.",
+    "연락을 해야 할 사람이 있는데 계속 미루게 되는 날들이 있어요. 보고 싶기는 한데, 뭔가 먼저 연락하기가 어색해진 거요. 그 거리감이 언제부터 생긴 건지.",
+]
+
+# ── 감정 흐름 파트: 버티는 감정의 솔직한 표현 ──
+_EMOTION_POOL = [
+    "그런데 있잖아요, 그렇게 버티고 있다는 것 자체가 이미 대단한 거예요. 무너지지 않은 게 얼마나 힘든 일인지, 버텨본 사람은 알아요.",
+    "지치는 건 약해서가 아니에요. 너무 오래 강했기 때문이에요. 그 차이를 자기 자신한테는 인정해줘야 해요.",
+    "힘든 걸 힘들다고 말하지 못하는 게 더 힘든 경우가 있어요. '이 정도면 괜찮아야지'라는 기준을 너무 높게 잡고 있는 건 아닌지, 한 번쯤 내려놔도 돼요.",
+    "잘 살고 싶은 마음이 있으니까 지치는 거잖아요. 아무 상관 없는 사람은 지치지도 않아요. 지금 이 피로감이 사실은 열심히 살고 있다는 증거예요.",
+    "오늘 하루가 다 풀리지 않아도 괜찮아요. 어떤 날은 그냥 지나가는 것만으로 충분한 날이 있으니까요. 모든 날이 의미 있어야 하는 건 아니에요.",
+    "감정을 꽉 누르고 살다 보면, 어느 순간 이유도 모르고 힘들어지는 날이 와요. 그게 이상한 게 아니에요. 그냥 오래 참았던 거예요.",
+    "뭔가 잘못된 게 아니에요. 그냥 지금 이 시기가 좀 험한 거예요. 세상도, 상황도, 사람 사이도 다 같이 어수선하니까요.",
+    "모든 걸 혼자 해결하려고 하다 보니까 어깨가 너무 무거워진 거예요. 내려놓는 게 포기가 아니에요. 숨 쉬는 거예요.",
+    "자꾸 비교하게 되는 마음도 이해해요. 근데 남들 인생은 하이라이트만 보이고, 내 인생은 풀영상이잖아요. 당연히 내 것이 더 많아 보일 수밖에 없어요.",
+    "기대했다가 실망하는 게 반복되면, 어느 순간 기대 자체를 안 하게 돼요. 그게 자기 보호이기도 하지만, 한편으로는 참 쓸쓸한 일이에요.",
+    "요즘 세상이 이러니까 불안한 게 당연한 거예요. 불안을 느끼는 게 잘못된 게 아니에요. 그 불안을 이고 살면서 하루를 버티는 게 진짜 용기예요.",
+    "뭔가를 잘하고 싶은 마음이 있는 한, 완전히 포기한 건 아니에요. 그 마음이 아직 있다는 것, 잊지 마세요.",
+]
+
+# ── 위로 파트: 구체적이고 따뜻한 위로 ──
+_COMFORT_POOL = [
+    "당신이 오늘 여기까지 왔다는 것, 그것만으로도 이미 잘한 거예요. 큰 성공이 아니어도 괜찮아요. 오늘 무너지지 않은 것, 그게 진짜 대단한 일이에요.",
+    "지금 이 자리에서 계속 살아내고 있는 것, 그거 쉬운 일이 아니에요. 누군가 알아주지 않아도, 그 무게를 아는 사람이 있어요.",
+    "오늘 하루 힘들었으면 충분히 힘들었다고 인정해줘요. 자기한테만큼은 솔직해도 돼요. 그리고 그 정도면 충분히 열심히 산 거예요.",
+    "완벽하게 잘 살지 않아도 돼요. 그냥 조금씩, 자기 속도대로 가는 게 오히려 더 멀리 가는 방법이에요. 서두르지 않아도 돼요.",
+    "지금 잘 안 보여도, 쌓이고 있는 게 있어요. 눈에 안 보이는 것들이 나중에 가장 단단한 기반이 되는 경우가 많아요. 지금 하고 있는 것들이 헛된 게 아니에요.",
+    "힘든 시간을 지나는 중이라면, 그게 끝이 아니에요. 끝처럼 느껴지는 그 순간이 사실은 방향이 바뀌기 직전인 경우가 많거든요.",
+    "오늘 아무것도 못 한 것 같아도, 오늘을 버텼잖아요. 그게 오늘의 성과예요. 정말로요.",
+    "자기 자신에게 조금 더 너그러워도 돼요. 남한테는 이해해줄 수 있는 것들을, 자기한테는 너무 엄격하게 적용하고 있지는 않은지 한 번만 돌아봐요.",
+    "지치면 쉬어도 돼요. 쉬는 게 포기가 아니에요. 멈추는 게 아니라, 다시 가기 위해 숨 고르는 거예요.",
+    "당신이 버티고 있는 이 시간이, 나중에 당신을 가장 단단하게 만들어줄 거예요. 지금은 안 보여도, 쌓이고 있어요.",
+    "살다 보면 어떤 시기는 그냥 통과해야 하는 시기가 있어요. 그 시기를 잘 지나가는 것 자체가 대단한 일이에요. 지금이 그런 시간일 수도 있어요.",
+    "완벽한 날은 없어요. 그냥 괜찮은 날들이 쌓여서 좋은 시간이 되는 거예요. 오늘 괜찮은 하루였으면 충분해요.",
+]
+
+# ── SEO 제목 키워드 패턴 ──
+_QUOTE_TITLE_PATTERNS = [
+    "{today} 오늘의 명언 — 지금 이 순간 당신에게 필요한 한 마디",
+    "{today} 오늘의 위로 명언 | 힘든 하루를 버텨낸 당신에게",
+    "오늘의 명언 {today} — 지치고 힘들 때 읽으면 좋은 글",
+    "{today} 하루를 버티는 당신을 위한 오늘의 명언",
+    "오늘의 명언 | {today} 요즘 같은 때 마음에 새길 한 줄",
+    "{today} 오늘의 명언 — 무기력한 날에 읽어보세요",
+    "지금 지쳐있는 당신에게 | {today} 오늘의 위로 명언",
+    "{today} 오늘의 명언 · 현실 위로형 스토리텔링",
+]
+
 def build_quote_post(today_str):
+    """현실 위로형 스토리텔링 명언 포스트 (4파트 구조)"""
     quote, meaning, category = pick_quote()
-    title = seo_title(f"{today_str} 오늘의 명언")
     cat_badge = f" · {category}" if category and str(category) != 'nan' else ""
-    meaning_html = f'<br><p style="font-size:14px;color:#666;line-height:1.8">{meaning}</p>' if meaning and str(meaning) != 'nan' else ""
+
+    # 제목: SEO 패턴 랜덤 선택
+    title_pattern = random.choice(_QUOTE_TITLE_PATTERNS)
+    title = title_pattern.format(today=today_str)
+
+    # 4파트 랜덤 선택 (조합 다양성)
+    empathy  = random.choice(_EMPATHY_POOL)
+    emotion  = random.choice(_EMOTION_POOL)
+    comfort  = random.choice(_COMFORT_POOL)
+
+    # 마지막 한 줄: 명언을 자연스럽게 연결하는 클로징
+    _CLOSING_BRIDGES = [
+        f"그래서 오늘 이 말이 더 와닿아요. ❝ {quote} ❞",
+        f"그 마음 그대로, 오늘 이 한 줄 가져가요. ❝ {quote} ❞",
+        f"오늘 하루 이 말 하나만 기억해도 충분해요. ❝ {quote} ❞",
+        f"당신한테 건네고 싶은 말이 딱 이거예요. ❝ {quote} ❞",
+        f"이 한 마디, 오늘 주머니에 넣고 다니세요. ❝ {quote} ❞",
+        f"긴 말 필요 없이, 오늘은 이 한 줄이에요. ❝ {quote} ❞",
+    ]
+    closing = random.choice(_CLOSING_BRIDGES)
+
+    # SEO 키워드
+    kw_list = [
+        "오늘의명언", "위로명언", "현실명언", today_str,
+        "힘들때명언", "위로글", "오늘명언", "짧은명언",
+        "마음에새길말", "감성명언", "하루명언", "좋은글",
+    ]
+    if category and str(category) != 'nan':
+        kw_list.append(category)
+    tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
+
+    # 카드 ID (이미지 저장용)
+    card_id = f"qc-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
 
     content = f"""{style()}
 <div class="wrap">
-  <div class="hero"><h1>📖 오늘의 명언</h1><p>{today_str}</p></div>
-  <div class="card">
-    <span class="badge">✨ 오늘의 명언{cat_badge}</span>
-    <p style="font-size:17px;font-weight:700;line-height:1.9;color:#4a235a">❝ {quote} ❞</p>
-    {meaning_html}
+
+  <!-- 히어로 -->
+  <div class="hero">
+    <h1>📖 오늘의 명언</h1>
+    <p>{today_str}</p>
+    <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
+                padding:3px 14px;border-radius:20px;font-size:13px">
+      현실 위로형 스토리텔링{cat_badge}
+    </div>
   </div>
+
+  <!-- 이미지 저장 카드 -->
+  <div id="{card_id}" class="fortune-card"
+       style="background:linear-gradient(135deg,#4a235a,#7c3aed)">
+    <div style="font-size:36px;text-align:center;margin-bottom:10px">📖</div>
+    <div style="font-size:20px;font-weight:900;text-align:center;margin-bottom:6px">오늘의 명언</div>
+    <div style="font-size:13px;opacity:.8;text-align:center;margin-bottom:18px">{today_str}</div>
+    <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:18px;
+                font-size:15px;line-height:1.85;font-style:italic;text-align:center">
+      ❝ {quote} ❞
+    </div>
+    <div style="font-size:11px;opacity:.5;text-align:center;margin-top:14px">
+      todayhoroscopelaboratory.blogspot.com
+    </div>
+  </div>
+
+  {share_buttons(card_id, f"오늘의명언_{today_str}")}
+
+  <!-- 파트1: 공감 -->
+  <div class="card" style="border-left:5px solid #7c3aed">
+    <span class="badge" style="background:#ede9fe;color:#5b21b6">💭 공감 — 요즘 이런 날들이 있잖아요</span>
+    <p style="margin-top:14px;font-size:15px;line-height:2;color:#374151;word-break:keep-all">
+      {empathy}
+    </p>
+  </div>
+
+  <!-- 파트2: 감정 흐름 -->
+  <div class="card" style="border-left:5px solid #0d9488">
+    <span class="badge" style="background:#ccfbf1;color:#134e4a">🌊 감정 흐름 — 그 마음, 이상한 게 아니에요</span>
+    <p style="margin-top:14px;font-size:15px;line-height:2;color:#374151;word-break:keep-all">
+      {emotion}
+    </p>
+  </div>
+
+  <!-- 파트3: 위로 -->
+  <div class="card" style="border-left:5px solid #e11d48">
+    <span class="badge" style="background:#fff1f2;color:#9f1239">🤍 위로 — 오늘 하루도 잘 버텼어요</span>
+    <p style="margin-top:14px;font-size:15px;line-height:2;color:#374151;word-break:keep-all">
+      {comfort}
+    </p>
+  </div>
+
+  <!-- 파트4: 마지막 한 줄 (명언 연결) -->
+  <div class="card" style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);border-left:5px solid #a21caf">
+    <span class="badge" style="background:#fae8ff;color:#701a75">✨ 오늘의 한 줄</span>
+    <p style="margin-top:16px;font-size:17px;font-weight:700;line-height:1.9;
+              color:#4a235a;word-break:keep-all;text-align:center">
+      {closing}
+    </p>
+  </div>
+
+  <!-- SEO 키워드 -->
+  <div class="card">
+    <span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html}</div>
+  </div>
+
   {site_link()}
-  <div class="meta">※ 매일 자정 업데이트 · 오늘의 명언</div>
+  <div class="meta">※ 매일 업데이트 · 현실 위로형 오늘의 명언</div>
 </div>"""
-    return title, content, ["오늘의명언", "명언", "운세"]
+    return title, content, ["오늘의명언", "위로명언", "명언", "운세"]
 
 
 # ─────────────────────────────────────────
