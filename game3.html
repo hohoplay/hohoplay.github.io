@@ -116,7 +116,7 @@
 
         #judgment-line {
             position: absolute;
-            bottom: 85px; 
+            bottom: 110px; 
             width: 100%;
             height: 4px;
             background: linear-gradient(90deg, transparent, rgba(255, 77, 109, 0.3), transparent);
@@ -309,64 +309,71 @@
         #ui-layer {
             position: absolute;
             bottom: 0;
+            left: 0;
+            right: 0;
             width: 100%;
-            height: 90px;
-            padding: 0 20px;
+            height: 110px;
+            padding: 0 24px;
             pointer-events: none;
-            z-index: 400; 
+            z-index: 400;
+            box-sizing: border-box;
         }
 
         .ui-panel {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 2px solid #ffcad4;
-            border-radius: 14px;
-            padding: 5px 12px;
+            border-radius: 18px;
+            padding: 8px 18px;
             text-align: center;
             color: #ff4d6d;
             pointer-events: auto;
-            box-shadow: 0 3px 10px rgba(255, 182, 193, 0.3);
+            box-shadow: 0 4px 14px rgba(255, 182, 193, 0.35);
+            min-width: 80px;
         }
 
-        .ui-label { font-size: 9px; font-weight: 800; color: #ffb3c1; letter-spacing: 1px; }
-        .ui-value { font-size: 18px; font-weight: 900; display: block; }
+        .ui-label { font-size: 11px; font-weight: 800; color: #ffb3c1; letter-spacing: 1px; }
+        .ui-value { font-size: 24px; font-weight: 900; display: block; }
 
-        #score-panel { position: absolute; left: 20px; bottom: 16px; }
-        #life-panel { position: absolute; right: 20px; bottom: 16px; }
+        #score-panel { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); }
+        #life-panel { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); }
         
         #input-center-group {
             position: absolute;
             left: 50%;
-            bottom: 16px;
-            transform: translateX(-50%);
+            top: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            max-width: calc(100% - 230px);
         }
 
         #guide-ui {
             background: white;
             border: 2px solid #ffcad4;
-            border-radius: 20px;
-            padding: 8px 24px;
+            border-radius: 24px;
+            padding: 10px 28px;
             width: 300px;
+            max-width: 100%;
             text-align: center;
-            box-shadow: 0 6px 16px rgba(255, 182, 193, 0.2);
+            box-shadow: 0 6px 18px rgba(255, 182, 193, 0.25);
             pointer-events: auto;
             position: relative;
+            overflow: hidden;
         }
 
-        #display-text { font-size: 22px; font-weight: 900; color: #ffb3c1; min-height: 26px; display: block; }
+        #display-text { font-size: 26px; font-weight: 900; color: #ffb3c1; min-height: 32px; display: block; }
 
         #lang-indicator {
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             background: #ffcad4;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 14px;
+            font-size: 17px;
             font-weight: 900;
             color: white;
             box-shadow: 0 3px 10px rgba(255, 182, 193, 0.3);
@@ -435,25 +442,24 @@
 
         input#input-field { position: absolute; left: -9999px; }
 
-        /* Mobile Responsive Adjustments */
         @media (max-width: 600px) {
             #game-frame {
                 height: 90vh;
                 border-width: 4px;
                 border-radius: 20px;
             }
-            #ui-layer { height: 100px; padding: 0 10px; }
-            .ui-panel { padding: 5px 10px; border-radius: 15px; }
-            .ui-value { font-size: 18px; }
-            .ui-label { font-size: 8px; }
-            #score-panel { left: 10px; bottom: 15px; }
-            #life-panel { right: 10px; bottom: 15px; }
-            #input-center-group { bottom: 15px; gap: 5px; }
-            #guide-ui { width: 180px; padding: 8px 15px; border-width: 2px; }
-            #display-text { font-size: 18px; min-height: 22px; }
-            #lang-indicator { width: 35px; height: 35px; font-size: 14px; border-radius: 8px; }
+            #ui-layer { height: 110px; padding: 0 10px; }
+            .ui-panel { padding: 6px 12px; border-radius: 15px; min-width: 64px; }
+            .ui-value { font-size: 20px; }
+            .ui-label { font-size: 9px; }
+            #score-panel { left: 10px; }
+            #life-panel { right: 10px; }
+            #input-center-group { gap: 5px; max-width: calc(100% - 170px); }
+            #guide-ui { width: 170px; padding: 8px 12px; border-width: 2px; }
+            #display-text { font-size: 19px; min-height: 24px; }
+            #lang-indicator { width: 36px; height: 36px; font-size: 14px; border-radius: 9px; }
             #combo-panel { top: -65px; width: 80px; right: -10px; padding-top: 15px; }
-            #judgment-line { bottom: 100px; }
+            #judgment-line { bottom: 110px; }
             #over-title { font-size: 40px !important; }
             #game-over p { font-size: 18px !important; }
             #game-over button { padding: 15px 30px !important; font-size: 18px !important; border-radius: 15px !important; }
@@ -928,9 +934,8 @@
                 <div id="large-boss-hp-bar"><div id="large-boss-hp-fill"></div></div>
                 <div id="large-boss-word-display">대형보스 등장!</div>
             </div>
-        </div>
 
-        <div id="ui-layer">
+            <div id="ui-layer">
             <div id="score-panel" class="ui-panel">
                 <span class="ui-label">SCORE</span>
                 <span id="score-display" class="ui-value">0</span>
@@ -997,7 +1002,7 @@
             </div>
             <button onclick="startGame()" style="background:#ff4d6d; color:white; border:none; padding:20px 40px; border-radius:20px; font-size:24px; font-weight:900; cursor:pointer;">다시 시작</button>
         </div>
-    </div>
+        </div><!-- /game-field -->
 
     <input type="text" id="input-field" autocomplete="off" autofocus>
 
@@ -1601,7 +1606,7 @@
             // 일반 단어 이동 (보스 이벤트 없을 때만)
             if (!isBossEvent && !isLargeBossEvent) {
                 const currentMoveSpeed = isFever ? fallSpeed * 0.5 : fallSpeed;
-                const deadLine = isMobile ? gameField.offsetHeight - 100 : gameField.offsetHeight - 130;
+                const deadLine = isMobile ? gameField.offsetHeight - 110 : gameField.offsetHeight - 110;
                 for (let i = activeWords.length - 1; i >= 0; i--) {
                     const m = activeWords[i];
                     if (currentMoveSpeed > 0) {
@@ -1827,7 +1832,9 @@
                 <div id="panel-desc" class="tab-panel p-10">
                     <p class="text-slate-600 text-xl leading-relaxed font-medium">
                         하늘에서 내려오는 글씨를 타이핑하세요..<br><br>
-                        10콤보 피버타임. 1000점마다 보스가 나타납니다.
+                        10콤보 달성 시 피버타임 돌입.<br>
+                        500점에 🌸 중간보스, 1000점에 💀 대형보스 등장.<br>
+                        이후 1000점 간격으로 보스가 반복 등장합니다.
                     </p>
                 </div>
 
