@@ -1437,7 +1437,7 @@ def build_quote_post(today_str):
     quote, meaning, category = pick_quote()
     cat_badge = f" · {category}" if category and str(category) != 'nan' else ""
 
-    title_pattern = random.choice(_QUOTE_TITLE_PATTERNS)
+    title_pattern = "{today} 하루를 버티는 당신을 위한 오늘의 명언"
     title = title_pattern.format(today=today_str)
 
     empathy  = random.choice(_EMPATHY_POOL)
