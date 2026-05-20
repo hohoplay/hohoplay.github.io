@@ -320,7 +320,7 @@ def get_color_guide(color_name):
             f"{items}을 착용하거나 곁에 두면 {fortune_type} 지수가 최대 <b>{boost_pct}% 상승</b>하는 효과를 기대할 수 있습니다. "
             f"{usage}"
         )
-    return f"오늘의 행운 색상 '{color_name}'을 소품이나 의류에 활용해 보세요. 긍정적인 에너지를 끌어당기는 데 도움이 됩니다."
+    return f"오늘 '{color_name}' 컬러를 소품이나 옷에 하나 곁에 두세요. 묘하게 기분이 달라지는 날이에요."
 
 def get_item_guide(item_name):
     """행운 아이템 → 활용법 문자열 반환"""
@@ -328,7 +328,7 @@ def get_item_guide(item_name):
     for keywords, usage in ITEM_USAGE:
         if any(kw in item_lower for kw in keywords):
             return usage
-    return f"오늘 '{item_name}'을 가까이 두거나 몸에 지니세요. 긍정적인 기운이 하루 전체에 흐릅니다."
+    return f"오늘 '{item_name}' 가방이나 책상 위에 두세요. 작은 거지만 오늘은 그 자리가 의미 있어요."
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1433,31 +1433,28 @@ _QUOTE_TITLE_PATTERNS = [
 ]
 
 def build_quote_post(today_str):
-    """현실 위로형 스토리텔링 명언 포스트 (4파트 구조)"""
+    """현실 위로형 스토리텔링 명언 포스트 — 별과 띠가 만나는 시간과 같은 톤"""
     quote, meaning, category = pick_quote()
     cat_badge = f" · {category}" if category and str(category) != 'nan' else ""
 
-    # 제목: SEO 패턴 랜덤 선택
     title_pattern = random.choice(_QUOTE_TITLE_PATTERNS)
     title = title_pattern.format(today=today_str)
 
-    # 4파트 랜덤 선택 (조합 다양성)
     empathy  = random.choice(_EMPATHY_POOL)
     emotion  = random.choice(_EMOTION_POOL)
     comfort  = random.choice(_COMFORT_POOL)
 
-    # 마지막 한 줄: 명언을 자연스럽게 연결하는 클로징
+    # 명언 연결 브릿지 — 설명 없이 자연스럽게 이어지는 문장
     _CLOSING_BRIDGES = [
-        f"그래서 오늘 이 말이 더 와닿아요. ❝ {quote} ❞",
-        f"그 마음 그대로, 오늘 이 한 줄 가져가요. ❝ {quote} ❞",
-        f"오늘 하루 이 말 하나만 기억해도 충분해요. ❝ {quote} ❞",
-        f"당신한테 건네고 싶은 말이 딱 이거예요. ❝ {quote} ❞",
-        f"이 한 마디, 오늘 주머니에 넣고 다니세요. ❝ {quote} ❞",
-        f"긴 말 필요 없이, 오늘은 이 한 줄이에요. ❝ {quote} ❞",
+        f"그래서 오늘 이 말이 더 와닿아요.<br><br>❝ {quote} ❞",
+        f"그 마음 그대로, 오늘 이 한 줄 가져가요.<br><br>❝ {quote} ❞",
+        f"오늘 하루 이 말 하나만 기억해도 충분해요.<br><br>❝ {quote} ❞",
+        f"당신한테 건네고 싶은 말이 딱 이거예요.<br><br>❝ {quote} ❞",
+        f"이 한 마디, 오늘 주머니에 넣고 다니세요.<br><br>❝ {quote} ❞",
+        f"긴 말 필요 없이, 오늘은 이 한 줄이에요.<br><br>❝ {quote} ❞",
     ]
     closing = random.choice(_CLOSING_BRIDGES)
 
-    # SEO 키워드
     kw_list = [
         "오늘의명언", "위로명언", "현실명언", today_str,
         "힘들때명언", "위로글", "오늘명언", "짧은명언",
@@ -1467,71 +1464,102 @@ def build_quote_post(today_str):
         kw_list.append(category)
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
-    # 카드 ID (이미지 저장용)
     card_id = f"qc-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
 
     content = f"""{style()}
+<style>
+.qc-page {{
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 0 4px;
+  font-family: 'Noto Serif KR', Georgia, serif;
+}}
+.qc-date {{
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #9ca3af;
+  text-align: center;
+  margin-bottom: 1.4rem;
+}}
+.qc-title {{
+  font-size: 21px;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+  line-height: 1.55;
+  margin-bottom: 0.3rem;
+}}
+.qc-sub {{
+  font-size: 13px;
+  text-align: center;
+  color: #9ca3af;
+  margin-bottom: 2.2rem;
+}}
+.qc-rule {{
+  text-align: center;
+  color: #d1d5db;
+  letter-spacing: 0.5em;
+  margin: 2rem 0;
+  font-size: 13px;
+}}
+.qc-body {{
+  font-size: 15.5px;
+  line-height: 2.2;
+  color: #374151;
+  word-break: keep-all;
+}}
+.qc-body p {{
+  margin: 0 0 1.6em 0;
+}}
+.qc-quote {{
+  font-size: 16px;
+  line-height: 1.9;
+  color: #4a235a;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(135deg,#fdf4ff,#ede9fe);
+  border-radius: 14px;
+  padding: 20px 18px;
+  margin: 2rem 0;
+  word-break: keep-all;
+}}
+.qc-footer {{
+  margin-top: 2.5rem;
+  padding-top: 1.8rem;
+  border-top: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #9ca3af;
+  text-align: center;
+  line-height: 2.0;
+  font-style: italic;
+}}
+</style>
+
 <div class="wrap">
 
-  <!-- 히어로 -->
-  <div class="hero">
-    <h1>📖 오늘의 명언</h1>
-    <p>{today_str}</p>
-    <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
-                padding:3px 14px;border-radius:20px;font-size:13px">
-      현실 위로형 스토리텔링{cat_badge}
-    </div>
-  </div>
-
   <!-- 이미지 저장 카드 -->
-  <div id="{card_id}" class="fortune-card"
-       style="background:linear-gradient(135deg,#4a235a,#7c3aed)">
-    <div style="font-size:36px;text-align:center;margin-bottom:10px">📖</div>
-    <div style="font-size:20px;font-weight:900;text-align:center;margin-bottom:6px">오늘의 명언</div>
-    <div style="font-size:13px;opacity:.8;text-align:center;margin-bottom:18px">{today_str}</div>
-    <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:18px;
-                font-size:15px;line-height:1.85;font-style:italic;text-align:center">
-      ❝ {quote} ❞
+  <div id="{card_id}" class="qc-page">
+    <div class="qc-date">{today_str}{cat_badge}</div>
+    <h1 class="qc-title">📖 오늘의 명언</h1>
+    <p class="qc-sub">지금 이 순간 당신에게 건네는 한 줄</p>
+    <div class="qc-rule">&middot; &middot; &middot;</div>
+
+    <div class="qc-body">
+      <p>{empathy}</p>
+      <p>{emotion}</p>
+      <p>{comfort}</p>
     </div>
-    <div style="font-size:11px;opacity:.5;text-align:center;margin-top:14px">
-      todayhoroscopelaboratory.blogspot.com
+
+    <div class="qc-quote">{closing}</div>
+
+    <div class="qc-rule">&middot; &middot; &middot;</div>
+    <div class="qc-footer">
+      오늘도 잘 버텨줘서 고마워요.<br>
+      내일 또 이야기 나눠요.
     </div>
   </div>
 
   {share_buttons(card_id, f"오늘의명언_{today_str}")}
-
-  <!-- 파트1: 공감 -->
-  <div class="card" style="border-left:5px solid #7c3aed">
-    <span class="badge" style="background:#ede9fe;color:#5b21b6">💭 공감 — 요즘 이런 날들이 있잖아요</span>
-    <p style="margin-top:14px;font-size:15px;line-height:2;color:#374151;word-break:keep-all">
-      {empathy}
-    </p>
-  </div>
-
-  <!-- 파트2: 감정 흐름 -->
-  <div class="card" style="border-left:5px solid #0d9488">
-    <span class="badge" style="background:#ccfbf1;color:#134e4a">🌊 감정 흐름 — 그 마음, 이상한 게 아니에요</span>
-    <p style="margin-top:14px;font-size:15px;line-height:2;color:#374151;word-break:keep-all">
-      {emotion}
-    </p>
-  </div>
-
-  <!-- 파트3: 위로 -->
-  <div class="card" style="border-left:5px solid #e11d48">
-    <span class="badge" style="background:#fff1f2;color:#9f1239">🤍 위로 — 오늘 하루도 잘 버텼어요</span>
-    <p style="margin-top:14px;font-size:15px;line-height:2;color:#374151;word-break:keep-all">
-      {comfort}
-    </p>
-  </div>
-
-  <!-- 파트4: 마지막 한 줄 (명언 연결) -->
-  <div class="card" style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);border-left:5px solid #a21caf">
-    <span class="badge" style="background:#fae8ff;color:#701a75">✨ 오늘의 한 줄</span>
-    <p style="margin-top:16px;font-size:17px;font-weight:700;line-height:1.9;
-              color:#4a235a;word-break:keep-all;text-align:center">
-      {closing}
-    </p>
-  </div>
 
   <!-- SEO 키워드 -->
   <div class="card">
@@ -1613,13 +1641,24 @@ _Z_TOTAL_INTRO_WARN = [
 
 # ── 총운 지수 해석 풀 ──
 _Z_TOTAL_SCORE_UP = [
-    "오늘의 종합 운세 지수는 상위권을 기록하고 있습니다. 오전 10시~오후 2시 사이에 중요한 결정을 내리거나 대화를 나누면 가장 긍정적인 결과를 기대할 수 있습니다.",
-    "현재 측정된 오늘의 에너지 지수는 매우 활성화된 상태입니다. 특히 오전 시간대에 창의적인 작업이나 대인 접촉에서 평소보다 30% 이상 좋은 반응을 얻을 수 있는 흐름입니다.",
-    "오늘 당신의 종합 운세는 이번 주 중 가장 높은 흐름을 보이고 있습니다. 주요 활동은 오전 중으로 몰아두고 오후에는 정리와 마무리에 집중하면 효율이 극대화됩니다.",
+    "오늘 오전 10시~오후 2시 사이가 흐름이 가장 잘 타는 시간이에요. 중요한 연락이나 결정이 있다면 그 안에 담아두세요. 미루면 오후로 갈수록 에너지가 분산됩니다.",
+    "오늘 이번 주 중에 흐름이 가장 열려있는 날이에요. 오전에 핵심 한 가지만 처리하면 나머지는 자연스럽게 따라옵니다.",
+    "오늘 타이밍이 맞는 날이에요. 오전 안에 결정해야 할 게 있다면 망설이지 마세요. 너무 오래 생각하면 오히려 헷갈리는 날입니다.",
 ]
 _Z_TOTAL_SCORE_WARN = [
-    "오늘의 종합 에너지 지수는 평균 이하 구간에 위치해 있습니다. 이 구간에서 무리한 결정보다는 준비와 계획에 집중하면 2~3일 후 좋은 흐름으로 반전될 가능성이 높습니다.",
-    "지수상으로 오늘은 회복과 재충전에 최적화된 날입니다. 새로운 일을 시작하기보다는 기존에 진행 중인 일을 점검하는 데 에너지를 쓰세요.",
+    "오늘은 새로 시작하기보다 기존 것 마무리에 쓰는 게 맞는 날이에요. 억지로 밀어붙일수록 에너지만 빠지는 흐름입니다. 2~3일 기다리면 흐름이 달라져요.",
+    "성과를 억지로 내려 하기보다 오늘 하루 기반을 다지는 작업에 집중하세요. 내일 훨씬 가벼운 상태로 시작할 수 있습니다.",
+]
+
+# ── 금전운 지수 해석 풀 ──
+_Z_MONEY_SCORE_UP = [
+    "오전 10시~오후 1시 사이가 금전 처리하기 가장 유리한 타이밍이에요. 환급금, 포인트 전환, 정산 미룬 것들 오늘 안에 처리해두세요.",
+    "놓쳤던 환급금이나 캐시백, 오늘 한 번 확인해보세요. 작은 거라도 오늘은 손에 잡히는 날이에요.",
+    "수입 관련 연락이나 제안이 들어오면 오늘 안에 답하세요. 내일로 넘기면 타이밍이 어긋날 수 있어요.",
+]
+_Z_MONEY_SCORE_WARN = [
+    "오늘 지출 결정은 하루 자고 나서 하세요. 지금 급해 보이는 게 내일 보면 안 급한 경우가 많아요.",
+    "오늘 카드 내역 한 번 훑어보세요. 쓰는지도 몰랐던 자동결제 하나 끊는 것만으로도 한 달이 달라집니다.",
 ]
 
 # ── 연애운 서론 풀 ──
@@ -1681,17 +1720,6 @@ _Z_MONEY_INTRO_UP = [
 _Z_MONEY_INTRO_WARN = [
     "오늘 충동적으로 뭔가 사고 싶어지는 순간이 올 수 있어요. 특히 오후에요. 장바구니에 담아두고 내일 아침에 다시 보세요. 80%는 안 사게 됩니다.",
     "오늘은 금전 판단력이 흐려지기 쉬운 날이에요. 큰 결정이나 계약은 오늘 하루만큼은 보류해 두세요. 급한 것처럼 느껴지는 제안일수록 오늘은 신중하게 봐야 합니다.",
-]
-
-# ── 금전운 지수 해석 풀 ──
-_Z_MONEY_SCORE_UP = [
-    "오늘 경제활동 효율 지수는 높은 수준을 기록하고 있습니다. 오전 10시~오후 1시 사이에 금전 관련 협의나 결정을 내리면 가장 긍정적인 결과를 얻을 수 있습니다.",
-    "재물운 지수가 상위 30% 구간에 위치합니다. 놓쳤던 환급금이나 미수금을 오늘 확인해 보세요. 작은 액수라도 오늘의 흐름과 함께라면 의미 있는 수확이 됩니다.",
-    "금전운 수치가 이번 주 중 가장 활성화된 날입니다. 새로운 수입 루트나 부업 아이디어를 검토하기에 좋은 타이밍입니다.",
-]
-_Z_MONEY_SCORE_WARN = [
-    "오늘 금전 지수는 평균 이하 구간입니다. 이 구간에서 새로운 투자나 소비보다는 기존 자산을 점검하고 유지하는 것이 장기적으로 유리합니다.",
-    "금전운 지수가 낮은 날일수록 충동구매에 취약해집니다. 오늘 하루만큼은 지갑을 닫고 지출 내역을 확인하는 것으로 시작해 보세요.",
 ]
 
 # ── 금전운 상세 조언 풀 ──
@@ -3461,195 +3489,90 @@ def _omnibus_bridge(
     idx 0~11 → 12가지 다른 서술 패턴
     """
 
-    # ── 공통 조각 ──────────────────────────────────────────────
-    # 행운 아이템 문장 (3가지 패턴 순환)
-    item_phrases = [
-        f"오늘 <b style='color:#059669'>{z_item}</b>을 곁에 두거나 챙겨가면 흐름이 조금 더 부드럽게 열릴 거예요.",
-        f"작은 팁 하나 드리면, 오늘 <b style='color:#059669'>{z_item}</b>이 있을 때 집중이 더 잘 되는 날이에요.",
-        f"오늘 <b style='color:#059669'>{z_item}</b>, 가방에 넣거나 손에 잡히는 곳에 두세요. 사소하지만 오늘만큼은 의미 있어요.",
-    ]
-    item_str = item_phrases[idx % 3]
+    # ── 공통 조각 (간결 버전 — 이미지 2장 분량 대응) ────────────
+    item_str = [
+        f"오늘 <b style='color:#059669'>{z_item}</b> 챙겨보세요.",
+        f"<b style='color:#059669'>{z_item}</b>, 오늘 가까이 두면 흐름이 달라져요.",
+        f"<b style='color:#059669'>{z_item}</b> 하나 곁에 두는 것만으로 충분해요.",
+    ][idx % 3]
 
-    # 행운 색상 문장 (3가지 패턴 순환)
-    color_phrases = [
-        f"옷이든 소품이든 <b style='color:#7c3aed'>{z_color}</b> 컬러를 오늘 하나 곁에 두면 묘하게 기분이 달라질 거예요.",
-        f"오늘 <b style='color:#7c3aed'>{z_color}</b> 빛깔이 당신한테 유독 잘 맞는 날이에요. 작은 것도 괜찮아요.",
-        f"뭔가 막히는 느낌이 든다면 <b style='color:#7c3aed'>{z_color}</b> 색을 눈에 가까이 두어보세요. 기분이 조금 달라질 수 있어요.",
-    ]
-    color_str = color_phrases[(idx + 1) % 3]
+    color_str = [
+        f"<b style='color:#7c3aed'>{z_color}</b> 컬러, 오늘 하나라도 곁에 두세요.",
+        f"오늘 <b style='color:#7c3aed'>{z_color}</b>이 당신한테 잘 맞는 날이에요.",
+        f"<b style='color:#7c3aed'>{z_color}</b> 소품 하나, 묘하게 기분 달라져요.",
+    ][(idx + 1) % 3]
 
-    # 궁합 문장 (별자리 + 띠 찰떡/거리두기) — 사건형
-    compat_phrases = [
-        f"오늘 <b style='color:#d97706'>{z_compatible}</b>이랑 대화하거나 같이 있는 시간이 생기면 놓치지 마세요. 생각보다 잘 풀리는 날이에요. "
-        f"<b style='color:#b45309'>{c_kr}</b> 입장에서는 <b style='color:#059669'>{c_best}</b>와 오늘 특히 말이 잘 통해요. "
-        f"반면 <b style='color:#dc2626'>{c_avoid}</b>와 중요한 결정이나 감정 대화는 오늘만큼은 저녁 이후로 미뤄두는 게 낫습니다.",
+    compat_str = [
+        f"오늘 <b style='color:#d97706'>{z_compatible}</b>이나 <b style='color:#059669'>{c_best}</b>와 대화가 잘 풀려요. <b style='color:#dc2626'>{c_avoid}</b>와 감정 대화는 저녁 이후로.",
+        f"<b style='color:#d97706'>{z_compatible}</b>·<b style='color:#059669'>{c_best}</b>와 함께일 때 오늘 흐름이 편해요. <b style='color:#dc2626'>{c_avoid}</b>와 중요한 자리는 오늘 보류.",
+        f"오늘 궁합 베스트는 <b style='color:#d97706'>{z_compatible}</b>·<b style='color:#059669'>{c_best}</b>. <b style='color:#dc2626'>{c_avoid}</b>와 마찰은 굳이 키우지 마세요.",
+    ][idx % 3]
 
-        f"두 기운이 오늘 가장 편하게 흘러가는 조합은 <b style='color:#d97706'>{z_compatible}</b>이나 <b style='color:#059669'>{c_best}</b>와 함께일 때예요. "
-        f"<b style='color:#dc2626'>{c_avoid}</b>와의 자리는 오늘 감정이 차분할 때 갖는 게 서로를 위한 선택이에요.",
+    time_str = [
+        f"오늘 골든타임은 <b style='color:#1d4ed8'>{best_time_label}</b>이에요. 중요한 것 그때 담아두세요.",
+        f"<b style='color:#1d4ed8'>{best_time_label}</b>에 집중력 제일 올라와요. 미뤄둔 거 하나만.",
+        f"답장·연락·결정, <b style='color:#1d4ed8'>{best_time_label}</b>에 하면 가장 잘 풀려요.",
+    ][(idx + 2) % 3]
 
-        f"오늘 <b style='color:#d97706'>{z_compatible}</b>의 타이밍이 {z_kr}에게 든든한 버팀목이 돼줘요. "
-        f"{c_kr}에겐 <b style='color:#059669'>{c_best}</b>가 오늘 가장 잘 맞는 상대예요. "
-        f"<b style='color:#dc2626'>{c_avoid}</b>와의 마찰은 오늘 굳이 키울 필요 없어요. 스루하는 게 낫습니다.",
-    ]
-    compat_str = compat_phrases[idx % 3]
+    avoid_str = f"오늘 <b style='color:#dc2626'>{avoid_action}</b>은 잠깐 내려놓는 게 좋아요."
+    signal_str = f"오늘 두 기운의 키워드는 <b style='color:#5b21b6'>{z_signal}</b>이에요."
 
-    # 최고 시간대 문장 — 구체 행동 연결
-    time_phrases = [
-        f"오늘 가장 흐름이 잘 타는 시간대는 <b style='color:#1d4ed8'>{best_time_label}</b>이에요. 중요한 연락이나 결정은 그 시간에 담아두세요.",
-        f"뭔가 실행하고 싶은 게 있다면 <b style='color:#1d4ed8'>{best_time_label}</b>을 노려보세요. 답장, 부탁, 발표 — 오늘 그 시간이 당신 편이에요.",
-        f"<b style='color:#1d4ed8'>{best_time_label}</b>에 집중력이 제일 올라와요. 미뤄두던 거 하나 그 시간에 처리해보세요.",
-    ]
-    time_str = time_phrases[(idx + 2) % 3]
-
-    # 피해야 할 행동 문장 — 구체 상황 묘사
-    avoid_str = (
-        f"한 가지만 조심하면, 오늘 <b style='color:#dc2626'>{avoid_action}</b>은 잠깐 내려놓는 게 좋아요. "
-        f"나쁜 뜻이 아니라, 오늘 그 방향은 생각대로 안 풀릴 가능성이 높거든요."
-    )
-
-    # signal_kw 문장 — 감정 연결형
-    signal_str = (
-        f"오늘 두 기운이 함께 품고 있는 단어는 <b style='color:#5b21b6'>{z_signal}</b>이에요. "
-        f"하루 중 그 단어가 떠오르는 순간이 오늘의 핵심 타이밍일 수 있어요."
-    )
-
-    # ── 12가지 서술 패턴 ────────────────────────────────────────
-    zb  = f"<b style='color:#5b21b6'>{z_kr}</b>"
-    cb  = f"<b style='color:#b45309'>{c_kr}</b>"
+    # ── 12가지 서술 패턴 (이미지 2장 / 문단당 간결) ─────────────
+    zb = f"<b style='color:#5b21b6'>{z_kr}</b>"
+    cb = f"<b style='color:#b45309'>{c_kr}</b>"
 
     patterns = [
-        # 0 ─ 감정 공감 → 오늘 장면 → 행동
-        (f"먼저 {zb}인 분들, 요즘 괜히 예민해지는 이유가 있을 거예요. "
-         f"{z_core} "
-         f"마침 {cb}도 비슷한 자리에 서 있어요. "
-         f"{c_core} "
-         f"{time_str} "
-         f"{compat_str} "
-         f"{item_str} {color_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 1 ─ 장면 먼저 → 감정 연결 → 아이템
-        (f"{zb}와 {cb}가 오늘 나란히 비슷한 장면 앞에 서 있어요. "
-         f"{z_core} "
-         f"그 옆에서 {cb}도 이렇게 느끼고 있어요. "
-         f"{c_core} "
-         f"{item_str} "
-         f"{time_str} "
-         f"{compat_str} "
-         f"{color_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 2 ─ 타이밍 먼저 → 오늘의 흐름
-        (f"오늘 {zb}와 {cb}에게 특히 중요한 시간대가 있어요. "
-         f"{time_str} "
-         f"그 시간에 오늘 이 흐름을 담아두세요. "
-         f"{z_core} "
-         f"{c_core} "
-         f"{compat_str} "
-         f"{item_str} {color_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 3 ─ 인간관계 장면 → 흐름 → 행동
-        (f"{zb}인 분, 오늘 주변 사람 한 명과의 대화가 예상보다 잘 풀릴 수 있어요. "
-         f"{compat_str} "
-         f"그 흐름 위에서 {zb}의 오늘은 이래요. "
-         f"{z_core} "
-         f"{cb}도 오늘 이렇게 느끼고 있어요. "
-         f"{c_core} "
-         f"{item_str} {color_str} "
-         f"{time_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 4 ─ 키워드 → 장면 연결
-        (f"오늘 {zb}와 {cb}를 관통하는 하나의 감각이 있어요. "
-         f"{signal_str} "
-         f"그 감각이 오늘 어떻게 나타나는지 들어볼게요. "
-         f"{z_core} "
-         f"{c_core} "
-         f"{item_str} "
-         f"{time_str} "
-         f"{compat_str} "
-         f"{color_str} "
-         f"{avoid_str}"),
-
-        # 5 ─ 작은 팁 → 오늘 장면
-        (f"오늘 {zb}와 {cb}에게 먼저 현실적인 팁부터 드릴게요. "
+        # 0
+        (f"{zb}인 분들, 요즘 괜히 예민해지는 이유가 있었을 거예요. "
+         f"{z_core} {c_core} "
+         f"{time_str} {compat_str} {item_str} {avoid_str}"),
+        # 1
+        (f"{zb}와 {cb}, 오늘 비슷한 장면 앞에 서 있어요. "
+         f"{z_core} {c_core} "
+         f"{item_str} {time_str} {compat_str} {avoid_str}"),
+        # 2
+        (f"오늘 {zb}와 {cb}에게 특히 중요한 시간이 있어요. "
+         f"{time_str} {z_core} {c_core} "
+         f"{compat_str} {avoid_str}"),
+        # 3
+        (f"{zb}인 분, 오늘 주변 사람과의 대화가 예상보다 잘 풀릴 수 있어요. "
+         f"{compat_str} {z_core} {c_core} "
+         f"{item_str} {time_str} {avoid_str}"),
+        # 4
+        (f"오늘 {zb}와 {cb}를 관통하는 감각. {signal_str} "
+         f"{z_core} {c_core} "
+         f"{time_str} {compat_str} {avoid_str}"),
+        # 5
+        (f"오늘 {zb}와 {cb}에게 팁부터요. "
          f"{color_str} {item_str} "
-         f"그리고 오늘 실제 흐름은 이래요. "
-         f"{z_core} "
-         f"{c_core} "
-         f"{time_str} "
-         f"{compat_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 6 ─ 주의 먼저 → 반전 (긴장→희망 구조)
-        (f"{zb}와 {cb}, 오늘 딱 하나만 비켜가면 나머지는 다 괜찮아요. "
-         f"{avoid_str} "
-         f"그것만 넘기면 오늘은 이렇게 열려있어요. "
-         f"{z_core} "
-         f"{c_core} "
-         f"{compat_str} "
-         f"{item_str} {color_str} "
-         f"{time_str} "
-         f"{signal_str}"),
-
-        # 7 ─ 띠 먼저 → 별자리와 연결
+         f"{z_core} {c_core} "
+         f"{time_str} {avoid_str}"),
+        # 6
+        (f"{zb}와 {cb}, 오늘 하나만 비켜가면 나머지는 다 괜찮아요. "
+         f"{avoid_str} {z_core} {c_core} "
+         f"{compat_str} {time_str}"),
+        # 7
         (f"오늘 {cb}의 흐름이 이런 장면을 만들고 있어요. "
          f"{c_core} "
-         f"그 흐름이 {zb}와 만나면 더 선명해져요. "
-         f"{z_core} "
-         f"{item_str} {color_str} "
-         f"{compat_str} "
-         f"{time_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 8 ─ 지쳐있는 날을 위한 위로 톤
-        (f"오늘 하루가 벌써부터 무겁게 느껴지는 분들도 있을 거예요. "
-         f"그런 분들을 위해 {zb}와 {cb}가 오늘 이렇게 말해요. "
+         f"그 흐름이 {zb}와 만나면 더 선명해져요. {z_core} "
+         f"{item_str} {compat_str} {avoid_str}"),
+        # 8
+        (f"오늘 하루가 무거운 분들을 위해 {zb}와 {cb}가 이렇게 말해요. "
          f"{z_core} {c_core} "
-         f"{compat_str} "
-         f"{item_str} {color_str} "
-         f"{time_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 9 ─ 인간관계 + 타이밍 동시 강조
-        (f"오늘 {zb}와 {cb}가 겹치는 지점이 '사람'이에요. "
+         f"{compat_str} {time_str} {avoid_str}"),
+        # 9
+        (f"오늘 {zb}와 {cb}가 겹치는 지점은 '사람'이에요. "
          f"{z_core} {c_core} "
-         f"{compat_str} "
-         f"{time_str} "
-         f"{item_str} "
-         f"{color_str} "
-         f"{avoid_str} "
-         f"{signal_str}"),
-
-        # 10 ─ 반전 예고 → 구체 행동
+         f"{compat_str} {time_str} {avoid_str}"),
+        # 10
         (f"오늘 {zb}와 {cb}한테 예상보다 좋은 흐름이 있어요. "
-         f"{z_core} "
-         f"그리고 {cb}도 오늘 이런 장면 앞에 서 있어요. "
-         f"{c_core} "
-         f"{signal_str} "
-         f"{item_str} {color_str} "
-         f"{compat_str} "
-         f"{time_str} "
-         f"{avoid_str}"),
-
-        # 11 ─ 조용하고 따뜻한 마무리 톤
+         f"{z_core} {c_core} "
+         f"{signal_str} {time_str} {avoid_str}"),
+        # 11
         (f"마지막으로 {zb}와 {cb}인 분들께. "
          f"{z_core} {c_core} "
-         f"{item_str} {color_str} "
-         f"{compat_str} "
-         f"{time_str} "
-         f"{avoid_str} "
-         f"오늘 하루, {signal_str.replace('오늘 두 기운이 함께 품고 있는 단어는 ', '').replace('이에요. 하루 중 그 단어가 떠오르는 순간이 오늘의 핵심 타이밍일 수 있어요.', '을 마음에 담고 조용히 흘러가세요.')}"),
+         f"{item_str} {compat_str} {time_str} {avoid_str}"),
     ]
-
     return patterns[idx % len(patterns)]
 
 
