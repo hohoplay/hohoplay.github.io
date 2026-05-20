@@ -205,18 +205,23 @@
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
         const gameData = [
-            { id: 'g1', name: '호야타자rpg', genre: '타이핑 액션', version: 'v1.0.0', file: 'game1.html' },
-            { id: 'g2', name: '호야속담', genre: '타이핑', version: 'v1.0.0', file: 'game2.html' },
-            { id: 'g3', name: '호야하늘비타자', genre: '타이핑', version: 'v1.0.0', file: 'game3.html' },
-            { id: 'g4-old', name: '준비중', genre: '-', version: '준비중', file: null },
-            { id: 'g4', name: '준비중', genre: '-', version: '준비중', file: null },
-            { id: 'g5', name: '준비중', genre: '-', version: '준비중', file: null },
-            { id: 'g6', name: '준비중', genre: '-', version: '준비중', file: null },
-            { id: 'g7', name: '준비중', genre: '-', version: '준비중', file: null },
-            { id: 'g8', name: '준비중', genre: '-', version: '준비중', file: null },
-            { id: 'g9', name: '준비중', genre: '-', version: '준비중', file: null },
-            { id: 'g10', name: '준비중', genre: '-', version: '준비중', file: null }
+            { id: 'g1', name: '호야타자rpg',    genre: '타이핑 액션', version: 'v1.0.0', file: 'game1.html', img: '' },
+            { id: 'g2', name: '호야속담',        genre: '타이핑',      version: 'v1.0.0', file: 'game2.html', img: '' },
+            { id: 'g3', name: '호야하늘비타자',  genre: '타이핑',      version: 'v1.0.0', file: 'game3.html', img: '' },
+            { id: 'g4',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g5',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g6',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g7',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g8',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g9',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g10', name: '준비중', genre: '-', version: '준비중', file: null, img: '' }
         ];
+        // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
+        const bannerConfig = {
+            img: '',        // 예) './data/banner.jpg'
+            link: '#',      // 예) 'https://example.com'
+            alt: '배너'
+        };
 
         // 게임 목록 페이지 HTML 생성
         function buildIndexPage() {
@@ -224,29 +229,52 @@
                 var badge = '';
                 if (game.id === 'g1') {
                     var cls = isMobile
-                        ? 'absolute top-3 right-3 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
-                        : 'absolute top-3 right-3 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
+                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
                     badge = '<span id="pc-badge-g1" class="' + cls + '">PC</span>';
                 } else if (game.id === 'g2') {
-                    badge = '<span class="absolute top-3 right-3 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
                 } else if (game.id === 'g3') {
-                    badge = '<span class="absolute top-3 right-3 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
                 }
-                var icon = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3') ? '🎮' : '⏳';
-                var onclick = 'handleGameClick(\'' + game.id + '\')';
-                return '<button onclick="' + onclick + '" class="game-card group bg-white p-6 rounded-[2rem] border border-slate-100 hover:border-indigo-600 transition-all flex flex-col items-center text-center relative">'
+                var hasImg = game.img && game.img.trim() !== '';
+                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3');
+                var thumbBg = isReal ? '#eef2ff' : '#f8fafc';
+                var thumbColor = isReal ? '#4f46e5' : '#94a3b8';
+                var icon = isReal ? '\uD83C\uDFAE' : '\u23F3';
+                var thumb = hasImg
+                    ? '<div style="width:100%;height:90px;border-radius:12px;overflow:hidden;margin-bottom:10px;"><img src="' + game.img + '" alt="' + game.name + '" style="width:100%;height:100%;object-fit:cover;"></div>'
+                    : '<div style="width:100%;height:90px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:' + thumbBg + ';color:' + thumbColor + ';">' + icon + '</div>';
+                var onclick = "handleGameClick('" + game.id + "')";
+                return '<button onclick="' + onclick + '" class="game-card group bg-white p-3 rounded-2xl border border-slate-100 hover:border-indigo-400 hover:shadow-lg transition-all flex flex-col items-center text-center relative w-full">'
                     + badge
-                    + '<div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">' + icon + '</div>'
-                    + '<h3 class="font-bold text-base text-slate-800 mb-2 tracking-tight group-hover:text-indigo-600 transition-colors">' + game.name + '</h3>'
-                    + '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full uppercase tracking-tighter">' + game.genre + '</span>'
+                    + thumb
+                    + '<h3 class="font-bold text-sm text-slate-800 mb-1 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight">' + game.name + '</h3>'
+                    + '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full uppercase tracking-tighter">' + game.genre + '</span>'
                     + '</button>';
             }).join('');
+
+            var hasBanner = bannerConfig.img && bannerConfig.img.trim() !== '';
+            var bannerInner = hasBanner
+                ? '<img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:240px;object-fit:cover;display:block;">'
+                : '<div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">'
+                  + '<span style="font-size:32px;">\uD83D\uDDBC\uFE0F</span>'
+                  + '<span style="font-size:12px;font-weight:800;color:#a5b4fc;letter-spacing:.07em;">BANNER &nbsp;\u00B7&nbsp; \uAD8C\uC7A5 \uC0AC\uC774\uC988: 1200 \u00D7 240 px</span>'
+                  + '<span style="font-size:11px;color:#c4b5fd;">bannerConfig.img \uC5D0 \uC774\uBBF8\uC9C0 \uACBD\uB85C, bannerConfig.link \uC5D0 URL\uC744 \uC785\uB825\uD558\uC138\uC694</span>'
+                  + '</div>';
+
             return '<div class="page-transition">'
-                + '<div class="text-center mb-16">'
-                + '<h1 class="text-5xl font-black text-slate-900 mb-6 tracking-tight">플레이하고 싶은 게임을 선택하세요</h1>'
-                + '<p class="text-xl text-slate-500">별도의 설치 없이 브라우저에서 즉시 실행되는 프리미엄 게임</p>'
+                + '<div class="text-center mb-10">'
+                + '<h1 class="text-5xl font-black text-slate-900 mb-4 tracking-tight">\uD50C\uB808\uC774\uD558\uACE0 \uC2F6\uC740 \uAC8C\uC784\uC744 \uC120\uD0DD\uD558\uC138\uC694</h1>'
+                + '<p class="text-xl text-slate-500">\uBCC4\uB3C4\uC758 \uC124\uCE58 \uC5C6\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C \uC989\uC2DC \uC2E4\uD589\uB418\uB294 \uD504\uB9AC\uBBF8\uC5C4 \uAC8C\uC784</p>'
                 + '</div>'
-                + '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">' + cards + '</div>'
+                + '<div class="grid grid-cols-5 gap-4 mb-12">' + cards + '</div>'
+                + '<section style="margin-bottom:40px;">'
+                + '<p style="font-size:12px;font-weight:800;color:#94a3b8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">\uD83D\uDCE2 \uBC30\uB108 \u00B7 \uAD11\uACE0</p>'
+                + '<a href="' + bannerConfig.link + '" id="banner-link" target="' + (bannerConfig.link !== '#' ? '_blank' : '_self') + '" rel="noopener" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:2.5px dashed #c7d2fe;background:#f5f3ff;text-decoration:none;transition:border-color .2s;box-shadow:0 4px 24px rgba(99,102,241,.07);" onmouseover="this.style.borderColor=\'#6366f1\'" onmouseout="this.style.borderColor=\'#c7d2fe\'">'
+                + bannerInner
+                + '</a>'
+                + '</section>'
                 + '</div>';
         }
 
