@@ -110,7 +110,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260520235514_e5dc01d4">
+  <meta name="build-version" content="20260521002336_220db4e9">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -219,9 +219,9 @@
         ];
         // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
         const bannerConfig = {
-            img: '',        // 예) './data/banner.jpg'
-            link: '#',      // 예) 'https://example.com'
-            alt: '배너'
+            img: './data/banner.png',
+            link: 'fortune-adventure.html',  // 독립 파일로 이동
+            alt: '오늘의 운세 모험 시작하기'
         };
 
         // 게임 목록 페이지 HTML 생성
@@ -257,7 +257,7 @@
 
             var hasBanner = bannerConfig.img && bannerConfig.img.trim() !== '';
             var bannerInner = hasBanner
-                ? '<img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:240px;object-fit:cover;display:block;">'
+                ? '<img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;">'
                 : '<div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">'
                   + '<span style="font-size:32px;">\uD83D\uDDBC\uFE0F</span>'
                   + '<span style="font-size:12px;font-weight:800;color:#a5b4fc;letter-spacing:.07em;">BANNER &nbsp;\u00B7&nbsp; \uAD8C\uC7A5 \uC0AC\uC774\uC988: 1200 \u00D7 240 px</span>'
@@ -266,13 +266,13 @@
 
             return '<div class="page-transition">'
                 + '<div class="text-center mb-10">'
-                + '<h1 class="text-5xl font-black text-slate-900 mb-4 tracking-tight">\uD50C\uB808\uC774\uD558\uACE0 \uC2F6\uC740 \uAC8C\uC784\uC744 \uC120\uD0DD\uD558\uC138\uC694</h1>'
-                + '<p class="text-xl text-slate-500">\uBCC4\uB3C4\uC758 \uC124\uCE58 \uC5C6\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C \uC989\uC2DC \uC2E4\uD589\uB418\uB294 \uD504\uB9AC\uBBF8\uC5C4 \uAC8C\uC784</p>'
+                + '<h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">\uD50C\uB808\uC774\uD558\uACE0 \uC2F6\uC740 \uAC8C\uC784\uC744 \uC120\uD0DD\uD558\uC138\uC694</h1>'
+                + '<p class="text-base md:text-xl text-slate-500">\uBCC4\uB3C4\uC758 \uC124\uCE58 \uC5C6\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C \uC989\uC2DC \uC2E4\uD589\uB418\uB294 \uD504\uB9AC\uBBF8\uC5C4 \uAC8C\uC784</p>'
                 + '</div>'
-                + '<div class="grid grid-cols-5 gap-4 mb-12">' + cards + '</div>'
+                + '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 mb-12">' + cards + '</div>'
                 + '<section style="margin-bottom:40px;">'
                 + '<p style="font-size:12px;font-weight:800;color:#94a3b8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">\uD83D\uDCE2 \uBC30\uB108 \u00B7 \uAD11\uACE0</p>'
-                + '<a href="' + bannerConfig.link + '" id="banner-link" target="' + (bannerConfig.link !== '#' ? '_blank' : '_self') + '" rel="noopener" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:2.5px dashed #c7d2fe;background:#f5f3ff;text-decoration:none;transition:border-color .2s;box-shadow:0 4px 24px rgba(99,102,241,.07);" onmouseover="this.style.borderColor=\'#6366f1\'" onmouseout="this.style.borderColor=\'#c7d2fe\'">'
+                + '<a href="' + bannerConfig.link + '" id="banner-link" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform=\'scale(1.01)\';this.style.boxShadow=\'0 12px 48px rgba(99,102,241,.28)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 40px rgba(99,102,241,.18)\'">'
                 + bannerInner
                 + '</a>'
                 + '</section>'
@@ -281,6 +281,46 @@
 
         const pages = {
             get index() { return buildIndexPage(); },
+            'fortune-adventure': `
+                <div class="page-transition max-w-4xl mx-auto py-12">
+                    <div class="flex items-center gap-4 mb-10">
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-xl" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔮</div>
+                        <div>
+                            <h1 class="text-4xl font-black"><span class="text-violet-600">오늘의 운세</span><span class="text-indigo-500"> 어드벤처</span></h1>
+                            <p class="text-slate-400 mt-1">매일 새로운 운세로 하루를 시작하세요</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden mb-8">
+                        <div style="background:linear-gradient(135deg,#7c3aed 0%,#a78bfa 50%,#6366f1 100%);padding:60px 40px;text-align:center;">
+                            <div style="font-size:72px;margin-bottom:16px;">🌟</div>
+                            <h2 style="color:white;font-size:28px;font-weight:900;margin-bottom:8px;">Today's Fortune Adventure</h2>
+                            <p style="color:rgba(255,255,255,.8);font-size:16px;">오늘 하루의 운세를 확인하고 행운을 가져가세요</p>
+                        </div>
+                        <div class="p-10 text-center">
+                            <p class="text-slate-600 text-lg leading-relaxed mb-8">매일 업데이트되는 오늘의 운세를 확인해보세요.<br>사랑운, 금전운, 건강운까지 한눈에!</p>
+                            <button onclick="navigateTo('fortune')" class="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-white font-black text-lg shadow-lg transition-all hover:scale-105 active:scale-95" style="background:linear-gradient(135deg,#7c3aed,#6366f1);box-shadow:0 8px 32px rgba(124,58,237,.35);">
+                                🔮 운세 바로 보기
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center hover:border-violet-200 hover:shadow-md transition-all">
+                            <div class="text-4xl mb-3">💕</div>
+                            <h3 class="font-black text-slate-800 mb-2">사랑운</h3>
+                            <p class="text-slate-500 text-sm">오늘의 연애운과 인간관계를 확인하세요</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center hover:border-violet-200 hover:shadow-md transition-all">
+                            <div class="text-4xl mb-3">💰</div>
+                            <h3 class="font-black text-slate-800 mb-2">금전운</h3>
+                            <p class="text-slate-500 text-sm">재물과 사업에 관한 오늘의 운세</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center hover:border-violet-200 hover:shadow-md transition-all">
+                            <div class="text-4xl mb-3">💪</div>
+                            <h3 class="font-black text-slate-800 mb-2">건강운</h3>
+                            <p class="text-slate-500 text-sm">몸과 마음의 건강을 위한 오늘의 조언</p>
+                        </div>
+                    </div>
+                </div>`,
             about: `
                 <div class="page-transition max-w-4xl mx-auto py-12">
                     <div class="flex items-center gap-4 mb-10">

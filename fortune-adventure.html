@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 운세 모험 — HOHO PLAY</title>
+    <meta name="description" content="하루에 단 한 번 열리는 선택의 문. 오늘의 운세 모험을 시작하세요.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+        * { font-family: 'Noto Sans KR', sans-serif; box-sizing: border-box; }
+        body { background: #f8f7ff; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* 네비 */
+        nav { background: rgba(255,255,255,.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 50; }
+
+        /* 히어로 배너 */
+        .hero-banner {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 32px 32px;
+            box-shadow: 0 8px 40px rgba(99,102,241,.18);
+        }
+        .hero-banner img { width: 100%; height: auto; display: block; }
+
+        /* 카드 공통 */
+        .fate-card {
+            background: white;
+            border-radius: 28px;
+            padding: 32px 28px;
+            border: 1.5px solid #ede9fe;
+            transition: transform .2s, box-shadow .2s;
+            cursor: pointer;
+        }
+        .fate-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(124,58,237,.13); }
+
+        /* 별자리 그리드 */
+        .zodiac-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        @media(max-width:640px){ .zodiac-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; } }
+
+        .zodiac-btn {
+            background: white;
+            border: 1.5px solid #ede9fe;
+            border-radius: 16px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            font-size: 13px;
+            font-weight: 700;
+            color: #6d28d9;
+        }
+        .zodiac-btn:hover, .zodiac-btn.active {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: white;
+            border-color: transparent;
+            transform: scale(1.06);
+            box-shadow: 0 4px 20px rgba(124,58,237,.3);
+        }
+
+        /* 운세 결과 박스 */
+        .result-box {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+            border-radius: 28px;
+            padding: 36px 32px;
+            color: white;
+            display: none;
+        }
+        .result-box.show { display: block; animation: fadeUp .4s ease; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+        .star-bar-bg { background: rgba(255,255,255,.15); border-radius: 99px; height: 8px; overflow: hidden; }
+        .star-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #fbbf24, #f59e0b); transition: width .8s ease; }
+
+        /* 운세 탭 */
+        .fortune-tab {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            transition: all .2s;
+        }
+        .fortune-tab.active {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: white;
+            box-shadow: 0 4px 16px rgba(124,58,237,.3);
+        }
+
+        /* 스크롤바 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+<!-- 네비게이션 -->
+<nav>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-18 items-center py-4">
+            <a href="index.html" class="flex items-center gap-3 text-decoration-none" style="text-decoration:none;">
+                <div class="w-11 h-11 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg" style="font-size:12px;letter-spacing:-0.5px;line-height:1.1;">HOHO<br>PLAY</div>
+                <span class="text-xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-6">
+                <a href="index.html" class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm" style="text-decoration:none;">전체게임</a>
+                <a href="index.html#about" onclick="sessionStorage.setItem('page','about')" class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm" style="text-decoration:none;">소개</a>
+                <a href="fortune-adventure.html" class="text-violet-600 font-black transition text-sm border-b-2 border-violet-400 pb-0.5" style="text-decoration:none;">운세 어드벤처</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','fortune')" class="text-purple-600 hover:text-purple-800 font-bold transition text-sm" style="text-decoration:none;">운세</a>
+            </div>
+            <!-- 모바일 홈 버튼 -->
+            <a href="index.html" class="md:hidden flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-bold text-sm" style="text-decoration:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                홈
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- 히어로 배너 -->
+<div class="hero-banner mx-0 md:mx-0" style="border-radius:0;">
+    <img src="./data/banner.png" alt="오늘의 운세 모험 시작하기" style="width:100%;max-height:320px;object-fit:cover;object-position:center;">
+</div>
+
+<!-- 메인 콘텐츠 -->
+<main class="flex-grow max-w-4xl mx-auto w-full px-4 py-10">
+
+    <!-- 타이틀 -->
+    <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4" style="background:#ede9fe;color:#7c3aed;">
+            ✨ Daily Fortune Adventure
+        </div>
+        <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-3">오늘의 운세 모험</h1>
+        <p class="text-slate-500 text-base md:text-lg">별자리를 선택하고 오늘 하루의 운명을 확인하세요</p>
+    </div>
+
+    <!-- 별자리 선택 -->
+    <div class="bg-white rounded-[28px] border border-slate-100 p-6 md:p-8 mb-6 shadow-sm">
+        <h2 class="font-black text-slate-800 text-lg mb-5">🌙 내 별자리를 선택하세요</h2>
+        <div class="zodiac-grid" id="zodiac-grid">
+            <button class="zodiac-btn" onclick="selectZodiac(this,'양자리','♈')">♈<br>양자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'황소자리','♉')">♉<br>황소자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'쌍둥이자리','♊')">♊<br>쌍둥이자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'게자리','♋')">♋<br>게자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'사자자리','♌')">♌<br>사자자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'처녀자리','♍')">♍<br>처녀자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'천칭자리','♎')">♎<br>천칭자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'전갈자리','♏')">♏<br>전갈자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'사수자리','♐')">♐<br>사수자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'염소자리','♑')">♑<br>염소자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'물병자리','♒')">♒<br>물병자리</button>
+            <button class="zodiac-btn" onclick="selectZodiac(this,'물고기자리','♓')">♓<br>물고기자리</button>
+        </div>
+    </div>
+
+    <!-- 운세 탭 -->
+    <div class="bg-white rounded-[28px] border border-slate-100 p-3 mb-6 shadow-sm flex gap-2 overflow-x-auto" id="fortune-tabs" style="display:none!important;">
+        <button class="fortune-tab active" onclick="switchTab(this,'today')">🌟 오늘</button>
+        <button class="fortune-tab" onclick="switchTab(this,'tomorrow')">🌙 내일</button>
+        <button class="fortune-tab" onclick="switchTab(this,'week')">📅 이번 주</button>
+        <button class="fortune-tab" onclick="switchTab(this,'month')">📆 이달</button>
+    </div>
+
+    <!-- 운세 결과 -->
+    <div class="result-box mb-6" id="result-box">
+        <div class="flex items-center gap-4 mb-6">
+            <div id="result-symbol" style="font-size:48px;"></div>
+            <div>
+                <div id="result-zodiac" class="text-violet-300 font-black text-sm uppercase tracking-widest mb-1"></div>
+                <div id="result-tab-label" class="text-white font-black text-xl"></div>
+            </div>
+        </div>
+
+        <div id="result-overall" class="mb-6 p-4 rounded-2xl" style="background:rgba(255,255,255,.08);">
+            <div class="text-violet-300 text-xs font-black uppercase tracking-widest mb-2">총운</div>
+            <div id="result-overall-text" class="text-white text-base leading-relaxed font-medium"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" id="result-bars">
+            <div>
+                <div class="flex justify-between text-xs font-black mb-2"><span class="text-pink-300">💕 사랑운</span><span id="bar-love-val" class="text-white"></span></div>
+                <div class="star-bar-bg"><div class="star-bar-fill" id="bar-love" style="width:0%"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between text-xs font-black mb-2"><span class="text-yellow-300">💰 금전운</span><span id="bar-money-val" class="text-white"></span></div>
+                <div class="star-bar-bg"><div class="star-bar-fill" id="bar-money" style="width:0%;background:linear-gradient(90deg,#4ade80,#22c55e)"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between text-xs font-black mb-2"><span class="text-sky-300">💪 건강운</span><span id="bar-health-val" class="text-white"></span></div>
+                <div class="star-bar-bg"><div class="star-bar-fill" id="bar-health" style="width:0%;background:linear-gradient(90deg,#38bdf8,#0ea5e9)"></div></div>
+            </div>
+        </div>
+
+        <div id="result-advice" class="p-4 rounded-2xl text-sm leading-relaxed" style="background:rgba(167,139,250,.15);color:#ddd6fe;font-weight:600;"></div>
+    </div>
+
+    <!-- 운세 보러가기 CTA -->
+    <div class="fate-card text-center mb-6">
+        <div class="text-5xl mb-4">🔮</div>
+        <h3 class="font-black text-slate-800 text-xl mb-2">더 자세한 운세가 궁금하다면?</h3>
+        <p class="text-slate-500 text-sm mb-6">사주, 한자 운세, 꿈해몽까지 — HOHO PLAY 운세 전체보기</p>
+        <a href="index.html" onclick="sessionStorage.setItem('page','fortune');return true;" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-white font-black text-base shadow-lg" style="background:linear-gradient(135deg,#7c3aed,#6366f1);text-decoration:none;">
+            🌟 운세 전체보기
+        </a>
+    </div>
+
+    <!-- 3카드 -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div class="fate-card text-center">
+            <div class="text-4xl mb-3">💕</div>
+            <h3 class="font-black text-slate-800 mb-2">사랑운</h3>
+            <p class="text-slate-500 text-sm">오늘의 연애운과<br>인간관계를 확인하세요</p>
+        </div>
+        <div class="fate-card text-center">
+            <div class="text-4xl mb-3">💰</div>
+            <h3 class="font-black text-slate-800 mb-2">금전운</h3>
+            <p class="text-slate-500 text-sm">재물과 사업에 관한<br>오늘의 운세</p>
+        </div>
+        <div class="fate-card text-center">
+            <div class="text-4xl mb-3">💪</div>
+            <h3 class="font-black text-slate-800 mb-2">건강운</h3>
+            <p class="text-slate-500 text-sm">몸과 마음 건강을 위한<br>오늘의 조언</p>
+        </div>
+    </div>
+</main>
+
+<!-- 푸터 -->
+<div id="footer-ph"></div>
+<script>
+    fetch('./footer.html').then(r=>r.text()).then(h=>{
+        document.getElementById('footer-ph').outerHTML = h;
+    }).catch(()=>{});
+
+    // footer nav → index.html로
+    function footerNav(page) {
+        sessionStorage.setItem('page', page);
+        window.location.href = 'index.html';
+    }
+</script>
+
+<script>
+// ── 운세 데이터 ──
+const ZODIAC_DATA = {
+    '양자리':   { symbol:'♈', element:'불', keyword:'도전·열정·개척' },
+    '황소자리': { symbol:'♉', element:'흙', keyword:'안정·인내·감각' },
+    '쌍둥이자리':{ symbol:'♊', element:'바람', keyword:'소통·호기심·다재다능' },
+    '게자리':   { symbol:'♋', element:'물', keyword:'감성·보호·직관' },
+    '사자자리': { symbol:'♌', element:'불', keyword:'자신감·창의·리더십' },
+    '처녀자리': { symbol:'♍', element:'흙', keyword:'분석·섬세·완벽' },
+    '천칭자리': { symbol:'♎', element:'바람', keyword:'균형·조화·미감' },
+    '전갈자리': { symbol:'♏', element:'물', keyword:'집중·변혁·신비' },
+    '사수자리': { symbol:'♐', element:'불', keyword:'자유·모험·낙관' },
+    '염소자리': { symbol:'♑', element:'흙', keyword:'성실·책임·목표' },
+    '물병자리': { symbol:'♒', element:'바람', keyword:'독창·혁신·인도주의' },
+    '물고기자리':{ symbol:'♓', element:'물', keyword:'공감·상상·영성' },
+};
+
+const OVERALL_MSGS = [
+    '오늘은 새로운 인연이 찾아올 가능성이 높습니다. 열린 마음으로 주변을 살펴보세요.',
+    '꾸준한 노력이 빛을 발하는 날입니다. 오늘 시작한 일은 좋은 결과를 맺을 것입니다.',
+    '직감을 믿으세요. 오늘 떠오르는 아이디어는 생각보다 훨씬 가치 있을 수 있습니다.',
+    '주변 사람들과의 소통이 중요한 날입니다. 따뜻한 한마디가 큰 변화를 만듭니다.',
+    '잠시 쉬어가도 좋습니다. 무리하지 않고 자신을 돌보는 것이 오늘의 핵심입니다.',
+    '예상치 못한 행운이 찾아올 수 있는 날입니다. 작은 기회도 놓치지 마세요.',
+    '오늘은 결단이 필요한 날입니다. 오래 고민했던 일을 과감하게 진행해 보세요.',
+];
+const ADVICE_MSGS = [
+    '오늘의 행운 아이템: 보라색 소품을 가까이 두세요.',
+    '오늘은 서두르지 말고 천천히 한 걸음씩 나아가세요.',
+    '오늘의 행운 방향: 북동쪽. 그쪽으로 외출해 보세요.',
+    '감사한 마음을 떠올리면 좋은 기운이 찾아옵니다.',
+    '오늘은 새로운 것을 시도하기에 최적의 날입니다.',
+    '물을 충분히 마시고 짧은 산책을 해보세요.',
+    '오늘의 행운 숫자: ' + (Math.floor(Math.random()*40)+1) + '. 마음속에 새겨두세요.',
+];
+
+function rnd(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function rndN(min,max) { return Math.floor(Math.random()*(max-min+1))+min; }
+
+// 날짜 시드 기반 (같은 날 같은 별자리 = 같은 결과)
+function seededRnd(seed, max) {
+    let h = 2166136261;
+    for (let i=0; i<seed.length; i++) { h ^= seed.charCodeAt(i); h = (h*16777619)>>>0; }
+    return h % max;
+}
+
+let currentZodiac = null;
+let currentTab = 'today';
+
+function selectZodiac(el, name, symbol) {
+    document.querySelectorAll('.zodiac-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentZodiac = name;
+    showResult();
+}
+
+function switchTab(el, tab) {
+    document.querySelectorAll('.fortune-tab').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentTab = tab;
+    if (currentZodiac) showResult();
+}
+
+function showResult() {
+    const today = new Date();
+    const dateStr = today.getFullYear()+''+(today.getMonth()+1)+''+today.getDate();
+    const seed = currentZodiac + dateStr + currentTab;
+
+    const love   = rndN(55, 98);
+    const money  = rndN(50, 96);
+    const health = rndN(52, 99);
+
+    const tabLabels = { today:'🌟 오늘의 운세', tomorrow:'🌙 내일의 운세', week:'📅 이번 주 운세', month:'📆 이달의 운세' };
+    const zd = ZODIAC_DATA[currentZodiac];
+
+    document.getElementById('result-symbol').textContent = zd.symbol;
+    document.getElementById('result-zodiac').textContent = currentZodiac + ' · ' + zd.keyword;
+    document.getElementById('result-tab-label').textContent = tabLabels[currentTab];
+    document.getElementById('result-overall-text').textContent = OVERALL_MSGS[seededRnd(seed, OVERALL_MSGS.length)];
+    document.getElementById('result-advice').textContent = '💡 ' + ADVICE_MSGS[seededRnd(seed+'a', ADVICE_MSGS.length)];
+
+    document.getElementById('bar-love-val').textContent = love + '%';
+    document.getElementById('bar-money-val').textContent = money + '%';
+    document.getElementById('bar-health-val').textContent = health + '%';
+
+    const box = document.getElementById('result-box');
+    box.classList.remove('show');
+    void box.offsetWidth;
+    box.classList.add('show');
+
+    setTimeout(() => {
+        document.getElementById('bar-love').style.width = love + '%';
+        document.getElementById('bar-money').style.width = money + '%';
+        document.getElementById('bar-health').style.width = health + '%';
+    }, 100);
+}
+</script>
+</body>
+</html>
