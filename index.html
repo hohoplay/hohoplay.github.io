@@ -118,7 +118,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260524122511_d6bb924c">
+  <meta name="build-version" content="20260524131230_ac4283df">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -844,8 +844,14 @@
         }
 
         window.onload = () => {
-            // hash 없이 항상 홈 페이지로 시작
-            navigateTo('index');
+            // 외부 페이지(fortune-adventure 등)에서 넘어온 경우 해당 페이지로 이동
+            const pendingPage = sessionStorage.getItem('page');
+            if (pendingPage) {
+                sessionStorage.removeItem('page');
+                navigateTo(pendingPage);
+            } else {
+                navigateTo('index');
+            }
         };
 
         // 현재 활성 페이지에 nav 강조 표시
