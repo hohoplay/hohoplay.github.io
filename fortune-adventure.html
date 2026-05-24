@@ -304,7 +304,8 @@ let THEMES    = {};   // { love:{display_name,icon,color}, ... }
 let TOTAL_Q   = 0;
 
 // ─── localStorage 키 ──────────────────────────────────────────────────────────
-const SEEN_KEY = 'fa_seen_ids';
+const SEEN_KEY  = 'fa_seen_ids';
+const DAILY_KEY = 'fa_played_date';
 
 // ─── 상태 ─────────────────────────────────────────────────────────────────────
 let state = { step:'loading', queue:[], qStep:0, themes:[], answers:[], result:null };
@@ -385,6 +386,12 @@ function renderError(msg) {
 }
 
 // ─── seen 관리 ────────────────────────────────────────────────────────────────
+function today() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function hasPlayedToday() { return localStorage.getItem(DAILY_KEY) === today(); }
+function markPlayedToday() { localStorage.setItem(DAILY_KEY, today()); }
 function loadSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY)) || []; } catch { return []; } }
 function saveSeen(a) { localStorage.setItem(SEEN_KEY, JSON.stringify(a)); }
 
@@ -449,6 +456,55 @@ function calcResult(themes) {
     return { category: top, ...pool[Math.floor(Math.random()*pool.length)] };
 }
 
+function renderLocked() {
+    // 다음 자정까지 남은 시간 계산
+    const now   = new Date();
+    const next  = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+    const diff  = next - now;
+    const hh    = String(Math.floor(diff/3600000)).padStart(2,'0');
+    const mm    = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+    const ss    = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+
+    app.innerHTML = `
+    <div class="locked-card">
+        <div style="font-size:3.5rem;margin-bottom:1.25rem;">🌙</div>
+        <h2 style="font-size:1.35rem;font-weight:900;color:#1e1b4b;margin-bottom:0.75rem;">오늘의 모험이 끝났어요</h2>
+        <p style="color:#6b7280;line-height:1.8;font-size:0.95rem;margin-bottom:1.5rem;">
+            오늘의 운세 모험은 하루에 한 번만 열려요.<br>내일 다시 새로운 문이 열립니다 ✨
+        </p>
+        <div style="background:#f5f3ff;border-radius:14px;padding:1rem 1.5rem;margin-bottom:1.75rem;display:inline-block;min-width:220px;">
+            <p style="font-size:0.78rem;color:#7c3aed;font-weight:700;margin-bottom:0.4rem;">⏳ 다음 모험까지</p>
+            <p id="countdown" style="font-size:2rem;font-weight:900;color:#4f46e5;letter-spacing:0.05em;">${hh}:${mm}:${ss}</p>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+            <a href="fortune.html" style="text-decoration:none;flex:1;">
+                <button style="width:100%;padding:0.9rem;border-radius:14px;border:1.5px solid #ede9fe;background:#faf5ff;color:#7c3aed;font-size:0.9rem;font-weight:700;cursor:pointer;" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#faf5ff'">
+                    🔮 운세 바로가기
+                </button>
+            </a>
+            <a href="index.html" style="text-decoration:none;flex:1;">
+                <button style="width:100%;padding:0.9rem;border-radius:14px;border:1.5px solid #e0e7ff;background:#f0f4ff;color:#4f46e5;font-size:0.9rem;font-weight:700;cursor:pointer;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#f0f4ff'">
+                    🎮 게임 바로가기
+                </button>
+            </a>
+        </div>
+    </div>`;
+
+    // 1초마다 카운트다운 갱신
+    const timer = setInterval(() => {
+        const el = document.getElementById('countdown');
+        if (!el) { clearInterval(timer); return; }
+        const now2  = new Date();
+        const next2 = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate()+1);
+        const d2    = next2 - now2;
+        if (d2 <= 0) { clearInterval(timer); window.location.reload(); return; }
+        const h2 = String(Math.floor(d2/3600000)).padStart(2,'0');
+        const m2 = String(Math.floor((d2%3600000)/60000)).padStart(2,'0');
+        const s2 = String(Math.floor((d2%60000)/1000)).padStart(2,'0');
+        el.textContent = `${h2}:${m2}:${s2}`;
+    }, 1000);
+}
+
 // ─── 렌더 ─────────────────────────────────────────────────────────────────────
 function render() {
     if      (state.step==='start')    renderStart();
@@ -457,6 +513,9 @@ function render() {
 }
 
 function renderStart() {
+    // 오늘 이미 플레이했으면 잠금 화면
+    if (hasPlayedToday()) { renderLocked(); return; }
+
     const seen = loadSeen();
     const rem  = TOTAL_Q - seen.length;
     const pct  = Math.round(seen.length / TOTAL_Q * 100);
@@ -552,7 +611,7 @@ function renderResult() {
         <div class="result-footer">
             <button class="btn-share" onclick="shareResult()">📤 결과 공유하기</button>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
-                <a href="index.html" onclick="sessionStorage.setItem('goto','fortune')" style="text-decoration:none;">
+                <a href="fortune.html" style="text-decoration:none;">
                     <button style="width:100%;padding:0.85rem 0.75rem;border-radius:14px;border:1.5px solid #ede9fe;background:#faf5ff;color:#7c3aed;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.3rem;" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#faf5ff'">
                         <span style="font-size:1.4rem;">🔮</span><span>운세 바로가기</span>
                     </button>
@@ -563,8 +622,8 @@ function renderResult() {
                     </button>
                 </a>
             </div>
-            <button class="btn-share" onclick="state.step='start';render()">🔄 다시 도전하기</button>
-            <p style="font-size:0.75rem;color:#9ca3af;text-align:center;">다시 도전하면 새로운 질문이 나와요 🌙</p>
+            <button class="btn-share" onclick="renderLocked()">🌙 오늘의 모험 완료</button>
+            <p style="font-size:0.75rem;color:#9ca3af;text-align:center;">내일 새로운 질문이 기다리고 있어요 🌙</p>
         </div>
     </div>`;
 }
@@ -611,6 +670,7 @@ function pickChoice(idx) {
 
 function finishAdventure() {
     saveSeen([...new Set([...loadSeen(), ...state.queue])]);
+    markPlayedToday();
     state.result = calcResult(state.themes);
     state.step   = 'result';
     render();
