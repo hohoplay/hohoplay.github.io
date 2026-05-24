@@ -6,43 +6,626 @@
     <title>오늘의 운세 모험 — HOHO PLAY</title>
     <meta name="description" content="하루에 단 한 번 열리는 선택의 문. 오늘의 운세 모험을 시작하세요.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
-        * { font-family: 'Noto Sans KR', sans-serif; box-sizing: border-box; }
+        :root {
+            --love: #f472b6;
+            --love-bg: #fdf2f8;
+            --love-border: #fbcfe8;
+            --money: #f59e0b;
+            --money-bg: #fffbeb;
+            --money-border: #fde68a;
+            --mind: #818cf8;
+            --mind-bg: #eef2ff;
+            --mind-border: #c7d2fe;
+            --luck: #34d399;
+            --luck-bg: #ecfdf5;
+            --luck-border: #a7f3d0;
+            --primary: #7c3aed;
+            --primary-light: #ede9fe;
+        }
+        * { font-family: 'Noto Sans KR', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #f8f7ff; min-height: 100vh; display: flex; flex-direction: column; }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 6px; }
+
+        /* Progress bar */
+        .progress-track {
+            background: #e5e7eb;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a78bfa, #7c3aed);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Theme badge colors */
+        .theme-love   { background: var(--love-bg);   color: #be185d; border: 1px solid var(--love-border); }
+        .theme-money  { background: var(--money-bg);  color: #92400e; border: 1px solid var(--money-border); }
+        .theme-mind   { background: var(--mind-bg);   color: #3730a3; border: 1px solid var(--mind-border); }
+        .theme-luck   { background: var(--luck-bg);   color: #065f46; border: 1px solid var(--luck-border); }
+
+        /* Question card */
+        .q-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(124,58,237,0.08);
+            padding: 2.5rem 2rem;
+            animation: fadeUp 0.45s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Choice buttons */
+        .choice-btn {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 14px;
+            background: #fff;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .choice-btn:hover {
+            border-color: #a78bfa;
+            background: #faf5ff;
+            color: #7c3aed;
+            transform: translateX(4px);
+        }
+        .choice-btn.selected {
+            border-color: #7c3aed;
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        .choice-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 900;
+            flex-shrink: 0;
+            transition: background 0.18s, color 0.18s;
+        }
+        .choice-btn:hover .choice-num,
+        .choice-btn.selected .choice-num {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        /* Result card */
+        .result-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(124,58,237,0.12);
+            overflow: hidden;
+            animation: fadeUp 0.5s ease both;
+        }
+        .result-header {
+            padding: 2.5rem 2rem 2rem;
+            text-align: center;
+        }
+        .result-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: bounce 1s ease 0.5s both;
+        }
+        @keyframes bounce {
+            0%  { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .result-type-label {
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.3rem 1rem;
+            border-radius: 999px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        .result-text {
+            font-family: 'Gowun Batang', serif;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: #1e1b4b;
+            padding: 1.5rem 2rem 2rem;
+            border-top: 1px solid #f3f4f6;
+            text-align: center;
+        }
+        .result-footer {
+            background: #faf9ff;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        /* Restart button */
+        .btn-restart {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.18s, transform 0.18s;
+        }
+        .btn-restart:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-share {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 14px;
+            padding: 0.9rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.18s;
+        }
+        .btn-share:hover { background: #e5e7eb; }
+
+        /* Stars decoration */
+        .stars {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        .star { color: #fbbf24; font-size: 1rem; }
+
+        /* Daily locked state */
+        .locked-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(124,58,237,0.08);
+            padding: 3rem 2rem;
+            text-align: center;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        /* Answer trail */
+        .trail {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .trail-chip {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            background: #ede9fe;
+            color: #6d28d9;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
 
-<!-- 히어로 배너 -->
-<div>
-    <img src="./data/banner.png" alt="오늘의 운세 모험 시작하기" style="width:100%;max-height:340px;object-fit:cover;object-position:center;display:block;">
-</div>
+<!-- 상단 네비게이션 -->
+<nav style="background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="max-width:896px;margin:0 auto;padding:0 1rem;display:flex;align-items:center;height:68px;">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;">
+            <div style="width:44px;height:44px;background:#4f46e5;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:900;letter-spacing:-0.5px;line-height:1.1;text-align:center;box-shadow:0 4px 14px rgba(79,70,229,0.35);">HOHO<br>PLAY</div>
+            <span style="font-size:1.35rem;font-weight:900;letter-spacing:-0.03em;"><span style="color:#4f46e5;">HOHO</span><span style="color:#7c3aed;"> PLAY</span></span>
+        </a>
+    </div>
+</nav>
+
 
 <!-- 메인 콘텐츠 -->
-<main class="flex-grow max-w-4xl mx-auto w-full px-4 py-10">
-    <div class="text-center mb-10">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4" style="background:#ede9fe;color:#7c3aed;">
+<main class="flex-grow max-w-xl mx-auto w-full px-4 py-10">
+
+    <!-- 타이틀 -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4"
+             style="background:#ede9fe;color:#7c3aed;">
             ✨ Daily Fortune Adventure
         </div>
-        <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-3">오늘의 운세 모험</h1>
-        <p class="text-slate-500 text-base md:text-lg">하루에 단 한 번 열리는 선택의 문</p>
+        <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-2">오늘의 운세 모험</h1>
+        <p class="text-slate-500 text-base">하루에 단 한 번 열리는 선택의 문</p>
     </div>
+
+    <!-- 메인 앱 영역 -->
+    <div id="app"></div>
+
 </main>
 
 <!-- 푸터 -->
 <div id="footer-ph"></div>
 <script>
-    fetch('./footer.html').then(r=>r.text()).then(h=>{
-        document.getElementById('footer-ph').outerHTML = h;
-    }).catch(()=>{});
-    function footerNav(page) {
-        sessionStorage.setItem('page', page);
-        window.location.href = 'index.html';
+fetch('./footer.html').then(r=>r.text()).then(h=>{
+    document.getElementById('footer-ph').outerHTML = h;
+}).catch(()=>{});
+function footerNav(page) {
+    sessionStorage.setItem('page', page);
+    window.location.href = 'index.html';
+}
+</script>
+
+<script>
+// ─── CSV 로더 ─────────────────────────────────────────────────────────────────
+// 모든 데이터는 외부 CSV에서 로드됩니다.
+// 같은 폴더에 questions.csv / results.csv / themes.csv 가 있어야 합니다.
+// 질문 추가·수정은 questions.csv 만 편집하면 됩니다. (엑셀 OK)
+
+// CSV 텍스트 → 객체 배열 파싱 (쉼표 포함 필드 "큰따옴표" 지원)
+function parseCSV(text) {
+    const lines = text.trim().split('\n').map(l => l.replace(/\r$/, ''));
+    const headers = splitCSVLine(lines[0]);
+    return lines.slice(1).filter(l => l.trim()).map(line => {
+        const vals = splitCSVLine(line);
+        const obj = {};
+        headers.forEach((h, i) => obj[h.trim()] = (vals[i] || '').trim());
+        return obj;
+    });
+}
+function splitCSVLine(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') { inQ = !inQ; }
+        else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+        else cur += c;
     }
+    result.push(cur);
+    return result;
+}
+
+// ─── 앱 데이터 (CSV 로드 후 채워짐) ──────────────────────────────────────────
+let QUESTIONS = [];   // { id, theme, question, choices:[c1,c2,c3] }
+let RESULTS   = {};   // { love:[{text,extra},...], money:[...], ... }
+let THEMES    = {};   // { love:{display_name,icon,color}, ... }
+let TOTAL_Q   = 0;
+
+// ─── localStorage 키 ──────────────────────────────────────────────────────────
+const SEEN_KEY = 'fa_seen_ids';
+
+// ─── 상태 ─────────────────────────────────────────────────────────────────────
+let state = { step:'loading', queue:[], qStep:0, themes:[], answers:[], result:null };
+
+// ─── 앱 초기화: CSV 3개 동시 로드 ────────────────────────────────────────────
+const app = document.getElementById('app');
+
+async function initApp() {
+    renderLoading();
+    try {
+        const [qText, rText, tText] = await Promise.all([
+            fetch('./data/questions.csv').then(r => { if(!r.ok) throw new Error('questions.csv 로드 실패'); return r.text(); }),
+            fetch('./data/results.csv').then(r   => { if(!r.ok) throw new Error('results.csv 로드 실패');   return r.text(); }),
+            fetch('./data/themes.csv').then(r    => { if(!r.ok) throw new Error('themes.csv 로드 실패');    return r.text(); }),
+        ]);
+
+        // questions.csv 파싱
+        const qRows = parseCSV(qText);
+        QUESTIONS = qRows.map(r => ({
+            id:      parseInt(r.id),
+            theme:   r.theme,
+            question: r.question,
+            choices: [r.choice_1, r.choice_2, r.choice_3].filter(Boolean),
+        }));
+
+        // results.csv 파싱 → 테마별 배열로 그룹핑
+        RESULTS = {};
+        parseCSV(rText).forEach(r => {
+            if (!RESULTS[r.category]) RESULTS[r.category] = [];
+            RESULTS[r.category].push({ text: r.text, extra: r.extra || '' });
+        });
+
+        // themes.csv 파싱
+        THEMES = {};
+        parseCSV(tText).forEach(r => {
+            THEMES[r.theme] = {
+                label: r.display_name,
+                icon:  r.icon,
+                color: r.color,
+            };
+        });
+
+        TOTAL_Q = QUESTIONS.length;
+        state.step = 'start';
+        render();
+
+    } catch(err) {
+        renderError(err.message || '데이터 파싱 오류');
+    }
+}
+
+// ─── 로딩 / 에러 화면 ─────────────────────────────────────────────────────────
+function renderLoading() {
+    app.innerHTML = `
+    <div class="q-card text-center" style="padding:3rem 2rem;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;animation:spin 1s linear infinite;">✨</div>
+        <p style="color:#7c3aed;font-weight:700;font-size:1rem;">운세 데이터를 불러오는 중...</p>
+        <p style="color:#9ca3af;font-size:0.85rem;margin-top:0.5rem;">questions.csv / results.csv / themes.csv</p>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+}
+function renderError(msg) {
+    app.innerHTML = `
+    <div class="q-card text-center" style="padding:3rem 2rem;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">⚠️</div>
+        <h2 style="font-size:1.1rem;font-weight:900;color:#dc2626;margin-bottom:0.75rem;">CSV 파일을 불러올 수 없어요</h2>
+        <p style="color:#6b7280;font-size:0.9rem;line-height:1.7;margin-bottom:1rem;">${msg}</p>
+        <div style="background:#fef2f2;border-radius:12px;padding:1rem;text-align:left;font-size:0.82rem;color:#991b1b;line-height:1.8;">
+            <strong>확인사항:</strong><br>
+            • fortune-adventure.html 과 같은 폴더에<br>
+            &nbsp;&nbsp;questions.csv / results.csv / themes.csv 가 있는지 확인<br>
+            • fortune-adventure.html 과 같은 폴더에 data/ 폴더가 있는지 확인<br>
+            • data/ 안에 questions.csv / results.csv / themes.csv 가 있는지 확인<br>
+            • PC 로컬 환경은 VS Code Live Server 사용 필요 (파일 직접 열기 불가)
+        </div>
+        <button class="btn-restart" style="margin-top:1.5rem;" onclick="initApp()">🔄 다시 시도</button>
+    </div>`;
+}
+
+// ─── seen 관리 ────────────────────────────────────────────────────────────────
+function loadSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY)) || []; } catch { return []; } }
+function saveSeen(a) { localStorage.setItem(SEEN_KEY, JSON.stringify(a)); }
+
+function shuffle(a) {
+    const b = [...a];
+    for (let i = b.length-1; i > 0; i--) {
+        const j = Math.floor(Math.random()*(i+1));
+        [b[i],b[j]] = [b[j],b[i]];
+    }
+    return b;
+}
+
+// 5개 랜덤 뽑기 (테마 균형 + 중복 제거 + 자동 초기화 + 항상 정확히 5개 보장)
+function pickFive(seen) {
+    // ① 사용 가능한 질문 확보 — 5개 미만이면 전체 초기화
+    let avail = QUESTIONS.map(q=>q.id).filter(id=>!seen.includes(id));
+    if (avail.length < 5) {
+        saveSeen([]);
+        avail = QUESTIONS.map(q=>q.id);
+    }
+
+    // ② 반드시 QUESTIONS에 존재하는 id만 avail에 유지 (CSV id 불일치 방어)
+    avail = avail.filter(id => QUESTIONS.some(q=>q.id===id));
+    if (avail.length < 5) avail = QUESTIONS.map(q=>q.id);
+
+    // ③ 테마별 분류
+    const byTheme = {};
+    Object.keys(THEMES).forEach(t => byTheme[t] = []);
+    avail.forEach(id => {
+        const q = QUESTIONS.find(q=>q.id===id);
+        if (q && byTheme[q.theme] !== undefined) byTheme[q.theme].push(id);
+    });
+
+    // ④ 각 테마에서 1개씩 (최대 4개) — while 루프로 정확히 5개 채우기
+    const picked = [];
+    shuffle(Object.keys(THEMES)).forEach(t => {
+        const pool = shuffle(byTheme[t] || []);
+        if (pool.length > 0 && picked.length < 4) picked.push(pool[0]);
+    });
+
+    // ⑤ 5번째: avail 나머지에서 보충
+    const rest = shuffle(avail.filter(id=>!picked.includes(id)));
+    let ri = 0;
+    while (picked.length < 5 && ri < rest.length) picked.push(rest[ri++]);
+
+    // ⑥ 안전장치: 전체 풀에서 부족분 채우기
+    if (picked.length < 5) {
+        const fb = shuffle(QUESTIONS.map(q=>q.id).filter(id=>!picked.includes(id)));
+        let fi = 0;
+        while (picked.length < 5 && fi < fb.length) picked.push(fb[fi++]);
+    }
+
+    return shuffle(picked); // 순서도 랜덤
+}
+
+// 결과 계산: 5개 선택 중 가장 많이 나온 테마
+function calcResult(themes) {
+    const freq = {};
+    themes.forEach(t => freq[t] = (freq[t]||0)+1);
+    const top = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+    const pool = RESULTS[top] || RESULTS[Object.keys(RESULTS)[0]];
+    return { category: top, ...pool[Math.floor(Math.random()*pool.length)] };
+}
+
+// ─── 렌더 ─────────────────────────────────────────────────────────────────────
+function render() {
+    if      (state.step==='start')    renderStart();
+    else if (state.step==='question') renderQuestion();
+    else if (state.step==='result')   renderResult();
+}
+
+function renderStart() {
+    const seen = loadSeen();
+    const rem  = TOTAL_Q - seen.length;
+    const pct  = Math.round(seen.length / TOTAL_Q * 100);
+
+    app.innerHTML = `
+    <div class="q-card text-center" style="padding:3rem 2rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🌙</div>
+        <h2 style="font-size:1.4rem;font-weight:900;color:#1e1b4b;margin-bottom:0.75rem;">오늘의 문이 열려 있어요</h2>
+        <p style="color:#6b7280;line-height:1.7;margin-bottom:1.25rem;font-size:0.95rem;">
+            5개의 질문으로 오늘의 운세를 알아보세요.<br>매번 새로운 질문이 기다리고 있어요.
+        </p>
+        <div style="background:#f5f3ff;border-radius:12px;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.8rem;color:#7c3aed;font-weight:700;">
+            📚 질문 풀 ${rem} / ${TOTAL_Q}개 남음
+            <div class="progress-track" style="margin-top:0.4rem;">
+                <div class="progress-fill" style="width:${pct}%"></div>
+            </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.75rem;">
+            ${Object.entries(THEMES).map(([k,v])=>`
+                <span class="theme-${v.color}" style="font-size:0.78rem;font-weight:700;padding:0.3rem 0.8rem;border-radius:999px;">
+                    ${v.icon} ${v.label}
+                </span>
+            `).join('')}
+        </div>
+        <button class="btn-restart" onclick="startAdventure()">✨ 모험 시작하기</button>
+    </div>`;
+}
+
+function renderQuestion() {
+    const qId = state.queue[state.qStep];
+    const q   = QUESTIONS.find(q=>q.id===qId);
+    // 해당 id의 질문이 없으면 해당 스텝을 건너뛰고 다음으로 (시작화면으로 탈출 방지)
+    if (!q) {
+        state.qStep++;
+        if (state.qStep >= 5) { finishAdventure(); } else { render(); }
+        return;
+    }
+
+    const step = state.qStep + 1;
+    const pct  = ((step-1)/5)*100;
+    const ti   = THEMES[q.theme] || { label:q.theme, icon:'✦', color:'mind' };
+
+    app.innerHTML = `
+    <div class="q-card">
+        <div style="margin-bottom:1.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                <span class="theme-${ti.color}" style="font-size:0.75rem;font-weight:900;padding:0.25rem 0.75rem;border-radius:999px;">
+                    ${ti.icon} ${ti.label}
+                </span>
+                <span style="font-size:0.8rem;color:#9ca3af;font-weight:700;">${step} / 5</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        ${state.answers.length > 0 ? `
+        <div class="trail">
+            ${state.answers.map(a=>`<span class="trail-chip">${a}</span>`).join('')}
+        </div>` : ''}
+        <p style="font-size:1.3rem;font-weight:900;color:#1e1b4b;line-height:1.5;margin-bottom:1.75rem;text-align:center;">
+            ${q.question}
+        </p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            ${q.choices.map((c,i)=>`
+                <button class="choice-btn" onclick="pickChoice(${i})">
+                    <span class="choice-num">${i+1}</span>
+                    <span>${c}</span>
+                </button>
+            `).join('')}
+        </div>
+    </div>`;
+}
+
+function renderResult() {
+    const r  = state.result;
+    if (!r) { state.step='start'; render(); return; }
+    const ti = THEMES[r.category] || { label:r.category, icon:'✨', color:'luck' };
+
+    app.innerHTML = `
+    <div class="result-card">
+        <div class="result-header" style="background:var(--${r.category}-bg);">
+            <span class="result-icon">${ti.icon}</span>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <span class="result-type-label theme-${r.category}" style="margin-top:0.5rem;">오늘의 ${ti.label}</span>
+        </div>
+        <div class="result-text">${r.text.replace(/\n/g,'<br>')}</div>
+        ${r.extra ? `
+        <div style="background:#faf9ff;padding:1rem 2rem;text-align:center;border-top:1px solid #f3f4f6;">
+            <p style="font-size:0.85rem;color:#7c3aed;font-weight:700;">💡 ${r.extra}</p>
+        </div>` : ''}
+        <div style="padding:1rem 2rem;border-top:1px solid #f3f4f6;">
+            <p style="font-size:0.78rem;color:#9ca3af;font-weight:700;margin-bottom:0.5rem;">나의 선택</p>
+            <div class="trail">${state.answers.map(a=>`<span class="trail-chip">${a}</span>`).join('')}</div>
+        </div>
+        <div class="result-footer">
+            <button class="btn-share" onclick="shareResult()">📤 결과 공유하기</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
+                <a href="index.html" onclick="sessionStorage.setItem('goto','fortune')" style="text-decoration:none;">
+                    <button style="width:100%;padding:0.85rem 0.75rem;border-radius:14px;border:1.5px solid #ede9fe;background:#faf5ff;color:#7c3aed;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.3rem;" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#faf5ff'">
+                        <span style="font-size:1.4rem;">🔮</span><span>운세 바로가기</span>
+                    </button>
+                </a>
+                <a href="index.html" style="text-decoration:none;">
+                    <button style="width:100%;padding:0.85rem 0.75rem;border-radius:14px;border:1.5px solid #e0e7ff;background:#f0f4ff;color:#4f46e5;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.3rem;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#f0f4ff'">
+                        <span style="font-size:1.4rem;">🎮</span><span>게임 바로가기</span>
+                    </button>
+                </a>
+            </div>
+            <button class="btn-share" onclick="state.step='start';render()">🔄 다시 도전하기</button>
+            <p style="font-size:0.75rem;color:#9ca3af;text-align:center;">다시 도전하면 새로운 질문이 나와요 🌙</p>
+        </div>
+    </div>`;
+}
+
+// ─── 액션 ─────────────────────────────────────────────────────────────────────
+function startAdventure() {
+    const seen = loadSeen();
+    state = { step:'question', queue:pickFive(seen), qStep:0, themes:[], answers:[], result:null };
+    render();
+}
+
+// 중복 클릭 방지 플래그
+let _picking = false;
+
+function pickChoice(idx) {
+    // ① 이미 처리 중이면 무시 (빠른 연속 클릭 방어)
+    if (_picking) return;
+    _picking = true;
+
+    const q = QUESTIONS.find(q=>q.id===state.queue[state.qStep]);
+    if (!q) { _picking = false; return; }
+
+    // ② 버튼 전체 비활성화 (클릭 후 즉시)
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.style.pointerEvents = 'none';
+    });
+    document.querySelectorAll('.choice-btn')[idx]?.classList.add('selected');
+
+    state.answers.push(q.choices[idx]);
+    state.themes.push(q.theme);
+
+    setTimeout(() => {
+        _picking = false; // 플래그 해제
+        state.qStep++;
+        // ③ 정확히 5개 답변 후에만 결과 → qStep이 5 이상이 돼야 종료
+        if (state.qStep >= 5) {
+            finishAdventure();
+        } else {
+            render();
+        }
+    }, 280);
+}
+
+function finishAdventure() {
+    saveSeen([...new Set([...loadSeen(), ...state.queue])]);
+    state.result = calcResult(state.themes);
+    state.step   = 'result';
+    render();
+}
+
+function shareResult() {
+    const r  = state.result;
+    const ti = THEMES[r.category];
+    const text = `[오늘의 운세 모험]\n오늘의 ${ti.label} ${ti.icon}\n\n${r.text}\n\n#오늘의운세모험 #HOHOPLAY`;
+    if (navigator.share) navigator.share({ title:'오늘의 운세 모험', text }).catch(()=>{});
+    else if (navigator.clipboard) navigator.clipboard.writeText(text).then(()=>alert('클립보드에 복사되었습니다! 📋')).catch(()=>{});
+}
+
+// ─── 시작 ─────────────────────────────────────────────────────────────────────
+initApp();
 </script>
 
 </body>
