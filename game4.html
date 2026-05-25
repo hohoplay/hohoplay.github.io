@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>호호타자FPS - HOHO PLAY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .page-transition { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-3 cursor-pointer">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
+                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                </a>
+                <div class="hidden md:flex space-x-10">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">전체게임</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">커뮤니티</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">고객지원</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
+        <div class="page-transition space-y-12">
+
+            <!-- 게임 헤더 -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
+                        <span class="text-xl">←</span> 전체 리스트로 이동
+                    </a>
+                    <h1 class="text-5xl font-black text-slate-900 tracking-tight">호호타자FPS</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-indigo-100">타이핑 슈터</span>
+                    <span class="bg-slate-200 text-slate-600 px-5 py-2 rounded-full font-bold text-sm">v1.0.0</span>
+                    <span class="bg-slate-100 text-slate-500 px-5 py-2 rounded-full font-bold text-sm flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span id="view-count-display">-</span>
+                    </span>
+                </div>
+                <script>
+                (function() {
+                    function formatViews(n) {
+                        if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1).replace(/\.0$/, '') + 'M';
+                        if (n >= 1000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1).replace(/\.0$/, '') + 'K';
+                        return n.toString();
+                    }
+                    var key = 'views_hoho_fps';
+                    var count = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+                    localStorage.setItem(key, count);
+                    document.getElementById('view-count-display').textContent = formatViews(count);
+                })();
+                </script>
+            </div>
+
+            <!-- 게임 영역 -->
+            <section>
+                <div class="overflow-hidden w-full flex justify-center">
+
+<!-- ════════════════════ 호호타자FPS 게임 소스 시작 ════════════════════ -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Noto+Sans+KR:wght@700;900&display=swap');
+
+#hoho-fps-container {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 40px auto;
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1;
+}
+
+#hoho-fps-wrapper {
+    position: relative;
+    width: 100%;
+    height: 700px;
+    background-color: #050508;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.85);
+    border: 2px solid #2a2a2a;
+    touch-action: none;
+}
+
+#hoho-gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#hoho-overlay-screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(10, 15, 25, 0.96);
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    z-index: 100;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#hoho-main-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    color: #00ffcc;
+    margin: 0 0 10px 0;
+    text-shadow: 0 0 15px rgba(0,255,204,0.5);
+}
+
+#hoho-desc-text {
+    color: #aaa;
+    font-size: 0.95rem;
+    margin: 0 0 20px 0;
+}
+
+#hoho-mode-selection {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 24px;
+    justify-content: center;
+}
+
+.hoho-mode-btn {
+    width: 130px;
+    padding: 18px 10px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid #333;
+    border-radius: 16px;
+    color: #aaa;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    -webkit-transition: all 0.25s;
+    transition: all 0.25s;
+    position: relative;
+}
+
+.hoho-mode-btn .mode-icon { font-size: 2.4rem; line-height: 1; }
+.hoho-mode-btn .mode-name { font-weight: 700; font-size: 0.95rem; color: #ddd; }
+.hoho-mode-btn .mode-desc { font-size: 0.72rem; color: #666; line-height: 1.4; text-align: center; }
+
+.hoho-mode-btn.active {
+    background: rgba(0,255,204,0.10);
+    border-color: #00ffcc;
+    color: #fff;
+    -webkit-box-shadow: 0 0 24px rgba(0,255,204,0.35);
+    box-shadow: 0 0 24px rgba(0,255,204,0.35);
+}
+.hoho-mode-btn.active .mode-name { color: #00ffcc; }
+.hoho-mode-btn.active::after {
+    content: '✔ 선택됨';
+    position: absolute;
+    bottom: -13px;
+    left: 50%; transform: translateX(-50%);
+    font-size: 0.68rem;
+    color: #00ffcc;
+    white-space: nowrap;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+.hoho-mode-btn:hover:not(.active) {
+    border-color: #555;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+#hoho-start-btn {
+    margin-top: 46px;
+    padding: 16px 50px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 40px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    -webkit-transition: -webkit-transform 0.1s;
+    transition: transform 0.1s;
+}
+#hoho-start-btn:hover { -webkit-transform: scale(1.04); transform: scale(1.04); }
+
+#hoho-save-btn {
+    margin-top: 10px;
+    padding: 11px 36px;
+    background: transparent;
+    color: #00ffcc;
+    border: 1.5px solid #00ffcc;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    display: none;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+}
+#hoho-save-btn:hover { background: rgba(0,255,204,0.12); -webkit-transform: scale(1.04); transform: scale(1.04); }
+
+#hoho-warning-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    color: #ff0033;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    text-shadow: 0 0 20px #ff0033;
+    display: none;
+    z-index: 50;
+    pointer-events: none;
+    -webkit-animation: hoho-blink 0.5s infinite alternate;
+    animation: hoho-blink 0.5s infinite alternate;
+}
+@-webkit-keyframes hoho-blink { from { opacity: 0.2; } to { opacity: 1; } }
+@keyframes hoho-blink          { from { opacity: 0.2; } to { opacity: 1; } }
+
+#hoho-ui-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    display: none;
+}
+#hoho-score-display {
+    position: absolute;
+    top: 25px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    color: #00ffcc;
+    text-shadow: 0 0 10px rgba(0,255,204,0.5);
+    margin: 0;
+}
+#hoho-hp-display {
+    position: absolute;
+    top: 75px;
+    left: 25px;
+    font-size: 1.5rem;
+    -webkit-filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
+    filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
+}
+#hoho-hp-display.ui-right { left: auto; right: 25px; }
+#hoho-hp-display.ui-center { left: 25px; }
+
+#hoho-input-area {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 85%;
+    pointer-events: auto;
+    z-index: 10;
+}
+#hoho-game-input {
+    width: 100%;
+    padding: 16px;
+    background: rgba(0,0,0,0.85);
+    border: 2px solid #00ffcc;
+    border-radius: 16px;
+    color: #fff;
+    font-size: 1.3rem;
+    text-align: center;
+    outline: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+#hoho-weapon-sprite {
+    position: absolute;
+    bottom: 0;
+    width: 180px;
+    height: 220px;
+    pointer-events: none;
+    z-index: 5;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: end;
+    -ms-flex-align: end;
+    align-items: flex-end;
+}
+#hoho-weapon-sprite.weapon-right  { right: 0; left: auto; -webkit-transform: none; transform: none; }
+#hoho-weapon-sprite.weapon-left   { left: 0;  right: auto; -webkit-transform: none; transform: none; }
+#hoho-weapon-sprite.weapon-center { left: 50%; right: auto; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+
+.hoho-weapon-body {
+    position: relative;
+    width: 60px;
+    height: 120px;
+    background: -webkit-linear-gradient(left, #1a1a1a, #333, #1a1a1a);
+    background: linear-gradient(to right, #1a1a1a, #333, #1a1a1a);
+    border-radius: 10px 10px 0 0;
+    border: 2px solid #444;
+}
+.hoho-weapon-barrel {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 24px;
+    height: 60px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 4px;
+}
+.hoho-weapon-glow {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 4px;
+    height: 40px;
+    background: #00ffcc;
+    -webkit-box-shadow: 0 0 10px #00ffcc;
+    box-shadow: 0 0 10px #00ffcc;
+    border-radius: 2px;
+}
+
+@-webkit-keyframes hoho-fire-recoil {
+    0%   { -webkit-transform: translateY(0);    transform: translateY(0); }
+    20%  { -webkit-transform: translateY(15px); transform: translateY(15px); }
+    100% { -webkit-transform: translateY(0);    transform: translateY(0); }
+}
+@keyframes hoho-fire-recoil {
+    0%   { transform: translateY(0); }
+    20%  { transform: translateY(15px); }
+    100% { transform: translateY(0); }
+}
+@-webkit-keyframes hoho-fire-recoil-center {
+    0%   { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
+    20%  { -webkit-transform: translateX(-50%) translateY(15px); transform: translateX(-50%) translateY(15px); }
+    100% { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
+}
+@keyframes hoho-fire-recoil-center {
+    0%   { transform: translateX(-50%) translateY(0); }
+    20%  { transform: translateX(-50%) translateY(15px); }
+    100% { transform: translateX(-50%) translateY(0); }
+}
+#hoho-weapon-sprite.recoil        { -webkit-animation: hoho-fire-recoil 0.1s ease-out; animation: hoho-fire-recoil 0.1s ease-out; }
+#hoho-weapon-sprite.recoil-center { -webkit-animation: hoho-fire-recoil-center 0.1s ease-out; animation: hoho-fire-recoil-center 0.1s ease-out; }
+</style>
+
+<div id="hoho-fps-container">
+  <div id="hoho-fps-wrapper">
+    <div id="hoho-overlay-screen">
+      <p id="hoho-main-title">호호타자FPS</p>
+      <p id="hoho-desc-text">이 게임은 호호로그 기획 및 프로그램으로 제작함</p>
+      <div id="hoho-mode-selection">
+        <button class="hoho-mode-btn" onclick="hohoSetMode('left',event)">
+          <span class="mode-icon">🤛</span>
+          <span class="mode-name">왼손잡이</span>
+          <span class="mode-desc">입력창·무기<br>왼쪽 배치</span>
+        </button>
+        <button class="hoho-mode-btn active" onclick="hohoSetMode('right',event)">
+          <span class="mode-icon">🤜</span>
+          <span class="mode-name">오른손잡이</span>
+          <span class="mode-desc">입력창·무기<br>오른쪽 배치</span>
+        </button>
+      </div>
+      <button id="hoho-start-btn" onclick="hohoStartGame()">MISSION START</button>
+      <button id="hoho-save-btn" onclick="hohoSaveImage()">📷 결과 저장</button>
+    </div>
+    <div id="hoho-warning-overlay">WARNING</div>
+    <canvas id="hoho-gameCanvas"></canvas>
+    <div id="hoho-ui-overlay">
+      <p id="hoho-score-display">000000</p>
+      <div id="hoho-hp-display">❤️❤️❤️</div>
+      <div id="hoho-weapon-sprite" class="weapon-right">
+        <div class="hoho-weapon-body">
+          <div class="hoho-weapon-barrel"></div>
+          <div class="hoho-weapon-glow"></div>
+        </div>
+      </div>
+      <div id="hoho-input-area">
+        <input type="text" id="hoho-game-input"
+               placeholder="단어 입력..."
+               autocomplete="off" autocorrect="off"
+               autocapitalize="off" spellcheck="false">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+    var canvas         = document.getElementById('hoho-gameCanvas');
+    var ctx            = canvas.getContext('2d');
+    var gameInput      = document.getElementById('hoho-game-input');
+    var hpDisplay      = document.getElementById('hoho-hp-display');
+    var weaponSprite   = document.getElementById('hoho-weapon-sprite');
+    var warningOverlay = document.getElementById('hoho-warning-overlay');
+    var overlayScreen  = document.getElementById('hoho-overlay-screen');
+    var uiOverlay      = document.getElementById('hoho-ui-overlay');
+    var scoreDisplay   = document.getElementById('hoho-score-display');
+
+    var isPlaying = false;
+    var score = 0, lives = 3;
+    var canvasW, canvasH;
+    var uiMode = 'right';
+    var flowOffset = 0, screenShake = 0;
+    var isComposing = false, composedChar = '';
+    var enemies = [], hangeulParticles = [], damageTexts = [];
+    var hitEffects = [], slashEffects = [];
+    var boss = null, isBossMode = false, targetedEnemy = null;
+    var reticle = { x: 210, y: 350, charIndex: 0 };
+    var inputResetTimer = null;
+
+    var combo = 0, comboTimer = null;
+    var COMBO_TIMEOUT = 4000;
+    var shield = 0;
+    var slowActive = false, slowTimer = null;
+    var lastKillTime = 0;
+    var paceLabel = '', paceColor = '#00ffcc', paceAlpha = 0;
+
+    var _audioCtx = null;
+    function getAudioCtx() {
+        if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return _audioCtx;
+    }
+    function playTone(freq, type, duration, vol, delay) {
+        try {
+            var ac = getAudioCtx();
+            var o = ac.createOscillator();
+            var g = ac.createGain();
+            o.connect(g); g.connect(ac.destination);
+            o.type = type || 'sine';
+            o.frequency.setValueAtTime(freq, ac.currentTime + (delay||0));
+            g.gain.setValueAtTime(vol||0.15, ac.currentTime + (delay||0));
+            g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + (delay||0) + duration);
+            o.start(ac.currentTime + (delay||0));
+            o.stop(ac.currentTime + (delay||0) + duration);
+        } catch(e) {}
+    }
+    function sfxKill()    { playTone(440,'square',0.06,0.12); playTone(660,'square',0.08,0.10,0.05); }
+    function sfxUrgent()  { playTone(880,'sawtooth',0.08,0.13); playTone(880,'sawtooth',0.08,0.13,0.14); }
+    function sfxBossHit() { playTone(120,'sawtooth',0.18,0.18); playTone(80,'sine',0.25,0.12,0.05); }
+    function sfxDamage()  { playTone(200,'sawtooth',0.15,0.20); playTone(150,'sawtooth',0.12,0.15,0.08); }
+
+    var WORD_POOL = [
+        '사과','바나나','포도','수박','딸기','토마토','오렌지','레몬','키위','망고',
+        '하늘','바다','강','산','들판','숲','구름','햇빛','바람','비',
+        '고양이','강아지','호랑이','사자','코끼리','기린','원숭이','토끼','곰','늑대',
+        '컴퓨터','키보드','마우스','모니터','스피커','프린터','스캐너','태블릿','노트북','핸드폰',
+        '학교','도서관','병원','공원','마트','은행','우체국','약국','경찰서','소방서',
+        '사랑','행복','희망','평화','자유','용기','지혜','인내','성실','친절',
+        '달리기','수영','야구','축구','농구','테니스','배드민턴','골프','스키','등산',
+        '봄여름','가을겨울','아침저녁','동서남북','흑백','낮밤','음양','하나둘','셋넷','다섯여섯',
+        '전략','전술','공격','방어','정찰','매복','돌격','후퇴','집결','포위',
+        '타이핑','슈터','미션','스코어','콤보','보스','쉴드','파워업','격파','클리어'
+    ];
+
+    function getRandWord() { return WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)]; }
+
+    /* ── 캔버스 초기화 ── */
+    function initCanvas() {
+        var wrap = document.getElementById('hoho-fps-wrapper');
+        canvasW = wrap.clientWidth;
+        canvasH = wrap.clientHeight;
+        canvas.width  = canvasW;
+        canvas.height = canvasH;
+        reticle.x = canvasW / 2;
+        reticle.y = canvasH * 0.5;
+    }
+
+    /* ── 모드 설정 ── */
+    window.hohoSetMode = function(mode, e) {
+        uiMode = mode;
+        document.querySelectorAll('.hoho-mode-btn').forEach(function(b){ b.classList.remove('active'); });
+        if (e && e.currentTarget) e.currentTarget.classList.add('active');
+
+        var inputArea   = document.getElementById('hoho-input-area');
+        var weaponEl    = document.getElementById('hoho-weapon-sprite');
+        var hpEl        = document.getElementById('hoho-hp-display');
+
+        if (mode === 'left') {
+            inputArea.style.left = '0'; inputArea.style.right = 'auto';
+            inputArea.style.transform = 'none'; inputArea.style.width = '55%';
+            weaponEl.className = 'weapon-left';
+            hpEl.className = 'ui-right';
+        } else {
+            inputArea.style.left = '50%'; inputArea.style.right = 'auto';
+            inputArea.style.transform = 'translateX(-50%)'; inputArea.style.width = '85%';
+            weaponEl.className = 'weapon-right';
+            hpEl.className = '';
+        }
+    };
+
+    /* ── 게임 시작 ── */
+    window.hohoStartGame = function() {
+        score = 0; lives = 3; combo = 0; shield = 0;
+        slowActive = false; isBossMode = false; boss = null;
+        enemies = []; hangeulParticles = []; damageTexts = [];
+        hitEffects = []; slashEffects = []; targetedEnemy = null;
+        flowOffset = 0; screenShake = 0; lastKillTime = 0;
+        paceLabel = ''; paceAlpha = 0;
+
+        overlayScreen.style.display = 'none';
+        uiOverlay.style.display = 'block';
+        gameInput.value = '';
+        gameInput.focus();
+        isPlaying = true;
+        updateHUD();
+        spawnEnemy();
+        requestAnimationFrame(gameLoop);
+    };
+
+    /* ── HUD 업데이트 ── */
+    function updateHUD() {
+        var hp = '';
+        for (var i = 0; i < lives; i++) hp += (shield > 0 ? '🛡️' : '❤️');
+        for (var j = lives; j < 3; j++) hp += '🖤';
+        hpDisplay.innerHTML = hp + (shield > 0 ? ' <span style="color:#00e5ff;font-size:0.9rem;font-family:\'Orbitron\',sans-serif;">SHIELD</span>' : '');
+        scoreDisplay.textContent = String(score).padStart(6, '0');
+    }
+
+    /* ── 적 생성 ── */
+    function spawnEnemy() {
+        if (!isPlaying) return;
+        var margin = 60;
+        var x = margin + Math.random() * (canvasW - margin * 2);
+        var y = 60 + Math.random() * (canvasH * 0.45);
+        var word = getRandWord();
+        var baseSpeed = 0.18 + score * 0.00008;
+        var spd = baseSpeed * (0.85 + Math.random() * 0.3);
+        enemies.push({ x: x, y: y, word: word, hp: 1, speed: spd, angle: Math.random() * Math.PI * 2, wobble: Math.random() * Math.PI * 2, wobbleAmp: 18 + Math.random() * 22, t: 0 });
+        var nextDelay = Math.max(900, 2200 - score * 1.2);
+        setTimeout(spawnEnemy, nextDelay);
+    }
+
+    /* ── 보스 생성 ── */
+    function spawnBoss() {
+        isBossMode = true;
+        boss = { x: canvasW / 2, y: 110, hp: 8, maxHp: 8, word: getRandWord(), speed: 0.6, t: 0, flashTimer: 0 };
+        enemies = [];
+    }
+
+    /* ── 입력 처리 ── */
+    gameInput.addEventListener('compositionstart', function() { isComposing = true; composedChar = ''; });
+    gameInput.addEventListener('compositionupdate', function(e) { composedChar = e.data || ''; });
+    gameInput.addEventListener('compositionend', function(e) {
+        isComposing = false;
+        composedChar = '';
+        checkInput(gameInput.value);
+    });
+    gameInput.addEventListener('input', function() {
+        if (!isComposing) checkInput(gameInput.value);
+    });
+
+    function checkInput(val) {
+        if (!isPlaying) return;
+        if (clearInputTimer) { clearTimeout(clearInputTimer); clearInputTimer = null; }
+        clearInputTimer = setTimeout(function() { gameInput.value = ''; }, 6000);
+
+        var trimmed = val.trim();
+        if (!trimmed) return;
+
+        /* 보스 모드 */
+        if (isBossMode && boss) {
+            if (trimmed === boss.word) {
+                spawnHitEffect(boss.x, boss.y, '#ff6600');
+                sfxBossHit();
+                boss.hp--;
+                boss.flashTimer = 8;
+                addDamageText(boss.x, boss.y, '-1', '#ff6600');
+                combo++;
+                resetComboTimer();
+                boss.word = getRandWord();
+                gameInput.value = '';
+                if (boss.hp <= 0) {
+                    score += 500;
+                    addDamageText(boss.x, boss.y, 'BOSS DOWN! +500', '#ffd700');
+                    isBossMode = false; boss = null;
+                    updateHUD();
+                }
+                return;
+            }
+        }
+
+        /* 일반 적 */
+        var matched = null;
+        for (var i = 0; i < enemies.length; i++) {
+            if (enemies[i].word === trimmed) { matched = i; break; }
+        }
+        if (matched !== null) {
+            var e = enemies[matched];
+            sfxKill();
+            spawnHangeulParticles(e.x, e.y, e.word);
+            spawnSlashEffect(e.x, e.y);
+            spawnHitEffect(e.x, e.y, '#00ffcc');
+            combo++;
+            resetComboTimer();
+            var pts = 10 + combo * 5;
+            if (slowActive) pts = Math.floor(pts * 1.5);
+            score += pts;
+            addDamageText(e.x, e.y - 20, '+' + pts + (combo >= 3 ? ' COMBO×' + combo : ''), combo >= 5 ? '#ffd700' : '#00ffcc');
+            calcPace(e.x, e.y);
+            enemies.splice(matched, 1);
+            targetedEnemy = null;
+            gameInput.value = '';
+            updateHUD();
+            if (score > 0 && score % 300 < pts + 5 && !isBossMode) spawnBoss();
+        }
+    }
+
+    var clearInputTimer = null;
+
+    function resetComboTimer() {
+        if (comboTimer) clearTimeout(comboTimer);
+        comboTimer = setTimeout(function() { combo = 0; }, COMBO_TIMEOUT);
+    }
+
+    function calcPace(x, y) {
+        var now = Date.now();
+        var diff = now - lastKillTime;
+        lastKillTime = now;
+        if (diff < 1200)      { paceLabel = '⚡ LIGHTNING!'; paceColor = '#ffe066'; }
+        else if (diff < 2200) { paceLabel = '🔥 FAST!';     paceColor = '#ff9100'; }
+        else if (diff < 3500) { paceLabel = '👍 GOOD';      paceColor = '#00ffcc'; }
+        else                  { paceLabel = '';              paceColor = '#00ffcc'; }
+        paceAlpha = 1.0;
+    }
+
+    /* ── 파티클·이펙트 ── */
+    function spawnHangeulParticles(x, y, word) {
+        for (var i = 0; i < word.length; i++) {
+            var angle = Math.random() * Math.PI * 2;
+            var spd = 1.5 + Math.random() * 2.5;
+            hangeulParticles.push({ x: x, y: y, ch: word[i], vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd - 1.5, life: 1.0, size: 14 + Math.random() * 10 });
+        }
+    }
+    function spawnSlashEffect(x, y) {
+        slashEffects.push({ x: x, y: y, life: 1.0, r: 30 + Math.random() * 20, angle: Math.random() * Math.PI });
+    }
+    function spawnHitEffect(x, y, color) {
+        hitEffects.push({ x: x, y: y, life: 1.0, color: color });
+    }
+    function addDamageText(x, y, text, color) {
+        damageTexts.push({ x: x, y: y, text: text, color: color || '#fff', life: 1.0, vy: -1.2 });
+    }
+
+    /* ── 적 피해 (화면 아래 도달) ── */
+    function enemyReachBottom(idx) {
+        enemies.splice(idx, 1);
+        if (shield > 0) {
+            shield--;
+            addDamageText(canvasW / 2, canvasH * 0.4, 'SHIELD BLOCKED', '#00e5ff');
+        } else {
+            lives--;
+            sfxDamage();
+            screenShake = 14;
+            addDamageText(canvasW / 2, canvasH * 0.4, '−1 LIFE', '#ff4444');
+            if (lives <= 0) { gameOver(); return; }
+            if (lives === 1) sfxUrgent();
+        }
+        updateHUD();
+    }
+
+    /* ── 게임 오버 ── */
+    function gameOver() {
+        isPlaying = false;
+        overlayScreen.style.display = 'flex';
+        uiOverlay.style.display = 'none';
+        document.getElementById('hoho-main-title').innerText = 'GAME OVER';
+        document.getElementById('hoho-main-title').style.color = '#ff3300';
+        document.getElementById('hoho-desc-text').innerText = '최종 점수: ' + score;
+        document.getElementById('hoho-start-btn').innerText = '다시하기';
+        document.getElementById('hoho-save-btn').style.display = 'inline-block';
+    }
+
+    /* ── 게임 루프 ── */
+    var lastTime = 0;
+    function gameLoop(ts) {
+        if (!isPlaying) return;
+        var dt = Math.min(ts - lastTime, 50);
+        lastTime = ts;
+        update(dt);
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function update(dt) {
+        flowOffset += 0.4;
+        if (screenShake > 0) screenShake -= 1.5;
+
+        var spd = slowActive ? 0.35 : 1;
+
+        /* 적 이동 */
+        for (var i = enemies.length - 1; i >= 0; i--) {
+            var e = enemies[i];
+            e.t += dt * 0.001 * spd;
+            e.wobble += 0.028 * spd;
+            e.y += e.speed * dt * spd * 0.55;
+            e.x += Math.sin(e.wobble) * e.wobbleAmp * 0.015;
+            e.x = Math.max(40, Math.min(canvasW - 40, e.x));
+            if (e.y > canvasH - 80) { enemyReachBottom(i); continue; }
+        }
+
+        /* 보스 이동 */
+        if (isBossMode && boss) {
+            boss.t += dt * 0.001;
+            boss.x = canvasW / 2 + Math.sin(boss.t * boss.speed) * (canvasW * 0.3);
+            if (boss.flashTimer > 0) boss.flashTimer--;
+        }
+
+        /* 파티클 */
+        for (var j = hangeulParticles.length - 1; j >= 0; j--) {
+            var p = hangeulParticles[j];
+            p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life -= 0.025;
+            if (p.life <= 0) hangeulParticles.splice(j, 1);
+        }
+        for (var k = hitEffects.length - 1; k >= 0; k--) {
+            hitEffects[k].life -= 0.07;
+            if (hitEffects[k].life <= 0) hitEffects.splice(k, 1);
+        }
+        for (var l = slashEffects.length - 1; l >= 0; l--) {
+            slashEffects[l].life -= 0.08;
+            if (slashEffects[l].life <= 0) slashEffects.splice(l, 1);
+        }
+        for (var m = damageTexts.length - 1; m >= 0; m--) {
+            damageTexts[m].y += damageTexts[m].vy;
+            damageTexts[m].life -= 0.018;
+            if (damageTexts[m].life <= 0) damageTexts.splice(m, 1);
+        }
+
+        /* 페이스 라벨 페이드 */
+        if (paceAlpha > 0) paceAlpha -= 0.012;
+
+        /* 타겟 자동 선택 */
+        if (enemies.length > 0 && !isBossMode) {
+            var closest = enemies.reduce(function(a, b) { return b.y > a.y ? b : a; });
+            targetedEnemy = closest;
+        } else {
+            targetedEnemy = null;
+        }
+    }
+
+    /* ── 드로우 ── */
+    function draw() {
+        var shx = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+        var shy = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+        ctx.save();
+        ctx.translate(shx, shy);
+
+        /* 배경 */
+        ctx.fillStyle = '#050508';
+        ctx.fillRect(0, 0, canvasW, canvasH);
+
+        /* 그리드 라인 */
+        ctx.strokeStyle = 'rgba(0,255,204,0.04)';
+        ctx.lineWidth = 1;
+        var gSize = 48;
+        var off = flowOffset % gSize;
+        for (var gx = -gSize + off; gx < canvasW + gSize; gx += gSize) {
+            ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvasH); ctx.stroke();
+        }
+        for (var gy = -gSize + off; gy < canvasH + gSize; gy += gSize) {
+            ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(canvasW, gy); ctx.stroke();
+        }
+
+        /* 바닥 위험선 */
+        var dangerY = canvasH - 85;
+        ctx.strokeStyle = 'rgba(255,0,51,0.25)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 6]);
+        ctx.beginPath(); ctx.moveTo(0, dangerY); ctx.lineTo(canvasW, dangerY); ctx.stroke();
+        ctx.setLineDash([]);
+
+        /* 적 렌더링 */
+        for (var i = 0; i < enemies.length; i++) {
+            var e = enemies[i];
+            var isTarget = (targetedEnemy === e);
+            var pulse = Math.sin(Date.now() * 0.004) * 0.15 + 0.85;
+
+            /* 실루엣 */
+            ctx.save();
+            ctx.translate(e.x, e.y);
+            var gs = ctx.createRadialGradient(0, 0, 4, 0, 0, 32);
+            gs.addColorStop(0, isTarget ? 'rgba(255,80,80,0.55)' : 'rgba(255,30,30,0.35)');
+            gs.addColorStop(1, 'rgba(255,0,0,0)');
+            ctx.fillStyle = gs;
+            ctx.beginPath(); ctx.arc(0, 0, 32, 0, Math.PI * 2); ctx.fill();
+
+            ctx.fillStyle = isTarget ? '#ff5555' : '#cc2222';
+            ctx.beginPath(); ctx.arc(0, -8, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = isTarget ? '#ff8888' : '#993333';
+            ctx.fillRect(-8, 2, 16, 18);
+
+            /* 단어 */
+            ctx.shadowColor = isTarget ? '#ff4444' : '#ff0000';
+            ctx.shadowBlur = isTarget ? 14 : 6;
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold ' + (isTarget ? 15 : 13) + 'px Noto Sans KR';
+            ctx.textAlign = 'center';
+            ctx.fillText(e.word, 0, -26);
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        /* 보스 렌더링 */
+        if (isBossMode && boss) {
+            var bFlash = boss.flashTimer > 0;
+            ctx.save();
+            ctx.translate(boss.x, boss.y);
+
+            var bg = ctx.createRadialGradient(0, 0, 10, 0, 0, 80);
+            bg.addColorStop(0, bFlash ? 'rgba(255,200,0,0.6)' : 'rgba(180,0,255,0.45)');
+            bg.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.arc(0, 0, 80, 0, Math.PI * 2); ctx.fill();
+
+            ctx.fillStyle = bFlash ? '#ffee00' : '#cc00ff';
+            ctx.beginPath(); ctx.arc(0, -15, 22, 0, Math.PI * 2); ctx.fill();
+            ctx.fillRect(-18, 8, 36, 40);
+
+            /* 보스 체력바 */
+            var bpW = 120, bpH = 10;
+            ctx.fillStyle = '#333';
+            ctx.beginPath(); ctx.roundRect(-bpW/2, -70, bpW, bpH, 5); ctx.fill();
+            ctx.fillStyle = bFlash ? '#ffd700' : '#cc00ff';
+            ctx.beginPath(); ctx.roundRect(-bpW/2, -70, bpW * (boss.hp / boss.maxHp), bpH, 5); ctx.fill();
+
+            ctx.shadowColor = '#cc00ff'; ctx.shadowBlur = 16;
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Noto Sans KR';
+            ctx.textAlign = 'center';
+            ctx.fillText(boss.word, 0, -80);
+            ctx.shadowBlur = 0;
+            ctx.restore();
+
+            /* BOSS 경고 */
+            ctx.save();
+            ctx.globalAlpha = 0.55 + Math.sin(Date.now() * 0.006) * 0.2;
+            ctx.fillStyle = '#cc00ff';
+            ctx.font = 'bold 13px Orbitron, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚠ BOSS', canvasW / 2, 30);
+            ctx.restore();
+        }
+
+        /* 파티클 */
+        for (var j = 0; j < hangeulParticles.length; j++) {
+            var p = hangeulParticles[j];
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = '#00ffcc';
+            ctx.font = 'bold ' + p.size + 'px Noto Sans KR';
+            ctx.textAlign = 'center';
+            ctx.fillText(p.ch, p.x, p.y);
+            ctx.restore();
+        }
+
+        /* 히트 이펙트 */
+        for (var k = 0; k < hitEffects.length; k++) {
+            var h = hitEffects[k];
+            ctx.save();
+            ctx.globalAlpha = h.life * 0.7;
+            ctx.strokeStyle = h.color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(h.x, h.y, (1 - h.life) * 48 + 8, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        /* 슬래시 이펙트 */
+        for (var l = 0; l < slashEffects.length; l++) {
+            var sl = slashEffects[l];
+            ctx.save();
+            ctx.globalAlpha = sl.life * 0.8;
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(sl.x - Math.cos(sl.angle) * sl.r, sl.y - Math.sin(sl.angle) * sl.r);
+            ctx.lineTo(sl.x + Math.cos(sl.angle) * sl.r, sl.y + Math.sin(sl.angle) * sl.r);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        /* 데미지 텍스트 */
+        for (var m = 0; m < damageTexts.length; m++) {
+            var dt2 = damageTexts[m];
+            ctx.save();
+            ctx.globalAlpha = dt2.life;
+            ctx.fillStyle = dt2.color;
+            ctx.shadowColor = dt2.color; ctx.shadowBlur = 8;
+            ctx.font = 'bold 15px Noto Sans KR';
+            ctx.textAlign = 'center';
+            ctx.fillText(dt2.text, dt2.x, dt2.y);
+            ctx.restore();
+        }
+
+        /* 콤보 표시 */
+        if (combo >= 3) {
+            ctx.save();
+            ctx.globalAlpha = 0.85;
+            ctx.fillStyle = combo >= 7 ? '#ffd700' : '#00ffcc';
+            ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 18;
+            ctx.font = 'bold ' + (16 + Math.min(combo, 10)) + 'px Orbitron, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('COMBO ×' + combo, 16, canvasH - 105);
+            ctx.restore();
+        }
+
+        /* 페이스 라벨 */
+        if (paceAlpha > 0 && paceLabel) {
+            ctx.save();
+            ctx.globalAlpha = paceAlpha;
+            ctx.fillStyle = paceColor;
+            ctx.shadowColor = paceColor; ctx.shadowBlur = 12;
+            ctx.font = 'bold 14px Noto Sans KR';
+            ctx.textAlign = 'center';
+            ctx.fillText(paceLabel, canvasW / 2, canvasH * 0.22);
+            ctx.restore();
+        }
+
+        ctx.restore();
+    }
+
+    /* ── 결과 저장 ── */
+    window.hohoSaveImage = function() {
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#ff3300'; ctx.shadowBlur = 28;
+        ctx.fillStyle = '#ff3300';
+        ctx.font = 'bold ' + Math.floor(canvas.width * 0.09) + 'px Orbitron';
+        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height * 0.42);
+        ctx.shadowColor = '#00ffcc'; ctx.shadowBlur = 18;
+        ctx.fillStyle = '#00ffcc';
+        ctx.font = 'bold ' + Math.floor(canvas.width * 0.055) + 'px Orbitron';
+        ctx.fillText('SCORE  ' + score, canvas.width / 2, canvas.height * 0.54);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(180,180,180,0.85)';
+        ctx.font = Math.floor(canvas.width * 0.03) + 'px Noto Sans KR';
+        ctx.fillText('호호타자FPS', canvas.width / 2, canvas.height * 0.62);
+        ctx.restore();
+        var a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = '호호타자FPS_' + score + '점.png';
+        a.click();
+    };
+
+    initCanvas();
+    window.addEventListener('resize', initCanvas);
+    document.addEventListener('click', function(){ if (isPlaying) gameInput.focus(); });
+})();
+</script>
+<!-- ════════════════════ 호호타자FPS 게임 소스 끝 ════════════════════ -->
+
+                </div>
+            </section>
+
+            <!-- 탭 패널 -->
+            <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+                <div class="flex border-b border-slate-100">
+                    <button onclick="switchTab('desc')" id="tab-desc"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-indigo-600 text-indigo-600">
+                        게임 설명
+                    </button>
+                    <button onclick="switchTab('guide')" id="tab-guide"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        조작 가이드
+                    </button>
+                    <button onclick="switchTab('info')" id="tab-info"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        시스템 정보
+                    </button>
+                </div>
+
+                <div id="panel-desc" class="tab-panel p-10">
+                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                        단어를 타이핑해 적을 격파하는 1인칭 슈터 타이핑 게임입니다.<br><br>
+                        빠른 타이핑으로 콤보를 연속 달성하고, 300점마다 등장하는 보스를 처치해 최고 점수에 도전하세요.
+                        왼손잡이·오른손잡이 모드를 지원합니다.
+                    </p>
+                </div>
+
+                <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">단어 입력</span>
+                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">단어 타이핑 후 Enter</kbd>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">콤보</span>
+                            <span class="font-bold text-slate-600">4초 내 연속 격파 시 콤보 보너스 점수</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">보스</span>
+                            <span class="font-bold text-slate-600">300점마다 등장 — 8회 격파로 처치</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">라이프</span>
+                            <span class="font-bold text-slate-600">적이 바닥에 닿으면 -1 (3개 소진 시 종료)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-info" class="tab-panel p-10 hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 / 자바스크립트</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function switchTab(tab) {
+                    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
+                    document.querySelectorAll('.tab-btn').forEach(function(b){
+                        b.classList.remove('border-indigo-600', 'text-indigo-600');
+                        b.classList.add('border-transparent', 'text-slate-400');
+                    });
+                    document.getElementById('panel-' + tab).classList.remove('hidden');
+                    var btn = document.getElementById('tab-' + tab);
+                    btn.classList.add('border-indigo-600', 'text-indigo-600');
+                    btn.classList.remove('border-transparent', 'text-slate-400');
+                }
+            </script>
+
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('./footer.html')
+            .then(function(r){ return r.text(); })
+            .then(function(html){
+                document.getElementById('footer-placeholder').outerHTML = html;
+                var s = document.createElement('script');
+                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
+                document.body.appendChild(s);
+            });
+    </script>
+
+    <script>
+    (function() {
+        var gameEl = document.getElementById('hoho-fps-wrapper');
+        if (gameEl) {
+            gameEl.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+        }
+    })();
+    </script>
+</body>
+</html>
