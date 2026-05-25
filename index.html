@@ -118,7 +118,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260525232900_8f28abe9">
+  <meta name="build-version" content="20260525233205_da206e13">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -218,7 +218,7 @@
             { id: 'g2', name: '호야속담',        genre: '타이핑',      version: 'v1.0.0', file: 'game2.html', img: '' },
             { id: 'g3', name: '호야하늘비타자',  genre: '타이핑',      version: 'v1.0.0', file: 'game3.html', img: '' },
             { id: 'g4',  name: '호호타자FPS', genre: '타이핑 슈터', version: 'v1.0.0', file: 'game4.html', img: '' },
-            { id: 'g5',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g5',  name: '호호레이싱', genre: '레이싱', version: 'v1.0.0', file: 'game5.html', img: '' },
             { id: 'g6',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
             { id: 'g7',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
             { id: 'g8',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
@@ -244,10 +244,20 @@
                 } else if (game.id === 'g2') {
                     badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
                 } else if (game.id === 'g3') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
+                    var cls3 = isMobile
+                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
+                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    badge = '<span class="' + cls3 + '">PC</span>';
+                } else if (game.id === 'g4') {
+                    var cls4 = isMobile
+                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
+                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    badge = '<span class="' + cls4 + '">PC</span>';
+                } else if (game.id === 'g5') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
                 }
                 var hasImg = game.img && game.img.trim() !== '';
-                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3' || game.id === 'g4');
+                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3' || game.id === 'g4' || game.id === 'g5');
                 var thumbBg = isReal ? '#eef2ff' : '#f8fafc';
                 var thumbColor = isReal ? '#4f46e5' : '#94a3b8';
                 var icon = isReal ? '\uD83C\uDFAE' : '\u23F3';
@@ -844,8 +854,13 @@
         }
 
         window.onload = () => {
-            // hash 없이 항상 홈 페이지로 시작
-            navigateTo('index');
+            const pendingPage = sessionStorage.getItem('page');
+            if (pendingPage) {
+                sessionStorage.removeItem('page');
+                navigateTo(pendingPage);
+            } else {
+                navigateTo('index');
+            }
         };
 
         // 현재 활성 페이지에 nav 강조 표시
