@@ -243,7 +243,10 @@
                 } else if (game.id === 'g2') {
                     badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
                 } else if (game.id === 'g3') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
+                    var cls3 = isMobile
+                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
+                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    badge = '<span class="' + cls3 + '">PC</span>';
                 }
                 var hasImg = game.img && game.img.trim() !== '';
                 var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3');
@@ -843,14 +846,8 @@
         }
 
         window.onload = () => {
-            // 외부 페이지(fortune-adventure 등)에서 넘어온 경우 해당 페이지로 이동
-            const pendingPage = sessionStorage.getItem('page');
-            if (pendingPage) {
-                sessionStorage.removeItem('page');
-                navigateTo(pendingPage);
-            } else {
-                navigateTo('index');
-            }
+            // hash 없이 항상 홈 페이지로 시작
+            navigateTo('index');
         };
 
         // 현재 활성 페이지에 nav 강조 표시
