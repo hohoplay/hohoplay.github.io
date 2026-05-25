@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>호호레이싱 - HOHO PLAY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* HOHO PLAY 공통 */
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .page-transition { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
+
+        /* 호호레이싱 게임 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: linear-gradient(180deg, #A7D8DE 0%, #FDFCF0 100%);
+  min-height: 100vh;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 중앙 정렬 - 모바일 크롬 호환 */
+#game-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 10px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+#canvas-wrapper {
+  position: relative;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  background-color: #E2E8F0;
+  /* 쉐이크 애니메이션용 transform 초기값 */
+  transform: translate(0, 0);
+  will-change: transform;
+  /* 모바일 크롬 중앙정렬 핵심 */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  flex-shrink: 0;
+}
+
+canvas {
+  display: block;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 12px;
+  background-color: #D1D9E0;
+  /* 하드웨어 가속 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* UI 레이어 - canvas-wrapper 안에 위치, 캔버스 전체를 덮음 */
+#ui-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+  width: 100%;
+  /* overflow 제거 - 팝업이 잘리지 않도록 */
+  overflow: visible;
+}
+
+#ui-layer > * {
+  pointer-events: auto;
+}
+
+#start-screen, #game-over {
+  background: rgba(255, 255, 255, 0.98);
+  padding: 30px;
+  border-radius: 30px;
+  text-align: center;
+  border: 6px solid #B2E2F2;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 380px;
+  color: #333;
+  font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#start-screen h1, #game-over h1 {
+  margin-bottom: 1.5rem;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #779ECB;
+  margin-bottom: 1.5rem;
+  font-family: 'Gamja Flower', 'Nanum Gothic', sans-serif;
+}
+
+.game-over-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #FF6961;
+  margin-bottom: 0.5rem;
+  font-family: 'Gamja Flower', 'Nanum Gothic', sans-serif;
+}
+
+#final-score {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+#loading-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+#loading-screen h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+#loading-screen p {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.hidden { 
+  display: none !important; 
+}
+
+/* 피버 모드 애니메이션 */
+@keyframes rainbow-glow {
+  0% { border-color: #ff0000; box-shadow: 0 0 40px #ff0000; }
+  20% { border-color: #ffff00; box-shadow: 0 0 40px #ffff00; }
+  40% { border-color: #00ff00; box-shadow: 0 0 40px #00ff00; }
+  60% { border-color: #00ffff; box-shadow: 0 0 40px #00ffff; }
+  80% { border-color: #0000ff; box-shadow: 0 0 40px #0000ff; }
+  100% { border-color: #ff00ff; box-shadow: 0 0 40px #ff00ff; }
+}
+
+.fever-active #canvas-wrapper {
+  animation: rainbow-glow 0.3s infinite linear;
+}
+
+/* 버튼 스타일 */
+.btn-pastel {
+  background-color: #FFD1DC;
+  color: #555;
+  padding: 14px 24px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-weight: 700;
+  transition: transform 0.1s;
+  box-shadow: 0 5px 0 #FFB7C5;
+  width: 100%;
+  display: block;
+  margin-top: 10px;
+}
+
+.btn-pastel:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #FFB7C5;
+}
+
+.btn-pastel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-share { 
+  background-color: #B2E2F2; 
+  box-shadow: 0 5px 0 #89CFF0; 
+}
+
+.btn-share:active { 
+  box-shadow: 0 2px 0 #89CFF0; 
+}
+
+.btn-restart {
+  background-color: #a7d8de;
+  box-shadow: 0 5px 0 #85b8be;
+  margin-top: 15px;
+}
+
+.btn-restart:active {
+  box-shadow: 0 2px 0 #85b8be;
+}
+
+.credit-text {
+  margin-top: 15px;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.input-label {
+  color: #6B7280;
+  margin-bottom: 10px;
+}
+
+#initials-input {
+  width: 140px;
+  text-align: center;
+  font-size: 2.2rem;
+  border: 4px solid #FFD1DC;
+  border-radius: 15px;
+  margin: 15px auto;
+  text-transform: uppercase;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 8px;
+  color: #555;
+  outline: none;
+  padding: 8px;
+}
+
+#popup-step2 {
+  width: 100%;
+}
+
+#leaderboard-section {
+  background: #fdfcf0;
+  border-radius: 20px;
+  padding: 15px;
+  border: 3px solid #B2E2F2;
+  margin-bottom: 10px;
+  font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  color: #333;
+}
+
+.leaderboard-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #779ECB !important;
+  margin-bottom: 0.3rem;
+  font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+
+.leaderboard-table {
+  display: none; /* 테이블 제거 */
+}
+
+.leaderboard-table tr { 
+  border-bottom: 1px dashed #eee; 
+}
+
+.leaderboard-table td { 
+  padding: 8px 4px; 
+}
+
+/* 새 리더보드 스타일 - flex 행 */
+#leaderboard-list {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.lb-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 4px;
+  border-bottom: 1px dashed #eee;
+  font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.lb-rank {
+  flex: 0 0 auto;
+  min-width: 44px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.lb-name {
+  flex: 1 1 auto;
+  text-align: center;
+  font-weight: bold;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-score {
+  flex: 0 0 auto;
+  text-align: right;
+  color: #779ECB;
+  font-weight: 700;
+  min-width: 80px;
+}
+
+#fever-bar-container {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 15px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  display: none;
+}
+
+.fever-active #fever-bar-container { 
+  display: block; 
+}
+
+#fever-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff0, #f0f, #0ff);
+  transition: width 0.1s linear;
+}
+
+.loading-dots:after {
+  content: '.';
+  animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60% { content: '...'; }
+  80%, 100% { content: ''; }
+}
+
+/* 공유 버튼 그룹 */
+.share-buttons-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-kakao {
+  background-color: #FEE500;
+  color: #3C1E1E;
+  box-shadow: 0 5px 0 #D4BF00;
+}
+.btn-kakao:active { box-shadow: 0 2px 0 #D4BF00; }
+
+.btn-instagram {
+  background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #fff;
+  box-shadow: 0 5px 0 #8B1060;
+}
+.btn-instagram:active { box-shadow: 0 2px 0 #8B1060; }
+
+.btn-native-share {
+  background-color: #e8e8e8;
+  color: #333;
+  box-shadow: 0 5px 0 #bbb;
+}
+.btn-native-share:active { box-shadow: 0 2px 0 #bbb; }
+
+/* 반응형 최적화 */
+@media (max-width: 600px) {
+  #game-container {
+    padding: 10px 5px;
+  }
+  
+  #start-screen, #game-over {
+    padding: 25px 20px;
+    width: 95%;
+  }
+  
+  .game-title {
+    font-size: 2rem;
+  }
+  
+  .game-over-title {
+    font-size: 1.8rem;
+  }
+  
+  .btn-pastel {
+    font-size: 1.2rem;
+    padding: 12px 20px;
+  }
+  
+  #initials-input {
+    font-size: 2rem;
+    width: 130px;
+  }
+  
+  #loading-screen h1 {
+    font-size: 2rem;
+  }
+  
+  #loading-screen p {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-height: 700px) {
+  #game-container {
+    padding: 10px;
+  }
+  
+  #start-screen, #game-over {
+    padding: 20px;
+  }
+  
+  .game-title {
+    font-size: 2rem;
+  }
+  
+  .game-over-title {
+    font-size: 1.5rem;
+  }
+}
+</style>
+</head>
+
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-3 cursor-pointer">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
+                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                </a>
+                <div class="hidden md:flex space-x-10">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">전체게임</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">커뮤니티</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">고객지원</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
+        <div class="page-transition space-y-12">
+
+            <!-- 게임 헤더 -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
+                        <span class="text-xl">←</span> 전체 리스트로 이동
+                    </a>
+                    <h1 class="text-5xl font-black text-slate-900 tracking-tight">🏎️ 호호레이싱</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-indigo-100">레이싱</span>
+                    <span class="bg-slate-200 text-slate-600 px-5 py-2 rounded-full font-bold text-sm">v1.0.0</span>
+                    <span class="bg-slate-100 text-slate-500 px-5 py-2 rounded-full font-bold text-sm flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span id="view-count-display">-</span>
+                    </span>
+                </div>
+                <script>
+                (function() {
+                    function formatViews(n) {
+                        if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1).replace(/\.0$/, '') + 'M';
+                        if (n >= 1000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1).replace(/\.0$/, '') + 'K';
+                        return n.toString();
+                    }
+                    var key = 'views_hoho_racing';
+                    var count = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+                    localStorage.setItem(key, count);
+                    document.getElementById('view-count-display').textContent = formatViews(count);
+                })();
+                </script>
+            </div>
+
+            <!-- 게임 영역 -->
+            <section>
+                <div class="overflow-hidden w-full flex justify-center">
+<!-- ════════════════════ 호호레이싱 게임 소스 시작 ════════════════════ -->
+<div id="game-container">
+  <div id="canvas-wrapper">
+    <canvas id="gameCanvas" width="560" height="750"></canvas>
+    <div id="fever-bar-container">
+      <div id="fever-bar-fill"></div>
+    </div>
+
+    <div id="ui-layer">
+    <!-- 시작 화면 -->
+    <div id="start-screen">
+      <h1 class="game-title">🏎️ 호호레이싱</h1>
+      <button id="start-button" class="btn-pastel">질주 시작!</button>
+      <p class="credit-text">이 게임은 호로로그 기획 및 프로그램으로 제작함</p>
+    </div>
+
+    <!-- 로딩 화면 -->
+    <div id="loading-screen" class="hidden">
+      <h1>코스 준비 중</h1>
+      <p class="loading-dots">엔진 예열 중</p>
+    </div>
+
+    <!-- 게임오버 팝업 -->
+    <div id="game-over" class="hidden">
+      <h1 class="game-over-title">GAME OVER</h1>
+      
+      <div id="popup-step1">
+        <div id="input-section">
+          <p class="input-label">이니셜 3글자 입력</p>
+          <input id="initials-input" maxlength="3" type="text" placeholder="HOH" />
+          <button id="save-record-btn" class="btn-pastel">기록하기</button>
+        </div>
+      </div>
+
+      <div id="popup-step2" class="hidden">
+        <div id="ranking-content">
+          <div id="leaderboard-section">
+            <h2 class="leaderboard-title">🏆 명예의 전당</h2>
+            <p id="my-score-display" style="font-size:0.95rem;color:#aaa;margin-top:-4px;margin-bottom:6px;font-family:'Nanum Gothic',sans-serif;">내 점수: <span id="my-score-value" style="color:#779ECB;font-weight:bold;"></span></p>
+            <div id="leaderboard-list"></div>
+
+            <!-- 공유 버튼 그룹 -->
+            <div class="share-buttons-group">
+              <!-- PC: 이미지 저장 / 모바일: Web Share API -->
+              <button id="share-btn-popup" class="btn-pastel btn-share">
+                📲 인증하고 공유하기
+              </button>
+              <!-- 모바일 전용 추가 공유 옵션 (JS로 동적 생성) -->
+              <div id="mobile-share-extra"></div>
+            </div>
+          </div>
+        </div>
+        <button id="restart-button" class="btn-pastel btn-restart">
+          🏎️ 다시 도전하기
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<script>
+// ===== 오디오 시스템 =====
+let audioCtx = null;
+
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+const initAudio = function() {
+  if (!AudioContextClass) return;
+  try {
+    if (!audioCtx) {
+      audioCtx = new AudioContextClass();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  } catch(e) {
+    console.log('Audio init failed:', e);
+  }
+};
+
+const playRetroSound = function(freq, type, duration, volume, fade) {
+  if (fade === undefined) fade = true;
+  if (!audioCtx) return;
+  try {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+
+    if (fade) {
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    }
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {
+    console.log('Sound play failed:', e);
+  }
+};
+
+const sounds = {
+  item: function() {
+    playRetroSound(523, 'square', 0.1, 0.1);
+    setTimeout(function() { playRetroSound(880, 'square', 0.15, 0.1); }, 50);
+  },
+  hit: function() {
+    playRetroSound(80, 'sawtooth', 0.3, 0.2);
+    playRetroSound(120, 'square', 0.2, 0.15);
+  },
+  fever: function() {
+    [523, 659, 783, 1046, 1318].forEach(function(f, i) {
+      setTimeout(function() { playRetroSound(f, 'square', 0.1, 0.1); }, i * 50);
+    });
+  },
+  over: function() {
+    playRetroSound(440, 'sawtooth', 0.4, 0.2);
+    setTimeout(function() { playRetroSound(349, 'sawtooth', 0.4, 0.2); }, 200);
+    setTimeout(function() { playRetroSound(261, 'sawtooth', 0.6, 0.2); }, 400);
+  }
+};
+
+let bgmInterval = null;
+let bgmStep = 0;
+const synthBass = [110, 110, 130, 146, 110, 110, 164, 146];
+const synthLead = [440, 0, 523, 587, 440, 0, 392, 329];
+
+const startBGM = function() {
+  initAudio();
+  if (bgmInterval) return;
+
+  bgmStep = 0;
+  bgmInterval = setInterval(function() {
+    playRetroSound(synthBass[bgmStep % 8], 'square', 0.2, 0.04);
+
+    if (bgmStep % 2 === 0 && synthLead[bgmStep % 8] > 0) {
+      playRetroSound(synthLead[bgmStep % 8], 'triangle', 0.3, 0.03);
+    }
+
+    if (bgmStep % 4 === 0) {
+      playRetroSound(50, 'triangle', 0.1, 0.15, false);
+    }
+
+    bgmStep++;
+  }, 160);
+};
+
+const stopBGM = function() {
+  if (bgmInterval) {
+    clearInterval(bgmInterval);
+    bgmInterval = null;
+  }
+};
+
+document.addEventListener('click', initAudio);
+document.addEventListener('touchstart', initAudio);
+
+// ===== 로컬스토리지 =====
+const STORAGE_KEY = 'hoho_records_tistory';
+const getRecords = function() { 
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch(e) {
+    return [];
+  }
+};
+const saveRecord = function(name, score) {
+  try {
+    let records = getRecords();
+    records.push({ name: name.toUpperCase() || 'AAA', score: score, date: new Date().toLocaleDateString() });
+    records.sort(function(a, b) { return b.score - a.score; });
+    records = records.slice(0, 5);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    return records;
+  } catch(e) {
+    return [];
+  }
+};
+
+// ===== 공유 시스템 =====
+const isMobile = function() {
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+};
+
+// 공유용 캔버스 생성 (공통 함수)
+const makeShareCanvas = function(scoreVal) {
+  const shareCanvas = document.createElement('canvas');
+  shareCanvas.width = 800;
+  shareCanvas.height = 600;
+  const shareCtx = shareCanvas.getContext('2d');
+
+  const gradient = shareCtx.createLinearGradient(0, 0, 0, 600);
+  gradient.addColorStop(0, '#A7D8DE');
+  gradient.addColorStop(1, '#FDFCF0');
+  shareCtx.fillStyle = gradient;
+  shareCtx.fillRect(0, 0, 800, 600);
+
+  shareCtx.font = 'bold 60px sans-serif';
+  shareCtx.fillStyle = '#FF6961';
+  shareCtx.textAlign = 'center';
+  shareCtx.fillText('🏎️ 호호레이싱', 400, 100);
+
+  shareCtx.font = 'bold 120px sans-serif';
+  shareCtx.fillStyle = '#FFB7C5';
+  shareCtx.fillText(scoreVal.toLocaleString() + '점', 400, 230);
+
+  shareCtx.font = 'bold 40px sans-serif';
+  shareCtx.fillStyle = '#779ECB';
+  shareCtx.fillText('🏆 명예의 전당', 400, 300);
+
+  const latestRecords = getRecords();
+  shareCtx.font = 'bold 36px sans-serif';
+  shareCtx.textAlign = 'left';
+  for (let r = 0; r < Math.min(3, latestRecords.length); r++) {
+    const rec = latestRecords[r];
+    const medal = ['🥇', '🥈', '🥉'][r];
+    shareCtx.fillStyle = r === 0 ? '#D4AF37' : '#555';
+    shareCtx.fillText(medal + ' ' + rec.name + ': ' + rec.score.toLocaleString() + '점', 200, 360 + r * 50);
+  }
+
+  shareCtx.font = '32px sans-serif';
+  shareCtx.fillStyle = '#888';
+  shareCtx.textAlign = 'center';
+  shareCtx.fillText('호호로그에서 도전!', 400, 540);
+
+  return shareCanvas;
+};
+
+// 이미지 저장 (PC/웹)
+const saveShareImage = function(scoreVal, callback) {
+  try {
+    const shareCanvas = makeShareCanvas(scoreVal);
+    shareCanvas.toBlob(function(blob) {
+      if (callback) callback(blob);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '호호레이싱_' + scoreVal + '점_' + Date.now() + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      sounds.item();
+    }, 'image/png', 0.95);
+  } catch(e) {
+    alert('이미지 저장 중 문제가 발생했어요. 다시 시도해주세요!');
+  }
+};
+
+// Web Share API (모바일 네이티브 공유)
+const nativeShare = function(scoreVal, btn) {
+  const shareCanvas = makeShareCanvas(scoreVal);
+  const shareText = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성! 호호로그에서 도전해봐!';
+  const shareUrl = window.location.href;
+
+  // 이미지 포함 공유 시도 (카카오/인스타 등에서 이미지 공유 가능)
+  shareCanvas.toBlob(function(blob) {
+    const file = new File([blob], '호호레이싱.png', { type: 'image/png' });
+
+    const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
+
+    if (navigator.share) {
+      const shareData = canShareFiles
+        ? { files: [file], title: '🏎️ 호호레이싱', text: shareText }
+        : { title: '🏎️ 호호레이싱', text: shareText, url: shareUrl };
+
+      navigator.share(shareData)
+        .then(function() { sounds.item(); })
+        .catch(function(err) {
+          if (err.name !== 'AbortError') {
+            // 파일 공유 실패 시 텍스트만 재시도
+            if (canShareFiles) {
+              navigator.share({ title: '🏎️ 호호레이싱', text: shareText, url: shareUrl })
+                .catch(function() {});
+            }
+          }
+        });
+    } else {
+      // Web Share API 미지원 → 이미지 저장
+      saveShareImage(scoreVal, null);
+    }
+  }, 'image/png', 0.92);
+};
+
+// 카카오링크 공유 (카카오SDK 없이 링크 방식)
+const shareToKakao = function(scoreVal) {
+  const text = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성!\n호호로그에서 도전 👉 ' + window.location.href;
+  // 카카오 스토리 공유 (앱 딥링크)
+  const kakaoUrl = 'https://story.kakao.com/share?url=' + encodeURIComponent(window.location.href) +
+    '&text=' + encodeURIComponent(text);
+  window.open(kakaoUrl, '_blank');
+};
+
+// 인스타/쓰레드는 텍스트 직접 복사 + 이미지 저장 안내 방식
+const shareToInstagram = function(scoreVal) {
+  const text = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성! 호호로그에서 도전!';
+  
+  // 이미지 먼저 저장
+  const shareCanvas = makeShareCanvas(scoreVal);
+  shareCanvas.toBlob(function(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '호호레이싱_' + scoreVal + '점.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    sounds.item();
+
+    // 클립보드 복사 시도
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function() {
+        alert('📸 이미지가 저장됐어요!\n문구도 클립보드에 복사됐어요.\n인스타/쓰레드에 이미지를 업로드하고 붙여넣기 해보세요!');
+      }).catch(function() {
+        alert('📸 이미지가 저장됐어요!\n인스타그램/쓰레드 앱에서 이미지를 업로드해보세요!');
+      });
+    } else {
+      alert('📸 이미지가 저장됐어요!\n인스타그램/쓰레드 앱에서 이미지를 업로드해보세요!');
+    }
+  }, 'image/png', 0.95);
+};
+
+// ===== 게임 변수 =====
+let canvas, canvasWrapper, feverBarFill, ctx;
+let startScreen, loadingScreen, gameOverScreen, startBtn, restartBtn;
+let initialsInput, saveBtn;
+
+let gameActive = false;
+let score = 0;
+let baseSpeed = 8;
+let currentSpeed = 8;
+let hp = 3;
+const maxHp = 5;
+let hasShield = false;
+let boostTimer = 0;
+const MAX_BOOST_TIME = 600;
+let shakeTimer = 0;
+let player = null;
+let objects = [];
+let warnings = [];
+let frameCount = 0;
+let currentLanes = 3;
+let animationId = null;
+let activeTruckCount = 0;
+let wallHitCooldown = 0;
+
+const ROAD_MODES = { STRAIGHT: 0, CURVE: 1 };
+let currentRoadMode = ROAD_MODES.STRAIGHT;
+let roadModeTimer = 1800;
+let currentCurveIntensity = 0;
+
+const CAR_WIDTH = 90;
+const CAR_HEIGHT = 170;
+const BUS_HEIGHT = 240;
+const TRUCK_HEIGHT = 190;
+const ITEM_SIZE = 60;
+
+// ===== 방향키 수정: 키보드 좌우 독립 추적 =====
+const keyState = { left: false, right: false };
+const keys = { left: false, right: false };
+
+const colors = {
+  road: '#D1D9E0',
+  roadFever: '#111',
+  player: '#FFB7C5',
+  car: '#9BB8CD',
+  bus: '#FFE5B4',
+  truck: '#FF4D4D'
+};
+
+// ===== GameObject 클래스 =====
+function GameObject(x, y, width, height, type, color) {
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.type = type;
+  this.color = color;
+  this.targetX = x;
+  this.isFlying = false;
+  this.vx = 0;
+  this.vy = 0;
+  this.vr = 0;
+  this.rotation = 0;
+  this.speedOffset = 0;
+  this.setSpeed();
+}
+
+GameObject.prototype.setSpeed = function() {
+  if (this.type === 'truck') this.speedOffset = -18;
+  else if (this.type === 'bus') this.speedOffset = -1.5;
+  else if (this.type === 'car') this.speedOffset = -0.5;
+  else this.speedOffset = 0;
+};
+
+GameObject.prototype.getHitbox = function() {
+  if (this.isFlying) return { x: -1000, y: -1000, w: 0, h: 0 };
+  let px = 10, py = 20;
+  if (this.type === 'player') { px = 10; py = 25; }
+  else if (this.type === 'truck') { px = 15; py = 30; }
+  else if (this.type === 'boost' || this.type === 'heart' || this.type === 'shield') { px = 5; py = 5; }
+  const currentCurve = Math.sin((frameCount * 0.02) + (this.y * 0.002)) * currentCurveIntensity;
+  return { x: this.x + px + currentCurve, y: this.y + py, w: this.width - px * 2, h: this.height - py * 2 };
+};
+
+GameObject.prototype.flyAway = function(fromX) {
+  this.isFlying = true;
+  if (this.type === 'truck') activeTruckCount--;
+  this.vx = (this.x - fromX) * 0.5 + (Math.random() - 0.5) * 30;
+  this.vy = -15 - Math.random() * 20;
+  this.vr = (Math.random() - 0.5) * 0.5;
+};
+
+GameObject.prototype.draw = function() {
+  const isFever = boostTimer > 0;
+  ctx.save();
+  const currentCurve = Math.sin((frameCount * 0.02) + (this.y * 0.002)) * currentCurveIntensity;
+  ctx.translate(this.x + this.width / 2 + currentCurve, this.y + this.height / 2);
+  const isVehicle = (this.type === 'player' || this.type === 'car' || this.type === 'bus' || this.type === 'truck');
+
+  if (this.type === 'player' && hasShield) {
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(100, 200, 255, 0.3)';
+    ctx.strokeStyle = 'rgba(100, 200, 255, 0.8)';
+    ctx.lineWidth = 5;
+    ctx.arc(0, 0, (this.height/2) + Math.sin(frameCount * 0.1) * 7 + 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  ctx.rotate(this.rotation);
+
+  if (isVehicle) {
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.fillRect(-this.width/2 + 8, -this.height/2 + 8, this.width, this.height);
+
+    ctx.fillStyle = (this.type === 'player' && isFever) ? getRainbowColor(frameCount) : this.color;
+    const x = -this.width/2;
+    const y = -this.height/2;
+    const r = 15;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + this.width - r, y);
+    ctx.arcTo(x + this.width, y, x + this.width, y + r, r);
+    ctx.lineTo(x + this.width, y + this.height - r);
+    ctx.arcTo(x + this.width, y + this.height, x + this.width - r, y + this.height, r);
+    ctx.lineTo(x + r, y + this.height);
+    ctx.arcTo(x, y + this.height, x, y + this.height - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    if (this.type === 'truck') {
+      ctx.fillRect(-this.width/2 + 12, this.height/2 - 45, this.width - 24, 25);
+      ctx.fillStyle = '#FFF';
+      ctx.fillRect(-this.width/2 + 5, this.height/2 - 10, 20, 10);
+      ctx.fillRect(this.width/2 - 25, this.height/2 - 10, 20, 10);
+    } else {
+      ctx.fillRect(-this.width/2 + 12, -this.height/2 + 20, this.width - 24, 25);
+    }
+
+    ctx.fillStyle = '#333';
+    ctx.fillRect(-this.width/2 - 5, -this.height/2 + 18, 10, 22);
+    ctx.fillRect(-this.width/2 - 5, this.height/2 - 40, 10, 22);
+    ctx.fillRect(this.width/2 - 5, -this.height/2 + 18, 10, 22);
+    ctx.fillRect(this.width/2 - 5, this.height/2 - 40, 10, 22);
+  } else {
+    const pulse = Math.sin(frameCount * 0.15) * 5;
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(255, 255, 200, 0.6)';
+    ctx.arc(0, 0, this.width/1.5 + pulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    const icons = { heart: '❤️', shield: '🛡️', boost: '⚡' };
+    ctx.font = 'bold 50px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(icons[this.type] || '?', 0, 0);
+  }
+
+  ctx.restore();
+};
+
+GameObject.prototype.update = function() {
+  if (this.isFlying) {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.rotation += this.vr;
+    this.vy += 1;
+    return;
+  }
+  if (this.type === 'player') {
+    const moveSpeed = boostTimer > 0 ? 22 : 15;
+    if (keys.left) this.targetX -= moveSpeed;
+    if (keys.right) this.targetX += moveSpeed;
+    this.targetX = Math.max(-20, Math.min(canvas.width - this.width + 20, this.targetX));
+    this.x += (this.targetX - this.x) * 0.35;
+  } else {
+    this.y += (currentSpeed + this.speedOffset);
+  }
+};
+
+function getRainbowColor(tick, opacity) {
+  if (opacity === undefined) opacity = 1;
+  return 'hsla(' + ((tick * 10) % 360) + ', 100%, 70%, ' + opacity + ')';
+}
+
+function spawn() {
+  const lw = canvas.width / currentLanes;
+  let spawnRate = Math.max(20, 75 - Math.floor(score/1500));
+  if (boostTimer > 0) spawnRate = 10;
+
+  if (frameCount % spawnRate === 0) {
+    const lane = Math.floor(Math.random() * currentLanes);
+    const roll = Math.random();
+    if (currentLanes >= 5 && activeTruckCount === 0 && roll > 0.93 && warnings.length === 0) {
+      warnings.push({ lane: lane, timer: 70, x: lane * lw + lw/2 });
+    } else {
+      if (currentLanes >= 4 && roll > 0.75) {
+        objects.push(new GameObject(lane * lw + (lw/2 - CAR_WIDTH/2), -350, CAR_WIDTH, BUS_HEIGHT, 'bus', colors.bus));
+      } else {
+        objects.push(new GameObject(lane * lw + (lw/2 - CAR_WIDTH/2), -350, CAR_WIDTH, CAR_HEIGHT, 'car', colors.car));
+      }
+    }
+  }
+
+  for (let i = warnings.length - 1; i >= 0; i--) {
+    warnings[i].timer--;
+    if (warnings[i].timer <= 0) {
+      if (activeTruckCount === 0) {
+        objects.push(new GameObject(warnings[i].lane * lw + (lw/2 - CAR_WIDTH/2), canvas.height + 250, CAR_WIDTH, TRUCK_HEIGHT, 'truck', colors.truck));
+        activeTruckCount = 1;
+      }
+      warnings.splice(i, 1);
+    }
+  }
+
+  if (boostTimer <= 0 && frameCount % 480 === 0) {
+    const lane = Math.floor(Math.random() * currentLanes);
+    const types = ['boost'];
+    if (hp < maxHp) types.push('heart');
+    if (!hasShield) types.push('shield');
+    const type = types[Math.floor(Math.random() * types.length)];
+    objects.push(new GameObject(lane * lw + (lw/2 - ITEM_SIZE/2), -150, ITEM_SIZE, ITEM_SIZE, type));
+  }
+}
+
+function checkCollisions() {
+  if (!player) return;
+  const pBox = player.getHitbox();
+  const isHittingLeft = pBox.x <= 5;
+  const isHittingRight = pBox.x + pBox.w >= canvas.width - 5;
+
+  if ((isHittingLeft || isHittingRight) && wallHitCooldown <= 0) {
+    sounds.hit();
+    if (boostTimer > 0) {
+      shakeTimer = 5;
+      player.vx = isHittingLeft ? 10 : -10;
+    } else if (hasShield) {
+      hasShield = false;
+      shakeTimer = 20;
+      player.vx = isHittingLeft ? 15 : -15;
+    } else {
+      hp--;
+      shakeTimer = 35;
+      player.vx = isHittingLeft ? 20 : -20;
+      if (hp <= 0) endGame();
+    }
+    // targetX를 벽 안쪽으로 즉시 리셋 → 반대 방향 입력 즉시 반응
+    if (isHittingLeft) {
+      player.targetX = 0;
+      player.x = 0;
+    } else {
+      player.targetX = canvas.width - player.width;
+      player.x = canvas.width - player.width;
+    }
+    wallHitCooldown = boostTimer > 0 ? 6 : 10; // 쿨다운 대폭 단축 (60→10)
+  }
+  if (wallHitCooldown > 0) wallHitCooldown--;
+
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const obj = objects[i];
+    if (obj.isFlying) continue;
+    const oBox = obj.getHitbox();
+
+    if (obj.type === 'boost' || obj.type === 'heart' || obj.type === 'shield') {
+      if (pBox.x < oBox.x + oBox.w && pBox.x + pBox.w > oBox.x && pBox.y < oBox.y + oBox.h && pBox.y + pBox.h > oBox.y) {
+        sounds.item();
+        if (obj.type === 'heart') hp = Math.min(maxHp, hp + 1);
+        else if (obj.type === 'shield') hasShield = true;
+        else if (obj.type === 'boost') { boostTimer = MAX_BOOST_TIME; sounds.fever(); }
+        objects.splice(i, 1);
+      }
+      continue;
+    }
+
+    if (pBox.x < oBox.x + oBox.w && pBox.x + pBox.w > oBox.x && pBox.y < oBox.y + oBox.h && pBox.y + pBox.h > oBox.y) {
+      sounds.hit();
+      if (boostTimer > 0) {
+        obj.flyAway(player.x);
+        score += 2000;
+        shakeTimer = 15;
+      } else {
+        if (hasShield) {
+          hasShield = false;
+          shakeTimer = 30;
+          if (obj.type === 'truck') activeTruckCount--;
+          objects.splice(i, 1);
+          player.vx = pBox.x < oBox.x ? -25 : 25;
+        } else {
+          hp--;
+          shakeTimer = 45;
+          if (obj.type === 'truck') activeTruckCount--;
+          player.vx = pBox.x < oBox.x ? -40 : 40;
+          objects.splice(i, 1);
+          if (hp <= 0) endGame();
+        }
+      }
+    }
+  }
+}
+
+function drawRoad() {
+  const isFever = boostTimer > 0;
+  ctx.fillStyle = isFever ? '#111' : '#D1D9E0';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const segments = 15;
+  const segH = canvas.height / segments;
+  const lw = canvas.width / currentLanes;
+  
+  ctx.strokeStyle = isFever ? getRainbowColor(frameCount, 0.5) : 'rgba(255, 255, 255, 0.4)';
+  ctx.setLineDash([50, 50]);
+  ctx.lineWidth = 4;
+  
+  for (let s = 0; s < segments; s++) {
+    const y = s * segH;
+    const offset = Math.sin((frameCount * 0.02) + (y * 0.002)) * currentCurveIntensity;
+    ctx.save();
+    ctx.translate(offset, 0);
+    ctx.lineDashOffset = -frameCount * currentSpeed;
+    for (let i = 1; i < currentLanes; i++) {
+      ctx.beginPath();
+      ctx.moveTo(lw * i, y);
+      ctx.lineTo(lw * i, y + segH);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  ctx.setLineDash([]);
+}
+
+function updateRoadMode() {
+  if (currentLanes <= 3) {
+    currentRoadMode = ROAD_MODES.STRAIGHT;
+    roadModeTimer = 1800;
+  } else {
+    roadModeTimer--;
+    if (roadModeTimer <= 0) {
+      currentRoadMode = (currentRoadMode === ROAD_MODES.STRAIGHT) ? ROAD_MODES.CURVE : ROAD_MODES.STRAIGHT;
+      roadModeTimer = 1800;
+    }
+  }
+  let targetIntensity = 0;
+  if (currentRoadMode === ROAD_MODES.CURVE) {
+    targetIntensity = 30 + (score / 15000);
+  }
+  currentCurveIntensity += (targetIntensity - currentCurveIntensity) * 0.02;
+}
+
+function drawStatusIcons() {
+  const isFever = boostTimer > 0;
+  const op = isFever ? 0.45 : 0.25;
+  const color = isFever ? '#FFF' : '#000';
+  ctx.save();
+  ctx.translate(canvas.width / 2, 75);
+  ctx.globalAlpha = op;
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 5;
+  if (currentRoadMode === ROAD_MODES.STRAIGHT) {
+    ctx.beginPath();
+    ctx.moveTo(0, -25);
+    ctx.lineTo(15, -5);
+    ctx.lineTo(7, -5);
+    ctx.lineTo(7, 25);
+    ctx.lineTo(-7, 25);
+    ctx.lineTo(-7, -5);
+    ctx.lineTo(-15, -5);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(-20, 25);
+    ctx.bezierCurveTo(40, 25, -40, -25, 20, -25);
+    ctx.stroke();
+    ctx.font = 'bold 36px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('S', 0, 5);
+  }
+  ctx.restore();
+}
+
+function update() {
+  if (!gameActive) return;
+  const isFever = boostTimer > 0;
+  score += (isFever ? 35 : 2);
+  
+  if (score >= 150000) currentLanes = 6;
+  else if (score >= 80000) currentLanes = 5;
+  else if (score >= 30000) currentLanes = 4;
+  else currentLanes = 3;
+
+  updateRoadMode();
+
+  if (shakeTimer > 0) {
+    shakeTimer--;
+    const i = Math.min(shakeTimer, 15);
+    canvasWrapper.style.transform = 'translate(' + ((Math.random()-0.5)*i) + 'px, ' + ((Math.random()-0.5)*i) + 'px)';
+  } else {
+    canvasWrapper.style.transform = 'translate(0, 0)';
+  }
+
+  let tSpeed = baseSpeed + (score / 35000);
+  if (isFever) {
+    boostTimer--;
+    tSpeed *= 2.3;
+    document.body.classList.add('fever-active');
+    feverBarFill.style.width = (boostTimer / MAX_BOOST_TIME * 100) + '%';
+  } else {
+    document.body.classList.remove('fever-active');
+  }
+  currentSpeed += (tSpeed - currentSpeed) * 0.1;
+
+  drawRoad();
+  checkCollisions();
+
+  for (let i = objects.length - 1; i >= 0; i--) {
+    objects[i].update();
+    objects[i].draw();
+    if (objects[i].y > canvas.height + 800 || objects[i].y < -1200) {
+      if (objects[i].type === 'truck' && !objects[i].isFlying) activeTruckCount--;
+      objects.splice(i, 1);
+    }
+  }
+
+  if (player) {
+    player.update();
+    player.draw();
+  }
+  
+  spawn();
+
+  const lw = canvas.width / currentLanes;
+  for (let w = 0; w < warnings.length; w++) {
+    const warning = warnings[w];
+    const opW = (frameCount % 10 < 5) ? 1 : 0.3;
+    ctx.save();
+    ctx.translate(warning.x, canvas.height - 80);
+    ctx.fillStyle = 'rgba(255, 0, 0, ' + (opW * 0.2) + ')';
+    ctx.fillRect(-lw/2 + 5, -canvas.height, lw - 10, canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(0, -40);
+    ctx.lineTo(-30, 10);
+    ctx.lineTo(30, 10);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255, 0, 0, ' + opW + ')';
+    ctx.fill();
+    ctx.fillStyle = '#FFF';
+    ctx.font = "bold 24px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("!", 0, 3);
+    ctx.restore();
+  }
+
+  ctx.fillStyle = isFever ? '#fff' : '#333';
+  ctx.font = '32px Gamja Flower';
+  ctx.textAlign = 'left';
+  let hearts = '';
+  for (let h = 0; h < hp; h++) hearts += '❤️';
+  ctx.fillText(hearts, 25, 45);
+  ctx.textAlign = 'right';
+  ctx.fillText(score.toLocaleString() + '점', canvas.width - 25, 45);
+  drawStatusIcons();
+
+  frameCount++;
+  animationId = requestAnimationFrame(update);
+}
+
+const canvasWidth = 560;
+const canvasHeight = 750;
+
+function resizeCanvas() {
+  if (!canvas) return;
+
+  const winW = window.innerWidth;
+  const winH = window.innerHeight;
+  const ratio = canvasWidth / canvasHeight;
+
+  let targetW = Math.min(canvasWidth, winW * 0.92);
+  let targetH = targetW / ratio;
+
+  if (targetH > winH * 0.88) {
+    targetH = winH * 0.88;
+    targetW = targetH * ratio;
+  }
+
+  // canvas 표시 크기 설정
+  canvas.style.width = targetW + 'px';
+  canvas.style.height = targetH + 'px';
+
+  // canvas-wrapper도 같은 크기로 맞춰야 ui-layer overlay가 정확히 덮임
+  if (canvasWrapper) {
+    canvasWrapper.style.width = targetW + 'px';
+    canvasWrapper.style.height = targetH + 'px';
+  }
+}
+
+function initGame() {
+  canvas = document.getElementById('gameCanvas');
+  canvasWrapper = document.getElementById('canvas-wrapper');
+  feverBarFill = document.getElementById('fever-bar-fill');
+  
+  ctx = canvas.getContext('2d', { 
+    alpha: false,
+    desynchronized: true
+  });
+
+  if (!ctx) {
+    alert('캔버스를 초기화할 수 없습니다. 브라우저를 업데이트해주세요.');
+    return;
+  }
+
+  ctx.imageSmoothingEnabled = false;
+
+  startScreen = document.getElementById('start-screen');
+  loadingScreen = document.getElementById('loading-screen');
+  gameOverScreen = document.getElementById('game-over');
+  startBtn = document.getElementById('start-button');
+  restartBtn = document.getElementById('restart-button');
+  initialsInput = document.getElementById('initials-input');
+  saveBtn = document.getElementById('save-record-btn');
+
+  saveBtn.onclick = function() {
+    const name = (initialsInput.value || 'AAA').toUpperCase();
+    const records = saveRecord(name, score);
+
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = '';
+
+    for (let r = 0; r < records.length; r++) {
+      const record = records[r];
+      const medal = r === 0 ? '🥇' : (r === 1 ? '🥈' : (r === 2 ? '🥉' : '✨'));
+      const rankColor = r === 0 ? '#D4AF37' : '#555';
+
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+
+      const rankEl = document.createElement('span');
+      rankEl.className = 'lb-rank';
+      rankEl.style.color = rankColor;
+      rankEl.textContent = medal + ' ' + (r + 1) + '위';
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'lb-name';
+      nameEl.textContent = record.name;
+
+      const scoreEl = document.createElement('span');
+      scoreEl.className = 'lb-score';
+      scoreEl.textContent = record.score.toLocaleString() + '점';
+
+      row.appendChild(rankEl);
+      row.appendChild(nameEl);
+      row.appendChild(scoreEl);
+      list.appendChild(row);
+    }
+
+    document.getElementById('popup-step1').classList.add('hidden');
+    document.getElementById('popup-step2').classList.remove('hidden');
+
+    // 공유 버튼 설정
+    const shareBtnPopup = document.getElementById('share-btn-popup');
+    const mobileShareExtra = document.getElementById('mobile-share-extra');
+    const currentScore = score;
+
+    if (isMobile()) {
+      // 모바일: 메인 버튼 → 네이티브 공유 (카카오/인스타/쓰레드/모든 앱)
+      shareBtnPopup.textContent = '📲 공유하기 (카카오·인스타 등)';
+      shareBtnPopup.onclick = function() {
+        nativeShare(currentScore, shareBtnPopup);
+      };
+
+      // 추가 버튼: 인스타/쓰레드용 이미지+문구 저장
+      mobileShareExtra.innerHTML = '';
+      const instaBtn = document.createElement('button');
+      instaBtn.className = 'btn-pastel btn-instagram';
+      instaBtn.textContent = '📸 인스타/쓰레드 이미지 저장';
+      instaBtn.onclick = function() {
+        shareToInstagram(currentScore);
+      };
+      mobileShareExtra.appendChild(instaBtn);
+
+    } else {
+      // PC: 기존 이미지 저장
+      shareBtnPopup.textContent = '📲 인증하고 공유하기';
+      shareBtnPopup.onclick = function() {
+        saveShareImage(currentScore, null);
+      };
+      mobileShareExtra.innerHTML = '';
+    }
+  };
+
+  restartBtn.onclick = function() {
+    if (restartBtn.disabled) return;
+    restartBtn.disabled = true;
+    restartBtn.style.opacity = "0.6";
+    restartBtn.innerText = "준비 중...";
+
+    setTimeout(function() {
+      gameActive = false;
+      if (animationId) cancelAnimationFrame(animationId);
+      stopBGM();
+      objects = [];
+      warnings = [];
+      activeTruckCount = 0;
+
+      gameOverScreen.classList.add('hidden');
+      restartBtn.disabled = false;
+      restartBtn.style.opacity = "1";
+      restartBtn.innerText = "🏎️ 다시 도전하기";
+
+      loadingScreen.classList.remove('hidden');
+      setTimeout(function() {
+        loadingScreen.classList.add('hidden');
+        startGame();
+      }, 800);
+    }, 500);
+  };
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  initialsInput.addEventListener('input', function() {
+    initialsInput.value = initialsInput.value
+      .replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '')
+      .replace(/[^A-Za-z]/g, '')
+      .toUpperCase()
+      .slice(0, 3);
+  });
+
+  startBtn.onclick = function() {
+    handleGameStart();
+  };
+}
+
+function startGame() {
+  startBGM();
+  gameActive = true;
+  score = 0;
+  hp = 3;
+  hasShield = false;
+  boostTimer = 0;
+  shakeTimer = 0;
+  frameCount = 0;
+  currentLanes = 3;
+  activeTruckCount = 0;
+  feverBarFill.style.width = '0%';
+  objects = [];
+  warnings = [];
+
+  player = new GameObject(
+    (canvas.width - CAR_WIDTH) / 2,
+    canvas.height - CAR_HEIGHT - 40,
+    CAR_WIDTH,
+    CAR_HEIGHT,
+    'player',
+    colors.player
+  );
+
+  // ===== 수정된 입력 시스템 =====
+  // 터치/마우스: 누른 위치 기준 이동
+  let isHolding = false;
+  let holdX = 0;
+
+  // ── 키보드: 좌/우 독립적으로 추적, 둘 다 눌린 경우 나중에 누른 쪽 우선 ──
+  let lastKeyPressed = null; // 'left' | 'right' | null
+
+  const handleKeyDown = function(e) {
+    const isLeft = (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A');
+    const isRight = (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D');
+    if (!isLeft && !isRight) return;
+    e.preventDefault();
+
+    if (isLeft) {
+      keyState.left = true;
+      lastKeyPressed = 'left';
+    }
+    if (isRight) {
+      keyState.right = true;
+      lastKeyPressed = 'right';
+    }
+
+    // 방향 결정: 마지막으로 누른 키 우선
+    if (keyState.left && keyState.right) {
+      keys.left = (lastKeyPressed === 'left');
+      keys.right = (lastKeyPressed === 'right');
+    } else {
+      keys.left = keyState.left;
+      keys.right = keyState.right;
+    }
+  };
+
+  const handleKeyUp = function(e) {
+    const isLeft = (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A');
+    const isRight = (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D');
+    if (!isLeft && !isRight) return;
+
+    if (isLeft) keyState.left = false;
+    if (isRight) keyState.right = false;
+
+    // 한 키 떼면 나머지 키로 전환
+    if (keyState.left && !keyState.right) {
+      keys.left = true;
+      keys.right = false;
+      lastKeyPressed = 'left';
+    } else if (!keyState.left && keyState.right) {
+      keys.left = false;
+      keys.right = true;
+      lastKeyPressed = 'right';
+    } else {
+      keys.left = false;
+      keys.right = false;
+      lastKeyPressed = null;
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('keyup', handleKeyUp);
+
+  // 터치/마우스 holdX 방식
+  function updateDirectionByHoldX() {
+    if (!isHolding || !player) {
+      if (!keyState.left && !keyState.right) {
+        keys.left = false;
+        keys.right = false;
+      }
+      return;
+    }
+    const scaleX = canvas.width / canvas.getBoundingClientRect().width;
+    const playerCenterX = (player.x + player.width / 2);
+    const holdCanvasX = holdX * scaleX;
+    const deadZone = 20;
+    if (holdCanvasX < playerCenterX - deadZone) {
+      keys.left = true;
+      keys.right = false;
+    } else if (holdCanvasX > playerCenterX + deadZone) {
+      keys.right = true;
+      keys.left = false;
+    } else {
+      keys.left = false;
+      keys.right = false;
+    }
+  }
+
+  const holdInterval = setInterval(function() {
+    if (!gameActive) return;
+    if (isHolding) updateDirectionByHoldX();
+  }, 16);
+
+  canvas.addEventListener('mousedown', function(e) {
+    isHolding = true;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.clientX - rect.left;
+  });
+
+  canvas.addEventListener('mousemove', function(e) {
+    if (!isHolding) return;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.clientX - rect.left;
+  });
+
+  canvas.addEventListener('mouseup', function() {
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  canvas.addEventListener('mouseleave', function() {
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    isHolding = true;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.touches[0].clientX - rect.left;
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (!isHolding) return;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.touches[0].clientX - rect.left;
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  canvas.addEventListener('touchcancel', function() {
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  window._holdInterval = holdInterval;
+  window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
+
+  if (animationId) cancelAnimationFrame(animationId);
+  update();
+}
+
+function endGame() {
+  gameActive = false;
+  if (animationId) cancelAnimationFrame(animationId);
+  if (stopBGM) stopBGM();
+  if (window._holdInterval) { clearInterval(window._holdInterval); window._holdInterval = null; }
+  // 키보드 이벤트 정리
+  if (window._keyHandlers) {
+    window.removeEventListener('keydown', window._keyHandlers.down);
+    window.removeEventListener('keyup', window._keyHandlers.up);
+    window._keyHandlers = null;
+  }
+  // 상태 초기화
+  keyState.left = false;
+  keyState.right = false;
+  keys.left = false;
+  keys.right = false;
+
+  sounds.over();
+  
+  // 점수를 명예의 전당 아래 작게 표시
+  var myScoreEl = document.getElementById('my-score-value');
+  if (myScoreEl) myScoreEl.textContent = score.toLocaleString() + '점';
+  startScreen.classList.add('hidden');
+  loadingScreen.classList.add('hidden');
+  gameOverScreen.classList.remove('hidden');
+
+  document.getElementById('popup-step1').classList.remove('hidden');
+  document.getElementById('popup-step2').classList.add('hidden');
+
+  const records = getRecords();
+  if (records.length > 0) {
+    initialsInput.value = records[0].name.slice(0, 3);
+  } else {
+    initialsInput.value = "";
+  }
+}
+
+function handleGameStart() {
+  initAudio();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+
+  startScreen.classList.add('hidden');
+  gameOverScreen.classList.add('hidden');
+  loadingScreen.classList.remove('hidden');
+
+  initialsInput.value = "";
+  document.getElementById('popup-step1').classList.remove('hidden');
+  document.getElementById('popup-step2').classList.add('hidden');
+
+  setTimeout(function() {
+    loadingScreen.classList.add('hidden');
+    startGame();
+  }, 800);
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('load', initGame);
+} else {
+  initGame();
+}
+</script>
+
+</script>
+<!-- ════════════════════ 호호레이싱 게임 소스 끝 ════════════════════ -->
+                </div>
+            </section>
+
+            <!-- 탭 패널 -->
+            <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+                <div class="flex border-b border-slate-100">
+                    <button onclick="switchTab('desc')" id="tab-desc"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-indigo-600 text-indigo-600">
+                        게임 설명
+                    </button>
+                    <button onclick="switchTab('guide')" id="tab-guide"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        조작 가이드
+                    </button>
+                    <button onclick="switchTab('info')" id="tab-info"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        시스템 정보
+                    </button>
+                </div>
+
+                <div id="panel-desc" class="tab-panel p-10">
+                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                        장애물을 피하며 최대한 멀리 달려가는 레이싱 게임입니다.<br><br>
+                        피버 게이지를 채워 피버 모드를 발동하고, 명예의 전당에 이름을 올려보세요.
+                        모바일과 PC 모두 플레이 가능합니다.
+                    </p>
+                </div>
+
+                <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">PC 이동</span>
+                            <div class="flex gap-2">
+                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">←</kbd>
+                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">→</kbd>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">모바일 이동</span>
+                            <span class="font-bold text-slate-600">화면 좌우 탭 또는 스와이프</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">피버 모드</span>
+                            <span class="font-bold text-slate-600">피버 게이지 100% 시 자동 발동</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-info" class="tab-panel p-10 hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 / 자바스크립트</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function switchTab(tab) {
+                    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
+                    document.querySelectorAll('.tab-btn').forEach(function(b){
+                        b.classList.remove('border-indigo-600', 'text-indigo-600');
+                        b.classList.add('border-transparent', 'text-slate-400');
+                    });
+                    document.getElementById('panel-' + tab).classList.remove('hidden');
+                    var btn = document.getElementById('tab-' + tab);
+                    btn.classList.add('border-indigo-600', 'text-indigo-600');
+                    btn.classList.remove('border-transparent', 'text-slate-400');
+                }
+            </script>
+
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('./footer.html')
+            .then(function(r){ return r.text(); })
+            .then(function(html){
+                document.getElementById('footer-placeholder').outerHTML = html;
+                var s = document.createElement('script');
+                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
+                document.body.appendChild(s);
+            });
+    </script>
+
+    <script>
+    (function() {
+        var gameEl = document.getElementById('canvas-wrapper');
+        if (gameEl) {
+            gameEl.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+        }
+    })();
+    </script>
+</body>
+</html>
