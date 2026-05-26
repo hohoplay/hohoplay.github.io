@@ -243,14 +243,10 @@
                 } else if (game.id === 'g2') {
                     badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
                 } else if (game.id === 'g3') {
-                    var cls3 = isMobile
-                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
-                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    var cls3 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
                     badge = '<span class="' + cls3 + '">PC</span>';
                 } else if (game.id === 'g4') {
-                    var cls4 = isMobile
-                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
-                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    var cls4 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
                     badge = '<span class="' + cls4 + '">PC</span>';
                 } else if (game.id === 'g5') {
                     badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
@@ -752,14 +748,88 @@
             `
         };
 
-        // 게임 클릭: g1은 game1.html로 이동, 나머지는 준비중 알림
+        // 게임 클릭: iframe 모달로 열기 (URL 변경 없음)
         function handleGameClick(gameId) {
             const game = gameData.find(g => g.id === gameId);
             if (game && game.file) {
-                window.location.href = game.file;
+                openGameModal(game.file, game.name);
             } else {
                 alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
             }
+        }
+
+        function openGameModal(file, name) {
+            // 기존 모달 제거
+            const existing = document.getElementById('hoho-game-modal');
+            if (existing) existing.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'hoho-game-modal';
+            modal.style.cssText = `
+                position: fixed; inset: 0; z-index: 9999;
+                background: rgba(0,0,0,0.85);
+                display: flex; align-items: center; justify-content: center;
+                padding: 16px;
+            `;
+
+            modal.innerHTML = \`
+                <div style="
+                    position: relative;
+                    width: 100%; max-width: 960px;
+                    background: #0f172a;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+                    display: flex; flex-direction: column;
+                    max-height: 96vh;
+                ">
+                    <div style="
+                        display: flex; align-items: center; justify-content: space-between;
+                        padding: 14px 20px;
+                        background: #1e293b;
+                        border-bottom: 1px solid #334155;
+                        flex-shrink: 0;
+                    ">
+                        <span style="color:#e2e8f0; font-weight:900; font-size:1rem; letter-spacing:-0.3px;">🎮 \${name}</span>
+                        <button onclick="closeGameModal()" style="
+                            background: #ef4444; color: #fff;
+                            border: none; border-radius: 8px;
+                            width: 32px; height: 32px;
+                            font-size: 1.1rem; font-weight: 900;
+                            cursor: pointer; line-height: 1;
+                        ">✕</button>
+                    </div>
+                    <iframe
+                        src="\${file}"
+                        style="width:100%; flex:1; border:none; min-height:600px; max-height:calc(96vh - 56px);"
+                        allowfullscreen
+                        title="\${name}"
+                    ></iframe>
+                </div>
+            \`;
+
+            // 배경 클릭으로 닫기
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeGameModal();
+            });
+
+            // ESC 키로 닫기
+            modal._keyHandler = function(e) {
+                if (e.key === 'Escape') closeGameModal();
+            };
+            document.addEventListener('keydown', modal._keyHandler);
+
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGameModal() {
+            const modal = document.getElementById('hoho-game-modal');
+            if (modal) {
+                if (modal._keyHandler) document.removeEventListener('keydown', modal._keyHandler);
+                modal.remove();
+            }
+            document.body.style.overflow = '';
         }
 
         async function navigateTo(page) {
