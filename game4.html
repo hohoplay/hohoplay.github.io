@@ -6,13 +6,375 @@
     <title>호호타자FPS - HOHO PLAY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans KR', sans-serif; }
+        /* HOHO PLAY 공통 */
+        body { font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif; }
         .page-transition { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
+
+        /* 호호타자FPS 원본 스타일 */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Noto+Sans+KR:wght@700;900&display=swap');
+
+#hoho-fps-container {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 40px auto;
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1;
+}
+
+#hoho-fps-wrapper {
+    position: relative;
+    width: 100%;
+    height: 700px;
+    background-color: #050508;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.85);
+    border: 2px solid #2a2a2a;
+    touch-action: none;
+}
+
+#hoho-gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ── 오버레이 화면 ── */
+#hoho-overlay-screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(10, 15, 25, 0.96);
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    z-index: 100;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#hoho-main-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    color: #00ffcc;
+    margin: 0 0 10px 0;
+    text-shadow: 0 0 15px rgba(0,255,204,0.5);
+}
+
+#hoho-desc-text {
+    color: #aaa;
+    font-size: 0.95rem;
+    margin: 0 0 20px 0;
+}
+
+/* ── 모드 선택 (캐릭터 선택 카드) ── */
+#hoho-mode-selection {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 24px;
+    justify-content: center;
+}
+
+.hoho-mode-btn {
+    width: 130px;
+    padding: 18px 10px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid #333;
+    border-radius: 16px;
+    color: #aaa;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    -webkit-transition: all 0.25s;
+    transition: all 0.25s;
+    position: relative;
+}
+
+.hoho-mode-btn .mode-icon {
+    font-size: 2.4rem;
+    line-height: 1;
+}
+
+.hoho-mode-btn .mode-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #ddd;
+}
+
+.hoho-mode-btn .mode-desc {
+    font-size: 0.72rem;
+    color: #666;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.hoho-mode-btn.active {
+    background: rgba(0,255,204,0.10);
+    border-color: #00ffcc;
+    color: #fff;
+    -webkit-box-shadow: 0 0 24px rgba(0,255,204,0.35);
+    box-shadow: 0 0 24px rgba(0,255,204,0.35);
+}
+
+.hoho-mode-btn.active .mode-name {
+    color: #00ffcc;
+}
+
+.hoho-mode-btn.active::after {
+    content: '✔ 선택됨';
+    position: absolute;
+    bottom: -13px;
+    left: 50%; transform: translateX(-50%);
+    font-size: 0.68rem;
+    color: #00ffcc;
+    white-space: nowrap;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.hoho-mode-btn:hover:not(.active) {
+    border-color: #555;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+/* ── 시작 버튼 ── */
+#hoho-start-btn {
+    margin-top: 46px;
+    padding: 16px 50px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 40px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    -webkit-transition: -webkit-transform 0.1s;
+    transition: transform 0.1s;
+}
+
+#hoho-start-btn:hover {
+    -webkit-transform: scale(1.04);
+    transform: scale(1.04);
+}
+
+#hoho-save-btn {
+    margin-top: 10px;
+    padding: 11px 36px;
+    background: transparent;
+    color: #00ffcc;
+    border: 1.5px solid #00ffcc;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    display: none;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+}
+#hoho-save-btn:hover {
+    background: rgba(0,255,204,0.12);
+    -webkit-transform: scale(1.04);
+    transform: scale(1.04);
+}
+
+#hoho-warning-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    color: #ff0033;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    text-shadow: 0 0 20px #ff0033;
+    display: none;
+    z-index: 50;
+    pointer-events: none;
+    -webkit-animation: hoho-blink 0.5s infinite alternate;
+    animation: hoho-blink 0.5s infinite alternate;
+}
+
+@-webkit-keyframes hoho-blink { from { opacity: 0.2; } to { opacity: 1; } }
+@keyframes hoho-blink          { from { opacity: 0.2; } to { opacity: 1; } }
+
+/* ── UI 오버레이 ── */
+#hoho-ui-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    display: none;
+}
+
+#hoho-score-display {
+    position: absolute;
+    top: 25px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    color: #00ffcc;
+    text-shadow: 0 0 10px rgba(0,255,204,0.5);
+    margin: 0;
+}
+
+#hoho-hp-display {
+    position: absolute;
+    top: 75px;
+    left: 25px;
+    font-size: 1.5rem;
+    -webkit-filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
+    filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
+}
+
+#hoho-hp-display.ui-right { left: auto; right: 25px; }
+#hoho-hp-display.ui-center { left: 25px; }
+
+/* ── 입력창 ── */
+#hoho-input-area {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 85%;
+    pointer-events: auto;
+    z-index: 10;
+}
+
+#hoho-game-input {
+    width: 100%;
+    padding: 16px;
+    background: rgba(0,0,0,0.85);
+    border: 2px solid #00ffcc;
+    border-radius: 16px;
+    color: #fff;
+    font-size: 1.3rem;
+    text-align: center;
+    outline: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    /* 티스토리 기본 input 스타일 초기화 */
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+/* ── 무기 스프라이트 ── */
+#hoho-weapon-sprite {
+    position: absolute;
+    bottom: 0;
+    width: 180px;
+    height: 220px;
+    pointer-events: none;
+    z-index: 5;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: end;
+    -ms-flex-align: end;
+    align-items: flex-end;
+}
+
+#hoho-weapon-sprite.weapon-right  { right: 0; left: auto; -webkit-transform: none; transform: none; }
+#hoho-weapon-sprite.weapon-left   { left: 0;  right: auto; -webkit-transform: none; transform: none; }
+#hoho-weapon-sprite.weapon-center { left: 50%; right: auto; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+
+.hoho-weapon-body {
+    position: relative;
+    width: 60px;
+    height: 120px;
+    background: -webkit-linear-gradient(left, #1a1a1a, #333, #1a1a1a);
+    background: linear-gradient(to right, #1a1a1a, #333, #1a1a1a);
+    border-radius: 10px 10px 0 0;
+    border: 2px solid #444;
+}
+
+.hoho-weapon-barrel {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 24px;
+    height: 60px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 4px;
+}
+
+.hoho-weapon-glow {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 4px;
+    height: 40px;
+    background: #00ffcc;
+    -webkit-box-shadow: 0 0 10px #00ffcc;
+    box-shadow: 0 0 10px #00ffcc;
+    border-radius: 2px;
+}
+
+/* ── 반동 애니메이션 ── */
+@-webkit-keyframes hoho-fire-recoil {
+    0%   { -webkit-transform: translateY(0);    transform: translateY(0); }
+    20%  { -webkit-transform: translateY(15px); transform: translateY(15px); }
+    100% { -webkit-transform: translateY(0);    transform: translateY(0); }
+}
+@keyframes hoho-fire-recoil {
+    0%   { -webkit-transform: translateY(0);    transform: translateY(0); }
+    20%  { -webkit-transform: translateY(15px); transform: translateY(15px); }
+    100% { -webkit-transform: translateY(0);    transform: translateY(0); }
+}
+@-webkit-keyframes hoho-fire-recoil-center {
+    0%   { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
+    20%  { -webkit-transform: translateX(-50%) translateY(15px); transform: translateX(-50%) translateY(15px); }
+    100% { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
+}
+@keyframes hoho-fire-recoil-center {
+    0%   { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
+    20%  { -webkit-transform: translateX(-50%) translateY(15px); transform: translateX(-50%) translateY(15px); }
+    100% { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
+}
+
+#hoho-weapon-sprite.recoil        { -webkit-animation: hoho-fire-recoil 0.1s ease-out; animation: hoho-fire-recoil 0.1s ease-out; }
+#hoho-weapon-sprite.recoil-center { -webkit-animation: hoho-fire-recoil-center 0.1s ease-out; animation: hoho-fire-recoil-center 0.1s ease-out; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
@@ -71,332 +433,15 @@
             <!-- 게임 영역 -->
             <section>
                 <div class="overflow-hidden w-full flex justify-center">
-
-<!-- ════════════════════ 호호타자FPS 게임 소스 시작 ════════════════════ -->
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Noto+Sans+KR:wght@700;900&display=swap');
-
-#hoho-fps-container {
-    display: block;
-    width: 100%;
-    max-width: 420px;
-    margin: 40px auto;
-    font-family: 'Noto Sans KR', sans-serif;
-    line-height: 1;
-}
-
-#hoho-fps-wrapper {
-    position: relative;
-    width: 100%;
-    height: 700px;
-    background-color: #050508;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.85);
-    border: 2px solid #2a2a2a;
-    touch-action: none;
-}
-
-#hoho-gameCanvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-#hoho-overlay-screen {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(10, 15, 25, 0.96);
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    z-index: 100;
-    color: #fff;
-    text-align: center;
-    padding: 20px;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-}
-
-#hoho-main-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2.2rem;
-    color: #00ffcc;
-    margin: 0 0 10px 0;
-    text-shadow: 0 0 15px rgba(0,255,204,0.5);
-}
-
-#hoho-desc-text {
-    color: #aaa;
-    font-size: 0.95rem;
-    margin: 0 0 20px 0;
-}
-
-#hoho-mode-selection {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: row;
-    flex-direction: row;
-    gap: 20px;
-    margin-top: 24px;
-    justify-content: center;
-}
-
-.hoho-mode-btn {
-    width: 130px;
-    padding: 18px 10px 16px;
-    background: rgba(255,255,255,0.04);
-    border: 2px solid #333;
-    border-radius: 16px;
-    color: #aaa;
-    cursor: pointer;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 0.85rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    -webkit-transition: all 0.25s;
-    transition: all 0.25s;
-    position: relative;
-}
-
-.hoho-mode-btn .mode-icon { font-size: 2.4rem; line-height: 1; }
-.hoho-mode-btn .mode-name { font-weight: 700; font-size: 0.95rem; color: #ddd; }
-.hoho-mode-btn .mode-desc { font-size: 0.72rem; color: #666; line-height: 1.4; text-align: center; }
-
-.hoho-mode-btn.active {
-    background: rgba(0,255,204,0.10);
-    border-color: #00ffcc;
-    color: #fff;
-    -webkit-box-shadow: 0 0 24px rgba(0,255,204,0.35);
-    box-shadow: 0 0 24px rgba(0,255,204,0.35);
-}
-.hoho-mode-btn.active .mode-name { color: #00ffcc; }
-.hoho-mode-btn.active::after {
-    content: '✔ 선택됨';
-    position: absolute;
-    bottom: -13px;
-    left: 50%; transform: translateX(-50%);
-    font-size: 0.68rem;
-    color: #00ffcc;
-    white-space: nowrap;
-    font-family: 'Noto Sans KR', sans-serif;
-}
-.hoho-mode-btn:hover:not(.active) {
-    border-color: #555;
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-}
-
-#hoho-start-btn {
-    margin-top: 46px;
-    padding: 16px 50px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 40px;
-    font-weight: 900;
-    font-size: 1.2rem;
-    cursor: pointer;
-    font-family: 'Orbitron', sans-serif;
-    -webkit-transition: -webkit-transform 0.1s;
-    transition: transform 0.1s;
-}
-#hoho-start-btn:hover { -webkit-transform: scale(1.04); transform: scale(1.04); }
-
-#hoho-save-btn {
-    margin-top: 10px;
-    padding: 11px 36px;
-    background: transparent;
-    color: #00ffcc;
-    border: 1.5px solid #00ffcc;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    cursor: pointer;
-    font-family: 'Orbitron', sans-serif;
-    display: none;
-    -webkit-transition: all 0.2s;
-    transition: all 0.2s;
-}
-#hoho-save-btn:hover { background: rgba(0,255,204,0.12); -webkit-transform: scale(1.04); transform: scale(1.04); }
-
-#hoho-warning-overlay {
-    position: absolute;
-    top: 50%; left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    color: #ff0033;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 3rem;
-    font-weight: 900;
-    text-shadow: 0 0 20px #ff0033;
-    display: none;
-    z-index: 50;
-    pointer-events: none;
-    -webkit-animation: hoho-blink 0.5s infinite alternate;
-    animation: hoho-blink 0.5s infinite alternate;
-}
-@-webkit-keyframes hoho-blink { from { opacity: 0.2; } to { opacity: 1; } }
-@keyframes hoho-blink          { from { opacity: 0.2; } to { opacity: 1; } }
-
-#hoho-ui-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    display: none;
-}
-#hoho-score-display {
-    position: absolute;
-    top: 25px;
-    width: 100%;
-    text-align: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
-    color: #00ffcc;
-    text-shadow: 0 0 10px rgba(0,255,204,0.5);
-    margin: 0;
-}
-#hoho-hp-display {
-    position: absolute;
-    top: 75px;
-    left: 25px;
-    font-size: 1.5rem;
-    -webkit-filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
-    filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
-}
-#hoho-hp-display.ui-right { left: auto; right: 25px; }
-#hoho-hp-display.ui-center { left: 25px; }
-
-#hoho-input-area {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    width: 85%;
-    pointer-events: auto;
-    z-index: 10;
-}
-#hoho-game-input {
-    width: 100%;
-    padding: 16px;
-    background: rgba(0,0,0,0.85);
-    border: 2px solid #00ffcc;
-    border-radius: 16px;
-    color: #fff;
-    font-size: 1.3rem;
-    text-align: center;
-    outline: none;
-    font-family: 'Noto Sans KR', sans-serif;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-}
-
-#hoho-weapon-sprite {
-    position: absolute;
-    bottom: 0;
-    width: 180px;
-    height: 220px;
-    pointer-events: none;
-    z-index: 5;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    -webkit-box-align: end;
-    -ms-flex-align: end;
-    align-items: flex-end;
-}
-#hoho-weapon-sprite.weapon-right  { right: 0; left: auto; -webkit-transform: none; transform: none; }
-#hoho-weapon-sprite.weapon-left   { left: 0;  right: auto; -webkit-transform: none; transform: none; }
-#hoho-weapon-sprite.weapon-center { left: 50%; right: auto; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
-
-.hoho-weapon-body {
-    position: relative;
-    width: 60px;
-    height: 120px;
-    background: -webkit-linear-gradient(left, #1a1a1a, #333, #1a1a1a);
-    background: linear-gradient(to right, #1a1a1a, #333, #1a1a1a);
-    border-radius: 10px 10px 0 0;
-    border: 2px solid #444;
-}
-.hoho-weapon-barrel {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    width: 24px;
-    height: 60px;
-    background: #111;
-    border: 2px solid #333;
-    border-radius: 4px;
-}
-.hoho-weapon-glow {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    width: 4px;
-    height: 40px;
-    background: #00ffcc;
-    -webkit-box-shadow: 0 0 10px #00ffcc;
-    box-shadow: 0 0 10px #00ffcc;
-    border-radius: 2px;
-}
-
-@-webkit-keyframes hoho-fire-recoil {
-    0%   { -webkit-transform: translateY(0);    transform: translateY(0); }
-    20%  { -webkit-transform: translateY(15px); transform: translateY(15px); }
-    100% { -webkit-transform: translateY(0);    transform: translateY(0); }
-}
-@keyframes hoho-fire-recoil {
-    0%   { transform: translateY(0); }
-    20%  { transform: translateY(15px); }
-    100% { transform: translateY(0); }
-}
-@-webkit-keyframes hoho-fire-recoil-center {
-    0%   { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
-    20%  { -webkit-transform: translateX(-50%) translateY(15px); transform: translateX(-50%) translateY(15px); }
-    100% { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
-}
-@keyframes hoho-fire-recoil-center {
-    0%   { transform: translateX(-50%) translateY(0); }
-    20%  { transform: translateX(-50%) translateY(15px); }
-    100% { transform: translateX(-50%) translateY(0); }
-}
-#hoho-weapon-sprite.recoil        { -webkit-animation: hoho-fire-recoil 0.1s ease-out; animation: hoho-fire-recoil 0.1s ease-out; }
-#hoho-weapon-sprite.recoil-center { -webkit-animation: hoho-fire-recoil-center 0.1s ease-out; animation: hoho-fire-recoil-center 0.1s ease-out; }
-</style>
-
+<!-- ════════ 호호타자FPS 원본 소스 (hoho-fps-tistory.html) ════════ -->
 <div id="hoho-fps-container">
   <div id="hoho-fps-wrapper">
+
+    <!-- 타이틀/게임오버 화면 -->
     <div id="hoho-overlay-screen">
       <p id="hoho-main-title">호호타자FPS</p>
       <p id="hoho-desc-text">이 게임은 호호로그 기획 및 프로그램으로 제작함</p>
+
       <div id="hoho-mode-selection">
         <button class="hoho-mode-btn" onclick="hohoSetMode('left',event)">
           <span class="mode-icon">🤛</span>
@@ -409,20 +454,29 @@
           <span class="mode-desc">입력창·무기<br>오른쪽 배치</span>
         </button>
       </div>
+
       <button id="hoho-start-btn" onclick="hohoStartGame()">MISSION START</button>
       <button id="hoho-save-btn" onclick="hohoSaveImage()">📷 결과 저장</button>
     </div>
+
+    <!-- WARNING -->
     <div id="hoho-warning-overlay">WARNING</div>
+
+    <!-- 게임 캔버스 -->
     <canvas id="hoho-gameCanvas"></canvas>
+
+    <!-- 게임 HUD -->
     <div id="hoho-ui-overlay">
       <p id="hoho-score-display">000000</p>
       <div id="hoho-hp-display">❤️❤️❤️</div>
+
       <div id="hoho-weapon-sprite" class="weapon-right">
         <div class="hoho-weapon-body">
           <div class="hoho-weapon-barrel"></div>
           <div class="hoho-weapon-glow"></div>
         </div>
       </div>
+
       <div id="hoho-input-area">
         <input type="text" id="hoho-game-input"
                placeholder="단어 입력..."
@@ -430,11 +484,12 @@
                autocapitalize="off" spellcheck="false">
       </div>
     </div>
-  </div>
-</div>
 
+  </div><!-- /hoho-fps-wrapper -->
+</div><!-- /hoho-fps-container -->
 <script>
 (function () {
+    /* ── 엘리먼트 참조 ── */
     var canvas         = document.getElementById('hoho-gameCanvas');
     var ctx            = canvas.getContext('2d');
     var gameInput      = document.getElementById('hoho-game-input');
@@ -445,6 +500,7 @@
     var uiOverlay      = document.getElementById('hoho-ui-overlay');
     var scoreDisplay   = document.getElementById('hoho-score-display');
 
+    /* ── 게임 상태 ── */
     var isPlaying = false;
     var score = 0, lives = 3;
     var canvasW, canvasH;
@@ -457,13 +513,19 @@
     var reticle = { x: 210, y: 350, charIndex: 0 };
     var inputResetTimer = null;
 
+    // ── 콤보 시스템 ──
     var combo = 0, comboTimer = null;
-    var COMBO_TIMEOUT = 4000;
-    var shield = 0;
+    var COMBO_TIMEOUT = 4000; // 4초 안에 다음 단어 안 치면 콤보 리셋
+
+    // ── 파워업 상태 ──
+    var shield = 0;       // 실드 횟수
     var slowActive = false, slowTimer = null;
+
+    // ── 격파 페이스 HUD ──
     var lastKillTime = 0;
     var paceLabel = '', paceColor = '#00ffcc', paceAlpha = 0;
 
+    // ── Web Audio ──
     var _audioCtx = null;
     function getAudioCtx() {
         if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -483,235 +545,1325 @@
             o.stop(ac.currentTime + (delay||0) + duration);
         } catch(e) {}
     }
-    function sfxKill()    { playTone(440,'square',0.06,0.12); playTone(660,'square',0.08,0.10,0.05); }
-    function sfxUrgent()  { playTone(880,'sawtooth',0.08,0.13); playTone(880,'sawtooth',0.08,0.13,0.14); }
-    function sfxBossHit() { playTone(120,'sawtooth',0.18,0.18); playTone(80,'sine',0.25,0.12,0.05); }
-    function sfxDamage()  { playTone(200,'sawtooth',0.15,0.20); playTone(150,'sawtooth',0.12,0.15,0.08); }
+    function sfxKill() {
+        // 격파음: 짧고 경쾌한 상승 톤
+        playTone(440, 'square', 0.06, 0.12);
+        playTone(660, 'square', 0.08, 0.10, 0.05);
+    }
+    function sfxUrgent() {
+        // 긴급 경고음: 두 번 삐빅
+        playTone(880, 'sawtooth', 0.08, 0.13);
+        playTone(880, 'sawtooth', 0.08, 0.13, 0.14);
+    }
+    function sfxBossHit() {
+        // 보스 피격음: 묵직한 저음 펑
+        playTone(120, 'sawtooth', 0.18, 0.18);
+        playTone(80,  'sine',     0.25, 0.12, 0.05);
+    }
+    function sfxDamage() {
+        // 피해 수신음: 불쾌한 노이즈
+        playTone(200, 'sawtooth', 0.15, 0.20);
+        playTone(150, 'sawtooth', 0.12, 0.15, 0.08);
+    }
 
-    var WORD_POOL = [
-        '사과','바나나','포도','수박','딸기','토마토','오렌지','레몬','키위','망고',
-        '하늘','바다','강','산','들판','숲','구름','햇빛','바람','비',
-        '고양이','강아지','호랑이','사자','코끼리','기린','원숭이','토끼','곰','늑대',
-        '컴퓨터','키보드','마우스','모니터','스피커','프린터','스캐너','태블릿','노트북','핸드폰',
-        '학교','도서관','병원','공원','마트','은행','우체국','약국','경찰서','소방서',
-        '사랑','행복','희망','평화','자유','용기','지혜','인내','성실','친절',
-        '달리기','수영','야구','축구','농구','테니스','배드민턴','골프','스키','등산',
-        '봄여름','가을겨울','아침저녁','동서남북','흑백','낮밤','음양','하나둘','셋넷','다섯여섯',
-        '전략','전술','공격','방어','정찰','매복','돌격','후퇴','집결','포위',
-        '타이핑','슈터','미션','스코어','콤보','보스','쉴드','파워업','격파','클리어'
+    var SPAWN_INTERVAL  = 3000;
+    var HORIZON_Y_RATIO = 0.4;
+    var DEADLINE_Y_RATIO= 0.75;
+
+    var words = {
+        2: [
+            "코드","엔진","해킹","보안","행성","방패","핵심",
+            "우주","비행","출력","입력","동력","탄환","침입","방어",
+            "신호","탐지","파괴","충돌","조준","발사","전투","임무",
+            "광자","도약","차단","분리","충격","강화","확산","통합","공습","돌파",
+            "강습","타격","섬광","분쇄","폭발","침투","격파","산탄"
+        ],
+        3: [
+            "사이버","미사일","방어막","핵폭탄","가상화","저장소",
+            "광학기","분사기","추진기","연결점","스캐너","암호화","데드존","블랙홀","워프존",
+            "전투기","우주선","로켓포","핵탄두","특수전","사이렌","전기장","중력파","폭격기",
+            "항공모","인공위","발사대","차단막","초음파","파괴자","강습함","돌격대",
+            "산탄포","도약대","광학망","신호탑","탐지기","차단기","강화막","확산탄"
+        ],
+        4: [
+            "네트워크","디지털화","레이저포","비밀통로","인공위성","신호분석","은하철도","광학렌즈","차원돌파",
+            "정보수집","전자전쟁","사이버전","핵미사일","스텔스기","전투드론","항공모함","데이터망",
+            "바이러스","전파방해","레이더망","자기폭풍","시공간파","은하계전","특수부대","양자통신",
+            "초공간포","파괴광선","강습작전","우주방어","핵추진포","차단시스","돌파작전",
+            "나노폭탄","산탄발사","광자폭탄","신호교란","탐지차단","강습드론","핵분열포","확산탄두"
+        ],
+        5: [
+            "시뮬레이션","인공지능망","가상현실계","프로그래밍","암호화분석","블록체인화","시스템복구","초공간도약",
+            "나노로봇군","행성파괴포","양자컴퓨터","사이버공격","핵융합로켓","스텔스드론","우주방어망","특수작전대","위성파괴포",
+            "광자포사격","강습함대전","우주요새포","차원붕괴포","은하방위군","핵추진함대","양자파괴포"
+        ]
+    };
+
+    // 특수보스 위성(회전) 전용 단어 — 2글자, 일반 단어·발사체와 겹치지 않음
+    var satelliteWords = [
+        "위성","코어","중계","전산","통신","분석","관제","탐색","추적",
+        "핵심","반응","연산","출력","수신","송신","감지","차단","복구","증폭"
     ];
 
-    function getRandWord() { return WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)]; }
+    /* ── UI 모드 ── */
+    window.hohoSetMode = function(mode, event) {
+        uiMode = mode;
+        document.querySelectorAll('.hoho-mode-btn').forEach(function(b){ b.classList.remove('active'); });
+        if (event) event.currentTarget.classList.add('active');
+        hpDisplay.className = 'ui-' + (mode === 'center' ? 'left' : mode);
+        weaponSprite.className = 'weapon-' + mode;
+    };
 
     /* ── 캔버스 초기화 ── */
     function initCanvas() {
-        var wrap = document.getElementById('hoho-fps-wrapper');
-        canvasW = wrap.clientWidth;
-        canvasH = wrap.clientHeight;
-        canvas.width  = canvasW;
-        canvas.height = canvasH;
-        reticle.x = canvasW / 2;
-        reticle.y = canvasH * 0.5;
+        var rect = canvas.getBoundingClientRect();
+        canvasW = rect.width;  canvasH = rect.height;
+        canvas.width = canvasW; canvas.height = canvasH;
+        reticle.x = canvasW / 2; reticle.y = canvasH / 2;
     }
-
-    /* ── 모드 설정 ── */
-    window.hohoSetMode = function(mode, e) {
-        uiMode = mode;
-        document.querySelectorAll('.hoho-mode-btn').forEach(function(b){ b.classList.remove('active'); });
-        if (e && e.currentTarget) e.currentTarget.classList.add('active');
-
-        var inputArea   = document.getElementById('hoho-input-area');
-        var weaponEl    = document.getElementById('hoho-weapon-sprite');
-        var hpEl        = document.getElementById('hoho-hp-display');
-
-        if (mode === 'left') {
-            inputArea.style.left = '0'; inputArea.style.right = 'auto';
-            inputArea.style.transform = 'none'; inputArea.style.width = '55%';
-            weaponEl.className = 'weapon-left';
-            hpEl.className = 'ui-right';
-        } else {
-            inputArea.style.left = '50%'; inputArea.style.right = 'auto';
-            inputArea.style.transform = 'translateX(-50%)'; inputArea.style.width = '85%';
-            weaponEl.className = 'weapon-right';
-            hpEl.className = '';
-        }
-    };
 
     /* ── 게임 시작 ── */
     window.hohoStartGame = function() {
-        score = 0; lives = 3; combo = 0; shield = 0;
-        slowActive = false; isBossMode = false; boss = null;
+        // ── 혹시 남은 타이머 완전 정리 ──
+        clearInterval(window._hohoSpawnTimer); window._hohoSpawnTimer = null;
+        stopBossShooting();
+        clearTimeout(comboTimer);  comboTimer  = null;
+        clearTimeout(slowTimer);   slowTimer   = null;
+        clearTimeout(inputResetTimer); inputResetTimer = null;
+
+        // ── 모든 상태 리셋 ──
+        isPlaying = true; score = 0; lives = 3;
+        isBossMode = false; boss = null;
         enemies = []; hangeulParticles = []; damageTexts = [];
-        hitEffects = []; slashEffects = []; targetedEnemy = null;
-        flowOffset = 0; screenShake = 0; lastKillTime = 0;
-        paceLabel = ''; paceAlpha = 0;
+        hitEffects = []; slashEffects = [];
+        bossProjectiles = []; borderPulse = 0;
+        combo = 0; shield = 0; slowActive = false;
+        screenShake = 0; targetedEnemy = null;
+        lastKillTime = 0; paceLabel = ''; paceAlpha = 0;
+        isComposing = false; composedChar = '';
+
+        // ── 타이틀 UI 복원 ──
+        document.getElementById('hoho-main-title').innerText = '호호타자FPS';
+        document.getElementById('hoho-main-title').style.color = '#00ffcc';
+        document.getElementById('hoho-mode-selection').style.display = 'flex';
+        document.getElementById('hoho-start-btn').innerText = 'MISSION START';
+        document.getElementById('hoho-save-btn').style.display = 'none';
+
+        // 이전 게임루프 완전 취소
+        if (_hohoRafId) { cancelAnimationFrame(_hohoRafId); _hohoRafId = null; }
 
         overlayScreen.style.display = 'none';
         uiOverlay.style.display = 'block';
+        updateUI(); initCanvas();
         gameInput.value = '';
         gameInput.focus();
-        isPlaying = true;
-        updateHUD();
-        spawnEnemy();
-        requestAnimationFrame(gameLoop);
+        _hohoRafId = requestAnimationFrame(gameLoop);
+        window._hohoSpawnTimer = setInterval(function(){ if (isPlaying && !isBossMode) spawnEnemy(); }, SPAWN_INTERVAL);
     };
 
-    /* ── HUD 업데이트 ── */
-    function updateHUD() {
-        var hp = '';
-        for (var i = 0; i < lives; i++) hp += (shield > 0 ? '🛡️' : '❤️');
-        for (var j = lives; j < 3; j++) hp += '🖤';
-        hpDisplay.innerHTML = hp + (shield > 0 ? ' <span style="color:#00e5ff;font-size:0.9rem;font-family:\'Orbitron\',sans-serif;">SHIELD</span>' : '');
-        scoreDisplay.textContent = String(score).padStart(6, '0');
+    function updateUI() {
+        scoreDisplay.innerText = String(score).padStart(6,'0');
+        hpDisplay.innerText = '❤️'.repeat(Math.max(0, lives));
     }
 
-    /* ── 적 생성 ── */
-    function spawnEnemy() {
-        if (!isPlaying) return;
-        var margin = 60;
-        var x = margin + Math.random() * (canvasW - margin * 2);
-        var y = 60 + Math.random() * (canvasH * 0.45);
-        var word = getRandWord();
-        var baseSpeed = 0.18 + score * 0.00008;
-        var spd = baseSpeed * (0.85 + Math.random() * 0.3);
-        enemies.push({ x: x, y: y, word: word, hp: 1, speed: spd, angle: Math.random() * Math.PI * 2, wobble: Math.random() * Math.PI * 2, wobbleAmp: 18 + Math.random() * 22, t: 0 });
-        var nextDelay = Math.max(900, 2200 - score * 1.2);
-        setTimeout(spawnEnemy, nextDelay);
+    /* ── 파티클 ── */
+    function spawnHangeulParticle(x, y, char, color, isExplosion) {
+        color = color || '#00ffcc'; isExplosion = !!isExplosion;
+        var vx = (Math.random()-0.5) * (isExplosion ? 20 : 6);
+        var vy = isExplosion ? (Math.random()-0.8)*20 : -6-Math.random()*4;
+        hangeulParticles.push({ x:x, y:y, char:char, color:color, vx:vx, vy:vy,
+            life:1.0, size: isExplosion ? 30+Math.random()*15 : 18+Math.random()*8,
+            rotation:(Math.random()-0.5)*0.3, angle:0 });
     }
 
-    /* ── 보스 생성 ── */
-    function spawnBoss() {
-        isBossMode = true;
-        boss = { x: canvasW / 2, y: 110, hp: 8, maxHp: 8, word: getRandWord(), speed: 0.6, t: 0, flashTimer: 0 };
-        enemies = [];
+    function spawnMuzzleParticle(x, y, char) {
+        var spread = (Math.random()-0.5)*30;
+        hangeulParticles.push({ x:x, y:y, char:char,
+            color:'hsl('+(180+Math.random()*40)+',100%,75%)',
+            vx:spread*0.15, vy:-10-Math.random()*6,
+            life:0.9, size:20+Math.random()*10,
+            rotation:(Math.random()-0.5)*0.4, angle:0 });
+    }
+
+    function createDamageText(x, y, text, color) {
+        damageTexts.push({ x:x, y:y, text:text, color:color||'#fff', life:1.0, vy:-2 });
+    }
+
+    function spawnHitEffect(x, y, char) {
+        hitEffects.push({ type:'ring', x:x, y:y, radius:8, life:1.0, color:'#ff4444' });
+        hitEffects.push({ type:'char', x:x, y:y-10, char:char,
+            vx:(Math.random()-0.5)*3, vy:-5-Math.random()*4,
+            life:1.0, size:22, angle:(Math.random()-0.5)*0.6,
+            rotation:(Math.random()-0.5)*0.2, color:'#ff2222' });
+        for (var i = 0; i < 5; i++) {
+            var a = (Math.PI*2/5)*i + Math.random()*0.4;
+            hitEffects.push({ type:'crack', x:x, y:y,
+                vx:Math.cos(a)*(3+Math.random()*4), vy:Math.sin(a)*(3+Math.random()*4),
+                life:1.0, length:8+Math.random()*12, angle:a,
+                color:'hsl('+(Math.random()*30+10)+',100%,70%)' });
+        }
+    }
+
+    function spawnSlash(x1,y1,x2,y2) {
+        slashEffects.push({ x1:x1, y1:y1, x2:x2, y2:y2, life:1.0 });
     }
 
     /* ── 입력 처리 ── */
-    gameInput.addEventListener('compositionstart', function() { isComposing = true; composedChar = ''; });
-    gameInput.addEventListener('compositionupdate', function(e) { composedChar = e.data || ''; });
-    gameInput.addEventListener('compositionend', function(e) {
-        isComposing = false;
-        composedChar = '';
-        checkInput(gameInput.value);
-    });
-    gameInput.addEventListener('input', function() {
-        if (!isComposing) checkInput(gameInput.value);
-    });
+    function resetInput() {
+        clearTimeout(inputResetTimer); inputResetTimer = null;
+        isComposing = false; composedChar = '';
+        targetedEnemy = null; reticle.charIndex = 0;
+        // IME 세션 완전 종료: blur → value 초기화 → 한 프레임 뒤 focus
+        gameInput.blur();
+        gameInput.value = '';
+        // input type을 잠깐 바꿔서 IME 버퍼 강제 플러시
+        gameInput.setAttribute('type', 'password');
+        gameInput.setAttribute('type', 'text');
+        requestAnimationFrame(function() {
+            gameInput.value = '';
+            gameInput.focus();
+        });
+    }
 
-    function checkInput(val) {
-        if (!isPlaying) return;
-        if (clearInputTimer) { clearTimeout(clearInputTimer); clearInputTimer = null; }
-        clearInputTimer = setTimeout(function() { gameInput.value = ''; }, 6000);
+    function processInput(currentVal) {
+        if (!currentVal) { targetedEnemy = null; reticle.charIndex = 0; return; }
 
-        var trimmed = val.trim();
-        if (!trimmed) return;
-
-        /* 보스 모드 */
-        if (isBossMode && boss) {
-            if (trimmed === boss.word) {
-                spawnHitEffect(boss.x, boss.y, '#ff6600');
-                sfxBossHit();
-                boss.hp--;
-                boss.flashTimer = 8;
-                addDamageText(boss.x, boss.y, '-1', '#ff6600');
-                combo++;
-                resetComboTimer();
-                boss.word = getRandWord();
-                gameInput.value = '';
-                if (boss.hp <= 0) {
-                    score += 500;
-                    addDamageText(boss.x, boss.y, 'BOSS DOWN! +500', '#ffd700');
-                    isBossMode = false; boss = null;
-                    updateHUD();
+        if (!targetedEnemy || !targetedEnemy.word.startsWith(currentVal)) {
+            var potential = [];
+            if (isBossMode && boss) {
+                // 위성이 있으면 위성 먼저
+                if (boss.satellites && boss.satellites.length > 0) {
+                    boss.satellites.forEach(function(sat) {
+                        if (sat.word.startsWith(currentVal)) {
+                            // 위성에 위치 정보 임시 첨부
+                            var sa = boss.angle + sat.angle;
+                            sat._x = boss.x + Math.cos(sa) * boss.satelliteRadius;
+                            sat._y = boss.y + Math.sin(sa) * boss.satelliteRadius;
+                            potential.push(sat);
+                        }
+                    });
                 }
-                return;
+                // 위성 없거나 매칭 없으면 본체
+                if (potential.length === 0 && boss.word.startsWith(currentVal) &&
+                    (!boss.satellites || boss.satellites.length === 0)) {
+                    potential.push(boss);
+                }
+            }
+            enemies.forEach(function(en){ if (en.word.startsWith(currentVal)) potential.push(en); });
+            bossProjectiles.forEach(function(bp){ if (bp.word.startsWith(currentVal)) potential.push(bp); });
+            if (potential.length > 0) {
+                potential.sort(function(a,b){
+                    var aScore = a.vy !== undefined ? a.y * 10 : (a.z||0);
+                    var bScore = b.vy !== undefined ? b.y * 10 : (b.z||0);
+                    return bScore - aScore;
+                });
+                targetedEnemy = potential[0];
+            } else { targetedEnemy = null; reticle.charIndex = 0; return; }
+        }
+
+        var charIndex = currentVal.length - 1;
+        var hitChar = currentVal[charIndex] || '';
+        var isKoreanChar = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(hitChar);
+
+        if (charIndex >= 0 && targetedEnemy) {
+            reticle.charIndex = charIndex;
+            var en = targetedEnemy;
+
+            var charX, charY;
+            if (en === boss) {
+                charX = boss.x;
+                charY = boss.y;
+            } else if (en.vy !== undefined) {
+                charX = en.x;
+                charY = en.y - 20;
+            } else {
+                var size     = 9 + 36 * en.z;
+                var fontSize = 12 + 15 * en.z;
+                var charWidth = fontSize * 1.05;
+                var startX = en.x - en.word.length * charWidth / 2;
+                charX  = startX + charIndex * charWidth + charWidth / 2;
+                var fontSize2 = 12 + 15 * en.z;
+                charY  = en.y - size - fontSize2 - 4;
+                if (!en.charDamage || en.charDamage.length !== en.word.length)
+                    en.charDamage = new Array(en.word.length).fill(0);
+                if (charIndex < en.charDamage.length) en.charDamage[charIndex] = 1.0;
+            }
+            en.hitFlash = 1.0; en.hitShake = 6;
+            // 한글 입력시에만 탄알 이펙트·궤적 발생
+            if (isKoreanChar) {
+                spawnHitEffect(charX, charY, hitChar);
+                spawnSlash(reticle.x, reticle.y, charX, charY);
             }
         }
 
-        /* 일반 적 */
-        var matched = null;
-        for (var i = 0; i < enemies.length; i++) {
-            if (enemies[i].word === trimmed) { matched = i; break; }
-        }
-        if (matched !== null) {
-            var e = enemies[matched];
-            sfxKill();
-            spawnHangeulParticles(e.x, e.y, e.word);
-            spawnSlashEffect(e.x, e.y);
-            spawnHitEffect(e.x, e.y, '#00ffcc');
-            combo++;
-            resetComboTimer();
-            var pts = 10 + combo * 5;
-            if (slowActive) pts = Math.floor(pts * 1.5);
-            score += pts;
-            addDamageText(e.x, e.y - 20, '+' + pts + (combo >= 3 ? ' COMBO×' + combo : ''), combo >= 5 ? '#ffd700' : '#00ffcc');
-            calcPace(e.x, e.y);
-            enemies.splice(matched, 1);
-            targetedEnemy = null;
-            gameInput.value = '';
-            updateHUD();
-            if (score > 0 && score % 300 < pts + 5 && !isBossMode) spawnBoss();
-        }
+        if (targetedEnemy && targetedEnemy.word === currentVal) fireAtTarget(currentVal);
     }
 
-    var clearInputTimer = null;
+    function fireAtTarget(currentVal) {
+        var wordToExplode = targetedEnemy.word;
+        for (var i = 0; i < wordToExplode.length; i++)
+            spawnHangeulParticle(targetedEnemy.x, targetedEnemy.y, wordToExplode[i], '#ff3333', true);
+        screenShake = 20;
 
-    function resetComboTimer() {
-        if (comboTimer) clearTimeout(comboTimer);
-        comboTimer = setTimeout(function() { combo = 0; }, COMBO_TIMEOUT);
-    }
-
-    function calcPace(x, y) {
-        var now = Date.now();
-        var diff = now - lastKillTime;
-        lastKillTime = now;
-        if (diff < 1200)      { paceLabel = '⚡ LIGHTNING!'; paceColor = '#ffe066'; }
-        else if (diff < 2200) { paceLabel = '🔥 FAST!';     paceColor = '#ff9100'; }
-        else if (diff < 3500) { paceLabel = '👍 GOOD';      paceColor = '#00ffcc'; }
-        else                  { paceLabel = '';              paceColor = '#00ffcc'; }
-        paceAlpha = 1.0;
-    }
-
-    /* ── 파티클·이펙트 ── */
-    function spawnHangeulParticles(x, y, word) {
-        for (var i = 0; i < word.length; i++) {
-            var angle = Math.random() * Math.PI * 2;
-            var spd = 1.5 + Math.random() * 2.5;
-            hangeulParticles.push({ x: x, y: y, ch: word[i], vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd - 1.5, life: 1.0, size: 14 + Math.random() * 10 });
-        }
-    }
-    function spawnSlashEffect(x, y) {
-        slashEffects.push({ x: x, y: y, life: 1.0, r: 30 + Math.random() * 20, angle: Math.random() * Math.PI });
-    }
-    function spawnHitEffect(x, y, color) {
-        hitEffects.push({ x: x, y: y, life: 1.0, color: color });
-    }
-    function addDamageText(x, y, text, color) {
-        damageTexts.push({ x: x, y: y, text: text, color: color || '#fff', life: 1.0, vy: -1.2 });
-    }
-
-    /* ── 적 피해 (화면 아래 도달) ── */
-    function enemyReachBottom(idx) {
-        enemies.splice(idx, 1);
-        if (shield > 0) {
-            shield--;
-            addDamageText(canvasW / 2, canvasH * 0.4, 'SHIELD BLOCKED', '#00e5ff');
+        if (targetedEnemy === boss) {
+            hitBoss();
+        } else if (boss && boss.satellites && boss.satellites.indexOf(targetedEnemy) > -1) {
+            // 위성 격파
+            hitSatellite(targetedEnemy);
+        } else if (targetedEnemy.vy !== undefined) {
+            // 발사체 격파
+            var bpIdx = bossProjectiles.indexOf(targetedEnemy);
+            if (bpIdx > -1) {
+                spawnHangeulParticle(targetedEnemy.x, targetedEnemy.y, targetedEnemy.word[0], '#ffcc00', true);
+                bossProjectiles.splice(bpIdx, 1);
+                createDamageText(targetedEnemy.x, targetedEnemy.y - 20, '격추!', '#ffcc00');
+                updateUI();
+            }
         } else {
-            lives--;
-            sfxDamage();
-            screenShake = 14;
-            addDamageText(canvasW / 2, canvasH * 0.4, '−1 LIFE', '#ff4444');
-            if (lives <= 0) { gameOver(); return; }
-            if (lives === 1) sfxUrgent();
+            var wLen = targetedEnemy.word.length;
+            var basepts = wLen === 2 ? 20 : wLen === 3 ? 30 : 50;
+
+            // 긴급 적: 보너스 점수
+            if (targetedEnemy.type === 'urgent') basepts = Math.floor(basepts * 2);
+
+            // 파워업 아이템 처리
+            if (targetedEnemy.type === 'powerup') {
+                activatePowerup(targetedEnemy.effect, targetedEnemy.label, targetedEnemy.x, targetedEnemy.y);
+                var idx = enemies.indexOf(targetedEnemy);
+                if (idx > -1) enemies.splice(idx, 1);
+                updateUI();
+                // 파워업은 콤보 미적용
+                targetedEnemy = null; isComposing = false; composedChar = '';
+                clearTimeout(inputResetTimer); inputResetTimer = null;
+                gameInput.blur(); gameInput.value = '';
+                requestAnimationFrame(function(){ gameInput.focus(); });
+                return;
+            }
+
+            // 콤보 적용
+            combo++;
+            clearTimeout(comboTimer);
+            var multiplier = combo >= 10 ? 3.0 : combo >= 5 ? 2.0 : combo >= 2 ? 1.5 : 1.0;
+            var pts = Math.floor(basepts * multiplier);
+
+            // 콤보 타임아웃
+            comboTimer = setTimeout(function(){
+                combo = 0;
+            }, COMBO_TIMEOUT);
+
+            var prevScore = score;
+            score += pts;
+
+            // ── 격파 페이스 HUD ──
+            var now = Date.now();
+            if (lastKillTime > 0) {
+                var gap = now - lastKillTime;
+                if      (gap < 1200) { paceLabel = '⚡ BLAZING!'; paceColor = '#ff6600'; }
+                else if (gap < 2000) { paceLabel = '🔥 FAST!';    paceColor = '#ffcc00'; }
+                else if (gap < 3500) { paceLabel = '✔ GOOD';      paceColor = '#00ffcc'; }
+                else                 { paceLabel = '';             }
+                paceAlpha = 1.2;
+            }
+            lastKillTime = now;
+
+            sfxKill();
+
+            // 콤보 텍스트
+            if (combo >= 2) {
+                createDamageText(targetedEnemy.x, targetedEnemy.y - 55,
+                    combo + ' COMBO! x' + multiplier.toFixed(1),
+                    combo >= 10 ? '#ff6600' : combo >= 5 ? '#ffcc00' : '#00ffcc');
+            }
+            createDamageText(targetedEnemy.x, targetedEnemy.y-30, '+'+pts, '#00ffcc');
+
+            var idx = enemies.indexOf(targetedEnemy);
+            if (idx > -1) enemies.splice(idx, 1);
+            updateUI(); checkBossTriggers(prevScore);
         }
-        updateHUD();
+
+        targetedEnemy = null; isComposing = false; composedChar = '';
+        clearTimeout(inputResetTimer); inputResetTimer = null;
+        gameInput.blur(); gameInput.value = '';
+        requestAnimationFrame(function(){ gameInput.focus(); });
     }
 
-    /* ── 게임 오버 ── */
-    function gameOver() {
+    /* ── 비한글 키 차단 ── */
+    gameInput.addEventListener('keydown', function(e) {
+        if (!isPlaying) return;
+        var key = e.key;
+        // 백스페이스, 영문, 숫자, 특수문자 → 기본동작 차단 + 아무 이펙트 없이 리셋
+        var isBackspace = key === 'Backspace' || key === 'Delete';
+        var isEnglish   = /^[a-zA-Z]$/.test(key);
+        var isNumber    = /^[0-9]$/.test(key);
+        var isSpecial   = /^[^\uAC00-\uD7A3\u3131-\u314E\u314F-\u3163\s]$/.test(key) && key.length === 1;
+
+        if (isBackspace || isEnglish || isNumber || isSpecial) {
+            e.preventDefault();
+            // 백스페이스: IME 버퍼까지 강제 플러시하며 전체 삭제
+            if (isBackspace) {
+                targetedEnemy = null; reticle.charIndex = 0;
+                isComposing = false; composedChar = '';
+                clearTimeout(inputResetTimer); inputResetTimer = null;
+                gameInput.blur();
+                gameInput.value = '';
+                gameInput.setAttribute('type','password');
+                gameInput.setAttribute('type','text');
+                gameInput.value = '';
+                requestAnimationFrame(function(){ gameInput.value = ''; gameInput.focus(); });
+                return;
+            }
+            // 영문/숫자/특수문자: 조용히 리셋
+            if (gameInput.value.trim().length > 0) resetInput();
+        }
+    });
+
+    /* ── IME 이벤트 ── */
+    gameInput.addEventListener('compositionstart', function(){ isComposing = true; });
+    gameInput.addEventListener('compositionupdate', function(e){ composedChar = e.data || ''; });
+    gameInput.addEventListener('compositionend',   function(){ isComposing = false; composedChar = ''; });
+
+    gameInput.addEventListener('input', function(e) {
+        clearTimeout(inputResetTimer);
+        var currentVal = gameInput.value.trim();
+        var isDelete = e.inputType === 'deleteContentBackward'
+                    || e.inputType === 'deleteContentForward'
+                    || e.inputType === 'historyUndo';
+
+        if (isDelete) {
+            if (!currentVal) { targetedEnemy = null; reticle.charIndex = 0; }
+            else processInput(currentVal);
+            return;
+        }
+
+        var weaponRect = weaponSprite.getBoundingClientRect();
+        var canvasRect = canvas.getBoundingClientRect();
+        var muzzleX = weaponRect.left + weaponRect.width  / 2 - canvasRect.left;
+        var muzzleY = weaponRect.top  + 20 - canvasRect.top;
+
+        var anyMatch = (isBossMode && boss && !boss.satellites && boss.word.startsWith(currentVal))
+                    || (isBossMode && boss && boss.satellites && boss.satellites.some(function(s){ return s.word.startsWith(currentVal); }))
+                    || enemies.some(function(en){ return en.word.startsWith(currentVal); })
+                    || bossProjectiles.some(function(bp){ return bp.word.startsWith(currentVal); });
+
+        if (!anyMatch && currentVal.length > 0 && !isComposing) {
+            spawnHangeulParticle(muzzleX, muzzleY, currentVal.slice(-1)||'✕', '#ff3333');
+            resetInput(); return;
+        }
+
+        // 한글 여부 체크 (영문·숫자·특수문자면 이펙트 없이 리셋)
+        var lastChar = currentVal.slice(-1);
+        var isKorean = lastChar && /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(lastChar);
+
+        if (!isKorean && currentVal.length > 0 && !isComposing) {
+            resetInput(); return;
+        }
+
+        screenShake = 4;
+        var recoilClass = uiMode === 'center' ? 'recoil-center' : 'recoil';
+        weaponSprite.classList.remove('recoil','recoil-center');
+        void weaponSprite.offsetWidth;
+        weaponSprite.classList.add(recoilClass);
+
+        var charForParticle = isComposing ? (composedChar || currentVal.slice(-1)) : currentVal.slice(-1);
+        if (charForParticle) {
+            if (targetedEnemy) spawnHangeulParticle(targetedEnemy.x, targetedEnemy.y, charForParticle, '#00ffcc');
+            else spawnHangeulParticle(muzzleX, muzzleY, charForParticle, '#888');
+            spawnMuzzleParticle(muzzleX, muzzleY, charForParticle);
+        }
+
+        processInput(currentVal);
+
+        // 6글자 초과 시 즉시 리셋
+        if (currentVal.length > 6) {
+            resetInput(); return;
+        }
+
+        if (currentVal.length > 0) {
+            inputResetTimer = setTimeout(resetInput, 1000);
+        }
+    });
+
+    /* ── 보스 시스템 ── */
+
+    // 위성 초기화
+    function initSatellites(b) {
+        var used = [];
+        b.satellites = [0,1,2].map(function(i) {
+            var w;
+            do { w = satelliteWords[Math.floor(Math.random()*satelliteWords.length)]; } while (used.indexOf(w) > -1);
+            used.push(w);
+            return { word: w, angle: (Math.PI*2/3)*i, hp:1, hitFlash:0 };
+        });
+        b.satelliteRadius = b.displaySize + 55;
+    }
+
+    function hitSatellite(sat) {
+        sat.hitFlash = 1.0;
+        sat.hp--;
+        screenShake = 8;
+        if (sat.hp <= 0) {
+            score += 30;
+            createDamageText(boss.x, boss.y - boss.displaySize - 30, '위성 격파! +30', '#00ffcc');
+            boss.satellites.splice(boss.satellites.indexOf(sat), 1);
+            updateUI();
+            if (boss.satellites.length === 0) {
+                createDamageText(boss.x, boss.y - boss.displaySize - 50, '본체 개방!', '#ffffff');
+            }
+        }
+    }
+
+    function hitBoss() {
+        var b = boss;
+        // 위성이 남아있으면 본체 타격 불가
+        if (b.satellites && b.satellites.length > 0) {
+            createDamageText(b.x, b.y - b.displaySize - 10, '위성을 먼저!', '#ff6600');
+            return;
+        }
+        b.hp--;
+        createDamageText(b.x, b.y - b.displaySize - 10, 'HIT!', '#ffcc00');
+        b.hitFlash = 1.0;
+        b.hitShake = b.type === 'giant' ? 12 : b.type === 'special' ? 10 : 7;
+        screenShake = b.type === 'giant' ? 25 : b.type === 'special' ? 18 : 12;
+        sfxBossHit();
+
+        if (b.hp <= 0) {
+            var bonus = b.type === 'giant' ? 200 : b.type === 'special' ? 300 : 100;
+            var prevScoreB = score;
+            score += bonus;
+            var ec = b.type === 'giant' ? '#ff6600' : b.type === 'special' ? '#00ffcc' : '#ff0033';
+            for (var ei = 0; ei < 24; ei++) {
+                spawnHangeulParticle(b.x+(Math.random()-0.5)*100, b.y+(Math.random()-0.5)*100,
+                    b.word[Math.floor(Math.random()*b.word.length)], ec, true);
+            }
+            var msg = b.type === 'giant' ? '★ 타이탄 격파! ★' :
+                      b.type === 'special' ? '★ 코어 보스 격파! ★' : '레이더 격파!';
+            createDamageText(b.x, b.y - 50, msg, ec);
+            isBossMode = false; boss = null;
+            stopBossShooting(); bossProjectiles = []; borderPulse = 0;
+            // 보스 격파 보너스로 다음 보스 점수 구간 진입 시 트리거
+            setTimeout(function(){ checkBossTriggers(prevScoreB); }, 2000);
+        } else {
+            var tier = b.type === 'giant' ? 4 : b.type === 'special' ? 5 : 4;
+            b.word = words[tier][Math.floor(Math.random()*words[tier].length)];
+            // 특수보스: 타격마다 위성 재생성
+            if (b.type === 'special') initSatellites(b);
+        }
+        updateUI();
+    }
+
+    // 중간보스: 500, 1500, 2500... (500 + 1000*n)
+    // 거대보스: 750, 1750, 2750... (750 + 1000*n)
+    // 특수보스: 1000, 2000, 3000... (1000*n)
+    function checkBossTriggers(prevScore) {
+        if (isBossMode) return;
+
+        // 특수보스 우선 (1000의 배수)
+        var prevSpec = Math.floor(prevScore / 1000);
+        var currSpec = Math.floor(score     / 1000);
+        if (score >= 1000 && currSpec > prevSpec) {
+            triggerBoss('special'); return;
+        }
+
+        // 거대보스 (750 + 1000*n)
+        var prevGiant = Math.floor((prevScore - 750) / 1000);
+        var currGiant = Math.floor((score     - 750) / 1000);
+        if (score >= 750 && currGiant > prevGiant) {
+            triggerBoss('giant'); return;
+        }
+
+        // 중간보스 (500 + 1000*n)
+        var prevMini = Math.floor((prevScore - 500) / 1000);
+        var currMini = Math.floor((score     - 500) / 1000);
+        if (score >= 500 && currMini > prevMini) {
+            triggerBoss('mini');
+        }
+    }
+
+    /* ── 보스 발사체 ── */
+    var bossProjectiles = [];
+    var bossShootTimer  = null;
+
+    var PROJ_WORDS = ["파괴","충격","공습","돌파","차단","강습","폭발","침투","격파","타격","섬광","분쇄"];
+
+    function startBossShooting(type) {
+        clearInterval(bossShootTimer);
+        var count = type === 'giant' ? 2 : type === 'special' ? 2 : 1;
+
+        function tryShoot() {
+            if (!isBossMode || !boss) { clearInterval(bossShootTimer); return; }
+            // 이전 발사체가 남아있으면 발사 안 함
+            if (bossProjectiles.length > 0) return;
+
+            for (var i = 0; i < count; i++) {
+                (function(idx) {
+                    setTimeout(function() {
+                        if (!boss) return;
+                        var word = PROJ_WORDS[Math.floor(Math.random()*PROJ_WORDS.length)];
+                        var spread = (idx - (count-1)/2) * 60;
+                        bossProjectiles.push({
+                            x: boss.x + spread,
+                            y: boss.y + boss.displaySize,
+                            word: word,
+                            vy: 0.5 + Math.random()*0.3,
+                            vx: spread * 0.004,
+                            life: 1.0,
+                            color: boss.type === 'giant' ? '#ff9900' : '#ff4466',
+                            typed: 0
+                        });
+                    }, idx * 180);
+                })(i);
+            }
+        }
+
+        // 1초마다 체크 — 발사체 없으면 발사
+        bossShootTimer = setInterval(tryShoot, 1000);
+    }
+
+    function stopBossShooting() {
+        clearInterval(bossShootTimer);
+        bossShootTimer = null;
+    }
+
+    function activatePowerup(effect, label, x, y) {
+        createDamageText(x, y - 30, '★ ' + label + ' ★',
+            effect === 'shield' ? '#00ccff' : effect === 'slow' ? '#cc88ff' : '#ffcc00');
+
+        if (effect === 'shield') {
+            shield = Math.min(shield + 1, 3);
+        } else if (effect === 'slow') {
+            slowActive = true;
+            clearTimeout(slowTimer);
+            // 슬로우 중 모든 적 속도 절반
+            enemies.forEach(function(en){ en._origSpeed = en._origSpeed || en.speed; en.speed = en._origSpeed * 0.35; });
+            slowTimer = setTimeout(function(){
+                slowActive = false;
+                enemies.forEach(function(en){ if(en._origSpeed) { en.speed = en._origSpeed; en._origSpeed = null; } });
+                createDamageText(canvasW/2, canvasH*0.4, '슬로우 종료', '#cc88ff');
+            }, 4000);
+        } else if (effect === 'bomb') {
+            // 화면의 모든 일반 적 폭발
+            var bombed = enemies.filter(function(en){ return en.type !== 'powerup'; });
+            bombed.forEach(function(en){
+                for (var i = 0; i < 5; i++)
+                    spawnHangeulParticle(en.x + (Math.random()-0.5)*40, en.y + (Math.random()-0.5)*40,
+                        en.word[Math.floor(Math.random()*en.word.length)], '#ffcc00', true);
+            });
+            score += bombed.length * 10;
+            enemies = enemies.filter(function(en){ return en.type === 'powerup'; });
+            if (targetedEnemy && targetedEnemy.type !== 'powerup') targetedEnemy = null;
+            screenShake = 30;
+            createDamageText(canvasW/2, canvasH*0.4, '전체 폭발! +' + (bombed.length*10), '#ffcc00');
+            updateUI();
+        }
+    }
+
+    /* 화면 테두리 긴장감 */
+    var borderPulse = 0; // 0~1
+
+    function triggerBoss(type) {
+        isBossMode = true; enemies = []; targetedEnemy = null;
+        bossProjectiles = []; borderPulse = 1.0;
+
+        warningOverlay.style.display = 'block';
+        var wc = type==='giant' ? '#ff6600' : type==='special' ? '#00ffcc' : '#ff0033';
+        var wt = type==='giant' ? '⚠ 타이탄 보스 ⚠' : type==='special' ? '★ 코어 보스 ★' : '레이더 보스 출현!';
+        warningOverlay.style.fontSize   = type==='giant' ? '3.5rem' : type==='special' ? '3rem' : '2.8rem';
+        warningOverlay.style.color      = wc;
+        warningOverlay.style.textShadow = '0 0 30px ' + wc;
+        warningOverlay.innerText = wt;
+        setTimeout(function(){ warningOverlay.style.display = 'none'; }, 2500);
+
+        if (type === 'giant') {
+            // 타이탄 보스: 위성 없음, HP 6, 4글자
+            boss = { type:'giant', x:canvasW/2, y:-200, targetY:canvasH*0.28,
+                     hp:6, maxHp:6, word:words[4][Math.floor(Math.random()*words[4].length)],
+                     color:'#ff6600', displaySize:80, hitFlash:0, hitShake:0, angle:0 };
+        } else if (type === 'special') {
+            // 코어 보스: 위성 3개, HP 12, 5글자
+            boss = { type:'special', x:canvasW/2, y:-150, targetY:canvasH*0.25,
+                     hp:10, maxHp:10, word:words[5][Math.floor(Math.random()*words[5].length)],
+                     color:'#00ffcc', displaySize:60, hitFlash:0, hitShake:0, angle:0 };
+            initSatellites(boss);
+        } else {
+            // 레이더 보스: 위성 없음, HP 5, 4글자
+            boss = { type:'mini', x:canvasW/2, y:-100, targetY:canvasH*0.3,
+                     hp:5, maxHp:5, word:words[4][Math.floor(Math.random()*words[4].length)],
+                     color:'#ff0033', displaySize:44, hitFlash:0, hitShake:0, angle:0 };
+        }
+        setTimeout(function(){ if (isBossMode && boss) startBossShooting(type); }, 1500);
+    }
+
+    // 파워업 아이템 단어 (3글자 고정)
+    var POWERUP_ITEMS = [
+        { word:"방어막", effect:"shield",  color:"#00ccff", label:"실드+1" },
+        { word:"시간왜곡", effect:"slow",   color:"#cc88ff", label:"슬로우" },
+        { word:"폭격기", effect:"bomb",    color:"#ffcc00", label:"전체폭발" }
+    ];
+
+    function spawnEnemy() {
+        // 5% 확률로 파워업 아이템 (점수별 등장 제한)
+        if (Math.random() < 0.05 && !isBossMode) {
+            var available = [];
+            if (score >= 300)  available.push(POWERUP_ITEMS[0]); // 방어막
+            if (score >= 1000) available.push(POWERUP_ITEMS[1]); // 시간왜곡
+            if (score >= 2000) available.push(POWERUP_ITEMS[2]); // 폭격기
+            if (available.length === 0) return; // 조건 미충족 시 스킵
+            var item = available[Math.floor(Math.random()*available.length)];
+            enemies.push({
+                x: Math.random()*canvasW,
+                y: canvasH*HORIZON_Y_RATIO,
+                targetX: Math.random()*(canvasW*0.8)+(canvasW*0.1),
+                targetY: canvasH*1.1,
+                z: 0.05, word: item.word,
+                color: item.color,
+                speed: 0.0008,
+                type: 'powerup', effect: item.effect, label: item.label,
+                hitFlash:0, hitShake:0
+            });
+            return;
+        }
+
+        // 8% 확률로 긴급 단어 (score 300 이상부터)
+        var isUrgent = score >= 300 && Math.random() < 0.08;
+
+        var word;
+        var r = Math.random();
+        if (score < 100) {
+            word = words[2][Math.floor(Math.random()*words[2].length)];
+        } else if (score < 1000) {
+            word = r < 0.8
+                ? words[2][Math.floor(Math.random()*words[2].length)]
+                : words[3][Math.floor(Math.random()*words[3].length)];
+        } else if (score < 3000) {
+            word = r < 0.3
+                ? words[2][Math.floor(Math.random()*words[2].length)]
+                : words[3][Math.floor(Math.random()*words[3].length)];
+        } else if (score < 9000) {
+            word = r < 0.7
+                ? words[3][Math.floor(Math.random()*words[3].length)]
+                : words[4][Math.floor(Math.random()*words[4].length)];
+        } else {
+            word = r < 0.3
+                ? words[3][Math.floor(Math.random()*words[3].length)]
+                : words[4][Math.floor(Math.random()*words[4].length)];
+        }
+
+        var speedBase = 0.002 + Math.floor(Math.min(score, 9000)/500)*0.0002;
+        if (isUrgent) speedBase = 0.004; // 긴급: 기본속도 고정 (일반 기본속도의 2배), 점수 무관
+
+        if (isUrgent) sfxUrgent();
+
+        enemies.push({
+            x: Math.random()*canvasW,
+            y: canvasH*HORIZON_Y_RATIO,
+            targetX: Math.random()*(canvasW*0.8)+(canvasW*0.1),
+            targetY: canvasH*1.1,
+            z: 0.05, word: word,
+            color: isUrgent ? '#ff2244' : 'hsl('+(Math.random()*360)+',70%,70%)',
+            speed: speedBase,
+            type: isUrgent ? 'urgent' : 'normal',
+            hitFlash:0, hitShake:0
+        });
+    }
+
+    /* ── 게임 루프 ── */
+    var _hohoRafId = null;
+
+    function gameLoop() {
+        if (!isPlaying) return;
+        _hohoRafId = requestAnimationFrame(gameLoop);
+        ctx.save();
+        if (screenShake > 0) {
+            ctx.translate((Math.random()-0.5)*screenShake, (Math.random()-0.5)*screenShake);
+            screenShake *= 0.9;
+        }
+
+        ctx.fillStyle = '#050508';
+        ctx.fillRect(-50,-50,canvasW+100,canvasH+100);
+
+        var horizonY  = canvasH * HORIZON_Y_RATIO;
+        var deadlineY = canvasH * DEADLINE_Y_RATIO;
+
+        /* 배경 격자 */
+        flowOffset += 0.015; if (flowOffset > 1) flowOffset = 0;
+        ctx.strokeStyle = 'rgba(0,255,204,0.1)';
+        for (var i = 0; i <= 15; i++) {
+            var z = (i/15) + flowOffset*(1/15);
+            if (z > 1) z -= 1;
+            var ly = horizonY + (canvasH-horizonY)*Math.pow(z,2);
+            ctx.beginPath(); ctx.moveTo(0,ly); ctx.lineTo(canvasW,ly); ctx.stroke();
+        }
+
+        /* 보스 등장 테두리 긴장감 */
+        if (isBossMode && boss) {
+            borderPulse += 0.05;
+            var bColor = boss.type === 'giant' ? '255,102,0' : '255,0,51';
+            var bAlpha = (Math.sin(borderPulse * 4) * 0.5 + 0.5) * 0.7;
+            var bSize  = boss.type === 'giant' ? 18 : 12;
+            var bGrad  = ctx.createLinearGradient(0,0,0,canvasH);
+            bGrad.addColorStop(0,   'rgba('+bColor+','+bAlpha+')');
+            bGrad.addColorStop(0.3, 'rgba('+bColor+',0)');
+            bGrad.addColorStop(0.7, 'rgba('+bColor+',0)');
+            bGrad.addColorStop(1,   'rgba('+bColor+','+bAlpha+')');
+            // 좌우 테두리
+            ctx.fillStyle = bGrad;
+            ctx.fillRect(0, 0, bSize, canvasH);
+            ctx.fillRect(canvasW - bSize, 0, bSize, canvasH);
+            // 상단 테두리
+            var bGradH = ctx.createLinearGradient(0,0,canvasW,0);
+            bGradH.addColorStop(0,   'rgba('+bColor+','+bAlpha+')');
+            bGradH.addColorStop(0.3, 'rgba('+bColor+',0)');
+            bGradH.addColorStop(0.7, 'rgba('+bColor+',0)');
+            bGradH.addColorStop(1,   'rgba('+bColor+','+bAlpha+')');
+            ctx.fillStyle = bGradH;
+            ctx.fillRect(0, 0, canvasW, bSize);
+        }
+
+        /* 데드라인 */
+        ctx.strokeStyle = 'rgba(255,0,51,0.5)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(0,deadlineY); ctx.lineTo(canvasW,deadlineY); ctx.stroke();
+        ctx.lineWidth = 1;
+
+        /* ── 보스 렌더링 ── */
+        if (isBossMode && boss) {
+            boss.y += (boss.targetY - boss.y) * 0.04;
+            boss.angle = (boss.angle || 0) + (boss.type === 'giant' ? 0.008 : 0.015);
+
+            var bs = boss.displaySize;
+
+            // 피격 흔들림
+            boss.hitShake = (boss.hitShake || 0) * 0.8;
+            var bsx = boss.hitShake > 0.5 ? (Math.random()-0.5)*boss.hitShake : 0;
+            var bsy = boss.hitShake > 0.5 ? (Math.random()-0.5)*boss.hitShake : 0;
+
+            ctx.save();
+            ctx.translate(boss.x + bsx, boss.y + bsy);
+
+            // 거대보스 전용: 회전 외부 링들
+            if (boss.type === 'giant') {
+                for (var ri = 0; ri < 3; ri++) {
+                    var ra = boss.angle * (1 + ri*0.3);
+                    var rr = bs + 18 + ri * 18;
+                    ctx.save();
+                    ctx.rotate(ra);
+                    ctx.strokeStyle = 'rgba(255,' + (100+ri*50) + ',0,' + (0.6-ri*0.15) + ')';
+                    ctx.lineWidth = 3 - ri*0.8;
+                    ctx.shadowColor = '#ff6600'; ctx.shadowBlur = 12;
+                    ctx.setLineDash([12, 8]);
+                    ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI*2); ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.restore();
+                }
+            }
+
+            // 피격 플래시
+            boss.hitFlash = (boss.hitFlash || 0) * 0.8;
+            if (boss.hitFlash > 0.05) {
+                ctx.fillStyle = 'rgba(255,100,0,' + boss.hitFlash*0.5 + ')';
+                ctx.beginPath(); ctx.arc(0, 0, bs + 8, 0, Math.PI*2); ctx.fill();
+            }
+
+            // 본체 원 (중간보스: 단색, 거대보스: 그라디언트)
+            if (boss.type === 'giant') {
+                var grd = ctx.createRadialGradient(0, 0, bs*0.2, 0, 0, bs);
+                grd.addColorStop(0, '#ff9900');
+                grd.addColorStop(0.6, '#ff4400');
+                grd.addColorStop(1, '#880000');
+                ctx.fillStyle = grd;
+            } else {
+                ctx.fillStyle = boss.color;
+            }
+            ctx.shadowColor = boss.color; ctx.shadowBlur = boss.type === 'giant' ? 30 : 15;
+            ctx.beginPath(); ctx.arc(0, 0, bs, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // 중간보스 회전 십자선
+            if (boss.type === 'mini') {
+                ctx.save(); ctx.rotate(boss.angle);
+                ctx.strokeStyle = 'rgba(255,80,80,0.5)'; ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-bs*1.4, 0); ctx.lineTo(bs*1.4, 0);
+                ctx.moveTo(0, -bs*1.4); ctx.lineTo(0, bs*1.4);
+                ctx.stroke(); ctx.restore();
+            }
+
+            ctx.restore();
+
+            // ── 위성 렌더링 (거대보스/특수보스) ──
+            if (boss.satellites && boss.satellites.length > 0) {
+                boss.angle += 0.012; // 위성 공전
+                boss.satellites.forEach(function(sat) {
+                    var sa = boss.angle + sat.angle;
+                    var sx2 = boss.x + Math.cos(sa) * boss.satelliteRadius;
+                    var sy2 = boss.y + Math.sin(sa) * boss.satelliteRadius;
+                    sat._x = sx2; sat._y = sy2; // 타겟팅용 캐싱
+
+                    var isSatTarget = (targetedEnemy === sat);
+                    sat.hitFlash = (sat.hitFlash||0) * 0.8;
+
+                    ctx.save();
+                    // 위성 연결선
+                    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4,6]);
+                    ctx.beginPath(); ctx.moveTo(boss.x, boss.y); ctx.lineTo(sx2, sy2); ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // 피격 플래시
+                    if (sat.hitFlash > 0.05) {
+                        ctx.fillStyle = 'rgba(255,150,150,'+sat.hitFlash*0.7+')';
+                        ctx.beginPath(); ctx.arc(sx2, sy2, 26, 0, Math.PI*2); ctx.fill();
+                    }
+
+                    // 위성 원
+                    var satColor = boss.type === 'special' ? '#00ffcc' : '#ff9900';
+                    ctx.shadowColor = satColor; ctx.shadowBlur = isSatTarget ? 18 : 8;
+                    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                    ctx.beginPath(); ctx.arc(sx2, sy2, 22, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = satColor; ctx.lineWidth = isSatTarget ? 3 : 2;
+                    ctx.beginPath(); ctx.arc(sx2, sy2, 22, 0, Math.PI*2); ctx.stroke();
+                    ctx.shadowBlur = 0;
+
+                    // 위성 단어
+                    ctx.font = "bold 13px 'Noto Sans KR'";
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = isSatTarget ? '#00ffee' : '#ffffff';
+                    ctx.shadowColor = satColor; ctx.shadowBlur = 6;
+                    ctx.fillText(sat.word, sx2, sy2 - 28);
+                    ctx.shadowBlur = 0;
+                    ctx.restore();
+                });
+            }
+
+            // bFontSize 먼저 선언
+            var bFontSize = boss.type === 'giant' ? 36 : boss.type === 'special' ? 30 : 26;
+
+            // 보스 타입 라벨 (가장 위)
+            ctx.save();
+            ctx.font = 'bold 12px Orbitron';
+            ctx.fillStyle = boss.type === 'giant' ? '#ff9900' : boss.type === 'special' ? '#00ffcc' : '#ff4466';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = boss.type === 'giant' ? '#ff9900' : boss.type === 'special' ? '#00ffcc' : '#ff4466';
+            ctx.shadowBlur = 8;
+            ctx.fillText(
+                boss.type === 'giant'   ? '★ 타이탄 보스 ★' :
+                boss.type === 'special' ? '★ 코어 보스 ★' : '▶ 레이더 보스',
+                boss.x, boss.y - bs - bFontSize - 18);
+            ctx.shadowBlur = 0;
+            ctx.restore();
+
+            // 본체 단어 or 잠금 표시
+            if (boss.satellites && boss.satellites.length > 0) {
+                ctx.save();
+                ctx.font = (bs*0.8)+'px serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.globalAlpha = 0.6;
+                ctx.fillText('🔒', boss.x + bsx, boss.y + bsy);
+                ctx.textBaseline = 'alphabetic'; ctx.globalAlpha = 1;
+                ctx.restore();
+                ctx.font = "bold 12px 'Noto Sans KR'";
+                ctx.fillStyle = '#aaa'; ctx.textAlign = 'center';
+                ctx.fillText('위성 제거 후 공격 가능', boss.x, boss.y - bs - 6);
+            } else {
+                ctx.font = '900 ' + bFontSize + "px 'Noto Sans KR'";
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = boss.color; ctx.shadowBlur = 10;
+                ctx.fillText(boss.word, boss.x + bsx, boss.y - bs - 6);
+                ctx.shadowBlur = 0;
+            }
+
+            // HP 바
+            var barW = boss.type === 'giant' ? 160 : boss.type === 'special' ? 130 : 100;
+            var barH = boss.type === 'giant' ? 10 : 8;
+            ctx.fillStyle = '#222';
+            ctx.fillRect(boss.x - barW/2, boss.y + bs + 10, barW, barH);
+            var hpColor = boss.type === 'giant' ? '#ff6600' : boss.type === 'special' ? '#00ffcc' : '#ff0033';
+            ctx.fillStyle = hpColor;
+            ctx.fillRect(boss.x - barW/2, boss.y + bs + 10, (boss.hp/boss.maxHp)*barW, barH);
+            ctx.font = 'bold 11px Orbitron';
+            ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+            ctx.fillText(boss.hp + ' / ' + boss.maxHp, boss.x, boss.y + bs + 10 + barH + 14);
+        }
+
+        /* 적 */
+        for (var ei = enemies.length-1; ei >= 0; ei--) {
+            var en = enemies[ei];
+            en.z += en.speed;
+            en.x = canvasW/2 + (en.targetX-canvasW/2)*en.z;
+            en.y = horizonY  + (en.targetY-horizonY)*en.z;
+
+            if (en.y > deadlineY) {
+                // 파워업은 그냥 사라짐
+                if (en.type === 'powerup') { enemies.splice(ei,1); continue; }
+                // 실드 있으면 피해 무효
+                if (shield > 0) {
+                    shield--;
+                    createDamageText(canvasW/2, canvasH*0.5, '★ 실드 발동! ★', '#00ccff');
+                    enemies.splice(ei,1);
+                    if (targetedEnemy === en) targetedEnemy = null;
+                    continue;
+                }
+                var dmgAmt = en.type === 'urgent' ? 2 : 1;
+                lives -= dmgAmt; screenShake = 30;
+                combo = 0; clearTimeout(comboTimer); // 피격 시 콤보 리셋
+                sfxDamage();
+                updateUI();
+                enemies.splice(ei,1);
+                if (targetedEnemy === en) targetedEnemy = null;
+                if (lives <= 0) { isPlaying = false; showGameOver(); return; }
+                continue;
+            }
+
+            var size     = 9 + 36 * en.z;
+            var fontSize = 15 + 12 * en.z;
+            var isTarget = (targetedEnemy === en);
+            var typedLen = isTarget ? gameInput.value.trim().length : 0;
+
+            en.hitShake = (en.hitShake||0)*0.75;
+            var sx = en.hitShake > 0.5 ? (Math.random()-0.5)*en.hitShake : 0;
+            var sy = en.hitShake > 0.5 ? (Math.random()-0.5)*en.hitShake : 0;
+
+            ctx.save(); ctx.translate(sx,sy);
+            en.hitFlash = (en.hitFlash||0)*0.8;
+
+            // 이모지 선택
+            var emoji;
+            if      (en.type === 'powerup') emoji = en.effect === 'shield' ? '🛡️' : en.effect === 'slow' ? '⏱️' : '💣';
+            else if (en.type === 'urgent')  emoji = '😈';
+            else if (score < 1000)          emoji = '👾';
+            else if (score < 3000)          emoji = '🤖';
+            else                            emoji = '👻';
+
+            // 글로우 원 (배경)
+            var glowColor =
+                en.type === 'powerup' ? en.color :
+                en.type === 'urgent'  ? '#ff2244' :
+                en.color;
+
+            // 피격 플래시 링
+            if (en.hitFlash > 0.05) {
+                ctx.fillStyle = 'rgba(255,100,100,'+en.hitFlash*0.5+')';
+                ctx.beginPath(); ctx.arc(en.x,en.y,size+6,0,Math.PI*2); ctx.fill();
+            }
+
+            // 글로우 원
+            ctx.save();
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur  = isTarget ? 22 : 10;
+            ctx.fillStyle   = 'rgba(0,0,0,0.45)';
+            ctx.beginPath(); ctx.arc(en.x,en.y,size,0,Math.PI*2); ctx.fill();
+            // 컬러 테두리 링
+            ctx.strokeStyle = glowColor;
+            ctx.lineWidth   = isTarget ? 3 : 2;
+            ctx.beginPath(); ctx.arc(en.x,en.y,size,0,Math.PI*2); ctx.stroke();
+            ctx.restore();
+
+            // 이모지 (원 중앙)
+            ctx.save();
+            ctx.font = (size*1.3)+'px serif';
+            ctx.textAlign  = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = glowColor; ctx.shadowBlur = 8;
+            ctx.fillText(emoji, en.x, en.y);
+            ctx.textBaseline = 'alphabetic';
+            ctx.restore();
+
+            // 파워업: 점선 외곽 + ITEM 라벨
+            if (en.type === 'powerup') {
+                var pulse2 = Math.sin(Date.now()*0.008)*0.5+0.5;
+                ctx.save();
+                ctx.globalAlpha = 0.5 + pulse2*0.5;
+                ctx.strokeStyle = en.color; ctx.lineWidth = 2;
+                ctx.shadowColor = en.color; ctx.shadowBlur = 14;
+                ctx.setLineDash([5,4]);
+                ctx.beginPath(); ctx.arc(en.x,en.y,size+7,0,Math.PI*2); ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+                ctx.restore();
+            }
+
+            // 긴급: 깜빡 경고 링
+            if (en.type === 'urgent') {
+                var pulse3 = Math.sin(Date.now()*0.012)*0.5+0.5;
+                ctx.save();
+                ctx.strokeStyle = 'rgba(255,34,68,'+(0.4+pulse3*0.6)+')';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.arc(en.x,en.y,size+6+pulse3*4,0,Math.PI*2); ctx.stroke();
+                ctx.restore();
+            }
+
+            ctx.restore();
+
+            /* 글자 텍스트 — 이모지와 겹치지 않도록 원 위로 충분히 올림 */
+            var charWidth = fontSize * 1.05;
+            var baseX = en.x - en.word.length*charWidth/2;
+            var baseY = en.y - size - fontSize - 4;  // 원 상단 + 폰트 높이만큼 위
+
+            if (!en.charDamage || en.charDamage.length !== en.word.length)
+                en.charDamage = new Array(en.word.length).fill(0);
+            for (var ci = 0; ci < en.charDamage.length; ci++) en.charDamage[ci] *= 0.88;
+
+            for (var ci2 = 0; ci2 < en.word.length; ci2++) {
+                var ch  = en.word[ci2];
+                var cx  = baseX + ci2*charWidth + charWidth/2;
+                var dmg = en.charDamage[ci2]||0;
+
+                ctx.save(); ctx.textAlign = 'center';
+                ctx.font = 'bold '+fontSize+"px 'Noto Sans KR'";
+                ctx.fillStyle = isTarget ? '#00ffee' : '#ffffff';
+                ctx.globalAlpha = 1.0;
+                ctx.fillText(ch, cx, baseY);
+
+                if (dmg > 0.05) {
+                    var jx = dmg > 0.3 ? (Math.random()-0.5)*dmg*5 : 0;
+                    var jy = dmg > 0.3 ? (Math.random()-0.5)*dmg*3 : 0;
+                    ctx.globalAlpha = dmg*0.7;
+                    ctx.fillStyle = '#ff0000';
+                    ctx.shadowColor = '#ff2200'; ctx.shadowBlur = 16*dmg;
+                    ctx.font = '900 '+(fontSize*(1+dmg*0.15))+"px 'Noto Sans KR'";
+                    ctx.fillText(ch, cx+jx, baseY+jy);
+                    ctx.shadowBlur = 0;
+                    if (dmg > 0.7) {
+                        ctx.globalAlpha = (dmg-0.7)*2.5;
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(ch, cx, baseY);
+                    }
+                }
+                ctx.restore();
+            }
+        }
+
+        /* 총알 궤적 */
+        for (var si = slashEffects.length-1; si >= 0; si--) {
+            var s = slashEffects[si]; s.life -= 0.12;
+            if (s.life <= 0) { slashEffects.splice(si,1); continue; }
+            ctx.save(); ctx.globalAlpha = s.life*0.85;
+            ctx.strokeStyle = 'rgba(0,255,200,'+s.life+')';
+            ctx.lineWidth = 2*s.life; ctx.shadowColor = '#00ffcc'; ctx.shadowBlur = 8;
+            ctx.beginPath(); ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); ctx.stroke();
+            ctx.restore();
+        }
+
+        /* 히트 이펙트 */
+        for (var hi = hitEffects.length-1; hi >= 0; hi--) {
+            var h = hitEffects[hi]; h.life -= 0.06;
+            if (h.life <= 0) { hitEffects.splice(hi,1); continue; }
+            ctx.save(); ctx.globalAlpha = h.life;
+            if (h.type === 'ring') {
+                h.radius += 3;
+                ctx.strokeStyle = h.color; ctx.lineWidth = 2;
+                ctx.shadowColor = h.color; ctx.shadowBlur = 10;
+                ctx.beginPath(); ctx.arc(h.x,h.y,h.radius,0,Math.PI*2); ctx.stroke();
+            } else if (h.type === 'char') {
+                h.x += h.vx; h.y += h.vy; h.vy += 0.4; h.angle += h.rotation;
+                ctx.translate(h.x,h.y); ctx.rotate(h.angle);
+                ctx.font = '900 '+h.size+"px 'Noto Sans KR'";
+                ctx.fillStyle = h.color; ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 12;
+                ctx.textAlign = 'center'; ctx.fillText(h.char,0,0);
+            } else if (h.type === 'crack') {
+                h.x += h.vx*h.life; h.y += h.vy*h.life;
+                ctx.strokeStyle = h.color; ctx.lineWidth = 1.5;
+                ctx.shadowColor = h.color; ctx.shadowBlur = 6;
+                ctx.beginPath(); ctx.moveTo(h.x,h.y);
+                ctx.lineTo(h.x+Math.cos(h.angle)*h.length*h.life, h.y+Math.sin(h.angle)*h.length*h.life);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        /* 한글 파티클 */
+        for (var pi = hangeulParticles.length-1; pi >= 0; pi--) {
+            var p = hangeulParticles[pi];
+            p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.life -= 0.02; p.angle += p.rotation;
+            if (p.life <= 0) { hangeulParticles.splice(pi,1); continue; }
+            ctx.save(); ctx.globalAlpha = p.life; ctx.translate(p.x,p.y); ctx.rotate(p.angle);
+            ctx.font = '900 '+p.size+"px 'Noto Sans KR'"; ctx.fillStyle = p.color;
+            ctx.textAlign = 'center'; ctx.fillText(p.char,0,0); ctx.restore();
+        }
+
+        /* 데미지 텍스트 */
+        for (var di = damageTexts.length-1; di >= 0; di--) {
+            var dt = damageTexts[di]; dt.y += dt.vy; dt.life -= 0.02;
+            if (dt.life <= 0) { damageTexts.splice(di,1); continue; }
+            ctx.save(); ctx.globalAlpha = dt.life;
+            ctx.font = 'bold 20px Orbitron'; ctx.fillStyle = dt.color;
+            ctx.textAlign = 'center'; ctx.fillText(dt.text,dt.x,dt.y); ctx.restore();
+        }
+
+        /* ── 보스 발사체 ── */
+        for (var bpi = bossProjectiles.length-1; bpi >= 0; bpi--) {
+            var bp = bossProjectiles[bpi];
+            bp.x += bp.vx; bp.y += bp.vy;
+
+            // 데드라인 통과 = 피해
+            if (bp.y > deadlineY) {
+                bossProjectiles.splice(bpi, 1);
+                lives--; screenShake = 20; sfxDamage(); updateUI();
+                if (lives <= 0) { isPlaying = false; showGameOver(); return; }
+                continue;
+            }
+
+            var bpSize = 14;
+            // 발사체 본체 원
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(bp.x, bp.y, bpSize, 0, Math.PI*2);
+            var bpGrd = ctx.createRadialGradient(bp.x, bp.y, 2, bp.x, bp.y, bpSize);
+            bpGrd.addColorStop(0, '#ffffff');
+            bpGrd.addColorStop(0.4, bp.color);
+            bpGrd.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = bpGrd;
+            ctx.shadowColor = bp.color; ctx.shadowBlur = 14;
+            ctx.fill();
+            ctx.restore();
+
+            // 발사체 단어 — 보스 타입별 크기
+            ctx.save();
+            var bpFontSize = (isBossMode && boss && boss.type === 'giant') ? 20 : 16;
+            ctx.font = "bold " + bpFontSize + "px 'Noto Sans KR'";
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = bp.color; ctx.shadowBlur = 8;
+            ctx.fillText(bp.word, bp.x, bp.y - bpSize - 4);
+            ctx.restore();
+
+            // 꼬리 잔상
+            ctx.save();
+            ctx.strokeStyle = bp.color;
+            ctx.globalAlpha = 0.4;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = bp.color; ctx.shadowBlur = 6;
+            ctx.beginPath();
+            ctx.moveTo(bp.x, bp.y);
+            ctx.lineTo(bp.x - bp.vx*8, bp.y - bp.vy*8);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        /* 발사체와 입력 매칭 처리 (processInput 내에서 처리) */
+        var targetX = canvasW/2, targetY = canvasH/2;
+        if (targetedEnemy) {
+            var te = targetedEnemy;
+            if (te === boss) {
+                targetX = boss.x; targetY = boss.y;
+            } else if (boss && boss.satellites && boss.satellites.indexOf(te) > -1) {
+                targetX = te._x || boss.x;
+                targetY = (te._y || boss.y) - 28;
+            } else if (te.vy !== undefined) {
+                targetX = te.x; targetY = te.y - 20;
+            } else {
+                var ts = 9 + 36 * te.z;
+                var tf = 12 + 15 * te.z;
+                var tcw = tf * 1.05;
+                var tbx = te.x - te.word.length * tcw / 2;
+                var tIdx = Math.min(Math.max(0, gameInput.value.trim().length - 1), te.word.length - 1);
+                targetX = tbx + tIdx * tcw + tcw / 2;
+                var tf2 = 12 + 15 * te.z;
+                targetY = te.y - ts - tf2 - 4;
+            }
+        } else if (isBossMode && boss) {
+            targetX = boss.x; targetY = boss.y;
+        }
+        reticle.x += (targetX-reticle.x)*0.18;
+        reticle.y += (targetY-reticle.y)*0.18;
+
+        // ── 콤보 HUD ── 보스 등장 시 하단 좌측, 평상시 우측 상단
+        if (combo >= 2) {
+            var cMult = combo >= 10 ? 3.0 : combo >= 5 ? 2.0 : 1.5;
+            var cColor = combo >= 10 ? '#ff6600' : combo >= 5 ? '#ffcc00' : '#00ffcc';
+            ctx.save();
+            ctx.font = 'bold 16px Orbitron';
+            ctx.shadowColor = cColor; ctx.shadowBlur = 10;
+            ctx.fillStyle = cColor;
+            if (true) {
+                // 항상 우측 상단 고정
+                ctx.textAlign = 'right';
+                ctx.fillText(combo + ' COMBO  x' + cMult.toFixed(1), canvasW - 16, 75);
+            }
+            ctx.restore();
+        }
+
+        // ── 격파 페이스 HUD ──
+        if (paceAlpha > 0 && paceLabel) {
+            paceAlpha -= 0.018;
+            var pa = Math.min(paceAlpha, 1.0);
+            ctx.save();
+            ctx.globalAlpha = pa;
+            ctx.font = 'bold 18px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = paceColor;
+            ctx.shadowColor = paceColor; ctx.shadowBlur = 14;
+            ctx.fillText(paceLabel, canvasW / 2, 105);
+            ctx.restore();
+        }
+
+        // ── 실드 HUD ──
+        if (shield > 0) {
+            ctx.save();
+            ctx.font = 'bold 14px Orbitron';
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#00ccff';
+            ctx.shadowColor = '#00ccff'; ctx.shadowBlur = 8;
+            ctx.fillText('🛡 ' + shield, 20, 110);
+            ctx.restore();
+        }
+
+        // ── 슬로우 HUD ──
+        if (slowActive) {
+            ctx.save();
+            ctx.font = 'bold 13px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#cc88ff';
+            ctx.shadowColor = '#cc88ff'; ctx.shadowBlur = 8;
+            ctx.fillText('⏱ SLOW', canvasW/2, 75);
+            ctx.restore();
+        }
+
+        // 조준점 — 이전 이펙트 색상 번짐 방지를 위해 상태 완전 리셋
+        ctx.save();
+        ctx.globalAlpha = 1.0;
+        ctx.shadowBlur = 0;
+        ctx.setLineDash([]);
+        ctx.strokeStyle = '#00ffcc';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#00ffcc';
+        ctx.shadowBlur = targetedEnemy ? 12 : 4;
+        var r = targetedEnemy ? 7 : 12;
+        ctx.beginPath();
+        ctx.arc(reticle.x, reticle.y, r, 0, Math.PI*2);
+        ctx.moveTo(reticle.x-r-5, reticle.y); ctx.lineTo(reticle.x+r+5, reticle.y);
+        ctx.moveTo(reticle.x, reticle.y-r-5); ctx.lineTo(reticle.x, reticle.y+r+5);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.restore();
+    }
+
+    function showGameOver() {
+        // ── 모든 타이머/루프 완전 정리 ──
         isPlaying = false;
-        overlayScreen.style.display = 'flex';
+        if (_hohoRafId) { cancelAnimationFrame(_hohoRafId); _hohoRafId = null; }
+        clearInterval(window._hohoSpawnTimer); window._hohoSpawnTimer = null;
+        stopBossShooting();
+        clearTimeout(comboTimer);  comboTimer  = null;
+        clearTimeout(slowTimer);   slowTimer   = null;
+        clearTimeout(inputResetTimer); inputResetTimer = null;
+
+        // ── 메모리 정리 ──
+        enemies = []; hangeulParticles = []; damageTexts = [];
+        hitEffects = []; slashEffects = []; bossProjectiles = [];
+        targetedEnemy = null; boss = null; isBossMode = false;
+        combo = 0; shield = 0; slowActive = false; borderPulse = 0;
+        isComposing = false; composedChar = '';
+
+        // ── UI 전환 ──
         uiOverlay.style.display = 'none';
+        overlayScreen.style.display = 'flex';
+
+        // 모드 선택 숨기기 (다시하기엔 불필요)
+        document.getElementById('hoho-mode-selection').style.display = 'flex';
+
         document.getElementById('hoho-main-title').innerText = 'GAME OVER';
         document.getElementById('hoho-main-title').style.color = '#ff3300';
         document.getElementById('hoho-desc-text').innerText = '최종 점수: ' + score;
@@ -719,257 +1871,8 @@
         document.getElementById('hoho-save-btn').style.display = 'inline-block';
     }
 
-    /* ── 게임 루프 ── */
-    var lastTime = 0;
-    function gameLoop(ts) {
-        if (!isPlaying) return;
-        var dt = Math.min(ts - lastTime, 50);
-        lastTime = ts;
-        update(dt);
-        draw();
-        requestAnimationFrame(gameLoop);
-    }
-
-    function update(dt) {
-        flowOffset += 0.4;
-        if (screenShake > 0) screenShake -= 1.5;
-
-        var spd = slowActive ? 0.35 : 1;
-
-        /* 적 이동 */
-        for (var i = enemies.length - 1; i >= 0; i--) {
-            var e = enemies[i];
-            e.t += dt * 0.001 * spd;
-            e.wobble += 0.028 * spd;
-            e.y += e.speed * dt * spd * 0.55;
-            e.x += Math.sin(e.wobble) * e.wobbleAmp * 0.015;
-            e.x = Math.max(40, Math.min(canvasW - 40, e.x));
-            if (e.y > canvasH - 80) { enemyReachBottom(i); continue; }
-        }
-
-        /* 보스 이동 */
-        if (isBossMode && boss) {
-            boss.t += dt * 0.001;
-            boss.x = canvasW / 2 + Math.sin(boss.t * boss.speed) * (canvasW * 0.3);
-            if (boss.flashTimer > 0) boss.flashTimer--;
-        }
-
-        /* 파티클 */
-        for (var j = hangeulParticles.length - 1; j >= 0; j--) {
-            var p = hangeulParticles[j];
-            p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life -= 0.025;
-            if (p.life <= 0) hangeulParticles.splice(j, 1);
-        }
-        for (var k = hitEffects.length - 1; k >= 0; k--) {
-            hitEffects[k].life -= 0.07;
-            if (hitEffects[k].life <= 0) hitEffects.splice(k, 1);
-        }
-        for (var l = slashEffects.length - 1; l >= 0; l--) {
-            slashEffects[l].life -= 0.08;
-            if (slashEffects[l].life <= 0) slashEffects.splice(l, 1);
-        }
-        for (var m = damageTexts.length - 1; m >= 0; m--) {
-            damageTexts[m].y += damageTexts[m].vy;
-            damageTexts[m].life -= 0.018;
-            if (damageTexts[m].life <= 0) damageTexts.splice(m, 1);
-        }
-
-        /* 페이스 라벨 페이드 */
-        if (paceAlpha > 0) paceAlpha -= 0.012;
-
-        /* 타겟 자동 선택 */
-        if (enemies.length > 0 && !isBossMode) {
-            var closest = enemies.reduce(function(a, b) { return b.y > a.y ? b : a; });
-            targetedEnemy = closest;
-        } else {
-            targetedEnemy = null;
-        }
-    }
-
-    /* ── 드로우 ── */
-    function draw() {
-        var shx = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
-        var shy = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
-        ctx.save();
-        ctx.translate(shx, shy);
-
-        /* 배경 */
-        ctx.fillStyle = '#050508';
-        ctx.fillRect(0, 0, canvasW, canvasH);
-
-        /* 그리드 라인 */
-        ctx.strokeStyle = 'rgba(0,255,204,0.04)';
-        ctx.lineWidth = 1;
-        var gSize = 48;
-        var off = flowOffset % gSize;
-        for (var gx = -gSize + off; gx < canvasW + gSize; gx += gSize) {
-            ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvasH); ctx.stroke();
-        }
-        for (var gy = -gSize + off; gy < canvasH + gSize; gy += gSize) {
-            ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(canvasW, gy); ctx.stroke();
-        }
-
-        /* 바닥 위험선 */
-        var dangerY = canvasH - 85;
-        ctx.strokeStyle = 'rgba(255,0,51,0.25)';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([8, 6]);
-        ctx.beginPath(); ctx.moveTo(0, dangerY); ctx.lineTo(canvasW, dangerY); ctx.stroke();
-        ctx.setLineDash([]);
-
-        /* 적 렌더링 */
-        for (var i = 0; i < enemies.length; i++) {
-            var e = enemies[i];
-            var isTarget = (targetedEnemy === e);
-            var pulse = Math.sin(Date.now() * 0.004) * 0.15 + 0.85;
-
-            /* 실루엣 */
-            ctx.save();
-            ctx.translate(e.x, e.y);
-            var gs = ctx.createRadialGradient(0, 0, 4, 0, 0, 32);
-            gs.addColorStop(0, isTarget ? 'rgba(255,80,80,0.55)' : 'rgba(255,30,30,0.35)');
-            gs.addColorStop(1, 'rgba(255,0,0,0)');
-            ctx.fillStyle = gs;
-            ctx.beginPath(); ctx.arc(0, 0, 32, 0, Math.PI * 2); ctx.fill();
-
-            ctx.fillStyle = isTarget ? '#ff5555' : '#cc2222';
-            ctx.beginPath(); ctx.arc(0, -8, 10, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = isTarget ? '#ff8888' : '#993333';
-            ctx.fillRect(-8, 2, 16, 18);
-
-            /* 단어 */
-            ctx.shadowColor = isTarget ? '#ff4444' : '#ff0000';
-            ctx.shadowBlur = isTarget ? 14 : 6;
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold ' + (isTarget ? 15 : 13) + 'px Noto Sans KR';
-            ctx.textAlign = 'center';
-            ctx.fillText(e.word, 0, -26);
-            ctx.shadowBlur = 0;
-            ctx.restore();
-        }
-
-        /* 보스 렌더링 */
-        if (isBossMode && boss) {
-            var bFlash = boss.flashTimer > 0;
-            ctx.save();
-            ctx.translate(boss.x, boss.y);
-
-            var bg = ctx.createRadialGradient(0, 0, 10, 0, 0, 80);
-            bg.addColorStop(0, bFlash ? 'rgba(255,200,0,0.6)' : 'rgba(180,0,255,0.45)');
-            bg.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = bg;
-            ctx.beginPath(); ctx.arc(0, 0, 80, 0, Math.PI * 2); ctx.fill();
-
-            ctx.fillStyle = bFlash ? '#ffee00' : '#cc00ff';
-            ctx.beginPath(); ctx.arc(0, -15, 22, 0, Math.PI * 2); ctx.fill();
-            ctx.fillRect(-18, 8, 36, 40);
-
-            /* 보스 체력바 */
-            var bpW = 120, bpH = 10;
-            ctx.fillStyle = '#333';
-            ctx.beginPath(); ctx.roundRect(-bpW/2, -70, bpW, bpH, 5); ctx.fill();
-            ctx.fillStyle = bFlash ? '#ffd700' : '#cc00ff';
-            ctx.beginPath(); ctx.roundRect(-bpW/2, -70, bpW * (boss.hp / boss.maxHp), bpH, 5); ctx.fill();
-
-            ctx.shadowColor = '#cc00ff'; ctx.shadowBlur = 16;
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px Noto Sans KR';
-            ctx.textAlign = 'center';
-            ctx.fillText(boss.word, 0, -80);
-            ctx.shadowBlur = 0;
-            ctx.restore();
-
-            /* BOSS 경고 */
-            ctx.save();
-            ctx.globalAlpha = 0.55 + Math.sin(Date.now() * 0.006) * 0.2;
-            ctx.fillStyle = '#cc00ff';
-            ctx.font = 'bold 13px Orbitron, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('⚠ BOSS', canvasW / 2, 30);
-            ctx.restore();
-        }
-
-        /* 파티클 */
-        for (var j = 0; j < hangeulParticles.length; j++) {
-            var p = hangeulParticles[j];
-            ctx.save();
-            ctx.globalAlpha = p.life;
-            ctx.fillStyle = '#00ffcc';
-            ctx.font = 'bold ' + p.size + 'px Noto Sans KR';
-            ctx.textAlign = 'center';
-            ctx.fillText(p.ch, p.x, p.y);
-            ctx.restore();
-        }
-
-        /* 히트 이펙트 */
-        for (var k = 0; k < hitEffects.length; k++) {
-            var h = hitEffects[k];
-            ctx.save();
-            ctx.globalAlpha = h.life * 0.7;
-            ctx.strokeStyle = h.color;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(h.x, h.y, (1 - h.life) * 48 + 8, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.restore();
-        }
-
-        /* 슬래시 이펙트 */
-        for (var l = 0; l < slashEffects.length; l++) {
-            var sl = slashEffects[l];
-            ctx.save();
-            ctx.globalAlpha = sl.life * 0.8;
-            ctx.strokeStyle = '#00ffcc';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(sl.x - Math.cos(sl.angle) * sl.r, sl.y - Math.sin(sl.angle) * sl.r);
-            ctx.lineTo(sl.x + Math.cos(sl.angle) * sl.r, sl.y + Math.sin(sl.angle) * sl.r);
-            ctx.stroke();
-            ctx.restore();
-        }
-
-        /* 데미지 텍스트 */
-        for (var m = 0; m < damageTexts.length; m++) {
-            var dt2 = damageTexts[m];
-            ctx.save();
-            ctx.globalAlpha = dt2.life;
-            ctx.fillStyle = dt2.color;
-            ctx.shadowColor = dt2.color; ctx.shadowBlur = 8;
-            ctx.font = 'bold 15px Noto Sans KR';
-            ctx.textAlign = 'center';
-            ctx.fillText(dt2.text, dt2.x, dt2.y);
-            ctx.restore();
-        }
-
-        /* 콤보 표시 */
-        if (combo >= 3) {
-            ctx.save();
-            ctx.globalAlpha = 0.85;
-            ctx.fillStyle = combo >= 7 ? '#ffd700' : '#00ffcc';
-            ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 18;
-            ctx.font = 'bold ' + (16 + Math.min(combo, 10)) + 'px Orbitron, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText('COMBO ×' + combo, 16, canvasH - 105);
-            ctx.restore();
-        }
-
-        /* 페이스 라벨 */
-        if (paceAlpha > 0 && paceLabel) {
-            ctx.save();
-            ctx.globalAlpha = paceAlpha;
-            ctx.fillStyle = paceColor;
-            ctx.shadowColor = paceColor; ctx.shadowBlur = 12;
-            ctx.font = 'bold 14px Noto Sans KR';
-            ctx.textAlign = 'center';
-            ctx.fillText(paceLabel, canvasW / 2, canvasH * 0.22);
-            ctx.restore();
-        }
-
-        ctx.restore();
-    }
-
-    /* ── 결과 저장 ── */
     window.hohoSaveImage = function() {
+        // 캔버스에 결과 오버레이 그리기
         ctx.save();
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -987,19 +1890,23 @@
         ctx.font = Math.floor(canvas.width * 0.03) + 'px Noto Sans KR';
         ctx.fillText('호호타자FPS', canvas.width / 2, canvas.height * 0.62);
         ctx.restore();
+
+        // PC: a 태그 download로 바로 저장
         var a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
         a.download = '호호타자FPS_' + score + '점.png';
         a.click();
     };
 
+    /* ── 초기화 ── */
     initCanvas();
     window.addEventListener('resize', initCanvas);
     document.addEventListener('click', function(){ if (isPlaying) gameInput.focus(); });
-})();
-</script>
-<!-- ════════════════════ 호호타자FPS 게임 소스 끝 ════════════════════ -->
 
+})();
+
+</script>
+<!-- ════════════════════════════════════════════════════════════ -->
                 </div>
             </section>
 
@@ -1032,11 +1939,11 @@
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">단어 입력</span>
-                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">단어 타이핑 후 Enter</kbd>
+                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">단어 타이핑</kbd>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">콤보</span>
-                            <span class="font-bold text-slate-600">4초 내 연속 격파 시 콤보 보너스 점수</span>
+                            <span class="font-black text-xl text-slate-800">모드 선택</span>
+                            <span class="font-bold text-slate-600">왼손잡이 / 오른손잡이 배치 선택</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">보스</span>
@@ -1088,13 +1995,5 @@
             });
     </script>
 
-    <script>
-    (function() {
-        var gameEl = document.getElementById('hoho-fps-wrapper');
-        if (gameEl) {
-            gameEl.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-        }
-    })();
-    </script>
 </body>
 </html>
