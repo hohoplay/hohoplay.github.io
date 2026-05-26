@@ -118,7 +118,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260526133712_101d70d1">
+  <meta name="build-version" content="20260526135009_bcb3b31f">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -773,41 +773,15 @@
                 padding: 16px;
             `;
 
-            modal.innerHTML = \`
-                <div style="
-                    position: relative;
-                    width: 100%; max-width: 960px;
-                    background: #0f172a;
-                    border-radius: 20px;
-                    overflow: hidden;
-                    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-                    display: flex; flex-direction: column;
-                    max-height: 96vh;
-                ">
-                    <div style="
-                        display: flex; align-items: center; justify-content: space-between;
-                        padding: 14px 20px;
-                        background: #1e293b;
-                        border-bottom: 1px solid #334155;
-                        flex-shrink: 0;
-                    ">
-                        <span style="color:#e2e8f0; font-weight:900; font-size:1rem; letter-spacing:-0.3px;">🎮 \${name}</span>
-                        <button onclick="closeGameModal()" style="
-                            background: #ef4444; color: #fff;
-                            border: none; border-radius: 8px;
-                            width: 32px; height: 32px;
-                            font-size: 1.1rem; font-weight: 900;
-                            cursor: pointer; line-height: 1;
-                        ">✕</button>
-                    </div>
-                    <iframe
-                        src="\${file}"
-                        style="width:100%; flex:1; border:none; min-height:600px; max-height:calc(96vh - 56px);"
-                        allowfullscreen
-                        title="\${name}"
-                    ></iframe>
-                </div>
-            \`;
+            modal.innerHTML = [
+                '<div style="position:relative;width:100%;max-width:960px;background:#0f172a;border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.8);display:flex;flex-direction:column;max-height:96vh;">',
+                  '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#1e293b;border-bottom:1px solid #334155;flex-shrink:0;">',
+                    '<span style="color:#e2e8f0;font-weight:900;font-size:1rem;">🎮 ' + name + '</span>',
+                    '<button onclick="closeGameModal()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;width:32px;height:32px;font-size:1.1rem;font-weight:900;cursor:pointer;line-height:1;">✕</button>',
+                  '</div>',
+                  '<iframe src="' + file + '?iframe=1" style="width:100%;flex:1;border:none;min-height:600px;max-height:calc(96vh - 56px);" allowfullscreen title="' + name + '"></iframe>',
+                '</div>'
+            ].join('');
 
             // 배경 클릭으로 닫기
             modal.addEventListener('click', function(e) {

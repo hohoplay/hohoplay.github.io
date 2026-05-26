@@ -449,6 +449,22 @@
     .hh-char-icon { width: 40px; height: 40px; }
 }
     </style>
+    <style id="iframe-hide-style"></style>
+    <script>
+    (function() {
+        if (new URLSearchParams(window.location.search).get('iframe') === '1') {
+            document.getElementById('iframe-hide-style').textContent = [
+                'nav, #footer-placeholder { display: none !important; }',
+                '.page-transition > div:first-child { display: none !important; }',  /* 게임헤더 */
+                '.page-transition > div:last-child { display: none !important; }',   /* 탭패널 */
+                'body { background: #111 !important; }',
+                'main { padding: 4px 0 0 0 !important; max-width: 100% !important; }',
+                '.page-transition { gap: 0 !important; }',
+                'section { margin: 0 !important; }'
+            ].join('');
+        }
+    })();
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
