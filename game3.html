@@ -83,7 +83,6 @@
                 <div class="overflow-hidden w-full flex justify-center">
                     <!-- ↓↓↓ 하늘비 게임 소스 삽입됨 ↓↓↓ -->
 <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 /* ===== 하늘비 게임 삽입 스타일 ===== */
 #sky-game-wrapper {
     position: relative;
@@ -96,7 +95,7 @@
 
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
-        #sky-game-wrapper, #sky-game-wrapper * { box-sizing: border-box; }
+        #sky-game-wrapper, #sky-game-wrapper #sky-game-wrapper, #sky-game-wrapper * { box-sizing: border-box; }
 
         /* body styles scoped to game wrapper */
         #sky-game-wrapper {
@@ -1024,6 +1023,7 @@
     <input type="text" id="input-field" autocomplete="off" autofocus>
 
     <script>
+(function() {
         /**
          * Web Audio API Engine
          */
@@ -1756,7 +1756,7 @@
         // ── 타이틀 화면 ──
         let selectedSpeedMult = 1.0; // 기본 1x
 
-        function selectSpeed(btn) {
+        window.selectSpeed = function(btn) {
             document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('selected'));
             // 같은 data-mult 값을 가진 모든 버튼 선택
             const mult = btn.dataset.mult;
@@ -1764,7 +1764,7 @@
             selectedSpeedMult = parseFloat(mult);
         }
 
-        function startFromTitle() {
+        window.startFromTitle = function() {
             const titleScreen = document.getElementById('title-screen');
             titleScreen.style.opacity = '0';
             titleScreen.style.transition = 'opacity 0.5s ease';
@@ -1819,7 +1819,13 @@
             SoundEngine.playType(100); 
         }
 
-        window.onload = () => { init(); };
+        // 즉시 init 실행 (SPA 재로드 대응)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+})();
         </script>
 </div>
 <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->
