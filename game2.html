@@ -33,20 +33,20 @@
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
-    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <a href="index.html" class="flex items-center gap-3 cursor-pointer">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
-                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+            <div class="flex justify-between h-14 items-center">
+                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer group">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-violet-100 text-violet-600 ml-1">호야속담</span>
                 </a>
-                <div class="hidden md:flex space-x-10">
-                    <a href="index.html" class="text-slate-600 hover:text-indigo-600 font-bold transition">전체게임</a>
-                    <a href="index.html#about" class="text-slate-600 hover:text-indigo-600 font-bold transition">소개</a>
-                    <a href="index.html#blog" class="text-slate-600 hover:text-indigo-600 font-bold transition">커뮤니티</a>
-                    <a href="index.html#guide" class="text-slate-600 hover:text-indigo-600 font-bold transition">고객지원</a>
+                <div class="flex items-center gap-1 sm:gap-4">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">전체게임</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">커뮤니티</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">고객지원</a>
                 </div>
-
             </div>
         </div>
     </nav>
@@ -87,6 +87,9 @@
             <section>
                 <div class="overflow-hidden w-full flex justify-center">
                     <!-- ↓↓↓ 이 주석을 지우고 게임 소스를 여기에 삽입하세요 ↓↓↓ -->
+  <!DOCTYPE html>
+<html lang="ko">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>속담 타자왕 - 200제</title>
@@ -270,6 +273,8 @@
             .question-area { height: 130px; }
         }
     </style>
+</head>
+<body>
 
 <div class="proverb-game-wrapper">
     <div id="game-container">
@@ -616,6 +621,8 @@
     });
 </script>
 
+</body>
+</html>
                     <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->
 </div><!-- /game-wrapper-outer -->
                 </div>
