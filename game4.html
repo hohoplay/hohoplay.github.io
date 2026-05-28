@@ -395,18 +395,19 @@
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
-    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-3 cursor-pointer">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
-                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+            <div class="flex justify-between h-14 items-center">
+                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer group">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 ml-1">호호타자FPS</span>
                 </a>
-                <div class="hidden md:flex space-x-10">
-                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">전체게임</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">소개</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">커뮤니티</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">고객지원</a>
+                <div class="flex items-center gap-1 sm:gap-4">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">전체게임</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">커뮤니티</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">고객지원</a>
                 </div>
             </div>
         </div>
@@ -447,368 +448,6 @@
             </div>
 
             <!-- 게임 영역 -->
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Noto+Sans+KR:wght@700;900&display=swap');
-
-#hoho-fps-container {
-    display: block;
-    width: 100%;
-    max-width: 420px;
-    margin: 40px auto;
-    font-family: 'Noto Sans KR', sans-serif;
-    line-height: 1;
-}
-
-#hoho-fps-wrapper {
-    position: relative;
-    width: 100%;
-    height: 700px;
-    background-color: #050508;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.85);
-    border: 2px solid #2a2a2a;
-    touch-action: none;
-}
-
-#hoho-gameCanvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-/* ── 오버레이 화면 ── */
-#hoho-overlay-screen {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(10, 15, 25, 0.96);
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    z-index: 100;
-    color: #fff;
-    text-align: center;
-    padding: 20px;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-}
-
-#hoho-main-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2.2rem;
-    color: #00ffcc;
-    margin: 0 0 10px 0;
-    text-shadow: 0 0 15px rgba(0,255,204,0.5);
-}
-
-#hoho-desc-text {
-    color: #aaa;
-    font-size: 0.95rem;
-    margin: 0 0 20px 0;
-}
-
-/* ── 모드 선택 (캐릭터 선택 카드) ── */
-#hoho-mode-selection {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: row;
-    flex-direction: row;
-    gap: 20px;
-    margin-top: 24px;
-    justify-content: center;
-}
-
-.hoho-mode-btn {
-    width: 130px;
-    padding: 18px 10px 16px;
-    background: rgba(255,255,255,0.04);
-    border: 2px solid #333;
-    border-radius: 16px;
-    color: #aaa;
-    cursor: pointer;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 0.85rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    -webkit-transition: all 0.25s;
-    transition: all 0.25s;
-    position: relative;
-}
-
-.hoho-mode-btn .mode-icon {
-    font-size: 2.4rem;
-    line-height: 1;
-}
-
-.hoho-mode-btn .mode-name {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #ddd;
-}
-
-.hoho-mode-btn .mode-desc {
-    font-size: 0.72rem;
-    color: #666;
-    line-height: 1.4;
-    text-align: center;
-}
-
-.hoho-mode-btn.active {
-    background: rgba(0,255,204,0.10);
-    border-color: #00ffcc;
-    color: #fff;
-    -webkit-box-shadow: 0 0 24px rgba(0,255,204,0.35);
-    box-shadow: 0 0 24px rgba(0,255,204,0.35);
-}
-
-.hoho-mode-btn.active .mode-name {
-    color: #00ffcc;
-}
-
-.hoho-mode-btn.active::after {
-    content: '✔ 선택됨';
-    position: absolute;
-    bottom: -13px;
-    left: 50%; transform: translateX(-50%);
-    font-size: 0.68rem;
-    color: #00ffcc;
-    white-space: nowrap;
-    font-family: 'Noto Sans KR', sans-serif;
-}
-
-.hoho-mode-btn:hover:not(.active) {
-    border-color: #555;
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-}
-
-/* ── 시작 버튼 ── */
-#hoho-start-btn {
-    margin-top: 46px;
-    padding: 16px 50px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 40px;
-    font-weight: 900;
-    font-size: 1.2rem;
-    cursor: pointer;
-    font-family: 'Orbitron', sans-serif;
-    -webkit-transition: -webkit-transform 0.1s;
-    transition: transform 0.1s;
-}
-
-#hoho-start-btn:hover {
-    -webkit-transform: scale(1.04);
-    transform: scale(1.04);
-}
-
-#hoho-save-btn {
-    margin-top: 10px;
-    padding: 11px 36px;
-    background: transparent;
-    color: #00ffcc;
-    border: 1.5px solid #00ffcc;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    cursor: pointer;
-    font-family: 'Orbitron', sans-serif;
-    display: none;
-    -webkit-transition: all 0.2s;
-    transition: all 0.2s;
-}
-#hoho-save-btn:hover {
-    background: rgba(0,255,204,0.12);
-    -webkit-transform: scale(1.04);
-    transform: scale(1.04);
-}
-
-#hoho-warning-overlay {
-    position: absolute;
-    top: 50%; left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    color: #ff0033;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 3rem;
-    font-weight: 900;
-    text-shadow: 0 0 20px #ff0033;
-    display: none;
-    z-index: 50;
-    pointer-events: none;
-    -webkit-animation: hoho-blink 0.5s infinite alternate;
-    animation: hoho-blink 0.5s infinite alternate;
-}
-
-@-webkit-keyframes hoho-blink { from { opacity: 0.2; } to { opacity: 1; } }
-@keyframes hoho-blink          { from { opacity: 0.2; } to { opacity: 1; } }
-
-/* ── UI 오버레이 ── */
-#hoho-ui-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    display: none;
-}
-
-#hoho-score-display {
-    position: absolute;
-    top: 25px;
-    width: 100%;
-    text-align: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
-    color: #00ffcc;
-    text-shadow: 0 0 10px rgba(0,255,204,0.5);
-    margin: 0;
-}
-
-#hoho-hp-display {
-    position: absolute;
-    top: 75px;
-    left: 25px;
-    font-size: 1.5rem;
-    -webkit-filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
-    filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
-}
-
-#hoho-hp-display.ui-right { left: auto; right: 25px; }
-#hoho-hp-display.ui-center { left: 25px; }
-
-/* ── 입력창 ── */
-#hoho-input-area {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    width: 85%;
-    pointer-events: auto;
-    z-index: 10;
-}
-
-#hoho-game-input {
-    width: 100%;
-    padding: 16px;
-    background: rgba(0,0,0,0.85);
-    border: 2px solid #00ffcc;
-    border-radius: 16px;
-    color: #fff;
-    font-size: 1.3rem;
-    text-align: center;
-    outline: none;
-    font-family: 'Noto Sans KR', sans-serif;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    /* 티스토리 기본 input 스타일 초기화 */
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-}
-
-/* ── 무기 스프라이트 ── */
-#hoho-weapon-sprite {
-    position: absolute;
-    bottom: 0;
-    width: 180px;
-    height: 220px;
-    pointer-events: none;
-    z-index: 5;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    -webkit-box-align: end;
-    -ms-flex-align: end;
-    align-items: flex-end;
-}
-
-#hoho-weapon-sprite.weapon-right  { right: 0; left: auto; -webkit-transform: none; transform: none; }
-#hoho-weapon-sprite.weapon-left   { left: 0;  right: auto; -webkit-transform: none; transform: none; }
-#hoho-weapon-sprite.weapon-center { left: 50%; right: auto; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
-
-.hoho-weapon-body {
-    position: relative;
-    width: 60px;
-    height: 120px;
-    background: -webkit-linear-gradient(left, #1a1a1a, #333, #1a1a1a);
-    background: linear-gradient(to right, #1a1a1a, #333, #1a1a1a);
-    border-radius: 10px 10px 0 0;
-    border: 2px solid #444;
-}
-
-.hoho-weapon-barrel {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    width: 24px;
-    height: 60px;
-    background: #111;
-    border: 2px solid #333;
-    border-radius: 4px;
-}
-
-.hoho-weapon-glow {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    width: 4px;
-    height: 40px;
-    background: #00ffcc;
-    -webkit-box-shadow: 0 0 10px #00ffcc;
-    box-shadow: 0 0 10px #00ffcc;
-    border-radius: 2px;
-}
-
-/* ── 반동 애니메이션 ── */
-@-webkit-keyframes hoho-fire-recoil {
-    0%   { -webkit-transform: translateY(0);    transform: translateY(0); }
-    20%  { -webkit-transform: translateY(15px); transform: translateY(15px); }
-    100% { -webkit-transform: translateY(0);    transform: translateY(0); }
-}
-@keyframes hoho-fire-recoil {
-    0%   { -webkit-transform: translateY(0);    transform: translateY(0); }
-    20%  { -webkit-transform: translateY(15px); transform: translateY(15px); }
-    100% { -webkit-transform: translateY(0);    transform: translateY(0); }
-}
-@-webkit-keyframes hoho-fire-recoil-center {
-    0%   { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
-    20%  { -webkit-transform: translateX(-50%) translateY(15px); transform: translateX(-50%) translateY(15px); }
-    100% { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
-}
-@keyframes hoho-fire-recoil-center {
-    0%   { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
-    20%  { -webkit-transform: translateX(-50%) translateY(15px); transform: translateX(-50%) translateY(15px); }
-    100% { -webkit-transform: translateX(-50%) translateY(0);    transform: translateX(-50%) translateY(0); }
-}
-
-#hoho-weapon-sprite.recoil        { -webkit-animation: hoho-fire-recoil 0.1s ease-out; animation: hoho-fire-recoil 0.1s ease-out; }
-#hoho-weapon-sprite.recoil-center { -webkit-animation: hoho-fire-recoil-center 0.1s ease-out; animation: hoho-fire-recoil-center 0.1s ease-out; }
-</style>
             <section>
                 <div class="overflow-hidden w-full flex justify-center">
 <!-- ════════ 호호타자FPS 원본 소스 (hoho-fps-tistory.html) ════════ -->
@@ -995,8 +634,7 @@
     /* ── 캔버스 초기화 ── */
     function initCanvas() {
         var rect = canvas.getBoundingClientRect();
-        canvasW = rect.width  || canvas.offsetWidth  || 420;
-        canvasH = rect.height || canvas.offsetHeight || 700;
+        canvasW = rect.width;  canvasH = rect.height;
         canvas.width = canvasW; canvas.height = canvasH;
         reticle.x = canvasW / 2; reticle.y = canvasH / 2;
     }
@@ -2278,7 +1916,7 @@
     };
 
     /* ── 초기화 ── */
-    requestAnimationFrame(function() { initCanvas(); });
+    initCanvas();
     window.addEventListener('resize', initCanvas);
     document.addEventListener('click', function(){ if (isPlaying) gameInput.focus(); });
 
