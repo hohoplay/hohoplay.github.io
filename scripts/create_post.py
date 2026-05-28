@@ -3553,92 +3553,157 @@ def _omnibus_bridge(
     best_time_label, avoid_action, z_signal
 ) -> str:
     """
-    개선된 브릿지 — 시간대 이유+행동+목표 명확히, 감정공감+실행팁 균형
+    소설처럼 흐르는 브릿지 — 카드박스/이모지 없이 산문으로 자연스럽게 연결
+    시간대 조언도 본문 흐름 안에 녹아들게
     """
-    import random as _random
     zb = f"<b style='color:#5b21b6'>{z_kr}</b>"
     cb = f"<b style='color:#b45309'>{c_kr}</b>"
+    tb = f"<b style='color:#0369a1'>{theme}</b>"
 
-    # _CONNECT_MAP에서 해당 별자리 스토리 찾기
+    # _CONNECT_MAP 스토리
     story = ""
     for row in _CONNECT_MAP:
         if row[0] == z_kr and row[2] == theme:
             story = row[3]
             break
     if not story:
-        story = f"{zb}와 {cb}, 오늘 함께 나아가는 날이에요."
+        story = f"{zb}와 {cb}, 오늘 같은 흐름 위에 서 있어요."
 
     # 요일별 시간 가이드
     from datetime import datetime, timezone, timedelta
+    from datetime import date as _date
     _KST = timezone(timedelta(hours=9))
-    _dow = datetime.now(_KST).weekday()
+    _now = datetime.now(_KST)
+    _dow = _now.weekday()
     tg = _IMPROVED_TIME_GUIDE.get(_dow, _IMPROVED_TIME_GUIDE[0])
     time_label  = tg["label"]
     time_why    = tg["why"]
     time_action = tg["action"]
     time_goal   = tg["goal"]
 
-    # 궁합
-    compat_str = (
-        f"오늘 {zb}·{cb} 모두 "
-        f"<b style='color:#d97706'>{z_compatible}</b>이나 "
-        f"<b style='color:#059669'>{c_best}</b>와 대화가 잘 풀려요. "
-        f"<b style='color:#dc2626'>{c_avoid}</b>와 감정적인 대화는 오늘 저녁 이후로 미루는 게 낫습니다."
+    # 인라인 하이라이트 스타일
+    def hl_time(t):   return f"<b style='color:#2563eb'>{t}</b>"
+    def hl_warn(t):   return f"<b style='color:#dc2626'>{t}</b>"
+    def hl_item(t):   return f"<b style='color:#059669'>{t}</b>"
+    def hl_compat(t): return f"<b style='color:#7c3aed'>{t}</b>"
+
+    # 시간대를 산문 안에 녹인 문장들
+    time_prose_a = (
+        f"{hl_time(time_label)}이 오늘 가장 중요한 시간이에요. "
+        f"{time_why} "
+        f"{time_action}"
     )
-    item_str  = f"오늘 <b style='color:#059669'>{z_item}</b>을 가까이 두거나, <b style='color:#7c3aed'>{z_color}</b> 소품 하나를 챙겨보세요."
-    avoid_str = f"오늘 <b style='color:#dc2626'>{avoid_action}</b>은 잠깐 내려놓는 게 좋아요."
+    time_prose_b = (
+        f"오늘 {hl_time(time_label)}을 잘 쓰는 게 핵심이에요. "
+        f"{time_why} "
+        f"{time_action}"
+    )
+    time_prose_c = (
+        f"시간 얘기를 먼저 할게요. {hl_time(time_label)}, 이 시간을 붙잡으세요. "
+        f"{time_why} {time_action}"
+    )
 
-    TIME_CARD = f"""<div style="background:#eff6ff;border-radius:10px;padding:12px 14px;font-size:13px;color:#1e3a8a;line-height:1.85;border-left:3px solid #3b82f6">
-⏰ <b>오늘 {time_label}이 핵심이에요.</b><br>
-{time_why}<br>
-→ {time_action}
-</div>"""
+    # 목표 문장 (산문 마무리로)
+    goal_prose = f"오늘 딱 하나만 기억하세요. {time_goal}"
 
-    GOAL_CARD = f"""<div style="background:#f0fdf4;border-radius:10px;padding:12px 14px;font-size:13px;color:#166534;line-height:1.85;border-left:3px solid #16a34a">
-🎯 <b>오늘의 한 가지:</b> {time_goal}
-</div>"""
+    # 궁합 산문
+    compat_prose = (
+        f"오늘 {hl_compat(z_compatible)}이나 {hl_compat(c_best)}와 나누는 대화가 "
+        f"의외로 좋은 방향을 열어줄 수 있어요. "
+        f"반대로 {hl_warn(c_avoid)}와 감정이 섞인 이야기는 오늘 저녁 이후로 미뤄두는 게 나아요."
+    )
 
-    ACTION_CARD = f"""<div style="background:#fef9c3;border-radius:10px;padding:12px 14px;font-size:13px;color:#78350f;line-height:1.85;border-left:3px solid #f59e0b">
-💡 <b>지금 당장 할 수 있는 것:</b><br>
-{time_action}<br>
-최적 시간: <b>{time_label}</b>
-</div>"""
+    # 행운 산문
+    item_prose = (
+        f"오늘 {hl_item(z_item)}을 가까이 두거나 "
+        f"{hl_item(z_color)} 소품 하나를 챙겨보세요. "
+        f"작은 것인데 하루가 조금 달라지거든요."
+    )
 
-    WARN_CARD = f"""<div style="background:#fef2f2;border-radius:10px;padding:12px 14px;font-size:13px;color:#b91c1c;line-height:1.85;border-left:3px solid #dc2626">
-⚠️ {avoid_str}
-</div>"""
+    # 피해야 할 것 산문
+    avoid_prose = (
+        f"오늘 {hl_warn(avoid_action)}은 잠깐 내려놓는 게 좋아요. "
+        f"그게 오늘 가장 현명한 선택 중 하나예요."
+    )
 
-    LUCKY_CARD = f"""<div style="background:#fef3c7;border-radius:10px;padding:12px 14px;font-size:13px;color:#92400e;line-height:1.85;border-left:3px solid #f59e0b">
-🍀 {item_str}
-</div>"""
-
+    # ── 12가지 산문 패턴 (카드박스 없이 흐르듯이) ──
     patterns = [
-        # 0: 감정 → 시간 카드 → 목표
-        f"{story}<br><br>{TIME_CARD}<br>{GOAL_CARD}",
-        # 1: 시간 카드 먼저 → 감정 → 목표
-        f"오늘 {zb}와 {cb}한테 먼저 시간 얘기부터 할게요.<br><br>{TIME_CARD}<br>{story}<br><br>{GOAL_CARD}",
-        # 2: 실행 팁 먼저 → 감정 → 목표
-        f"오늘 {zb}와 {cb}, 핵심부터 말할게요.<br><br>{ACTION_CARD}<br>{story}<br><br>{GOAL_CARD}",
-        # 3: 감정 → 왜 이 시간 → 목표
-        f"{story}<br><br>그 흐름에서 오늘 가장 중요한 시간이 있어요.<br><br>{TIME_CARD}<br>{GOAL_CARD}",
-        # 4: 테마 → 감정 → 시간+궁합
-        f"오늘 {zb}와 {cb}를 관통하는 키워드는 '<b>{theme}</b>'이에요.<br><br>{story}<br><br>{TIME_CARD}<br><div style='margin-top:10px;font-size:13px;color:#555;line-height:1.85'>{compat_str}</div>",
-        # 5: 행운 팁 → 감정 → 시간+목표
-        f"오늘 {zb}와 {cb}에게 팁부터요.<br><br>{LUCKY_CARD}<br>{story}<br><br>{TIME_CARD}<br>{GOAL_CARD}",
-        # 6: 피해야 할 것 → 감정 → 실행
-        f"오늘 {zb}와 {cb}, 하나만 비켜가면 나머지는 다 괜찮아요.<br><br>{WARN_CARD}<br>{story}<br><br>{GOAL_CARD}",
-        # 7: 띠 중심 → 별자리 연결 → 시간 카드
-        f"오늘 {cb}의 흐름이 이런 장면을 만들고 있어요.<br><br>{c_core}<br><br>그 흐름이 {zb}와 만나면 더 선명해져요. {z_core}<br><br>{TIME_CARD}<br>{GOAL_CARD}",
-        # 8: 위로 → 실행 카드 → 궁합
-        f"오늘 무거운 분들을 위해 {zb}와 {cb}가 이렇게 말해요.<br><br>{story}<br><br>{ACTION_CARD}<br><div style='margin-top:10px;font-size:13px;color:#555;line-height:1.85'>{compat_str}</div>",
-        # 9: 관계 포커스 → 시간 카드 → 목표
-        f"오늘 {zb}와 {cb}가 겹치는 지점은 '사람'이에요.<br><br>{story}<br><br>{TIME_CARD}<br>{GOAL_CARD}",
-        # 10: 긍정 → 타이밍 강조 → 목표
-        f"오늘 {zb}와 {cb}한테 예상보다 좋은 흐름이 있어요.<br><br>{story}<br><br><div style='background:#fef9c3;border-radius:10px;padding:12px 14px;font-size:13px;color:#78350f;line-height:1.85;border-left:3px solid #f59e0b'>💡 <b>오늘 놓치면 아까운 타이밍: {time_label}</b><br>{time_why}<br>→ {time_action}</div><br>{GOAL_CARD}",
-        # 11: 마무리형 → 감정 → 실행 카드
-        f"마지막으로 {zb}와 {cb}인 분들께.<br><br>{story}<br><br>{TIME_CARD}<br>{GOAL_CARD}",
+
+        # 0: 스토리 → 시간대 자연 연결 → 마무리
+        f"{story}<br><br>"
+        f"{time_prose_a} "
+        f"{goal_prose}",
+
+        # 1: 시간 먼저 → 스토리 → 마무리
+        f"오늘 {zb}와 {cb}, 시간 얘기부터 할게요.<br><br>"
+        f"{time_prose_c}<br><br>"
+        f"{story}<br><br>"
+        f"{goal_prose}",
+
+        # 2: 스토리 → 흐름 전환 → 시간 → 마무리
+        f"{story}<br><br>"
+        f"그 흐름에서 오늘 딱 하나, 놓치지 말아야 할 시간이 있어요. "
+        f"{time_prose_b} "
+        f"{goal_prose}",
+
+        # 3: 테마 → 스토리 → 시간 → 궁합
+        f"오늘 {zb}와 {cb}를 관통하는 흐름은 {tb}이에요.<br><br>"
+        f"{story}<br><br>"
+        f"{time_prose_a}<br><br>"
+        f"{compat_prose}",
+
+        # 4: 스토리 → 피해야 할 것 → 시간 → 마무리
+        f"{story}<br><br>"
+        f"{avoid_prose}<br><br>"
+        f"그리고 {time_prose_b} "
+        f"{goal_prose}",
+
+        # 5: 행운 아이템 → 스토리 → 시간
+        f"오늘 {zb}와 {cb}에게 먼저 작은 팁 하나. "
+        f"{item_prose}<br><br>"
+        f"{story}<br><br>"
+        f"{time_prose_a} "
+        f"{goal_prose}",
+
+        # 6: 띠 중심 → 별자리 연결 → 시간
+        f"오늘 {cb}의 흐름이 이런 장면을 그리고 있어요. "
+        f"{c_core}<br><br>"
+        f"그 흐름이 {zb}와 만나면 더 선명해져요. {z_core}<br><br>"
+        f"{time_prose_c} "
+        f"{goal_prose}",
+
+        # 7: 스토리 → 시간 → 궁합 → 마무리
+        f"{story}<br><br>"
+        f"{time_prose_a}<br><br>"
+        f"{compat_prose} "
+        f"{goal_prose}",
+
+        # 8: 공감 오프닝 → 스토리 → 시간
+        f"오늘 {zb}와 {cb}인 분들, 잠깐 이야기 들어보실게요?<br><br>"
+        f"{story}<br><br>"
+        f"{time_prose_b} "
+        f"{goal_prose}",
+
+        # 9: 스토리 → 행운 → 시간 → 마무리
+        f"{story}<br><br>"
+        f"{item_prose}<br><br>"
+        f"그리고 {time_prose_a} "
+        f"{goal_prose}",
+
+        # 10: 긍정 → 스토리 → 시간 → 피해야 할 것
+        f"오늘 {zb}와 {cb}한테 예상보다 좋은 흐름이 있어요.<br><br>"
+        f"{story}<br><br>"
+        f"{time_prose_c} "
+        f"{avoid_prose}",
+
+        # 11: 마무리형 — 스토리 → 시간 → 궁합
+        f"마지막으로 {zb}와 {cb}인 분들께.<br><br>"
+        f"{story}<br><br>"
+        f"{time_prose_a}<br><br>"
+        f"{compat_prose}",
     ]
     return patterns[idx % len(patterns)]
+
 
 def build_omnibus_post(today_str: str) -> tuple:
     """
