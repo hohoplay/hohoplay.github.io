@@ -1027,6 +1027,21 @@ def get_week_range():
 def get_month():
     return now_kst().strftime("%Y년 %m월")
 
+def get_next_month_str():
+    """마지막주 월요일 or FORCE_MONTHLY → 다음달, 그 외 → 이번달"""
+    import calendar as _c
+    from datetime import date as _date
+    t = now_kst()
+    _last = _c.monthrange(t.year, t.month)[1]
+    _last_mon = max(d for d in range(1, _last+1)
+                    if _date(t.year, t.month, d).weekday() == 0)
+    force = os.environ.get("FORCE_MONTHLY","false").lower() == "true"
+    if t.day == _last_mon or force:
+        nm = t.month % 12 + 1
+        ny = t.year + (1 if t.month == 12 else 0)
+        return f"{ny}년 {nm:02d}월"
+    return t.strftime("%Y년 %m월")
+
 # ─────────────────────────────────────────
 # 공통 CSS
 # ─────────────────────────────────────────
@@ -1359,7 +1374,7 @@ def site_link():
     return f"""
 <div class="game-link">
     <p>🎮 {msg}</p>
-    <a href="https://hoholog.github.io/">{btn}</a>
+    <a href="https://hohoplay.github.io/">{btn}</a>
 </div>"""
 
 # ─────────────────────────────────────────
@@ -2822,7 +2837,7 @@ def build_zodiac_weekly_post(today_str):
 
 def build_chinese_monthly_post(today_str):
     """띠별 월간운세 12개 개별 발행 — 매월 1일 / v2 구조"""
-    month_str = get_month()
+    month_str = get_next_month_str()
     results   = []
 
     # ── v2 CSV 로드 ──
@@ -3930,6 +3945,16 @@ def main():
     force_weekly  = os.environ.get("FORCE_WEEKLY",  "false").lower() == "true"
     force_monthly = os.environ.get("FORCE_MONTHLY", "false").lower() == "true"
 
+    # 매월 마지막주 월요일 계산 (다음 달 띠별월간 미리 발행)
+    import calendar as _cal
+    from datetime import date as _date2
+    _last_day   = _cal.monthrange(kst_now.year, kst_now.month)[1]
+    _last_monday = max(
+        d for d in range(1, _last_day + 1)
+        if _date2(kst_now.year, kst_now.month, d).weekday() == 0
+    )
+    is_last_monday = (kst_now.day == _last_monday)
+
     # ④ 별자리 주간운세 — 매주 월요일 or 강제 실행
     if kst_now.weekday() == 0 or force_weekly:
         posts.extend(build_zodiac_weekly_post(today_str))
@@ -3938,17 +3963,17 @@ def main():
     else:
         print("📅 주간운세 스킵 (월요일 아님)")
 
-    # ⑤ 띠별 월간운세 — 매월 1일 or 강제 실행
-    if kst_now.day == 1 or force_monthly:
+    # ⑤ 띠별 월간운세 — 매월 마지막주 월요일(다음달 버전) or FORCE_MONTHLY
+    if is_last_monday or force_monthly:
         posts.extend(build_chinese_monthly_post(today_str))
-        label = "강제 포함" if force_monthly and kst_now.day != 1 else "1일"
+        label = "강제 포함" if force_monthly and not is_last_monday else "마지막주 월요일"
         print(f"📅 띠별 월간운세 12개 포함 ({label})")
     else:
-        print("📅 월간운세 스킵 (1일 아님)")
+        print("📅 월간운세 스킵 (마지막주 월요일 아님)")
 
     total = len(posts)
     weekly  = " + 별자리주간 12" if kst_now.weekday() == 0 else ""
-    monthly = " + 띠별월간 12"   if kst_now.day == 1        else ""
+    monthly = " + 띠별월간 12"   if (is_last_monday or force_monthly) else ""
     count   = 28 + (12 if kst_now.weekday() == 0 else 0) + (12 if kst_now.day == 1 else 0)
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
     print(f"구성: 오늘의명언 1 + 별자리 12 + 띠 12 + SNS통합 2 + 별과띠가만나는시간 1{weekly}{monthly} = {count}개\n")
