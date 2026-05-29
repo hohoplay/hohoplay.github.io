@@ -36,7 +36,7 @@
     <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-14 items-center">
-                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer group">
+                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer">
                     <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
                     <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
                     <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-pink-100 text-pink-600 ml-1">호야하늘비타자</span>
@@ -100,7 +100,7 @@
 
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        #sky-game-wrapper, #sky-game-wrapper #sky-game-wrapper, #sky-game-wrapper * { box-sizing: border-box; }
 
         /* body styles scoped to game wrapper */
         #sky-game-wrapper {
@@ -1028,6 +1028,7 @@
     <input type="text" id="input-field" autocomplete="off" autofocus>
 
     <script>
+(function() {
         /**
          * Web Audio API Engine
          */
@@ -1760,7 +1761,7 @@
         // ── 타이틀 화면 ──
         let selectedSpeedMult = 1.0; // 기본 1x
 
-        function selectSpeed(btn) {
+        window.selectSpeed = function(btn) {
             document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('selected'));
             // 같은 data-mult 값을 가진 모든 버튼 선택
             const mult = btn.dataset.mult;
@@ -1768,7 +1769,7 @@
             selectedSpeedMult = parseFloat(mult);
         }
 
-        function startFromTitle() {
+        window.startFromTitle = function() {
             const titleScreen = document.getElementById('title-screen');
             titleScreen.style.opacity = '0';
             titleScreen.style.transition = 'opacity 0.5s ease';
@@ -1823,8 +1824,9 @@
             SoundEngine.playType(100); 
         }
 
-        window.onload = () => { init(); };
-        </script>
+        if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(init);});}else{requestAnimationFrame(init);}
+        })();
+</script>
 </div>
 <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->
 </div><!-- /game-wrapper-outer -->
