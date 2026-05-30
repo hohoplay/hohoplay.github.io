@@ -483,19 +483,18 @@ canvas {
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
-    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-14 items-center">
-                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
-                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-600 ml-1">호호레이싱</span>
+            <div class="flex justify-between h-20 items-center">
+                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-3 cursor-pointer">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
+                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
                 </a>
-                <div class="flex items-center gap-1 sm:gap-4">
-                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">전체게임</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">소개</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">커뮤니티</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">고객지원</a>
+                <div class="hidden md:flex space-x-10">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">전체게임</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">커뮤니티</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="text-slate-600 hover:text-indigo-600 font-bold transition">고객지원</a>
                 </div>
             </div>
         </div>
@@ -990,6 +989,38 @@ canvas {
     font-size: 1.5rem;
   }
 }
+
+/* ── 모바일 좌우 터치 버튼 ── */
+#touch-left-btn, #touch-right-btn {
+  display: none;
+  position: absolute;
+  bottom: 12px;
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 50;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-tap-highlight-color: transparent;
+}
+#touch-left-btn:active, #touch-right-btn:active {
+  background: rgba(255,255,255,0.4);
+}
+#touch-left-btn  { left: 12px; }
+#touch-right-btn { right: 12px; }
+@media (pointer: coarse) {
+  #touch-left-btn, #touch-right-btn { display: flex; }
+}
 </style>
             <section>
                 <div class="overflow-hidden w-full flex justify-center">
@@ -997,6 +1028,9 @@ canvas {
 <div id="game-container">
   <div id="canvas-wrapper">
     <canvas id="gameCanvas" width="560" height="750"></canvas>
+    <!-- 모바일 좌우 터치 버튼 -->
+    <button id="touch-left-btn" ontouchstart="window._touchBtnLeft(true)" ontouchend="window._touchBtnLeft(false)" onmousedown="window._touchBtnLeft(true)" onmouseup="window._touchBtnLeft(false)">◀</button>
+    <button id="touch-right-btn" ontouchstart="window._touchBtnRight(true)" ontouchend="window._touchBtnRight(false)" onmousedown="window._touchBtnRight(true)" onmouseup="window._touchBtnRight(false)">▶</button>
     <div id="fever-bar-container">
       <div id="fever-bar-fill"></div>
     </div>
@@ -1047,6 +1081,9 @@ canvas {
         </div>
         <button id="restart-button" class="btn-pastel btn-restart">
           🏎️ 다시 도전하기
+        </button>
+        <button id="newgame-button" class="btn-pastel btn-restart" style="margin-top:8px;background:linear-gradient(135deg,#94a3b8,#64748b);font-size:0.9rem;">
+          🔄 새로 하기
         </button>
       </div>
     </div>
@@ -1919,6 +1956,25 @@ function initGame() {
     }
   };
 
+  // 새로하기 버튼 (처음부터 완전 리셋)
+  var newGameBtn = document.getElementById('newgame-button');
+  if (newGameBtn) {
+    newGameBtn.onclick = function() {
+      gameActive = false;
+      if (animationId) cancelAnimationFrame(animationId);
+      stopBGM();
+      objects = []; warnings = []; activeTruckCount = 0;
+      score = 0; hp = 3; hasShield = false; boostTimer = 0;
+      frameCount = 0; currentLanes = 3; feverBarFill.style.width = '0%';
+      gameOverScreen.classList.add('hidden');
+      loadingScreen.classList.remove('hidden');
+      setTimeout(function() {
+        loadingScreen.classList.add('hidden');
+        startGame();
+      }, 800);
+    };
+  }
+
   restartBtn.onclick = function() {
     if (restartBtn.disabled) return;
     restartBtn.disabled = true;
@@ -2136,6 +2192,16 @@ function startGame() {
   });
 
   window._holdInterval = holdInterval;
+
+  // 모바일 좌우 버튼 핸들러
+  window._touchBtnLeft = function(on) {
+    keys.left = on;
+    if (on) keys.right = false;
+  };
+  window._touchBtnRight = function(on) {
+    keys.right = on;
+    if (on) keys.left = false;
+  };
   window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
 
   if (animationId) cancelAnimationFrame(animationId);

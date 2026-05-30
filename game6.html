@@ -1075,6 +1075,7 @@
         </div>
 
         <button id="hh-restart-btn" class="hh-btn hh-btn-dark">↺ 다시 시작</button>
+        <button id="hh-newgame-btn" class="hh-btn hh-btn-dark" style="margin-top:8px;background:#374151;font-size:0.85rem;padding:10px 20px;">🔄 새로 하기</button>
     </div>
 
 </div><!-- #hh-wrap -->
@@ -1257,7 +1258,7 @@ var PRICE_INC  = 50;
 var MAG_BASE   = 180;
 var DUR_7S     = 420;
 var MAX_MAG    = 1260;
-var COIN_PROB  = 0.4;
+var COIN_PROB  = 0.2;
 var BIG_PROB   = 0.05;
 var SCORE_MOD  = 0.1;
 var MAX_PARTS  = 80;
@@ -1950,6 +1951,26 @@ btnRestart.addEventListener('click', function() {
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
 });
+
+// 새로하기: 코인·업그레이드·기록 완전 초기화 후 처음부터
+var btnNewGame = document.getElementById('hh-newgame-btn');
+if (btnNewGame) {
+    btnNewGame.addEventListener('click', function() {
+        SS.set('hohorun_coins', '0');
+        SS.set('hohorun_best', '0');
+        SS.set('hohorun_upgrades', '');
+        totalCoins = 0;
+        highScore = 0;
+        upgrades = { speed:{level:0,gauge:0}, coin:{level:0,gauge:0}, magnet:{level:0,gauge:0}, reviveCount:0 };
+        updateShop();
+        snd.bgmStart();
+        scrOver.style.display = 'none';
+        resetGame(false);
+        active = true;
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(loop);
+    });
+}
 btnRevive.addEventListener('click', function() {
     if (upgrades.reviveCount > 0) {
         upgrades.reviveCount--;
