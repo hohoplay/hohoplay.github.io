@@ -3576,11 +3576,13 @@ def _omnibus_bridge(
     z_kr, z_core, c_kr, c_core, theme, idx,
     z_item, z_color, z_lucky_num,
     z_compatible, c_best, c_avoid,
-    best_time_label, avoid_action, z_signal
+    best_time_label, avoid_action, z_signal,
+    z_contact_time='', z_contact_reason='',
+    c_peak_time='', c_peak_tip='', c_low_time='', c_low_tip=''
 ) -> str:
     """
     소설처럼 흐르는 브릿지 — 카드박스/이모지 없이 산문으로 자연스럽게 연결
-    시간대 조언도 본문 흐름 안에 녹아들게
+    📱 연락 올 가능성 높은 시간 + ⏰ 띠별 시간대 흐름 자연스럽게 녹여냄
     """
     zb = f"<b style='color:#5b21b6'>{z_kr}</b>"
     cb = f"<b style='color:#b45309'>{c_kr}</b>"
@@ -3596,8 +3598,43 @@ def _omnibus_bridge(
         story = f"{zb}와 {cb}, 오늘 같은 흐름 위에 서 있어요."
 
     # 조합별 시간 가이드 — 요일 고정 반복 방지
-    # idx(별자리×띠 조합 순서)로 풀에서 선택 → 12쌍 각각 다른 시간대
     tg = _TIME_POOL[idx % len(_TIME_POOL)]
+
+    # 📱 연락 시간대 산문 (별자리)
+    if z_contact_time and z_contact_reason:
+        contact_prose = (
+            f"오늘 {zb}한테 연락이 올 가능성이 높은 시간은 "
+            f"{hl_time(z_contact_time)}이에요. "
+            f"{z_contact_reason}"
+        )
+    else:
+        contact_prose = ""
+
+    # ⏰ 띠별 시간대 흐름 산문
+    if c_peak_time and c_peak_tip:
+        peak_prose = (
+            f"{cb}는 {hl_time(c_peak_time)}이 오늘 가장 잘 돌아가는 시간이에요. "
+            f"{c_peak_tip}"
+        )
+    else:
+        peak_prose = ""
+
+    if c_low_time and c_low_tip:
+        low_prose = (
+            f"반대로 {hl_time(c_low_time)}엔 잠깐 속도를 줄이는 게 맞아요. "
+            f"{c_low_tip}"
+        )
+    else:
+        low_prose = ""
+
+    # 연락+흐름 합산 산문
+    time_flow_prose = ""
+    if peak_prose:
+        time_flow_prose += peak_prose
+    if low_prose:
+        time_flow_prose += "<br>" + low_prose
+    if contact_prose:
+        time_flow_prose += "<br><br>" + contact_prose
     time_label  = tg["label"]
     time_why    = tg["why"]
     time_action = tg["action"]
@@ -3651,22 +3688,25 @@ def _omnibus_bridge(
     # ── 12가지 산문 패턴 (카드박스 없이 흐르듯이) ──
     patterns = [
 
-        # 0: 스토리 → 시간대 자연 연결 → 마무리
+        # 0: 스토리 → 시간 흐름 → 연락 시간
         f"{story}<br><br>"
         f"{time_prose_a} "
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + (f"<br><br>{time_flow_prose}" if time_flow_prose else ""),
 
-        # 1: 시간 먼저 → 스토리 → 마무리
+        # 1: 시간 먼저 → 스토리 → 흐름 → 마무리
         f"오늘 {zb}와 {cb}, 시간 얘기부터 할게요.<br><br>"
         f"{time_prose_c}<br><br>"
         f"{story}<br><br>"
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + (f"<br><br>{time_flow_prose}" if time_flow_prose else ""),
 
-        # 2: 스토리 → 흐름 전환 → 시간 → 마무리
+        # 2: 스토리 → 시간 → 띠 흐름 → 마무리
         f"{story}<br><br>"
         f"그 흐름에서 오늘 딱 하나, 놓치지 말아야 할 시간이 있어요. "
         f"{time_prose_b} "
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + (f"<br><br>{time_flow_prose}" if time_flow_prose else ""),
 
         # 3: 테마 → 스토리 → 시간 → 궁합
         f"오늘 {zb}와 {cb}를 관통하는 흐름은 {tb}이에요.<br><br>"
@@ -3694,11 +3734,11 @@ def _omnibus_bridge(
         f"{time_prose_c} "
         f"{goal_prose}",
 
-        # 7: 스토리 → 시간 → 궁합 → 마무리
+        # 7: 스토리 → 흐름 → 연락 시간 → 궁합
         f"{story}<br><br>"
         f"{time_prose_a}<br><br>"
-        f"{compat_prose} "
-        f"{goal_prose}",
+        + (f"{time_flow_prose}<br><br>" if time_flow_prose else "")
+        + f"{compat_prose} {goal_prose}",
 
         # 8: 공감 오프닝 → 스토리 → 시간
         f"오늘 {zb}와 {cb}인 분들, 잠깐 이야기 들어보실게요?<br><br>"
