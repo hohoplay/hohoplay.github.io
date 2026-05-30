@@ -376,7 +376,7 @@
 }
 .hh-gauge-seg.on { background: #fbbf24; box-shadow: 0 0 4px rgba(251,191,36,0.5); }
 .hh-buy-btn {
-    background: #3b82f6;
+    background: #3b82f6; /* 기본값, 클래스로 override */
     color: #fff;
     padding: 5px 10px;
     border-radius: 8px;
@@ -393,7 +393,11 @@
 }
 .hh-buy-btn:hover { background: #2563eb; }
 .hh-buy-btn:active { transform: scale(0.94); }
-.hh-buy-btn:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; opacity: 0.7; }
+.hh-buy-btn:disabled { background: #374151 !important; color: #9ca3af !important; cursor: not-allowed; opacity: 0.7; }
+.hh-buy-btn.blue { background: #3b82f6; }
+.hh-buy-btn.blue:hover:not(:disabled) { background: #2563eb; }
+.hh-buy-btn.red  { background: #ef4444; }
+.hh-buy-btn.red:hover:not(:disabled)  { background: #dc2626; }
 .hh-buy-btn.maxed { background: #1f2937; color: #6b7280; }
 
 /* ============================================
@@ -893,7 +897,7 @@
 }
 .hh-gauge-seg.on { background: #fbbf24; box-shadow: 0 0 4px rgba(251,191,36,0.5); }
 .hh-buy-btn {
-    background: #3b82f6;
+    background: #3b82f6; /* 기본값, 클래스로 override */
     color: #fff;
     padding: 5px 10px;
     border-radius: 8px;
@@ -910,7 +914,11 @@
 }
 .hh-buy-btn:hover { background: #2563eb; }
 .hh-buy-btn:active { transform: scale(0.94); }
-.hh-buy-btn:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; opacity: 0.7; }
+.hh-buy-btn:disabled { background: #374151 !important; color: #9ca3af !important; cursor: not-allowed; opacity: 0.7; }
+.hh-buy-btn.blue { background: #3b82f6; }
+.hh-buy-btn.blue:hover:not(:disabled) { background: #2563eb; }
+.hh-buy-btn.red  { background: #ef4444; }
+.hh-buy-btn.red:hover:not(:disabled)  { background: #dc2626; }
 .hh-buy-btn.maxed { background: #1f2937; color: #6b7280; }
 
 /* ============================================
@@ -1340,14 +1348,16 @@ function updateShop() {
 
     /* 스킬 타이틀 */
     if (selColor === '#60a5fa') {
-        elSkillTitle.style.color   = '#93c5fd';
-        btnSpeed.style.background  = '#3b82f6';
-        elSkillTitle.innerHTML     = '이동 속도 (Lv.<span id="hh-lv-speed">' + upgrades.speed.level + '</span>)';
+        elSkillTitle.style.color = '#93c5fd';
+        btnSpeed.classList.remove('red');  btnSpeed.classList.add('blue');
+        elSkillTitle.innerHTML   = '이동 속도 (Lv.<span id="hh-lv-speed">' + upgrades.speed.level + '</span>)';
     } else {
-        elSkillTitle.style.color   = '#fca5a5';
-        btnSpeed.style.background  = '#ef4444';
-        elSkillTitle.innerHTML     = '버섯 확률 (Lv.<span id="hh-lv-speed">' + upgrades.speed.level + '</span>)';
+        elSkillTitle.style.color = '#fca5a5';
+        btnSpeed.classList.remove('blue'); btnSpeed.classList.add('red');
+        elSkillTitle.innerHTML   = '버섯 확률 (Lv.<span id="hh-lv-speed">' + upgrades.speed.level + '</span>)';
     }
+    // 인라인 style 초기화 (이전에 직접 지정된 배경색 제거)
+    btnSpeed.style.background = '';
 
     /* 버튼 상태 */
     var sp = price(100, upgrades.speed.level);
@@ -1952,21 +1962,18 @@ btnRestart.addEventListener('click', function() {
     rafId = requestAnimationFrame(loop);
 });
 
-// 새로하기: 코인·업그레이드·기록 완전 초기화 후 처음부터
 var btnNewGame = document.getElementById('hh-newgame-btn');
 if (btnNewGame) {
     btnNewGame.addEventListener('click', function() {
         SS.set('hohorun_coins', '0');
         SS.set('hohorun_best', '0');
         SS.set('hohorun_upgrades', '');
-        totalCoins = 0;
-        highScore = 0;
+        totalCoins = 0; highScore = 0;
         upgrades = { speed:{level:0,gauge:0}, coin:{level:0,gauge:0}, magnet:{level:0,gauge:0}, reviveCount:0 };
         updateShop();
         snd.bgmStart();
         scrOver.style.display = 'none';
-        resetGame(false);
-        active = true;
+        resetGame(false); active = true;
         if (rafId) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(loop);
     });
