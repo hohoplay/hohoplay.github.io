@@ -1298,7 +1298,7 @@ function loadData() {
    DPR 적용 시 모바일에서 좌표계 불일치로 그림이 절반 크기로 그려지는 버그 발생
 */
 function resize() {
-    var dw = wrap.clientWidth || wrap.offsetWidth;
+    var dw = wrap.clientWidth||wrap.offsetWidth;
     if (!dw || dw < 10) dw = Math.min(window.innerWidth || 360, 480);
     var dh = Math.min(Math.max(Math.round(dw * 1.42), 480), 720);
 
@@ -1830,9 +1830,11 @@ function draw() {
     ctx.save(); ctx.translate(0,-camY);
 
     var bg=fever?'hsl('+(frame%360)+',30%,20%)':golden?'hsl(45,40%,'+(15+Math.sin(frame*0.05)*5)+'%)':'#0f172a';
-    ctx.fillStyle=bg;
+    var wallColor=fever?'hsl('+(frame%360)+',40%,15%)':golden?'hsl(45,50%,10%)':'#1e3a5f';
+    ctx.fillStyle=wallColor;
     ctx.fillRect(0,camY,WALL_W,ch);
     ctx.fillRect(cw-WALL_W,camY,WALL_W,ch);
+    ctx.fillStyle=bg;
 
     spikes.forEach(function(s){
         ctx.fillStyle=(fever||golden)?(golden?'#fbbf24':'hsl('+(frame*10%360)+',100%,70%)'):'#94a3b8';
