@@ -3784,13 +3784,19 @@ def build_omnibus_post(today_str: str) -> tuple:
         z_compatible = ZODIAC_INFO.get(z['kr'], {}).get('compatible', '').split(',')[0].strip()
         _, z_signal  = _zodiac_seo_title(z['kr'], kst_dt.strftime("%Y년 %-m월 %-d일"),
                                           *pick_score(z['kr']))
+        # 📱 연락 시간대 데이터
+        _z_ct_row = zodiac_kr[zodiac_kr['zodiac'] == z['kr']]
+        _z_contact_time   = _z_ct_row['contact_time'].iloc[0]   if not _z_ct_row.empty and 'contact_time'   in _z_ct_row.columns else ''
+        _z_contact_reason = _z_ct_row['contact_reason'].iloc[0] if not _z_ct_row.empty and 'contact_reason' in _z_ct_row.columns else ''
         z_data[z['kr']] = {
-            'core':       _extract_core_sentence(raw),
-            'item':       z_item,
-            'color':      z_color,
-            'lucky_num':  z_lucky_num,
-            'compatible': z_compatible,
-            'signal':     z_signal,
+            'core':           _extract_core_sentence(raw),
+            'item':           z_item,
+            'color':          z_color,
+            'lucky_num':      z_lucky_num,
+            'compatible':     z_compatible,
+            'signal':         z_signal,
+            'contact_time':   str(_z_contact_time),
+            'contact_reason': str(_z_contact_reason),
         }
 
     # 띠별 데이터 수집
@@ -3798,10 +3804,20 @@ def build_omnibus_post(today_str: str) -> tuple:
     for c in CHINESE:
         raw    = chinese_fortune(c['en'])
         compat = _CHINESE_COMPAT.get(c['kr'], {})
+        # ⏰ 시간대 흐름 데이터
+        _c_row = chinese_zodiac[chinese_zodiac['animal_zodiac'] == c['en']]
+        _peak_time = _c_row['peak_time'].iloc[0] if not _c_row.empty and 'peak_time' in _c_row.columns else ''
+        _peak_tip  = _c_row['peak_tip'].iloc[0]  if not _c_row.empty and 'peak_tip'  in _c_row.columns else ''
+        _low_time  = _c_row['low_time'].iloc[0]  if not _c_row.empty and 'low_time'  in _c_row.columns else ''
+        _low_tip   = _c_row['low_tip'].iloc[0]   if not _c_row.empty and 'low_tip'   in _c_row.columns else ''
         c_data[c['kr']] = {
-            'core':  _extract_core_sentence(raw),
-            'best':  compat.get('best',  ''),
-            'avoid': compat.get('avoid', ''),
+            'core':      _extract_core_sentence(raw),
+            'best':      compat.get('best',  ''),
+            'avoid':     compat.get('avoid', ''),
+            'peak_time': str(_peak_time),
+            'peak_tip':  str(_peak_tip),
+            'low_time':  str(_low_time),
+            'low_tip':   str(_low_tip),
         }
 
     # ── 12쌍 문단 생성 (모든 실시간 데이터 → 브릿지로 전달) ──
@@ -3810,10 +3826,16 @@ def build_omnibus_post(today_str: str) -> tuple:
         zd = z_data.get(z_kr, {})
         cd = c_data.get(c_kr, {})
         para = _omnibus_bridge(
-            z_kr        = z_kr,
-            z_core      = zd.get('core', ''),
-            c_kr        = c_kr,
-            c_core      = cd.get('core', ''),
+            z_kr            = z_kr,
+            z_core          = zd.get('core', ''),
+            c_kr            = c_kr,
+            c_core          = cd.get('core', ''),
+            z_contact_time   = zd.get('contact_time', ''),
+            z_contact_reason = zd.get('contact_reason', ''),
+            c_peak_time      = cd.get('peak_time', ''),
+            c_peak_tip       = cd.get('peak_tip', ''),
+            c_low_time       = cd.get('low_time', ''),
+            c_low_tip        = cd.get('low_tip', ''),
             theme       = theme,
             idx         = idx,
             z_item      = zd.get('item', ''),
