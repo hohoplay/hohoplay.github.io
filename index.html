@@ -259,8 +259,8 @@
                 var thumbColor = isReal ? '#4f46e5' : '#94a3b8';
                 var icon = isReal ? '\uD83C\uDFAE' : '\u23F3';
                 var thumb = hasImg
-                    ? '<div style="width:100%;height:90px;border-radius:12px;overflow:hidden;margin-bottom:10px;"><img src="' + game.img + '" alt="' + game.name + '" style="width:100%;height:100%;object-fit:cover;"></div>'
-                    : '<div style="width:100%;height:90px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:' + thumbBg + ';color:' + thumbColor + ';">' + icon + '</div>';
+                    ? '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:10px;"><img src="' + game.img + '" alt="' + game.name + '" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
+                    : '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:' + thumbBg + ';color:' + thumbColor + ';">' + icon + '</div>';
                 var onclick = "handleGameClick('" + game.id + "')";
                 return '<button onclick="' + onclick + '" class="game-card group bg-white p-3 rounded-2xl border border-slate-100 hover:border-indigo-400 hover:shadow-lg transition-all flex flex-col items-center text-center relative w-full">'
                     + badge
