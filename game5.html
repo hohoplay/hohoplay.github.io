@@ -64,7 +64,6 @@ body {
 canvas {
   display: block;
   touch-action: none;
-  cursor: ew-resize;
   -webkit-tap-highlight-color: transparent;
   border-radius: 12px;
   background-color: #D1D9E0;
@@ -539,7 +538,8 @@ canvas {
             <!-- 게임 영역 -->
 <style>
         /* HOHO PLAY 공통 */
-        #game-container { font-family: 'Noto Sans KR', sans-serif; }
+        #game-container {
+  touch-action: none; font-family: 'Noto Sans KR', sans-serif; }
         .page-transition { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 10px; }
@@ -554,6 +554,7 @@ canvas {
 }
 
 #game-container {
+  touch-action: none;
   font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   background: linear-gradient(180deg, #A7D8DE 0%, #FDFCF0 100%);
   
@@ -566,8 +567,8 @@ canvas {
 
 /* 중앙 정렬 - 모바일 크롬 호환 */
 #game-container {
-  width: 100%;
   touch-action: none;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -595,7 +596,6 @@ canvas {
 canvas {
   display: block;
   touch-action: none;
-  cursor: ew-resize;
   -webkit-tap-highlight-color: transparent;
   border-radius: 12px;
   background-color: #D1D9E0;
@@ -940,6 +940,7 @@ canvas {
 /* 반응형 최적화 */
 @media (max-width: 600px) {
   #game-container {
+  touch-action: none;
     padding: 10px 5px;
   }
   
@@ -977,6 +978,7 @@ canvas {
 
 @media (max-height: 700px) {
   #game-container {
+  touch-action: none;
     padding: 10px;
   }
   
@@ -1938,7 +1940,6 @@ function initGame() {
       setTimeout(function() { loadingScreen.classList.add('hidden'); startGame(); }, 800);
     };
   }
-
   restartBtn.onclick = function() {
     if (restartBtn.disabled) return;
     restartBtn.disabled = true;
@@ -2066,66 +2067,55 @@ function startGame() {
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
 
-  // ── 터치: 캔버스 정중앙 기준 좌/우 절반으로 방향 결정 ──
-  function applyTouchSide(clientX) {
-    const rect = canvas.getBoundingClientRect();
-    const center = rect.left + rect.width / 2;
-    if (clientX < center) {
+  // ── 터치/마우스: 캔버스 중앙 기준 좌/우 절반으로 방향 결정 ──
+  function applyDir(clientX) {
+    var rect = canvas.getBoundingClientRect();
+    if (clientX < rect.left + rect.width / 2) {
       keys.left = true;  keys.right = false;
     } else {
       keys.right = true; keys.left = false;
     }
   }
-
-  function clearTouchDir() {
+  function clearDir() {
     if (!keyState.left && !keyState.right) {
-      keys.left = false;
-      keys.right = false;
+      keys.left = false; keys.right = false;
     }
   }
 
   // 마우스 (PC)
   canvas.addEventListener('mousedown', function(e) {
-    isHolding = true;
-    holdX = e.clientX;
-    applyTouchSide(e.clientX);
+    isHolding = true; applyDir(e.clientX);
   });
   canvas.addEventListener('mousemove', function(e) {
-    if (!isHolding) return;
-    holdX = e.clientX;
-    applyTouchSide(e.clientX);
+    if (!isHolding) return; applyDir(e.clientX);
   });
-  canvas.addEventListener('mouseup', function() {
-    isHolding = false; clearTouchDir();
-  });
-  canvas.addEventListener('mouseleave', function() {
-    isHolding = false; clearTouchDir();
-  });
+  canvas.addEventListener('mouseup',    function() { isHolding = false; clearDir(); });
+  canvas.addEventListener('mouseleave', function() { isHolding = false; clearDir(); });
 
-  // 터치 (모바일) - 중앙 기준 좌/우
+  // 터치 (모바일) - passive:false 로 스크롤 차단
   canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     isHolding = true;
-    applyTouchSide(e.touches[0].clientX);
+    applyDir(e.touches[0].clientX);
   }, { passive: false });
 
   canvas.addEventListener('touchmove', function(e) {
     e.preventDefault();
     if (!isHolding) return;
-    applyTouchSide(e.touches[0].clientX);
+    applyDir(e.touches[0].clientX);
   }, { passive: false });
 
   canvas.addEventListener('touchend', function(e) {
     e.preventDefault();
-    isHolding = false; clearTouchDir();
-  });
+    isHolding = false; clearDir();
+  }, { passive: false });
 
   canvas.addEventListener('touchcancel', function() {
-    isHolding = false; clearTouchDir();
+    isHolding = false; clearDir();
   });
 
-  // holdInterval은 키보드 입력 유지용으로만 남김
-  const holdInterval = setInterval(function() {}, 16);
+  // holdInterval은 키보드 입력 유지용 더미
+  var holdInterval = setInterval(function() {}, 16);
 
   window._holdInterval = holdInterval;
   window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
