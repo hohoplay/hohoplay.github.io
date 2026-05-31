@@ -1197,7 +1197,16 @@
 
             inputField.addEventListener('compositionstart', () => { isComposing = true; updateLangIndicator('ko'); });
             inputField.addEventListener('compositionupdate', (e) => { if (e.target.value.length > MAX_INPUT_LENGTH) clearInput(); });
-            inputField.addEventListener('compositionend', (e) => { isComposing = false; handleInput(e.target.value); });
+            inputField.addEventListener('compositionend', (e) => {
+                isComposing = false;
+                const val = e.target.value;
+                handleInput(val);
+                // 모바일: 한글 입력 완료 시 벚꽃 이펙트
+                if (val && val.length > 0 && !isDeleting) {
+                    const lastChar = val.slice(-1);
+                    if (isCompleteHangul(lastChar)) triggerTextBurst(val, lastChar);
+                }
+            });
 
             inputField.addEventListener('keydown', (e) => {
                 if (!gameActive) return;
@@ -1345,7 +1354,7 @@
             d.innerText = char;
             d.style.left = `${x}px`;
             d.style.top = `${y}px`;
-            if (isMobile) d.style.fontSize = '24px';
+            if (isMobile) d.style.fontSize = '12px';
             gameField.appendChild(d);
             setTimeout(() => { if(d.parentNode) d.remove(); }, 700);
         }
@@ -1390,7 +1399,7 @@
             // 고정 위치
             bossContainer.style.top = '30px';
             bossContainer.style.display = 'flex';
-            if (isMobile) bossContainer.style.transform = 'translateX(-50%) scale(0.7)';
+            if (isMobile) bossContainer.style.transform = 'translateX(-50%) scale(0.45)';
             updateBossHPUI();
             setBossWord();
             SoundEngine.playType(200);
