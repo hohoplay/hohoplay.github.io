@@ -100,7 +100,7 @@
 
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
-        #sky-game-wrapper, #sky-game-wrapper #sky-game-wrapper, #sky-game-wrapper * { box-sizing: border-box; }
+        #sky-game-wrapper, #sky-game-wrapper * { box-sizing: border-box; }
 
         /* body styles scoped to game wrapper */
         #sky-game-wrapper {
@@ -183,7 +183,7 @@
 
         #boss-bird-gray {
             position: absolute;
-            font-size: 160px;
+            font-size: 80px;
             filter: brightness(1.2) contrast(0.9);
             user-select: none;
             opacity: 1;
@@ -191,7 +191,7 @@
 
         #boss-bird-color {
             position: absolute;
-            font-size: 160px;
+            font-size: 80px;
             user-select: none;
             opacity: 0;
             transition: opacity 0.5s ease, filter 0.5s ease;
@@ -225,7 +225,7 @@
             padding: 12px 30px;
             border-radius: 30px;
             border: 4px solid #ff4d6d;
-            font-size: 32px;
+            font-size: 16px;
             font-weight: 900;
             color: #ff4d6d;
             margin-top: 15px;
@@ -274,7 +274,7 @@
 
         .word-container {
             position: relative;
-            font-size: 22px; 
+            font-size: 6px; 
             font-weight: 800;
             white-space: nowrap;
             padding: 2px 10px;
@@ -295,7 +295,7 @@
 
         .flower-projectile {
             position: absolute;
-            font-size: 18px; 
+            font-size: 9px; 
             pointer-events: none;
             z-index: 100;
             filter: drop-shadow(0 0 4px rgba(255, 77, 109, 0.3));
@@ -305,7 +305,7 @@
 
         .damage-text {
             position: absolute;
-            font-size: 36px;
+            font-size: 18px;
             font-weight: 900;
             color: #ff4d6d;
             text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 0 0 10px rgba(255, 77, 109, 0.5);
@@ -353,8 +353,8 @@
             min-width: 80px;
         }
 
-        .ui-label { font-size: 11px; font-weight: 800; color: #ffb3c1; letter-spacing: 1px; }
-        .ui-value { font-size: 24px; font-weight: 900; display: block; }
+        .ui-label { font-size: 6px; font-weight: 800; color: #ffb3c1; letter-spacing: 1px; }
+        .ui-value { font-size: 12px; font-weight: 900; display: block; }
 
         #score-panel { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); }
         #life-panel { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); }
@@ -384,7 +384,7 @@
             overflow: hidden;
         }
 
-        #display-text { font-size: 26px; font-weight: 900; color: #ffb3c1; min-height: 32px; display: block; }
+        #display-text { font-size: 13px; font-weight: 900; color: #ffb3c1; min-height: 16px; display: block; }
 
         #lang-indicator {
             width: 44px;
@@ -394,7 +394,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 17px;
+            font-size: 9px;
             font-weight: 900;
             color: white;
             box-shadow: 0 3px 10px rgba(255, 182, 193, 0.3);
@@ -465,20 +465,28 @@
 
         @media (max-width: 600px) {
             #game-frame {
-                height: 90vh;
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                aspect-ratio: 1 / 1;
                 border-width: 4px;
                 border-radius: 20px;
             }
+            #sky-game-wrapper {
+                min-height: unset;
+                padding: 8px 0;
+                align-items: flex-start;
+            }
             #ui-layer { height: 110px; padding: 0 10px; }
             .ui-panel { padding: 6px 12px; border-radius: 15px; min-width: 64px; }
-            .ui-value { font-size: 20px; }
+            .ui-value { font-size: 10px; }
             .ui-label { font-size: 9px; }
             #score-panel { left: 10px; }
             #life-panel { right: 10px; }
             #input-center-group { gap: 5px; max-width: calc(100% - 170px); }
             #guide-ui { width: 170px; padding: 8px 12px; border-width: 2px; }
-            #display-text { font-size: 19px; min-height: 24px; }
-            #lang-indicator { width: 36px; height: 36px; font-size: 14px; border-radius: 9px; }
+            #display-text { font-size: 10px; min-height: 12px; }
+            #lang-indicator { width: 18px; height: 18px; font-size: 7px; border-radius: 5px; }
             #combo-panel { top: -65px; width: 80px; right: -10px; padding-top: 15px; }
             #judgment-line { bottom: 110px; }
             #over-title { font-size: 40px !important; }
@@ -486,7 +494,7 @@
             #game-over button { padding: 15px 30px !important; font-size: 18px !important; border-radius: 15px !important; }
         }
         .boss-type-label {
-            font-size: 11px;
+            font-size: 6px;
             font-weight: 900;
             color: #ff4d6d;
             letter-spacing: 2px;
@@ -543,7 +551,7 @@
         }
 
         #large-boss-label {
-            font-size: 13px;
+            font-size: 7px;
             font-weight: 900;
             color: #c0392b;
             letter-spacing: 2px;
@@ -580,7 +588,7 @@
 
         .title-petal {
             position: absolute;
-            font-size: 22px;
+            font-size: 6px;
             animation: title-fall linear infinite;
             opacity: 0.5;
         }
@@ -591,7 +599,7 @@
         }
 
         #title-logo {
-            font-size: 52px;
+            font-size: 26px;
             font-weight: 900;
             color: #ff4d6d;
             text-shadow: 0 4px 20px rgba(255,77,109,0.25), 0 0 0 4px rgba(255,255,255,0.8);
@@ -613,7 +621,7 @@
         }
 
         #speed-select-label {
-            font-size: 13px;
+            font-size: 7px;
             font-weight: 700;
             color: #ff4d6d;
             letter-spacing: 2px;
@@ -658,7 +666,7 @@
             transform: translateY(-4px);
         }
 
-        .speed-btn .speed-icon { font-size: 22px; }
+        .speed-btn .speed-icon { font-size: 11px; }
 
         .speed-btn .speed-val {
             font-size: 15px;
@@ -683,7 +691,7 @@
             color: white;
             border: none;
             border-radius: 50px;
-            font-size: 22px;
+            font-size: 6px;
             font-weight: 900;
             cursor: pointer;
             font-family: 'Pretendard', sans-serif;
@@ -700,7 +708,7 @@
         #title-credit {
             position: absolute;
             bottom: 20px;
-            font-size: 11px;
+            font-size: 6px;
             color: #ffb7c5;
             font-weight: 500;
             letter-spacing: 0.5px;
@@ -986,8 +994,8 @@
         </div>
 
         <div id="game-over">
-            <h1 id="over-title" style="font-size: 60px; color: #ff4d6d; margin-bottom: 20px;">GARDEN OVER</h1>
-            <p style="font-size: 24px; color: #ffb3c1; margin-bottom: 20px;">최종 점수: <span id="final-score" style="color: #ff4d6d; font-weight: 900;">0</span></p>
+            <h1 id="over-title" style="font-size: 30px; color: #ff4d6d; margin-bottom: 10px;">GARDEN OVER</h1>
+            <p style="font-size: 12px; color: #ffb3c1; margin-bottom: 10px;">최종 점수: <span id="final-score" style="color: #ff4d6d; font-weight: 900;">0</span></p>
             <div id="speed-select-label" style="font-size:13px;font-weight:700;color:#ff4d6d;letter-spacing:2px;margin-bottom:12px;">⚡ 속도 선택</div>
             <div id="over-speed-buttons" style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;">
                 <button class="speed-btn selected" data-mult="1.0" onclick="selectSpeed(this)">
@@ -1021,7 +1029,7 @@
                     <span class="speed-desc">지옥</span>
                 </button>
             </div>
-            <button onclick="startGame()" style="background:#ff4d6d; color:white; border:none; padding:20px 40px; border-radius:20px; font-size:24px; font-weight:900; cursor:pointer;">다시 시작</button>
+            <button onclick="startGame()" style="background:#ff4d6d; color:white; border:none; padding:20px 40px; border-radius:20px; font-size:12px; font-weight:900; cursor:pointer;">다시 시작</button>
         </div>
         </div><!-- /game-field -->
 
@@ -1360,7 +1368,7 @@
             el.className = `word-item`;
             el.innerHTML = `<div class="word-container"><div class="word-base">${word}</div><div class="word-overlay">${word}</div></div>`;
             
-            if (isMobile) el.querySelector('.word-container').style.fontSize = '18px';
+            if (isMobile) el.querySelector('.word-container').style.fontSize = '9px';
 
             const fieldWidth = gameField.offsetWidth;
             const xPercent = Math.random() * 0.7 + 0.15; 
@@ -1534,7 +1542,7 @@
             p.style.cssText = `
                 left: ${fromX + (Math.random()-0.5)*100}px;
                 top: ${fromY}px;
-                font-size: ${isMid ? '22px' : '28px'};
+                font-size: ${isMid ? '11px' : '14px'};
                 font-weight: 900;
                 color: ${isMid ? '#ff4d6d' : '#c0392b'};
                 background: rgba(255,255,255,0.92);
@@ -1777,7 +1785,7 @@
             startGame();
         }
 
-        function startGame() {
+        window.startGame = function() {
             score = 0; lives = 3; combo = 0;
             const baseSpeed = isMobile ? 0.045 : 0.054;
             fallSpeed = baseSpeed * selectedSpeedMult;
@@ -1813,7 +1821,7 @@
             inputField.focus();
         }
 
-        function endGame(msg = "GARDEN OVER") {
+        window.endGame = function(msg = "GARDEN OVER") {
             if (!gameActive) return; // 타이틀 화면 중엔 무시
             gameActive = false;
             document.getElementById('over-title').innerText = msg;
@@ -1824,8 +1832,9 @@
             SoundEngine.playType(100); 
         }
 
+
         if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(init);});}else{requestAnimationFrame(init);}
-        })();
+})();
 </script>
 </div>
 <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->
