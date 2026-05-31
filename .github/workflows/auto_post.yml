@@ -6,6 +6,9 @@ on:
     - cron: '0 16 * * *'   # 매일 KST 01:00 (UTC 16:00) — 백업 (메인 스킵 시)
   workflow_dispatch:        # 수동 실행
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # Node.js 24 강제 적용
+
 jobs:
   post:
     runs-on: ubuntu-latest
@@ -13,10 +16,10 @@ jobs:
 
     steps:
       - name: 📥 체크아웃
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🐍 Python 설치
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
@@ -31,7 +34,7 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
-          python - <<'EOF'
+          python - <<'PYEOF'
           import os, requests
           from datetime import datetime, timezone, timedelta
 
@@ -63,7 +66,7 @@ jobs:
               print(f"포스팅 없음 — 실행 진행")
               with open(os.environ["GITHUB_OUTPUT"], "a") as f:
                   f.write("skip=false\n")
-          EOF
+          PYEOF
 
       - name: 🌟 27개 운세 포스팅 실행
         if: steps.check.outputs.skip != 'true'
