@@ -1931,13 +1931,12 @@ function initGame() {
     newGameBtn.onclick = function() {
       gameActive = false;
       if (animationId) cancelAnimationFrame(animationId);
-      stopBGM();
-      objects = []; warnings = []; activeTruckCount = 0;
-      score = 0; hp = 3; hasShield = false; boostTimer = 0;
-      frameCount = 0; currentLanes = 3; feverBarFill.style.width = '0%';
+      stopBGM(); objects=[]; warnings=[]; activeTruckCount=0;
+      score=0; hp=3; hasShield=false; boostTimer=0;
+      frameCount=0; currentLanes=3; feverBarFill.style.width='0%';
       gameOverScreen.classList.add('hidden');
       loadingScreen.classList.remove('hidden');
-      setTimeout(function() { loadingScreen.classList.add('hidden'); startGame(); }, 800);
+      setTimeout(function(){ loadingScreen.classList.add('hidden'); startGame(); }, 800);
     };
   }
   restartBtn.onclick = function() {
@@ -1977,6 +1976,28 @@ function initGame() {
       .toUpperCase()
       .slice(0, 3);
   });
+
+  // ── 마우스/터치 이벤트: canvas 할당 후 initGame 안에서 등록 ──
+  if (!canvas._evAdded) {
+    canvas._evAdded = true;
+    function setDirByX(cx) {
+      var r = canvas.getBoundingClientRect();
+      if (cx < r.left + r.width / 2) { keys.left = true;  keys.right = false; }
+      else                            { keys.right = true; keys.left  = false; }
+    }
+    function stopDir() {
+      isHolding = false;
+      if (!keyState.left && !keyState.right) { keys.left = false; keys.right = false; }
+    }
+    canvas.addEventListener('mousedown',  function(e){ isHolding = true; setDirByX(e.clientX); });
+    canvas.addEventListener('mousemove',  function(e){ if (isHolding) setDirByX(e.clientX); });
+    canvas.addEventListener('mouseup',    function() { stopDir(); });
+    canvas.addEventListener('mouseleave', function() { stopDir(); });
+    canvas.addEventListener('touchstart', function(e){ e.preventDefault(); isHolding = true; setDirByX(e.touches[0].clientX); }, {passive:false});
+    canvas.addEventListener('touchmove',  function(e){ e.preventDefault(); if (isHolding) setDirByX(e.touches[0].clientX); }, {passive:false});
+    canvas.addEventListener('touchend',   function(e){ e.preventDefault(); stopDir(); }, {passive:false});
+    canvas.addEventListener('touchcancel',function()  { stopDir(); });
+  }
 
   startBtn.onclick = function() {
     handleGameStart();
@@ -2067,108 +2088,9 @@ function startGame() {
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
 
-  // 터치/마우스 holdX 방식
-  function updateDirectionByHoldX() {
-    if (!isHolding || !player) {
-      if (!keyState.left && !keyState.right) {
-        keys.left = false;
-        keys.right = false;
-      }
-      return;
-    }
-    const scaleX = canvas.width / canvas.getBoundingClientRect().width;
-    const playerCenterX = (player.x + player.width / 2);
-    const holdCanvasX = holdX * scaleX;
-    const deadZone = 20;
-    if (holdCanvasX < playerCenterX - deadZone) {
-      keys.left = true;
-      keys.right = false;
-    } else if (holdCanvasX > playerCenterX + deadZone) {
-      keys.right = true;
-      keys.left = false;
-    } else {
-      keys.left = false;
-      keys.right = false;
-    }
-  }
-
-  const holdInterval = setInterval(function() {
-    if (!gameActive) return;
-    if (isHolding) updateDirectionByHoldX();
-  }, 16);
-
-  canvas.addEventListener('mousedown', function(e) {
-    isHolding = true;
-    const rect = canvas.getBoundingClientRect();
-    holdX = e.clientX - rect.left;
-  });
-
-  canvas.addEventListener('mousemove', function(e) {
-    if (!isHolding) return;
-    const rect = canvas.getBoundingClientRect();
-    holdX = e.clientX - rect.left;
-  });
-
-  canvas.addEventListener('mouseup', function() {
-    isHolding = false;
-    if (!keyState.left && !keyState.right) {
-      keys.left = false;
-      keys.right = false;
-    }
-  });
-
-  canvas.addEventListener('mouseleave', function() {
-    isHolding = false;
-    if (!keyState.left && !keyState.right) {
-      keys.left = false;
-      keys.right = false;
-    }
-  });
-
-  // 터치: 캔버스 중앙 기준 좌/우
-  function applyDir(clientX) {
-    var rect = canvas.getBoundingClientRect();
-    var centerX = rect.left + rect.width / 2;
-    if (clientX < centerX) {
-      keys.left = true;  keys.right = false;
-    } else {
-      keys.right = true; keys.left = false;
-    }
-  }
-  function clearDir() {
-    if (!keyState.left && !keyState.right) {
-      keys.left = false; keys.right = false;
-    }
-  }
-
-  canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    isHolding = true;
-    applyDir(e.touches[0].clientX);
-  }, { passive: false });
-
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (!isHolding) return;
-    applyDir(e.touches[0].clientX);
-  }, { passive: false });
-
-  canvas.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    isHolding = false;
-    clearDir();
-  }, { passive: false });
-
-  canvas.addEventListener('touchcancel', function() {
-    isHolding = false;
-    clearDir();
-  });
-
-  window._holdInterval = holdInterval;
-  window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
-
+  // 기존 루프 취소 후 새 루프 시작
   if (animationId) cancelAnimationFrame(animationId);
-  update();
+  animationId = requestAnimationFrame(update);
 }
 
 function endGame() {
