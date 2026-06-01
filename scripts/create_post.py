@@ -2849,7 +2849,7 @@ def build_chinese_monthly_post(today_str):
     results   = []
 
     # ── v2 CSV 로드 ──
-    v2_path = os.path.join(DATA_DIR, "chinese_monthly_v2.csv")
+    v2_path = os.path.join(DATA, "chinese_monthly_v2.csv")
     v2_df   = pd.DataFrame()
     if os.path.exists(v2_path):
         v2_df = pd.read_csv(v2_path, encoding="utf-8")
