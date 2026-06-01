@@ -3590,7 +3590,8 @@ def _omnibus_bridge(
 ) -> str:
     """
     소설처럼 흐르는 브릿지 — 카드박스/이모지 없이 산문으로 자연스럽게 연결
-    📱 연락 시간 + ⏰ 띠별 시간대 흐름 hl_time 정의 후 사용
+    시간 정보는 골든타임(_TIME_POOL) 1회만 노출.
+    peak/low/contact는 시간 표기 없이 행동 조언 텍스트(tip/reason)만 사용.
     """
     zb = f"<b style='color:#5b21b6'>{z_kr}</b>"
     cb = f"<b style='color:#b45309'>{c_kr}</b>"
@@ -3618,60 +3619,46 @@ def _omnibus_bridge(
     def hl_item(t):   return f"<b style='color:#059669'>{t}</b>"
     def hl_compat(t): return f"<b style='color:#7c3aed'>{t}</b>"
 
-    # 📱 연락 시간대 산문 (별자리)
-    if z_contact_time and z_contact_reason:
-        contact_prose = (
-            f"오늘 {zb}한테 연락이 올 가능성이 높은 시간은 "
-            f"{hl_time(z_contact_time)}이에요. "
-            f"{z_contact_reason}"
-        )
-    else:
-        contact_prose = ""
+    # ── 시간 정보 1회 노출 원칙 ──
+    # 골든타임(_TIME_POOL)만 시간 표기, peak/low/contact는 조언 텍스트만 사용
 
-    # ⏰ 띠별 시간대 흐름 산문
-    if c_peak_time and c_peak_tip:
-        peak_prose = (
-            f"{cb}는 {hl_time(c_peak_time)}이 오늘 가장 잘 돌아가는 시간이에요. "
-            f"{c_peak_tip}"
-        )
-    else:
-        peak_prose = ""
+    # 띠별 행동 조언 (시간 표기 없이 tip만)
+    peak_tip_only = str(c_peak_tip).strip() if c_peak_tip else ""
+    low_tip_only  = str(c_low_tip).strip()  if c_low_tip  else ""
 
-    if c_low_time and c_low_tip:
-        low_prose = (
-            f"반대로 {hl_time(c_low_time)}엔 잠깐 속도를 줄이는 게 맞아요. "
-            f"{c_low_tip}"
-        )
-    else:
-        low_prose = ""
+    # 별자리 연락 조언 (시간 표기 없이 reason만)
+    contact_tip_only = str(z_contact_reason).strip() if z_contact_reason else ""
 
-    # 연락+흐름 합산 산문
-    time_flow_prose = ""
-    if peak_prose:
-        time_flow_prose += peak_prose
-    if low_prose:
-        time_flow_prose += "<br>" + low_prose
-    if contact_prose:
-        time_flow_prose += "<br><br>" + contact_prose
+    # 띠+별자리 행동 조언 산문 — 시간 없이 흐름에 녹임
+    behavior_parts = []
+    if peak_tip_only:
+        behavior_parts.append(f"{cb}는 오늘 {peak_tip_only}")
+    if low_tip_only:
+        behavior_parts.append(f"에너지가 처지는 시간대엔 {low_tip_only}")
+    if contact_tip_only:
+        behavior_parts.append(contact_tip_only)
+    behavior_prose = " ".join(behavior_parts)
 
-    # 시간대를 산문 안에 녹인 문장들
+    # 시간대를 산문 안에 녹인 문장들 — 골든타임 1회만
     time_prose_a = (
-        f"{hl_time(time_label)}이 오늘 가장 중요한 시간이에요. "
+        f"오늘의 골든타임은 {hl_time(time_label)}이에요. "
         f"{time_why} "
         f"{time_action}"
     )
     time_prose_b = (
         f"오늘 {hl_time(time_label)}을 잘 쓰는 게 핵심이에요. "
-        f"{time_why} "
         f"{time_action}"
     )
     time_prose_c = (
         f"시간 얘기를 먼저 할게요. {hl_time(time_label)}, 이 시간을 붙잡으세요. "
-        f"{time_why} {time_action}"
+        f"{time_why}"
     )
 
     # 목표 문장
     goal_prose = f"오늘 딱 하나만 기억하세요. {time_goal}"
+
+    # 행동 조언이 있을 때만 추가하는 보조 산문
+    tf = (f"<br><br>{behavior_prose}" if behavior_prose else "")
 
     # 궁합 산문
     compat_prose = (
@@ -3692,8 +3679,6 @@ def _omnibus_bridge(
         f"오늘 {hl_warn(avoid_action)}은 잠깐 내려놓는 게 좋아요. "
         f"그게 오늘 가장 현명한 선택 중 하나예요."
     )
-
-    tf = (f"<br><br>{time_flow_prose}" if time_flow_prose else "")
 
     # ── 12가지 산문 패턴 ──
     patterns = [
@@ -3747,10 +3732,10 @@ def _omnibus_bridge(
         f"{goal_prose}"
         + tf,
 
-        # 7: 스토리 → 흐름+연락 → 궁합
+        # 7: 스토리 → 행동조언 → 골든타임 → 궁합
         f"{story}<br><br>"
         f"{time_prose_a}<br><br>"
-        + (f"{time_flow_prose}<br><br>" if time_flow_prose else "")
+        + (f"{behavior_prose}<br><br>" if behavior_prose else "")
         + f"{compat_prose} {goal_prose}",
 
         # 8: 공감 오프닝 → 스토리 → 시간
