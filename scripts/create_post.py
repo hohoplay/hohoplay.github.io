@@ -4087,6 +4087,24 @@ def main():
     kst_now   = now_kst()
     posts = []
 
+    # 수동 실행 시 강제 포함 옵션
+    force_weekly  = os.environ.get("FORCE_WEEKLY",  "false").lower() == "true"
+    force_monthly = os.environ.get("FORCE_MONTHLY", "false").lower() == "true"
+    # MONTHLY_ONLY=true 이면 띠별 월간운세 12개만 발행하고 종료
+    monthly_only  = os.environ.get("MONTHLY_ONLY",  "false").lower() == "true"
+
+    if monthly_only:
+        print(f"🌙 MONTHLY_ONLY 모드 — 띠별 월간운세 12개만 발행")
+        posts.extend(build_chinese_monthly_post(today_str))
+        total = len(posts)
+        print(f"\n🌟 {today_str} 띠별 월간운세 단독 포스팅 시작 — 총 {total}개\n")
+        success = 0
+        for i, (title, content, labels) in enumerate(posts, 1):
+            if post_blogger(title, content, labels, i, total):
+                success += 1
+        print(f"\n✅ 완료: {success}/{total}개 게시 성공")
+        return
+
     # ① 오늘의 명언 1개
     posts.append(build_quote_post(today_str))
 
@@ -4106,10 +4124,6 @@ def main():
 
     # ⑧ 별자리가 만나는 시간 — 옴니버스 스토리텔링 1개 (매일)
     posts.append(build_omnibus_post(today_str))
-
-    # 수동 실행 시 강제 포함 옵션
-    force_weekly  = os.environ.get("FORCE_WEEKLY",  "false").lower() == "true"
-    force_monthly = os.environ.get("FORCE_MONTHLY", "false").lower() == "true"
 
     # 매월 마지막주 월요일 계산 (다음 달 띠별월간 미리 발행)
     import calendar as _cal
