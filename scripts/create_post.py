@@ -1028,7 +1028,11 @@ def get_month():
     return now_kst().strftime("%Y년 %m월")
 
 def get_next_month_str():
-    """마지막주 월요일 or FORCE_MONTHLY → 다음달, 그 외 → 이번달"""
+    """
+    1일       → 이번달 운세 (당월 발행)
+    마지막주 월요일 or FORCE_MONTHLY → 다음달 운세 (미리 발행)
+    그 외      → 이번달
+    """
     import calendar as _c
     from datetime import date as _date
     t = now_kst()
@@ -1036,6 +1040,10 @@ def get_next_month_str():
     _last_mon = max(d for d in range(1, _last+1)
                     if _date(t.year, t.month, d).weekday() == 0)
     force = os.environ.get("FORCE_MONTHLY","false").lower() == "true"
+    # 1일이면 당월 발행
+    if t.day == 1:
+        return t.strftime("%Y년 %m월")
+    # 마지막주 월요일 or 강제 → 다음달
     if t.day == _last_mon or force:
         nm = t.month % 12 + 1
         ny = t.year + (1 if t.month == 12 else 0)
@@ -4121,13 +4129,22 @@ def main():
     else:
         print("📅 주간운세 스킵 (월요일 아님)")
 
-    # ⑤ 띠별 월간운세 — 매월 마지막주 월요일(다음달 버전) or FORCE_MONTHLY
-    if is_last_monday or force_monthly:
+    # ⑤ 띠별 월간운세
+    # - 매월 1일: 당월 운세 발행 (6월1일→6월 운세)
+    # - 매월 마지막주 월요일: 다음달 운세 미리 발행
+    # - FORCE_MONTHLY=true: 강제 발행
+    is_first_day = (kst_now.day == 1)
+    if is_first_day or is_last_monday or force_monthly:
         posts.extend(build_chinese_monthly_post(today_str))
-        label = "강제 포함" if force_monthly and not is_last_monday else "마지막주 월요일"
+        if force_monthly and not is_first_day and not is_last_monday:
+            label = "강제 포함"
+        elif is_first_day:
+            label = "1일 당월 발행"
+        else:
+            label = "마지막주 월요일 다음달 발행"
         print(f"📅 띠별 월간운세 12개 포함 ({label})")
     else:
-        print("📅 월간운세 스킵 (마지막주 월요일 아님)")
+        print("📅 월간운세 스킵")
 
     total = len(posts)
     weekly  = " + 별자리주간 12" if kst_now.weekday() == 0 else ""
