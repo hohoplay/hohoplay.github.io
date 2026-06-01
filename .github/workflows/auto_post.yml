@@ -5,6 +5,15 @@ on:
     - cron: '0 15 * * *'   # 매일 KST 00:00 (UTC 15:00) — 메인
     - cron: '0 16 * * *'   # 매일 KST 01:00 (UTC 16:00) — 백업 (메인 스킵 시)
   workflow_dispatch:        # 수동 실행
+    inputs:
+      force_monthly:
+        description: '🌙 띠별 월간운세만 단독 발행 (12개)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # Node.js 24 강제 적용
@@ -26,8 +35,12 @@ jobs:
       - name: 📦 패키지 설치
         run: pip install pandas requests
 
+      # ─────────────────────────────────────────────────────────
+      # 중복 체크: force_monthly=true(월간운세 단독) 수동 실행 시 건너뜀
+      # ─────────────────────────────────────────────────────────
       - name: 🔍 오늘 이미 포스팅했는지 확인 (중복 방지)
         id: check
+        if: github.event.inputs.force_monthly != 'true'
         env:
           BLOG_ID: ${{ secrets.BLOG_ID }}
           BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
@@ -68,8 +81,27 @@ jobs:
                   f.write("skip=false\n")
           PYEOF
 
+      # ─────────────────────────────────────────────────────────
+      # 케이스 A: 띠별 월간운세 단독 발행 (force_monthly=true)
+      # ─────────────────────────────────────────────────────────
+      - name: 🌙 띠별 월간운세 단독 발행 (12개)
+        if: github.event.inputs.force_monthly == 'true'
+        env:
+          BLOG_ID: ${{ secrets.BLOG_ID }}
+          BLOGGER_TOKEN: ${{ secrets.BLOGGER_TOKEN }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          DATA_DIR: ${{ github.workspace }}/data
+          FORCE_MONTHLY: 'true'
+          MONTHLY_ONLY: 'true'
+        run: python scripts/create_post.py
+
+      # ─────────────────────────────────────────────────────────
+      # 케이스 B: 정규 27개 포스팅 (스케줄 / 일반 수동 실행)
+      # ─────────────────────────────────────────────────────────
       - name: 🌟 27개 운세 포스팅 실행
-        if: steps.check.outputs.skip != 'true'
+        if: github.event.inputs.force_monthly != 'true' && steps.check.outputs.skip != 'true'
         env:
           BLOG_ID: ${{ secrets.BLOG_ID }}
           BLOGGER_TOKEN: ${{ secrets.BLOGGER_TOKEN }}
