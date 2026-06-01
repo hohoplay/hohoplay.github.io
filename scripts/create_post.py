@@ -3582,7 +3582,7 @@ def _omnibus_bridge(
 ) -> str:
     """
     소설처럼 흐르는 브릿지 — 카드박스/이모지 없이 산문으로 자연스럽게 연결
-    📱 연락 올 가능성 높은 시간 + ⏰ 띠별 시간대 흐름 자연스럽게 녹여냄
+    📱 연락 시간 + ⏰ 띠별 시간대 흐름 hl_time 정의 후 사용
     """
     zb = f"<b style='color:#5b21b6'>{z_kr}</b>"
     cb = f"<b style='color:#b45309'>{c_kr}</b>"
@@ -3599,6 +3599,16 @@ def _omnibus_bridge(
 
     # 조합별 시간 가이드 — 요일 고정 반복 방지
     tg = _TIME_POOL[idx % len(_TIME_POOL)]
+    time_label  = tg["label"]
+    time_why    = tg["why"]
+    time_action = tg["action"]
+    time_goal   = tg["goal"]
+
+    # ── 인라인 하이라이트 스타일 (반드시 prose 생성 전에 정의) ──
+    def hl_time(t):   return f"<b style='color:#2563eb'>{t}</b>"
+    def hl_warn(t):   return f"<b style='color:#dc2626'>{t}</b>"
+    def hl_item(t):   return f"<b style='color:#059669'>{t}</b>"
+    def hl_compat(t): return f"<b style='color:#7c3aed'>{t}</b>"
 
     # 📱 연락 시간대 산문 (별자리)
     if z_contact_time and z_contact_reason:
@@ -3635,16 +3645,6 @@ def _omnibus_bridge(
         time_flow_prose += "<br>" + low_prose
     if contact_prose:
         time_flow_prose += "<br><br>" + contact_prose
-    time_label  = tg["label"]
-    time_why    = tg["why"]
-    time_action = tg["action"]
-    time_goal   = tg["goal"]
-
-    # 인라인 하이라이트 스타일
-    def hl_time(t):   return f"<b style='color:#2563eb'>{t}</b>"
-    def hl_warn(t):   return f"<b style='color:#dc2626'>{t}</b>"
-    def hl_item(t):   return f"<b style='color:#059669'>{t}</b>"
-    def hl_compat(t): return f"<b style='color:#7c3aed'>{t}</b>"
 
     # 시간대를 산문 안에 녹인 문장들
     time_prose_a = (
@@ -3662,7 +3662,7 @@ def _omnibus_bridge(
         f"{time_why} {time_action}"
     )
 
-    # 목표 문장 (산문 마무리로)
+    # 목표 문장
     goal_prose = f"오늘 딱 하나만 기억하세요. {time_goal}"
 
     # 궁합 산문
@@ -3685,56 +3685,61 @@ def _omnibus_bridge(
         f"그게 오늘 가장 현명한 선택 중 하나예요."
     )
 
-    # ── 12가지 산문 패턴 (카드박스 없이 흐르듯이) ──
-    patterns = [
+    tf = (f"<br><br>{time_flow_prose}" if time_flow_prose else "")
 
-        # 0: 스토리 → 시간 흐름 → 연락 시간
+    # ── 12가지 산문 패턴 ──
+    patterns = [
+        # 0: 스토리 → 시간 → 흐름+연락
         f"{story}<br><br>"
         f"{time_prose_a} "
         f"{goal_prose}"
-        + (f"<br><br>{time_flow_prose}" if time_flow_prose else ""),
+        + tf,
 
-        # 1: 시간 먼저 → 스토리 → 흐름 → 마무리
+        # 1: 시간 먼저 → 스토리 → 흐름+연락
         f"오늘 {zb}와 {cb}, 시간 얘기부터 할게요.<br><br>"
         f"{time_prose_c}<br><br>"
         f"{story}<br><br>"
         f"{goal_prose}"
-        + (f"<br><br>{time_flow_prose}" if time_flow_prose else ""),
+        + tf,
 
-        # 2: 스토리 → 시간 → 띠 흐름 → 마무리
+        # 2: 스토리 → 흐름 전환 → 시간 → 흐름
         f"{story}<br><br>"
         f"그 흐름에서 오늘 딱 하나, 놓치지 말아야 할 시간이 있어요. "
         f"{time_prose_b} "
         f"{goal_prose}"
-        + (f"<br><br>{time_flow_prose}" if time_flow_prose else ""),
+        + tf,
 
         # 3: 테마 → 스토리 → 시간 → 궁합
         f"오늘 {zb}와 {cb}를 관통하는 흐름은 {tb}이에요.<br><br>"
         f"{story}<br><br>"
         f"{time_prose_a}<br><br>"
-        f"{compat_prose}",
+        f"{compat_prose}"
+        + tf,
 
-        # 4: 스토리 → 피해야 할 것 → 시간 → 마무리
+        # 4: 스토리 → 피해야 할 것 → 시간
         f"{story}<br><br>"
         f"{avoid_prose}<br><br>"
         f"그리고 {time_prose_b} "
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + tf,
 
         # 5: 행운 아이템 → 스토리 → 시간
         f"오늘 {zb}와 {cb}에게 먼저 작은 팁 하나. "
         f"{item_prose}<br><br>"
         f"{story}<br><br>"
         f"{time_prose_a} "
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + tf,
 
         # 6: 띠 중심 → 별자리 연결 → 시간
         f"오늘 {cb}의 흐름이 이런 장면을 그리고 있어요. "
         f"{c_core}<br><br>"
         f"그 흐름이 {zb}와 만나면 더 선명해져요. {z_core}<br><br>"
         f"{time_prose_c} "
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + tf,
 
-        # 7: 스토리 → 흐름 → 연락 시간 → 궁합
+        # 7: 스토리 → 흐름+연락 → 궁합
         f"{story}<br><br>"
         f"{time_prose_a}<br><br>"
         + (f"{time_flow_prose}<br><br>" if time_flow_prose else "")
@@ -3744,25 +3749,29 @@ def _omnibus_bridge(
         f"오늘 {zb}와 {cb}인 분들, 잠깐 이야기 들어보실게요?<br><br>"
         f"{story}<br><br>"
         f"{time_prose_b} "
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + tf,
 
-        # 9: 스토리 → 행운 → 시간 → 마무리
+        # 9: 스토리 → 행운 → 시간
         f"{story}<br><br>"
         f"{item_prose}<br><br>"
         f"그리고 {time_prose_a} "
-        f"{goal_prose}",
+        f"{goal_prose}"
+        + tf,
 
         # 10: 긍정 → 스토리 → 시간 → 피해야 할 것
         f"오늘 {zb}와 {cb}한테 예상보다 좋은 흐름이 있어요.<br><br>"
         f"{story}<br><br>"
         f"{time_prose_c} "
-        f"{avoid_prose}",
+        f"{avoid_prose}"
+        + tf,
 
-        # 11: 마무리형 — 스토리 → 시간 → 궁합
+        # 11: 마무리형 → 스토리 → 시간 → 궁합
         f"마지막으로 {zb}와 {cb}인 분들께.<br><br>"
         f"{story}<br><br>"
         f"{time_prose_a}<br><br>"
-        f"{compat_prose}",
+        f"{compat_prose}"
+        + tf,
     ]
     return patterns[idx % len(patterns)]
 
