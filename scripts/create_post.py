@@ -1715,15 +1715,20 @@ _Z_LOVE_DETAIL_WARN = [
 ]
 
 # ── 연애운 시간대 가이드 풀 ──
-_Z_LOVE_TIME_UP = [
-    "💬 오늘의 최적 대화 시간대: 오후 3시~6시 사이가 감수성이 열리는 시간입니다. 이 시간 안에 전하고 싶은 마음을 표현해 보세요.",
-    "💬 오늘 저녁 7시 이후에는 편안한 대화 에너지가 흐릅니다. 무거운 주제보다 가벼운 공감 대화부터 시작해 보세요.",
-    "💬 오전 중에 연락을 주고받는다면 오늘 하루 관계 에너지가 더 길게 지속됩니다. 짧은 안부 메시지 하나가 하루를 바꿀 수 있습니다.",
+_Z_LOVE_STORY_UP = [
+    "💬 마음속에 담아둔 말이 있다면 오늘이 꺼내기 좋은 날이에요. 거창하지 않아도 돼요. 짧은 한 줄이 긴 침묵보다 훨씬 멀리 닿습니다.",
+    "💬 오늘 누군가가 먼저 다가오는 느낌이 있을 수 있어요. 그 신호를 흘려보내지 마세요. 작은 반응 하나가 관계의 온도를 바꿔놓을 수 있어요.",
+    "💬 말하지 않아도 통하는 사람이 오늘 눈에 띄는 날이에요. 오래 연락 못 한 사람이 떠오른다면 그게 신호일 수 있어요. 짧게라도 먼저 건네보세요.",
+    "💬 감정을 설명하려 하기보다 그냥 함께 있는 시간을 만들어 보세요. 오늘은 말보다 온도가 더 잘 전달되는 날이에요.",
 ]
-_Z_LOVE_TIME_WARN = [
-    "💬 오후 12시~3시 사이에는 감정 기복이 생기기 쉽습니다. 이 시간대에는 중요한 감정 대화를 피하고 저녁 이후로 미루는 것이 현명합니다.",
-    "💬 오늘은 저녁 이후에 오히려 마음이 안정됩니다. 하루 중 가장 솔직한 대화를 나눌 수 있는 시간대이니 참고하세요.",
+_Z_LOVE_STORY_WARN = [
+    "💬 감정이 예민하게 올라오는 날이에요. 상대의 말 한마디가 평소보다 크게 들릴 수 있어요. 반응하기 전에 한 박자만 쉬어가세요.",
+    "💬 오늘은 관계에서 무언가를 해결하려 하기보다 그냥 두는 편이 낫습니다. 억지로 풀려는 날일수록 매듭이 더 단단해지거든요.",
+    "💬 기대치를 조금만 낮춰보세요. 오늘은 상대가 내 마음만큼 반응하지 않더라도, 그게 관계의 전부는 아니에요. 조금 더 여유롭게 봐도 됩니다.",
 ]
+# 하위 호환 — 기존 변수명 유지
+_Z_LOVE_TIME_UP   = _Z_LOVE_STORY_UP
+_Z_LOVE_TIME_WARN = _Z_LOVE_STORY_WARN
 
 # ── 연애운 마무리 풀 ──
 _Z_LOVE_CLOSE_UP = [
@@ -1760,14 +1765,18 @@ _Z_MONEY_DETAIL_WARN = [
 ]
 
 # ── 금전운 시간대 가이드 풀 ──
-_Z_MONEY_TIME_UP = [
-    "💰 오늘의 황금 시간대: 오전 10시~오후 1시 사이에 금전 관련 연락이나 결정을 마무리하세요. 이 시간대에 이루어진 금전 계획은 실행력이 높습니다.",
-    "💰 오늘 오후 2시~4시 사이가 수익 관련 아이디어가 가장 활발히 떠오르는 시간입니다. 생각이 떠오르면 바로 메모해 두세요.",
+_Z_MONEY_STORY_UP = [
+    "💰 들어올 것이 있다면 오늘 확인해 보세요. 미수금, 포인트, 환급금처럼 챙기지 않으면 그냥 지나치는 것들이 오늘 눈에 들어올 수 있어요.",
+    "💰 금전 관련 연락이나 제안이 온다면 오늘은 미루지 말고 확인해 보세요. 판단은 서두르지 않아도 되지만 확인은 오늘 하는 게 맞아요.",
+    "💰 수입 루트에 대해 막연하게만 생각해 왔다면, 오늘 10분만 정보를 찾아보세요. 검색 하나가 다음 달을 바꿀 수 있어요.",
 ]
-_Z_MONEY_TIME_WARN = [
-    "💰 오늘 오후 3시 이후에는 지출 충동이 커집니다. 이 시간대에는 쇼핑 앱 알림을 꺼두고, 불필요한 온라인 쇼핑은 내일로 미루세요.",
-    "💰 점심 이후부터 금전 판단력이 흐려질 수 있습니다. 중요한 계약이나 결제는 오전 안으로 처리하거나 다음 날로 넘기세요.",
+_Z_MONEY_STORY_WARN = [
+    "💰 사고 싶어지는 순간이 올 수 있어요. 장바구니에 담아두고 내일 아침에 다시 열어보세요. 대부분은 그때쯤 안 사게 됩니다.",
+    "💰 오늘 금전 결정은 하루만 보류해 두세요. 급해 보이는 제안일수록 오늘은 한 번 더 읽어보는 게 맞아요.",
+    "💰 카드 내역 한 번 훑어보세요. 자동 결제 중 쓰지 않는 구독이 하나쯤 있을 거예요. 지금 끊으면 연간으로 꽤 됩니다.",
 ]
+_Z_MONEY_TIME_UP   = _Z_MONEY_STORY_UP
+_Z_MONEY_TIME_WARN = _Z_MONEY_STORY_WARN
 
 # ── 금전운 마무리 풀 ──
 _Z_MONEY_CLOSE_UP = [
@@ -1816,15 +1825,18 @@ _Z_WORK_DETAIL_WARN = [
 ]
 
 # ── 직장운 시간대 가이드 풀 ──
-_Z_WORK_TIME_UP = [
-    "💼 오늘의 골든타임: 오전 9시~11시 사이가 집중력이 가장 높은 시간대입니다. 중요한 업무와 핵심 판단을 이 시간 안에 마무리하세요.",
-    "💼 오후 2시~4시 사이에는 창의적인 아이디어가 활발히 떠오릅니다. 브레인스토밍이나 기획 작업은 이 시간대를 활용해 보세요.",
-    "💼 오전 집중 업무, 오후 협업·소통으로 나누면 오늘 하루 생산성이 극대화됩니다. 오늘은 그 패턴이 특히 잘 맞는 날입니다.",
+_Z_WORK_STORY_UP = [
+    "💼 머릿속에서 맴돌던 아이디어가 있다면 오늘 꺼내보세요. 생각이 구체화되기 좋은 날이에요. 말로 꺼내거나 메모로 남기거나, 어떤 방식이든 괜찮아요.",
+    "💼 오늘 한 가지 중요한 일에만 집중해 보세요. 여러 개를 동시에 잡으려 할수록 하나도 제대로 안 되는 날이 있거든요. 오늘이 그 날일 수 있어요.",
+    "💼 미뤄둔 보고서나 이메일이 있다면 오늘 처리해 두세요. 오늘 해두면 내일 아침이 훨씬 가볍습니다.",
 ]
-_Z_WORK_TIME_WARN = [
-    "💼 오후 1시~3시 사이는 집중력이 가장 떨어지는 시간대입니다. 이 시간에는 단순 반복 업무나 정리 작업 위주로 배치하세요.",
-    "💼 오늘 오전 업무 리스트를 미리 작성해 두면 흐트러지는 집중력을 잡을 수 있습니다. 3개 이내로 핵심 과제만 뽑아서 하루를 시작하세요.",
+_Z_WORK_STORY_WARN = [
+    "💼 오늘 집중이 잘 안 된다면 억지로 짜내려 하지 마세요. 정리와 점검 위주로 움직이는 게 결과적으로 내일의 속도를 높여줍니다.",
+    "💼 이메일이나 보고서 보내기 전에 한 번 더 읽어보세요. 오늘은 작은 오타나 빠진 내용이 생기기 쉬운 날이에요. 2분 확인이 30분 수습을 아껴줍니다.",
+    "💼 의견이 엇갈리는 순간이 오면 먼저 물어보세요. '그 방식은 어떤 이유에서인가요?' 한 마디가 오늘 갈등을 만들지 않는 열쇠예요.",
 ]
+_Z_WORK_TIME_UP   = _Z_WORK_STORY_UP
+_Z_WORK_TIME_WARN = _Z_WORK_STORY_WARN
 
 # ── 직장운 마무리 풀 ──
 _Z_WORK_CLOSE_UP = [
@@ -1959,8 +1971,38 @@ def build_zodiac_post(z, today_str):
     love_is_up   = love >= 70
     love_intro   = random.choice(_Z_LOVE_INTRO_UP    if love_is_up else _Z_LOVE_INTRO_WARN)
     love_detail  = random.choice(_Z_LOVE_DETAIL_UP   if love_is_up else _Z_LOVE_DETAIL_WARN)
-    love_time    = random.choice(_Z_LOVE_TIME_UP     if love_is_up else _Z_LOVE_TIME_WARN)
+    love_story   = random.choice(_Z_LOVE_STORY_UP    if love_is_up else _Z_LOVE_STORY_WARN)
     love_close   = random.choice(_Z_LOVE_CLOSE_UP    if love_is_up else _Z_LOVE_CLOSE_WARN)
+
+    # ── 3. 금전운 (5파트 구조) ──
+    money_color, money_level = _zodiac_score_badge(money)
+    money_is_up   = money >= 70
+    money_intro   = random.choice(_Z_MONEY_INTRO_UP   if money_is_up else _Z_MONEY_INTRO_WARN)
+    money_score_c = random.choice(_Z_MONEY_SCORE_UP   if money_is_up else _Z_MONEY_SCORE_WARN)
+    money_detail  = random.choice(_Z_MONEY_DETAIL_UP  if money_is_up else _Z_MONEY_DETAIL_WARN)
+    money_story   = random.choice(_Z_MONEY_STORY_UP   if money_is_up else _Z_MONEY_STORY_WARN)
+    money_close   = random.choice(_Z_MONEY_CLOSE_UP   if money_is_up else _Z_MONEY_CLOSE_WARN)
+
+    # ── 4. 직장·사업운 (5파트 구조) ──
+    work_score = round((total + health) / 2)
+    work_color, work_level = _zodiac_score_badge(work_score)
+    work_is_up   = work_score >= 70
+    work_intro   = random.choice(_Z_WORK_INTRO_UP    if work_is_up else _Z_WORK_INTRO_WARN)
+    work_score_c = random.choice(_Z_WORK_SCORE_UP    if work_is_up else _Z_WORK_SCORE_WARN)
+    work_detail  = random.choice(_Z_WORK_DETAIL_UP   if work_is_up else _Z_WORK_DETAIL_WARN)
+    work_story   = random.choice(_Z_WORK_STORY_UP    if work_is_up else _Z_WORK_STORY_WARN)
+    work_close   = random.choice(_Z_WORK_CLOSE_UP    if work_is_up else _Z_WORK_CLOSE_WARN)
+
+    # ── 시간대 문장: 세 카드 중 1개에만 삽입 ──
+    # 날짜(일)를 시드로 사용 → 같은 날 12별자리가 각기 다른 카드에 시간대 배정
+    _time_card = now_kst().day % 3   # 0=연애, 1=금전, 2=직장
+    _love_time_html  = (f'<p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{love_story}</p>'
+                        if _time_card == 0 else '')
+    _money_time_html = (f'<p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{money_story}</p>'
+                        if _time_card == 1 else '')
+    _work_time_html  = (f'<p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{work_story}</p>'
+                        if _time_card == 2 else '')
+
     love_html = f'''
 <div class="card">
   <span class="badge" style="background:#fff0f3;color:#e11d48">❤️ 연애운 · {love}% {love_level}</span>
@@ -1970,18 +2012,10 @@ def build_zodiac_post(z, today_str):
               font-size:13px;color:#9f1239;line-height:1.8;border-left:3px solid #e11d48">
     💡 {love_detail}
   </div>
-  <p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{love_time}</p>
+  {_love_time_html}
   <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{love_close}</p>
 </div>'''
 
-    # ── 3. 금전운 (5파트 구조) ──
-    money_color, money_level = _zodiac_score_badge(money)
-    money_is_up   = money >= 70
-    money_intro   = random.choice(_Z_MONEY_INTRO_UP   if money_is_up else _Z_MONEY_INTRO_WARN)
-    money_score_c = random.choice(_Z_MONEY_SCORE_UP   if money_is_up else _Z_MONEY_SCORE_WARN)
-    money_detail  = random.choice(_Z_MONEY_DETAIL_UP  if money_is_up else _Z_MONEY_DETAIL_WARN)
-    money_time    = random.choice(_Z_MONEY_TIME_UP    if money_is_up else _Z_MONEY_TIME_WARN)
-    money_close   = random.choice(_Z_MONEY_CLOSE_UP   if money_is_up else _Z_MONEY_CLOSE_WARN)
     money_html = f'''
 <div class="card">
   <span class="badge" style="background:#fefce8;color:#a16207">💰 금전운 · {money}% {money_level}</span>
@@ -1995,19 +2029,10 @@ def build_zodiac_post(z, today_str):
               font-size:13px;color:#92400e;line-height:1.8;border-left:3px solid #f59e0b">
     💡 {money_detail}
   </div>
-  <p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{money_time}</p>
+  {_money_time_html}
   <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{money_close}</p>
 </div>'''
 
-    # ── 4. 직장·사업운 (5파트 구조) ──
-    work_score = round((total + health) / 2)
-    work_color, work_level = _zodiac_score_badge(work_score)
-    work_is_up   = work_score >= 70
-    work_intro   = random.choice(_Z_WORK_INTRO_UP    if work_is_up else _Z_WORK_INTRO_WARN)
-    work_score_c = random.choice(_Z_WORK_SCORE_UP    if work_is_up else _Z_WORK_SCORE_WARN)
-    work_detail  = random.choice(_Z_WORK_DETAIL_UP   if work_is_up else _Z_WORK_DETAIL_WARN)
-    work_time    = random.choice(_Z_WORK_TIME_UP     if work_is_up else _Z_WORK_TIME_WARN)
-    work_close   = random.choice(_Z_WORK_CLOSE_UP    if work_is_up else _Z_WORK_CLOSE_WARN)
     work_html = f'''
 <div class="card">
   <span class="badge" style="background:#eff6ff;color:#1d4ed8">💼 직장·사업운 · {work_score}% {work_level}</span>
@@ -2021,7 +2046,7 @@ def build_zodiac_post(z, today_str):
               font-size:13px;color:#1e3a8a;line-height:1.8;border-left:3px solid #1d4ed8">
     💡 {work_detail}
   </div>
-  <p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{work_time}</p>
+  {_work_time_html}
   <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{work_close}</p>
 </div>'''
 
