@@ -876,18 +876,16 @@ ${info.usage}`;
         // 이번 주 월요일의 연도/월 반환 (주간운세 포스트 제목 매칭용)
         // create_post.py는 월요일에 발행하므로 포스트 제목의 "XX년 YY월"은
         // 이번 주 월요일 기준이다. 현재 날짜가 화~일이어도 월요일 월을 써야 매칭됨.
-        function kstWeekMondayYear() {
-            const d = kstNow();
+        function kstThisMonday() {
+            const d   = kstNow();
+            const dow = d.getUTCDay();               // 0=일, 1=월, ..., 6=토
+            const diff = dow === 0 ? -6 : 1 - dow;  // 일요일이면 -6(지난 월), 나머지는 이번 주 월
             const mon = new Date(d);
-            mon.setUTCDate(d.getUTCDate() - d.getUTCDay() + 1);
-            return mon.getUTCFullYear();
+            mon.setUTCDate(d.getUTCDate() + diff);
+            return mon;
         }
-        function kstWeekMondayMonth() {
-            const d = kstNow();
-            const mon = new Date(d);
-            mon.setUTCDate(d.getUTCDate() - d.getUTCDay() + 1);
-            return String(mon.getUTCMonth()+1).padStart(2,'0');
-        }
+        function kstWeekMondayYear()  { return kstThisMonday().getUTCFullYear(); }
+        function kstWeekMondayMonth() { return String(kstThisMonday().getUTCMonth()+1).padStart(2,'0'); }
 
         // ── Blogger 포스트 fetch ──
         // orderBy=updated → 최신 글부터 반환
@@ -922,8 +920,17 @@ ${info.usage}`;
                 [name, kstWeekMondayYear()+'년', kstWeekMondayMonth()+'월', '주간운세']);
         }
         async function fetchMonthlyPost(label, name) {
-            return fetchByLabelAndTitle(label,
+            // 1차: 현재 달로 검색
+            const cur = await fetchByLabelAndTitle(label,
                 [name, kstYear()+'년', kstMonth()+'월', '월간운세']);
+            if (cur) return cur;
+            // 2차 fallback: 마지막 주 월요일에 다음달 제목으로 발행된 경우
+            const d  = kstNow();
+            const nm = d.getUTCMonth() + 2;               // 다음 달 (1-based)
+            const ny = nm > 12 ? d.getUTCFullYear() + 1 : d.getUTCFullYear();
+            const nextMonth = String(nm > 12 ? 1 : nm).padStart(2, '0');
+            return fetchByLabelAndTitle(label,
+                [name, ny+'년', nextMonth+'월', '월간운세']);
         }
         async function fetchFortunePostSimple(label, name) {
             return fetchFortunePost(label, name);
