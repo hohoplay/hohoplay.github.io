@@ -2076,6 +2076,7 @@ def build_zodiac_post(z, today_str):
 
     # ── 운세 지수 카드 ──
     score_html = f'''
+<div style="display:none" aria-hidden="true">
 <div class="card" style="background:#f8f0ff">
   <span class="badge">📊 오늘의 운세 지수 · <strong style="color:#6c3483">{signal_kw}</strong></span>
   <div style="margin-top:12px">
@@ -2083,6 +2084,154 @@ def build_zodiac_post(z, today_str):
     {_zodiac_score_bar("금전운","💰",money)}
     {_zodiac_score_bar("건강운","💪",health)}
     {_zodiac_score_bar("애정운","❤️",love)}
+  </div>
+</div>
+</div>'''
+
+    # ── 스토리텔링 섹션별 산문 빌드 ──
+
+    # 오늘의 흐름 레벨 텍스트 (점수% 대신 감성 언어)
+    def _flow_level(score):
+        if score >= 80: return "오늘 흐름이 잘 열려 있는 날이에요."
+        if score >= 65: return "나쁘지 않은 흐름이에요."
+        if score >= 50: return "잔잔하게 지나가는 날이에요."
+        return "조금 조심스러운 흐름이에요."
+
+    # 공감형 오프닝 (human_voice)
+    opening_html = f'''
+<div style="padding:1.4rem 1.6rem 1.2rem;background:linear-gradient(135deg,#faf5ff,#f0f9ff);
+            border-radius:16px;margin-bottom:16px;border-left:4px solid #a78bfa">
+  <p style="font-size:15px;line-height:2.05;color:#374151;font-weight:500;margin:0;word-break:keep-all">
+    💭 {human_voice}
+  </p>
+</div>''' if human_voice else ''
+
+    # 총운 — 스토리 산문
+    story_total_html = f'''
+<div class="card" style="border-left:5px solid {total_color}">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <span style="font-size:22px">🌟</span>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:{total_color}">오늘의 흐름</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(total)} · {total_level}</div>
+    </div>
+  </div>
+  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{total_intro}</p>
+  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 8px 0">{_para(0)}</p>
+  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(1)}</p>
+  <div style="background:#f0fdf4;border-radius:10px;padding:11px 14px;
+              font-size:13px;color:#166534;line-height:1.8;border-left:3px solid {total_color}">
+    📌 {total_score_c}
+  </div>
+</div>'''
+
+    # 연애운 — 스토리 산문
+    story_love_html = f'''
+<div class="card">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <span style="font-size:22px">❤️</span>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:{love_color}">관계·연애</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(love)}</div>
+    </div>
+  </div>
+  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{love_intro}</p>
+  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(2)}</p>
+  <div style="background:#fff0f3;border-radius:10px;padding:11px 14px;
+              font-size:13px;color:#9f1239;line-height:1.8;border-left:3px solid #e11d48">
+    💡 {love_detail}
+  </div>
+  {_love_time_html}
+  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{love_close}</p>
+</div>'''
+
+    # 금전운 — 스토리 산문
+    story_money_html = f'''
+<div class="card">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <span style="font-size:22px">💰</span>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:{money_color}">돈·재물</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(money)}</div>
+    </div>
+  </div>
+  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{money_intro}</p>
+  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(3)}</p>
+  <div style="background:#fef9c3;border-radius:10px;padding:11px 14px;
+              font-size:13px;color:#78350f;line-height:1.8;border-left:3px solid #d97706">
+    💡 {money_detail}
+  </div>
+  {_money_time_html}
+  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{money_close}</p>
+</div>'''
+
+    # 직장운 — 스토리 산문
+    story_work_html = f'''
+<div class="card">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <span style="font-size:22px">💼</span>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:{work_color}">일·직장</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(work_score)}</div>
+    </div>
+  </div>
+  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{work_intro}</p>
+  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(4)}</p>
+  <div style="background:#dbeafe;border-radius:10px;padding:11px 14px;
+              font-size:13px;color:#1e3a8a;line-height:1.8;border-left:3px solid #3b82f6">
+    💡 {work_detail}
+  </div>
+  {_work_time_html}
+  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{work_close}</p>
+</div>'''
+
+    # 공통 엔딩 — 별자리 개별 포스트용 (날짜 기반 순환)
+    _z_endings = [
+        ("오늘 하루가 예상대로 흘러가지 않아도 괜찮아요.",
+         "지금 이 감각, 당신만 느끼는 게 아니에요.",
+         "오늘 마음에 걸리는 것 하나, 그거 하나만 건드려보세요."),
+        ("운세가 다 맞지는 않아요.",
+         "근데 오늘 이 글이 '나 요즘 이랬는데'가 됐다면, 그걸로 충분히 쓸모 있는 하루예요.",
+         "오늘도 잘 버텨냈어요."),
+        ("좋은 흐름이 와도, 안 좋은 흐름이 와도.",
+         "결국 오늘을 어떻게 쓰느냐가 내일을 만들어요.",
+         "오늘 딱 하나만 — 가장 마음에 걸리는 것, 그거 하나만 해보세요."),
+        ("오늘 읽으면서 어딘가 찔리거나 위로가 됐다면.",
+         "그 느낌이 맞아요. 결국은 지금 당신 이야기를 하고 싶었던 거니까요.",
+         "내일도 여기서 봐요."),
+        ("힘들었던 날이든, 그냥 지나간 날이든.",
+         "오늘 여기까지 온 것만으로 이미 잘 하고 있는 거예요.",
+         "그 감각, 당신만 느끼는 게 아니에요."),
+        ("오늘 하루 수고했어요.",
+         "눈에 안 보여도 분명히 쌓이고 있는 것들이 있어요.",
+         "내일 이 시간에 또 이야기 나눠요."),
+        ("별자리는 오늘 당신이 어떤 에너지 위에 있는지 알고 있어요.",
+         "그 에너지를 어떻게 쓸지는 당신이 고르는 거예요.",
+         "오늘 가장 자연스럽게 오는 것, 그걸 따라가 보세요."),
+    ]
+    _ze = _z_endings[now_kst().day % len(_z_endings)]
+    zodiac_ending_html = f'''
+<div style="margin:24px 0 0 0;border-radius:18px;overflow:hidden;
+            box-shadow:0 2px 12px rgba(91,33,182,0.07)">
+  <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
+              padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
+    <span style="font-size:14px">{z['emoji']}</span>
+    <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
+      오늘 {z['kr']}에게 전하는 말
+    </span>
+  </div>
+  <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 0.5rem">
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem 0;word-break:keep-all">{_ze[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem 0;
+              font-style:italic;padding-left:0.8rem;border-left:3px solid #c4b5fd;
+              word-break:keep-all">{_ze[1]}</p>
+  </div>
+  <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
+    <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
+                margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
+    <span style="font-size:16px;font-weight:800;color:#fff;
+                 word-break:keep-all;line-height:1.6">❝ {_ze[2]} ❞</span>
   </div>
 </div>'''
 
@@ -2168,37 +2317,38 @@ def build_zodiac_post(z, today_str):
     </div>
   </div>
 
-  <!-- 1. 총운 -->
-  {summary_html}
+  <!-- 공감형 오프닝 -->
+  {opening_html}
+
+  <!-- 1. 오늘의 흐름 (총운 스토리) -->
+  {story_total_html}
 
   <!-- 대표 이미지 -->
   {post_img("zodiac")}
 
-  <!-- 2. 연애운 -->
-  {love_html}
+  <!-- 2. 관계·연애 스토리 -->
+  {story_love_html}
 
-  <!-- 3. 금전운 -->
-  {money_html}
+  <!-- 3. 돈·재물 스토리 -->
+  {story_money_html}
 
-  <!-- 4. 직장·사업운 -->
-  {work_html}
+  <!-- 4. 일·직장 스토리 -->
+  {story_work_html}
 
   <!-- 5. 오늘 피해야 할 행동 -->
   {avoid_html}
 
-  <!-- 5-1. 현실 디테일 블록 (별자리별 고유) -->
+  <!-- 5-1. 현실 디테일 블록 -->
   {real_detail_html}
 
-  <!-- 6. 응원 토닥 메시지 -->
+  <!-- 6. 응원 메시지 -->
   {cheer_html}
 
-  <!-- ① 운세 지수 계산 내역 카드 (요일·월 보정 근거) -->
-  {calc_html}
+  <!-- 이미지 저장 카드 -->
+  {image_card_html}
+  {share_buttons(card_id, f"별자리운세_{z['kr']}_{today_str}")}
 
-  <!-- 운세 지수 바 -->
-  {score_html}
-
-  <!-- ② 행운 색상·아이템 조건부 가이드 카드 -->
+  <!-- 행운 아이템 & 색상 가이드 -->
   <div class="card" style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);border-left:5px solid #f59e0b">
     <span class="badge" style="background:#fef3c7;color:#92400e">🍀 오늘의 행운 아이템 & 색상 활용 가이드</span>
     <div style="margin-top:14px;display:grid;gap:10px">
@@ -2212,24 +2362,27 @@ def build_zodiac_post(z, today_str):
       </div>
       <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #e0e7ff;font-size:13px;color:#374151">
         <div style="font-weight:700;color:#4338ca;margin-bottom:4px">🔢 오늘의 행운 숫자: {lucky_number}</div>
-        <div style="line-height:1.8">오늘 중요한 결정이나 선택의 순간에 이 숫자를 떠올려 보세요. 비밀번호 힌트, 약속 시간, 좌석 번호 등 작은 선택에서도 의미를 찾을 수 있습니다.</div>
+        <div style="line-height:1.8">오늘 중요한 결정이나 선택의 순간에 이 숫자를 떠올려 보세요.</div>
       </div>
     </div>
   </div>
 
-  <!-- 이미지 저장 카드 -->
-  {image_card_html}
+  <!-- 계산 내역 (SEO·신뢰도) -->
+  {calc_html}
 
-  <!-- 공유·저장 버튼 -->
-  {share_buttons(card_id, f"{z['kr']}_운세_{today_dot}")}
+  <!-- 운세 지수 바 (fortune.html 연동용 — 화면에는 숨김) -->
+  {score_html}
 
-  <!-- ③ 별자리 배경 지식 카드 (SEO 고정 콘텐츠) -->
-  {zodiac_info_card(z['kr'], z['emoji'])}
+  <!-- 공통 엔딩 -->
+  {zodiac_ending_html}
 
   <!-- SEO 키워드 -->
-  <div class="card"><span class="badge">🔍 관련 키워드</span><div class="tag-cloud">{tag_html}</div></div>
-  <div class="meta"><p>{z['kr']} ({z['date']})</p><p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html}</div>
+  </div>
+
   {site_link()}
+  <div class="meta"><p>{z['kr']} ({z['date']})</p><p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
 </div>"""
     return title, content, ["별자리운세", z['kr'], "운세", "오늘운세"]
 
