@@ -2798,10 +2798,71 @@ def build_chinese_post(c, today_str):
   </p>
 </div>'''
 
-    score_html = f'''<div class="card" style="background:#f8f0ff">
+    score_html = f'''<div style="display:none" aria-hidden="true">
+<div class="card" style="background:#f8f0ff">
   <span class="badge">📊 오늘의 운세 지수 · <strong style="color:#6c3483">{signal}</strong></span>
   <div style="margin-top:12px">
     {_bar("종합운","🌟",total)}{_bar("금전운","💰",money)}{_bar("건강운","💪",health)}{_bar("애정운","❤️",love)}
+  </div>
+</div>
+</div>'''
+
+    # ── 공감형 오프닝 (human_voice 맨 위) ──
+    chinese_opening_html = f'''
+<div style="padding:1.4rem 1.6rem 1.2rem;background:linear-gradient(135deg,#fffbeb,#fef3c7);
+            border-radius:16px;margin-bottom:16px;border-left:4px solid #f59e0b">
+  <p style="font-size:15px;line-height:2.05;color:#374151;font-weight:500;margin:0;word-break:keep-all">
+    💭 {chinese_human_voice}
+  </p>
+</div>''' if chinese_human_voice else ''
+
+    # ── 띠별 공통 엔딩 7종 (날짜 순환) ──
+    _c_endings = [
+        ("오늘 하루가 예상대로 흘러가지 않아도 괜찮아요.",
+         "지금 이 감각, 당신만 느끼는 게 아니에요.",
+         "오늘 마음에 걸리는 것 하나, 그거 하나만 건드려보세요."),
+        ("운세가 다 맞지는 않아요.",
+         "근데 오늘 이 글이 '나 요즘 이랬는데'가 됐다면, 그걸로 오늘은 잘 읽은 거예요.",
+         "오늘도 잘 버텨냈어요."),
+        ("좋은 흐름이 와도, 안 좋은 흐름이 와도.",
+         "결국 오늘을 어떻게 쓰느냐가 내일을 만들어요.",
+         "오늘 딱 하나 — 가장 마음에 걸리는 것, 그거 하나만 해보세요."),
+        ("오늘 읽으면서 어딘가 찔리거나 위로가 됐다면.",
+         "그 느낌이 맞아요. 결국은 지금 당신 이야기를 하고 싶었던 거니까요.",
+         "내일도 여기서 봐요."),
+        ("힘들었던 날이든, 그냥 지나간 날이든.",
+         "오늘 여기까지 온 것만으로 이미 잘 하고 있는 거예요.",
+         "그 감각, 당신만 느끼는 게 아니에요."),
+        ("오늘 하루 수고했어요.",
+         "눈에 안 보여도 분명히 쌓이고 있는 것들이 있어요.",
+         "내일 이 시간에 또 이야기 나눠요."),
+        ("같은 띠여도 오늘 하루를 어떻게 쓰느냐는 각자 달라요.",
+         "오늘 당신이 고른 것들이 쌓여서 당신만의 흐름이 돼요.",
+         "오늘 가장 자연스럽게 오는 것, 그걸 따라가 보세요."),
+    ]
+    _ce = _c_endings[now_kst().day % len(_c_endings)]
+    chinese_ending_html = f'''
+<div style="margin:24px 0 0 0;border-radius:18px;overflow:hidden;
+            box-shadow:0 2px 12px rgba(245,158,11,0.1)">
+  <div style="background:linear-gradient(90deg,#d97706,#f59e0b);
+              padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
+    <span style="font-size:14px">{c['emoji']}</span>
+    <span style="font-size:11px;font-weight:700;color:#fef3c7;letter-spacing:0.1em">
+      오늘 {c['kr']}에게 전하는 말
+    </span>
+  </div>
+  <div style="background:linear-gradient(160deg,#fffbeb,#fef9c3);padding:1.4rem 1.5rem 0.5rem">
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem 0;word-break:keep-all">{_ce[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.2rem 0;
+              font-style:italic;padding-left:0.8rem;border-left:3px solid #fcd34d;
+              word-break:keep-all">{_ce[1]}</p>
+  </div>
+  <div style="background:#92400e;padding:1rem 1.5rem;text-align:center">
+    <div style="font-size:11px;color:#fcd34d;letter-spacing:0.12em;
+                margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
+    <span style="font-size:16px;font-weight:800;color:#fff;
+                 word-break:keep-all;line-height:1.6">❝ {_ce[2]} ❞</span>
   </div>
 </div>'''
 
@@ -2846,26 +2907,24 @@ def build_chinese_post(c, today_str):
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
     <h1>{c['emoji']} {c['kr']} 오늘의 운세</h1>
-    <p>{today_str} · 종합 지수 {total}%</p>
-    <div style="margin-top:8px;display:inline-block;background:rgba(0,0,0,0.18);
-                padding:3px 14px;border-radius:20px;font-size:12px;font-weight:700">{signal}</div>
+    <p>{today_str} · {signal}</p>
   </div>
 
-  <!-- 운세 지수 바 + 계산 내역 -->
+  <!-- 공감형 오프닝 (맨 위) -->
+  {chinese_opening_html}
+
+  <!-- 운세 지수 바 (fortune.html 연동용 — 화면에는 숨김) -->
   {score_html}
   {calc_html}
 
-  <!-- 띠별 구어체 오프닝 -->
-  {chinese_human_html}
-
-  <!-- 시간대별 운세 흐름 표 -->
+  <!-- 시간대별 운세 흐름 -->
   {time_flow_html}
 
   <!-- 이미지 저장 카드 -->
   <div id="{card_id}" class="fortune-card" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
     <div class="fc-emoji">{c['emoji']}</div>
     <div class="fc-title">{c['kr']}</div>
-    <div class="fc-sub">{today_str} · 종합 {total}%</div>
+    <div class="fc-sub">{today_str}</div>
     <div class="fc-stars">{rating}</div>
     <div class="fc-text">{fortune}</div>
     <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.3);padding-top:12px">
@@ -2880,15 +2939,15 @@ def build_chinese_post(c, today_str):
   <!-- 대표 이미지 -->
   {post_img("chinese")}
 
-  <!-- 출생연도별 맞춤 운세 (본문 상세) -->
+  <!-- 출생연도별 맞춤 운세 -->
   {year_section_html}
 
-  <!-- 실전 체크포인트 (지수 연동) -->
+  <!-- 실전 체크포인트 -->
   {checkpoint_section}
 
   {caution_html}
 
-  <!-- 현실 디테일 블록 (띠별 고유) -->
+  <!-- 현실 디테일 -->
   {chinese_real_detail}
 
   <!-- 띠별 궁합 -->
@@ -2896,6 +2955,9 @@ def build_chinese_post(c, today_str):
 
   <!-- 행운 아이템·색상 가이드 -->
   {lucky_guide_html}
+
+  <!-- 공통 엔딩 -->
+  {chinese_ending_html}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span><div class="tag-cloud">{tag_html}</div></div>
   <div class="meta"><p>{c['kr']} 출생연도: {c['year']}</p><p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
