@@ -1090,8 +1090,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 .fortune-card .fc-watermark{font-size:11px;opacity:.5;text-align:center;margin-top:12px}
 .save-btn{display:block;width:100%;background:#7c3aed;color:#fff;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px}
 .save-btn:hover{background:#6d28d9}
-.share-btn-main{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#f3f4f6;color:#333;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px}
-.share-btn-main:hover{background:#e5e7eb}
+
 .share-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:flex-end}
 .share-overlay.open{display:flex}
 .share-sheet{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;margin:0 auto;animation:slideUp .25s ease}
@@ -1172,205 +1171,34 @@ function fallbackDownload(canvas, filename) {
 </script>"""
 
 def share_buttons(card_id, filename):
-    """공유하기 버튼 → 바텀시트
-    구성: X(트위터) · 페이스북 · 라인 · URL복사(메모) · 문자(SMS)
-    - 카카오(서비스 종료) / 네이버밴드 / 쓰레드 / 인스타그램 제거
-    - 모두 API 키 불필요한 URL 파라미터 방식
+    """이미지 저장 버튼 + 별과 띠가 만나는 시간 배너 링크
+    - 공유하기(SNS 바텀시트) 제거
+    - 이미지 저장 유지
+    - 별과 띠가 만나는 시간 라벨 페이지 배너 추가
     """
+    OMNIBUS_URL = (
+        "https://todayhoroscopelaboratory.blogspot.com/search/label/"
+        "%EB%B3%84%EA%B3%BC%EB%9D%A0%EA%B0%80%EB%A7%8C%EB%82%98%EB%8A%94%EC%8B%9C%EA%B0%84"
+    )
     return f"""
-<button class="share-btn-main" onclick="if(window.fortOpenSheet){{window.fortOpenSheet('{card_id}','{filename}')}}else{{alert('잠시 후 다시 시도해주세요');}}" ontouchstart="" style="cursor:pointer;touch-action:manipulation">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-  공유하기
-</button>
 <button id="savebtn-{card_id}" class="save-btn" onclick="saveFortuneCard('{card_id}', '{filename}')">📸 이미지 저장</button>
-<script>
-(function(){{
-  /* ── CSS: 최초 1회만 삽입 ── */
-  if (!document.getElementById('__fort_css')) {{
-    var css = document.createElement('style');
-    css.id = '__fort_css';
-    css.textContent =
-      '.fort-ov{{display:none;position:fixed;top:0;left:0;width:100%;height:100%;' +
-      'background:rgba(0,0,0,.52);z-index:2147483647;align-items:flex-end;justify-content:center}}' +
-      '.fort-ov.on{{display:flex!important}}' +
-      '.fort-sh{{background:#fff;border-radius:20px 20px 0 0;padding:22px 16px 38px;' +
-      'width:100%;max-width:480px;box-sizing:border-box;' +
-      'animation:fortUp .25s cubic-bezier(.4,0,.2,1)}}' +
-      '@keyframes fortUp{{from{{transform:translateY(100%)}}to{{transform:translateY(0)}}}}' +
-      '.fort-ttl{{text-align:center;font-size:13px;color:#888;margin-bottom:18px;' +
-      'padding-bottom:14px;border-bottom:1px solid #f0f0f0}}' +
-      '.fort-grid{{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}}' +
-      '.fort-btn{{display:flex;flex-direction:column;align-items:center;gap:5px;' +
-      'border:none;background:none;cursor:pointer;padding:10px 4px;' +
-      '-webkit-tap-highlight-color:rgba(0,0,0,.08);touch-action:manipulation;' +
-      'user-select:none;-webkit-user-select:none;min-width:58px}}' +
-      '.fort-ico{{width:56px;height:56px;border-radius:16px;display:flex;' +
-      'align-items:center;justify-content:center;flex-shrink:0}}' +
-      '.fort-btn span{{font-size:10px;color:#444;font-weight:600;text-align:center;line-height:1.3;word-break:keep-all}}' +
-      '.fort-cancel{{display:block;width:100%;background:#f3f4f6;border:none;' +
-      'border-radius:12px;padding:14px;font-size:15px;font-weight:700;color:#333;' +
-      'cursor:pointer;-webkit-tap-highlight-color:transparent}}';
-    document.head.appendChild(css);
-  }}
-
-  /* ── 바텀시트 DOM: 최초 1회만 생성 ── */
-  if (!document.getElementById('__fort_ov')) {{
-    var ov = document.createElement('div');
-    ov.id = '__fort_ov';
-    ov.className = 'fort-ov';
-    ov.innerHTML =
-      '<div class="fort-sh" id="__fort_sh">' +
-        '<div class="fort-ttl">공유하기</div>' +
-        '<div class="fort-grid">' +
-          /* X (트위터) */
-          '<button class="fort-btn" id="__fb_x">' +
-            '<div class="fort-ico" style="background:#000">' +
-              '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">' +
-                '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231' +
-                '-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231z"/>' +
-              '</svg>' +
-            '</div><span>X 공유</span>' +
-          '</button>' +
-          /* 페이스북 */
-          '<button class="fort-btn" id="__fb_fb">' +
-            '<div class="fort-ico" style="background:#1877F2">' +
-              '<svg width="26" height="26" viewBox="0 0 24 24" fill="#fff">' +
-                '<path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073' +
-                'c0 6.027 4.388 11.024 10.125 11.927V15.563H7.078v-3.49h3.047V9.41' +
-                'c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97' +
-                'h-1.513c-1.491 0-1.956.93-1.956 1.887v2.267h3.328l-.532 3.49' +
-                'h-2.796v8.437C19.612 23.097 24 18.1 24 12.073z"/>' +
-              '</svg>' +
-            '</div><span>페이스북</span>' +
-          '</button>' +
-          /* 라인 */
-          '<button class="fort-btn" id="__fb_ln">' +
-            '<div class="fort-ico" style="background:#06C755">' +
-              '<svg width="28" height="28" viewBox="0 0 48 48" fill="#fff">' +
-                '<path d="M24 4C12.95 4 4 11.86 4 21.5c0 8.3 6.56 15.25 15.5 17.06' +
-                '.6.13 1.42.4 1.63.92.19.47.12 1.2.06 1.67l-.26 1.57' +
-                'c-.08.47-.37 1.84 1.6.99 1.97-.84 10.63-6.26 14.5-10.72' +
-                'C39.9 29.97 44 26.02 44 21.5 44 11.86 35.05 4 24 4z"/>' +
-                '<path d="M36 25h-5v-8a1 1 0 00-2 0v9a1 1 0 001 1h6a1 1 0 000-2z" fill="#06C755"/>' +
-                '<path d="M19 17a1 1 0 00-1 1v9a1 1 0 002 0v-9a1 1 0 00-1-1z" fill="#06C755"/>' +
-                '<path d="M29 17h-4a1 1 0 00-1 1v9a1 1 0 001 1h4a1 1 0 000-2h-3v-2h3a1 1 0 000-2h-3v-2h3a1 1 0 000-2z" fill="#06C755"/>' +
-                '<path d="M15 17a1 1 0 00-1 1v9a1 1 0 002 0v-5.29l4.29 5.72A1 1 0 0021 28v-9a1 1 0 00-2 0v5.29l-4.29-5.72A1 1 0 0015 17z" fill="#06C755"/>' +
-              '</svg>' +
-            '</div><span>라인</span>' +
-          '</button>' +
-          /* URL 복사 (메모) */
-          '<button class="fort-btn" id="__fb_cp">' +
-            '<div class="fort-ico" style="background:#6b7280">' +
-              '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">' +
-                '<rect x="9" y="9" width="13" height="13" rx="2"/>' +
-                '<path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>' +
-              '</svg>' +
-            '</div><span>URL 복사</span>' +
-          '</button>' +
-          /* 문자 (SMS) */
-          '<button class="fort-btn" id="__fb_sms">' +
-            '<div class="fort-ico" style="background:#34C759">' +
-              '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">' +
-                '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>' +
-              '</svg>' +
-            '</div><span>문자</span>' +
-          '</button>' +
-        '</div>' +
-        '<button class="fort-cancel" id="__fb_cancel">취소</button>' +
-      '</div>';
-    document.body.appendChild(ov);
-
-    /* ── 닫기 ── */
-    function _close() {{
-      ov.classList.remove('on');
-      document.body.style.overflow = '';
-    }}
-    ov.addEventListener('click', function(e){{ if(e.target===ov) _close(); }});
-    document.getElementById('__fb_cancel').addEventListener('click', _close);
-
-    /* ── 공유 액션 ── */
-    function _open(url, w, h) {{
-      window.open(url, '_blank', 'width='+w+',height='+h);
-      _close();
-    }}
-
-    /* X (트위터) */
-    document.getElementById('__fb_x').addEventListener('click', function() {{
-      var url = encodeURIComponent(location.href);
-      var txt = encodeURIComponent(document.title);
-      _open('https://twitter.com/intent/tweet?url='+url+'&text='+txt, 600, 450);
-    }});
-
-    /* 페이스북 */
-    document.getElementById('__fb_fb').addEventListener('click', function() {{
-      var url = encodeURIComponent(location.href);
-      _open('https://www.facebook.com/sharer/sharer.php?u='+url, 600, 500);
-    }});
-
-    /* 라인 */
-    document.getElementById('__fb_ln').addEventListener('click', function() {{
-      var url = encodeURIComponent(location.href);
-      _open('https://social-plugins.line.me/lineit/share?url='+url, 600, 500);
-    }});
-
-    /* URL 복사 (메모) */
-    document.getElementById('__fb_cp').addEventListener('click', function() {{
-      var url = location.href;
-      function done() {{ _close(); alert('✅ URL이 복사되었습니다!\\n메모장이나 원하는 곳에 붙여넣기 하세요.'); }}
-      if (navigator.clipboard) {{
-        navigator.clipboard.writeText(url).then(done).catch(function() {{ fb(url); done(); }});
-      }} else {{ fb(url); done(); }}
-      function fb(t) {{
-        var x = document.createElement('textarea'); x.value = t;
-        x.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
-        document.body.appendChild(x); x.focus(); x.select();
-        document.execCommand('copy'); document.body.removeChild(x);
-      }}
-    }});
-
-    /* 문자 (SMS) */
-    document.getElementById('__fb_sms').addEventListener('click', function() {{
-      var txt = encodeURIComponent(document.title + '\\n' + location.href);
-      _close();
-      /* iOS: sms:&body= / Android: sms:?body= 모두 지원 */
-      var isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
-      if (isMobile) {{
-        var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        window.location.href = isIOS ? 'sms:&body='+txt : 'sms:?body='+txt;
-      }} else {{
-        /* PC: URL 복사로 대체 */
-        if (navigator.clipboard) {{
-          navigator.clipboard.writeText(document.title + '\\n' + location.href).then(function() {{
-            alert('📋 PC에서는 링크가 복사되었습니다!\\n문자 앱에 붙여넣어 공유하세요.');
-          }});
-        }} else {{
-          alert('공유할 링크:\\n' + location.href);
-        }}
-      }}
-    }});
-
-    /* ── 열기 함수: window에 즉시 등록 ── */
-    window.fortOpenSheet = function(cardId, fname) {{
-      window.__fort_cid = cardId;
-      window.__fort_fn  = fname;
-      document.getElementById('__fort_ov').classList.add('on');
-      document.body.style.overflow = 'hidden';
-    }};
-    window.fortCloseSheet = _close;
-  }}
-
-  /* ── 이미 DOM이 있어도 fortOpenSheet는 항상 window에 보장 ── */
-  if (!window.fortOpenSheet) {{
-    window.fortOpenSheet = function(cardId, fname) {{
-      window.__fort_cid = cardId;
-      window.__fort_fn  = fname;
-      var o = document.getElementById('__fort_ov');
-      if (o) {{ o.classList.add('on'); document.body.style.overflow = 'hidden'; }}
-    }};
-  }}
-}})();
-</script>"""
-
+<a href="{OMNIBUS_URL}" target="_blank" rel="noopener"
+   style="display:flex;align-items:center;gap:12px;text-decoration:none;
+          margin-top:10px;padding:16px 18px;border-radius:14px;
+          background:linear-gradient(135deg,#1e1b4b,#4c1d95)">
+  <span style="font-size:26px;flex-shrink:0">🌙</span>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:13px;font-weight:700;color:#e9d5ff;
+                margin-bottom:3px;word-break:keep-all">별과 띠가 만나는 시간</div>
+    <div style="font-size:12px;color:#c4b5fd;line-height:1.6;word-break:keep-all">
+      내 별자리와 띠가 오늘 어떻게 연결되는지 보러 가기 →
+    </div>
+  </div>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+       stroke="#a78bfa" stroke-width="2.5" style="flex-shrink:0">
+    <path d="M9 18l6-6-6-6"/>
+  </svg>
+</a>"""
 
 def site_link():
     _links = [
