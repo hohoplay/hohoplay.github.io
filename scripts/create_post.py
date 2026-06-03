@@ -4139,14 +4139,12 @@ def build_omnibus_post(today_str: str) -> tuple:
             f'{para}</p>'
         )
 
-    # 3조합씩 4파트로 분할
-    paras_1 = paragraphs[0:3]   # 양자리·황소자리·쌍둥이자리
-    paras_2 = paragraphs[3:6]   # 게자리·사자자리·처녀자리
-    paras_3 = paragraphs[6:9]   # 천칭자리·전갈자리·사수자리
-    paras_4 = paragraphs[9:12]  # 염소자리·물병자리·물고기자리
+    # 6조합씩 2장으로 분할
+    paras_1 = paragraphs[0:6]   # 양자리·황소자리·쌍둥이자리·게자리·사자자리·처녀자리
+    paras_2 = paragraphs[6:12]  # 천칭자리·전갈자리·사수자리·염소자리·물병자리·물고기자리
 
     # 각 파트 첫 문단 드롭캡
-    for paras in [paras_1, paras_2, paras_3, paras_4]:
+    for paras in [paras_1, paras_2]:
         paras[0] = paras[0].replace(
             '<p style="margin:0 0 1.9em 0;text-indent:0">',
             '<p style="margin:0 0 1.9em 0;text-indent:0" class="drop-cap-p">',
@@ -4155,21 +4153,17 @@ def build_omnibus_post(today_str: str) -> tuple:
 
     story_1 = "\n".join(paras_1)
     story_2 = "\n".join(paras_2)
-    story_3 = "\n".join(paras_3)
-    story_4 = "\n".join(paras_4)
 
     # 각 파트 별자리 이름
     z_names = [z['kr'] for z in ZODIACS]
     part_names = [
-        "·".join(z_names[0:3]),   # 양자리·황소자리·쌍둥이자리
-        "·".join(z_names[3:6]),   # 게자리·사자자리·처녀자리
-        "·".join(z_names[6:9]),   # 천칭자리·전갈자리·사수자리
-        "·".join(z_names[9:12]),  # 염소자리·물병자리·물고기자리
+        "·".join(z_names[0:6]),   # 양자리~처녀자리
+        "·".join(z_names[6:12]),  # 천칭자리~물고기자리
     ]
-    part_labels = ["첫 번째 이야기", "두 번째 이야기", "세 번째 이야기", "마지막 이야기"]
+    part_labels = ["첫 번째 이야기", "마지막 이야기"]
 
     date_slug = today_str.replace(' ','').replace('년','').replace('월','').replace('일','')
-    card_ids = [f"omnibus-{i+1}-{date_slug}" for i in range(4)]
+    card_ids = [f"omnibus-{i+1}-{date_slug}" for i in range(2)]
 
     # ── 오늘의 명언 ──
     quote_text, _, _ = pick_quote()
@@ -4350,9 +4344,7 @@ def build_omnibus_post(today_str: str) -> tuple:
 <div class="wrap">
 
 {_novel_card(card_ids[0], part_labels[0], part_names[0], story_1, show_opening=True)}
-{_novel_card(card_ids[1], part_labels[1], part_names[1], story_2)}
-{_novel_card(card_ids[2], part_labels[2], part_names[2], story_3)}
-{_novel_card(card_ids[3], part_labels[3], part_names[3], story_4, show_ending=True)}
+{_novel_card(card_ids[1], part_labels[1], part_names[1], story_2, show_ending=True)}
 
   <!-- 오늘의 한 마디 -->
   <div class="card" style="margin-top:12px">
