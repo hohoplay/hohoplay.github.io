@@ -3419,113 +3419,42 @@ def build_sns_chinese_post(today_str):
 # 원칙: 별자리의 감정·상황 → 띠의 에너지가 그것을 어떻게 밀거나 잡아주는지 서사로 연결
 _CONNECT_MAP = [
     ("양자리",   "용띠",    "시작",
-     "뭔가 시작하고 싶은데 이상하게 손이 안 가는 날이 있어요. "
-     "그게 두려움이 아니에요. 에너지가 너무 커서 어디서 터뜨릴지 아직 못 고른 거거든요. "
-     "오늘 용띠의 추진력이 그 등을 밀어주는 날이에요. "
-     "양자리는 아이디어가 넘치는데 첫 발이 의외로 무거운 타입이거든요. "
-     "그 공백을 용띠의 '일단 해보자' 에너지가 채워주는 날이에요. "
-     "<br><br>"
-     "오늘 완성이 목표가 아니에요. 파일 하나 열거나, 메시지 초안 하나 쓰거나. "
-     "용띠가 문을 여는 날이고, 양자리가 그 문으로 달려 들어가는 날입니다. "
-     "그 한 발이 오늘의 전부예요."),
+     "손이 안 가는 날이 있어요. 그게 두려움이 아니에요. "
+     "에너지가 너무 커서 어디서 터뜨릴지 못 고른 거거든요. "
+     "오늘 용띠의 추진력이 양자리의 그 등을 밀어주는 날입니다."),
     ("황소자리", "뱀띠",    "결실",
-     "열심히 하고 있는 건 알겠는데, 이게 맞는 방향인지 요즘 자꾸 흔들리는 느낌이 드나요. "
-     "황소자리인 당신은 오래 기다리는 걸 잘하는 편이에요. "
-     "근데 그 기다림이 너무 길어지면 '내가 맞게 가고 있는 건가' 싶어지죠. "
-     "오늘 뱀띠의 날카로운 직관이 그 확신을 다시 세워줍니다. "
-     "뱀띠는 흐름을 읽는 눈이 있어요. 그 눈이 오늘 황소자리의 방향이 맞다고 가리키고 있어요. "
-     "<br><br>"
-     "오늘 오후에 작은 피드백 하나, 반응 하나가 그 신호로 들어올 수 있어요. "
-     "흘려보내지 마세요. 황소자리가 쌓아온 것들이 뱀띠의 감각과 만나서 오늘 드디어 보이기 시작합니다."),
+     "열심히 하고 있는데 이게 맞는 방향인지 흔들리는 날이 있어요. "
+     "뱀띠의 날카로운 직관이 오늘 황소자리의 그 확신을 다시 세워줍니다."),
     ("쌍둥이자리","토끼띠",  "연결",
-     "이것도 해야 하고, 저것도 신경 쓰이고, 결국 아무것도 못 끝낸 느낌. 그 날 있잖아요. "
-     "쌍둥이자리인 당신의 머릿속엔 오늘도 생각이 열 개쯤 동시에 돌아가고 있을 거예요. "
-     "그런데 토끼띠는 그 중에서 가장 중요한 것만 골라내는 감각이 있어요. "
-     "말 많은 쌍둥이자리 옆에서 토끼띠가 '그거 하나만 해'라고 조용히 말해주는 날이에요. "
-     "<br><br>"
-     "오늘 할 것 목록이 열 개라면 딱 두 개만 남기세요. "
-     "쌍둥이자리의 속도와 토끼띠의 선택력이 합쳐지면, 오늘 그 두 개가 생각보다 빠르게 끝납니다."),
+     "이것도 저것도 신경 쓰이고 결국 아무것도 못 끝낸 느낌. 그 날이에요. "
+     "토끼띠가 오늘 쌍둥이자리에게 '그거 하나만 해'라고 조용히 말해줍니다."),
     ("게자리",   "말띠",    "용기",
-     "말해봤자 뭐가 달라지나 싶어서, 그냥 넘기는 날들이 쌓이고 있지 않으세요. "
-     "게자리인 당신은 하고 싶은 말을 속으로 참는 날이 꽤 많아요. "
-     "상대가 상처받을까봐, 분위기가 이상해질까봐. "
-     "오늘 말띠의 직진 에너지가 그 망설임을 걷어내줍니다. "
-     "말띠는 생각보다 말이 먼저 나오는 타입이에요. 그 솔직함이 오늘 게자리에게 필요한 바람이 되는 날이에요. "
-     "<br><br>"
-     "거창하게 말할 필요 없어요. 문자 하나, 짧은 안부 하나. "
-     "게자리의 따뜻함과 말띠의 추진력이 만나면, 오늘 그 말이 생각보다 잘 닿습니다."),
+     "말해봤자 뭐가 달라지나 싶어서 그냥 넘기는 날들이 쌓이고 있지 않으세요. "
+     "오늘 말띠의 직진 에너지가 게자리의 그 망설임을 걷어내줍니다."),
     ("사자자리", "원숭이띠", "존재감",
-     "열심히 하는 건 나도 아는데, 아무도 몰라주는 것 같은 날 있잖아요. 그 억울함이요. "
-     "사자자리인 당신은 인정받을 때 빛나는 타입이에요. "
-     "오늘 원숭이띠의 재치가 그 존재감을 드러내는 방법을 알려줘요. "
-     "원숭이띠는 타이밍을 아는 타입이에요. 언제 어떻게 보여줘야 하는지를요. "
-     "<br><br>"
-     "오늘 오전 안에 하나만 완성해서 공유하세요. "
-     "사자자리의 열정과 원숭이띠의 센스가 합쳐지면, 오늘 그 공유가 생각보다 멀리 닿습니다."),
+     "열심히 하는 건 나도 아는데 아무도 몰라주는 것 같은 날이에요. "
+     "원숭이띠의 타이밍 감각이 오늘 사자자리의 존재감을 드러내는 방법을 알려줍니다."),
     ("처녀자리", "닭띠",    "완성",
-     "요즘 뭔가 계속 미루게 되는 것이 있지 않으세요. 완벽하지 않아서, 아직 아닌 것 같아서. "
-     "처녀자리인 당신은 100%가 아니면 내보내기 싫은 타입이에요. "
-     "그 꼼꼼함이 강점인데, 오늘은 그게 발목을 잡을 수 있어요. "
-     "닭띠는 기준을 높이 세우면서도 실행을 미루지 않는 타입이에요. "
-     "그 실행력이 오늘 처녀자리의 완벽주의를 부드럽게 풀어줍니다. "
-     "<br><br>"
-     "오늘 80%에서 내보내세요. 처녀자리가 다듬고, 닭띠가 밀어내는 날이에요. "
-     "나머지 20%는 다음 버전에서 하면 됩니다. 완성이 완벽보다 오늘은 훨씬 중요해요."),
+     "요즘 뭔가 계속 미루게 되는 것이 있지 않으세요. 완벽하지 않아서. "
+     "닭띠의 실행력이 오늘 처녀자리의 완벽주의를 부드럽게 풀어줍니다."),
     ("천칭자리", "개띠",    "관계",
-     "말로 꺼내기엔 애매하고, 그냥 넘기기엔 뭔가 걸리는 그게 마음에 남아 있지 않으세요. "
-     "천칭자리인 당신은 관계에서 좋은 게 좋다는 쪽을 택하는 경우가 많아요. "
-     "근데 그게 쌓이면 어느 날 갑자기 서운함이 터지죠. "
-     "개띠는 의리와 솔직함을 동시에 갖고 있어요. "
-     "그 솔직함이 오늘 천칭자리가 참아왔던 말을 꺼낼 수 있는 분위기를 만들어줍니다. "
-     "<br><br>"
-     "거창하게 말할 필요 없어요. '그때 그 말이 조금 걸렸어'라고 짧게만 해도 돼요. "
-     "천칭자리의 배려와 개띠의 진심이 만나면, 오늘 그 대화가 관계를 오히려 더 단단하게 만들 수 있습니다."),
+     "말로 꺼내기엔 애매하고 그냥 넘기기엔 걸리는 게 마음에 남아 있지 않으세요. "
+     "오늘 개띠의 솔직함이 천칭자리가 참아왔던 말을 꺼낼 수 있는 분위기를 만들어줍니다."),
     ("전갈자리", "돼지띠",  "직관",
-     "사람을 너무 잘 읽어서 오히려 지치는 날이 있어요. 그 예민함이 짐이 되는 날이요. "
-     "전갈자리인 당신은 사람을 읽는 눈이 날카로워요. "
-     "그런데 그 예민함이 때로는 너무 많은 걸 보이게 해서 지치기도 하죠. "
-     "돼지띠는 오늘 그 긴장을 풀어주는 역할을 해요. "
-     "돼지띠의 너그러움이 전갈자리의 날 선 감각을 부드럽게 감싸줍니다. "
-     "<br><br>"
-     "오늘 첫 번째로 떠오르는 판단을 믿되, 그 판단에 여유를 하나 더 얹어보세요. "
-     "전갈자리의 통찰과 돼지띠의 온기가 만나면, 오늘 관계에서 생각보다 좋은 결과가 나옵니다."),
+     "사람을 너무 잘 읽어서 오히려 지치는 날이 있어요. "
+     "돼지띠의 너그러움이 오늘 전갈자리의 날 선 감각을 부드럽게 감싸줍니다."),
     ("사수자리", "쥐띠",    "전환",
-     "뭔가 바꾸고 싶은데 어디서 시작해야 할지 모르는 그 답답함, 요즘 느끼고 있지 않으세요. "
-     "사수자리인 당신은 변화를 좋아하지만, 정작 어디서 시작할지 모를 때가 있어요. "
-     "쥐띠는 그 시작점을 빠르게 찾아내는 타입이에요. "
-     "정보를 먼저 캐치하고, 기회를 먼저 알아채는 감각이 있거든요. "
-     "그 감각이 오늘 사수자리의 변화 에너지에 방향을 달아줍니다. "
-     "<br><br>"
-     "오늘 딱 하나만 바꿔보세요. 사수자리가 '바꾸고 싶다'는 에너지를 내면, "
-     "쥐띠가 '여기서 시작해'라고 답해주는 날이에요. 그 작은 전환이 오늘 흐름을 엽니다."),
+     "뭔가 바꾸고 싶은데 어디서 시작해야 할지 모르는 그 답답함이에요. "
+     "쥐띠가 오늘 사수자리의 변화 에너지에 방향을 달아줍니다."),
     ("염소자리", "소띠",    "신뢰",
-     "결과가 아직 안 보여서 이게 맞나 싶은 날, 주변이 먼저 나아가는 것 같아서 조바심 나는 날. "
-     "염소자리인 당신은 묵묵히 쌓아가는 타입이에요. "
-     "결과가 안 보여도 멈추지 않는 거, 그게 염소자리의 진짜 강점이에요. "
-     "오늘 소띠의 뚝심이 그 옆을 함께 걷습니다. "
-     "두 에너지가 만나는 오늘은 '지금 잘 가고 있다'는 확신이 생기는 날이에요. "
-     "<br><br>"
-     "오늘 오전에 지금까지 해온 것들을 짧게 메모해보세요. "
-     "눈에 안 보여도 분명히 쌓이고 있어요. 그게 오늘 확인되는 날입니다."),
+     "결과가 안 보여서 이게 맞나 싶은 날, 주변이 먼저 나아가는 것 같아 조바심 나는 날. "
+     "오늘 소띠의 뚝심이 염소자리 옆을 함께 걷습니다. 눈에 안 보여도 분명히 쌓이고 있어요."),
     ("물병자리", "호랑이띠", "다름",
      "맞춰야 할 것 같은데 맞추기가 싫고, 그렇다고 혼자 튀는 것 같아서 눌러두는 아이디어가 있지 않으세요. "
-     "물병자리인 당신은 그 긴장을 꽤 오래 안고 사는 타입이에요. "
-     "오늘 호랑이띠의 배짱이 그 망설임을 끊어줍니다. "
-     "호랑이띠는 남의 시선을 크게 신경 쓰지 않거든요. "
-     "그 배짱이 오늘 물병자리에게 '그냥 해도 돼'라는 신호가 됩니다. "
-     "<br><br>"
-     "오늘 그 아이디어를 일단 메모해두세요. "
-     "물병자리의 독창성과 호랑이띠의 결단력이 만나면, 오늘 그 메모가 내일의 시작이 됩니다."),
+     "호랑이띠의 배짱이 오늘 물병자리에게 '그냥 해도 돼'라는 신호가 됩니다."),
     ("물고기자리","양띠",   "쉬어가기",
-     "남 챙기다 정작 나는 못 챙긴 날들이 쌓여서, 오늘 유독 무거운 느낌이 드나요. "
-     "물고기자리인 당신은 주변 사람의 감정을 다 흡수하는 타입이에요. "
-     "공감이 강점인데, 그게 어느 순간 짐이 돼서 정작 본인이 제일 지쳐 있는 날이 있어요. "
-     "오늘 양띠의 부드러운 에너지가 그 짐을 내려놓게 해줍니다. "
-     "양띠는 강요하지 않아요. 그냥 옆에 있어주는 타입이에요. "
-     "그 조용한 존재감이 오늘 물고기자리에게 쉬어도 된다는 허락이 됩니다. "
-     "<br><br>"
-     "오늘 저녁은 진짜 오프 타임으로 지켜보세요. "
-     "물고기자리가 손을 펴고 있을 때, 양띠의 온기가 그 자리를 채워줍니다."),
+     "남 챙기다 정작 나는 못 챙긴 날들이 쌓여서 오늘 유독 무거운 느낌이 드나요. "
+     "양띠의 조용한 온기가 오늘 물고기자리에게 쉬어도 된다는 허락이 됩니다."),
 ]
 
 
@@ -4203,26 +4132,44 @@ def build_omnibus_post(today_str: str) -> tuple:
             z_signal    = zd.get('signal', theme),
         )
         paragraphs.append(
-            f'<p style="margin:0 0 1.7em 0;text-indent:0">{para}</p>'
+            f'<p style="margin:0 0 1.9em 0;text-indent:0">'
+            f'<span style="font-size:13px;color:#c4b5fd;margin-right:4px;vertical-align:middle">'
+            f'{ZODIACS[[z["kr"] for z in ZODIACS].index(z_kr)]["emoji"] if z_kr in [z["kr"] for z in ZODIACS] else "✦"}'
+            f'</span>'
+            f'{para}</p>'
         )
 
-    # 상(0~5) / 하(6~11) 분리
-    paras_top = paragraphs[:6]
-    paras_bot = paragraphs[6:]
+    # 3조합씩 4파트로 분할
+    paras_1 = paragraphs[0:3]   # 양자리·황소자리·쌍둥이자리
+    paras_2 = paragraphs[3:6]   # 게자리·사자자리·처녀자리
+    paras_3 = paragraphs[6:9]   # 천칭자리·전갈자리·사수자리
+    paras_4 = paragraphs[9:12]  # 염소자리·물병자리·물고기자리
 
-    # 각각 첫 문단 드롭캡
-    paras_top[0] = paras_top[0].replace(
-        '<p style="margin:0 0 1.7em 0;text-indent:0">',
-        '<p style="margin:0 0 1.7em 0;text-indent:0" class="drop-cap-p">',
-        1
-    )
-    paras_bot[0] = paras_bot[0].replace(
-        '<p style="margin:0 0 1.7em 0;text-indent:0">',
-        '<p style="margin:0 0 1.7em 0;text-indent:0" class="drop-cap-p">',
-        1
-    )
-    story_top = "\n".join(paras_top)
-    story_bot = "\n".join(paras_bot)
+    # 각 파트 첫 문단 드롭캡
+    for paras in [paras_1, paras_2, paras_3, paras_4]:
+        paras[0] = paras[0].replace(
+            '<p style="margin:0 0 1.9em 0;text-indent:0">',
+            '<p style="margin:0 0 1.9em 0;text-indent:0" class="drop-cap-p">',
+            1
+        )
+
+    story_1 = "\n".join(paras_1)
+    story_2 = "\n".join(paras_2)
+    story_3 = "\n".join(paras_3)
+    story_4 = "\n".join(paras_4)
+
+    # 각 파트 별자리 이름
+    z_names = [z['kr'] for z in ZODIACS]
+    part_names = [
+        "·".join(z_names[0:3]),   # 양자리·황소자리·쌍둥이자리
+        "·".join(z_names[3:6]),   # 게자리·사자자리·처녀자리
+        "·".join(z_names[6:9]),   # 천칭자리·전갈자리·사수자리
+        "·".join(z_names[9:12]),  # 염소자리·물병자리·물고기자리
+    ]
+    part_labels = ["첫 번째 이야기", "두 번째 이야기", "세 번째 이야기", "마지막 이야기"]
+
+    date_slug = today_str.replace(' ','').replace('년','').replace('월','').replace('일','')
+    card_ids = [f"omnibus-{i+1}-{date_slug}" for i in range(4)]
 
     # ── 오늘의 명언 ──
     quote_text, _, _ = pick_quote()
@@ -4237,13 +4184,97 @@ def build_omnibus_post(today_str: str) -> tuple:
     )
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_tags)
 
-    date_slug = today_str.replace(' ','').replace('년','').replace('월','').replace('일','')
-    card_id_top = f"omnibus-top-{date_slug}"
-    card_id_bot = f"omnibus-bot-{date_slug}"
+    def _novel_card(card_id, part_label, part_name, story_html,
+                    show_opening=False, show_ending=False):
+        opening_html = f'<p class="novel-opening">{opening}</p>' if show_opening else ''
+        ending_html = f"""
+    <div style="
+      margin: 2.8rem 0 0 0;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(91,33,182,0.08);
+    ">
+      <div style="
+        background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+        padding: 0.7rem 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      ">
+        <span style="font-size:15px">🌙</span>
+        <span style="
+          font-size: 12px;
+          font-weight: 700;
+          color: #ede9fe;
+          letter-spacing: 0.12em;
+        ">오늘 별과 띠가 함께 전하는 말</span>
+      </div>
+      <div style="
+        background: linear-gradient(160deg, #faf5ff 0%, #fdf4ff 100%);
+        padding: 1.6rem 1.6rem 0.4rem 1.6rem;
+      ">
+        <p style="
+          font-size: 15.5px;
+          line-height: 2.05;
+          color: #374151;
+          margin: 0 0 1.1rem 0;
+          word-break: keep-all;
+          font-weight: 500;
+        ">{ending_insight}</p>
+        <p style="
+          font-size: 14px;
+          line-height: 1.95;
+          color: #6d28d9;
+          margin: 0 0 1.5rem 0;
+          word-break: keep-all;
+          font-style: italic;
+          padding-left: 0.9rem;
+          border-left: 3px solid #c4b5fd;
+        ">{ending_bridge}</p>
+      </div>
+      <div style="
+        background: #5b21b6;
+        padding: 1.2rem 1.6rem;
+        text-align: center;
+      ">
+        <div style="
+          font-size: 11px;
+          color: #c4b5fd;
+          letter-spacing: 0.14em;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+        ">오늘 단 하나만 한다면</div>
+        <span style="
+          display: inline-block;
+          font-size: 17px;
+          font-weight: 800;
+          color: #ffffff;
+          letter-spacing: -0.01em;
+          word-break: keep-all;
+          line-height: 1.6;
+        ">❝ {ending_action} ❞</span>
+      </div>
+    </div>
+    <div class="novel-footer">{closing}</div>
+""" if show_ending else ''
 
-    # 별자리 12개 이름 — 상/하 구분 표시용
-    z_names_top = "·".join(z['kr'] for z in ZODIACS[:6])   # 양자리~처녀자리
-    z_names_bot = "·".join(z['kr'] for z in ZODIACS[6:])   # 천칭자리~물고기자리
+        return f"""
+  <div class="novel-page" id="{card_id}">
+    <div class="novel-date">{today_str} · {season}</div>
+    <h1 class="novel-title">🌙 별과 띠가 만나는 시간</h1>
+    <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
+    <div class="novel-part">{part_label} · {part_name}</div>
+    <div class="novel-rule">&middot; &middot; &middot;</div>
+    {opening_html}
+    <div class="novel-body">
+{story_html}
+    </div>
+    <div class="novel-rule">&middot; &middot; &middot;</div>
+    {ending_html}
+  </div>
+  {share_buttons(card_id, f"별과띠가만나는시간_{part_label}_{today_str}")}
+  <div style="margin:24px 0 8px 0;border-top:1px dashed #e5e7eb;padding-top:24px"></div>
+"""
 
     content_html = f"""{style()}
 <style>
@@ -4295,9 +4326,6 @@ def build_omnibus_post(today_str: str) -> tuple:
   color: #374151;
   word-break: keep-all;
 }}
-.novel-body p b {{
-  font-style: normal;
-}}
 .novel-opening {{
   font-size: 15px;
   line-height: 2.1;
@@ -4321,122 +4349,10 @@ def build_omnibus_post(today_str: str) -> tuple:
 
 <div class="wrap">
 
-  <!-- ★ 1번 카드 (상) : 양자리~처녀자리 -->
-  <div class="novel-page" id="{card_id_top}">
-    <div class="novel-date">{today_str} · {season}</div>
-    <h1 class="novel-title">🌙 별과 띠가 만나는 시간</h1>
-    <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
-    <div class="novel-part">상 · {z_names_top}</div>
-    <div class="novel-rule">&middot; &middot; &middot;</div>
-    <p class="novel-opening">{opening}</p>
-    <div class="novel-body">
-{story_top}
-    </div>
-    <div class="novel-rule">&middot; &middot; &middot;</div>
-  </div>
-
-  <!-- 1번 저장 버튼 -->
-  {share_buttons(card_id_top, f"별과띠가만나는시간_상_{today_str}")}
-
-  <div style="margin:32px 0 8px 0;border-top:2px dashed #e5e7eb;padding-top:32px"></div>
-
-  <!-- ★ 2번 카드 (하) : 천칭자리~물고기자리 -->
-  <div class="novel-page" id="{card_id_bot}">
-    <div class="novel-date">{today_str} · {season}</div>
-    <h1 class="novel-title">🌙 별과 띠가 만나는 시간</h1>
-    <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
-    <div class="novel-part">하 · {z_names_bot}</div>
-    <div class="novel-rule">&middot; &middot; &middot;</div>
-    <div class="novel-body">
-{story_bot}
-    </div>
-    <div class="novel-rule">&middot; &middot; &middot;</div>
-
-    <!-- ★ 공통 엔딩 -->
-    <!-- ── 공통 엔딩 블록 ── -->
-    <div style="
-      margin: 2.8rem 0 0 0;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 2px 16px rgba(91,33,182,0.08);
-    ">
-      <!-- 헤더 라벨 -->
-      <div style="
-        background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
-        padding: 0.7rem 1.4rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      ">
-        <span style="font-size:15px">🌙</span>
-        <span style="
-          font-size: 12px;
-          font-weight: 700;
-          color: #ede9fe;
-          letter-spacing: 0.12em;
-        ">오늘 별과 띠가 함께 전하는 말</span>
-      </div>
-
-      <!-- 본문 -->
-      <div style="
-        background: linear-gradient(160deg, #faf5ff 0%, #fdf4ff 100%);
-        padding: 1.6rem 1.6rem 0.4rem 1.6rem;
-      ">
-        <!-- 오늘의 통찰 -->
-        <p style="
-          font-size: 15.5px;
-          line-height: 2.05;
-          color: #374151;
-          margin: 0 0 1.1rem 0;
-          word-break: keep-all;
-          font-weight: 500;
-        ">{ending_insight}</p>
-
-        <!-- 별·띠 연결 문장 -->
-        <p style="
-          font-size: 14px;
-          line-height: 1.95;
-          color: #6d28d9;
-          margin: 0 0 1.5rem 0;
-          word-break: keep-all;
-          font-style: italic;
-          padding-left: 0.9rem;
-          border-left: 3px solid #c4b5fd;
-        ">{ending_bridge}</p>
-      </div>
-
-      <!-- 오늘의 한 문장 행동 -->
-      <div style="
-        background: #5b21b6;
-        padding: 1.2rem 1.6rem;
-        text-align: center;
-      ">
-        <div style="
-          font-size: 11px;
-          color: #c4b5fd;
-          letter-spacing: 0.14em;
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-        ">오늘 단 하나만 한다면</div>
-        <span style="
-          display: inline-block;
-          font-size: 17px;
-          font-weight: 800;
-          color: #ffffff;
-          letter-spacing: -0.01em;
-          word-break: keep-all;
-          line-height: 1.6;
-        ">❝ {ending_action} ❞</span>
-      </div>
-    </div>
-
-    <div class="novel-footer">
-      {closing}
-    </div>
-  </div>
-
-  <!-- 2번 저장 버튼 -->
-  {share_buttons(card_id_bot, f"별과띠가만나는시간_하_{today_str}")}
+{_novel_card(card_ids[0], part_labels[0], part_names[0], story_1, show_opening=True)}
+{_novel_card(card_ids[1], part_labels[1], part_names[1], story_2)}
+{_novel_card(card_ids[2], part_labels[2], part_names[2], story_3)}
+{_novel_card(card_ids[3], part_labels[3], part_names[3], story_4, show_ending=True)}
 
   <!-- 오늘의 한 마디 -->
   <div class="card" style="margin-top:12px">
@@ -4453,7 +4369,6 @@ def build_omnibus_post(today_str: str) -> tuple:
   {site_link()}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매일 업데이트</div>
 </div>"""
-
     labels = ["별과띠가만나는시간", "별자리운세", "띠운세", "운세", "오늘운세"]
     return title, content_html, labels
 
