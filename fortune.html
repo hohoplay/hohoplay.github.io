@@ -334,7 +334,16 @@ ${info.usage}`;
         }
 
                 function parseFortune_Zodiac(raw) {
-            // ── 신 구조: badge "🌟 오늘 총운" 포함 card 에서 <p> 태그 수집 ──
+            // ── 신 구조 1: 스토리텔링형 — "오늘의 흐름" 섹션 ──
+            const flowIdx = raw.indexOf('오늘의 흐름');
+            if (flowIdx !== -1) {
+                const chunk = raw.slice(flowIdx, flowIdx + 3000);
+                const parts = [...chunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
+                    .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
+                    .filter(t => t.length > 10);
+                if (parts.length > 0) return parts.slice(0, 3).join('\n\n');
+            }
+            // ── 신 구조 2: badge "🌟 오늘 총운" 포함 card 에서 <p> 태그 수집 ──
             const badgeIdx = raw.indexOf('🌟 오늘 총운') !== -1
                 ? raw.indexOf('🌟 오늘 총운')
                 : raw.indexOf('오늘 총운');
