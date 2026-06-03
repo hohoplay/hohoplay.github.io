@@ -435,25 +435,41 @@ ${info.usage}`;
         function parseFortune_Monthly(raw) {
             const strip = h => h.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim();
 
-            // headline: 첫 번째 border-left:5px solid #f59e0b 카드의 <p>
+            // headline: border-left:5px solid #f59e0b 중 첫 번째 <p> (font-size:17px 포함)
             let headline = '';
-            const hlM = raw.match(/<div[^>]*border-left:5px solid #f59e0b[^>]*>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/);
-            if (hlM) headline = strip(hlM[1]);
+            const hlM = raw.match(/<div[^>]*border-left:5px solid #f59e0b[^>]*>[\s\S]{0,200}?<p[^>]*font-size:1[567]px[^>]*>([\s\S]*?)<\/p>/);
+            if (hlM) {
+                headline = strip(hlM[1]);
+            } else {
+                // 폴백: 첫 번째 border-left:5px solid #f59e0b 카드의 첫 <p>
+                const hlM2 = raw.match(/<div[^>]*border-left:5px solid #f59e0b[^>]*>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/);
+                if (hlM2) headline = strip(hlM2[1]);
+            }
 
             // 운세 지수: → 뒤 텍스트 4개
             const reasons = [...raw.matchAll(/→\s*([^<\n]{5,})/g)].map(m=>m[1].trim()).slice(0,4);
 
-            // 기간별: 상순/중순/하순 white-space:pre-line <p>
+            // 기간별: 상순/중순/하순 — class="card" 또는 border-left 포함 div의 <p>
             const periods = [];
-            const pReg = /<div[^>]*class="card"[^>]*>[\s\S]*?(?:상순|중순|하순)[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/g;
+            const pReg = /<div[^>]*(?:class="card"|border-left:5px)[^>]*>[\s\S]{0,500}?(?:상순|중순|하순)[\s\S]{0,1000}?<p[^>]*>([\s\S]*?)<\/p>/g;
             let pm;
-            while ((pm = pReg.exec(raw)) !== null) periods.push(strip(pm[1]));
+            while ((pm = pReg.exec(raw)) !== null) {
+                const txt = strip(pm[1]);
+                if (txt.length > 5) periods.push(txt);
+                if (periods.length >= 3) break;
+            }
 
-            // lucky: 행운의 색/숫자/장소/피할것
+            // lucky: 행운의 색/숫자/장소/피할것 (font-size:14px or font-size:13px + font-weight:700)
             const luckyVals = [];
-            const lReg = /<div[^>]*font-size:14px[^>]*>([^<]{2,30})<\/div>/g;
+            const lReg = /<div[^>]*font-size:1[34]px[^>]*font-weight:700[^>]*>([^<]{2,30})<\/div>/g;
             let lm; let lc=0;
             while ((lm=lReg.exec(raw))!==null && lc<4){ luckyVals.push(lm[1].trim()); lc++; }
+            // 폴백: font-size:14px 단독
+            if (luckyVals.length === 0) {
+                const lReg2 = /<div[^>]*font-size:14px[^>]*>([^<]{2,30})<\/div>/g;
+                let lm2; let lc2=0;
+                while ((lm2=lReg2.exec(raw))!==null && lc2<4){ luckyVals.push(lm2[1].trim()); lc2++; }
+            }
 
             // sympathy: 지금 이런 느낌이라면 카드의 <p>
             let sympathy = '';
