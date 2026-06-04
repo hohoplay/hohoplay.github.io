@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>호야하늘비타자- HOHO PLAY</title>
+    <title>호호벚꽃타자- HOHO PLAY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
@@ -39,7 +39,7 @@
                 <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer">
                     <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
                     <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-pink-100 text-pink-600 ml-1">호야하늘비타자</span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-pink-100 text-pink-600 ml-1">호호벚꽃타자</span>
                 </a>
                 <div class="flex items-center gap-1 sm:gap-4">
                     <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">전체게임</a>
@@ -59,7 +59,7 @@
                     <a href="index.html" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
                         <span class="text-xl">←</span> 전체 리스트로 이동
                     </a>
-                    <h1 class="text-5xl font-black text-slate-900 tracking-tight">호야하늘비타자</h1>
+                    <h1 class="text-5xl font-black text-slate-900 tracking-tight">호호벚꽃타자</h1>
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-indigo-100">타이핑</span>
@@ -156,7 +156,17 @@
             display: none;
             flex-direction: column;
             align-items: center;
+            gap: 4px;
             z-index: 250; 
+        }
+
+        #boss-hp-bar {
+            width: 180px;
+            height: 10px;
+            background: rgba(238,238,238,0.9);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 2px solid rgba(255,77,109,0.4);
         }
 
         .boss-visual-wrapper {
@@ -201,16 +211,16 @@
 
         #large-boss-gray {
             position: absolute;
-            width: 280px;
-            height: 280px;
+            width: 180px;
+            height: 180px;
             user-select: none;
             opacity: 1;
         }
 
         #large-boss-glow {
             position: absolute;
-            width: 320px;
-            height: 320px;
+            width: 220px;
+            height: 220px;
             background: radial-gradient(circle, rgba(192, 57, 43, 0.45) 0%, transparent 70%);
             border-radius: 50%;
             opacity: 0;
@@ -245,16 +255,6 @@
             100% { transform: scale(1)    rotate(0deg)   translateY(0); }
         }
 
-        #boss-hp-bar {
-            width: 220px;
-            height: 12px;
-            background: #eee;
-            border-radius: 6px;
-            margin-top: 10px;
-            overflow: hidden;
-            border: 2px solid #ddd;
-        }
-
         #boss-hp-fill {
             width: 100%;
             height: 100%;
@@ -263,16 +263,28 @@
         }
 
         #boss-word-display {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px 30px;
-            border-radius: 30px;
-            border: 4px solid #ff4d6d;
-            font-size: 32px;
+            background: rgba(255, 255, 255, 0.97);
+            padding: 8px 24px;
+            border-radius: 20px;
+            border: 3px solid #ff4d6d;
+            font-size: 28px;
             font-weight: 900;
             color: #ff4d6d;
-            margin-top: 15px;
-            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.2);
-            min-width: 200px;
+            box-shadow: 0 4px 16px rgba(255, 77, 109, 0.2);
+            min-width: 180px;
+            text-align: center;
+        }
+
+        #large-boss-word-display {
+            background: rgba(255,255,255,0.97);
+            padding: 8px 24px;
+            border-radius: 20px;
+            border: 3px solid #c0392b;
+            font-size: 28px;
+            font-weight: 900;
+            color: #c0392b;
+            box-shadow: 0 4px 16px rgba(192,57,43,0.2);
+            min-width: 180px;
             text-align: center;
         }
 
@@ -560,23 +572,24 @@
             display: none;
             flex-direction: column;
             align-items: center;
+            gap: 4px;
             z-index: 260;
         }
 
         #large-boss-container .boss-visual-wrapper {
-            width: 300px;
-            height: 300px;
+            width: 200px;
+            height: 200px;
             animation: large-boss-float 2s ease-in-out infinite;
+            position: relative;
         }
 
         #large-boss-hp-bar {
-            width: 300px;
-            height: 16px;
-            background: #eee;
-            border-radius: 8px;
-            margin-top: 10px;
+            width: 220px;
+            height: 12px;
+            background: rgba(238,238,238,0.9);
+            border-radius: 6px;
             overflow: hidden;
-            border: 2px solid #c0392b;
+            border: 2px solid rgba(192,57,43,0.5);
         }
 
         #large-boss-hp-fill {
@@ -584,20 +597,6 @@
             height: 100%;
             background: linear-gradient(90deg, #c0392b, #e74c3c);
             transition: width 0.3s ease;
-        }
-
-        #large-boss-word-display {
-            background: rgba(255,255,255,0.97);
-            padding: 14px 34px;
-            border-radius: 30px;
-            border: 4px solid #c0392b;
-            font-size: 34px;
-            font-weight: 900;
-            color: #c0392b;
-            margin-top: 15px;
-            box-shadow: 0 8px 30px rgba(192,57,43,0.25);
-            min-width: 220px;
-            text-align: center;
         }
 
         #large-boss-label {
@@ -898,7 +897,7 @@
                     <div id="large-boss-glow"></div>
                     <!-- Gray large blossom -->
                     <div id="large-boss-gray">
-                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="280" height="280">
+                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="180" height="180">
                             <g transform="translate(150,150)">
                                 <!-- outermost ring petals x8 -->
                                 <ellipse cx="0" cy="-90" rx="22" ry="42" fill="#ccc" opacity="0.7" transform="rotate(0)"/>
@@ -941,8 +940,8 @@
                         </svg>
                     </div>
                     <!-- Color large blossom (damaged) -->
-                    <div id="large-boss-color" style="position:absolute;width:280px;height:280px;opacity:0;transition:opacity 0.5s ease;filter:drop-shadow(0 0 18px rgba(192,57,43,0.9));">
-                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="280" height="280">
+                    <div id="large-boss-color" style="position:absolute;width:180px;height:180px;opacity:0;transition:opacity 0.5s ease;filter:drop-shadow(0 0 18px rgba(192,57,43,0.9));">
+                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="180" height="180">
                             <defs>
                                 <radialGradient id="petalGrad1" cx="50%" cy="80%" r="70%">
                                     <stop offset="0%" stop-color="#ff6b8a"/>
@@ -1249,8 +1248,9 @@
             inputField.addEventListener('compositionend', (e) => {
                 isComposing = false;
                 const val = e.target.value;
+                // 한글 완성 시 즉시 단어 체크 (보스전 타이핑 소모 핵심)
+                if (val !== "" && checkWord(val)) { if (resetTimer) clearTimeout(resetTimer); return; }
                 handleInput(val);
-                // 모바일: 한글 입력 완료 시 벚꽃 이펙트
                 if (val && val.length > 0 && !isDeleting) {
                     const lastChar = val.slice(-1);
                     if (isCompleteHangul(lastChar)) triggerTextBurst(val, lastChar);
@@ -1354,12 +1354,16 @@
             if (now - lastFiredTime < 100) return;
             lastFiredTime = now;
 
+            // 모바일은 보스가 scale(0.7)이므로 실제 보스 중심 y 조정
+            const midBossY    = isMobile ? 120 : 150;
+            const largeBossY  = isMobile ? 160 : 200;
+
             if (isLargeBossEvent) {
-                triggerCharDamage(gameField.offsetWidth / 2, 200, charToDisplay);
-                launchFlowersFromInput({x: gameField.offsetWidth / 2, y: 200});
+                triggerCharDamage(gameField.offsetWidth / 2, largeBossY, charToDisplay);
+                launchFlowersFromInput({x: gameField.offsetWidth / 2, y: largeBossY});
             } else if (isBossEvent) {
-                triggerCharDamage(gameField.offsetWidth / 2, 150, charToDisplay);
-                launchFlowersFromInput({x: gameField.offsetWidth / 2, y: 150});
+                triggerCharDamage(gameField.offsetWidth / 2, midBossY, charToDisplay);
+                launchFlowersFromInput({x: gameField.offsetWidth / 2, y: midBossY});
             } else {
                 let targetCandidate = activeWords.filter(m => m.word.startsWith(fullVal)).sort((a,b)=>b.y-a.y)[0];
                 if (!targetCandidate && activeWords.length > 0) targetCandidate = activeWords.sort((a,b)=>b.y-a.y)[0];
@@ -1403,7 +1407,7 @@
             d.innerText = char;
             d.style.left = `${x}px`;
             d.style.top = `${y}px`;
-            if (isMobile) d.style.fontSize = '12px';
+            if (isMobile) d.style.fontSize = '24px';
             gameField.appendChild(d);
             setTimeout(() => { if(d.parentNode) d.remove(); }, 700);
         }
@@ -1426,7 +1430,7 @@
             el.className = `word-item`;
             el.innerHTML = `<div class="word-container"><div class="word-base">${word}</div><div class="word-overlay">${word}</div></div>`;
             
-            if (isMobile) el.querySelector('.word-container').style.fontSize = '12px';
+            if (isMobile) el.querySelector('.word-container').style.fontSize = '18px';
 
             const fieldWidth = gameField.offsetWidth;
             const xPercent = Math.random() * 0.7 + 0.15; 
@@ -1448,7 +1452,7 @@
             // 고정 위치
             bossContainer.style.top = '30px';
             bossContainer.style.display = 'flex';
-            if (isMobile) bossContainer.style.transform = 'translateX(-50%) scale(0.45)';
+            if (isMobile) bossContainer.style.transform = 'translateX(-50%) scale(0.7)';
             updateBossHPUI();
             setBossWord();
             SoundEngine.playType(200);
@@ -1534,8 +1538,14 @@
                 done++;
                 if (done >= 2) setTimeout(() => scheduleLargeProjectileWave(), 400);
             }
-            fireProjectile('large', onDone);
-            setTimeout(() => { if (isLargeBossEvent && gameActive) fireProjectile('large', onDone); }, 300);
+            // 두 발사체가 겹치지 않도록 좌/우 강제 분산
+            const fieldW = document.getElementById('game-field').offsetWidth;
+            const centerX = fieldW / 2;
+            const spread = 120 + Math.random() * 80; // 120~200px 간격
+            fireProjectile('large', onDone, centerX - spread);
+            setTimeout(() => {
+                if (isLargeBossEvent && gameActive) fireProjectile('large', onDone, centerX + spread);
+            }, 300);
         }
 
 
@@ -1584,14 +1594,17 @@
         // 발사체: 2글자 텍스트, 아주 천천히 내려옴, 입력 시 사라짐, 바닥 도달 후 콜백
         let activeProjectiles = []; // { el, word, done }
 
-        function fireProjectile(type, onDone) {
+        function fireProjectile(type, onDone, startX) {
             if (!gameActive) { if (onDone) onDone(); return; }
             const isMid = type === 'mid';
-            const fromX  = gameField.offsetWidth / 2;
-            // 고정 위치에서 발사
-            const fromY  = isMid ? 200 : 280;
-            const speed  = 10000; // 아주 천천히 (10초)
-            const wobble = (Math.random() - 0.5) * 200;
+            const fromX  = startX !== undefined ? startX : gameField.offsetWidth / 2;
+            // 대형보스 크기 축소(200px) + label+hp+word 합산 후 실제 하단 위치
+            // 대형보스 top:10px + label~30px + wrapper200px + hp~16px + word~50px ≈ 310px
+            const fromY  = isMid
+                ? (isMobile ? 160 : 180)
+                : (isMobile ? 230 : 320);
+            const speed  = 10000;
+            const wobble = startX !== undefined ? 0 : (Math.random() - 0.5) * 200;
             const word   = projectileWordBank[Math.floor(Math.random() * projectileWordBank.length)];
 
             const p = document.createElement('div');
@@ -1599,7 +1612,7 @@
             p.innerText = word;
             p.style.cssText = `
                 position: absolute;
-                left: ${fromX + (Math.random()-0.5)*100}px;
+                left: ${fromX}px;
                 top: ${fromY}px;
                 font-size: ${isMid ? '22px' : '28px'};
                 font-weight: 900;
