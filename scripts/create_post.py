@@ -1189,7 +1189,7 @@ def share_buttons(card_id, filename):
   <span style="font-size:26px;flex-shrink:0">🌙</span>
   <div style="flex:1;min-width:0">
     <div style="font-size:13px;font-weight:700;color:#e9d5ff;
-                margin-bottom:3px;word-break:keep-all">별과 띠가 만나는 시간</div>
+                margin-bottom:3px;word-break:keep-all">별과띠가만나는시간</div>
     <div style="font-size:12px;color:#c4b5fd;line-height:1.6;word-break:keep-all">
       내 별자리와 띠가 오늘 어떻게 연결되는지 보러 가기 →
     </div>
@@ -2829,11 +2829,34 @@ def chinese_monthly_fortune(en_name):
     return sentence()
 
 def build_zodiac_weekly_post(today_str):
-    """별자리별 주간운세 12개 개별 발행 — 매주 월요일"""
+    """별자리별 주간운세 12개 개별 발행 — 매주 월요일 / 스토리텔링 구조"""
     week_range = get_week_range()
     today_date = now_kst().date()
     mon_date   = date.fromordinal(today_date.toordinal() - today_date.weekday())
     month_str  = mon_date.strftime("%Y년 %m월")
+
+    # 주간 공감형 오프닝 풀
+    _W_OPENINGS = [
+        "이번 주 어떻게 시작하셨어요. 잘 가고 있는 건지 모르겠다는 느낌, 저도 알아요.",
+        "월요일이 다시 왔네요. 한 주를 또 어떻게 보낼지, 오늘 조금 정리해봐요.",
+        "이번 주 당신 옆에 어떤 흐름이 흐르고 있는지, 같이 한번 봐요.",
+        "잘 버티고 있나요. 이번 주 흐름이 어떤지 같이 확인해봐요.",
+        "한 주가 또 시작됐어요. 이번 주는 조금 다를 수 있어요.",
+    ]
+
+    # 주간 공통 엔딩 풀
+    _W_ENDINGS = [
+        ("이번 주 하루하루가 쌓여서 당신의 흐름이 돼요.",
+         "지금 잘 가고 있어요. 이 감각, 당신만 느끼는 게 아니에요.",
+         "이번 주 딱 하나만 — 가장 마음에 걸리는 것, 그거 하나만 해보세요."),
+        ("좋은 주간이든 버티는 주간이든, 끝까지 가보는 거예요.",
+         "이번 주 흐름을 알았으니 이제 조금은 편하게 움직여요.",
+         "이번 주 오늘만 생각하세요. 내일은 내일의 흐름이 있어요."),
+        ("이번 주 별자리가 전하는 말을 들었으니, 나머지는 당신 몫이에요.",
+         "운세는 방향이에요. 어떻게 걸어가느냐는 당신이 고르는 거예요.",
+         "이번 주도 잘 부탁해요."),
+    ]
+
     results = []
     for z in ZODIACS:
         fortune = zodiac_weekly_fortune(z['kr'])
@@ -2841,7 +2864,6 @@ def build_zodiac_weekly_post(today_str):
         card_id = f"zwfc-{z['en']}"
         total, money, health, love = pick_score(z['kr'])
 
-        # 제목 신호 키워드 (간단히)
         scores = {"총운": total, "금전운": money, "건강운": health, "애정운": love}
         top = max(scores, key=scores.get)
         low = min(scores, key=scores.get)
@@ -2863,18 +2885,32 @@ def build_zodiac_weekly_post(today_str):
             signal = signal_map_warn.get(low, f"이번 주 {low} 주의")
         else:
             signal = "이번 주 잔잔하게 챙기는 흐름"
-        # 제목: index.html fetchWeeklyPost() 필수 키워드 고정 포함
-        # 검색조건: [별자리명, "YYYY년", "MM월", "주간운세"] ALL 포함 필수
+
         title = f"{z['kr']} {month_str} 주간운세 {week_range} | {signal}"
 
-        kw_list = [
-            z['kr'], f"{z['kr']} 주간운세", f"{z['kr']} 이번주운세",
-            "별자리 주간운세", f"{z['kr']} {month_str}", "주간운세", "별자리운세"
-        ]
-        tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
-        score_html = f'''<div class="card" style="background:#f8f0ff">
-  <span class="badge">📊 이번 주 운세 지수</span>
-  <div style="margin-top:10px">
+        # ── _flow_level (주간용) ──
+        def _w_flow(score):
+            if score >= 80: return "이번 주 흐름이 잘 열려 있어요."
+            if score >= 65: return "나쁘지 않은 흐름의 한 주예요."
+            if score >= 50: return "잔잔하게 흘러가는 한 주예요."
+            return "조금 조심스러운 흐름의 한 주예요."
+
+        # ── 공감형 오프닝 ──
+        _wi = now_kst().day % len(_W_OPENINGS)
+        opening = _W_OPENINGS[_wi]
+
+        # ── 이번 주 흐름 스토리 ──
+        weekly_story_html = f'''
+<div class="card" style="border-left:5px solid #7c3aed">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <span style="font-size:22px">📅</span>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#7c3aed">이번 주 흐름</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_w_flow(total)} · {week_range}</div>
+    </div>
+  </div>
+  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{fortune}</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
     {_zodiac_score_bar("종합운","🌟",total)}
     {_zodiac_score_bar("금전운","💰",money)}
     {_zodiac_score_bar("건강운","💪",health)}
@@ -2882,13 +2918,59 @@ def build_zodiac_weekly_post(today_str):
   </div>
 </div>'''
 
+        # ── 공통 엔딩 ──
+        _we = _W_ENDINGS[now_kst().day % len(_W_ENDINGS)]
+        weekly_ending_html = f'''
+<div style="margin:24px 0 0 0;border-radius:18px;overflow:hidden;
+            box-shadow:0 2px 12px rgba(124,58,237,0.08)">
+  <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
+              padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
+    <span style="font-size:14px">{z['emoji']}</span>
+    <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
+      이번 주 {z['kr']}에게 전하는 말
+    </span>
+  </div>
+  <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 0.5rem">
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem 0;word-break:keep-all">{_we[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem 0;
+              font-style:italic;padding-left:0.8rem;border-left:3px solid #c4b5fd;
+              word-break:keep-all">{_we[1]}</p>
+  </div>
+  <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
+    <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
+                margin-bottom:0.4rem;font-weight:600">이번 주 하나만 한다면</div>
+    <span style="font-size:16px;font-weight:800;color:#fff;
+                 word-break:keep-all;line-height:1.6">❝ {_we[2]} ❞</span>
+  </div>
+</div>'''
+
+        kw_list = [
+            z['kr'], f"{z['kr']} 주간운세", f"{z['kr']} 이번주운세",
+            "별자리 주간운세", f"{z['kr']} {month_str}", "주간운세", "별자리운세"
+        ]
+        tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
+
         content_html = f"""{style()}
 <div class="wrap">
   <div class="hero">
     <h1>📅 {z['emoji']} {z['kr']} 주간운세</h1>
     <p>{week_range} · {z['date']}</p>
-    <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
+    <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
+                padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
   </div>
+
+  <!-- 공감형 오프닝 -->
+  <div style="padding:1.4rem 1.6rem 1.2rem;background:linear-gradient(135deg,#faf5ff,#f0f9ff);
+              border-radius:16px;margin-bottom:16px;border-left:4px solid #a78bfa">
+    <p style="font-size:15px;line-height:2.05;color:#374151;font-weight:500;
+              margin:0;word-break:keep-all">💭 {opening}</p>
+  </div>
+
+  <!-- 이번 주 흐름 -->
+  {weekly_story_html}
+
+  <!-- 이미지 저장 카드 -->
   <div id="{card_id}" class="fortune-card">
     <div class="fc-emoji">{z['emoji']}</div>
     <div class="fc-title">{z['kr']} 주간운세</div>
@@ -2899,11 +2981,14 @@ def build_zodiac_weekly_post(today_str):
   </div>
   {share_buttons(card_id, f"{z['kr']}_주간운세")}
 
-  <!-- 대표 이미지 -->
   {post_img("weekly")}
 
-  {score_html}
-  <div class="card"><span class="badge">🔍 관련 키워드</span><div class="tag-cloud">{tag_html}</div></div>
+  <!-- 공통 엔딩 -->
+  {weekly_ending_html}
+
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html}</div>
+  </div>
   {site_link()}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매주 업데이트</div>
 </div>"""
@@ -3265,10 +3350,9 @@ def post_blogger(title, content, labels, idx, total):
 # ⑥ 운세SNS — 별자리 12개 통합 (간결 카드형)
 # ─────────────────────────────────────────
 def build_sns_zodiac_post(today_str):
-    """별자리 12개를 한 포스트에 SNS 카드형으로"""
+    """별자리 12개를 한 포스트에 — 공감형 스토리 카드형"""
     title = f"✨ 오늘의 별자리 운세 전체 {today_str} — 12별자리 한눈에"
 
-    # kw를 HTML 생성 전에 먼저 정의
     kw = ["별자리운세", "오늘운세", "별자리", today_str,
           "양자리", "황소자리", "쌍둥이자리", "게자리", "사자자리", "처녀자리",
           "천칭자리", "전갈자리", "사수자리", "염소자리", "물병자리", "물고기자리",
@@ -3276,34 +3360,54 @@ def build_sns_zodiac_post(today_str):
           "오늘운세보기", "무료운세", "운세2026"]
     labels = ["별자리운세통합", "운세SNS", "운세", "별자리운세"]
 
+    # 별자리별 공감형 한 줄
+    _Z_EMPATHY = {
+        "양자리": "시작하고 싶은데 손이 안 가는 날이 있어요.",
+        "황소자리": "열심히 하는데 방향이 맞는지 흔들리는 날이에요.",
+        "쌍둥이자리": "이것저것 신경 쓰이고 결국 아무것도 못 끝낸 느낌이에요.",
+        "게자리": "말해봤자 뭐가 달라지나 싶어서 그냥 넘기고 있지 않으세요.",
+        "사자자리": "열심히 하는데 아무도 몰라주는 것 같은 날이에요.",
+        "처녀자리": "완벽하지 않아서 자꾸 미루게 되는 것이 있지 않으세요.",
+        "천칭자리": "걸리는 게 있는데 말로 꺼내기 애매한 날이에요.",
+        "전갈자리": "사람을 너무 잘 읽어서 오히려 지치는 날이에요.",
+        "사수자리": "뭔가 바꾸고 싶은데 어디서 시작해야 할지 모르는 날이에요.",
+        "염소자리": "결과가 안 보여서 이게 맞나 싶은 날이에요.",
+        "물병자리": "맞추기는 싫고 튀기는 뭐한, 그 사이 어딘가에 있는 날이에요.",
+        "물고기자리": "남 챙기다 정작 나는 못 챙긴 날들이 쌓인 느낌이에요.",
+    }
+
     cards_html = ""
     for z in ZODIACS:
         fortune = zodiac_fortune(z['kr'])
-        # 100~200자 범위로 자르기 (이모지 점수바 없음)
         plain = fortune.replace('<br><br>', ' ').replace('<br>', ' ').strip()
         sentences = plain.split('. ')
         short = ''
         for s in sentences:
             candidate = (short + s + '. ').strip()
-            if len(candidate) >= 100:
+            if len(candidate) >= 80:
                 short = candidate
                 break
             short = candidate
-        if len(short) > 200:
-            short = short[:197] + '…'
-        if len(short) < 60:
+        if len(short) > 180:
+            short = short[:177] + '…'
+        if len(short) < 50:
             short = plain[:150] + ('…' if len(plain) > 150 else '')
+
+        empathy = _Z_EMPATHY.get(z['kr'], '오늘 어떤 하루 보내고 있으세요.')
+
         cards_html += f"""
-<div style="display:flex;align-items:flex-start;gap:12px;padding:14px;margin-bottom:10px;
-            background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);
-            border-left:4px solid #667eea">
-  <div style="font-size:32px;line-height:1">{z['emoji']}</div>
-  <div style="flex:1;min-width:0">
-    <div style="font-weight:900;font-size:14px;color:#4c1d95">{z['kr']}
-      <span style="font-size:11px;color:#888;font-weight:400"> {z['date']}</span>
+<div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+            border-left:4px solid #7c3aed;padding:14px;margin-bottom:12px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+    <span style="font-size:28px;line-height:1">{z['emoji']}</span>
+    <div>
+      <span style="font-weight:900;font-size:15px;color:#4c1d95">{z['kr']}</span>
+      <span style="font-size:11px;color:#9ca3af;margin-left:6px">{z['date']}</span>
     </div>
-    <div style="font-size:13px;color:#444;line-height:1.7;margin:4px 0">{short}</div>
   </div>
+  <p style="font-size:12px;color:#7c3aed;font-style:italic;margin:0 0 6px 0;
+            line-height:1.6">💭 {empathy}</p>
+  <p style="font-size:13px;color:#374151;line-height:1.75;margin:0">{short}</p>
 </div>"""
 
     card_id = f"sns-zodiac-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
@@ -3318,8 +3422,9 @@ def build_sns_zodiac_post(today_str):
     <div style="text-align:center;margin-top:8px;font-size:11px;color:#aaa">✨ todayhoroscopelaboratory.blogspot.com · {today_str}</div>
   </div>
   {share_buttons(card_id, f"별자리운세전체_{today_str}")}
-  <div style="background:#eef2ff;border-radius:12px;padding:12px;font-size:12px;color:#666;text-align:center;margin-bottom:16px">
-    🔮 각 별자리를 클릭하면 상세 운세를 확인할 수 있어요
+  <div style="background:#eef2ff;border-radius:12px;padding:12px;font-size:12px;color:#666;
+              text-align:center;margin-bottom:16px">
+    🔮 내 별자리 카드를 클릭하면 오늘의 상세 운세를 확인할 수 있어요
   </div>
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{''.join(f'<span class="tag">{k}</span>' for k in kw)}</div>
@@ -3335,8 +3440,92 @@ def build_sns_zodiac_post(today_str):
 # ⑦ 운세SNS — 띠 12개 통합 (간결 카드형)
 # ─────────────────────────────────────────
 def build_sns_chinese_post(today_str):
-    """띠 12개를 한 포스트에 SNS 카드형으로"""
+    """띠 12개를 한 포스트에 — 공감형 스토리 카드형"""
     title = f"🐾 오늘의 띠별 운세 전체 {today_str} — 12띠 한눈에"
+
+    kw = ["띠운세", "오늘운세", "띠별운세", today_str,
+          "쥐띠", "소띠", "호랑이띠", "토끼띠", "용띠", "뱀띠",
+          "말띠", "양띠", "원숭이띠", "닭띠", "개띠", "돼지띠",
+          "12띠운세", "띠운세전체", "오늘의띠운세", "띠운세총정리",
+          "오늘운세보기", "무료운세", "운세2026"]
+    labels = ["띠운세통합", "운세SNS", "운세", "띠운세"]
+
+    # 띠별 공감형 한 줄
+    _C_EMPATHY = {
+        "쥐띠": "정보는 빠른데 시작을 못 하고 있는 날이에요.",
+        "소띠": "묵묵히 가고 있는데 결과가 아직 안 보이는 날이에요.",
+        "호랑이띠": "맞춰야 할 것 같은데 맞추기 싫은 날이에요.",
+        "토끼띠": "여러 개 잡으려다 하나도 못 끝낸 느낌이에요.",
+        "용띠": "에너지는 있는데 어디에 써야 할지 모르는 날이에요.",
+        "뱀띠": "흐름이 보이는데 확신이 안 서는 날이에요.",
+        "말띠": "하고 싶은 말이 있는데 타이밍을 못 잡고 있어요.",
+        "양띠": "남 챙기다 나는 뒷전이 된 날들이 쌓인 느낌이에요.",
+        "원숭이띠": "보여주고 싶은데 타이밍을 못 잡고 있는 날이에요.",
+        "닭띠": "완벽하게 준비가 안 됐다고 계속 미루고 있지 않으세요.",
+        "개띠": "참아온 말이 있는데 꺼내기가 애매한 날이에요.",
+        "돼지띠": "예민해진 감각이 짐이 되는 날이에요.",
+    }
+
+    cards_html = ""
+    for c in CHINESE:
+        years_filtered = [y for y in c['year'].split(',') if 1940 <= int(y) <= 2030][:3]
+        yr_fortune = chinese_fortune(c['en'])
+        plain = str(yr_fortune).strip()
+        sentences = plain.split('. ')
+        short = ''
+        for s in sentences:
+            candidate = (short + s + '. ').strip()
+            if len(candidate) >= 80:
+                short = candidate
+                break
+            short = candidate
+        if len(short) > 180:
+            short = short[:177] + '…'
+        if len(short) < 40:
+            short = plain[:120] + ('…' if len(plain) > 120 else '')
+
+        empathy = _C_EMPATHY.get(c['kr'], '오늘 어떤 하루 보내고 있으세요.')
+        years_str = "·".join(f"{y}년생" for y in years_filtered)
+
+        cards_html += f"""
+<div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+            border-left:4px solid #f59e0b;padding:14px;margin-bottom:12px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+    <span style="font-size:28px;line-height:1">{c['emoji']}</span>
+    <div>
+      <span style="font-weight:900;font-size:15px;color:#92400e">{c['kr']}</span>
+      <span style="font-size:11px;color:#9ca3af;margin-left:6px">{years_str}</span>
+    </div>
+  </div>
+  <p style="font-size:12px;color:#d97706;font-style:italic;margin:0 0 6px 0;
+            line-height:1.6">💭 {empathy}</p>
+  <p style="font-size:13px;color:#374151;line-height:1.75;margin:0">{short}</p>
+</div>"""
+
+    card_id = f"sns-chinese-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
+    content_html = f"""{style()}
+<div class="wrap">
+  <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+    <h1>🐾 오늘의 띠별 운세</h1>
+    <p>{today_str} · 12띠 전체</p>
+  </div>
+  <div id="{card_id}" style="background:#fffbeb;border-radius:16px;padding:16px;margin-bottom:16px">
+    {cards_html}
+    <div style="text-align:center;margin-top:8px;font-size:11px;color:#aaa">🐾 todayhoroscopelaboratory.blogspot.com · {today_str}</div>
+  </div>
+  {share_buttons(card_id, f"띠별운세전체_{today_str}")}
+  <div style="background:#fef3c7;border-radius:12px;padding:12px;font-size:12px;color:#666;
+              text-align:center;margin-bottom:16px">
+    🐾 내 띠 카드를 클릭하면 출생연도별 상세 운세를 확인할 수 있어요
+  </div>
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{''.join(f'<span class="tag">{k}</span>' for k in kw)}</div>
+  </div>
+  {site_link()}
+  <div class="meta">※ 재미로 보는 운세 콘텐츠 · 매일 업데이트</div>
+</div>"""
+
+    return title, content_html, labels
 
     # kw를 HTML 생성 전에 먼저 정의
     kw = ["띠운세", "오늘운세", "띠별운세", today_str,
@@ -4023,7 +4212,7 @@ def build_omnibus_post(today_str: str) -> tuple:
     ending_action  = _ending["action"]
 
     title = (
-        f"🌙 별과 띠가 만나는 시간 {today_str} "
+        f"🌙 별과띠가만나는시간 {today_str} "
         f"— 오늘 당신의 별자리와 띠가 전하는 이야기"
     )
 
@@ -4255,7 +4444,7 @@ def build_omnibus_post(today_str: str) -> tuple:
         return f"""
   <div class="novel-page" id="{card_id}">
     <div class="novel-date">{today_str} · {season}</div>
-    <h1 class="novel-title">🌙 별과 띠가 만나는 시간</h1>
+    <h1 class="novel-title">🌙 별과띠가만나는시간</h1>
     <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
     <div class="novel-part">{part_label} · {part_name}</div>
     <div class="novel-rule">&middot; &middot; &middot;</div>
@@ -4266,7 +4455,7 @@ def build_omnibus_post(today_str: str) -> tuple:
     <div class="novel-rule">&middot; &middot; &middot;</div>
     {ending_html}
   </div>
-  {share_buttons(card_id, f"별과띠가만나는시간_{part_label}_{today_str}")}
+  <button id="savebtn-{card_id}" class="save-btn" onclick="saveFortuneCard('{card_id}', '별과띠가만나는시간_{part_label}_{today_str}')">📸 이미지 저장</button>
   <div style="margin:24px 0 8px 0;border-top:1px dashed #e5e7eb;padding-top:24px"></div>
 """
 
