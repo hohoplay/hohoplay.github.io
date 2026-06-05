@@ -4324,8 +4324,8 @@ def build_omnibus_post(today_str: str) -> tuple:
             z_signal    = zd.get('signal', theme),
         )
         paragraphs.append(
-            f'<p style="margin:0 0 1.9em 0;text-indent:0">'
-            f'<span style="font-size:13px;color:#c4b5fd;margin-right:4px;vertical-align:middle">'
+            f'<p style="margin:0 0 1.2em 0;text-indent:0">'
+            f'<span style="font-size:12px;color:#c4b5fd;margin-right:3px;vertical-align:middle">'
             f'{ZODIACS[[z["kr"] for z in ZODIACS].index(z_kr)]["emoji"] if z_kr in [z["kr"] for z in ZODIACS] else "✦"}'
             f'</span>'
             f'{para}</p>'
@@ -4356,6 +4356,7 @@ def build_omnibus_post(today_str: str) -> tuple:
 
     date_slug = today_str.replace(' ','').replace('년','').replace('월','').replace('일','')
     card_ids = [f"omnibus-{i+1}-{date_slug}" for i in range(2)]
+
 
     # ── 오늘의 명언 ──
     quote_text, _, _ = pick_quote()
@@ -4471,64 +4472,64 @@ def build_omnibus_post(today_str: str) -> tuple:
   font-family: 'Noto Serif KR', Georgia, serif;
 }}
 .novel-date {{
-  font-size: 12px;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   color: #9ca3af;
   text-align: center;
-  margin-bottom: 1.6rem;
+  margin-bottom: 0.6rem;
 }}
 .novel-title {{
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 600;
   color: #1f2937;
   text-align: center;
-  line-height: 1.55;
-  margin-bottom: 0.35rem;
+  line-height: 1.45;
+  margin-bottom: 0.2rem;
 }}
 .novel-subtitle {{
-  font-size: 13px;
+  font-size: 12px;
   text-align: center;
   color: #9ca3af;
-  margin-bottom: 2.6rem;
+  margin-bottom: 1.2rem;
 }}
 .novel-part {{
-  font-size: 11px;
+  font-size: 10px;
   text-align: center;
   color: #c4b5fd;
-  letter-spacing: 0.12em;
-  margin-bottom: 1.2rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.7rem;
   font-weight: 600;
 }}
 .novel-rule {{
   text-align: center;
   color: #d1d5db;
-  letter-spacing: 0.5em;
-  margin: 2.4rem 0;
-  font-size: 13px;
+  letter-spacing: 0.4em;
+  margin: 1.1rem 0;
+  font-size: 12px;
 }}
 .novel-body {{
-  font-size: 15.5px;
-  line-height: 2.2;
+  font-size: 14.5px;
+  line-height: 1.95;
   color: #374151;
   word-break: keep-all;
 }}
 .novel-opening {{
-  font-size: 15px;
-  line-height: 2.1;
+  font-size: 14px;
+  line-height: 1.85;
   color: #6b7280;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   font-style: italic;
   padding: 0 2px;
   word-break: keep-all;
 }}
 .novel-footer {{
-  margin-top: 3rem;
-  padding-top: 2rem;
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
   border-top: 1px solid #f3f4f6;
-  font-size: 14px;
+  font-size: 13px;
   color: #9ca3af;
   text-align: center;
-  line-height: 2.2;
+  line-height: 1.9;
   font-style: italic;
 }}
 </style>
