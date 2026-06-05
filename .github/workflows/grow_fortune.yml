@@ -1,0 +1,55 @@
+name: 📈 Monthly Fortune CSV Grow
+
+on:
+  schedule:
+    - cron: '0 2 1 * *'   # 매월 1일 KST 11:00 (UTC 02:00)
+  workflow_dispatch:        # 수동 실행
+    inputs:
+      zodiac:
+        description: '특정 별자리만 (비워두면 전체)'
+        required: false
+        default: ''
+      count:
+        description: '별자리×타입당 추가 문장 수'
+        required: false
+        default: '5'
+
+jobs:
+  grow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v5
+
+      - name: 🐍 Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: 📦 패키지 설치
+        run: pip install pandas anthropic
+
+      - name: 📈 CSV 확장 실행
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATA_DIR: ${{ github.workspace }}/data
+        run: |
+          ZODIAC="${{ github.event.inputs.zodiac }}"
+          COUNT="${{ github.event.inputs.count }}"
+          COUNT="${COUNT:-5}"
+
+          if [ -n "$ZODIAC" ]; then
+            python scripts/grow_csv.py --zodiac "$ZODIAC" --count "$COUNT"
+          else
+            python scripts/grow_csv.py --count "$COUNT"
+          fi
+
+      - name: 💾 변경사항 커밋
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/zodiac_fortune_1000.csv
+          git diff --staged --quiet || git commit -m "📈 운세 CSV 자동 확장 $(date +'%Y-%m')"
+          git push
