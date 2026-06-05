@@ -530,10 +530,13 @@ def daily_fortune():
 
 def zodiac_fortune(kr_name):
     if not zodiac_kr.empty and 'zodiac' in zodiac_kr.columns:
-        m = zodiac_kr[zodiac_kr['zodiac'] == kr_name]
+        m = zodiac_kr[zodiac_kr['zodiac'] == kr_name].reset_index(drop=True)
         if not m.empty:
-            text = m.sample(1).iloc[0]['fortune']
-            # 줄바꿈을 HTML <br><br>로 변환
+            # 날짜(월*100+일)를 시드로 — 같은 날 같은 별자리는 항상 같은 문장
+            kst = now_kst()
+            seed = kst.month * 100 + kst.day
+            idx  = seed % len(m)
+            text = m.iloc[idx]['fortune']
             return str(text).replace('\n\n', '<br><br>').replace('\n', '<br>')
     return sentence()
 
