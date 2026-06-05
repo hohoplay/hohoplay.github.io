@@ -1977,28 +1977,6 @@ function initGame() {
       .slice(0, 3);
   });
 
-  // ── 마우스/터치 이벤트: canvas 할당 후 initGame 안에서 등록 ──
-  if (!canvas._evAdded) {
-    canvas._evAdded = true;
-    function setDirByX(cx) {
-      var r = canvas.getBoundingClientRect();
-      if (cx < r.left + r.width / 2) { keys.left = true;  keys.right = false; }
-      else                            { keys.right = true; keys.left  = false; }
-    }
-    function stopDir() {
-      isHolding = false;
-      if (!keyState.left && !keyState.right) { keys.left = false; keys.right = false; }
-    }
-    canvas.addEventListener('mousedown',  function(e){ isHolding = true; setDirByX(e.clientX); });
-    canvas.addEventListener('mousemove',  function(e){ if (isHolding) setDirByX(e.clientX); });
-    canvas.addEventListener('mouseup',    function() { stopDir(); });
-    canvas.addEventListener('mouseleave', function() { stopDir(); });
-    canvas.addEventListener('touchstart', function(e){ e.preventDefault(); isHolding = true; setDirByX(e.touches[0].clientX); }, {passive:false});
-    canvas.addEventListener('touchmove',  function(e){ e.preventDefault(); if (isHolding) setDirByX(e.touches[0].clientX); }, {passive:false});
-    canvas.addEventListener('touchend',   function(e){ e.preventDefault(); stopDir(); }, {passive:false});
-    canvas.addEventListener('touchcancel',function()  { stopDir(); });
-  }
-
   startBtn.onclick = function() {
     handleGameStart();
   };
@@ -2088,9 +2066,96 @@ function startGame() {
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
 
-  // 기존 루프 취소 후 새 루프 시작
+  // 터치/마우스 holdX 방식
+  function updateDirectionByHoldX() {
+    if (!isHolding || !player) {
+      if (!keyState.left && !keyState.right) {
+        keys.left = false;
+        keys.right = false;
+      }
+      return;
+    }
+    // 캔버스 중앙 기준 좌/우 결정 (deadZone 없음)
+    var bcrW = canvas.getBoundingClientRect().width || canvas.width;
+    var scaleX = canvas.width / bcrW;
+    var holdCanvasX = holdX * scaleX;
+    var canvasMid = canvas.width / 2;
+    if (holdCanvasX < canvasMid) {
+      keys.left = true;  keys.right = false;
+    } else {
+      keys.right = true; keys.left = false;
+    }
+  }
+
+  const holdInterval = setInterval(function() {
+    if (!gameActive) return;
+    if (isHolding) updateDirectionByHoldX();
+  }, 16);
+
+  canvas.addEventListener('mousedown', function(e) {
+    isHolding = true;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.clientX - rect.left;
+  });
+
+  canvas.addEventListener('mousemove', function(e) {
+    if (!isHolding) return;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.clientX - rect.left;
+  });
+
+  canvas.addEventListener('mouseup', function() {
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  canvas.addEventListener('mouseleave', function() {
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    isHolding = true;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.touches[0].clientX - rect.left;
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (!isHolding) return;
+    const rect = canvas.getBoundingClientRect();
+    holdX = e.touches[0].clientX - rect.left;
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  canvas.addEventListener('touchcancel', function() {
+    isHolding = false;
+    if (!keyState.left && !keyState.right) {
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  window._holdInterval = holdInterval;
+  window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
+
   if (animationId) cancelAnimationFrame(animationId);
-  animationId = requestAnimationFrame(update);
+  update();
 }
 
 function endGame() {
