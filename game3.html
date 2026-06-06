@@ -598,6 +598,21 @@
                 border-radius: 14px !important;
             }
 
+            /* ── 보스 단어 / 발사체 / 낙하단어 축소 ── */
+            #boss-word-display {
+                font-size: 16px !important;
+                padding: 5px 12px !important;
+                min-width: 90px !important;
+            }
+            #large-boss-word-display {
+                font-size: 16px !important;
+                padding: 5px 12px !important;
+                min-width: 90px !important;
+            }
+            .word-container {
+                font-size: 15px !important;
+            }
+
         }
         #over-speed-buttons {
             display: flex;
@@ -1530,7 +1545,7 @@
             el.className = `word-item`;
             el.innerHTML = `<div class="word-container"><div class="word-base">${word}</div><div class="word-overlay">${word}</div></div>`;
             
-            if (isMobile) el.querySelector('.word-container').style.fontSize = '18px';
+            if (isMobile) el.querySelector('.word-container').style.fontSize = '15px';
 
             const fieldWidth = gameField.offsetWidth;
             const xPercent = Math.random() * 0.7 + 0.15; 
@@ -1714,7 +1729,7 @@
                 position: absolute;
                 left: ${fromX}px;
                 top: ${fromY}px;
-                font-size: ${isMobile ? (isMid ? '15px' : '18px') : (isMid ? '22px' : '28px')};
+                font-size: ${isMobile ? (isMid ? '13px' : '15px') : (isMid ? '22px' : '28px')};
                 font-weight: 900;
                 color: ${isMid ? '#ff4d6d' : '#c0392b'};
                 background: rgba(255,255,255,0.92);
