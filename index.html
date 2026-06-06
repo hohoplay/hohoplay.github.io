@@ -320,46 +320,6 @@
 
         const pages = {
             get index() { return buildIndexPage(); },
-            'fortune-adventure': `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-10">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-xl" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔮</div>
-                        <div>
-                            <h1 class="text-4xl font-black"><span class="text-violet-600">오늘의 운세</span><span class="text-indigo-500"> 어드벤처</span></h1>
-                            <p class="text-slate-400 mt-1">매일 새로운 운세로 하루를 시작하세요</p>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden mb-8">
-                        <div style="background:linear-gradient(135deg,#7c3aed 0%,#a78bfa 50%,#6366f1 100%);padding:60px 40px;text-align:center;">
-                            <div style="font-size:72px;margin-bottom:16px;">🌟</div>
-                            <h2 style="color:white;font-size:28px;font-weight:900;margin-bottom:8px;">Today's Fortune Adventure</h2>
-                            <p style="color:rgba(255,255,255,.8);font-size:16px;">오늘 하루의 운세를 확인하고 행운을 가져가세요</p>
-                        </div>
-                        <div class="p-10 text-center">
-                            <p class="text-slate-600 text-lg leading-relaxed mb-8">매일 업데이트되는 오늘의 운세를 확인해보세요.<br>사랑운, 금전운, 건강운까지 한눈에!</p>
-                            <button onclick="navigateTo('fortune')" class="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-white font-black text-lg shadow-lg transition-all hover:scale-105 active:scale-95" style="background:linear-gradient(135deg,#7c3aed,#6366f1);box-shadow:0 8px 32px rgba(124,58,237,.35);">
-                                🔮 운세 바로 보기
-                            </button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center hover:border-violet-200 hover:shadow-md transition-all">
-                            <div class="text-4xl mb-3">💕</div>
-                            <h3 class="font-black text-slate-800 mb-2">사랑운</h3>
-                            <p class="text-slate-500 text-sm">오늘의 연애운과 인간관계를 확인하세요</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center hover:border-violet-200 hover:shadow-md transition-all">
-                            <div class="text-4xl mb-3">💰</div>
-                            <h3 class="font-black text-slate-800 mb-2">금전운</h3>
-                            <p class="text-slate-500 text-sm">재물과 사업에 관한 오늘의 운세</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center hover:border-violet-200 hover:shadow-md transition-all">
-                            <div class="text-4xl mb-3">💪</div>
-                            <h3 class="font-black text-slate-800 mb-2">건강운</h3>
-                            <p class="text-slate-500 text-sm">몸과 마음의 건강을 위한 오늘의 조언</p>
-                        </div>
-                    </div>
-                </div>`,
             about: `
                 <div class="page-transition max-w-4xl mx-auto py-12">
                     <div class="flex items-center gap-4 mb-10">
@@ -852,16 +812,6 @@
                 }
             }
             if (page === 'blog') bbsInit();
-        }
-
-        // 푸터 사이트맵 링크 — index에서는 SPA 이동, 외부 파일에서는 href 이동
-        function footerNav(page) {
-            if (typeof navigateTo === 'function') {
-                navigateTo(page);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                
-            }
         }
 
         function toggleMenu() {

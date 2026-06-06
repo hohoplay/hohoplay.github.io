@@ -51,13 +51,14 @@
 </footer>
 <script>
 function footerNav(page) {
-    // index.html의 navigateTo가 있으면 SPA 방식으로 이동
     if (typeof navigateTo === 'function') {
+        // index.html SPA 환경: 직접 이동
         navigateTo(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-        // game1/game2 등 별도 파일에서는 index.html로 직접 이동
-        window.location.href = "index.html";
+        // game*.html 등 독립 파일: sessionStorage로 페이지 전달 후 index로 이동
+        sessionStorage.setItem('page', page);
+        window.location.href = 'index.html';
     }
 }
 </script>
