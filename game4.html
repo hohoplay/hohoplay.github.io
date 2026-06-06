@@ -21,9 +21,11 @@
     display: block;
     width: 100%;
     max-width: 420px;
-    margin: 40px auto;
+    margin: 0 auto 40px;
     font-family: 'Noto Sans KR', sans-serif;
     line-height: 1;
+    position: relative;
+    z-index: 1;
 }
 
 #hoho-fps-wrapper {
@@ -464,9 +466,11 @@
     display: block;
     width: 100%;
     max-width: 420px;
-    margin: 40px auto;
+    margin: 0 auto 40px;
     font-family: 'Noto Sans KR', sans-serif;
     line-height: 1;
+    position: relative;
+    z-index: 1;
 }
 
 #hoho-fps-wrapper {
@@ -757,7 +761,7 @@
 #hoho-weapon-sprite.weapon-left   { left: 0;  right: auto; -webkit-transform: none; transform: none; }
 #hoho-weapon-sprite.weapon-center { left: 50%; right: auto; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
 
-.hoho-weapon-#hoho-fps-container {
+.hoho-weapon-body {
     position: relative;
     width: 60px;
     height: 120px;
@@ -1104,6 +1108,7 @@
         targetedEnemy = null; reticle.charIndex = 0;
         // IME 세션 완전 종료: blur → value 초기화 → 한 프레임 뒤 focus
         gameInput.blur();
+        window.scrollTo(0, 0);
         gameInput.value = '';
         // input type을 잠깐 바꿔서 IME 버퍼 강제 플러시
         gameInput.setAttribute('type', 'password');
@@ -1111,6 +1116,7 @@
         requestAnimationFrame(function() {
             gameInput.value = '';
             gameInput.focus({ preventScroll: true });
+            window.scrollTo(0, 0);
         });
     }
 
@@ -1224,7 +1230,7 @@
                 // 파워업은 콤보 미적용
                 targetedEnemy = null; isComposing = false; composedChar = '';
                 clearTimeout(inputResetTimer); inputResetTimer = null;
-                gameInput.blur(); gameInput.value = '';
+                gameInput.blur(); window.scrollTo(0,0); gameInput.value = '';
                 requestAnimationFrame(function(){ gameInput.focus({ preventScroll: true }); window.scrollTo(0,0); });
                 return;
             }
@@ -1294,6 +1300,7 @@
                 isComposing = false; composedChar = '';
                 clearTimeout(inputResetTimer); inputResetTimer = null;
                 gameInput.blur();
+                window.scrollTo(0, 0);
                 gameInput.value = '';
                 gameInput.setAttribute('type','password');
                 gameInput.setAttribute('type','text');
