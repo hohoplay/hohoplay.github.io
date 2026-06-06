@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-visual">
     <title>호호벚꽃타자- HOHO PLAY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -511,7 +511,16 @@
             z-index: 1000;
         }
 
-        input#input-field { position: absolute; left: -9999px; }
+        input#input-field {
+            position: fixed;
+            top: 0;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+            font-size: 16px; /* 16px 미만이면 iOS에서 자동 줌 발생 */
+        }
 
         @media (max-width: 600px) {
             #game-frame {
@@ -1310,11 +1319,17 @@
             window.addEventListener('click', () => { 
                 if (!SoundEngine.ctx) SoundEngine.init();
                 SoundEngine.resume();
-                if(gameActive) inputField.focus(); 
+                if(gameActive) {
+                    const sx = window.scrollX, sy = window.scrollY;
+                    inputField.focus({ preventScroll: true });
+                    window.scrollTo(sx, sy);
+                } 
             });
             
             window.addEventListener('resize', () => {
                 if(!gameActive) return;
+                // 키보드 팝업으로 인한 스크롤 방지
+                window.scrollTo(0, 0);
                 const fieldWidth = gameField.offsetWidth;
                 activeWords.forEach(m => {
                     m.x = m.xPercent * fieldWidth;
@@ -1423,7 +1438,7 @@
             displayText.style.color = '#ffb3c1';
             updateHighlight("");
             if (resetTimer) clearTimeout(resetTimer);
-            if(gameActive) setTimeout(() => inputField.focus(), 10);
+            if(gameActive) setTimeout(() => { const sx=window.scrollX,sy=window.scrollY; inputField.focus({preventScroll:true}); window.scrollTo(sx,sy); }, 10);
         }
 
         function handleInput(val) {
@@ -1980,7 +1995,7 @@
             lastTime = performance.now();
             spawnLoop();
             requestAnimationFrame(gameLoop);
-            inputField.focus();
+            inputField.focus({ preventScroll: true });
         }
 
         window.endGame = function(msg = "GARDEN OVER") {
