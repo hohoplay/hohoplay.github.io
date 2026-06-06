@@ -717,7 +717,6 @@
             .then(r => r.text())
             .then(html => {
                 document.getElementById('footer-placeholder').outerHTML = html;
-                // outerHTML 삽입된 <script>는 실행 안 되므로 footerNav를 별도 주입
                 var s = document.createElement('script');
                 s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
                 document.body.appendChild(s);
