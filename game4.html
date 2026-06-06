@@ -1106,17 +1106,15 @@
         clearTimeout(inputResetTimer); inputResetTimer = null;
         isComposing = false; composedChar = '';
         targetedEnemy = null; reticle.charIndex = 0;
-        // IME 세션 완전 종료: blur → value 초기화 → 한 프레임 뒤 focus
-        gameInput.blur();
-        window.scrollTo(0, 0);
+        // IME 버퍼 강제 플러시: 스크롤 위치 고정 후 blur → 즉시 복원 → focus
+        var sx = window.pageXOffset, sy = window.pageYOffset;
         gameInput.value = '';
-        // input type을 잠깐 바꿔서 IME 버퍼 강제 플러시
-        gameInput.setAttribute('type', 'password');
-        gameInput.setAttribute('type', 'text');
+        gameInput.blur();
+        window.scrollTo(sx, sy);
         requestAnimationFrame(function() {
-            gameInput.value = '';
+            window.scrollTo(sx, sy);
             gameInput.focus({ preventScroll: true });
-            window.scrollTo(0, 0);
+            window.scrollTo(sx, sy);
         });
     }
 
@@ -1230,8 +1228,15 @@
                 // 파워업은 콤보 미적용
                 targetedEnemy = null; isComposing = false; composedChar = '';
                 clearTimeout(inputResetTimer); inputResetTimer = null;
-                gameInput.blur(); window.scrollTo(0,0); gameInput.value = '';
-                requestAnimationFrame(function(){ gameInput.focus({ preventScroll: true }); window.scrollTo(0,0); });
+                var _sx = window.pageXOffset, _sy = window.pageYOffset;
+                gameInput.value = '';
+                gameInput.blur();
+                window.scrollTo(_sx, _sy);
+                requestAnimationFrame(function() {
+                    window.scrollTo(_sx, _sy);
+                    gameInput.focus({ preventScroll: true });
+                    window.scrollTo(_sx, _sy);
+                });
                 return;
             }
 
@@ -1278,8 +1283,15 @@
 
         targetedEnemy = null; isComposing = false; composedChar = '';
         clearTimeout(inputResetTimer); inputResetTimer = null;
-        gameInput.blur(); gameInput.value = '';
-        requestAnimationFrame(function(){ gameInput.focus({ preventScroll: true }); window.scrollTo(0,0); });
+        var sx = window.pageXOffset, sy = window.pageYOffset;
+        gameInput.value = '';
+        gameInput.blur();
+        window.scrollTo(sx, sy);
+        requestAnimationFrame(function() {
+            window.scrollTo(sx, sy);
+            gameInput.focus({ preventScroll: true });
+            window.scrollTo(sx, sy);
+        });
     }
 
     /* ── 비한글 키 차단 ── */
@@ -1299,13 +1311,15 @@
                 targetedEnemy = null; reticle.charIndex = 0;
                 isComposing = false; composedChar = '';
                 clearTimeout(inputResetTimer); inputResetTimer = null;
+                var sx = window.pageXOffset, sy = window.pageYOffset;
+                gameInput.value = '';
                 gameInput.blur();
-                window.scrollTo(0, 0);
-                gameInput.value = '';
-                gameInput.setAttribute('type','password');
-                gameInput.setAttribute('type','text');
-                gameInput.value = '';
-                requestAnimationFrame(function(){ gameInput.value = ''; gameInput.focus({ preventScroll: true }); window.scrollTo(0,0); });
+                window.scrollTo(sx, sy);
+                requestAnimationFrame(function() {
+                    window.scrollTo(sx, sy);
+                    gameInput.focus({ preventScroll: true });
+                    window.scrollTo(sx, sy);
+                });
                 return;
             }
             // 영문/숫자/특수문자: 조용히 리셋
@@ -1441,8 +1455,6 @@
         } else {
             var tier = b.type === 'giant' ? 4 : b.type === 'special' ? 5 : 4;
             b.word = words[tier][Math.floor(Math.random()*words[tier].length)];
-            // 특수보스: 타격마다 위성 재생성
-            if (b.type === 'special') initSatellites(b);
         }
         updateUI();
     }
@@ -1570,20 +1582,20 @@
         setTimeout(function(){ warningOverlay.style.display = 'none'; }, 2500);
 
         if (type === 'giant') {
-            // 타이탄 보스: 위성 없음, HP 6, 4글자
+            // 타이탄 보스: 위성 없음, HP 5, 4글자
             boss = { type:'giant', x:canvasW/2, y:-200, targetY:canvasH*0.28,
-                     hp:6, maxHp:6, word:words[4][Math.floor(Math.random()*words[4].length)],
+                     hp:5, maxHp:5, word:words[4][Math.floor(Math.random()*words[4].length)],
                      color:'#ff6600', displaySize:80, hitFlash:0, hitShake:0, angle:0 };
         } else if (type === 'special') {
-            // 코어 보스: 위성 3개, HP 12, 5글자
+            // 코어 보스: 위성 3개, HP 7, 5글자
             boss = { type:'special', x:canvasW/2, y:-150, targetY:canvasH*0.25,
-                     hp:10, maxHp:10, word:words[5][Math.floor(Math.random()*words[5].length)],
+                     hp:7, maxHp:7, word:words[5][Math.floor(Math.random()*words[5].length)],
                      color:'#00ffcc', displaySize:60, hitFlash:0, hitShake:0, angle:0 };
             initSatellites(boss);
         } else {
-            // 레이더 보스: 위성 없음, HP 5, 4글자
+            // 레이더 보스: 위성 없음, HP 3, 4글자
             boss = { type:'mini', x:canvasW/2, y:-100, targetY:canvasH*0.3,
-                     hp:5, maxHp:5, word:words[4][Math.floor(Math.random()*words[4].length)],
+                     hp:3, maxHp:3, word:words[4][Math.floor(Math.random()*words[4].length)],
                      color:'#ff0033', displaySize:44, hitFlash:0, hitShake:0, angle:0 };
         }
         setTimeout(function(){ if (isBossMode && boss) startBossShooting(type); }, 1500);
