@@ -1232,7 +1232,7 @@
         
         <div id="start-screen" class="overlay-screen">
             <h1 class="title">🍄 꼬마 영웅 호야 타자 RPG</h1>
-            <p style="margin-bottom: 10px; color: #4fc3f7; font-weight: 800;">이 게임은 호호로그 기획 및 프로그램으로 제작함</p>
+            <p style="margin-bottom: 10px; color: #4fc3f7; font-weight: 800;">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
             <p style="font-size: 0.9rem; color: #ffffff;">캐릭터 선택</p>
             <div class="job-select">
                 <div class="job-btn active" id="btn-archer" onclick="selectJob('archer')"><span style="font-size:2.5rem;">🏹</span><span>궁수 호야</span></div>
@@ -3684,9 +3684,8 @@
             .then(r => r.text())
             .then(html => {
                 document.getElementById('footer-placeholder').outerHTML = html;
-                // outerHTML 삽입된 <script>는 실행 안 되므로 footerNav를 별도 주입
                 var s = document.createElement('script');
-                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
+                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{window.location.href="index.html#";}}';
                 document.body.appendChild(s);
             });
     </script>

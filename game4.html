@@ -757,7 +757,7 @@
 #hoho-weapon-sprite.weapon-left   { left: 0;  right: auto; -webkit-transform: none; transform: none; }
 #hoho-weapon-sprite.weapon-center { left: 50%; right: auto; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
 
-.hoho-weapon-body {
+.hoho-weapon-#hoho-fps-container {
     position: relative;
     width: 60px;
     height: 120px;
@@ -828,7 +828,7 @@
     <!-- 타이틀/게임오버 화면 -->
     <div id="hoho-overlay-screen">
       <p id="hoho-main-title">호호타자FPS</p>
-      <p id="hoho-desc-text">이 게임은 호호로그 기획 및 프로그램으로 제작함</p>
+      <p id="hoho-desc-text">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
 
       <div id="hoho-mode-selection">
         <button class="hoho-mode-btn" onclick="hohoSetMode('left',event)">
@@ -1005,8 +1005,8 @@
     /* ── 캔버스 초기화 ── */
     function initCanvas() {
         var rect = canvas.getBoundingClientRect();
-        canvasW = rect.width||canvas.offsetWidth||420;
-        canvasH = rect.height||canvas.offsetHeight||700;
+        canvasW = rect.width || canvas.offsetWidth || 420;
+        canvasH = rect.height || canvas.offsetHeight || 700;
         canvas.width = canvasW; canvas.height = canvasH;
         reticle.x = canvasW / 2; reticle.y = canvasH / 2;
     }

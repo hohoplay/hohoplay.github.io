@@ -1010,7 +1010,7 @@ canvas {
     <div id="start-screen">
       <h1 class="game-title">🏎️ 호호레이싱</h1>
       <button id="start-button" class="btn-pastel">질주 시작!</button>
-      <p class="credit-text">이 게임은 호로로그 기획 및 프로그램으로 제작함</p>
+      <p class="credit-text">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
     </div>
 
     <!-- 로딩 화면 -->
@@ -1234,7 +1234,7 @@ const makeShareCanvas = function(scoreVal) {
   shareCtx.font = '32px sans-serif';
   shareCtx.fillStyle = '#888';
   shareCtx.textAlign = 'center';
-  shareCtx.fillText('호호로그에서 도전!', 400, 540);
+  shareCtx.fillText('호호플레이에서 도전!', 400, 540);
 
   return shareCanvas;
 };
@@ -1263,7 +1263,7 @@ const saveShareImage = function(scoreVal, callback) {
 // Web Share API (모바일 네이티브 공유)
 const nativeShare = function(scoreVal, btn) {
   const shareCanvas = makeShareCanvas(scoreVal);
-  const shareText = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성! 호호로그에서 도전해봐!';
+  const shareText = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성! 호호플레이에서 도전해봐!';
   const shareUrl = window.location.href;
 
   // 이미지 포함 공유 시도 (카카오/인스타 등에서 이미지 공유 가능)
@@ -1297,7 +1297,7 @@ const nativeShare = function(scoreVal, btn) {
 
 // 카카오링크 공유 (카카오SDK 없이 링크 방식)
 const shareToKakao = function(scoreVal) {
-  const text = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성!\n호호로그에서 도전 👉 ' + window.location.href;
+  const text = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성!\n호호플레이에서 도전 👉 ' + window.location.href;
   // 카카오 스토리 공유 (앱 딥링크)
   const kakaoUrl = 'https://story.kakao.com/share?url=' + encodeURIComponent(window.location.href) +
     '&text=' + encodeURIComponent(text);
@@ -1306,7 +1306,7 @@ const shareToKakao = function(scoreVal) {
 
 // 인스타/쓰레드는 텍스트 직접 복사 + 이미지 저장 안내 방식
 const shareToInstagram = function(scoreVal) {
-  const text = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성! 호호로그에서 도전!';
+  const text = '🏎️ 호호레이싱 ' + scoreVal.toLocaleString() + '점 달성! 호호플레이에서 도전!';
   
   // 이미지 먼저 저장
   const shareCanvas = makeShareCanvas(scoreVal);
