@@ -539,54 +539,65 @@
             #lang-indicator { width: 35px; height: 35px; font-size: 14px; border-radius: 8px; }
             #combo-panel { top: -65px; width: 80px; right: -10px; padding-top: 15px; }
             #judgment-line { bottom: 100px; }
-            #over-title { font-size: 40px !important; }
-            #game-over p { font-size: 18px !important; }
-            #game-over button { padding: 15px 30px !important; font-size: 18px !important; border-radius: 15px !important; }
+            /* ── 게임오버 화면 모바일 ── */
+            #game-over {
+                padding: 10px 14px;
+                overflow: hidden;
+                justify-content: center;
+            }
+            #over-title { font-size: 26px !important; margin-bottom: 4px !important; }
+            #game-over > p { font-size: 13px !important; margin-bottom: 6px !important; }
+            #game-over #speed-select-label {
+                font-size: 10px !important;
+                margin-bottom: 6px !important;
+                letter-spacing: 1px !important;
+            }
+            #over-speed-buttons {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 6px !important;
+                width: 86% !important;
+                margin-bottom: 10px !important;
+            }
+            #over-speed-buttons .speed-btn {
+                width: 100% !important;
+                height: 60px !important;
+                border-radius: 12px !important;
+                gap: 1px !important;
+                padding: 0 3px !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            #over-speed-buttons .speed-btn .speed-icon { font-size: 16px !important; }
+            #over-speed-buttons .speed-btn .speed-val {
+                font-size: 11px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 100% !important;
+            }
+            #over-speed-buttons .speed-btn .speed-desc {
+                font-size: 7px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 100% !important;
+            }
+            #game-over > button:last-child {
+                padding: 10px 28px !important;
+                font-size: 16px !important;
+                border-radius: 14px !important;
+            }
 
-            /* ── 모바일 보스 크기 축소 ── */
-            .boss-visual-wrapper {
-                width: 110px !important;
-                height: 110px !important;
-            }
-            #large-boss-container .boss-visual-wrapper {
-                width: 110px !important;
-                height: 110px !important;
-            }
-            #boss-bird-gray, #boss-bird-color {
-                width: 100px !important;
-                height: 100px !important;
-            }
-            #large-boss-gray, #large-boss-color {
-                width: 100px !important;
-                height: 100px !important;
-            }
-            #boss-glow, #large-boss-glow {
-                width: 120px !important;
-                height: 120px !important;
-            }
-            #boss-core {
-                width: 22px !important;
-                height: 22px !important;
-            }
-            .blossom-petal {
-                width: 22px !important;
-                height: 30px !important;
-            }
-            #boss-hp-bar { width: 120px !important; }
-            #large-boss-hp-bar { width: 130px !important; }
-            #boss-word-display {
-                font-size: 18px !important;
-                padding: 5px 14px !important;
-                min-width: 110px !important;
-            }
-            #large-boss-word-display {
-                font-size: 18px !important;
-                padding: 5px 14px !important;
-                min-width: 110px !important;
-            }
-            #large-boss-label { font-size: 10px !important; }
-            .boss-type-label { font-size: 9px !important; }
         }
+        #over-speed-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
         .boss-projectile {
             position: absolute;
             pointer-events: none;
@@ -809,8 +820,38 @@
 
         @media (max-width: 600px) {
             #title-logo { font-size: 36px; }
-            .speed-btn { width: 58px; height: 68px; }
-            .speed-btn .speed-val { font-size: 13px; }
+            #title-sub { font-size: 10px; margin-bottom: 20px; }
+            #speed-buttons {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                width: 88%;
+                margin-bottom: 24px;
+            }
+            .speed-btn {
+                width: 100%;
+                height: 72px;
+                border-radius: 14px;
+                gap: 2px;
+                padding: 0 4px;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
+            .speed-btn .speed-icon { font-size: 18px; }
+            .speed-btn .speed-val {
+                font-size: 13px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+            }
+            .speed-btn .speed-desc {
+                font-size: 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+            }
             #title-start-btn { font-size: 18px; padding: 15px 45px; }
         }
 
@@ -1089,7 +1130,7 @@
             <h1 id="over-title" style="font-size: 60px; color: #ff4d6d; margin-bottom: 20px;">GARDEN OVER</h1>
             <p style="font-size: 24px; color: #ffb3c1; margin-bottom: 20px;">최종 점수: <span id="final-score" style="color: #ff4d6d; font-weight: 900;">0</span></p>
             <div id="speed-select-label" style="font-size:13px;font-weight:700;color:#ff4d6d;letter-spacing:2px;margin-bottom:12px;">⚡ 속도 선택</div>
-            <div id="over-speed-buttons" style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;">
+            <div id="over-speed-buttons">
                 <button class="speed-btn selected" data-mult="1.0" onclick="selectSpeed(this)">
                     <span class="speed-icon">🐌</span>
                     <span class="speed-val">1x</span>
@@ -1658,13 +1699,13 @@
                 position: absolute;
                 left: ${fromX}px;
                 top: ${fromY}px;
-                font-size: ${isMid ? '22px' : '28px'};
+                font-size: ${isMobile ? (isMid ? '15px' : '18px') : (isMid ? '22px' : '28px')};
                 font-weight: 900;
                 color: ${isMid ? '#ff4d6d' : '#c0392b'};
                 background: rgba(255,255,255,0.92);
                 border: 2px solid ${isMid ? '#ffb7c5' : '#e74c3c'};
                 border-radius: 10px;
-                padding: 4px 10px;
+                padding: ${isMobile ? '2px 6px' : '4px 10px'};
                 transition: top ${speed}ms linear, left ${speed}ms ease-in-out, opacity 200ms;
                 opacity: 1;
                 cursor: default;
