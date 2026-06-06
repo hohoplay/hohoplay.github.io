@@ -718,16 +718,17 @@ canvas {
   animation: rainbow-glow 0.3s infinite linear;
 }
 
-/* ── 풀스크린 타이틀 화면 ── */
+/* ── 타이틀 화면 (canvas-wrapper 기준 절대 배치) ── */
 #start-screen {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 999;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, #7EC8E3 0%, #A7D8DE 40%, #FDFCF0 100%);
   overflow: hidden;
+  border-radius: 12px;
 }
 
 #start-screen.hidden {
@@ -1114,27 +1115,27 @@ canvas {
                 <div class="overflow-hidden w-full flex justify-center">
 <!-- ════════════════════ 호호레이싱 게임 소스 시작 ════════════════════ -->
 
-<!-- 풀스크린 타이틀 화면 -->
-<div id="start-screen">
-  <div id="title-bg">
-    <div class="road-stripe"></div>
-    <div class="road-stripe"></div>
-    <div class="road-stripe"></div>
-  </div>
-  <div id="title-content">
-    <div id="title-emoji">🏎️</div>
-    <h1 id="title-main">호호레이싱</h1>
-    <p id="title-sub">좌우를 터치해서 차선을 변경하세요!</p>
-    <button id="start-button">질주 시작!</button>
-    <p id="title-credit">이 게임은 호호플레이 기획 및<br>AI프로그램으로 제작함</p>
-  </div>
-</div>
-
 <div id="game-container">
   <div id="canvas-wrapper">
     <canvas id="gameCanvas" width="560" height="750"></canvas>
     <div id="fever-bar-container">
       <div id="fever-bar-fill"></div>
+    </div>
+
+    <!-- 타이틀 화면 (canvas-wrapper 안, ui-layer 위) -->
+    <div id="start-screen">
+      <div id="title-bg">
+        <div class="road-stripe"></div>
+        <div class="road-stripe"></div>
+        <div class="road-stripe"></div>
+      </div>
+      <div id="title-content">
+        <div id="title-emoji">🏎️</div>
+        <h1 id="title-main">호호레이싱</h1>
+        <p id="title-sub">좌우를 터치해서 차선을 변경하세요!</p>
+        <button id="start-button">질주 시작!</button>
+        <p id="title-credit">이 게임은 호호플레이 기획 및<br>AI프로그램으로 제작함</p>
+      </div>
     </div>
 
     <div id="ui-layer">
