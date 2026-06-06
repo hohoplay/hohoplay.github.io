@@ -2312,18 +2312,9 @@
         window.scrollTo(0, 0);
         initCanvas();
     });
-    // ── 모바일 키보드 팝업 시 input-area 위치 보정 ──
+    // interactive-widget=resizes-visual 적용으로 레이아웃 고정
+    // input-area는 항상 bottom:40px 유지 (visualViewport 보정 불필요)
     if (window.visualViewport) {
-        function onViewportResize() {
-            window.scrollTo(0, 0);
-            var inputArea = document.getElementById('hoho-input-area');
-            if (!inputArea) return;
-            var vvh = window.visualViewport.height;
-            var wh  = window.innerHeight;
-            var kbH = Math.max(0, wh - vvh); // 키보드 높이
-            inputArea.style.bottom = (40 + kbH) + 'px';
-        }
-        window.visualViewport.addEventListener('resize', onViewportResize);
         window.visualViewport.addEventListener('scroll', function(){ window.scrollTo(0,0); });
     }
 

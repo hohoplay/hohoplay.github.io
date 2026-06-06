@@ -888,6 +888,7 @@
     
 </style>
 <div id="sky-game-wrapper">
+<div id="damage-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:9999;overflow:visible;"></div>
 <div id="game-frame">
         <div id="title-screen">
                 <div id="title-logo">호호<span>벚꽃</span>타자 🌸</div>
@@ -1521,17 +1522,24 @@
         }
 
         function triggerCharDamage(x, y, char) {
-            if (!char || isDeleting) return; 
+            if (!char || isDeleting) return;
+            const damageOverlay = document.getElementById('damage-overlay');
+            if (!damageOverlay) return;
             const d = document.createElement('div');
             d.className = `damage-text ${isFever ? 'fever' : ''}`;
             d.innerText = char;
-            d.style.left = `${x}px`;
-            d.style.top = `${y}px`;
+            // game-field 좌표 → sky-game-wrapper 기준 절대좌표로 변환
+            const fieldRect   = gameField.getBoundingClientRect();
+            const overlayRect = damageOverlay.getBoundingClientRect();
+            const absX = fieldRect.left - overlayRect.left + x;
+            const absY = fieldRect.top  - overlayRect.top  + y;
+            d.style.left = `${absX}px`;
+            d.style.top  = `${absY}px`;
             if (isMobile) {
                 d.style.fontSize = '20px';
                 d.style.animationName = 'dmg-text-popup-mobile';
             }
-            gameField.appendChild(d);
+            damageOverlay.appendChild(d);
             setTimeout(() => { if(d.parentNode) d.remove(); }, 700);
         }
 
