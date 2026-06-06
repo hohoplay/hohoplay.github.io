@@ -1723,9 +1723,11 @@
             const fromX  = startX !== undefined ? startX : gameField.offsetWidth / 2;
             // 대형보스 크기 축소(200px) + label+hp+word 합산 후 실제 하단 위치
             // 대형보스 top:10px + label~30px + wrapper200px + hp~16px + word~50px ≈ 310px
+            // 보스 위(상단)에서 발사체 시작
+            // 중간보스 top:30px, 대형보스 top:10px 기준
             const fromY  = isMid
-                ? (isMobile ? 160 : 180)
-                : (isMobile ? 230 : 320);
+                ? (isMobile ? 25 : 30)
+                : (isMobile ? 10 : 15);
             const speed  = 10000;
             const wobble = startX !== undefined ? 0 : (Math.random() - 0.5) * 200;
             const word   = projectileWordBank[Math.floor(Math.random() * projectileWordBank.length)];
