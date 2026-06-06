@@ -1467,6 +1467,8 @@ let startScreen, loadingScreen, gameOverScreen, startBtn, restartBtn;
 let initialsInput, saveBtn;
 
 let gameActive = false;
+let isHolding = false;
+let holdX = 0;
 let score = 0;
 let baseSpeed = 8;
 let currentSpeed = 8;
@@ -1844,36 +1846,51 @@ function drawStatusIcons() {
   ctx.restore();
 }
 
-function update() {
+// DOM 상태 캐시 (레이아웃 스래싱 방지)
+let _lastFeverState = false;
+let _lastShakeVal = '';
+let _lastFeverBarW = '';
+let _lastHp = -1;
+let _heartStr = '';
+
+function update(timestamp) {
   if (!gameActive) return;
   const isFever = boostTimer > 0;
   score += (isFever ? 35 : 2);
-  
-  if (score >= 150000) currentLanes = 6;
-  else if (score >= 80000) currentLanes = 5;
-  else if (score >= 30000) currentLanes = 4;
-  else currentLanes = 3;
+
+  if      (score >= 150000) currentLanes = 6;
+  else if (score >= 80000)  currentLanes = 5;
+  else if (score >= 30000)  currentLanes = 4;
+  else                       currentLanes = 3;
 
   updateRoadMode();
 
+  // ── 쉐이크: 변경 시에만 DOM 조작 ──
   if (shakeTimer > 0) {
     shakeTimer--;
     const i = Math.min(shakeTimer, 15);
-    canvasWrapper.style.transform = 'translate(' + ((Math.random()-0.5)*i) + 'px, ' + ((Math.random()-0.5)*i) + 'px)';
-  } else {
-    canvasWrapper.style.transform = 'translate(0, 0)';
+    const sv = 'translate(' + ((Math.random()-0.5)*i).toFixed(1) + 'px,' + ((Math.random()-0.5)*i).toFixed(1) + 'px)';
+    canvasWrapper.style.transform = sv;
+  } else if (_lastShakeVal !== '0') {
+    canvasWrapper.style.transform = 'translate(0,0)';
+    _lastShakeVal = '0';
   }
 
   let tSpeed = baseSpeed + (score / 35000);
   if (isFever) {
     boostTimer--;
     tSpeed *= 2.3;
-    document.body.classList.add('fever-active');
-    feverBarFill.style.width = (boostTimer / MAX_BOOST_TIME * 100) + '%';
+    // ── fever 클래스: 상태 바뀔 때만 ──
+    if (!_lastFeverState) { document.body.classList.add('fever-active'); _lastFeverState = true; }
+    const fw = (boostTimer / MAX_BOOST_TIME * 100).toFixed(1) + '%';
+    if (fw !== _lastFeverBarW) { feverBarFill.style.width = fw; _lastFeverBarW = fw; }
   } else {
-    document.body.classList.remove('fever-active');
+    if (_lastFeverState) { document.body.classList.remove('fever-active'); _lastFeverState = false; }
   }
   currentSpeed += (tSpeed - currentSpeed) * 0.1;
+
+  // 터치/마우스 방향 업데이트 (rAF 내 처리)
+  if (isHolding) updateDirectionByHoldX();
 
   drawRoad();
   checkCollisions();
@@ -1887,41 +1904,37 @@ function update() {
     }
   }
 
-  if (player) {
-    player.update();
-    player.draw();
-  }
-  
+  if (player) { player.update(); player.draw(); }
+
   spawn();
 
+  // ── 경고 삼각형 ──
   const lw = canvas.width / currentLanes;
   for (let w = 0; w < warnings.length; w++) {
     const warning = warnings[w];
     const opW = (frameCount % 10 < 5) ? 1 : 0.3;
     ctx.save();
     ctx.translate(warning.x, canvas.height - 80);
-    ctx.fillStyle = 'rgba(255, 0, 0, ' + (opW * 0.2) + ')';
+    ctx.fillStyle = 'rgba(255,0,0,' + (opW * 0.2) + ')';
     ctx.fillRect(-lw/2 + 5, -canvas.height, lw - 10, canvas.height);
     ctx.beginPath();
-    ctx.moveTo(0, -40);
-    ctx.lineTo(-30, 10);
-    ctx.lineTo(30, 10);
+    ctx.moveTo(0, -40); ctx.lineTo(-30, 10); ctx.lineTo(30, 10);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(255, 0, 0, ' + opW + ')';
+    ctx.fillStyle = 'rgba(255,0,0,' + opW + ')';
     ctx.fill();
     ctx.fillStyle = '#FFF';
-    ctx.font = "bold 24px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("!", 0, 3);
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('!', 0, 3);
     ctx.restore();
   }
 
+  // ── HUD: 하트 문자열 캐시 (이모지 생성 최소화) ──
+  if (hp !== _lastHp) { _heartStr = '❤️'.repeat(hp); _lastHp = hp; }
   ctx.fillStyle = isFever ? '#fff' : '#333';
   ctx.font = '32px Gamja Flower';
   ctx.textAlign = 'left';
-  let hearts = '';
-  for (let h = 0; h < hp; h++) hearts += '❤️';
-  ctx.fillText(hearts, 25, 45);
+  ctx.fillText(_heartStr, 25, 45);
   ctx.textAlign = 'right';
   ctx.fillText(score.toLocaleString() + '점', canvas.width - 25, 45);
   drawStatusIcons();
@@ -1964,9 +1977,10 @@ function initGame() {
   canvasWrapper = document.getElementById('canvas-wrapper');
   feverBarFill = document.getElementById('fever-bar-fill');
   
-  ctx = canvas.getContext('2d', { 
+  ctx = canvas.getContext('2d', {
     alpha: false,
-    desynchronized: true
+    desynchronized: true,
+    willReadFrequently: false
   });
 
   if (!ctx) {
@@ -2135,8 +2149,6 @@ function startGame() {
 
   // ===== 수정된 입력 시스템 =====
   // 터치/마우스: 누른 위치 기준 이동
-  let isHolding = false;
-  let holdX = 0;
 
   // ── 키보드: 좌/우 독립적으로 추적, 둘 다 눌린 경우 나중에 누른 쪽 우선 ──
   let lastKeyPressed = null; // 'left' | 'right' | null
@@ -2214,10 +2226,7 @@ function startGame() {
     }
   }
 
-  const holdInterval = setInterval(function() {
-    if (!gameActive) return;
-    if (isHolding) updateDirectionByHoldX();
-  }, 16);
+  // holdInterval 제거 — update() rAF 루프 안에서 직접 호출
 
   canvas.addEventListener('mousedown', function(e) {
     isHolding = true;
@@ -2278,7 +2287,6 @@ function startGame() {
     }
   });
 
-  window._holdInterval = holdInterval;
   window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
 
   if (animationId) cancelAnimationFrame(animationId);
@@ -2289,7 +2297,6 @@ function endGame() {
   gameActive = false;
   if (animationId) cancelAnimationFrame(animationId);
   if (stopBGM) stopBGM();
-  if (window._holdInterval) { clearInterval(window._holdInterval); window._holdInterval = null; }
   // 키보드 이벤트 정리
   if (window._keyHandlers) {
     window.removeEventListener('keydown', window._keyHandlers.down);
