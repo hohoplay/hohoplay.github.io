@@ -814,6 +814,14 @@
             if (page === 'blog') bbsInit();
         }
 
+        // 푸터 사이트맵 링크
+        // ※ outerHTML 삽입된 footer.html의 <script>는 브라우저가 실행하지 않으므로
+        //    index.html 자체에 footerNav를 반드시 정의해야 함
+        function footerNav(page) {
+            navigateTo(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function toggleMenu() {
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
