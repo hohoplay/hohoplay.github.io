@@ -379,6 +379,11 @@
             40% { transform: translate(-50%, -60px) scale(1.2) rotate(10deg); opacity: 1; }
             100% { transform: translate(-50%, -120px) scale(1) rotate(0deg); opacity: 0; }
         }
+        @keyframes dmg-text-popup-mobile {
+            0% { transform: translate(-50%, 0) scale(0.5) rotate(-15deg); opacity: 0; }
+            40% { transform: translate(-50%, -30px) scale(1.1) rotate(8deg); opacity: 1; }
+            100% { transform: translate(-50%, -55px) scale(1) rotate(0deg); opacity: 0; }
+        }
 
         /* UI Styling */
         #ui-layer {
@@ -1522,7 +1527,10 @@
             d.innerText = char;
             d.style.left = `${x}px`;
             d.style.top = `${y}px`;
-            if (isMobile) d.style.fontSize = '24px';
+            if (isMobile) {
+                d.style.fontSize = '20px';
+                d.style.animationName = 'dmg-text-popup-mobile';
+            }
             gameField.appendChild(d);
             setTimeout(() => { if(d.parentNode) d.remove(); }, 700);
         }
