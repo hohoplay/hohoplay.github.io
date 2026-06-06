@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-visual">
     <title>호호타자FPS - HOHO PLAY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -1045,7 +1045,7 @@
         uiOverlay.style.display = 'block';
         updateUI(); initCanvas();
         gameInput.value = '';
-        gameInput.focus();
+        gameInput.focus({ preventScroll: true });
         _hohoRafId = requestAnimationFrame(gameLoop);
         window._hohoSpawnTimer = setInterval(function(){ if (isPlaying && !isBossMode) spawnEnemy(); }, SPAWN_INTERVAL);
     };
@@ -1110,7 +1110,7 @@
         gameInput.setAttribute('type', 'text');
         requestAnimationFrame(function() {
             gameInput.value = '';
-            gameInput.focus();
+            gameInput.focus({ preventScroll: true });
         });
     }
 
@@ -1225,7 +1225,7 @@
                 targetedEnemy = null; isComposing = false; composedChar = '';
                 clearTimeout(inputResetTimer); inputResetTimer = null;
                 gameInput.blur(); gameInput.value = '';
-                requestAnimationFrame(function(){ gameInput.focus(); });
+                requestAnimationFrame(function(){ gameInput.focus({ preventScroll: true }); window.scrollTo(0,0); });
                 return;
             }
 
@@ -1273,7 +1273,7 @@
         targetedEnemy = null; isComposing = false; composedChar = '';
         clearTimeout(inputResetTimer); inputResetTimer = null;
         gameInput.blur(); gameInput.value = '';
-        requestAnimationFrame(function(){ gameInput.focus(); });
+        requestAnimationFrame(function(){ gameInput.focus({ preventScroll: true }); window.scrollTo(0,0); });
     }
 
     /* ── 비한글 키 차단 ── */
@@ -1298,7 +1298,7 @@
                 gameInput.setAttribute('type','password');
                 gameInput.setAttribute('type','text');
                 gameInput.value = '';
-                requestAnimationFrame(function(){ gameInput.value = ''; gameInput.focus(); });
+                requestAnimationFrame(function(){ gameInput.value = ''; gameInput.focus({ preventScroll: true }); window.scrollTo(0,0); });
                 return;
             }
             // 영문/숫자/특수문자: 조용히 리셋
@@ -2289,8 +2289,32 @@
 
     /* ── 초기화 ── */
     requestAnimationFrame(function(){ initCanvas(); });
-    window.addEventListener('resize', initCanvas);
-    document.addEventListener('click', function(){ if (isPlaying) gameInput.focus(); });
+    window.addEventListener('resize', function(){
+        window.scrollTo(0, 0);
+        initCanvas();
+    });
+    // ── 모바일 키보드 팝업 시 input-area 위치 보정 ──
+    if (window.visualViewport) {
+        function onViewportResize() {
+            window.scrollTo(0, 0);
+            var inputArea = document.getElementById('hoho-input-area');
+            if (!inputArea) return;
+            var vvh = window.visualViewport.height;
+            var wh  = window.innerHeight;
+            var kbH = Math.max(0, wh - vvh); // 키보드 높이
+            inputArea.style.bottom = (40 + kbH) + 'px';
+        }
+        window.visualViewport.addEventListener('resize', onViewportResize);
+        window.visualViewport.addEventListener('scroll', function(){ window.scrollTo(0,0); });
+    }
+
+    document.addEventListener('click', function(){
+        if (isPlaying) {
+            var sx = window.scrollX, sy = window.scrollY;
+            gameInput.focus({ preventScroll: true });
+            window.scrollTo(sx, sy);
+        }
+    });
 
 })();
 
