@@ -777,7 +777,7 @@
 <div id="game-frame">
         <div id="title-screen">
                 <div id="title-logo">호호<span>벚꽃</span>타자 🌸</div>
-                <div id="title-sub">이 게임은 호호로그 기획 및 프로그램으로 제작함</div>
+                <div id="title-sub">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</div>
                 <div id="speed-select-label">⚡ 속도 선택</div>
                 <div id="speed-buttons">
                     <button class="speed-btn selected" data-mult="1.0" onclick="selectSpeed(this)">
@@ -812,7 +812,7 @@
                     </button>
                 </div>
                 <button id="title-start-btn" onclick="startFromTitle()">🌸 게임 시작</button>
-                <div id="title-credit">© 호호로그</div>
+                <div id="title-credit">© 호호플레이</div>
             </div>
 
         <div id="game-field">
@@ -2002,9 +2002,8 @@
             .then(r => r.text())
             .then(html => {
                 document.getElementById('footer-placeholder').outerHTML = html;
-                // outerHTML 삽입된 <script>는 실행 안 되므로 footerNav를 별도 주입
                 var s = document.createElement('script');
-                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
+                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{window.location.href="index.html#";}}';
                 document.body.appendChild(s);
             });
     </script>
