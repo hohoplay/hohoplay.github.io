@@ -1398,6 +1398,22 @@
     let aiData = { board: [], selection: null, lines: [], fever: 0, stunRemaining: 0, frozen: {} };
     let currentStageInfo = null;
     let gameActive = false;
+
+    // ── SPA 이탈 감지: 게임 DOM이 사라지면 모든 타이머/오디오 정리 ──
+    (function() {
+        const _obs = new MutationObserver(function() {
+            if (!document.getElementById('ts-p1-board')) {
+                gameActive = false;
+                if (mainTimer) { clearInterval(mainTimer); mainTimer = null; }
+                if (attackTickTimer) { clearInterval(attackTickTimer); attackTickTimer = null; }
+                if (audioCtx && audioCtx.state !== 'closed') {
+                    audioCtx.close();
+                }
+                _obs.disconnect();
+            }
+        });
+        _obs.observe(document.body, { childList: true, subtree: true });
+    })();
     let timeLeft = 600;
     let mainTimer = null;
     let attackTickTimer = null;
@@ -1585,7 +1601,7 @@
         attackTickTimer = setInterval(updateAttacksCountdown, 100);
         setTimeout(() => { handleResize(); }, 50);
         requestAnimationFrame(renderLoop);
-        setTimeout(aiThink, 1500);
+        setTimeout(() => { if(gameActive) aiThink(); }, 1500);
     }
 
     function initSide(side) {
@@ -1705,8 +1721,8 @@
     }
 
     async function aiThink() {
-        if(!gameActive) return;
-        if (aiData.stunRemaining > 0) { setTimeout(aiThink, 500); return; }
+        if (!gameActive || !document.getElementById('ts-ai-board')) return;
+        if (aiData.stunRemaining > 0) { setTimeout(() => { if(gameActive) aiThink(); }, 500); return; }
         const frozenKeys = Object.keys(aiData.frozen);
         if (frozenKeys.length > 0) {
             const chosenKey = frozenKeys[0];
@@ -1720,7 +1736,7 @@
                 if (ae) { ae.className = 'ts-tile'; ae.removeAttribute('data-ice-hp'); }
             } else { if (ae) ae.setAttribute('data-ice-hp', `❄️${aiData.frozen[chosenKey]}`); }
             let iceClearDelay = Math.max(100, 700 - (masterStageNum * 30));
-            setTimeout(aiThink, iceClearDelay);
+            setTimeout(() => { if(gameActive) aiThink(); }, iceClearDelay);
             return;
         }
         const level = masterStageNum;
@@ -1749,7 +1765,7 @@
                         if (e1) e1.classList.remove('ai-selected');
                         if (e2) e2.classList.remove('ai-selected');
                     }
-                    setTimeout(aiThink, thinkSpeed);
+                    setTimeout(() => { if(gameActive) aiThink(); }, thinkSpeed);
                     return;
                 }
             }
@@ -1769,7 +1785,7 @@
             await new Promise(r => setTimeout(r, matchDelay));
             if(!gameActive || aiData.stunRemaining > 0) {
                 if(e1) e1.classList.remove('ai-selected');
-                setTimeout(aiThink, 200); return;
+                setTimeout(() => { if(gameActive) aiThink(); }, 200); return;
             }
             if(e2) e2.classList.add('ai-selected');
             await new Promise(r => setTimeout(r, Math.max(50, matchDelay / 3)));
@@ -1784,7 +1800,7 @@
             const remainingTiles = aiData.board.flat().filter(v => v !== null).length;
             if (remainingTiles > 0) shuffleSide('ai');
         }
-        setTimeout(aiThink, thinkSpeed);
+        setTimeout(() => { if(gameActive) aiThink(); }, thinkSpeed);
     }
 
     function removeTiles(side, p1, p2, path) {
