@@ -31,6 +31,7 @@
     min-height: 520px;
     margin: 0 auto 20px;
     z-index: 1;
+    isolation: isolate;
     background: #111827;
     border-radius: 16px;
     overflow: hidden;
@@ -537,7 +538,7 @@
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:12px;
+  padding:6px;
   font-family:'Fredoka One',cursive,sans-serif;
   color:#fff;
   user-select:none;
@@ -659,7 +660,7 @@
 /* ══ 헤더 ══ */
 #game-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:.4rem .85rem;
+  padding:.22rem .6rem;
   background:rgba(255,255,255,.06);
   border-bottom:1px solid rgba(255,255,255,.08);
   flex-shrink:0;
@@ -700,7 +701,7 @@
   text-align:right;
 }
 .score-label  {font-size:.44rem;color:#a5b4fc;text-transform:uppercase;letter-spacing:.08em;}
-#score-display{font-size:1rem;color:#5eead4;}
+#score-display{font-size:.85rem;color:#5eead4;}
 
 #double-score-board{display:none;align-items:center;gap:.35rem;}
 .player-score{
@@ -713,7 +714,7 @@
 
 /* ══ 캔버스 영역 ══ */
 #main-game{
-  flex:1;position:relative;overflow:hidden;min-height:0;
+  position:relative;overflow:hidden;
 }
 #game-canvas{display:block;touch-action:none;}
 
@@ -768,7 +769,7 @@
 /* ══ 푸터 ══ */
 #game-footer{
   display:flex;align-items:center;justify-content:space-between;
-  padding:.35rem .85rem;
+  padding:.18rem .6rem;
   background:rgba(255,255,255,.04);
   border-top:1px solid rgba(255,255,255,.06);
   flex-shrink:0;gap:.4rem;
@@ -787,7 +788,7 @@
 #timer-area {display:flex;align-items:center;gap:.38rem;}
 .timer-label{font-size:.56rem;color:rgba(255,255,255,.5);}
 #timer-display{
-  font-size:1.1rem;font-family:monospace;
+  font-size:.9rem;font-family:monospace;
   color:#f472b6;letter-spacing:.09em;transition:color .3s;
 }
 .grid-info{font-size:.5rem;color:rgba(255,255,255,.26);}
@@ -929,12 +930,13 @@
 ══════════════════════════════════════════ */
 
 // ── orientation별 그리드 설정 ──
+// 항상 9×12 고정 레이아웃 (가로/세로 무관)
 const LAYOUTS = {
-  landscape: { COLS:15, ROWS:7,  cardW:760, cardH:420 },
-  portrait:  { COLS:9,  ROWS:12, cardW:400, cardH:720 }
+  landscape: { COLS:9, ROWS:12, cardW:400, cardH:720 },
+  portrait:  { COLS:9, ROWS:12, cardW:400, cardH:720 }
 };
 
-let COLS=15, ROWS=7;
+let COLS=9, ROWS=12;
 
 // ── 젤리 타입 ──
 const TYPES = {
@@ -1045,6 +1047,7 @@ const card   =document.getElementById('game-card');
 let cw=0,ch=0,cellW=0,cellH=0,gridOffsetX=0,gridOffsetY=0;
 let grid=[],path=[],dragging=false;
 let gameMode='SINGLE',turn=1;
+let idleTimer=null;  // 2인용: 5초 무입력 시 자동 턴 전환
 let gameDiff='NORMAL'; // EASY | NORMAL | HARD
 let score=0,scores={1:0,2:0};
 let timeLeft=600,timerID=null,gameOver=false;
@@ -1053,7 +1056,7 @@ let currentOrientation='';
 
 // ── orientation 감지 & 카드 크기 설정 ──
 function getOrientation(){
-  return (window.innerWidth >= window.innerHeight) ? 'landscape' : 'portrait';
+  return 'portrait'; // 항상 9×12 고정
 }
 
 function applyLayout(){
@@ -1074,14 +1077,17 @@ function applyLayout(){
   w = Math.floor(w); h = Math.floor(h);
   card.style.width  = w+'px';
   card.style.height = h+'px';
+  // header/footer 높이 차감 → 캔버스가 헤더/푸터를 밀지 않도록
+  const headerEl = document.getElementById('game-header');
+  const footerEl = document.getElementById('game-footer');
+  const headerH = headerEl ? headerEl.offsetHeight : 0;
+  const footerH = footerEl ? footerEl.offsetHeight : 0;
+  const mainEl2 = document.getElementById('main-game');
+  if(mainEl2) mainEl2.style.height = (h - headerH - footerH) + 'px';
 
   document.getElementById('grid-info-text').textContent=`${COLS}×${ROWS}`;
 
-  // 그리드 재생성 (orientation 바뀐 경우만)
-  if(orientationChanged && !gameOver && grid.length>0){
-    initGrid();
-    setTimeout(checkAutoShuffle,800);
-  }
+  // 레이아웃 고정(9×12)이므로 orientation 변경 시에도 그리드 유지
 
   resize();
 }
@@ -1098,14 +1104,15 @@ function resize(){
   // 누적 방지: 매번 초기화 후 scale
   ctx.setTransform(dpr,0,0,dpr,0,0);
   // 정사각형 셀: 가로/세로 중 꽉 차는 쪽 기준
-  const cell=Math.min(cw/COLS,ch/ROWS);
-  cellW=cell; cellH=cell;
-  // 그리드를 캔버스 정중앙에 배치
-  gridOffsetX=Math.round((cw-cellW*COLS)/2);
-  gridOffsetY=Math.round((ch-cellH*ROWS)/2);
+  // 캔버스를 그리드로 꽉 채움 (빈 여백 제거)
+  // 가로/세로 각각 독립 계산해서 캔버스 전체를 덮도록
+  cellW=cw/COLS;
+  cellH=ch/ROWS;
+  gridOffsetX=0;
+  gridOffsetY=0;
 }
 
-window.addEventListener('resize',()=>{currentOrientation='';applyLayout();resize();});
+window.addEventListener('resize',()=>{applyLayout();resize();});
 window.addEventListener('orientationchange',()=>setTimeout(()=>{currentOrientation='';applyLayout();resize();},150));
 setTimeout(()=>{applyLayout();resize();},60);
 
@@ -1180,6 +1187,7 @@ function startGame(){
   }else{
     ti.style.display='flex';ss.style.display='none';ds.style.display='flex';
     scores={1:0,2:0};turn=1;updateTurnUI();
+  if(gameMode==='TWO_PLAYER') resetIdleTimer();
   }
   gameOver=false;initGrid();startTimer();sfx.shuffle();
   setTimeout(checkAutoShuffle,1000);
@@ -1205,6 +1213,23 @@ function backToTitle(){
   sfx.shuffle();
 }
 
+// ── 2인용 무입력 자동 턴 전환 (5초) ──
+function clearIdleTimer(){
+  if(idleTimer){clearTimeout(idleTimer);idleTimer=null;}
+}
+function resetIdleTimer(){
+  if(gameMode!=='TWO_PLAYER'||gameOver)return;
+  clearIdleTimer();
+  idleTimer=setTimeout(()=>{
+    if(!dragging&&gameMode==='TWO_PLAYER'&&!gameOver){
+      turn=turn===1?2:1;
+      updateTurnUI();
+      showTurnBanner();
+      resetIdleTimer(); // 전환 후 다시 카운트
+    }
+  },5000);
+}
+
 // ── 턴 배너 ──
 function showTurnBanner(){
   const b=document.getElementById('turn-banner');
@@ -1222,7 +1247,7 @@ function cancelDrag(){
   dragging=false;
   path.forEach(p=>{const j=grid[p.r][p.c];if(j)j.squish(1.2,.8);});
   path=[];updateSum();sfx.error();
-  if(gameMode==='TWO_PLAYER'&&wasActive){turn=turn===1?2:1;updateTurnUI();showTurnBanner();}
+  if(gameMode==='TWO_PLAYER'&&wasActive){turn=turn===1?2:1;updateTurnUI();showTurnBanner();resetIdleTimer();}
 }
 
 // ── 포인터 헬퍼 ──
@@ -1241,6 +1266,7 @@ function adj(a,b){return Math.abs(a.r-b.r)<=1&&Math.abs(a.c-b.c)<=1&&!(a.r===b.r
 
 // ── 포인터 이벤트 ──
 canvas.addEventListener('pointerdown',e=>{
+  if(gameMode==='TWO_PLAYER') clearIdleTimer(); // 손 대면 타이머 중지
   if(gameOver)return;sfx.init();dragging=true;
   try{canvas.setPointerCapture(e.pointerId);}catch(x){}
   ptr=ptrPos(e);
@@ -1283,10 +1309,10 @@ function onUp(e){
         grid[p.r][p.c]=null;
       });
       applyGravity();
-      if(gameMode==='TWO_PLAYER'){turn=turn===1?2:1;setTimeout(()=>{updateTurnUI();showTurnBanner();},500);}
+      if(gameMode==='TWO_PLAYER') resetIdleTimer(); // 팝 성공 시 턴 유지, 5초 타이머만 리셋
     }else{
       path.forEach(p=>{const j=grid[p.r][p.c];if(j)j.squish(1.4,.6);}); sfx.error();
-      if(gameMode==='TWO_PLAYER'){turn=turn===1?2:1;updateTurnUI();showTurnBanner();}
+      if(gameMode==='TWO_PLAYER'){turn=turn===1?2:1;updateTurnUI();showTurnBanner();resetIdleTimer();}
     }
   }else if(path.length===1){
     const j=grid[path[0].r][path[0].c];if(j)j.squish(1.1,1.1);
@@ -1390,7 +1416,8 @@ function updateTimer(){
 
 // ── 게임 오버 ──
 function endGame(){
-  gameOver=true;if(dragging)cancelDrag();clearInterval(timerID);
+  gameOver=true;
+  clearIdleTimer();if(dragging)cancelDrag();clearInterval(timerID);
   const ov=document.getElementById('overlay');
   const tl=document.getElementById('overlay-title');
   const dc=document.getElementById('overlay-desc');
@@ -1513,6 +1540,8 @@ function loop(ts){
   if(!lastT)lastT=ts;
   const dt=Math.min((ts-lastT)/1000,.05);lastT=ts;
   ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle='#0d0820';
+  ctx.fillRect(0,0,cw,ch);
   // 1) 파티클
   particles=particles.filter(p=>p.alpha>0);
   particles.forEach(p=>{p.update(dt);p.draw(ctx);});
