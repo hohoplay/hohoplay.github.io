@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>호호레이싱 - HOHO PLAY</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         /* HOHO PLAY 공통 */
-        body { font-family: 'Noto Sans KR', sans-serif; }
+        body { font-family: 'Nanum Gothic', sans-serif; }
         .page-transition { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 10px; }
@@ -540,7 +542,7 @@ canvas {
 <style>
         /* HOHO PLAY 공통 */
         #game-container {
-  touch-action: none; font-family: 'Noto Sans KR', sans-serif; }
+  touch-action: none; font-family: 'Nanum Gothic', sans-serif; }
         .page-transition { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 10px; }
@@ -1498,7 +1500,7 @@ let animationId = null;
       _game5Observer.disconnect();
     }
   });
-  _game5Observer.observe(document.body, { childList: true, subtree: true });
+  _game5Observer.observe(document.getElementById('gameCanvas')?.parentElement || document.body, { childList: true, subtree: false });
 })();
 let activeTruckCount = 0;
 let wallHitCooldown = 0;
@@ -1785,29 +1787,45 @@ function drawRoad() {
   const isFever = boostTimer > 0;
   ctx.fillStyle = isFever ? '#111' : '#D1D9E0';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const segments = 15;
-  const segH = canvas.height / segments;
+
+  // 커브가 거의 없을 때(직선 모드)는 단순하게 처리
   const lw = canvas.width / currentLanes;
-  
-  ctx.strokeStyle = isFever ? getRainbowColor(frameCount, 0.5) : 'rgba(255, 255, 255, 0.4)';
-  ctx.setLineDash([50, 50]);
+  const hasCurve = currentCurveIntensity > 0.5;
+
+  ctx.strokeStyle = isFever ? getRainbowColor(frameCount, 0.5) : 'rgba(255,255,255,0.4)';
   ctx.lineWidth = 4;
-  
-  for (let s = 0; s < segments; s++) {
-    const y = s * segH;
-    const offset = Math.sin((frameCount * 0.02) + (y * 0.002)) * currentCurveIntensity;
-    ctx.save();
-    ctx.translate(offset, 0);
-    ctx.lineDashOffset = -frameCount * currentSpeed;
+  ctx.lineDashOffset = -frameCount * currentSpeed;
+
+  if (!hasCurve) {
+    // ── 직선: 모든 차선을 하나의 path로 묶어 stroke 1번 ──
+    ctx.setLineDash([50, 50]);
+    ctx.beginPath();
     for (let i = 1; i < currentLanes; i++) {
-      ctx.beginPath();
-      ctx.moveTo(lw * i, y);
-      ctx.lineTo(lw * i, y + segH);
-      ctx.stroke();
+      ctx.moveTo(lw * i, 0);
+      ctx.lineTo(lw * i, canvas.height);
     }
-    ctx.restore();
+    ctx.stroke();
+    ctx.setLineDash([]);
+  } else {
+    // ── 커브: 세그먼트 수 줄여서 성능 절약 ──
+    const segments = 8;
+    const segH = canvas.height / segments;
+    ctx.setLineDash([50, 50]);
+    for (let s = 0; s < segments; s++) {
+      const y = s * segH;
+      const offset = Math.sin((frameCount * 0.02) + (y * 0.002)) * currentCurveIntensity;
+      ctx.save();
+      ctx.translate(offset, 0);
+      ctx.beginPath();
+      for (let i = 1; i < currentLanes; i++) {
+        ctx.moveTo(lw * i, y);
+        ctx.lineTo(lw * i, y + segH);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.setLineDash([]);
   }
-  ctx.setLineDash([]);
 }
 
 function updateRoadMode() {
@@ -2365,7 +2383,19 @@ function handleGameStart() {
   }, 800);
 }
 
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(initGame);});}else{requestAnimationFrame(initGame);}
+// 폰트 로딩 완료 후 initGame 실행 (초기 멈춤 방지)
+function startWhenReady() {
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function() { requestAnimationFrame(initGame); });
+  } else {
+    requestAnimationFrame(initGame);
+  }
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', startWhenReady);
+} else {
+  startWhenReady();
+}
 })();
 </script>
 <!-- ════════════════════ 호호레이싱 게임 소스 끝 ════════════════════ -->
