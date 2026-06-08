@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>호호사천성 - HOHO PLAY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* HOHO PLAY 공통 */
+        body { font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .page-transition { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
+
+        /* HOHO RUN 게임 스타일 */
+/* ── 리셋: 티스토리 스타일 간섭 차단 ── */
+#hh-wrap, #hh-wrap * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+}
+
+/* ── 게임 컨테이너: 티스토리 본문 중앙 정렬 ── */
+#hh-wrap {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    min-height: 520px;
+    margin: 20px auto;
+    background: #111827;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+/* ── 캔버스 ── */
+#hh-canvas {
+    display: block;
+    /* width/height는 JS resize()가 완전 제어 - CSS 고정값 없음 */
+    background: #0f172a;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    cursor: pointer;
+}
+
+/* ── HUD: 점수 ── */
+#hh-score-wrap {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
+    z-index: 30;
+    width: 100%;
+}
+#hh-score {
+    font-size: 4rem;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255,255,255,0.18);
+    line-height: 1;
+    letter-spacing: -2px;
+}
+#hh-best {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ── HUD: 코인 ── */
+#hh-coin-overlay {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    pointer-events: none;
+    z-index: 30;
+}
+#hh-coin-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.4);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+.hh-coin-dot {
+    width: 16px; height: 16px;
+    background: #fbbf24;
+    border-radius: 50%;
+    border: 2px solid #d97706;
+    flex-shrink: 0;
+    animation: hh-spin 2s linear infinite;
+}
+@keyframes hh-spin { from{transform:rotateY(0deg)} to{transform:rotateY(360deg)} }
+#hh-coin-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+/* ── HUD: 이벤트 배너 ── */
+#hh-event {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg,#3b82f6,#60a5fa,#3b82f6);
+    color: #fff;
+    padding: 7px 22px;
+    border-radius: 30px;
+    font-weight: 900;
+    font-size: 0.95rem;
+    display: none;
+    z-index: 15;
+    white-space: nowrap;
+    box-shadow: 0 0 20px rgba(59,130,246,0.6);
+    animation: hh-bounce 0.5s ease infinite alternate;
+}
+@keyframes hh-bounce {
+    from{transform:translateX(-50%) translateY(0)}
+    to{transform:translateX(-50%) translateY(-5px)}
+}
+
+/* ── HUD: 보너스 텍스트 ── */
+#hh-bonus {
+    position: absolute;
+    top: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fbbf24;
+    display: none;
+    z-index: 6;
+    white-space: nowrap;
+    text-shadow: 0 0 10px rgba(251,191,36,0.5);
+}
+
+/* ── HUD: 자석 타이머 ── */
+#hh-magnet-ui {
+    position: absolute;
+    bottom: 78px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    max-width: 60%;
+    height: 14px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 7px;
+    overflow: visible;
+    display: none;
+    z-index: 15;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+#hh-magnet-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg,#3b82f6,#60a5fa);
+    border-radius: 7px;
+    transition: width 0.1s linear;
+}
+#hh-magnet-txt {
+    position: absolute;
+    top: -20px; right: 0;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ── 오버레이 공통 ── */
+.hh-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.94);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    z-index: 20;
+    padding: 24px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ── 시작화면 ── */
+#hh-start-screen { display: flex; }
+#hh-over-screen  { display: none; }
+
+.hh-game-title {
+    font-size: 3rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #60a5fa;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+    letter-spacing: -1px;
+}
+.hh-sub {
+    color: #93c5fd;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin: 0 0 24px;
+    text-align: center;
+}
+.hh-char-lbl {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    margin-bottom: 14px;
+    font-weight: 700;
+}
+.hh-char-group {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 26px;
+    justify-content: center;
+}
+
+/* ── 캐릭터 카드 ── */
+.hh-char-card {
+    border: 3px solid transparent;
+    border-radius: 14px;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    /* pointer-events 강제 활성화 */
+    pointer-events: auto;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.hh-char-card.active-blue {
+    border-color: #3b82f6;
+    background: rgba(255,255,255,0.14);
+    transform: scale(1.06);
+}
+.hh-char-card.active-red {
+    border-color: #ef4444;
+    background: rgba(255,255,255,0.14);
+    transform: scale(1.06);
+}
+.hh-char-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 8px;
+    border-radius: 8px;
+}
+.hh-char-icon.blue { background: #3b82f6; }
+.hh-char-icon.red  { background: #ef4444; }
+.hh-char-name {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #e5e7eb;
+    line-height: 1.4;
+}
+
+/* ── 버튼 공통 ── */
+.hh-btn {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    padding: 13px 24px;
+    border: none;
+    border-radius: 12px;
+    background: #3b82f6;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s, transform 0.1s;
+    pointer-events: auto;
+    box-shadow: 0 4px 14px rgba(59,130,246,0.45);
+}
+.hh-btn:hover { background: #2563eb; transform: translateY(-2px); }
+.hh-btn:active { transform: translateY(0); }
+.hh-btn:disabled { background: #4b5563; opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+.hh-btn-dark { background: #374151; box-shadow: none; }
+.hh-btn-dark:hover { background: #4b5563; }
+
+.hh-btn-revive {
+    background: linear-gradient(135deg,#8b5cf6,#7c3aed);
+    box-shadow: 0 4px 14px rgba(139,92,246,0.45);
+    margin-bottom: 14px;
+}
+
+/* ── 게임오버 ── */
+.hh-over-title {
+    font-size: 2.4rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #ef4444;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+}
+.hh-final { font-size: 1.1rem; margin-bottom: 6px; text-align: center; }
+.hh-death  { font-size: 0.82rem; color: #9ca3af; margin-bottom: 18px; text-align: center; }
+
+/* ── 상점 ── */
+.hh-shop {
+    width: 100%;
+    max-width: 300px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 14px;
+    margin: 4px 0 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.hh-shop-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.hh-shop-ttl {
+    font-weight: 700;
+    color: #eab308;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+}
+.hh-shop-coin {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.hh-shop-coin-dot {
+    width: 13px; height: 13px;
+    background: #fbbf24;
+    border-radius: 50%;
+    border: 2px solid #d97706;
+}
+#hh-shop-coin-val { font-weight: 700; color: #fbbf24; font-size: 0.9rem; }
+.hh-shop-sec {
+    font-size: 0.66rem;
+    color: rgba(255,255,255,0.38);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 4px;
+}
+.hh-item {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.hh-item:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+.hh-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    gap: 8px;
+}
+.hh-item-name { font-weight: 700; font-size: 0.8rem; word-break: keep-all; flex: 1; min-width: 0; }
+.hh-gauge { display: flex; gap: 3px; height: 5px; }
+.hh-gauge-seg {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    transition: background 0.25s;
+}
+.hh-gauge-seg.on { background: #fbbf24; box-shadow: 0 0 4px rgba(251,191,36,0.5); }
+.hh-buy-btn {
+    background: #3b82f6; /* 기본값, 클래스로 override */
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    min-width: 72px;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+.hh-buy-btn:hover { background: #2563eb; }
+.hh-buy-btn:active { transform: scale(0.94); }
+.hh-buy-btn:disabled { background: #374151 !important; color: #9ca3af !important; cursor: not-allowed; opacity: 0.7; }
+.hh-buy-btn.blue { background: #3b82f6; }
+.hh-buy-btn.blue:hover:not(:disabled) { background: #2563eb; }
+.hh-buy-btn.red  { background: #ef4444; }
+.hh-buy-btn.red:hover:not(:disabled)  { background: #dc2626; }
+.hh-buy-btn.maxed { background: #1f2937; color: #6b7280; }
+
+/* ============================================
+   반응형 미디어 쿼리
+   캔버스 크기는 JS resize()가 완전 제어
+   CSS는 UI 요소만 담당
+============================================ */
+@media (max-width: 480px) {
+    #hh-wrap { margin: 0 auto; border-radius: 0; }
+    #hh-score-wrap { top: 28px; }
+    #hh-score { font-size: 3rem; }
+    #hh-best { font-size: 0.7rem; }
+    #hh-coin-overlay { top: 12px; right: 12px; }
+    #hh-event { bottom: 90px; padding: 6px 16px; font-size: 0.82rem; }
+    #hh-magnet-ui { bottom: 58px; width: 160px; }
+    .hh-screen { padding: 18px 14px; }
+    .hh-game-title { font-size: 2.4rem; }
+    .hh-char-icon { width: 48px; height: 48px; }
+    .hh-btn { max-width: 220px; padding: 11px 18px; font-size: 0.9rem; }
+    .hh-over-title { font-size: 2rem; }
+    .hh-shop { max-width: 100%; padding: 12px; }
+    .hh-buy-btn { min-width: 64px; font-size: 0.7rem; padding: 5px 8px; }
+}
+
+@media (max-width: 360px) {
+    #hh-score { font-size: 2.4rem; }
+    .hh-game-title { font-size: 2rem; }
+    .hh-over-title { font-size: 1.7rem; }
+    .hh-char-icon { width: 42px; height: 42px; }
+    .hh-char-group { gap: 10px; }
+    .hh-shop { padding: 10px; }
+    .hh-screen { padding: 14px 10px; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    #hh-wrap { margin: 16px auto; border-radius: 12px; }
+    #hh-score-wrap { top: 36px; }
+    #hh-score { font-size: 3.6rem; }
+}
+
+@media (min-width: 769px) {
+    #hh-wrap { margin: 24px auto; border-radius: 16px; }
+    #hh-score { font-size: 4rem; }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    #hh-score { font-size: 2rem; }
+    #hh-score-wrap { top: 16px; }
+    #hh-event { bottom: 60px; }
+    #hh-magnet-ui { bottom: 36px; }
+    .hh-screen { padding: 10px 16px; justify-content: flex-start; overflow-y: auto; }
+    .hh-game-title { font-size: 1.8rem; margin-bottom: 4px; }
+    .hh-char-group { margin-bottom: 10px; }
+    .hh-char-icon { width: 40px; height: 40px; }
+}
+    </style>
+    <style id="iframe-hide-style"></style>
+    <script>
+    (function() {
+        if (new URLSearchParams(window.location.search).get('iframe') === '1') {
+            document.getElementById('iframe-hide-style').textContent = [
+                'nav, #footer-placeholder { display: none !important; }',
+                '.page-transition > div:first-child { display: none !important; }',  /* 게임헤더 */
+                '.page-transition > div:last-child { display: none !important; }',   /* 탭패널 */
+                'body { background: #111 !important; }',
+                'main { padding: 4px 0 0 0 !important; max-width: 100% !important; }',
+                '.page-transition { gap: 0 !important; }',
+                'section { margin: 0 !important; }'
+            ].join('');
+        }
+    })();
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">호호사천성</span>
+                </a>
+                <div class="flex items-center gap-1 sm:gap-4">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">전체게임</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">커뮤니티</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">고객지원</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
+        <div class="page-transition space-y-12">
+
+            <!-- 게임 헤더 -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
+                        <span class="text-xl">←</span> 전체 리스트로 이동
+                    </a>
+                    <h1 class="text-5xl font-black text-slate-900 tracking-tight">호호사천성</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-indigo-100">두뇌 배틀</span>
+                    <span class="bg-slate-200 text-slate-600 px-5 py-2 rounded-full font-bold text-sm">v1.0.0</span>
+                    <span class="bg-slate-100 text-slate-500 px-5 py-2 rounded-full font-bold text-sm flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span id="view-count-display">-</span>
+                    </span>
+                </div>
+                <script>
+                (function() {
+                    function formatViews(n) {
+                        if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1).replace(/\.0$/, '') + 'M';
+                        if (n >= 1000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1).replace(/\.0$/, '') + 'K';
+                        return n.toString();
+                    }
+                    var key = 'views_hoho_sichuan';
+                    var count = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+                    localStorage.setItem(key, count);
+                    document.getElementById('view-count-display').textContent = formatViews(count);
+                })();
+                </script>
+            </div>
+
+            <!-- 게임 영역 -->
+<style>
+        :root {
+            --ts-bg-main: #0b0f19;
+            --ts-bg-card: #131a2a;
+            --ts-primary: #6366f1; 
+            --ts-primary-hover: #4f46e5;
+            --ts-secondary: #ec4899;
+            --ts-ai-color: #ef4444;
+            --ts-text-main: #f1f5f9;
+            --ts-text-muted: #94a3b8;
+            --ts-tile-bg: #f8fafc;
+            --ts-fever-gradient: linear-gradient(90deg, #ff4d4d, #f43f5e, #ec4899, #d946ef, #a855f7);
+            --ts-master-color: #fbbf24;
+            --tile-w: 30px;
+            --tile-h: 39px;
+            --tile-font: 1.1rem;
+            --grid-gap: 1.2px;
+        }
+        /* ── 바깥 body: 배경색 완전 제거, 여백 없음 ── */
+        .ts-game-body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            display: block;
+            font-family: 'Pretendard', system-ui, -apple-system, sans-serif;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        /* ── 게임 컨테이너: 오버레이 기준점 ── */
+        #tistory-game-app {
+            position: relative;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            background-color: var(--ts-bg-main);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 2px solid rgba(99, 102, 241, 0.35);
+            box-sizing: border-box;
+            color: var(--ts-text-main);
+            /* 오버레이가 이 컨테이너 안에서만 펼쳐지도록 */
+            min-height: 600px;
+        }
+        .ts-game-header {
+            height: 48px;
+            background: rgba(19, 26, 42, 0.95);
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
+        }
+        .ts-stage-label {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--ts-master-color);
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+            justify-self: start;
+        }
+        .ts-main-timer {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--ts-primary);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+        .ts-sub-label {
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--ts-secondary);
+            justify-self: end;
+        }
+        /* AI보드 ↔ PLAYER보드 사이 중앙 정보 패널 (모바일 전용) */
+        .ts-mid-panel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(239,68,68,0.08));
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            box-sizing: border-box;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        .ts-mid-vs {
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.25);
+            line-height: 1;
+        }
+        .ts-mid-timer {
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: var(--ts-primary);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(99,102,241,0.6);
+            line-height: 1;
+        }
+        .ts-mid-stage {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--ts-master-color);
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .ts-mid-mode {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--ts-secondary);
+            letter-spacing: 1.5px;
+            opacity: 0.85;
+        }
+        .ts-battle-container {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            justify-content: center;
+            align-items: stretch;
+            box-sizing: border-box;
+        }
+        .ts-side-section {
+            flex: 1;
+            background: var(--ts-bg-card);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 2px solid #1e293b;
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .ts-side-section.active-side { 
+            border-color: var(--ts-primary); 
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
+        }
+        .ts-side-section.ai-side { 
+            border-color: var(--ts-ai-color); 
+        }
+        .ts-side-section.master-mode { 
+            border-color: var(--ts-master-color); 
+        }
+        .ts-side-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ts-user-info {
+            font-size: 1.05rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ts-count-badge {
+            background: #1e293b;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--ts-text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ts-board-wrapper {
+            position: relative;
+            background: var(--ts-bg-main);
+            margin: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 42px;
+            box-sizing: border-box;
+            min-height: 480px;
+        }
+        .ts-grid {
+            display: grid;
+            gap: var(--grid-gap);
+            z-index: 10;
+            justify-content: center;
+            align-content: center;
+        }
+        .ts-tile {
+            width: var(--tile-w);
+            height: var(--tile-h);
+            background: var(--ts-tile-bg);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--tile-font);
+            cursor: pointer;
+            color: #1e293b;
+            box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18), 0 3px 6px rgba(0, 0, 0, 0.3); 
+            transition: transform 0.15s, outline 0.1s, box-shadow 0.15s, border-color 0.15s;
+            user-select: none;
+            position: relative;
+            box-sizing: border-box;
+        }
+        @media (hover: hover) {
+            .ts-tile:not(.empty):not(.frozen):hover {
+                transform: scale(1.06) translateY(-1px);
+                box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18), 0 6px 10px rgba(0, 0, 0, 0.4);
+                background-color: #ffffff;
+            }
+        }
+        .ts-tile.selected {
+            outline: 3px solid var(--ts-primary);
+            transform: scale(1.08) !important;
+            z-index: 20;
+            animation: ts-bounce 0.4s infinite alternate;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+        }
+        .ts-tile.ai-selected {
+            outline: 3px solid var(--ts-ai-color);
+            transform: scale(1.08) !important;
+            z-index: 20;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+        }
+        .ts-tile.empty {
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .ts-tile.pop {
+            animation: ts-tile-pop 0.3s forwards;
+        }
+        .ts-tile.frozen {
+            border: 2px solid #38bdf8 !important;
+            box-shadow: 0 0 12px #0284c7, inset 0 0 14px #0284c7 !important;
+            filter: saturate(0.65) brightness(0.95);
+        }
+        .ts-tile.frozen::after {
+            content: attr(data-ice-hp);
+            position: absolute;
+            inset: 0;
+            background: rgba(14, 165, 233, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 0 4px #0369a1, 0 1px 2px rgba(0,0,0,0.6);
+            border-radius: 4px;
+            backdrop-filter: blur(0.5px);
+            z-index: 10;
+        }
+        @keyframes ts-ice-shatter {
+            0% { transform: rotate(0deg) scale(1.0); }
+            20% { transform: rotate(-6deg) scale(0.96); }
+            40% { transform: rotate(6deg) scale(0.96); }
+            60% { transform: rotate(-4deg) scale(0.98); }
+            80% { transform: rotate(4deg) scale(0.98); }
+            100% { transform: rotate(0deg) scale(1.0); }
+        }
+        .ts-ice-crack {
+            animation: ts-ice-shatter 0.2s ease-in-out;
+        }
+        .ts-stun-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(239, 68, 68, 0.15);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            animation: ts-stun-pulse 0.25s infinite alternate;
+            border-radius: 8px;
+        }
+        .ts-stun-countdown {
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid var(--ts-ai-color);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+            padding: 16px 28px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 210;
+            animation: ts-stun-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .ts-stun-countdown h3 {
+            margin: 0 0 4px 0;
+            color: var(--ts-ai-color);
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+        .ts-stun-countdown div {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+        .ts-stun-sparks {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, transparent 40%, rgba(239, 68, 68, 0.2) 100%);
+            z-index: 205;
+        }
+        @keyframes ts-stun-pulse {
+            0% { background: rgba(239, 68, 68, 0.1); }
+            100% { background: rgba(239, 68, 68, 0.28); }
+        }
+        @keyframes ts-stun-pop {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .ts-canvas-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .ts-fever-area {
+            padding: 0 16px 12px 16px;
+            box-sizing: border-box;
+        }
+        .ts-fever-bar {
+            height: 8px;
+            background: #1e293b;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .ts-fever-fill {
+            width: 0%;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .ts-fever-fill.p1-fever {
+            background: var(--ts-fever-gradient);
+        }
+        .ts-fever-fill.ai-fever {
+            background: var(--ts-ai-color);
+        }
+        .ts-controls {
+            height: 64px;
+            background: rgba(19, 26, 42, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
+        }
+        .ts-btn {
+            background: #1e293b;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ts-btn:hover { background: #2d3748; transform: translateY(-1px); }
+        .ts-btn:active { transform: translateY(1px); }
+        .ts-hotkey-guide {
+            font-size: 0.75rem;
+            color: var(--ts-master-color);
+            font-weight: 900;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            margin-left: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+        /* ── 오버레이: 게임 컨테이너 안에 딱 맞게 고정 ── */
+        .ts-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 300;
+            background: var(--ts-bg-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            box-sizing: border-box;
+            text-align: center;
+            overflow: hidden;
+        }
+        .ts-main-logo {
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 16px;
+            background: linear-gradient(to bottom, #ffffff, var(--ts-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4));
+            line-height: 1.1;
+        }
+        .ts-btn-start {
+            padding: 13px 52px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: var(--ts-fever-gradient);
+            color: white;
+            border: none;
+            border-radius: 35px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+        }
+        .ts-btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.6);
+        }
+        #ts-stage-select-overlay {
+            display: none;
+            overflow-y: auto;
+            justify-content: flex-start;
+            padding-top: 32px;
+            align-items: center;
+        }
+        .ts-stage-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 520px;
+            padding-bottom: 24px;
+        }
+        .ts-stage-card {
+            background: #1e293b;
+            aspect-ratio: 1.2 / 1;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
+            color: var(--ts-master-color);
+            border: 2px solid rgba(251, 191, 36, 0.2);
+            box-sizing: border-box;
+        }
+        .ts-stage-card:hover {
+            transform: scale(1.08);
+            background: #2d1f10;
+            border-color: var(--ts-master-color);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
+        }
+        /* 잠긴 스테이지 카드 */
+        .ts-stage-card.locked {
+            background: #0f172a;
+            border-color: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.18);
+            cursor: not-allowed;
+            position: relative;
+        }
+        .ts-stage-card.locked:hover {
+            transform: none;
+            background: #0f172a;
+            border-color: rgba(255,255,255,0.06);
+            box-shadow: none;
+        }
+        .ts-stage-card.locked .lock-icon {
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 2px;
+            opacity: 0.35;
+        }
+        .ts-stage-card.locked .lock-label {
+            font-size: 0.6rem;
+            opacity: 0.3;
+            letter-spacing: 0.3px;
+        }
+
+        /* 모바일 세로 기준 타이틀/스테이지 최적화 */
+        @media (max-width: 600px) {
+            .ts-main-logo { font-size: 2.4rem; margin-bottom: 12px; }
+            .ts-btn-start { padding: 11px 36px; font-size: 1.1rem; }
+            .ts-stage-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 9px;
+                max-width: 340px;
+            }
+            .ts-stage-card { font-size: 0.9rem; border-radius: 8px; }
+            #ts-stage-select-overlay { padding-top: 20px; }
+        }
+        @media (max-width: 380px) {
+            .ts-main-logo { font-size: 2rem; }
+            .ts-stage-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 7px;
+                max-width: 280px;
+            }
+            .ts-stage-card { font-size: 0.8rem; }
+        }
+        #ts-result-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 15, 25, 0.97);
+            z-index: 600;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .ts-modal-content {
+            background: #131a2a;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            border: 2px solid var(--ts-primary);
+            box-shadow: 0 0 35px rgba(99, 102, 241, 0.4);
+            max-width: 440px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .ts-modal-btn {
+            margin-top: 15px;
+            padding: 12px 28px;
+            background: var(--ts-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .ts-modal-btn:hover { background-color: var(--ts-primary-hover); }
+        .ts-ranking-box {
+            margin-top: 15px;
+            background: var(--ts-bg-main);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ts-ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 6px;
+            border-bottom: 1px solid #111827;
+        }
+        .ts-ranking-item:last-child { border: none; }
+        .ts-rank-name { font-weight: 700; color: var(--ts-primary); }
+        .ts-rank-score { color: var(--ts-secondary); font-weight: 800; }
+        #ts-nickname-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #030712;
+            color: white;
+            margin-bottom: 10px;
+            outline: none;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            box-sizing: border-box;
+        }
+        #ts-nickname-input:focus {
+            border-color: var(--ts-primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+        #ts-toast {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ts-secondary);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            z-index: 500;
+            display: none;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            animation: ts-toast-bounce 0.3s ease-out;
+        }
+        @keyframes ts-bounce {
+            from { transform: scale(1.08) translateY(0); }
+            to { transform: scale(1.08) translateY(-3px); }
+        }
+        @keyframes ts-tile-pop {
+            0% { transform: scale(1.1); filter: brightness(1.6); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        @keyframes ts-toast-bounce {
+            0% { transform: translate(-50%, -20px); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+        }
+        @media (max-width: 1100px) {
+            .ts-battle-container { flex-direction: column; align-items: center; padding: 10px; gap: 12px; }
+            .ts-game-header { display: none !important; }
+            .ts-mid-panel { display: flex !important; }
+            .ts-side-header { justify-content: center !important; gap: 10px; }
+            :root { --tile-w: 24px; --tile-h: 31px; --tile-font: 0.95rem; --grid-gap: 0.8px; }
+            .ts-board-wrapper { min-height: 320px; padding: 28px; }
+            /* 타이틀/스테이지 오버레이: 모바일 세로 세울 때 게임 크기에 맞춤 */
+            #tistory-game-app { min-height: 500px; }
+        }
+        /* 모바일 세로 (600px 이하) */
+        @media (max-width: 600px) {
+            .ts-main-logo { font-size: 2.4rem !important; margin-bottom: 12px; }
+            .ts-btn-start { padding: 11px 36px !important; font-size: 1.1rem !important; }
+            .ts-stage-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 9px !important; max-width: 320px !important; }
+            .ts-stage-card { font-size: 0.9rem !important; }
+            #ts-stage-select-overlay { padding-top: 20px !important; }
+            #tistory-game-app { min-height: 480px; }
+        }
+        @media (max-width: 480px) {
+            :root { --tile-w: 18px; --tile-h: 24px; --tile-font: 0.75rem; --grid-gap: 0.8px; }
+            .ts-board-wrapper { min-height: 260px; padding: 22px; }
+            .ts-btn { padding: 8px 14px; font-size: 0.85rem; }
+            .ts-mid-timer { font-size: 2.1rem; letter-spacing: 2px; }
+            .ts-main-logo { font-size: 2rem !important; }
+            .ts-stage-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 7px !important; max-width: 272px !important; }
+            .ts-stage-card { font-size: 0.8rem !important; }
+        }
+        /* ── 스테이지 선택 하단 유틸 버튼 ── */
+        .ts-stage-util-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            padding-bottom: 20px;
+            width: 100%;
+            max-width: 520px;
+            justify-content: center;
+        }
+        .ts-util-btn {
+            flex: 1;
+            max-width: 180px;
+            padding: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.15s, filter 0.15s;
+            letter-spacing: 0.3px;
+        }
+        .ts-util-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        .ts-util-btn:active { transform: translateY(1px); filter: brightness(0.9); }
+        .ts-util-reset {
+            background: #1e293b;
+            color: #f87171;
+            border: 2px solid rgba(248, 113, 113, 0.3);
+        }
+        .ts-util-reset:hover { border-color: #f87171; }
+        .ts-util-unlock {
+            background: #1e293b;
+            color: #34d399;
+            border: 2px solid rgba(52, 211, 153, 0.3);
+        }
+        .ts-util-unlock:hover { border-color: #34d399; }
+        @media (max-width: 480px) {
+            .ts-stage-util-row { gap: 8px; margin-top: 12px; }
+            .ts-util-btn { font-size: 0.78rem; padding: 9px 0; }
+        }
+</style>
+<section style="margin:0;">
+<div id="tistory-game-app">
+    <div id="ts-toast">ATTACK!</div>
+    <div id="ts-start-overlay" class="ts-overlay">
+        <div class="ts-main-logo">호호사천성</div>
+        <button class="ts-btn-start" onclick="openStageSelect()">BATTLE START</button>
+        <p style="margin-top: 14px; color: var(--ts-text-muted); font-size: 0.88rem; line-height: 1.5;">AI와의 숨막히는 두뇌 배틀!<br>최고 랭킹에 도전하세요.</p>
+    </div>
+    <div id="ts-stage-select-overlay" class="ts-overlay">
+        <h1 style="font-size: 1.8rem; margin: 0 0 4px 0; font-weight: 900;">STAGE SELECT</h1>
+        <p style="color: var(--ts-text-muted); font-size: 0.82rem; margin-bottom: 16px;">마스터 스테이지에서 실력을 검증하세요.</p>
+        <div id="ts-grid-master" class="ts-stage-grid"></div>
+        <!-- 하단 유틸리티 버튼 -->
+        <div class="ts-stage-util-row">
+            <button class="ts-util-btn ts-util-reset" onclick="resetStageProgress()">
+                <span>🔄</span> 처음부터
+            </button>
+            <button class="ts-util-btn ts-util-unlock" onclick="unlockOneStage()">
+                <span>🔓</span> 난이도업 +1
+            </button>
+        </div>
+    </div>
+    <div id="ts-result-modal">
+        <div class="ts-modal-content">
+            <h2 id="ts-result-title" style="font-size: 2.2rem; margin: 0;">CLEAR!</h2>
+            <p id="ts-result-desc" style="color: var(--ts-text-muted); font-size: 1rem; margin: 10px 0;">승리했습니다!</p>
+            <div id="ts-ranking-input-section">
+                <input type="text" id="ts-nickname-input" placeholder="랭킹용 닉네임 입력" maxlength="8">
+                <button class="ts-modal-btn" style="width: 100%; margin-top: 0; margin-bottom: 12px;" onclick="submitRanking()">기록 등록하기</button>
+            </div>
+            <div id="ts-ranking-list-section">
+                <div style="font-weight: 800; color: var(--ts-text-muted); font-size: 0.8rem; margin-bottom: 5px; text-align: left; display: flex; justify-content: space-between;">
+                    <span>🏆 TOP 10 RANKING</span>
+                    <span id="ts-ranking-type-badge" style="color:var(--ts-master-color)">로컬 기록</span>
+                </div>
+                <div class="ts-ranking-box" id="ts-ranking-list">
+                    <div style="text-align: center; color: #475569; padding: 10px;">데이터를 로딩 중...</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 18px;">
+                <button id="ts-next-btn" class="ts-modal-btn" style="flex: 1; margin: 0;" onclick="continueNextMaster()">다음 마스터</button>
+                <button class="ts-modal-btn" style="flex: 1; background:#334155; margin: 0;" onclick="backToSelect()">나가기</button>
+            </div>
+        </div>
+    </div>
+    <div class="ts-game-header">
+        <div class="ts-stage-label" id="ts-stage-label">마스터 - M-1</div>
+        <div class="ts-main-timer" id="ts-timer-display">10:00</div>
+        <div class="ts-sub-label">BATTLE MODE</div>
+    </div>
+    <div class="ts-battle-container">
+        <div class="ts-side-section ai-side" id="ts-ai-side">
+            <div class="ts-side-header">
+                <div class="ts-user-info">🤖 AI BOT <span class="ts-count-badge" id="ts-ai-count">0</span></div>
+                <div id="ts-ai-status" style="color: var(--ts-ai-color); font-size: 0.8rem; font-weight:700;">LV.1 BOT (THINKING)</div>
+            </div>
+            <div class="ts-board-wrapper" id="ts-ai-wrapper">
+                <div id="ts-ai-stun-overlay" class="ts-stun-overlay" style="display: none;">
+                    <div class="ts-stun-countdown">
+                        <h3>AI STUNNED!</h3>
+                        <div id="ts-ai-stun-timer">0.0s</div>
+                    </div>
+                    <div class="ts-stun-sparks"></div>
+                </div>
+                <div id="ts-ai-board" class="ts-grid"></div>
+                <canvas id="ts-ai-canvas" class="ts-canvas-overlay"></canvas>
+            </div>
+            <div class="ts-fever-area">
+                <div class="ts-fever-bar">
+                    <div id="ts-ai-fever-fill" class="ts-fever-fill ai-fever"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 모바일 전용: AI보드와 PLAYER보드 사이 중앙 정보 패널 -->
+        <div class="ts-mid-panel" id="ts-mid-panel">
+            <div class="ts-mid-vs">VS</div>
+            <div class="ts-mid-timer" id="ts-timer-display-mobile">10:00</div>
+            <div class="ts-mid-stage" id="ts-stage-label-mobile">마스터 - M-1</div>
+            <div class="ts-mid-mode">BATTLE MODE</div>
+        </div>
+
+        <div class="ts-side-section active-side" id="ts-p1-side">
+            <div class="ts-side-header">
+                <div class="ts-user-info">👤 PLAYER <span class="ts-count-badge" id="ts-p1-count">0</span></div>
+                <div id="ts-p1-status" style="color: var(--ts-secondary); font-size: 0.8rem; font-weight:700;">PLAYING</div>
+            </div>
+            <div class="ts-board-wrapper" id="ts-p1-wrapper">
+                <div id="ts-p1-stun-overlay" class="ts-stun-overlay" style="display: none;">
+                    <div class="ts-stun-countdown">
+                        <h3>STUNNED!</h3>
+                        <div id="ts-p1-stun-timer">0.0s</div>
+                    </div>
+                    <div class="ts-stun-sparks"></div>
+                </div>
+                <div id="ts-p1-board" class="ts-grid"></div>
+                <canvas id="ts-p1-canvas" class="ts-canvas-overlay"></canvas>
+            </div>
+            <div class="ts-fever-area">
+                <div class="ts-fever-bar">
+                    <div id="ts-p1-fever-fill" class="ts-fever-fill p1-fever"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ts-controls">
+        <button class="ts-btn" onclick="useHint()">
+            <span>🔍 힌트</span>
+            <span id="ts-hint-count" class="ts-hotkey-guide">10</span>
+        </button>
+        <button class="ts-btn" onclick="shufflePlayer()">
+            <span>🎲 셔플</span>
+            <span id="ts-shuffle-count" class="ts-hotkey-guide">10</span>
+        </button>
+        <button class="ts-btn" onclick="backToSelect()" style="background: #334155;">
+            <span>🏠 나가기</span>
+        </button>
+    </div>
+</div>
+<script>
+    const ROWS = 10, COLS = 12;
+    const ICONS = ['🍎','🍋','🍇','🍉','🍓','🍒','🥝','🍍','🍑','🍊','🌽','🥕','🥑','🍆','🥐','🥖','🍔','🍕','🍱','🍣','🍤','🍥','🍦','🍩','🍪','🍰','🍫','🍭','🍮','🍯','🥤','🧃','🍵','🍶','💎','🌟','🍀','🎈','🎁','🔔'];
+    const STAGE_CONFIG = { master: ['M-1','M-2','M-3','M-4','M-5','M-6','M-7','M-8','M-9','M-10','M-11','M-12','M-13','M-14','M-15','M-16','M-17','M-18','M-19','M-20'] };
+
+    let p1Data = { board: [], selection: null, lines: [], fever: 0, stunRemaining: 0, frozen: {} };
+    let aiData = { board: [], selection: null, lines: [], fever: 0, stunRemaining: 0, frozen: {} };
+    let currentStageInfo = null;
+    let gameActive = false;
+    let timeLeft = 600;
+    let mainTimer = null;
+    let attackTickTimer = null;
+    let masterStageNum = 1;
+    let p1HintCount = 10;
+    let p1ShuffleCount = 10;
+    let finalClearTime = 0;
+    let startTime = 0;
+    let savedNickname = localStorage.getItem('hoho_nickname') || '';
+
+    function updateTimerUI(m, s) {
+        const timerStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        const main = document.getElementById('ts-timer-display');
+        const mobile = document.getElementById('ts-timer-display-mobile');
+        if(main) main.textContent = timerStr;
+        if(mobile) mobile.textContent = timerStr;
+    }
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            if (type === 'match') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            } else if (type === 'fever') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'fail') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            } else if (type === 'stun') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(650, audioCtx.currentTime + 0.4);
+                const modulator = audioCtx.createOscillator();
+                modulator.frequency.value = 45;
+                const modGain = audioCtx.createGain();
+                modGain.gain.value = 100;
+                modulator.connect(modGain);
+                modGain.connect(osc.frequency);
+                modulator.start();
+                gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.45);
+                modulator.stop(audioCtx.currentTime + 0.45);
+            } else if (type === 'freeze') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.6);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.005, audioCtx.currentTime + 0.6);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+            } else if (type === 'ice-crack') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(2000, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.05);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+            } else if (type === 'reset') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.55);
+                gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+            }
+        } catch (e) { console.warn("Audio error:", e); }
+    }
+
+    // ── 해금 스테이지 관리 (localStorage) ──────────────────────────
+    // ── 해금 스테이지 관리 : JS 변수가 진실의 원천, localStorage는 보조 ──
+    // ── 해금 시스템: 순수 JS 변수만 사용 ──────────────────────────
+    var MAX_UNLOCKED = 1; // 이 변수 하나가 모든 것을 결정
+
+    function renderStageGrid() {
+        var grid = document.getElementById('ts-grid-master');
+        if (!grid) return;
+        grid.innerHTML = '';
+        STAGE_CONFIG.master.forEach(function(id, idx) {
+            var stageNum = idx + 1;
+            var card = document.createElement('div');
+            if (stageNum <= MAX_UNLOCKED) {
+                card.className = 'ts-stage-card';
+                card.textContent = id;
+                card.onclick = function() {
+                    masterStageNum = stageNum;
+                    startBattle('M-' + masterStageNum, 'master', idx);
+                };
+            } else {
+                card.className = 'ts-stage-card locked';
+                card.innerHTML = '<span class="lock-icon">🔒</span><span class="lock-label">' + id + '</span>';
+                card.onclick = function() {
+                    var t = document.getElementById('ts-toast');
+                    t.textContent = 'M-' + (stageNum - 1) + '을 클리어하면 해금됩니다!';
+                    t.style.display = 'block';
+                    setTimeout(function(){ t.style.display = 'none'; }, 2200);
+                };
+            }
+            grid.appendChild(card);
+        });
+    }
+
+    window.resetStageProgress = function() {
+        if (!confirm('진행 상황을 초기화하고 M-1부터 다시 시작하시겠습니까?')) return;
+        MAX_UNLOCKED = 1;                   // 변수 직접 리셋
+        renderStageGrid();
+        var t = document.getElementById('ts-toast');
+        t.textContent = '🔄 M-1만 오픈! 처음부터 시작합니다.';
+        t.style.display = 'block';
+        setTimeout(function(){ t.style.display = 'none'; }, 2200);
+    };
+
+    window.unlockOneStage = function() {
+        if (MAX_UNLOCKED >= 20) {
+            var t = document.getElementById('ts-toast');
+            t.textContent = '🏆 이미 모든 스테이지가 열려 있습니다!';
+            t.style.display = 'block';
+            setTimeout(function(){ t.style.display = 'none'; }, 2200);
+            return;
+        }
+        MAX_UNLOCKED = MAX_UNLOCKED + 1;    // 변수 직접 증가
+        renderStageGrid();
+        var t = document.getElementById('ts-toast');
+        t.textContent = '🔓 M-' + MAX_UNLOCKED + ' 해금! (난이도업)';
+        t.style.display = 'block';
+        setTimeout(function(){ t.style.display = 'none'; }, 2200);
+    };
+
+    function getMaxUnlocked() { return MAX_UNLOCKED; }
+
+    function setMaxUnlocked(n) {
+        if (n > MAX_UNLOCKED) MAX_UNLOCKED = n;
+    }
+
+    window.openStageSelect = function() {
+        document.getElementById('ts-start-overlay').style.display = 'none';
+        document.getElementById('ts-stage-select-overlay').style.display = 'flex';
+        renderStageGrid();
+    };
+
+    function startBattle(id, cat, idx) {
+        document.getElementById('ts-stage-select-overlay').style.display = 'none';
+        document.getElementById('ts-result-modal').style.display = 'none';
+        currentStageInfo = { id, cat, idx };
+        const stageLabel = document.getElementById('ts-stage-label');
+        if (stageLabel) stageLabel.textContent = `마스터 - ${id}`;
+        const stageLabelMobile = document.getElementById('ts-stage-label-mobile');
+        if (stageLabelMobile) stageLabelMobile.textContent = `마스터 - ${id}`;
+        document.getElementById('ts-p1-side').classList.add('master-mode');
+        document.getElementById('ts-ai-side').classList.add('master-mode');
+        const aiStatusEl = document.getElementById('ts-ai-status');
+        if (aiStatusEl) aiStatusEl.textContent = `LV.${masterStageNum} BOT (THINKING)`;
+        p1HintCount = 10; p1ShuffleCount = 10;
+        updateButtonLabels();
+        initSide('p1'); initSide('ai');
+        gameActive = true;
+        timeLeft = 600;
+        startTime = Date.now();
+        if(mainTimer) clearInterval(mainTimer);
+        mainTimer = setInterval(tick, 1000);
+        if(attackTickTimer) clearInterval(attackTickTimer);
+        attackTickTimer = setInterval(updateAttacksCountdown, 100);
+        setTimeout(() => { handleResize(); }, 50);
+        requestAnimationFrame(renderLoop);
+        setTimeout(aiThink, 1500);
+    }
+
+    function initSide(side) {
+        const data = side === 'p1' ? p1Data : aiData;
+        data.board = Array.from({length: ROWS + 2}, () => Array(COLS + 2).fill(null));
+        data.fever = 0; data.lines = []; data.selection = null; data.stunRemaining = 0; data.frozen = {};
+        document.getElementById(`ts-${side}-stun-overlay`).style.display = 'none';
+        const fill = document.getElementById(`ts-${side}-fever-fill`);
+        if (fill) fill.style.width = '0%';
+        let points = [];
+        for(let r=1; r<=ROWS; r++) for(let c=1; c<=COLS; c++) points.push({r, c});
+        const pool = [];
+        const pairCount = points.length / 2;
+        for(let i=0; i<pairCount; i++) { const icon = ICONS[i % ICONS.length]; pool.push(icon, icon); }
+        pool.sort(() => Math.random() - 0.5);
+        points.sort(() => Math.random() - 0.5).forEach((p, i) => data.board[p.r][p.c] = pool[i]);
+        renderBoard(side);
+    }
+
+    function renderBoard(side) {
+        const data = side === 'p1' ? p1Data : aiData;
+        const boardEl = document.getElementById(`ts-${side}-board`);
+        boardEl.style.gridTemplateColumns = `repeat(${COLS}, var(--tile-w))`;
+        boardEl.innerHTML = '';
+        for(let r=1; r<=ROWS; r++) for(let c=1; c<=COLS; c++) {
+            const t = document.createElement('div');
+            const hasValue = data.board[r][c];
+            t.id = `ts-${side}-tile-${r}-${c}`;
+            t.textContent = hasValue || '';
+            const isP1 = (side === 'p1');
+            if (hasValue) {
+                const frozenHP = data.frozen[`${r},${c}`];
+                if (frozenHP !== undefined) {
+                    t.className = 'ts-tile frozen';
+                    t.setAttribute('data-ice-hp', `❄️${frozenHP}`);
+                } else { t.className = 'ts-tile'; }
+                if (isP1) t.onclick = () => onTileClick(r, c);
+            } else { t.className = 'ts-tile empty'; }
+            boardEl.appendChild(t);
+        }
+        const wrapper = document.getElementById(`ts-${side}-wrapper`);
+        const canvas = document.getElementById(`ts-${side}-canvas`);
+        if (wrapper && canvas) { canvas.width = wrapper.clientWidth; canvas.height = wrapper.clientHeight; }
+        updateCount(side);
+    }
+
+    function onTileClick(r, c) {
+        if(!gameActive) return;
+        if (p1Data.stunRemaining > 0) return;
+        const tileValue = p1Data.board[r][c];
+        if(!tileValue) return;
+        const el = document.getElementById(`ts-p1-tile-${r}-${c}`);
+        const frozenKey = `${r},${c}`;
+        if (p1Data.frozen[frozenKey] !== undefined) {
+            el.classList.remove('ts-ice-crack');
+            void el.offsetWidth;
+            el.classList.add('ts-ice-crack');
+            p1Data.frozen[frozenKey]--;
+            playSound('ice-crack');
+            if (p1Data.frozen[frozenKey] <= 0) {
+                delete p1Data.frozen[frozenKey];
+                el.className = 'ts-tile';
+                el.removeAttribute('data-ice-hp');
+            } else { el.setAttribute('data-ice-hp', `❄️${p1Data.frozen[frozenKey]}`); }
+            return;
+        }
+        if(p1Data.selection && p1Data.selection.r === r && p1Data.selection.c === c) {
+            p1Data.selection = null; el.classList.remove('selected'); return;
+        }
+        if(!p1Data.selection) {
+            p1Data.selection = {r, c}; el.classList.add('selected');
+        } else {
+            const p1 = p1Data.selection, p2 = {r, c};
+            if(p1Data.board[p1.r][p1.c] === p1Data.board[p2.r][p2.c]) {
+                const path = findPath(p1Data.board, p1, p2);
+                if(path) { removeTiles('p1', p1, p2, path); playSound('match'); p1Data.selection = null; return; }
+            }
+            playSound('fail');
+            const prevEl = document.getElementById(`ts-p1-tile-${p1Data.selection.r}-${p1Data.selection.c}`);
+            if(prevEl) prevEl.classList.remove('selected');
+            p1Data.selection = {r, c}; el.classList.add('selected');
+        }
+    }
+
+    function findPath(board, p1, p2) {
+        const q = [{r: p1.r, c: p1.c, d: -1, turns: 0, path: [{r: p1.r, c: p1.c}]}];
+        const visited = new Map(), dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+        while(q.length) {
+            const curr = q.shift();
+            if(curr.turns > 2) continue;
+            for(let i=0; i<4; i++) {
+                const nr = curr.r + dirs[i][0], nc = curr.c + dirs[i][1];
+                if(nr < 0 || nr > ROWS+1 || nc < 0 || nc > COLS+1) continue;
+                const nt = (curr.d !== -1 && curr.d !== i) ? curr.turns + 1 : curr.turns;
+                if(nt > 2) continue;
+                if(nr === p2.r && nc === p2.c) return [...curr.path, {r: nr, c: nc}];
+                if(board[nr][nc] === null) {
+                    const key = `${nr},${nc},${i}`;
+                    if(!visited.has(key) || visited.get(key) > nt) {
+                        visited.set(key, nt);
+                        q.push({r: nr, c: nc, d: i, turns: nt, path: [...curr.path, {r: nr, c: nc}]});
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    function getPossibleMoves(board) {
+        const act = [];
+        for(let r=1; r<=ROWS; r++) for(let c=1; c<=COLS; c++) if(board[r][c]) act.push({r, c, v: board[r][c]});
+        const res = [];
+        for(let i=0; i<act.length; i++) for(let j=i+1; j<act.length; j++) {
+            if(act[i].v === act[j].v && findPath(board, act[i], act[j])) res.push({p1: act[i], p2: act[j]});
+        }
+        return res;
+    }
+
+    async function aiThink() {
+        if(!gameActive) return;
+        if (aiData.stunRemaining > 0) { setTimeout(aiThink, 500); return; }
+        const frozenKeys = Object.keys(aiData.frozen);
+        if (frozenKeys.length > 0) {
+            const chosenKey = frozenKeys[0];
+            const [fr, fc] = chosenKey.split(',').map(Number);
+            const ae = document.getElementById(`ts-ai-tile-${fr}-${fc}`);
+            if (ae) { ae.classList.remove('ts-ice-crack'); void ae.offsetWidth; ae.classList.add('ts-ice-crack'); }
+            aiData.frozen[chosenKey]--;
+            playSound('ice-crack');
+            if (aiData.frozen[chosenKey] <= 0) {
+                delete aiData.frozen[chosenKey];
+                if (ae) { ae.className = 'ts-tile'; ae.removeAttribute('data-ice-hp'); }
+            } else { if (ae) ae.setAttribute('data-ice-hp', `❄️${aiData.frozen[chosenKey]}`); }
+            let iceClearDelay = Math.max(100, 700 - (masterStageNum * 30));
+            setTimeout(aiThink, iceClearDelay);
+            return;
+        }
+        const level = masterStageNum;
+        // M-1 = 50%, M-20 = 0% : 선형 감소 (50/19 ≈ 2.63%p씩 감소)
+        const mistakeProb = Math.max(0, 0.50 - ((level - 1) * (0.50 / 19)));
+        const thinkSpeed = Math.max(350, 2600 - (level * 115));
+        const matchDelay = Math.max(100, 850 - (level * 38));
+        if (Math.random() < mistakeProb) {
+            const activeTiles = [];
+            for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) {
+                if (aiData.board[r][c] && aiData.frozen[`${r},${c}`] === undefined) activeTiles.push({ r, c, v: aiData.board[r][c] });
+            }
+            if (activeTiles.length >= 2) {
+                activeTiles.sort(() => Math.random() - 0.5);
+                const p1 = activeTiles[0];
+                const p2 = activeTiles.find(t => t.v !== p1.v);
+                if (p1 && p2) {
+                    const e1 = document.getElementById(`ts-ai-tile-${p1.r}-${p1.c}`);
+                    const e2 = document.getElementById(`ts-ai-tile-${p2.r}-${p2.c}`);
+                    if (e1) e1.classList.add('ai-selected');
+                    await new Promise(r => setTimeout(r, matchDelay));
+                    if (gameActive && aiData.stunRemaining <= 0) {
+                        if (e2) e2.classList.add('ai-selected');
+                        playSound('fail');
+                        await new Promise(r => setTimeout(r, 200));
+                        if (e1) e1.classList.remove('ai-selected');
+                        if (e2) e2.classList.remove('ai-selected');
+                    }
+                    setTimeout(aiThink, thinkSpeed);
+                    return;
+                }
+            }
+        }
+        const moves = getPossibleMoves(aiData.board);
+        const freeMoves = moves.filter(m => {
+            const k1 = `${m.p1.r},${m.p1.c}`;
+            const k2 = `${m.p2.r},${m.p2.c}`;
+            return aiData.frozen[k1] === undefined && aiData.frozen[k2] === undefined;
+        });
+        if(freeMoves.length > 0) {
+            const moveIdx = (level < 10 && Math.random() < 0.45) ? Math.floor(Math.random() * freeMoves.length) : 0;
+            const {p1, p2} = freeMoves[moveIdx];
+            const e1 = document.getElementById(`ts-ai-tile-${p1.r}-${p1.c}`);
+            const e2 = document.getElementById(`ts-ai-tile-${p2.r}-${p2.c}`);
+            if(e1) e1.classList.add('ai-selected');
+            await new Promise(r => setTimeout(r, matchDelay));
+            if(!gameActive || aiData.stunRemaining > 0) {
+                if(e1) e1.classList.remove('ai-selected');
+                setTimeout(aiThink, 200); return;
+            }
+            if(e2) e2.classList.add('ai-selected');
+            await new Promise(r => setTimeout(r, Math.max(50, matchDelay / 3)));
+            const path = findPath(aiData.board, p1, p2);
+            if(path && aiData.frozen[`${p1.r},${p1.c}`] === undefined && aiData.frozen[`${p2.r},${p2.c}`] === undefined) {
+                removeTiles('ai', p1, p2, path);
+            } else {
+                if(e1) e1.classList.remove('ai-selected');
+                if(e2) e2.classList.remove('ai-selected');
+            }
+        } else {
+            const remainingTiles = aiData.board.flat().filter(v => v !== null).length;
+            if (remainingTiles > 0) shuffleSide('ai');
+        }
+        setTimeout(aiThink, thinkSpeed);
+    }
+
+    function removeTiles(side, p1, p2, path) {
+        const data = side === 'p1' ? p1Data : aiData;
+        data.board[p1.r][p1.c] = data.board[p2.r][p2.c] = null;
+        data.lines.push({path, life: 1.0});
+        const e1 = document.getElementById(`ts-${side}-tile-${p1.r}-${p1.c}`);
+        const e2 = document.getElementById(`ts-${side}-tile-${p2.r}-${p2.c}`);
+        if(e1) e1.classList.add('pop');
+        if(e2) e2.classList.add('pop');
+        setTimeout(() => {
+            if(e1) e1.className = 'ts-tile empty';
+            if(e2) e2.className = 'ts-tile empty';
+            updateCount(side);
+            checkWin(side);
+        }, 220);
+        data.fever = Math.min(data.fever + 12, 100);
+        const feverBar = document.getElementById(`ts-${side}-fever-fill`);
+        if (feverBar) feverBar.style.width = data.fever + '%';
+        if(data.fever >= 100) triggerFeverAttack(side);
+    }
+
+    function triggerFeverAttack(attacker) {
+        const defender = attacker === 'p1' ? 'ai' : 'p1';
+        const attackerData = attacker === 'p1' ? p1Data : aiData;
+        const defenderData = defender === 'p1' ? p1Data : aiData;
+        attackerData.fever = 0;
+        const fb = document.getElementById(`ts-${attacker}-fever-fill`);
+        if(fb) fb.style.width = '0%';
+        const items = ['STUN', 'FREEZE', 'RESET'];
+        const randomItem = items[Math.floor(Math.random() * items.length)];
+        if (randomItem === 'STUN') {
+            defenderData.stunRemaining = 3.5;
+            playSound('stun');
+            document.getElementById(`ts-${defender}-stun-overlay`).style.display = 'flex';
+            document.getElementById(`ts-${defender}-stun-timer`).textContent = `3.5s`;
+            showToast(attacker === 'p1' ? "⚡ PLAYER: 기절 번개 공격!" : "⚡ AI BOT: 기절 번개 공격!");
+            if (defenderData.selection) {
+                const selEl = document.getElementById(`ts-${defender}-tile-${defenderData.selection.r}-${defenderData.selection.c}`);
+                if(selEl) selEl.classList.remove('selected', 'ai-selected');
+                defenderData.selection = null;
+            }
+        } else if (randomItem === 'FREEZE') {
+            playSound('freeze');
+            const validTiles = [];
+            for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) {
+                if (defenderData.board[r][c] !== null) validTiles.push({ r, c });
+            }
+            validTiles.sort(() => Math.random() - 0.5);
+            const freezeCount = Math.min(4, validTiles.length);
+            for (let i = 0; i < freezeCount; i++) {
+                const target = validTiles[i];
+                defenderData.frozen[`${target.r},${target.c}`] = 3;
+            }
+            renderBoard(defender);
+            showToast(attacker === 'p1' ? "❄️ PLAYER: 빙결 쇠사슬 공격!" : "❄️ AI BOT: 빙결 쇠사슬 공격!");
+        } else if (randomItem === 'RESET') {
+            playSound('reset');
+            defenderData.fever = 0;
+            const dfb = document.getElementById(`ts-${defender}-fever-fill`);
+            if (dfb) dfb.style.width = '0%';
+            showToast(attacker === 'p1' ? "💥 PLAYER: 피버 초기화 공격!" : "💥 AI BOT: 피버 초기화 공격!");
+        }
+    }
+
+    function updateAttacksCountdown() {
+        if (!gameActive) return;
+        ['p1', 'ai'].forEach(side => {
+            const data = side === 'p1' ? p1Data : aiData;
+            if (data.stunRemaining > 0) {
+                data.stunRemaining = Math.max(0, data.stunRemaining - 0.1);
+                const label = document.getElementById(`ts-${side}-stun-timer`);
+                if (label) label.textContent = `${data.stunRemaining.toFixed(1)}s`;
+                if (data.stunRemaining <= 0) document.getElementById(`ts-${side}-stun-overlay`).style.display = 'none';
+            }
+        });
+    }
+
+    function checkWin(side) {
+        const data = side === 'p1' ? p1Data : aiData;
+        if(data.board.flat().every(v => v === null)) {
+            gameActive = false;
+            clearInterval(mainTimer);
+            if(attackTickTimer) clearInterval(attackTickTimer);
+            finalClearTime = Math.floor((Date.now() - startTime) / 1000);
+            const modal = document.getElementById('ts-result-modal');
+            const title = document.getElementById('ts-result-title');
+            const desc = document.getElementById('ts-result-desc');
+            const nextBtn = document.getElementById('ts-next-btn');
+            const rankingInput = document.getElementById('ts-ranking-input-section');
+            if(side === 'p1') {
+                // ✅ 다음 스테이지 해금
+                const nextStageNum = masterStageNum + 1;
+                if (nextStageNum <= 20) setMaxUnlocked(nextStageNum);
+
+                title.textContent = "STAGE CLEAR!";
+                title.style.color = "var(--ts-master-color)";
+                const unlockedMsg = nextStageNum <= 20 ? ` 🔓 M-${nextStageNum} 해금!` : ' 🏆 최고 스테이지!';
+                desc.textContent = `마스터 M-${masterStageNum} 정복! (${finalClearTime}초)${unlockedMsg}`;
+
+                // 다음 스테이지가 있으면 버튼 표시, 없으면 숨김
+                if (nextStageNum <= 20) {
+                    nextBtn.textContent = `▶ M-${nextStageNum} 도전`;
+                    nextBtn.style.display = "inline-block";
+                } else {
+                    nextBtn.style.display = "none";
+                }
+                rankingInput.style.display = "block";
+                if(savedNickname) document.getElementById('ts-nickname-input').value = savedNickname;
+                modal.style.display = 'flex';
+                fetchRankings();
+            } else {
+                title.textContent = "GAME OVER";
+                title.style.color = "var(--ts-ai-color)";
+                desc.textContent = "AI 봇이 먼저 모든 카드를 격파했습니다. 🤖";
+                nextBtn.style.display = "none";
+                rankingInput.style.display = "none";
+                modal.style.display = 'flex';
+                fetchRankings();
+            }
+        }
+    }
+
+    window.submitRanking = function() {
+        const nickname = document.getElementById('ts-nickname-input').value.trim();
+        if(!nickname) { showToast("닉네임을 입력해주세요!"); return; }
+        localStorage.setItem('hoho_nickname', nickname);
+        savedNickname = nickname;
+        const scoreData = { nickname, stageId: `M-${masterStageNum}`, category: 'master', time: finalClearTime, masterLevel: masterStageNum, timestamp: Date.now() };
+        let localRankings = [];
+        try { localRankings = JSON.parse(localStorage.getItem('hoho_rankings') || '[]'); } catch(e) {}
+        localRankings.push(scoreData);
+        localStorage.setItem('hoho_rankings', JSON.stringify(localRankings));
+        showToast("기록이 저장되었습니다!");
+        document.getElementById('ts-ranking-input-section').style.display = 'none';
+        fetchRankings();
+    };
+
+    function fetchRankings() {
+        const listEl = document.getElementById('ts-ranking-list');
+        const badgeEl = document.getElementById('ts-ranking-type-badge');
+        let displayList = [];
+        try { displayList = JSON.parse(localStorage.getItem('hoho_rankings') || '[]'); } catch(e) {}
+        if(badgeEl) badgeEl.textContent = "로컬 기록";
+        displayList.sort((a,b) => b.masterLevel - a.masterLevel || a.time - b.time);
+        displayList = displayList.slice(0, 10);
+        if(displayList.length === 0) {
+            listEl.innerHTML = '<div style="text-align: center; color: #475569; padding: 10px;">등록된 기록이 없습니다.</div>';
+            return;
+        }
+        listEl.innerHTML = displayList.map((r, i) => `
+            <div class="ts-ranking-item">
+                <span>${i+1}. <span class="ts-rank-name">${r.nickname}</span></span>
+                <span class="ts-rank-score">LV.${r.masterLevel} (${r.time}초)</span>
+            </div>
+        `).join('');
+    }
+
+    function updateButtonLabels() {
+        const hintBadge = document.getElementById('ts-hint-count');
+        const shuffleBadge = document.getElementById('ts-shuffle-count');
+        if (hintBadge) hintBadge.textContent = p1HintCount;
+        if (shuffleBadge) shuffleBadge.textContent = p1ShuffleCount;
+    }
+
+    window.continueNextMaster = function() {
+        const next = masterStageNum + 1;
+        if (next > 20) { showToast("모든 스테이지를 클리어했습니다! 🏆"); return; }
+        if (next > getMaxUnlocked()) { showToast(`M-${next}는 아직 잠겨 있습니다.`); return; }
+        masterStageNum = next;
+        startBattle(`M-${masterStageNum}`, 'master', masterStageNum - 1);
+    };
+
+    window.backToSelect = function() {
+        gameActive = false;
+        clearInterval(mainTimer);
+        if(attackTickTimer) clearInterval(attackTickTimer);
+        document.getElementById('ts-result-modal').style.display = 'none';
+        document.getElementById('ts-stage-select-overlay').style.display = 'flex';
+    };
+
+    function tick() {
+        if(!gameActive) return;
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        updateTimerUI(m, s);
+        if(timeLeft <= 0) {
+            gameActive = false; clearInterval(mainTimer);
+            if(attackTickTimer) clearInterval(attackTickTimer);
+            showToast("TIME UP!");
+            checkWin('ai');
+        }
+    }
+
+    function updateCount(side) {
+        const data = side === 'p1' ? p1Data : aiData;
+        const count = data.board.flat().filter(t => t !== null).length;
+        document.getElementById(`ts-${side}-count`).textContent = count;
+    }
+
+    window.useHint = function() {
+        if (p1Data.stunRemaining > 0) return;
+        if (p1HintCount <= 0) { showToast("남은 힌트 아이템이 없습니다!"); return; }
+        const moves = getPossibleMoves(p1Data.board);
+        const freeMoves = moves.filter(m => {
+            const k1 = `${m.p1.r},${m.p1.c}`;
+            const k2 = `${m.p2.r},${m.p2.c}`;
+            return p1Data.frozen[k1] === undefined && p1Data.frozen[k2] === undefined;
+        });
+        if(freeMoves.length > 0) {
+            p1HintCount--;
+            updateButtonLabels();
+            const {p1, p2} = freeMoves[0];
+            const e1 = document.getElementById(`ts-p1-tile-${p1.r}-${p1.c}`);
+            const e2 = document.getElementById(`ts-p1-tile-${p2.r}-${p2.c}`);
+            if (e1) e1.style.boxShadow = "0 0 20px #fbbf24";
+            if (e2) e2.style.boxShadow = "0 0 20px #fbbf24";
+            setTimeout(() => {
+                if (e1) e1.style.boxShadow = "";
+                if (e2) e2.style.boxShadow = "";
+            }, 1200);
+        } else { showToast("매치 가능한 패가 없습니다! 🎲셔플 사용."); }
+    };
+
+    window.shufflePlayer = function() {
+        if (p1Data.stunRemaining > 0) return;
+        if (p1ShuffleCount <= 0) { showToast("남은 셔플 아이템이 없습니다!"); return; }
+        p1ShuffleCount--;
+        updateButtonLabels();
+        shuffleSide('p1');
+    };
+
+    function shuffleSide(side) {
+        const data = side === 'p1' ? p1Data : aiData;
+        const tiles = data.board.flat().filter(v => v !== null);
+        const points = [];
+        for(let r=1; r<=ROWS; r++) for(let c=1; c<=COLS; c++) if(data.board[r][c]) points.push({r,c});
+        tiles.sort(() => Math.random() - 0.5);
+        points.forEach((p, i) => data.board[p.r][p.c] = tiles[i]);
+        renderBoard(side);
+        showToast(side === 'p1' ? "PLAYER SHUFFLED!" : "AI SHUFFLED!");
+    }
+
+    function showToast(txt) {
+        const t = document.getElementById('ts-toast');
+        t.textContent = txt;
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 2200);
+    }
+
+    function getCellCoords(side, r, c) {
+        const wrapper = document.getElementById(`ts-${side}-wrapper`);
+        if (!wrapper) return { x: 0, y: 0 };
+        const wrapRect = wrapper.getBoundingClientRect();
+        const refEl = document.getElementById(`ts-${side}-tile-1-1`);
+        if (!refEl) return { x: 0, y: 0 };
+        const refRect = refEl.getBoundingClientRect();
+        const w = refRect.width, h = refRect.height;
+        const x11 = refRect.left - wrapRect.left;
+        const y11 = refRect.top - wrapRect.top;
+        let gap = 1.2;
+        if (window.innerWidth <= 1100) gap = 0.8;
+        if (window.innerWidth <= 480) gap = 0.8;
+        const x = x11 + (c - 1) * (w + gap) + w / 2;
+        const y = y11 + (r - 1) * (h + gap) + h / 2;
+        return { x, y };
+    }
+
+    function handleResize() {
+        ['p1', 'ai'].forEach(side => {
+            const wrapper = document.getElementById(`ts-${side}-wrapper`);
+            const canvas = document.getElementById(`ts-${side}-canvas`);
+            if (wrapper && canvas) { canvas.width = wrapper.clientWidth; canvas.height = wrapper.clientHeight; }
+        });
+    }
+    window.addEventListener('resize', handleResize);
+
+    function renderLoop() {
+        if(!currentStageInfo) return;
+        ['p1', 'ai'].forEach(side => {
+            const data = side === 'p1' ? p1Data : aiData;
+            const canvas = document.getElementById(`ts-${side}-canvas`);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            data.lines.forEach((l) => {
+                ctx.beginPath();
+                ctx.strokeStyle = side === 'p1' ? '#818cf8' : '#f87171';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.globalAlpha = l.life;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = side === 'p1' ? 'rgba(99, 102, 241, 0.8)' : 'rgba(239, 68, 68, 0.8)';
+                l.path.forEach((p, i) => {
+                    const coords = getCellCoords(side, p.r, p.c);
+                    if(i === 0) ctx.moveTo(coords.x, coords.y); else ctx.lineTo(coords.x, coords.y);
+                });
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                l.life -= 0.04;
+            });
+            data.lines = data.lines.filter(l => l.life > 0);
+        });
+        if(gameActive || p1Data.lines.length || aiData.lines.length) requestAnimationFrame(renderLoop);
+    }
+</script>
+</section>
+<!-- ════════════════════ 호호사천성 게임 소스 끝 ════════════════════ -->
+                </div>
+            </section>
+
+            <!-- 탭 패널 -->
+            <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+                <div class="flex border-b border-slate-100">
+                    <button onclick="switchTab('desc')" id="tab-desc"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-indigo-600 text-indigo-600">
+                        게임 설명
+                    </button>
+                    <button onclick="switchTab('guide')" id="tab-guide"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        조작 가이드
+                    </button>
+                    <button onclick="switchTab('info')" id="tab-info"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        시스템 정보
+                    </button>
+                </div>
+
+                <div id="panel-desc" class="tab-panel p-10">
+                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                        AI와의 숨막히는 두뇌 배틀 사천성 게임입니다.<br><br>
+                        20단계 마스터 스테이지에서 AI와 실시간으로 타일을 매칭하세요.
+                        힌트와 셔플 아이템을 활용하고, 피버 모드로 역전을 노려보세요.
+                    </p>
+                </div>
+
+                <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">타일 선택</span>
+                            <span class="font-bold text-slate-600">같은 타일 두 개 클릭</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">매칭 조건</span>
+                            <span class="font-bold text-slate-600">직선 또는 2번 꺾어서 연결 가능</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">힌트</span>
+                            <span class="font-bold text-slate-600">🔍 버튼 — 연결 가능한 쌍 표시</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">셔플</span>
+                            <span class="font-bold text-slate-600">🎲 버튼 — 남은 타일 위치 재배치</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">피버 모드</span>
+                            <span class="font-bold text-slate-600">연속 매칭 시 자동 발동, 공격력 증가</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-info" class="tab-panel p-10 hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function switchTab(tab) {
+                    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
+                    document.querySelectorAll('.tab-btn').forEach(function(b){
+                        b.classList.remove('border-indigo-600', 'text-indigo-600');
+                        b.classList.add('border-transparent', 'text-slate-400');
+                    });
+                    document.getElementById('panel-' + tab).classList.remove('hidden');
+                    var btn = document.getElementById('tab-' + tab);
+                    btn.classList.add('border-indigo-600', 'text-indigo-600');
+                    btn.classList.remove('border-transparent', 'text-slate-400');
+                }
+            </script>
+
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('./footer.html')
+            .then(function(r){ return r.text(); })
+            .then(function(html){
+                document.getElementById('footer-placeholder').outerHTML = html;
+                var s = document.createElement('script');
+                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
+                document.body.appendChild(s);
+            });
+    </script>
+
+    <script>
+    (function() {
+        var gameEl = document.getElementById('tistory-game-app');
+        if (gameEl) {
+            gameEl.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+        }
+    })();
+    </script>
+</body>
+</html>
