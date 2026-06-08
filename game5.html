@@ -1484,6 +1484,22 @@ let warnings = [];
 let frameCount = 0;
 let currentLanes = 3;
 let animationId = null;
+
+// ── SPA 이탈 감지: canvas가 DOM에서 사라지면 fever-active 등 완전 정리 ──
+(function() {
+  var _game5Observer = new MutationObserver(function() {
+    if (!document.getElementById('gameCanvas')) {
+      if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
+      if (document.body.classList.contains('fever-active')) {
+        document.body.classList.remove('fever-active');
+      }
+      if (canvasWrapper) canvasWrapper.style.transform = 'translate(0,0)';
+      gameActive = false;
+      _game5Observer.disconnect();
+    }
+  });
+  _game5Observer.observe(document.body, { childList: true, subtree: true });
+})();
 let activeTruckCount = 0;
 let wallHitCooldown = 0;
 
@@ -1653,7 +1669,7 @@ function getRainbowColor(tick, opacity) {
 function spawn() {
   const lw = canvas.width / currentLanes;
   let spawnRate = Math.max(20, 75 - Math.floor(score/1500));
-  if (boostTimer > 0) spawnRate = 10;
+  if (boostTimer > 0) spawnRate = 18;
 
   if (frameCount % spawnRate === 0) {
     const lane = Math.floor(Math.random() * currentLanes);
@@ -1879,7 +1895,7 @@ function update(timestamp) {
   let tSpeed = baseSpeed + (score / 35000);
   if (isFever) {
     boostTimer--;
-    tSpeed *= 2.3;
+    tSpeed *= 1.8;
     // ── fever 클래스: 상태 바뀔 때만 ──
     if (!_lastFeverState) { document.body.classList.add('fever-active'); _lastFeverState = true; }
     const fw = (boostTimer / MAX_BOOST_TIME * 100).toFixed(1) + '%';
