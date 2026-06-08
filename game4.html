@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-visual">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>호호타자FPS - HOHO PLAY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -21,11 +21,9 @@
     display: block;
     width: 100%;
     max-width: 420px;
-    margin: 0 auto 40px;
+    margin: 40px auto;
     font-family: 'Noto Sans KR', sans-serif;
     line-height: 1;
-    position: relative;
-    z-index: 1;
 }
 
 #hoho-fps-wrapper {
@@ -466,11 +464,9 @@
     display: block;
     width: 100%;
     max-width: 420px;
-    margin: 0 auto 40px;
+    margin: 40px auto;
     font-family: 'Noto Sans KR', sans-serif;
     line-height: 1;
-    position: relative;
-    z-index: 1;
 }
 
 #hoho-fps-wrapper {
@@ -761,7 +757,7 @@
 #hoho-weapon-sprite.weapon-left   { left: 0;  right: auto; -webkit-transform: none; transform: none; }
 #hoho-weapon-sprite.weapon-center { left: 50%; right: auto; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
 
-.hoho-weapon-body {
+.hoho-weapon-#hoho-fps-container {
     position: relative;
     width: 60px;
     height: 120px;
@@ -832,7 +828,7 @@
     <!-- 타이틀/게임오버 화면 -->
     <div id="hoho-overlay-screen">
       <p id="hoho-main-title">호호타자FPS</p>
-      <p id="hoho-desc-text">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
+      <p id="hoho-desc-text">이 게임은 호호로그 기획 및 프로그램으로 제작함</p>
 
       <div id="hoho-mode-selection">
         <button class="hoho-mode-btn" onclick="hohoSetMode('left',event)">
@@ -1049,7 +1045,7 @@
         uiOverlay.style.display = 'block';
         updateUI(); initCanvas();
         gameInput.value = '';
-        gameInput.focus({ preventScroll: true });
+        gameInput.focus();
         _hohoRafId = requestAnimationFrame(gameLoop);
         window._hohoSpawnTimer = setInterval(function(){ if (isPlaying && !isBossMode) spawnEnemy(); }, SPAWN_INTERVAL);
     };
@@ -1106,15 +1102,15 @@
         clearTimeout(inputResetTimer); inputResetTimer = null;
         isComposing = false; composedChar = '';
         targetedEnemy = null; reticle.charIndex = 0;
-        // IME 버퍼 강제 플러시: 스크롤 위치 고정 후 blur → 즉시 복원 → focus
-        var sx = window.pageXOffset, sy = window.pageYOffset;
-        gameInput.value = '';
+        // IME 세션 완전 종료: blur → value 초기화 → 한 프레임 뒤 focus
         gameInput.blur();
-        window.scrollTo(sx, sy);
+        gameInput.value = '';
+        // input type을 잠깐 바꿔서 IME 버퍼 강제 플러시
+        gameInput.setAttribute('type', 'password');
+        gameInput.setAttribute('type', 'text');
         requestAnimationFrame(function() {
-            window.scrollTo(sx, sy);
-            gameInput.focus({ preventScroll: true });
-            window.scrollTo(sx, sy);
+            gameInput.value = '';
+            gameInput.focus();
         });
     }
 
@@ -1228,15 +1224,8 @@
                 // 파워업은 콤보 미적용
                 targetedEnemy = null; isComposing = false; composedChar = '';
                 clearTimeout(inputResetTimer); inputResetTimer = null;
-                var _sx = window.pageXOffset, _sy = window.pageYOffset;
-                gameInput.value = '';
-                gameInput.blur();
-                window.scrollTo(_sx, _sy);
-                requestAnimationFrame(function() {
-                    window.scrollTo(_sx, _sy);
-                    gameInput.focus({ preventScroll: true });
-                    window.scrollTo(_sx, _sy);
-                });
+                gameInput.blur(); gameInput.value = '';
+                requestAnimationFrame(function(){ gameInput.focus(); });
                 return;
             }
 
@@ -1283,15 +1272,8 @@
 
         targetedEnemy = null; isComposing = false; composedChar = '';
         clearTimeout(inputResetTimer); inputResetTimer = null;
-        var sx = window.pageXOffset, sy = window.pageYOffset;
-        gameInput.value = '';
-        gameInput.blur();
-        window.scrollTo(sx, sy);
-        requestAnimationFrame(function() {
-            window.scrollTo(sx, sy);
-            gameInput.focus({ preventScroll: true });
-            window.scrollTo(sx, sy);
-        });
+        gameInput.blur(); gameInput.value = '';
+        requestAnimationFrame(function(){ gameInput.focus(); });
     }
 
     /* ── 비한글 키 차단 ── */
@@ -1311,15 +1293,12 @@
                 targetedEnemy = null; reticle.charIndex = 0;
                 isComposing = false; composedChar = '';
                 clearTimeout(inputResetTimer); inputResetTimer = null;
-                var sx = window.pageXOffset, sy = window.pageYOffset;
-                gameInput.value = '';
                 gameInput.blur();
-                window.scrollTo(sx, sy);
-                requestAnimationFrame(function() {
-                    window.scrollTo(sx, sy);
-                    gameInput.focus({ preventScroll: true });
-                    window.scrollTo(sx, sy);
-                });
+                gameInput.value = '';
+                gameInput.setAttribute('type','password');
+                gameInput.setAttribute('type','text');
+                gameInput.value = '';
+                requestAnimationFrame(function(){ gameInput.value = ''; gameInput.focus(); });
                 return;
             }
             // 영문/숫자/특수문자: 조용히 리셋
@@ -1455,6 +1434,8 @@
         } else {
             var tier = b.type === 'giant' ? 4 : b.type === 'special' ? 5 : 4;
             b.word = words[tier][Math.floor(Math.random()*words[tier].length)];
+            // 특수보스: 타격마다 위성 재생성
+            if (b.type === 'special') initSatellites(b);
         }
         updateUI();
     }
@@ -1582,20 +1563,20 @@
         setTimeout(function(){ warningOverlay.style.display = 'none'; }, 2500);
 
         if (type === 'giant') {
-            // 타이탄 보스: 위성 없음, HP 5, 4글자
+            // 타이탄 보스: 위성 없음, HP 6, 4글자
             boss = { type:'giant', x:canvasW/2, y:-200, targetY:canvasH*0.28,
-                     hp:5, maxHp:5, word:words[4][Math.floor(Math.random()*words[4].length)],
+                     hp:6, maxHp:6, word:words[4][Math.floor(Math.random()*words[4].length)],
                      color:'#ff6600', displaySize:80, hitFlash:0, hitShake:0, angle:0 };
         } else if (type === 'special') {
-            // 코어 보스: 위성 3개, HP 7, 5글자
+            // 코어 보스: 위성 3개, HP 12, 5글자
             boss = { type:'special', x:canvasW/2, y:-150, targetY:canvasH*0.25,
-                     hp:7, maxHp:7, word:words[5][Math.floor(Math.random()*words[5].length)],
+                     hp:10, maxHp:10, word:words[5][Math.floor(Math.random()*words[5].length)],
                      color:'#00ffcc', displaySize:60, hitFlash:0, hitShake:0, angle:0 };
             initSatellites(boss);
         } else {
-            // 레이더 보스: 위성 없음, HP 3, 4글자
+            // 레이더 보스: 위성 없음, HP 5, 4글자
             boss = { type:'mini', x:canvasW/2, y:-100, targetY:canvasH*0.3,
-                     hp:3, maxHp:3, word:words[4][Math.floor(Math.random()*words[4].length)],
+                     hp:5, maxHp:5, word:words[4][Math.floor(Math.random()*words[4].length)],
                      color:'#ff0033', displaySize:44, hitFlash:0, hitShake:0, angle:0 };
         }
         setTimeout(function(){ if (isBossMode && boss) startBossShooting(type); }, 1500);
@@ -1675,6 +1656,18 @@
     }
 
     /* ── 게임 루프 ── */
+
+    // ── SPA 이탈 감지 ──
+    (function() {
+        var _obs = new MutationObserver(function() {
+            if (!document.getElementById('hoho-gameCanvas')) {
+                isPlaying=false; if(_hohoRafId){cancelAnimationFrame(_hohoRafId);_hohoRafId=null;} clearInterval(window._hohoSpawnTimer);window._hohoSpawnTimer=null; if(typeof stopBossShooting==="function")stopBossShooting(); if(audioCtx&&audioCtx.state!=="closed"){try{audioCtx.close();}catch(e){}}
+                _obs.disconnect();
+            }
+        });
+        _obs.observe(document.body, { childList: true, subtree: true });
+    })();
+
     var _hohoRafId = null;
 
     function gameLoop() {
@@ -2308,23 +2301,8 @@
 
     /* ── 초기화 ── */
     requestAnimationFrame(function(){ initCanvas(); });
-    window.addEventListener('resize', function(){
-        window.scrollTo(0, 0);
-        initCanvas();
-    });
-    // interactive-widget=resizes-visual 적용으로 레이아웃 고정
-    // input-area는 항상 bottom:40px 유지 (visualViewport 보정 불필요)
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('scroll', function(){ window.scrollTo(0,0); });
-    }
-
-    document.addEventListener('click', function(){
-        if (isPlaying) {
-            var sx = window.scrollX, sy = window.scrollY;
-            gameInput.focus({ preventScroll: true });
-            window.scrollTo(sx, sy);
-        }
-    });
+    window.addEventListener('resize', initCanvas);
+    document.addEventListener('click', function(){ if (isPlaying) gameInput.focus(); });
 
 })();
 

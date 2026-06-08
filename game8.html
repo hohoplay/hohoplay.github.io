@@ -1053,6 +1053,17 @@ let idleTimer=null;  // 2인용: 5초 무입력 시 자동 턴 전환
 let gameDiff='NORMAL'; // EASY | NORMAL | HARD
 let score=0,scores={1:0,2:0};
 let timeLeft=600,timerID=null,gameOver=false;
+
+    // ── SPA 이탈 감지 ──
+    (function() {
+        var _obs = new MutationObserver(function() {
+            if (!document.getElementById('game-card')) {
+                gameOver=true; clearIdleTimer(); if(timerID){clearInterval(timerID);timerID=null;} if(sfx.ctx&&sfx.ctx.state!=="closed"){try{sfx.ctx.close();}catch(e){}}
+                _obs.disconnect();
+            }
+        });
+        _obs.observe(document.body, { childList: true, subtree: true });
+    })();
 let particles=[],ripples=[],ptr={x:0,y:0},lastT=0;
 let currentOrientation='';
 
@@ -1539,6 +1550,7 @@ function drawJelly(j,t){
 
 // ── 메인 루프 ──
 function loop(ts){
+  if(gameOver && !path.length && !ripples.length && !particles.length) return;
   if(!lastT)lastT=ts;
   const dt=Math.min((ts-lastT)/1000,.05);lastT=ts;
   ctx.clearRect(0,0,cw,ch);

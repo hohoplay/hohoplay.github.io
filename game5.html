@@ -1491,12 +1491,14 @@ let animationId = null;
 (function() {
   var _game5Observer = new MutationObserver(function() {
     if (!document.getElementById('gameCanvas')) {
+      gameActive = false;
       if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
+      stopBGM();
       if (document.body.classList.contains('fever-active')) {
         document.body.classList.remove('fever-active');
       }
       if (canvasWrapper) canvasWrapper.style.transform = 'translate(0,0)';
-      gameActive = false;
+      if (audioCtx && audioCtx.state !== 'closed') { try { audioCtx.close(); } catch(e) {} }
       _game5Observer.disconnect();
     }
   });
