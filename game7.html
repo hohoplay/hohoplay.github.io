@@ -29,9 +29,7 @@
     width: 100%;
     max-width: 480px;
     min-height: 520px;
-    margin: 0 auto 20px;
-    z-index: 1;
-    isolation: isolate;
+    margin: 20px auto;
     background: #111827;
     border-radius: 16px;
     overflow: hidden;
@@ -606,18 +604,48 @@
         /* AI보드 ↔ PLAYER보드 사이 중앙 정보 패널 (모바일 전용) */
         .ts-mid-panel {
             display: none;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            justify-content: center;
-            gap: 2px;
-            padding: 10px 20px;
+            justify-content: space-between;
+            gap: 4px;
+            padding: 8px 12px;
             background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(239,68,68,0.08));
             border: 1px solid rgba(255,255,255,0.07);
             border-radius: 12px;
             box-sizing: border-box;
-            text-align: center;
             width: 100%;
             max-width: 500px;
+        }
+        .ts-mid-name {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            min-width: 72px;
+        }
+        .ts-mid-name-icon { font-size: 1.1rem; line-height: 1; }
+        .ts-mid-name-text {
+            font-size: 0.72rem;
+            font-weight: 800;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .ts-mid-name-score {
+            font-size: 1rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .ts-mid-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            flex: 1;
+            text-align: center;
         }
         .ts-mid-vs {
             font-size: 0.65rem;
@@ -762,6 +790,16 @@
         .ts-tile.empty {
             visibility: hidden;
             pointer-events: none;
+        }
+        .ts-tile.hint-glow {
+            outline: 3px solid #fbbf24 !important;
+            box-shadow: 0 0 0 3px #fbbf24, 0 0 18px 4px #f59e0b, inset 0 0 8px rgba(251,191,36,0.35) !important;
+            animation: ts-hint-pulse 0.55s infinite alternate !important;
+            z-index: 25;
+        }
+        @keyframes ts-hint-pulse {
+            from { outline-color: #fbbf24; box-shadow: 0 0 0 3px #fbbf24, 0 0 14px 3px #f59e0b; }
+            to   { outline-color: #fff;    box-shadow: 0 0 0 3px #fff,    0 0 22px 6px #fbbf24; }
         }
         .ts-tile.pop {
             animation: ts-tile-pop 0.3s forwards;
@@ -1148,9 +1186,9 @@
             .ts-battle-container { flex-direction: column; align-items: center; padding: 10px; gap: 12px; }
             .ts-game-header { display: none !important; }
             .ts-mid-panel { display: flex !important; }
-            .ts-side-header { justify-content: center !important; gap: 10px; }
-            :root { --tile-w: 24px; --tile-h: 31px; --tile-font: 0.95rem; --grid-gap: 0.8px; }
-            .ts-board-wrapper { min-height: 320px; padding: 28px; }
+            .ts-side-header { display: none !important; }
+            :root { --tile-w: 30px; --tile-h: 38px; --tile-font: 1.05rem; --grid-gap: 1px; }
+            .ts-board-wrapper { min-height: 320px; padding: 16px; }
             /* 타이틀/스테이지 오버레이: 모바일 세로 세울 때 게임 크기에 맞춤 */
             #tistory-game-app { min-height: 500px; }
         }
@@ -1164,8 +1202,8 @@
             #tistory-game-app { min-height: 480px; }
         }
         @media (max-width: 480px) {
-            :root { --tile-w: 18px; --tile-h: 24px; --tile-font: 0.75rem; --grid-gap: 0.8px; }
-            .ts-board-wrapper { min-height: 260px; padding: 22px; }
+            :root { --tile-w: 26px; --tile-h: 32px; --tile-font: 0.9rem; --grid-gap: 1px; }
+            .ts-board-wrapper { min-height: 260px; padding: 10px; }
             .ts-btn { padding: 8px 14px; font-size: 0.85rem; }
             .ts-mid-timer { font-size: 2.1rem; letter-spacing: 2px; }
             .ts-main-logo { font-size: 2rem !important; }
@@ -1293,10 +1331,25 @@
 
         <!-- 모바일 전용: AI보드와 PLAYER보드 사이 중앙 정보 패널 -->
         <div class="ts-mid-panel" id="ts-mid-panel">
-            <div class="ts-mid-vs">VS</div>
-            <div class="ts-mid-timer" id="ts-timer-display-mobile">10:00</div>
-            <div class="ts-mid-stage" id="ts-stage-label-mobile">마스터 - M-1</div>
-            <div class="ts-mid-mode">BATTLE MODE</div>
+            <!-- AI 이름 (좌측) -->
+            <div class="ts-mid-name" style="color:var(--ts-ai-color);">
+                <div class="ts-mid-name-icon">🤖</div>
+                <div class="ts-mid-name-text" id="ts-mid-ai-name">AI BOT</div>
+                <div class="ts-mid-name-score" id="ts-mid-ai-score">0</div>
+            </div>
+            <!-- 중앙: 타이머 + VS + 스테이지 -->
+            <div class="ts-mid-center">
+                <div class="ts-mid-vs">VS</div>
+                <div class="ts-mid-timer" id="ts-timer-display-mobile">10:00</div>
+                <div class="ts-mid-stage" id="ts-stage-label-mobile">마스터 - M-1</div>
+                <div class="ts-mid-mode">BATTLE MODE</div>
+            </div>
+            <!-- PLAYER 이름 (우측) -->
+            <div class="ts-mid-name" style="color:var(--ts-secondary);">
+                <div class="ts-mid-name-icon">👤</div>
+                <div class="ts-mid-name-text" id="ts-mid-player-name">PLAYER</div>
+                <div class="ts-mid-name-score" id="ts-mid-player-score">0</div>
+            </div>
         </div>
 
         <div class="ts-side-section active-side" id="ts-p1-side">
@@ -1515,6 +1568,11 @@
         document.getElementById('ts-ai-side').classList.add('master-mode');
         const aiStatusEl = document.getElementById('ts-ai-status');
         if (aiStatusEl) aiStatusEl.textContent = `LV.${masterStageNum} BOT (THINKING)`;
+        // mid-panel 이름 갱신
+        const midPName = document.getElementById('ts-mid-player-name');
+        const midAiName = document.getElementById('ts-mid-ai-name');
+        if(midPName) midPName.textContent = savedNickname || 'PLAYER';
+        if(midAiName) midAiName.textContent = `M-${masterStageNum} BOT`;
         p1HintCount = 10; p1ShuffleCount = 10;
         updateButtonLabels();
         initSide('p1'); initSide('ai');
@@ -1925,6 +1983,14 @@
         const data = side === 'p1' ? p1Data : aiData;
         const count = data.board.flat().filter(t => t !== null).length;
         document.getElementById(`ts-${side}-count`).textContent = count;
+        // mid-panel 점수 동기화
+        if(side === 'p1') {
+            const el = document.getElementById('ts-mid-player-score');
+            if(el) el.textContent = count;
+        } else {
+            const el = document.getElementById('ts-mid-ai-score');
+            if(el) el.textContent = count;
+        }
     }
 
     window.useHint = function() {
@@ -1942,12 +2008,12 @@
             const {p1, p2} = freeMoves[0];
             const e1 = document.getElementById(`ts-p1-tile-${p1.r}-${p1.c}`);
             const e2 = document.getElementById(`ts-p1-tile-${p2.r}-${p2.c}`);
-            if (e1) e1.style.boxShadow = "0 0 20px #fbbf24";
-            if (e2) e2.style.boxShadow = "0 0 20px #fbbf24";
+            if (e1) e1.classList.add('hint-glow');
+            if (e2) e2.classList.add('hint-glow');
             setTimeout(() => {
-                if (e1) e1.style.boxShadow = "";
-                if (e2) e2.style.boxShadow = "";
-            }, 1200);
+                if (e1) e1.classList.remove('hint-glow');
+                if (e2) e2.classList.remove('hint-glow');
+            }, 1800);
         } else { showToast("매치 가능한 패가 없습니다! 🎲셔플 사용."); }
     };
 
@@ -2013,22 +2079,67 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0,0,canvas.width, canvas.height);
             data.lines.forEach((l) => {
+                const color     = side === 'p1' ? '#818cf8' : '#f87171';
+                const colorGlow = side === 'p1' ? 'rgba(99,102,241,0.9)' : 'rgba(239,68,68,0.9)';
+                const coords = l.path.map(p => getCellCoords(side, p.r, p.c));
+                ctx.globalAlpha = l.life;
+
+                // ── 외곽선(흰색) — 꺾임이 또렷하게 보이도록 ──
                 ctx.beginPath();
-                ctx.strokeStyle = side === 'p1' ? '#818cf8' : '#f87171';
+                ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+                ctx.lineWidth = 9;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                coords.forEach((c, i) => i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y));
+                ctx.stroke();
+
+                // ── 메인 라인 ──
+                ctx.beginPath();
+                ctx.strokeStyle = color;
                 ctx.lineWidth = 5;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
-                ctx.globalAlpha = l.life;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = side === 'p1' ? 'rgba(99, 102, 241, 0.8)' : 'rgba(239, 68, 68, 0.8)';
-                l.path.forEach((p, i) => {
-                    const coords = getCellCoords(side, p.r, p.c);
-                    if(i === 0) ctx.moveTo(coords.x, coords.y); else ctx.lineTo(coords.x, coords.y);
-                });
+                ctx.shadowBlur = 14;
+                ctx.shadowColor = colorGlow;
+                coords.forEach((c, i) => i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y));
                 ctx.stroke();
                 ctx.shadowBlur = 0;
-                l.life -= 0.04;
+
+                // ── 꺾임 포인트 원 (시작·끝 제외 중간 꺾임점만) ──
+                if (coords.length > 2) {
+                    for (let i = 1; i < coords.length - 1; i++) {
+                        ctx.beginPath();
+                        ctx.arc(coords[i].x, coords[i].y, 6, 0, Math.PI * 2);
+                        ctx.fillStyle = '#fff';
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = colorGlow;
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(coords[i].x, coords[i].y, 4, 0, Math.PI * 2);
+                        ctx.fillStyle = color;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+
+                // ── 시작점 · 끝점 원 ──
+                [coords[0], coords[coords.length - 1]].forEach(c => {
+                    ctx.beginPath();
+                    ctx.arc(c.x, c.y, 7, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = colorGlow;
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(c.x, c.y, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+
+                l.life -= 0.022; // 기존 0.04 → 0.022 (더 오래 표시)
             });
+            ctx.globalAlpha = 1;
             data.lines = data.lines.filter(l => l.life > 0);
         });
         if(gameActive || p1Data.lines.length || aiData.lines.length) requestAnimationFrame(renderLoop);
