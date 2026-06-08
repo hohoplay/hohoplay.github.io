@@ -1203,6 +1203,18 @@
         /**
          * Web Audio API Engine
          */
+
+    // ── SPA 이탈 감지 ──
+    (function() {
+        var _obs = new MutationObserver(function() {
+            if (!document.getElementById('input-field')) {
+                gameActive=false; if(typeof SoundEngine!=="undefined"&&SoundEngine.ctx){try{SoundEngine.ctx.close();}catch(e){}}
+                _obs.disconnect();
+            }
+        });
+        _obs.observe(document.body, { childList: true, subtree: true });
+    })();
+
         const SoundEngine = {
             ctx: null,
             masterGain: null,

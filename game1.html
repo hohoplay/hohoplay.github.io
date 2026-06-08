@@ -3517,6 +3517,18 @@
         clearTimeout(bgmLoopTimer);
     }
 
+
+    // ── SPA 이탈 감지 ──
+    (function() {
+        var _obs = new MutationObserver(function() {
+            if (!document.getElementById('ts-main-canvas')) {
+                state.gameActive=false; if(state.gameLoopId){cancelAnimationFrame(state.gameLoopId);state.gameLoopId=null;} stopAllAudio();
+                _obs.disconnect();
+            }
+        });
+        _obs.observe(document.body, { childList: true, subtree: true });
+    })();
+
     function stopAllAudio() {
         stopBGM();
         if (_actx) {
