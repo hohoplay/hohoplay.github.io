@@ -744,7 +744,7 @@
             try {
                 const r = await fetch('./' + file, { cache: 'no-store' });
                 const html = await r.text();
-                const mainMatch = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+                const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
                 contentDiv.innerHTML = mainMatch
                     ? '<div class="page-transition">' + mainMatch[1] + '</div>'
                     : '<div class="page-transition py-20 text-center text-slate-400">게임을 불러올 수 없습니다.</div>';
@@ -773,7 +773,7 @@
                    const r = await fetch('./partner.html', { cache: 'no-store' });
                     const html = await r.text();
                     // partner.html의 <main>...</main> 내용만 추출
-                    const mainMatch = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+                    const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
                     contentDiv.innerHTML = mainMatch
                         ? `<div class="page-transition">${mainMatch[1]}</div>`
                         : `<div class="page-transition py-20 text-center text-slate-400">파트너 페이지를 불러올 수 없습니다.</div>`;
