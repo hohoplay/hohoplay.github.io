@@ -2386,6 +2386,16 @@
 
     <div id="footer-placeholder"></div>
     <script>
+    // 게임 영역에서만 우클릭 차단 - AdSense 정책 준수
+    (function() {
+        var gameEl = document.getElementById('hoho-fps-wrapper') || document.getElementById('hoho-fps-container');
+        if (gameEl) {
+            gameEl.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        }
+    })();
+    </script>
+
+    <script>
         fetch('./footer.html')
             .then(function(r){ return r.text(); })
             .then(function(html){
