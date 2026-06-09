@@ -28,6 +28,7 @@
     position: relative;
     width: 100%;
     max-width: 480px;
+    min-width: 320px;
     min-height: 520px;
     margin: 0 auto 20px;
     z-index: 1;
@@ -1053,6 +1054,7 @@ let idleTimer=null;  // 2인용: 5초 무입력 시 자동 턴 전환
 let gameDiff='NORMAL'; // EASY | NORMAL | HARD
 let score=0,scores={1:0,2:0};
 let timeLeft=600,timerID=null,gameOver=false;
+let shuffleLeft=1; // 판 섞기 1회 제한
 
     // ── SPA 이탈 감지 ──
     (function() {
@@ -1084,7 +1086,7 @@ function applyLayout(){
   const container = card.parentElement;
   const containerW = (container ? container.clientWidth : window.innerWidth) - 24;
   const aspectW = L.cardW, aspectH = L.cardH;
-  let w = Math.min(L.cardW, containerW);
+  let w = Math.max(320, Math.min(L.cardW, containerW));
   let h = Math.round(w * (aspectH / aspectW));
   if(h < 220){ h = 220; w = Math.round(h * (aspectW / aspectH)); }
   w = Math.floor(w); h = Math.floor(h);
@@ -1202,7 +1204,8 @@ function startGame(){
     scores={1:0,2:0};turn=1;updateTurnUI();
   if(gameMode==='TWO_PLAYER') resetIdleTimer();
   }
-  gameOver=false;initGrid();startTimer();sfx.shuffle();
+  gameOver=false;shuffleLeft=1;initGrid();startTimer();sfx.shuffle();
+  updateShuffleBtn();
   setTimeout(checkAutoShuffle,1000);
 }
 
@@ -1407,13 +1410,41 @@ function checkAutoShuffle(){
   }
 }
 
-// ── 수동 셔플 ──
+// ── 수동 셔플: 1회 제한 + 기존 값만 위치 섞기 ──
 document.getElementById('reset-btn').addEventListener('click',()=>{
-  if(gameOver)return;if(dragging)cancelDrag();sfx.shuffle();
-  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-    const j=new Jelly(r,c,diffRng());j.vy=-1;j.squish(.5,1.5);grid[r][c]=j;
+  if(gameOver||shuffleLeft<=0)return;
+  if(dragging)cancelDrag();
+  shuffleLeft--;
+  sfx.shuffle();
+  // 기존 젤리 값만 추출 (null 제외)
+  const vals = [];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){ if(grid[r][c]) vals.push(grid[r][c].value); }
+  // Fisher-Yates 셔플
+  for(let i=vals.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [vals[i],vals[j]]=[vals[j],vals[i]]; }
+  // 새 위치에 배치 (애니메이션 포함)
+  let idx=0;
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    if(grid[r][c]){ const j=new Jelly(r,c,vals[idx++]); j.vy=-1; j.squish(.5,1.5); grid[r][c]=j; }
   }
+  updateShuffleBtn();
 });
+
+// ── 셔플 버튼 상태 업데이트 ──
+function updateShuffleBtn(){
+  const btn = document.getElementById('reset-btn');
+  if(!btn) return;
+  if(shuffleLeft <= 0){
+    btn.disabled = true;
+    btn.style.opacity = '0.35';
+    btn.style.cursor = 'not-allowed';
+    btn.textContent = '🔄 판 섞기 (0)';
+  } else {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.textContent = `🔄 판 섞기 (${shuffleLeft})`;
+  }
+}
 
 // ── 타이머 ──
 function startTimer(){
@@ -1453,7 +1484,8 @@ document.getElementById('restart-btn').addEventListener('click',()=>{
   ov.style.opacity='0';ov.style.pointerEvents='none';
   if(gameMode==='SINGLE'){score=0;document.getElementById('score-display').textContent='0000';}
   else{scores={1:0,2:0};turn=1;updateTurnUI();}
-  gameOver=false;initGrid();startTimer();sfx.shuffle();
+  gameOver=false;shuffleLeft=1;initGrid();startTimer();sfx.shuffle();
+  updateShuffleBtn();
   setTimeout(checkAutoShuffle,1000);
 });
 
