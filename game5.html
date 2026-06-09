@@ -1926,7 +1926,7 @@ function update(timestamp) {
   currentSpeed += (tSpeed - currentSpeed) * 0.1;
 
   // 터치/마우스 방향 업데이트 (rAF 내 처리)
-  if (isHolding) updateDirectionByHoldX();
+  if (isHolding && window.updateDirectionByHoldX) window.updateDirectionByHoldX();
 
   drawRoad();
   checkCollisions();
@@ -2241,8 +2241,8 @@ function startGame() {
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
 
-  // 터치/마우스 holdX 방식
-  function updateDirectionByHoldX() {
+  // 터치/마우스 holdX 방식 — update()에서 전역 접근 가능하도록 노출
+  window.updateDirectionByHoldX = function updateDirectionByHoldX() {
     if (!isHolding || !player) {
       if (!keyState.left && !keyState.right) {
         keys.left = false;
