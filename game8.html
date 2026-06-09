@@ -1054,7 +1054,7 @@ let idleTimer=null;  // 2인용: 5초 무입력 시 자동 턴 전환
 let gameDiff='NORMAL'; // EASY | NORMAL | HARD
 let score=0,scores={1:0,2:0};
 let timeLeft=600,timerID=null,gameOver=false;
-let shuffleLeft=1; // 판 섞기 1회 제한
+let shuffleLeft={1:1,2:1}; // 플레이어별 판 섞기 1회 제한
 
     // ── SPA 이탈 감지 ──
     (function() {
@@ -1204,13 +1204,14 @@ function startGame(){
     scores={1:0,2:0};turn=1;updateTurnUI();
   if(gameMode==='TWO_PLAYER') resetIdleTimer();
   }
-  gameOver=false;shuffleLeft=1;initGrid();startTimer();sfx.shuffle();
+  gameOver=false;shuffleLeft={1:1,2:1};initGrid();startTimer();sfx.shuffle();
   updateShuffleBtn();
   setTimeout(checkAutoShuffle,1000);
 }
 
 // ── 턴 UI ──
 function updateTurnUI(){
+  updateShuffleBtn(); // 턴 바뀔 때 버튼 상태 갱신
   const dot=document.getElementById('turn-dot');
   const txt=document.getElementById('turn-text');
   document.getElementById('p1-score').textContent=scores[1];
@@ -1412,9 +1413,10 @@ function checkAutoShuffle(){
 
 // ── 수동 셔플: 1회 제한 + 기존 값만 위치 섞기 ──
 document.getElementById('reset-btn').addEventListener('click',()=>{
-  if(gameOver||shuffleLeft<=0)return;
+  const p=(gameMode==='TWO_PLAYER')?turn:1;
+  if(gameOver||(shuffleLeft[p]||0)<=0)return;
   if(dragging)cancelDrag();
-  shuffleLeft--;
+  shuffleLeft[p]--;
   sfx.shuffle();
   // 기존 젤리 값만 추출 (null 제외)
   const vals = [];
@@ -1433,7 +1435,10 @@ document.getElementById('reset-btn').addEventListener('click',()=>{
 function updateShuffleBtn(){
   const btn = document.getElementById('reset-btn');
   if(!btn) return;
-  if(shuffleLeft <= 0){
+  // 2인용은 현재 턴 플레이어 기준, 1인용은 플레이어1 기준
+  const p = (gameMode==='TWO_PLAYER') ? turn : 1;
+  const left = shuffleLeft[p] || 0;
+  if(left <= 0){
     btn.disabled = true;
     btn.style.opacity = '0.35';
     btn.style.cursor = 'not-allowed';
@@ -1442,7 +1447,7 @@ function updateShuffleBtn(){
     btn.disabled = false;
     btn.style.opacity = '1';
     btn.style.cursor = 'pointer';
-    btn.textContent = `🔄 판 섞기 (${shuffleLeft})`;
+    btn.textContent = `🔄 판 섞기 (${left})`;
   }
 }
 
@@ -1484,7 +1489,7 @@ document.getElementById('restart-btn').addEventListener('click',()=>{
   ov.style.opacity='0';ov.style.pointerEvents='none';
   if(gameMode==='SINGLE'){score=0;document.getElementById('score-display').textContent='0000';}
   else{scores={1:0,2:0};turn=1;updateTurnUI();}
-  gameOver=false;shuffleLeft=1;initGrid();startTimer();sfx.shuffle();
+  gameOver=false;shuffleLeft={1:1,2:1};initGrid();startTimer();sfx.shuffle();
   updateShuffleBtn();
   setTimeout(checkAutoShuffle,1000);
 });
