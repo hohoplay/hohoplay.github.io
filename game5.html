@@ -1469,6 +1469,9 @@ let startScreen, loadingScreen, gameOverScreen, startBtn, restartBtn;
 let initialsInput, saveBtn;
 
 let gameActive = false;
+// 논리 크기 헬퍼 — DPR 적용 후 canvas.width는 실제 픽셀 크기이므로 논리 크기를 별도 참조
+function cW(){ return canvas._logicW || canvas.offsetWidth || canvas.width; }
+function cH(){ return canvas._logicH || canvas.offsetHeight || canvas.height; }
 let isHolding = false;
 let holdX = 0;
 
@@ -1681,7 +1684,7 @@ GameObject.prototype.update = function() {
     const moveSpeed = boostTimer > 0 ? 22 : 15;
     if (keys.left) this.targetX -= moveSpeed;
     if (keys.right) this.targetX += moveSpeed;
-    this.targetX = Math.max(-20, Math.min(canvas.width - this.width + 20, this.targetX));
+    this.targetX = Math.max(-20, Math.min(cW() - this.width + 20, this.targetX));
     this.x += (this.targetX - this.x) * 0.35;
   } else {
     this.y += (currentSpeed + this.speedOffset);
@@ -1694,7 +1697,7 @@ function getRainbowColor(tick, opacity) {
 }
 
 function spawn() {
-  const lw = canvas.width / currentLanes;
+  const lw = cW() / currentLanes;
   let spawnRate = Math.max(20, 75 - Math.floor(score/1500));
   if (boostTimer > 0) spawnRate = 18;
 
@@ -1716,7 +1719,7 @@ function spawn() {
     warnings[i].timer--;
     if (warnings[i].timer <= 0) {
       if (activeTruckCount === 0) {
-        objects.push(new GameObject(warnings[i].lane * lw + (lw/2 - CAR_WIDTH/2), canvas.height + 250, CAR_WIDTH, TRUCK_HEIGHT, 'truck', colors.truck));
+        objects.push(new GameObject(warnings[i].lane * lw + (lw/2 - CAR_WIDTH/2), cH() + 250, CAR_WIDTH, TRUCK_HEIGHT, 'truck', colors.truck));
         activeTruckCount = 1;
       }
       warnings.splice(i, 1);
@@ -1736,8 +1739,12 @@ function spawn() {
 function checkCollisions() {
   if (!player) return;
   const pBox = player.getHitbox();
-  const isHittingLeft = pBox.x <= 5;
-  const isHittingRight = pBox.x + pBox.w >= canvas.width - 5;
+  // 벽 충돌은 이전 여백(px=10) 기준 유지 — 차량 충돌만 넓힘
+  const wallMargin = 10;
+  const pWallX = player.x + wallMargin;
+  const pWallW = player.width - wallMargin * 2;
+  const isHittingLeft  = pWallX <= 5;
+  const isHittingRight = pWallX + pWallW >= cW() - 5;
 
   if ((isHittingLeft || isHittingRight) && wallHitCooldown <= 0) {
     sounds.hit();
@@ -1759,8 +1766,8 @@ function checkCollisions() {
       player.targetX = 0;
       player.x = 0;
     } else {
-      player.targetX = canvas.width - player.width;
-      player.x = canvas.width - player.width;
+      player.targetX = cW() - player.width;
+      player.x = cW() - player.width;
     }
     wallHitCooldown = boostTimer > 0 ? 6 : 10; // 쿨다운 대폭 단축 (60→10)
   }
@@ -1811,12 +1818,11 @@ function checkCollisions() {
 function drawRoad() {
   const isFever = boostTimer > 0;
   ctx.fillStyle = isFever ? '#111' : '#D1D9E0';
-  const cW = canvas._logicW || canvas.width;
-  const cH = canvas._logicH || canvas.height;
-  ctx.fillRect(0, 0, cW, cH);
+
+  ctx.fillRect(0, 0, cW(), cH());
 
   // 커브가 거의 없을 때(직선 모드)는 단순하게 처리
-  const lw = cW / currentLanes;
+  const lw = cW() / currentLanes;
   const hasCurve = currentCurveIntensity > 0.5;
 
   ctx.strokeStyle = isFever ? getRainbowColor(frameCount, 0.5) : 'rgba(255,255,255,0.4)';
@@ -1829,14 +1835,14 @@ function drawRoad() {
     ctx.beginPath();
     for (let i = 1; i < currentLanes; i++) {
       ctx.moveTo(lw * i, 0);
-      ctx.lineTo(lw * i, cH);
+      ctx.lineTo(lw * i, cH());
     }
     ctx.stroke();
     ctx.setLineDash([]);
   } else {
     // ── 커브: 세그먼트 수 줄여서 성능 절약 ──
     const segments = 8;
-    const segH = cH / segments;
+    const segH = cH() / segments;
     ctx.setLineDash([50, 50]);
     for (let s = 0; s < segments; s++) {
       const y = s * segH;
@@ -1878,7 +1884,7 @@ function drawStatusIcons() {
   const op = isFever ? 0.45 : 0.25;
   const color = isFever ? '#FFF' : '#000';
   ctx.save();
-  ctx.translate(canvas.width / 2, 75);
+  ctx.translate(cW() / 2, 75);
   ctx.globalAlpha = op;
   ctx.fillStyle = color;
   ctx.strokeStyle = color;
@@ -1959,7 +1965,7 @@ function update(timestamp) {
   for (let i = objects.length - 1; i >= 0; i--) {
     objects[i].update();
     objects[i].draw();
-    if (objects[i].y > canvas.height + 800 || objects[i].y < -1200) {
+    if (objects[i].y > cH() + 800 || objects[i].y < -1200) {
       if (objects[i].type === 'truck' && !objects[i].isFlying) activeTruckCount--;
       objects.splice(i, 1);
     }
@@ -1970,15 +1976,14 @@ function update(timestamp) {
   spawn();
 
   // ── 경고 삼각형 ──
-  const lw = canvas.width / currentLanes;
+  const lw = cW() / currentLanes;
   for (let w = 0; w < warnings.length; w++) {
     const warning = warnings[w];
     const opW = (frameCount % 10 < 5) ? 1 : 0.3;
     ctx.save();
-    const _wH = canvas._logicH || canvas.height;
-    ctx.translate(warning.x, _wH - 80);
+    ctx.translate(warning.x, cH() - 80);
     ctx.fillStyle = 'rgba(255,0,0,' + (opW * 0.2) + ')';
-    ctx.fillRect(-lw/2 + 5, -_wH, lw - 10, _wH);
+    ctx.fillRect(-lw/2 + 5, -cH(), lw - 10, cH());
     ctx.beginPath();
     ctx.moveTo(0, -40); ctx.lineTo(-30, 10); ctx.lineTo(30, 10);
     ctx.closePath();
@@ -1998,8 +2003,7 @@ function update(timestamp) {
   ctx.textAlign = 'left';
   ctx.fillText(_heartStr, 25, 45);
   ctx.textAlign = 'right';
-  const _cW = canvas._logicW || canvas.width;
-  ctx.fillText(score.toLocaleString() + '점', _cW - 25, 45);
+  ctx.fillText(score.toLocaleString() + '점', cW() - 25, 45);
   drawStatusIcons();
 
   frameCount++;
@@ -2210,8 +2214,8 @@ function startGame() {
   warnings = [];
 
   player = new GameObject(
-    (canvas.width - CAR_WIDTH) / 2,
-    canvas.height - CAR_HEIGHT - 40,
+    (cW() - CAR_WIDTH) / 2,
+    cH() - CAR_HEIGHT - 40,
     CAR_WIDTH,
     CAR_HEIGHT,
     'player',
@@ -2286,10 +2290,10 @@ function startGame() {
       return;
     }
     // 캔버스 중앙 기준 좌/우 결정 (deadZone 없음)
-    var bcrW = canvas.getBoundingClientRect().width || canvas.width;
-    var scaleX = canvas.width / bcrW;
+    var bcrW = canvas.getBoundingClientRect().width || cW();
+    var scaleX = cW() / bcrW;
     var holdCanvasX = holdX * scaleX;
-    var canvasMid = canvas.width / 2;
+    var canvasMid = cW() / 2;
     if (holdCanvasX < canvasMid) {
       keys.left = true;  keys.right = false;
     } else {
