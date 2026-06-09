@@ -1222,7 +1222,9 @@ function updateTurnUI(){
 
 // ── 메뉴 복귀 ──
 function backToTitle(){
-  clearInterval(timerID);
+  gameOver=true;          // idleTimer 콜백 차단
+  clearIdleTimer();       // 5초 자동 턴 전환 타이머 즉시 취소
+  clearInterval(timerID); timerID=null;
   if(dragging)cancelDrag();
   document.getElementById('overlay').style.opacity='0';
   document.getElementById('overlay').style.pointerEvents='none';
