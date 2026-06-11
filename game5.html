@@ -1521,7 +1521,7 @@ let animationId = null;
       _game5Observer.disconnect();
     }
   });
-  _game5Observer.observe(document.getElementById('gameCanvas')?.parentElement || document.body, { childList: true, subtree: false });
+  _game5Observer.observe(document.body, { childList: true, subtree: true });
 })();
 let activeTruckCount = 0;
 let wallHitCooldown = 0;
@@ -2000,10 +2000,12 @@ function update(timestamp) {
   if (hp !== _lastHp) { _heartStr = '❤️'.repeat(hp); _lastHp = hp; }
   ctx.fillStyle = isFever ? '#fff' : '#333';
   if (ctx._lastFont !== '32px Gamja Flower') { ctx.font = '32px Gamja Flower'; ctx._lastFont = '32px Gamja Flower'; }
+  ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  ctx.fillText(_heartStr, 25, 45);
+  ctx.fillText(_heartStr, 20, 32);
   ctx.textAlign = 'right';
-  ctx.fillText(score.toLocaleString() + '점', cW() - 25, 45);
+  ctx.fillText(score.toLocaleString() + '점', cW() - 20, 32);
+  ctx.textBaseline = 'alphabetic';
   drawStatusIcons();
 
   frameCount++;
