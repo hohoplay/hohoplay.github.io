@@ -344,7 +344,7 @@
             overflow: hidden;
             width: 0%;
             white-space: nowrap;
-            transition: width 0.1s ease-out;
+            transition: width 0.06s linear;
         }
 
         .flower-projectile {
@@ -365,7 +365,7 @@
             text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 0 0 10px rgba(255, 77, 109, 0.5);
             z-index: 300; 
             pointer-events: none;
-            animation: dmg-text-popup 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: dmg-text-popup 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             white-space: nowrap;
         }
 
@@ -380,9 +380,9 @@
             100% { transform: translate(-50%, -120px) scale(1) rotate(0deg); opacity: 0; }
         }
         @keyframes dmg-text-popup-mobile {
-            0% { transform: translate(-50%, 0) scale(0.5) rotate(-15deg); opacity: 0; }
-            40% { transform: translate(-50%, -30px) scale(1.1) rotate(8deg); opacity: 1; }
-            100% { transform: translate(-50%, -55px) scale(1) rotate(0deg); opacity: 0; }
+            0%   { transform: translate(-50%, 0) scale(0.5) rotate(-8deg); opacity: 0; }
+            35%  { transform: translate(-50%, -14px) scale(1.05) rotate(5deg); opacity: 1; }
+            100% { transform: translate(-50%, -28px) scale(1) rotate(0deg); opacity: 0; }
         }
 
         /* UI Styling */
@@ -518,13 +518,14 @@
 
         input#input-field {
             position: fixed;
-            top: 0;
+            top: 50%;
             left: -9999px;
             width: 1px;
             height: 1px;
             opacity: 0;
             pointer-events: none;
             font-size: 16px; /* 16px 미만이면 iOS에서 자동 줌 발생 */
+            transform: translateY(-50%);
         }
 
         @media (max-width: 600px) {
@@ -538,10 +539,10 @@
             }
             #sky-game-wrapper {
                 min-height: unset;
-                padding: 8px 0;
+                padding: 4px 0;
                 align-items: flex-start;
             }
-            #ui-layer { height: 100px; padding: 0 10px; }
+            #ui-layer { height: 110px; padding: 0 10px; }
             .ui-panel { padding: 5px 10px; border-radius: 15px; }
             .ui-value { font-size: 18px; }
             .ui-label { font-size: 8px; }
@@ -549,7 +550,7 @@
             #life-panel { right: 10px; bottom: 15px; }
             #input-center-group { bottom: 15px; gap: 5px; }
             #guide-ui { width: 180px; padding: 8px 15px; border-width: 2px; }
-            #display-text { font-size: 18px; min-height: 22px; }
+            #display-text { font-size: 20px; min-height: 24px; }
             #lang-indicator { width: 35px; height: 35px; font-size: 14px; border-radius: 8px; }
             #combo-panel { top: -65px; width: 80px; right: -10px; padding-top: 15px; }
             #judgment-line { bottom: 100px; }
@@ -601,6 +602,11 @@
                 padding: 10px 28px !important;
                 font-size: 16px !important;
                 border-radius: 14px !important;
+            }
+            .damage-text {
+                font-size: 14px !important;
+                padding: 2px 6px !important;
+                border-radius: 6px !important;
             }
 
             /* ── 보스 단어 / 발사체 / 낙하단어 축소 ── */
@@ -1349,15 +1355,20 @@
 
         function init() {
             // Audio init on click
-            window.addEventListener('click', () => { 
+            // PC: click / 모바일: touchstart 둘 다 처리
+            function handleUserInteraction(e) {
                 if (!SoundEngine.ctx) SoundEngine.init();
                 SoundEngine.resume();
-                if(gameActive) {
+                if (gameActive) {
                     const sx = window.scrollX, sy = window.scrollY;
                     inputField.focus({ preventScroll: true });
                     window.scrollTo(sx, sy);
-                } 
-            });
+                }
+            }
+            window.addEventListener('click', handleUserInteraction);
+            window.addEventListener('touchstart', function(e) {
+                handleUserInteraction(e);
+            }, { passive: true });
             
             window.addEventListener('resize', () => {
                 if(!gameActive) return;
@@ -1381,12 +1392,15 @@
             inputField.addEventListener('compositionend', (e) => {
                 isComposing = false;
                 const val = e.target.value;
-                // 한글 완성 시 즉시 단어 체크 (보스전 타이핑 소모 핵심)
+                // 한글 완성 시 즉시 단어 체크
                 if (val !== "" && checkWord(val)) { if (resetTimer) clearTimeout(resetTimer); return; }
                 handleInput(val);
                 if (val && val.length > 0 && !isDeleting) {
                     const lastChar = val.slice(-1);
-                    if (isCompleteHangul(lastChar)) triggerTextBurst(val, lastChar);
+                    if (isCompleteHangul(lastChar)) {
+                        lastFiredTime = 0; // 쿨다운 리셋 후 이펙트 보장
+                        triggerTextBurst(val, lastChar);
+                    }
                 }
             });
 
@@ -1471,12 +1485,18 @@
             displayText.style.color = '#ffb3c1';
             updateHighlight("");
             if (resetTimer) clearTimeout(resetTimer);
-            if(gameActive) setTimeout(() => { const sx=window.scrollX,sy=window.scrollY; inputField.focus({preventScroll:true}); window.scrollTo(sx,sy); }, 10);
+            if(gameActive) {
+                setTimeout(() => { 
+                    const sx=window.scrollX, sy=window.scrollY;
+                    inputField.focus({preventScroll:true});
+                    window.scrollTo(sx,sy);
+                }, 10);
+            }
         }
 
         function handleInput(val) {
             if (!gameActive) return;
-            if (val === "") { displayText.innerText = isMobile ? "터치하여 입력" : "입력 대기 중..."; displayText.style.color = '#ffb3c1'; } 
+            if (val === "") { displayText.innerText = isMobile ? "화면을 터치하여 입력" : "입력 대기 중..."; displayText.style.color = '#ffb3c1'; } 
             else { displayText.innerText = val; displayText.style.color = '#ff4d6d'; }
             updateHighlight(val);
         }
@@ -1484,7 +1504,7 @@
         function triggerTextBurst(fullVal, charToDisplay) {
             if (!fullVal || isDeleting || fullVal.length === 0) return;
             const now = Date.now();
-            if (now - lastFiredTime < 100) return;
+            if (now - lastFiredTime < 30) return;
             lastFiredTime = now;
 
             // 모바일은 보스가 scale(0.7)이므로 실제 보스 중심 y 조정
@@ -1503,6 +1523,11 @@
                 if (targetCandidate) {
                     triggerCharDamage(targetCandidate.x, targetCandidate.y, charToDisplay);
                     launchFlowersFromInput(targetCandidate);
+                } else {
+                    // 낙하 단어 없어도 입력창 위쪽에서 이펙트 발생
+                    const cx = gameField.offsetWidth / 2;
+                    const cy = gameField.offsetHeight * 0.6;
+                    triggerCharDamage(cx, cy, charToDisplay);
                 }
             }
         }
@@ -1548,11 +1573,12 @@
             d.style.left = `${absX}px`;
             d.style.top  = `${absY}px`;
             if (isMobile) {
-                d.style.fontSize = '20px';
+                d.style.fontSize = '14px';
                 d.style.animationName = 'dmg-text-popup-mobile';
+                d.style.animationDuration = '0.38s';
             }
             damageOverlay.appendChild(d);
-            setTimeout(() => { if(d.parentNode) d.remove(); }, 700);
+            setTimeout(() => { if(d.parentNode) d.remove(); }, 430);
         }
 
         function spawnLoop() {
