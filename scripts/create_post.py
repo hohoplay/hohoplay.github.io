@@ -1814,28 +1814,124 @@ def get_compat(en_name):
     return _COMPAT.get(en_name, {})
 
 def birth_year_fortune(en_name, year):
-    """출생연도별 맞춤 운세 반환"""
-    _YEAR_FORTUNE = {
-        1924: "올해 중요한 결정을 앞두고 있다면 서두르지 않는 것이 맞습니다.",
-        1936: "오래 쌓아온 경험이 오늘 빛을 발하는 날입니다.",
-        1948: "정보는 빠른데 시작을 못 하고 있다면, 오늘 딱 하나만 실행해보시기 바랍니다.",
-        1960: "오늘 중요한 연락이 오전에 들어올 수 있습니다. 빠르게 확인하시기 바랍니다.",
+    """출생연도별 맞춤 운세 반환 — 띠별×연도별 고유 문장"""
+    # 띠별 연도 풀 — 각 연도마다 고유 문장
+    _FORTUNE_BY_YEAR = {
+        # 쥐띠
+        1948: "오늘 정보가 빠르게 들어오는 날입니다. 확인 후 빠르게 움직이시기 바랍니다.",
+        1960: "오늘 중요한 연락이 들어올 수 있습니다. 놓치지 마시기 바랍니다.",
         1972: "오늘 에너지가 넘치지만 분산되기 쉬운 날입니다. 하나에 집중하시기 바랍니다.",
         1984: "오늘 새로운 시도를 하기 좋은 흐름입니다. 작은 것 하나를 시작해보시기 바랍니다.",
         1996: "오늘 주변의 조언을 귀담아듣는 것이 중요한 날입니다.",
         2008: "오늘 배움에 집중하기 좋은 날입니다.",
-        1925: "여유롭게 움직이는 것이 오늘 가장 맞는 방식입니다.",
-        1937: "계획대로 움직이면 좋은 결과가 나오는 날입니다.",
-        1949: "묵묵히 가고 있는데 결과가 아직 안 보이는 날입니다. 조금만 더 기다리시기 바랍니다.",
+        2020: "오늘 주변의 흐름을 잘 살펴보는 날입니다.",
+        # 소띠
+        1949: "묵묵히 해온 것들이 오늘 인정받는 흐름입니다.",
         1961: "오늘 계획을 한 번 점검하기 좋은 날입니다.",
-        1973: "오늘 단 지출을 오늘 한 번 정리해두면 다음 달이 달라집니다.",
-        1985: "맞춰야 할 것 같은데 맞추기 싫은 날입니다. 자신의 기준을 지키시기 바랍니다.",
-        1997: "오늘 여러 개 잡으려다 하나도 못 끝낼 수 있습니다. 하나만 선택하시기 바랍니다.",
+        1973: "지출을 한 번 정리해두면 다음 달이 달라집니다.",
+        1985: "자신의 기준을 지키는 것이 오늘 가장 중요합니다.",
+        1997: "오늘 하나만 선택하고 그것에 집중하시기 바랍니다.",
         2009: "오늘 집중력이 필요한 날입니다.",
+        2021: "오늘 꾸준함이 빛을 발하는 날입니다.",
+        # 호랑이띠
+        1950: "오래 쌓아온 경험이 오늘 빛을 발하는 날입니다.",
+        1962: "추진력이 강한 날입니다. 중요한 일을 오전에 처리하시기 바랍니다.",
+        1974: "오늘 에너지를 한 방향으로 집중하면 좋은 결과가 나옵니다.",
+        1986: "오늘 용기 있게 먼저 제안하는 것이 유리한 날입니다.",
+        1998: "오늘 자신의 직감을 믿고 움직이시기 바랍니다.",
+        2010: "오늘 새로운 것을 배우기 좋은 날입니다.",
+        2022: "오늘 활기차게 시작하는 것이 맞는 날입니다.",
+        # 토끼띠
+        1951: "여유롭게 움직이는 것이 오늘 가장 맞는 방식입니다.",
+        1963: "오늘 섬세한 배려가 좋은 관계를 만드는 날입니다.",
+        1975: "오늘 먼저 다가가는 것이 더 좋은 결과를 만듭니다.",
+        1987: "오늘 여러 가지 중 가장 중요한 것 하나를 선택하시기 바랍니다.",
+        1999: "오늘 새로운 인연이 생기기 좋은 흐름입니다.",
+        2011: "오늘 주변 사람들과 함께하는 시간이 에너지를 올려줍니다.",
+        2023: "오늘 조용히 집중하는 것이 맞는 날입니다.",
+        # 용띠
+        1952: "오래된 경험이 오늘 중요한 판단의 근거가 됩니다.",
+        1964: "오늘 큰 그림을 보면서 세부 계획을 점검하기 좋은 날입니다.",
+        1976: "오늘 에너지가 높은 날입니다. 중요한 것을 먼저 처리하시기 바랍니다.",
+        1988: "오늘 아이디어를 실행으로 옮기기 좋은 흐름입니다.",
+        2000: "오늘 자신의 강점을 발휘하기 좋은 날입니다.",
+        2012: "오늘 배움과 탐구에 집중하기 좋은 날입니다.",
+        # 뱀띠
+        1953: "오늘 직관이 정확하게 작동하는 날입니다. 첫 느낌을 믿으시기 바랍니다.",
+        1965: "오늘 신중하게 관찰한 후 움직이는 것이 맞습니다.",
+        1977: "오늘 집중력이 최고조인 날입니다. 어려운 업무를 처리하시기 바랍니다.",
+        1989: "오늘 깊이 있는 대화가 중요한 연결을 만드는 날입니다.",
+        2001: "오늘 꼼꼼하게 확인하는 것이 실수를 막아줍니다.",
+        2013: "오늘 집중력이 필요한 활동에 에너지를 쓰시기 바랍니다.",
+        # 말띠
+        1942: "오늘 활동적으로 움직이는 것이 에너지를 올려주는 날입니다.",
+        1954: "오늘 자유롭게 움직이는 것이 가장 맞는 날입니다.",
+        1966: "오늘 하나에 집중하면 생각보다 빠른 결과가 나옵니다.",
+        1978: "오늘 새로운 사람을 만나기 좋은 흐름입니다.",
+        1990: "오늘 열정을 한 방향으로 집중하시기 바랍니다.",
+        2002: "오늘 적극적으로 나서는 것이 좋은 결과를 만듭니다.",
+        2014: "오늘 활동적인 것에 에너지를 쓰면 기분이 좋아지는 날입니다.",
+        # 양띠
+        1943: "오늘 오래된 인연과 따뜻한 시간을 보내기 좋은 날입니다.",
+        1955: "오늘 자신을 위한 시간을 먼저 확보하시기 바랍니다.",
+        1967: "오늘 자신의 의견을 먼저 표현하는 연습이 필요한 날입니다.",
+        1979: "오늘 창의적인 활동에서 에너지를 얻는 날입니다.",
+        1991: "오늘 배려하는 만큼 자신도 챙기시기 바랍니다.",
+        2003: "오늘 감수성이 높아지는 날입니다. 좋아하는 것을 즐기시기 바랍니다.",
+        2015: "오늘 주변의 아름다운 것들에 집중하는 날입니다.",
+        # 원숭이띠
+        1944: "오래 쌓아온 지혜가 오늘 빛을 발하는 날입니다.",
+        1956: "오늘 재치 있는 방식으로 문제를 해결하는 날입니다.",
+        1968: "오늘 아이디어를 하나 선택해서 완성하시기 바랍니다.",
+        1980: "오늘 새로운 것을 빠르게 습득하기 좋은 날입니다.",
+        1992: "오늘 유머로 분위기를 바꾸는 것이 효과적인 날입니다.",
+        2004: "오늘 호기심을 따라 탐구하기 좋은 날입니다.",
+        2016: "오늘 새로운 것을 배우는 즐거움을 느끼는 날입니다.",
+        # 닭띠
+        1945: "오늘 꼼꼼하게 마무리하는 것이 빛을 발하는 날입니다.",
+        1957: "오늘 계획한 것을 차근차근 실행하기 좋은 날입니다.",
+        1969: "오늘 완벽하지 않아도 진행하는 연습이 필요한 날입니다.",
+        1981: "오늘 성실함이 인정받는 흐름입니다.",
+        1993: "오늘 분석력이 빛을 발하는 날입니다. 중요한 결정을 내리기 좋습니다.",
+        2005: "오늘 집중해서 하나를 완성하는 것이 중요한 날입니다.",
+        2017: "오늘 꼼꼼함이 실수를 막아주는 날입니다.",
+        # 개띠
+        1946: "오늘 신뢰를 바탕으로 한 관계가 빛을 발하는 날입니다.",
+        1958: "오늘 오래된 인연에서 따뜻한 에너지를 얻는 날입니다.",
+        1970: "오늘 정직하게 표현하는 것이 관계를 강하게 만드는 날입니다.",
+        1982: "오늘 책임감이 좋은 결과를 만드는 날입니다.",
+        1994: "오늘 신뢰하는 사람에게 마음을 열어보시기 바랍니다.",
+        2006: "오늘 충성스러운 태도가 주변의 신뢰를 얻는 날입니다.",
+        2018: "오늘 가까운 사람들과 함께하는 시간이 에너지를 올려줍니다.",
+        # 돼지띠
+        1947: "오늘 인정이 넘치는 하루입니다. 베푸는 것이 자신에게도 돌아오는 날입니다.",
+        1959: "오늘 낙천적인 에너지가 주변을 밝히는 날입니다.",
+        1971: "오늘 성실하게 해온 것들이 인정받기 시작하는 흐름입니다.",
+        1983: "오늘 나눔이 더 큰 것으로 돌아오는 날입니다.",
+        1995: "오늘 자신의 여유를 먼저 확인한 후 베푸시기 바랍니다.",
+        2007: "오늘 주변 사람들과 따뜻한 시간을 보내기 좋은 날입니다.",
+        2019: "오늘 밝은 에너지로 주변을 이끄는 날입니다.",
+        2031: "오늘 새로운 것을 탐색하기 좋은 날입니다.",
     }
-    # 연도별 기본 메시지 반환
-    msg = _YEAR_FORTUNE.get(year, f"오늘 {year}년생에게 중요한 것은 하나에 집중하는 것입니다.")
-    return msg
+
+    year_int = int(year)
+    if year_int in _FORTUNE_BY_YEAR:
+        return _FORTUNE_BY_YEAR[year_int]
+
+    # 딕셔너리에 없는 연도는 10년대별 기본 메시지
+    decade = (year_int // 10) * 10
+    _DECADE_MSG = {
+        1940: "오늘 오랜 경험이 빛을 발하는 날입니다.",
+        1950: "오늘 꾸준히 해온 것들이 결실을 맺는 흐름입니다.",
+        1960: "오늘 중요한 결정을 내리기 좋은 날입니다.",
+        1970: "오늘 에너지를 하나에 집중하시기 바랍니다.",
+        1980: "오늘 새로운 시도를 하기 좋은 흐름입니다.",
+        1990: "오늘 주변과의 연결에서 에너지를 얻는 날입니다.",
+        2000: "오늘 자신의 강점을 발휘하기 좋은 날입니다.",
+        2010: "오늘 배움과 성장에 집중하기 좋은 날입니다.",
+        2020: "오늘 주변을 잘 살펴보는 날입니다.",
+    }
+    return _DECADE_MSG.get(decade, "오늘 하나에 집중하는 것이 가장 좋은 날입니다.")
 
 # ── 별자리 주간운세 오프닝·엔딩 풀 ──
 _W_OPENINGS = [
@@ -2078,112 +2174,51 @@ def build_zodiac_post(z, today_str):
     # 오늘 하나만 (엔딩 박스)
     _ze = _z_endings[kst_now.day % len(_z_endings)]
 
-    # ── 하나의 흐르는 스토리 HTML ──
+    # ── 하나의 흐르는 스토리 HTML (별과띠가만나는시간 방식) ──
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <!-- 공감 — 독자 감정 포착 -->
-  <div style="padding:1.6rem 1.8rem 1.4rem;background:linear-gradient(135deg,#faf5ff,#f0f9ff);
-              border-radius:18px;margin-bottom:0;border-left:4px solid #a78bfa">
-    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
-              margin:0;word-break:keep-all">
+  <div style="background:linear-gradient(135deg,#faf5ff,#f0f9ff);
+              border-radius:18px;padding:1.6rem 1.8rem;
+              border-left:4px solid #a78bfa;margin-bottom:1.6rem">
+    <p style="font-size:15px;line-height:2.1;color:#374151;
+              font-weight:500;margin:0;word-break:keep-all">
       💭 {empathy}
     </p>
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#a78bfa,#7c3aed);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#a78bfa,#7c3aed);margin:0 auto 1.6rem"></div>
 
-  <!-- 오늘의 흐름 — 인과 설명 -->
-  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
+                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
-    <div style="border-left:5px solid {total_color};padding:20px 18px 16px;
-                background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">오늘의 흐름 · {_flow(total)}</div>
-      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
-                margin:0 0 12px;word-break:keep-all">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}</p>
-      <p style="font-size:14px;line-height:2.05;color:#374151;
-                margin:0;word-break:keep-all">{_para(0)}</p>
-    </div>
+    <p style="margin:0 0 1.4em 0">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}<br>
+    {_para(0)}</p>
 
-    <!-- 연결: 총운 → 연애 -->
-    <div style="background:#f9fafb;padding:8px 18px;border-top:1px dashed #e5e7eb;
-                border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
-                text-align:center">{lb}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{lb}</p>
 
-    <!-- 관계·연애 -->
-    <div style="border-left:5px solid #e11d48;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">관계·연애 · {_flow(love)}</div>
-      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
-                margin:0 0 12px;word-break:keep-all">{love_intro}</p>
-      <p style="font-size:14px;line-height:2.05;color:#374151;
-                margin:0 0 12px;word-break:keep-all">{_para(2)}</p>
-      <div style="background:#fff0f3;border-radius:10px;padding:11px 14px;
-                  font-size:13px;color:#9f1239;line-height:1.85;
-                  border-left:3px solid #e11d48;word-break:keep-all">
-        💡 {love_detail}
-      </div>
-      <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#6b7280;
-                font-style:italic;word-break:keep-all">{love_close}</p>
-    </div>
+    <p style="margin:0 0 1.4em 0">{love_intro}<br>
+    {_para(2)}<br>
+    <span style="font-size:13px;color:#9f1239">{love_detail}</span></p>
 
-    <!-- 연결: 연애 → 금전 -->
-    <div style="background:#f9fafb;padding:8px 18px;border-top:1px dashed #e5e7eb;
-                border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
-                text-align:center">{mb}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{mb}</p>
 
-    <!-- 돈·재물 -->
-    <div style="border-left:5px solid #d97706;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">돈·재물 · {_flow(money)}</div>
-      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
-                margin:0 0 12px;word-break:keep-all">{money_intro}</p>
-      <p style="font-size:14px;line-height:2.05;color:#374151;
-                margin:0 0 12px;word-break:keep-all">{_para(3)}</p>
-      <div style="background:#fef9c3;border-radius:10px;padding:11px 14px;
-                  font-size:13px;color:#78350f;line-height:1.85;
-                  border-left:3px solid #d97706;word-break:keep-all">
-        💡 {money_detail}
-      </div>
-      <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#6b7280;
-                font-style:italic;word-break:keep-all">{money_close}</p>
-    </div>
+    <p style="margin:0 0 1.4em 0">{money_intro}<br>
+    {_para(3)}<br>
+    <span style="font-size:13px;color:#78350f">{money_detail}</span></p>
 
-    <!-- 연결: 금전 → 직장 -->
-    <div style="background:#f9fafb;padding:8px 18px;border-top:1px dashed #e5e7eb;
-                border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
-                text-align:center">{wb}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{wb}</p>
 
-    <!-- 일·직장 -->
-    <div style="border-left:5px solid #3b82f6;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">일·직장 · {_flow(work_score)}</div>
-      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
-                margin:0 0 12px;word-break:keep-all">{work_intro}</p>
-      <p style="font-size:14px;line-height:2.05;color:#374151;
-                margin:0 0 12px;word-break:keep-all">{_para(4)}</p>
-      <div style="background:#eff6ff;border-radius:10px;padding:11px 14px;
-                  font-size:13px;color:#1e3a8a;line-height:1.85;
-                  border-left:3px solid #3b82f6;word-break:keep-all">
-        💡 {work_detail}
-      </div>
-      <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#6b7280;
-                font-style:italic;word-break:keep-all">{work_close}</p>
-    </div>
+    <p style="margin:0 0 1.4em 0">{work_intro}<br>
+    {_para(4)}<br>
+    <span style="font-size:13px;color:#1e3a8a">{work_detail}</span></p>
 
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto 1.6rem"></div>
 
-  <!-- 오늘 하나만 — 행동 제안 -->
-  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
+  <div style="border-radius:18px;overflow:hidden;
+              box-shadow:0 2px 12px rgba(91,33,182,0.08)">
     <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
                 padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
       <span style="font-size:14px">{z['emoji']}</span>
@@ -2405,78 +2440,47 @@ def build_chinese_post(c, today_str):
     # 엔딩
     _ce = _c_endings[kst_now.day % len(_c_endings)]
 
-    # 하나의 흐르는 스토리
+    # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <!-- ① 공감 — 독자 감정 포착 -->
-  <div style="padding:1.6rem 1.8rem 1.4rem;
-              background:linear-gradient(135deg,#fffbeb,#fef3c7);
-              border-radius:18px;margin-bottom:0;border-left:4px solid #f59e0b">
-    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
-              margin:0;word-break:keep-all">
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);
+              border-radius:18px;padding:1.6rem 1.8rem;
+              border-left:4px solid #f59e0b;margin-bottom:1.6rem">
+    <p style="font-size:15px;line-height:2.1;color:#374151;
+              font-weight:500;margin:0;word-break:keep-all">
       💭 {empathy}
     </p>
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#f59e0b,#92400e);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#f59e0b,#92400e);margin:0 auto 1.6rem"></div>
 
-  <!-- ② 인과·연결 스토리 -->
-  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
+                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
-    <!-- 오늘의 흐름 -->
-    <div style="border-left:5px solid #f59e0b;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">오늘 {c['kr']}의 흐름 · {_flow(total)}</div>
-      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
-                margin:0 0 12px;word-break:keep-all">{fortune}</p>
-    </div>
+    <p style="margin:0 0 1.4em 0">{fortune}</p>
 
-    <!-- 연결: 오늘 흐름 → 출생연도 -->
-    <div style="background:#f9fafb;padding:8px 18px;
-                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;text-align:center">{tyb}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#f59e0b;font-style:italic">{tyb}</p>
 
-    <!-- 출생연도별 -->
-    <div style="border-left:5px solid #d97706;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:12px;font-weight:600">📅 출생연도별 오늘 운세</div>
+    <div style="margin:0 0 1.4em 0;padding-left:1rem;border-left:3px solid #fde68a">
       {year_section_html}
     </div>
 
-    <!-- 연결: 출생연도 → 궁합 -->
-    <div style="background:#f9fafb;padding:8px 18px;
-                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;text-align:center">{tcb}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#f59e0b;font-style:italic">{tcb}</p>
 
-    <!-- 궁합 -->
-    <div style="border-left:5px solid #16a34a;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:12px;font-weight:600">💑 오늘의 띠별 궁합</div>
-      <div style="display:grid;gap:10px">
-        <div style="background:#f0fdf4;border-radius:10px;padding:14px;border:1px solid #d1fae5">
-          <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:6px">
-            🟢 오늘 잘 맞는 띠: {best_compat[1]} {best_compat[0]}
-          </div>
-          <div style="font-size:13px;color:#374151;line-height:1.85">{best_compat[2]}</div>
-        </div>
-        <div style="background:#fef2f2;border-radius:10px;padding:14px;border:1px solid #fee2e2">
-          <div style="font-size:13px;font-weight:700;color:#991b1b;margin-bottom:6px">
-            🔴 오늘 거리두기: {avoid_compat[1]} {avoid_compat[0]}
-          </div>
-          <div style="font-size:13px;color:#374151;line-height:1.85">{avoid_compat[2]}</div>
-        </div>
-      </div>
-    </div>
+    <p style="margin:0 0 1.4em 0">
+      <span style="font-weight:700;color:#065f46">🟢 {best_compat[1]} {best_compat[0]}</span>
+      {best_compat[2]}<br>
+      <span style="font-weight:700;color:#991b1b">🔴 {avoid_compat[1]} {avoid_compat[0]}</span>
+      {avoid_compat[2]}
+    </p>
 
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#92400e,#f59e0b);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#92400e,#f59e0b);margin:0 auto 1.6rem"></div>
 
-  <!-- ③ 오늘 하나만 — 엔딩 -->
-  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(146,64,14,0.1)">
+  <div style="border-radius:18px;overflow:hidden;
+              box-shadow:0 2px 12px rgba(146,64,14,0.1)">
     <div style="background:linear-gradient(90deg,#92400e,#d97706);
                 padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
       <span style="font-size:14px">{c['emoji']}</span>
@@ -2638,53 +2642,36 @@ def build_zodiac_weekly_post(today_str):
 
         title = f"{z['kr']} {week_label} 주간운세 {week_range} | {signal}"
 
-        # 하나의 흐르는 스토리
+        # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <!-- ① 공감 -->
-  <div style="padding:1.6rem 1.8rem 1.4rem;
-              background:linear-gradient(135deg,#faf5ff,#f0f9ff);
-              border-radius:18px;margin-bottom:0;border-left:4px solid #a78bfa">
-    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
-              margin:0;word-break:keep-all">💭 {empathy}</p>
+  <div style="background:linear-gradient(135deg,#faf5ff,#f0f9ff);
+              border-radius:18px;padding:1.6rem 1.8rem;
+              border-left:4px solid #a78bfa;margin-bottom:1.6rem">
+    <p style="font-size:15px;line-height:2.1;color:#374151;
+              font-weight:500;margin:0;word-break:keep-all">💭 {empathy}</p>
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#a78bfa,#7c3aed);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#a78bfa,#7c3aed);margin:0 auto 1.6rem"></div>
 
-  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
+                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
-    <!-- ② 인과 — 이번 주 흐름 -->
-    <div style="border-left:5px solid #7c3aed;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">이번 주 흐름 · {_w_flow(total)}</div>
-      <p style="font-size:13px;color:#6b7280;font-style:italic;
-                margin:0 0 14px;word-break:keep-all">{tfb}</p>
-      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
-                margin:0;word-break:keep-all">{fortune}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{tfb}</p>
 
-    <!-- 연결 -->
-    <div style="background:#f9fafb;padding:8px 18px;
-                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
-                text-align:center">{ttb}</p>
-    </div>
+    <p style="margin:0 0 1.4em 0">{fortune}</p>
 
-    <!-- ③ 별자리 특성 + 궁합 -->
-    <div style="border-left:5px solid #a78bfa;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">{z['emoji']} {z['kr']}이 이번 주 집중해야 할 것</div>
-      <p style="font-size:14px;line-height:2.05;color:#374151;
-                margin:0;word-break:keep-all">{z_tip if z_tip else f"이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
-      {compat_tip_html_w}
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{ttb}</p>
+
+    <p style="margin:0 0 1.4em 0">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
+
+    {compat_tip_html_w}
 
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto 1.6rem"></div>
 
-  <!-- ④ 이번 주 하나만 — 엔딩 -->
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
     <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
                 padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
@@ -2693,8 +2680,7 @@ def build_zodiac_weekly_post(today_str):
         이번 주 {z['kr']}에게 전하는 말
       </span>
     </div>
-    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);
-                padding:1.4rem 1.5rem 0.5rem">
+    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 0.5rem">
       <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
                 margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
       <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
@@ -2890,68 +2876,42 @@ def build_chinese_monthly_post(today_str):
   <div class="fc-watermark" style="margin-top:14px">todayhoroscopelaboratory.blogspot.com</div>
 </div>'''
 
-        # 하나의 흐르는 스토리
+        # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <!-- ① 공감 -->
-  <div style="padding:1.6rem 1.8rem 1.4rem;
-              background:linear-gradient(135deg,#fdf4ff,#ede9fe);
-              border-radius:18px;margin-bottom:0;border-left:4px solid #7c3aed">
-    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
-              margin:0;word-break:keep-all">💭 {empathy}</p>
+  <div style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);
+              border-radius:18px;padding:1.6rem 1.8rem;
+              border-left:4px solid #7c3aed;margin-bottom:1.6rem">
+    <p style="font-size:15px;line-height:2.1;color:#374151;
+              font-weight:500;margin:0;word-break:keep-all">💭 {empathy}</p>
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#7c3aed,#5b21b6);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#7c3aed,#5b21b6);margin:0 auto 1.6rem"></div>
 
-  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
+                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
-    <!-- ② 이달 큰 흐름 -->
-    <div style="border-left:5px solid #7c3aed;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">이달 {c['kr']} 전체 흐름</div>
-      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
-                margin:0 0 10px;word-break:keep-all">{headline}</p>
-      <p style="font-size:14px;line-height:2.05;color:#374151;
-                margin:0;word-break:keep-all">{sympathy}</p>
-    </div>
+    <p style="margin:0 0 1.4em 0">{headline}<br>
+    {sympathy}</p>
 
-    <!-- 연결 -->
-    <div style="background:#f9fafb;padding:8px 18px;
-                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
-                text-align:center">{tpb}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#7c3aed;font-style:italic">{tpb}</p>
 
-    <!-- ③ 기간별 흐름 -->
-    <div style="border-left:5px solid #6d28d9;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:12px;font-weight:600">📅 {month_str} 기간별 흐름</div>
+    <div style="margin:0 0 1.4em 0;padding-left:1rem;border-left:3px solid #d8b4fe">
       {period_html}
     </div>
 
-    <!-- 연결 -->
-    <div style="background:#f9fafb;padding:8px 18px;
-                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
-      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
-                text-align:center">{tmb}</p>
-    </div>
+    <p style="margin:0 0 0.6em 0;font-size:13px;color:#7c3aed;font-style:italic">{tmb}</p>
 
-    <!-- ④ 띠별 특성 + 행운·조심 -->
-    <div style="border-left:5px solid #a78bfa;padding:20px 18px 16px;background:#fff">
-      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
-                  margin-bottom:10px;font-weight:600">{c['emoji']} {c['kr']} 이달의 특성</div>
-      <p style="font-size:14px;line-height:2.05;color:#374151;
-                margin:0 0 12px;word-break:keep-all">{trait}</p>
-      {lucky_html}
-      {avoid_html_m}
-    </div>
+    <p style="margin:0 0 1.4em 0">{trait}</p>
+
+    {lucky_html}
+    {avoid_html_m}
 
   </div>
 
-  <div style="width:2px;height:24px;background:linear-gradient(#5b21b6,#7c3aed);margin:0 auto"></div>
+  <div style="width:2px;height:20px;background:linear-gradient(#5b21b6,#7c3aed);margin:0 auto 1.6rem"></div>
 
-  <!-- ⑤ 이달 하나만 — 엔딩 -->
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.1)">
     <div style="background:linear-gradient(90deg,#5b21b6,#7c3aed);
                 padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
@@ -2960,8 +2920,7 @@ def build_chinese_monthly_post(today_str):
         이달 {c['kr']}에게 전하는 말
       </span>
     </div>
-    <div style="background:linear-gradient(160deg,#fdf4ff,#ede9fe);
-                padding:1.4rem 1.5rem 0.5rem">
+    <div style="background:linear-gradient(160deg,#fdf4ff,#ede9fe);padding:1.4rem 1.5rem 0.5rem">
       <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
                 margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
       <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
