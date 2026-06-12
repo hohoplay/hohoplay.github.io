@@ -1511,188 +1511,277 @@ def build_quote_post(today_str):
     return title, content, ["오늘의명언", "위로명언", "명언", "운세", category]
 
 
+_Z_TOTAL_INTRO_UP = [
+    # 공감 → 긴장 → 행동 → 반전
+    "혼자 모든 것을 짊어지는 느낌이 강했던 시기였을 수 있습니다. 오늘은 그 흐름이 조금 달라집니다. 예상치 못한 연락이나 신호가 들어온다면 흘려보내지 마시기 바랍니다. 그것이 오늘 흐름의 시작입니다.",
+    "방향에 대한 의심이 있었을 수 있습니다. 오늘 그 답이 조금씩 보이기 시작합니다. 중반 이후 자신감이 흔들리는 순간이 올 수 있습니다. 그 순간에 멈추지 말고 한 발 더 나아가시기 바랍니다. 생각보다 빨리 방향이 잡힙니다.",
+    "오래 미루어두었던 연락이나 말을 꺼내기 좋은 날입니다. 보내지 못했던 메시지 중 하나만 오늘 실행해보시기 바랍니다. 지금의 타이밍이 충분합니다.",
+    "주변에 사람이 많아도 고립감을 느꼈을 수 있습니다. 오늘 그 감각을 채워줄 신호가 들어올 수 있습니다. 저녁까지는 감정보다 행동을 먼저 하는 것이 좋습니다. 먼저 움직이면 생각보다 가까운 곳에 답이 있습니다.",
+    "최근 열심히 했는데 티가 안 나는 것 같아서 지쳤을 수 있어요.\n\n오늘 오전, 누군가의 반응이나 작은 결과 하나가 그 피로를 가볍게 만들어줄 수 있습니다.\n\n보이지 않았던 것이 보이기 시작하는 날입니다.",
+    "솔직히 말하면 오늘 꽤 좋은 날이에요.\n\n대단한 일이 생기는 게 아니라, 작은 것들이 자꾸 맞아 떨어지는 날입니다.\n\n오전에 결정이 필요한 일이 있다면 오늘 안에 끝내세요. 내일보다 오늘이 훨씬 유리합니다.",
+]
+_Z_TOTAL_INTRO_WARN = [
+    "최근 예민함이 높아진 상태일 수 있습니다. 오늘 그 경향이 더 두드러질 수 있는 날입니다. 오후에 사소한 말 한마디에 감정이 흔들릴 수 있습니다. 바로 반응하지 말고 잠시 자리를 피하는 것이 오늘 하루를 지키는 방법입니다.",
+    "오늘 계획대로 풀리지 않는 것이 생길 수 있습니다. 해야 할 일 목록을 세 가지로 줄이고 그것만 완수하는 것을 목표로 삼으시기 바랍니다. 욕심을 줄일수록 오늘 하루가 가벼워집니다.",
+    "너무 많은 것을 동시에 붙들고 있는 상태일 수 있습니다. 오늘 그 무게가 더 느껴지는 날입니다. 억지로 힘낼 필요가 없습니다. 하나를 내려놓는 것이 내일을 위한 가장 현명한 선택입니다.",
+    "뭔가 어긋나는 느낌이 계속 드는 날이에요. 실제로 문제가 있다기보다 감각이 예민해진 날입니다.\n\n오늘은 새로 시작하기보다 기존 것을 점검하는 데 쓰세요.\n\n이런 날일수록 작은 확인 하나가 나중에 큰 실수를 막아줍니다.",
+]
+
+# ── 총운 지수 해석 풀 ──
+_Z_TOTAL_SCORE_UP = [
+    "오늘 중요한 연락이나 결정이 있다면 가급적 오전 안에 처리하시기 바랍니다. 뒤로 미룰수록 에너지가 분산됩니다.",
+    "이번 주 중 흐름이 가장 열려있는 날입니다. 핵심 한 가지를 먼저 처리하면 나머지는 자연스럽게 따라옵니다.",
+    "타이밍이 맞는 날입니다. 결정해야 할 것이 있다면 망설이지 마시기 바랍니다. 너무 오래 생각하면 오히려 헷갈리는 날입니다.",
+]
+_Z_TOTAL_SCORE_WARN = [
+    "새로 시작하기보다 기존 것을 마무리하는 데 집중하는 날입니다. 억지로 밀어붙일수록 에너지만 소모됩니다. 며칠 기다리면 흐름이 달라집니다.",
+    "성과를 억지로 내려 하기보다 기반을 다지는 작업에 집중하시기 바랍니다. 내일 훨씬 가벼운 상태로 시작할 수 있습니다.",
+]
+
+# ── 금전운 지수 해석 풀 ──
+_Z_MONEY_SCORE_UP = [
+    "오늘 오전이 금전 처리에 가장 유리한 타이밍입니다. 환급금, 포인트 전환, 미뤄둔 정산을 오늘 안에 처리해두시기 바랍니다.",
+    "놓쳤던 환급금이나 캐시백을 오늘 한 번 확인해보시기 바랍니다. 작은 것이라도 오늘은 손에 잡히는 날입니다.",
+    "수입 관련 연락이나 제안이 들어온다면 오늘 안에 답하시기 바랍니다. 내일로 넘기면 타이밍이 어긋날 수 있습니다.",
+]
+_Z_MONEY_SCORE_WARN = [
+    "오늘 지출 결정은 하루 자고 나서 하시기 바랍니다. 지금 급해 보이는 것이 내일 보면 급하지 않은 경우가 많습니다.",
+    "오늘 카드 내역을 한 번 확인해보시기 바랍니다. 인식하지 못했던 자동결제 하나를 정리하는 것만으로도 한 달이 달라집니다.",
+]
+
+# ── 연애운 서론 풀 ──
+_Z_LOVE_INTRO_UP = [
+    "답장을 미루던 사람에게 먼저 짧게라도 연락해보시기 바랍니다. 오늘은 그 한 줄이 생각보다 멀리 닿는 날입니다. 거창한 말이 아니어도 됩니다.",
+    "미루어두던 연락 하나가 이번 주 흐름을 바꿀 수 있습니다. 특정 이름이 먼저 떠오른다면 흘려보내지 마시기 바랍니다. 그 감각이 맞습니다.",
+    "혼자 감정을 눌러왔다면 오늘은 조금 풀어도 괜찮은 날입니다. 상대방도 연락을 기다리고 있었을 수 있습니다.",
+]
+_Z_LOVE_INTRO_WARN = [
+    "오늘 감정이 평소보다 예민할 수 있습니다. 상대방의 말이나 행동이 크게 느껴지는 순간이 올 수 있습니다. 바로 반응하지 말고 한 번 숨을 고르시기 바랍니다. 오해로 번지기 전에 잡는 것이 훨씬 쉽습니다.",
+    "중요한 감정 대화는 저녁 이후로 미루시기 바랍니다. 낮 동안은 말이 의도와 다르게 나가기 쉬운 날입니다. 하고 싶은 말이 있다면 먼저 머릿속에서 정리한 다음 꺼내보시기 바랍니다.",
+    "가까운 사람과 사소한 것으로 어긋나기 쉬운 날입니다. 자신이 옳다는 확신보다 상대방의 상태를 먼저 생각해보시기 바랍니다. 그 한 번의 여유가 오늘 관계를 지켜줍니다.",
+]
+
+# ── 연애운 상세 조언 풀 ──
+_Z_LOVE_DETAIL_UP = [
+    "오늘 오후 2시~5시 사이에 예상 못한 연락이 올 수 있어요. 그 연락이 가볍게 느껴지더라도 흘려보내지 마세요. 짧게라도 성의 있게 답하는 것이 오늘 인연의 실을 잇는 방법입니다.",
+    "오래 연락이 끊겼던 사람이 갑자기 생각난다면, 먼저 짧은 안부를 넣어 보세요. '요즘 어때요?' 한 줄이 관계를 다시 이어주는 오늘이 될 수 있습니다.",
+    "저녁 약속이나 가벼운 만남이 생긴다면 핑계 찾지 말고 나가 보세요. 오늘은 예상치 못한 자리에서 좋은 인연이 시작될 수 있는 날입니다.",
+    "오늘 그냥 아무 이유 없이 안부를 묻고 싶은 사람이 있다면,\n\n그냥 연락하세요.\n\n핑계가 필요 없는 날이에요.",
+    "오늘 감이 좋은 날이에요. 특히 오후 늦게, 예상하지 못한 쪽에서 연락이 올 수 있습니다.\n\n진동이 울리면 바로 확인하세요.",
+    "전에 하려다 멈췄던 고백이나 표현이 있다면, 오늘 가장 가벼운 방식으로 꺼내보세요. 거창하지 않아도 됩니다. 짧은 말 한마디가 오늘은 생각보다 잘 닿습니다.",
+]
+_Z_LOVE_DETAIL_WARN = [
+    "오늘 상대에게 서운한 게 생기더라도, 그 자리에서 바로 꺼내지 마세요. 감정이 가라앉은 저녁 이후에 '그때 그 말이 조금 걸렸어'라고 차분하게 전하는 게 훨씬 효과적입니다.",
+    "오늘 문자나 메시지를 보내기 전에 한 번 더 읽어보세요. 내 의도와 다르게 읽힐 수 있는 표현이 있는지 확인한 다음 보내는 게 오늘만큼은 중요합니다.",
+    "혼자 있는 시간을 강제로 채우려 하지 마세요. 오늘 억지로 연락하거나 만남을 만들어내는 것보다 잠깐 거리 두는 게 관계에 더 좋은 날입니다.",
+    "오늘 상대방이 이상하게 느껴진다면, 상대가 이상한 게 아니라 내 상태가 예민한 것일 수도 있어요.\n\n먼저 내 감정을 확인해 보세요.",
+    "상대 말투가 평소보다 조금 차갑게 느껴지는 순간이 올 수 있어요. 그 말투가 진짜 의도인지 지금 그 사람 상태인지 먼저 확인하고 반응하세요. 오해로 번지기 전에 잡는 게 훨씬 쉽습니다.",
+    "눈치 보면서 하지 못했던 말이 있다면 오늘 저녁에 짧게라도 꺼내보세요. 타이밍이 지나면 더 꺼내기 어려워지는 말들이 있어요.",
+]
+
+# ── 연애운 시간대 가이드 풀 ──
+_Z_LOVE_TIME_UP = [
+    "💬 오늘의 최적 대화 시간대: 오후 3시~6시 사이가 감수성이 열리는 시간입니다. 이 시간 안에 전하고 싶은 마음을 표현해 보세요.",
+    "💬 오늘 저녁 7시 이후에는 편안한 대화 에너지가 흐릅니다. 무거운 주제보다 가벼운 공감 대화부터 시작해 보세요.",
+    "💬 오전 중에 연락을 주고받는다면 오늘 하루 관계 에너지가 더 길게 지속됩니다. 짧은 안부 메시지 하나가 하루를 바꿀 수 있습니다.",
+]
+_Z_LOVE_TIME_WARN = [
+    "💬 오후 12시~3시 사이에는 감정 기복이 생기기 쉽습니다. 이 시간대에는 중요한 감정 대화를 피하고 저녁 이후로 미루는 것이 현명합니다.",
+    "💬 오늘은 저녁 이후에 오히려 마음이 안정됩니다. 하루 중 가장 솔직한 대화를 나눌 수 있는 시간대이니 참고하세요.",
+]
+
+# ── 연애운 마무리 풀 ──
+_Z_LOVE_CLOSE_UP = [
+    "생각보다 당신 편은 가까이에 있을 수 있습니다. 오늘 작은 용기 하나가 내일의 관계를 바꿔놓을 수 있어요. 💕",
+    "표현하지 않은 마음은 상대에게 닿지 않아요. 오늘 그 마음, 가장 가벼운 방식으로 한 번만 꺼내 보세요. 🌸",
+    "먼저 연락한 사람이 늘 더 많이 얻습니다. 오늘 그 사람이 당신이어도 괜찮습니다. 💞",
+]
+_Z_LOVE_CLOSE_WARN = [
+    "지금 이 관계가 흔들리는 것 같아도, 오늘 하루 잘 버틴 것만으로 이미 충분해요. 관계는 한 번에 완성되는 게 아니니까요. 🌿",
+    "감정이 요동치는 날일수록 말보다 침묵이 관계를 지킵니다. 오늘의 여유가 내일의 더 깊은 연결이 됩니다. 🌙",
+]
+
+# ── 금전운 서론 풀 ──
+_Z_MONEY_INTRO_UP = [
+    "요즘 돈 나가는 곳만 보이고 들어오는 건 없는 것 같았을 수 있어요. 오늘은 그 흐름이 살짝 바뀌는 날이에요. 오래 묵혀뒀던 미수금, 환급금, 정산 내역을 오늘 한 번 확인해 보세요. 작은 것이라도 챙겨지는 날입니다.",
+    "오늘 금전 관련 연락이나 제안이 들어온다면 내일로 미루지 마세요. 확인하고 결정하기에 오늘이 더 유리한 흐름입니다. 단, 서두르지 않아도 됩니다. 오늘 안에 판단하면 충분합니다.",
+    "막혀있던 수입 루트가 조금씩 열리는 흐름이에요. 혼자 힘들게 버텨온 시간이 지금 결실로 이어지고 있습니다. 포인트 전환이나 캐시백처럼 작은 것도 오늘 챙겨두면 나중에 쌓입니다.",
+]
+_Z_MONEY_INTRO_WARN = [
+    "오늘 충동적으로 뭔가 사고 싶어지는 순간이 올 수 있어요. 특히 오후에요. 장바구니에 담아두고 내일 아침에 다시 보세요. 80%는 안 사게 됩니다.",
+    "오늘은 금전 판단력이 흐려지기 쉬운 날이에요. 큰 결정이나 계약은 오늘 하루만큼은 보류해 두세요. 급한 것처럼 느껴지는 제안일수록 오늘은 신중하게 봐야 합니다.",
+]
+
+# ── 금전운 상세 조언 풀 ──
+_Z_MONEY_DETAIL_UP = [
+    "미뤄두었던 환급금이나 포인트 전환, 캐시백 신청을 오늘 처리하세요. 귀찮아서 미뤘던 것들이 오늘 손에 잡히는 날입니다. 10분만 투자해도 꽤 챙겨집니다.",
+    "오후에 수입 관련 메시지나 연락이 올 수 있어요. 조건을 꼼꼼히 읽고 결정하세요. 서두르지 않아도 됩니다. 오늘 안에 판단하면 기회는 놓치지 않습니다.",
+    "부업이나 외부 수입에 대해 막연하게만 생각해 왔다면, 오늘 정보를 찾아보는 것만이라도 시작해 보세요. 오늘의 검색 하나가 다음 달 수입의 시작이 될 수 있습니다.",
+]
+_Z_MONEY_DETAIL_WARN = [
+    "오늘 오후 3시 이후에 쇼핑 앱을 열고 싶어진다면 알림을 끄세요. 지금 사고 싶은 게 내일도 사고 싶으면 그때 사세요. 오늘 충동구매는 내일 아침 후회가 됩니다.",
+    "오늘 카드 내역을 한 번 훑어보세요. 자동 결제 중에 쓰지 않는 구독 서비스가 있을 수 있어요. 월 몇 천 원이라도 지금 끊어두면 연간으로는 상당히 됩니다.",
+    "투자나 새로운 금전 계약은 이틀 뒤로 미루세요. 지금 급해 보이는 제안일수록 오늘은 천천히 보는 것이 맞습니다. 조금 더 생각한 뒤 결정해도 늦지 않아요.",
+]
+
+# ── 금전운 시간대 가이드 풀 ──
+_Z_MONEY_TIME_UP = [
+    "💰 오늘의 황금 시간대: 오전 10시~오후 1시 사이에 금전 관련 연락이나 결정을 마무리하세요. 이 시간대에 이루어진 금전 계획은 실행력이 높습니다.",
+    "💰 오늘 오후 2시~4시 사이가 수익 관련 아이디어가 가장 활발히 떠오르는 시간입니다. 생각이 떠오르면 바로 메모해 두세요.",
+]
+_Z_MONEY_TIME_WARN = [
+    "💰 오늘 오후 3시 이후에는 지출 충동이 커집니다. 이 시간대에는 쇼핑 앱 알림을 꺼두고, 불필요한 온라인 쇼핑은 내일로 미루세요.",
+    "💰 점심 이후부터 금전 판단력이 흐려질 수 있습니다. 중요한 계약이나 결제는 오전 안으로 처리하거나 다음 날로 넘기세요.",
+]
+
+# ── 금전운 마무리 풀 ──
+_Z_MONEY_CLOSE_UP = [
+    "오늘 챙긴 작은 것들이 모여서 단단한 기반이 됩니다. 들어오는 흐름일 때 지출도 같이 점검하는 게 진짜 재테크예요. 💛",
+    "좋은 흐름일 때 가장 해야 할 건 흥청망청이 아니라 현명한 다음 준비예요. 오늘 그 준비 하나만 해두세요. 🌟",
+]
+_Z_MONEY_CLOSE_WARN = [
+    "오늘 신중한 것 자체가 최고의 금전 전략이에요. 무리하지 않은 날이 나중에 내 편이 됩니다. 💚",
+    "지금은 지키는 날이에요. 쌓는 건 내일부터 해도 됩니다. 오늘 버텨낸 것으로 충분합니다. 🌿",
+]
+
+# ── 직장운 서론 풀 ──
+_Z_WORK_INTRO_UP = [
+    "오랫동안 보이지 않는 데서 열심히 해온 것들이 오늘 조금씩 수면 위로 올라오는 날이에요. 특히 오전에 누군가의 반응이 평소와 다르게 느껴진다면 그게 신호입니다. 오늘 한 가지 중요한 일에 집중해 보세요.",
+    "오늘 머릿속에서 맴돌던 아이디어가 갑자기 구체화될 수 있어요. 그 순간 메모부터 하세요. 회의나 미팅이 있다면 평소보다 조금 더 적극적으로 발언해 보세요. 오늘 당신 말에 무게가 있는 날입니다.",
+    "업무 흐름이 잘 타이는 날이에요. 어렵게 느껴지던 일도 오늘은 생각보다 수월하게 풀릴 수 있어요. 미뤄둔 중요한 과제가 있다면 오늘 시작하는 게 맞습니다.",
+]
+_Z_WORK_INTRO_WARN = [
+    "오늘 업무 중에 예상 못한 변수가 생길 수 있어요. 특히 중반쯤에요. 당황하지 말고 지금 할 수 있는 것만 먼저 처리하세요. 오늘 하루 목록을 세 가지로 줄이면 훨씬 수월해집니다.",
+    "집중이 잘 안 되는 날이에요. 억지로 짜내려 하기보다 오늘은 정리와 점검 위주로 움직이세요. 그게 결과적으로 내일의 속도를 높여줍니다.",
+]
+
+# ── 직장운 지수 해석 풀 ──
+_Z_WORK_SCORE_UP = [
+    "오늘 오전이 집중력 제일 좋은 타이밍이에요. 미뤄둔 보고서나 이메일, 오전 안에 처리하면 오후가 훨씬 가벼워집니다.",
+    "회의나 발표가 오늘 잡혀있다면 잘 된 거예요. 말이 잘 나오는 날이거든요. 하려다 멈췄던 말 오늘 꺼내보세요.",
+    "오늘 동료나 상사 눈치 보느라 못 했던 것들, 오늘은 조금 더 직접적으로 움직여도 괜찮은 흐름이에요.",
+]
+_Z_WORK_SCORE_WARN = [
+    "오늘은 억지로 성과 내려 하기보다 기존에 하던 것 점검하는 날로 쓰세요. 이런 날 무리하면 실수가 나와요.",
+    "집중이 잘 안 되는 날이에요. 오늘 할 일 목록을 세 개로 줄이고, 그 세 개만 끝내는 걸 목표로 잡아보세요.",
+]
+
+# ── 직장운 상세 조언 풀 ──
+_Z_WORK_DETAIL_UP = [
+    "오늘 동료나 상사로부터 예상 못한 긍정적인 반응이 올 수 있어요. 그 순간 겸손하게 받되, 다음 목표도 함께 언급해 보세요. 인상이 훨씬 깊어집니다.",
+    "오늘 회의에서 말하려다 멈췄던 아이디어가 있다면 꺼내 보세요. 타이밍을 놓치지 않는 것 자체가 오늘 당신의 가장 큰 강점입니다.",
+    "오늘 작은 성과가 생기면 팀과 공유하세요. 혼자 안고 가는 것보다 나눌 때 신뢰가 더 쌓이는 날입니다.",
+]
+_Z_WORK_DETAIL_WARN = [
+    "이메일이나 보고서 발송 전에 한 번 더 읽어보세요. 오늘은 작은 오타나 빠진 내용이 생기기 쉬운 날이에요. 2분 확인이 나중의 수습 30분을 아껴줍니다.",
+    "동료와 의견이 엇갈리는 순간이 오면, 내 주장을 밀어붙이기 전에 '그 방식은 어떤 이유에서인가요?'를 먼저 물어보세요. 오늘 그 한 마디가 갈등을 만들지 않는 열쇠입니다.",
+    "중요한 발표나 보고가 오늘로 잡혀 있다면 준비가 조금 더 필요하다고 느껴질 수 있어요. 그 느낌이 맞습니다. 오늘 오전 안에 한 번 더 점검해 두세요.",
+    "오늘 상사나 동료 말투가 유독 날카롭게 느껴지는 순간이 있을 수 있어요. 그 말투가 나를 향한 건지, 그 사람 상태가 안 좋은 건지 구분하고 반응하세요. 불필요한 감정 소모를 줄여줍니다.",
+    "눈치 보느라 못 했던 의견이 있다면 오늘은 메일로 짧게라도 남겨두세요. 말로 꺼내기 어려우면 문서가 대신해줍니다.",
+]
+
+# ── 직장운 시간대 가이드 풀 ──
+_Z_WORK_TIME_UP = [
+    "💼 오늘의 골든타임: 오전 9시~11시 사이가 집중력이 가장 높은 시간대입니다. 중요한 업무와 핵심 판단을 이 시간 안에 마무리하세요.",
+    "💼 오후 2시~4시 사이에는 창의적인 아이디어가 활발히 떠오릅니다. 브레인스토밍이나 기획 작업은 이 시간대를 활용해 보세요.",
+    "💼 오전 집중 업무, 오후 협업·소통으로 나누면 오늘 하루 생산성이 극대화됩니다. 오늘은 그 패턴이 특히 잘 맞는 날입니다.",
+]
+_Z_WORK_TIME_WARN = [
+    "💼 오후 1시~3시 사이는 집중력이 가장 떨어지는 시간대입니다. 이 시간에는 단순 반복 업무나 정리 작업 위주로 배치하세요.",
+    "💼 오늘 오전 업무 리스트를 미리 작성해 두면 흐트러지는 집중력을 잡을 수 있습니다. 3개 이내로 핵심 과제만 뽑아서 하루를 시작하세요.",
+]
+
+# ── 직장운 마무리 풀 ──
+_Z_WORK_CLOSE_UP = [
+    "오늘 만들어낸 작은 성과 하나가 나중에 기회의 문을 여는 열쇠가 됩니다. 오늘 하루도 수고 많으셨어요. 🌟",
+    "남들 눈에 안 보이는 데서 해온 것들이 오늘 조금씩 보이기 시작합니다. 그게 쌓인 거예요. 💼",
+]
+_Z_WORK_CLOSE_WARN = [
+    "쉽지 않은 날이었을 거예요. 그래도 오늘 하루 버텨낸 것, 정말 잘하셨습니다. 내일은 다를 거예요. 🌿",
+    "모든 날이 빛날 수는 없어요. 오늘 같은 날이 있어야 좋은 날의 가치가 더 크게 느껴집니다. 오늘은 충분히 쉬어가세요. 💙",
+]
+_Z_AVOID_ACTIONS = [
+    ["멀티태스킹 강행", "피곤한 상태의 중요 대화", "감정 올라올 때 즉각 반응"],
+    ["결론 없는 장시간 회의 참석", "새벽까지 무리한 야근", "억지로 흥미 만들기"],
+    ["장바구니 결제 바로 누르기", "중요한 약속 충동 취소", "남 험담에 동조하기"],
+    ["수면 부족 강행", "에너지 없을 때 설득 시도", "처음 만난 자리에서 큰 약속하기"],
+    ["오전 중 중요 결정 미루기", "불필요한 SNS 논쟁 참여", "피로 상태에서 새 프로젝트 수락"],
+    ["빈속에 중요한 대화하기", "충분한 정보 없이 팀 합류", "감정적인 메시지 전송"],
+    ["혼자 모든 것 해결하려 하기", "계획 없이 큰 지출 시작", "타이밍 놓친 사과 미루기"],
+    ["집중 필요한 작업 중 멀티태스킹", "무리한 약속 수락", "에너지 쏟은 후 바로 판단"],
+]
+_Z_CHEER = [
+    "오늘 쉽지 않다는 거 알아요. 그래도 이미 충분히 잘 해내고 있습니다. 조금씩, 천천히 나아가세요. ✨",
+    "완벽하지 않아도 괜찮아요. 지금 하고 있는 것들이 쌓여서 당신만의 길이 됩니다. 그 과정을 믿어보세요. 🌟",
+    "힘든 날일수록 자신에게 너그러워져도 돼요. 당신이 생각하는 것보다 훨씬 잘 버티고 있습니다. 오늘도 응원합니다. 💫",
+    "작은 걸음이 결국 큰 변화를 만듭니다. 조급해하지 말고 지금 이 순간에 집중해 보세요. 🌙",
+    "당신 곁에 좋은 기운이 흐르고 있어요. 눈에 보이지 않아도 분명히 쌓이고 있으니, 오늘도 힘내세요. ⭐",
+]
+
+def _split_fortune_sections(fortune_text):
+    """운세 원문을 문단으로 분리해 섹션별로 배분"""
+    plain = fortune_text.replace('<br><br>', '\n\n').replace('<br>', '\n')
+    paras = [p.strip() for p in plain.split('\n\n') if p.strip()]
+    # 문단이 부족하면 단일 문장 단위로 보충
+    if len(paras) < 2:
+        lines = [l.strip() for l in plain.split('\n') if l.strip()]
+        paras = lines
+    return paras
+
+def _zodiac_score_badge(pct):
+    """점수 → 색상·레벨 반환"""
+    if pct >= 80: return "#16a34a", "상승 ↑"
+    if pct >= 65: return "#d97706", "보통 →"
+    return "#dc2626", "주의 ⚠"
+
+def _zodiac_score_bar(label, emoji, pct):
+    color, level = _zodiac_score_badge(pct)
+    filled = round(pct / 10)
+    bar = '█' * filled + '░' * (10 - filled)
+    return (f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+            f'<span style="min-width:62px;font-size:12px">{emoji} {label}</span>'
+            f'<span style="font-family:monospace;color:{color};font-size:13px;flex:1">{bar}</span>'
+            f'<span style="font-size:12px;font-weight:700;color:{color};min-width:30px">{pct}%</span>'
+            f'<span style="font-size:11px;color:{color}">{level}</span>'
+            f'</div>')
+
+
+
 def build_zodiac_post(z, today_str):
     fortune_raw = zodiac_fortune(z['kr'])
     rating      = stars()
     card_id     = f"fc-{z['en']}"
 
-    # 날짜 포맷
     kst_now    = now_kst()
-    today_dot  = kst_now.strftime("%Y년 %-m월 %-d일")   # 예: 2026년 4월 13일 (본문 표시용)
-    today_sync = kst_now.strftime("%Y년 %m월 %d일")     # 예: 2026년 04월 13일 (index.html 매칭용 zero-pad)
+    today_dot  = kst_now.strftime("%Y년 %-m월 %-d일")
+    today_sync = kst_now.strftime("%Y년 %m월 %d일")
 
-    # 운세 지수 (CSV 원본)
     raw_total, raw_money, raw_health, raw_love = pick_score(z['kr'])
-
-    # ① 요일·월 보정 적용 → 최종 지수 + 계산 내역 카드
     total, money, health, love, calc_html = _apply_adjustments(
         raw_total, raw_money, raw_health, raw_love
     )
-
-    # SEO 신호 키워드 (제목 표시용)
     _, signal_kw = _zodiac_seo_title(z['kr'], today_dot, total, money, health, love)
-
-    # 제목: index.html fetchFortunePost() 필수 키워드 고정 포함
-    # 검색조건: [별자리명, "YYYY년", "MM월", "DD일", "오늘의 운세"] ALL 포함 필수
     title = f"{z['kr']} {today_sync} 오늘의 운세 | {signal_kw}"
 
-    # 행운 아이템·색상·숫자
     lucky_item   = pick_lucky_item(z['kr'])
     lucky_color  = pick_color()
     lucky_number = pick_number()
+    color_guide  = get_color_guide(lucky_color)
+    item_guide   = get_item_guide(lucky_item)
 
-    # ② 색상·아이템별 조건부 가이드 생성
-    color_guide = get_color_guide(lucky_color)
-    item_guide  = get_item_guide(lucky_item)
-
-    # 원문 문단 분리 (섹션 배분용)
     paras = _split_fortune_sections(fortune_raw)
     def _para(idx, fallback=""):
         return paras[idx] if idx < len(paras) else (paras[-1] if paras else fallback)
 
-    # ── 별자리별 고유 구어체 오프닝 & 현실 디테일 블록 ──
-    human_voice = _get_zodiac_human_voice(z['kr'])
     real_detail_html = _get_zodiac_real_detail_html(z['kr'], lucky_color)
 
-    # ── 1. 총운 (5파트 구조) ──
+    # ── 운세 지수 (score_html — fortune.html 연동용) ──
     total_color, total_level = _zodiac_score_badge(total)
-    total_intro    = random.choice(_Z_TOTAL_INTRO_UP   if total >= 65 else _Z_TOTAL_INTRO_WARN)
-    total_score_c  = random.choice(_Z_TOTAL_SCORE_UP   if total >= 65 else _Z_TOTAL_SCORE_WARN)
-    total_cheer_c  = random.choice(_Z_CHEER)
-
-    # 구어체 오프닝: 별자리마다 다른 사람 말투 삽입 (AI 티 제거)
-    human_voice_html = ""
-    if human_voice:
-        human_voice_html = f'''
-  <p style="margin-top:10px;font-size:14px;line-height:1.9;color:#555;
-            background:#f9fafb;border-radius:8px;padding:10px 14px;
-            font-style:italic;border-left:3px solid #d1d5db">
-    💭 {human_voice}
-  </p>'''
-
-    summary_html = f'''
-<div class="card" style="border-left:5px solid {total_color}">
-  <span class="badge" style="background:#f0fdf4;color:{total_color}">🌟 오늘 총운 · {total}% {total_level}</span>
-  <p style="margin-top:12px;font-size:15px;line-height:1.95;color:#333;font-weight:500">{total_intro}</p>
-  <p style="margin-top:10px;font-size:14px;line-height:1.9;color:#444">{_para(0)}</p>
-  {human_voice_html}
-  <p style="margin-top:6px;font-size:14px;line-height:1.9;color:#444">{_para(1)}</p>
-  <div style="margin-top:12px;background:#f0fdf4;border-radius:10px;padding:12px 14px;
-              font-size:13px;color:#166534;line-height:1.8;border-left:3px solid {total_color}">
-    📊 {total_score_c}
-  </div>
-  <p style="margin-top:12px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{total_cheer_c}</p>
-</div>'''
-
-    # ── 2. 연애운 (5파트 구조) ──
-    love_color, love_level = _zodiac_score_badge(love)
-    love_is_up   = love >= 70
-    love_intro   = random.choice(_Z_LOVE_INTRO_UP    if love_is_up else _Z_LOVE_INTRO_WARN)
-    love_detail  = random.choice(_Z_LOVE_DETAIL_UP   if love_is_up else _Z_LOVE_DETAIL_WARN)
-    love_story   = random.choice(_Z_LOVE_STORY_UP    if love_is_up else _Z_LOVE_STORY_WARN)
-    love_close   = random.choice(_Z_LOVE_CLOSE_UP    if love_is_up else _Z_LOVE_CLOSE_WARN)
-
-    # ── 3. 금전운 (5파트 구조) ──
     money_color, money_level = _zodiac_score_badge(money)
-    money_is_up   = money >= 70
-    money_intro   = random.choice(_Z_MONEY_INTRO_UP   if money_is_up else _Z_MONEY_INTRO_WARN)
-    money_score_c = random.choice(_Z_MONEY_SCORE_UP   if money_is_up else _Z_MONEY_SCORE_WARN)
-    money_detail  = random.choice(_Z_MONEY_DETAIL_UP  if money_is_up else _Z_MONEY_DETAIL_WARN)
-    money_story   = random.choice(_Z_MONEY_STORY_UP   if money_is_up else _Z_MONEY_STORY_WARN)
-    money_close   = random.choice(_Z_MONEY_CLOSE_UP   if money_is_up else _Z_MONEY_CLOSE_WARN)
-
-    # ── 4. 직장·사업운 (5파트 구조) ──
+    love_color,  love_level  = _zodiac_score_badge(love)
     work_score = round((total + health) / 2)
-    work_color, work_level = _zodiac_score_badge(work_score)
-    work_is_up   = work_score >= 70
-    work_intro   = random.choice(_Z_WORK_INTRO_UP    if work_is_up else _Z_WORK_INTRO_WARN)
-    work_score_c = random.choice(_Z_WORK_SCORE_UP    if work_is_up else _Z_WORK_SCORE_WARN)
-    work_detail  = random.choice(_Z_WORK_DETAIL_UP   if work_is_up else _Z_WORK_DETAIL_WARN)
-    work_story   = random.choice(_Z_WORK_STORY_UP    if work_is_up else _Z_WORK_STORY_WARN)
-    work_close   = random.choice(_Z_WORK_CLOSE_UP    if work_is_up else _Z_WORK_CLOSE_WARN)
+    work_color, work_level   = _zodiac_score_badge(work_score)
 
-    # ── 시간대 문장: 세 카드 중 1개에만 삽입 ──
-    # 날짜(일)를 시드로 사용 → 같은 날 12별자리가 각기 다른 카드에 시간대 배정
-    _time_card = now_kst().day % 3   # 0=연애, 1=금전, 2=직장
-    _love_time_html  = (f'<p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{love_story}</p>'
-                        if _time_card == 0 else '')
-    _money_time_html = (f'<p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{money_story}</p>'
-                        if _time_card == 1 else '')
-    _work_time_html  = (f'<p style="margin-top:10px;font-size:13px;line-height:1.8;color:#555">{work_story}</p>'
-                        if _time_card == 2 else '')
-
-    love_html = f'''
-<div class="card">
-  <span class="badge" style="background:#fff0f3;color:#e11d48">❤️ 연애운 · {love}% {love_level}</span>
-  <p style="margin-top:12px;font-size:15px;line-height:1.95;color:#333;font-weight:500">{love_intro}</p>
-  <p style="margin-top:10px;font-size:14px;line-height:1.9;color:#444">{_para(2)}</p>
-  <div style="margin-top:12px;background:#fff0f3;border-radius:10px;padding:12px 14px;
-              font-size:13px;color:#9f1239;line-height:1.8;border-left:3px solid #e11d48">
-    💡 {love_detail}
-  </div>
-  {_love_time_html}
-  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{love_close}</p>
-</div>'''
-
-    money_html = f'''
-<div class="card">
-  <span class="badge" style="background:#fefce8;color:#a16207">💰 금전운 · {money}% {money_level}</span>
-  <p style="margin-top:12px;font-size:15px;line-height:1.95;color:#333;font-weight:500">{money_intro}</p>
-  <p style="margin-top:10px;font-size:14px;line-height:1.9;color:#444">{_para(3)}</p>
-  <div style="margin-top:12px;background:#fef9c3;border-radius:10px;padding:12px 14px;
-              font-size:13px;color:#78350f;line-height:1.8;border-left:3px solid #d97706">
-    📊 {money_score_c}
-  </div>
-  <div style="margin-top:10px;background:#fefce8;border-radius:10px;padding:12px 14px;
-              font-size:13px;color:#92400e;line-height:1.8;border-left:3px solid #f59e0b">
-    💡 {money_detail}
-  </div>
-  {_money_time_html}
-  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{money_close}</p>
-</div>'''
-
-    work_html = f'''
-<div class="card">
-  <span class="badge" style="background:#eff6ff;color:#1d4ed8">💼 직장·사업운 · {work_score}% {work_level}</span>
-  <p style="margin-top:12px;font-size:15px;line-height:1.95;color:#333;font-weight:500">{work_intro}</p>
-  <p style="margin-top:10px;font-size:14px;line-height:1.9;color:#444">{_para(4)}</p>
-  <div style="margin-top:12px;background:#dbeafe;border-radius:10px;padding:12px 14px;
-              font-size:13px;color:#1e3a8a;line-height:1.8;border-left:3px solid #3b82f6">
-    📊 {work_score_c}
-  </div>
-  <div style="margin-top:10px;background:#eff6ff;border-radius:10px;padding:12px 14px;
-              font-size:13px;color:#1e3a8a;line-height:1.8;border-left:3px solid #1d4ed8">
-    💡 {work_detail}
-  </div>
-  {_work_time_html}
-  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{work_close}</p>
-</div>'''
-
-    # ── 5. 오늘 피해야 할 행동 ──
-    avoid_list = random.choice(_Z_AVOID_ACTIONS)
-    avoid_items_html = "".join(
-        f'<div style="display:flex;align-items:center;gap:8px;padding:7px 0;'
-        f'border-bottom:1px solid #fee2e2;font-size:13px;color:#555">'
-        f'<span style="color:#dc2626;font-weight:700;flex-shrink:0">✕</span>{item}</div>'
-        for item in avoid_list
-    )
-    avoid_html = f'''
-<div class="card" style="border-left:5px solid #dc2626">
-  <span class="badge" style="background:#fef2f2;color:#b91c1c">⚠️ 오늘 피해야 할 행동</span>
-  <div style="margin-top:10px">{avoid_items_html}</div>
-</div>'''
-
-    # ── 6. 응원 토닥 메시지 ──
-    cheer_html = f'''
-<div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;
-            padding:22px 20px;margin-bottom:16px;text-align:center">
-  <div style="font-size:20px;margin-bottom:8px">{z['emoji']}</div>
-  <p style="font-size:14px;color:rgba(255,255,255,0.95);line-height:1.85">
-    {random.choice(_Z_CHEER)}
-  </p>
-</div>'''
-
-    # ── 운세 지수 카드 ──
     score_html = f'''
 <div style="display:none" aria-hidden="true">
 <div class="card" style="background:#f8f0ff">
@@ -1706,156 +1795,19 @@ def build_zodiac_post(z, today_str):
 </div>
 </div>'''
 
-    # ── 스토리텔링 섹션별 산문 빌드 ──
+    # ── 피해야 할 행동 ──
+    avoid_list = random.choice(_Z_AVOID_ACTIONS)
+    avoid_items_html = "".join(
+        f'<div style="display:flex;align-items:center;gap:8px;padding:7px 0;' +
+        f'border-bottom:1px solid #fee2e2;font-size:13px;color:#555">' +
+        f'<span style="color:#dc2626;font-weight:700;flex-shrink:0">✕</span>{item}</div>'
+        for item in avoid_list
+    )
 
-    # 오늘의 흐름 레벨 텍스트 (점수% 대신 감성 언어)
-    def _flow_level(score):
-        if score >= 80: return "오늘 흐름이 잘 열려 있는 날입니다."
-        if score >= 65: return "나쁘지 않은 흐름의 날입니다."
-        if score >= 50: return "잔잔하게 지나가는 날입니다."
-        return "조금 조심스러운 흐름이에요."
-
-    # 공감형 오프닝 (human_voice)
-    opening_html = f'''
-<div style="padding:1.4rem 1.6rem 1.2rem;background:linear-gradient(135deg,#faf5ff,#f0f9ff);
-            border-radius:16px;margin-bottom:16px;border-left:4px solid #a78bfa">
-  <p style="font-size:15px;line-height:2.05;color:#374151;font-weight:500;margin:0;word-break:keep-all">
-    💭 {human_voice}
-  </p>
-</div>''' if human_voice else ''
-
-    # 총운 — 스토리 산문
-    story_total_html = f'''
-<div class="card" style="border-left:5px solid {total_color}">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-    <span style="font-size:22px">🌟</span>
-    <div>
-      <div style="font-size:16px;font-weight:700;color:{total_color}">오늘의 흐름</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(total)} · {total_level}</div>
-    </div>
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{total_intro}</p>
-  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 8px 0">{_para(0)}</p>
-  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(1)}</p>
-  <div style="background:#f0fdf4;border-radius:10px;padding:11px 14px;
-              font-size:13px;color:#166534;line-height:1.8;border-left:3px solid {total_color}">
-    📌 {total_score_c}
-  </div>
-</div>'''
-
-    # 연애운 — 스토리 산문
-    story_love_html = f'''
-<div class="card">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-    <span style="font-size:22px">❤️</span>
-    <div>
-      <div style="font-size:16px;font-weight:700;color:{love_color}">관계·연애</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(love)}</div>
-    </div>
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{love_intro}</p>
-  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(2)}</p>
-  <div style="background:#fff0f3;border-radius:10px;padding:11px 14px;
-              font-size:13px;color:#9f1239;line-height:1.8;border-left:3px solid #e11d48">
-    💡 {love_detail}
-  </div>
-  {_love_time_html}
-  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{love_close}</p>
-</div>'''
-
-    # 금전운 — 스토리 산문
-    story_money_html = f'''
-<div class="card">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-    <span style="font-size:22px">💰</span>
-    <div>
-      <div style="font-size:16px;font-weight:700;color:{money_color}">돈·재물</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(money)}</div>
-    </div>
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{money_intro}</p>
-  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(3)}</p>
-  <div style="background:#fef9c3;border-radius:10px;padding:11px 14px;
-              font-size:13px;color:#78350f;line-height:1.8;border-left:3px solid #d97706">
-    💡 {money_detail}
-  </div>
-  {_money_time_html}
-  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{money_close}</p>
-</div>'''
-
-    # 직장운 — 스토리 산문
-    story_work_html = f'''
-<div class="card">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-    <span style="font-size:22px">💼</span>
-    <div>
-      <div style="font-size:16px;font-weight:700;color:{work_color}">일·직장</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_flow_level(work_score)}</div>
-    </div>
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{work_intro}</p>
-  <p style="font-size:14px;line-height:1.95;color:#444;margin:0 0 10px 0">{_para(4)}</p>
-  <div style="background:#dbeafe;border-radius:10px;padding:11px 14px;
-              font-size:13px;color:#1e3a8a;line-height:1.8;border-left:3px solid #3b82f6">
-    💡 {work_detail}
-  </div>
-  {_work_time_html}
-  <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#666;font-style:italic">{work_close}</p>
-</div>'''
-
-    # 공통 엔딩 — 별자리 개별 포스트용 (날짜 기반 순환)
-    _z_endings = [
-        ("오늘 하루가 예상대로 흘러가지 않아도 됩니다.",
-         "지금 이 감각은 혼자만 경험하는 것이 아닙니다.",
-         "오늘 마음에 걸리는 것 하나만 직면해보시기 바랍니다."),
-        ("운세가 모든 상황에 정확히 맞지는 않습니다.",
-         "오늘 이 글이 현재 상황을 돌아보는 계기가 되었다면 충분한 역할을 한 것입니다.",
-         "오늘도 잘 살아내셨습니다."),
-        ("좋은 흐름이 오든, 어려운 흐름이 오든.",
-         "결국 오늘을 어떻게 사용하느냐가 내일을 만들어 냅니다.",
-         "오늘 가장 마음에 걸리는 것 하나만 실천해보시기 바랍니다."),
-        ("오늘 읽으면서 공감이 되거나 위로가 되는 부분이 있었다면.",
-         "그 감각이 맞습니다. 결국 오늘 이 이야기는 지금 이 순간의 당신에 관한 것입니다.",
-         "내일도 함께하겠습니다."),
-        ("힘들었던 날이든, 그냥 지나간 날이든.",
-         "오늘 여기까지 온 것만으로 이미 충분히 잘 하고 있는 것입니다.",
-         "그 감각은 혼자만 경험하는 것이 아닙니다."),
-        ("오늘 하루 수고하셨습니다.",
-         "눈에 보이지 않더라도 분명히 쌓이고 있는 것들이 있습니다.",
-         "내일도 함께하겠습니다."),
-        ("별자리는 오늘 어떤 에너지 위에 있는지 알려주고 있습니다.",
-         "그 에너지를 어떻게 사용할지는 스스로 선택하는 것입니다.",
-         "오늘 가장 자연스럽게 오는 것을 따라가보시기 바랍니다."),
-    ]
-    _ze = _z_endings[now_kst().day % len(_z_endings)]
-    zodiac_ending_html = f'''
-<div style="margin:24px 0 0 0;border-radius:18px;overflow:hidden;
-            box-shadow:0 2px 12px rgba(91,33,182,0.07)">
-  <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
-              padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
-    <span style="font-size:14px">{z['emoji']}</span>
-    <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
-      오늘 {z['kr']}에게 전하는 말
-    </span>
-  </div>
-  <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 0.5rem">
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem 0;word-break:keep-all">{_ze[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem 0;
-              font-style:italic;padding-left:0.8rem;border-left:3px solid #c4b5fd;
-              word-break:keep-all">{_ze[1]}</p>
-  </div>
-  <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
-    <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
-                margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
-    <span style="font-size:16px;font-weight:800;color:#fff;
-                 word-break:keep-all;line-height:1.6">❝ {_ze[2]} ❞</span>
-  </div>
-</div>'''
-
-    # ── 이미지 저장 카드 (총운·연애운·금전운·직장운·피해야할행동 포함) ──
+    # ── 이미지 저장 카드 ──
     avoid_short = "".join(
-        f'<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.85);padding:4px 0">'
+        f'<div style="display:flex;align-items:center;gap:6px;font-size:12px;' +
+        f'color:rgba(255,255,255,0.85);padding:4px 0">' +
         f'<span style="color:#fca5a5;font-weight:700">✕</span>{item}</div>'
         for item in avoid_list
     )
@@ -1865,61 +1817,254 @@ def build_zodiac_post(z, today_str):
   <div class="fc-title">{z['kr']}</div>
   <div class="fc-sub">{today_str} · {z['date']}</div>
   <div class="fc-stars">{rating}</div>
-
-  <!-- 총운 -->
   <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;margin-bottom:8px">
-    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">🌟 오늘 총운 · {total}%</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">🌟 오늘의 흐름</div>
     <div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.95)">{_para(0)}</div>
   </div>
-
-  <!-- 연애운 -->
-  <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;margin-bottom:8px">
-    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">❤️ 연애운 · {love}%</div>
-    <div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.95)">{_para(2)}</div>
-  </div>
-
-  <!-- 금전운 -->
-  <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;margin-bottom:8px">
-    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">💰 금전운 · {money}%</div>
-    <div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.95)">{_para(3)}</div>
-  </div>
-
-  <!-- 직장·사업운 -->
-  <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;margin-bottom:8px">
-    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">💼 직장·사업운 · {work_score}%</div>
-    <div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.95)">{_para(4)}</div>
-  </div>
-
-  <!-- 오늘 피해야 할 행동 -->
   <div style="background:rgba(220,38,38,0.2);border-radius:10px;padding:12px;margin-bottom:12px">
     <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">⚠️ 오늘 피해야 할 행동</div>
     {avoid_short}
   </div>
-
-  <!-- 행운 아이템 제거 (애드센스 심사 기준) -->
   <div class="fc-watermark">todayhoroscopelaboratory.blogspot.com · {today_str}</div>
 </div>'''
 
-    # ── SEO 키워드 태그 (③ 별자리 정보·색상·보정 키워드 확장) ──
-    z_info = ZODIAC_INFO.get(z['kr'], {})
+    # ── 별과띠가만나는시간 방식 — 하나의 흐르는 스토리 ──
+    # 재료 준비
+    kst_day = kst_now.day
+    _Z_EMPATHY_LOCAL = {
+        "양자리":     "시작을 원하지만 실행으로 이어지지 않는 날이 있습니다.",
+        "황소자리":   "꾸준히 노력하고 있으나 방향에 대한 의문이 생기는 날입니다.",
+        "쌍둥이자리": "여러 가지에 관심이 분산되어 완성에 어려움을 느끼는 날입니다.",
+        "게자리":     "표현해도 달라지지 않을 것 같아 감정을 억누르고 있는 날입니다.",
+        "사자자리":   "최선을 다하고 있으나 주변의 인정이 느껴지지 않는 날입니다.",
+        "처녀자리":   "완성도에 대한 부담으로 시작을 미루고 있는 날입니다.",
+        "천칭자리":   "마음에 걸리는 것이 있으나 표현하기 어려운 날입니다.",
+        "전갈자리":   "상대방을 지나치게 잘 파악하는 것이 오히려 피로로 이어지는 날입니다.",
+        "사수자리":   "변화를 원하지만 어디서 시작해야 할지 방향을 찾기 어려운 날입니다.",
+        "염소자리":   "지속적으로 노력하고 있으나 결과가 아직 보이지 않는 날입니다.",
+        "물병자리":   "기준에 맞추기도, 그렇다고 벗어나기도 어려운 날입니다.",
+        "물고기자리": "타인을 챙기는 데 집중하다 스스로를 돌보지 못한 날들이 쌓인 상태입니다.",
+    }
+    empathy = _Z_EMPATHY_LOCAL.get(z['kr'], "")
+
+    # 별자리 특성 정보
+    z_info     = ZODIAC_INFO.get(z['kr'], {})
+    z_tip      = z_info.get("tip", "")
+    z_compat   = z_info.get("compatible", "")
+    z_elem     = z_info.get("element", "")
+    z_ruler    = z_info.get("ruler", "")
+
+    # 흐름 레벨
+    def _flow(score):
+        if score >= 80: return "오늘 흐름이 잘 열려 있는 날입니다."
+        if score >= 65: return "안정적인 흐름의 날입니다."
+        if score >= 50: return "잔잔하게 지나가는 날입니다."
+        return "신중하게 움직이는 것이 좋은 날입니다."
+
+    # 인과 연결 브릿지 (총운→연애→금전→직장)
+    _love_bridges = [
+        f"그 흐름이 오늘 관계에서 먼저 나타납니다.",
+        f"오늘 {z['kr']}의 에너지는 사람과의 연결에서 가장 먼저 드러납니다.",
+        f"그리고 그 에너지는 관계 쪽에서 구체적으로 작동합니다.",
+        f"오늘 이 흐름이 연애와 관계에서 어떻게 나타나는지 살펴보면,",
+        f"같은 흐름이 오늘 {z['kr']}의 관계에도 영향을 줍니다.",
+    ]
+    _money_bridges = [
+        f"그 흐름은 금전에서도 같은 방향으로 이어집니다.",
+        f"오늘 이 에너지가 돈과 재물 쪽에서는 이렇게 나타납니다.",
+        f"관계의 흐름이 정리되면 금전 방향도 같은 곳을 가리킵니다.",
+        f"그리고 오늘 돈과 재물 흐름도 이 방향과 연결되어 있습니다.",
+        f"오늘의 에너지는 금전 쪽에서도 비슷하게 작동합니다.",
+    ]
+    _work_bridges = [
+        f"마지막으로 오늘 일과 직장에서 이 흐름이 마무리됩니다.",
+        f"그 에너지가 일에서 어떻게 완성되는지가 오늘의 마지막 방향입니다.",
+        f"오늘 {z['kr']}의 직장 흐름도 같은 맥락에서 봐야 합니다.",
+        f"그리고 일과 업무에서 이 흐름이 이렇게 완성됩니다.",
+        f"오늘 하루의 에너지는 일에서 가장 잘 발휘됩니다.",
+    ]
+
+    lb = _love_bridges[kst_day % len(_love_bridges)]
+    mb = _money_bridges[(kst_day+1) % len(_money_bridges)]
+    wb = _work_bridges[(kst_day+2) % len(_work_bridges)]
+
+    # 연애·금전·직장 세부 문장
+    love_is_up  = love  >= 70
+    money_is_up = money >= 70
+    work_is_up  = work_score >= 70
+
+    love_intro  = random.choice(_Z_LOVE_INTRO_UP   if love_is_up  else _Z_LOVE_INTRO_WARN)
+    love_detail = random.choice(_Z_LOVE_DETAIL_UP  if love_is_up  else _Z_LOVE_DETAIL_WARN)
+    love_close  = random.choice(_Z_LOVE_CLOSE_UP   if love_is_up  else _Z_LOVE_CLOSE_WARN)
+
+    money_intro  = random.choice(_Z_MONEY_INTRO_UP  if money_is_up else _Z_MONEY_INTRO_WARN)
+    money_detail = random.choice(_Z_MONEY_DETAIL_UP if money_is_up else _Z_MONEY_DETAIL_WARN)
+    money_close  = random.choice(_Z_MONEY_CLOSE_UP  if money_is_up else _Z_MONEY_CLOSE_WARN)
+
+    work_intro  = random.choice(_Z_WORK_INTRO_UP   if work_is_up  else _Z_WORK_INTRO_WARN)
+    work_detail = random.choice(_Z_WORK_DETAIL_UP  if work_is_up  else _Z_WORK_DETAIL_WARN)
+    work_close  = random.choice(_Z_WORK_CLOSE_UP   if work_is_up  else _Z_WORK_CLOSE_WARN)
+
+    # 행동 제안 (별과띠가만나는시간 goal_prose 방식)
+    _actions = [
+        f"오늘 {z['kr']}에게 필요한 것은 딱 하나입니다. {z_tip}" if z_tip else f"오늘 하나만 선택하고 그것에 집중하시기 바랍니다.",
+        f"오늘 {z['kr']}의 흐름에서 가장 중요한 것은 시작입니다. 복잡하게 생각하지 않아도 됩니다.",
+        f"오늘은 이것 하나만 실천해보시기 바랍니다. 나머지는 내일 이어도 됩니다.",
+        f"오늘의 방향이 이 흐름에 있습니다. 지금 가장 자연스럽게 오는 것을 따라가시기 바랍니다.",
+    ]
+    action = _actions[kst_day % len(_actions)]
+
+    # 오늘 하나만 (엔딩 박스)
+    _ze = _z_endings[kst_now.day % len(_z_endings)]
+
+    # ── 하나의 흐르는 스토리 HTML ──
+    story_html = f'''
+<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+
+  <!-- 공감 — 독자 감정 포착 -->
+  <div style="padding:1.6rem 1.8rem 1.4rem;background:linear-gradient(135deg,#faf5ff,#f0f9ff);
+              border-radius:18px;margin-bottom:0;border-left:4px solid #a78bfa">
+    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
+              margin:0;word-break:keep-all">
+      💭 {empathy}
+    </p>
+  </div>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#a78bfa,#7c3aed);margin:0 auto"></div>
+
+  <!-- 오늘의 흐름 — 인과 설명 -->
+  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+
+    <div style="border-left:5px solid {total_color};padding:20px 18px 16px;
+                background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">오늘의 흐름 · {_flow(total)}</div>
+      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
+                margin:0 0 12px;word-break:keep-all">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}</p>
+      <p style="font-size:14px;line-height:2.05;color:#374151;
+                margin:0;word-break:keep-all">{_para(0)}</p>
+    </div>
+
+    <!-- 연결: 총운 → 연애 -->
+    <div style="background:#f9fafb;padding:8px 18px;border-top:1px dashed #e5e7eb;
+                border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
+                text-align:center">{lb}</p>
+    </div>
+
+    <!-- 관계·연애 -->
+    <div style="border-left:5px solid #e11d48;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">관계·연애 · {_flow(love)}</div>
+      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
+                margin:0 0 12px;word-break:keep-all">{love_intro}</p>
+      <p style="font-size:14px;line-height:2.05;color:#374151;
+                margin:0 0 12px;word-break:keep-all">{_para(2)}</p>
+      <div style="background:#fff0f3;border-radius:10px;padding:11px 14px;
+                  font-size:13px;color:#9f1239;line-height:1.85;
+                  border-left:3px solid #e11d48;word-break:keep-all">
+        💡 {love_detail}
+      </div>
+      <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#6b7280;
+                font-style:italic;word-break:keep-all">{love_close}</p>
+    </div>
+
+    <!-- 연결: 연애 → 금전 -->
+    <div style="background:#f9fafb;padding:8px 18px;border-top:1px dashed #e5e7eb;
+                border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
+                text-align:center">{mb}</p>
+    </div>
+
+    <!-- 돈·재물 -->
+    <div style="border-left:5px solid #d97706;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">돈·재물 · {_flow(money)}</div>
+      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
+                margin:0 0 12px;word-break:keep-all">{money_intro}</p>
+      <p style="font-size:14px;line-height:2.05;color:#374151;
+                margin:0 0 12px;word-break:keep-all">{_para(3)}</p>
+      <div style="background:#fef9c3;border-radius:10px;padding:11px 14px;
+                  font-size:13px;color:#78350f;line-height:1.85;
+                  border-left:3px solid #d97706;word-break:keep-all">
+        💡 {money_detail}
+      </div>
+      <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#6b7280;
+                font-style:italic;word-break:keep-all">{money_close}</p>
+    </div>
+
+    <!-- 연결: 금전 → 직장 -->
+    <div style="background:#f9fafb;padding:8px 18px;border-top:1px dashed #e5e7eb;
+                border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
+                text-align:center">{wb}</p>
+    </div>
+
+    <!-- 일·직장 -->
+    <div style="border-left:5px solid #3b82f6;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">일·직장 · {_flow(work_score)}</div>
+      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
+                margin:0 0 12px;word-break:keep-all">{work_intro}</p>
+      <p style="font-size:14px;line-height:2.05;color:#374151;
+                margin:0 0 12px;word-break:keep-all">{_para(4)}</p>
+      <div style="background:#eff6ff;border-radius:10px;padding:11px 14px;
+                  font-size:13px;color:#1e3a8a;line-height:1.85;
+                  border-left:3px solid #3b82f6;word-break:keep-all">
+        💡 {work_detail}
+      </div>
+      <p style="margin-top:10px;font-size:13px;line-height:1.85;color:#6b7280;
+                font-style:italic;word-break:keep-all">{work_close}</p>
+    </div>
+
+  </div>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto"></div>
+
+  <!-- 오늘 하나만 — 행동 제안 -->
+  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
+    <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
+                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
+      <span style="font-size:14px">{z['emoji']}</span>
+      <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
+        오늘 {z['kr']}에게 전하는 말
+      </span>
+    </div>
+    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);
+                padding:1.4rem 1.5rem 0.5rem">
+      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+                margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
+      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
+                font-style:italic;padding-left:0.8rem;
+                border-left:3px solid #c4b5fd;word-break:keep-all">{_ze[1]}</p>
+    </div>
+    <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
+      <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
+                  margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
+      <span style="font-size:16px;font-weight:800;color:#fff;
+                   word-break:keep-all;line-height:1.6">❝ {_ze[2]} ❞</span>
+    </div>
+  </div>
+
+</div>'''
+
+    # SEO 키워드
     kw_list = [
         z['kr'], f"{z['kr']} 오늘운세", f"{z['kr']} 운세",
         f"{z['kr']} 오늘의운세", f"{z['kr']} {today_dot}",
         f"{z['kr']} 별자리운세", f"{z['kr']} 금전운", f"{z['kr']} 연애운",
         f"{z['kr']} 직장운", f"{z['date']} 별자리",
         "오늘의운세", "별자리운세", "무료운세", "별자리오늘",
-        "금전운 상승", "연애운 급변", "오늘 주의", "운세 반전",
         f"{z['kr']} 특징", f"{z['kr']} 성격", f"{z['kr']} 궁합",
-        f"{z['kr']} 조언", f"{z['kr']} 오늘팁",
+        f"{z['kr']} 조언",
     ]
-    if z_info.get("compatible"):
-        for comp in z_info["compatible"].replace(" ","").split(","):
+    if z_compat:
+        for comp in z_compat.replace(" ","").split(","):
             kw_list.append(f"{z['kr']} {comp} 궁합")
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
     content = f"""{style()}
 <div class="wrap">
-  <!-- 히어로 -->
   <div class="hero">
     <h1>{z['emoji']} {z['kr']} 오늘의 운세</h1>
     <p>{today_str} · {z['date']}</p>
@@ -1929,62 +2074,50 @@ def build_zodiac_post(z, today_str):
     </div>
   </div>
 
-  <!-- 공감형 오프닝 -->
-  {opening_html}
-
-  <!-- 1. 오늘의 흐름 (총운 스토리) -->
-  {story_total_html}
+  <!-- 하나의 흐르는 스토리 -->
+  {story_html}
 
   <!-- 대표 이미지 -->
   {post_img("zodiac")}
-
-  <!-- 2. 관계·연애 스토리 -->
-  {story_love_html}
-
-  <!-- 3. 돈·재물 스토리 -->
-  {story_money_html}
-
-  <!-- 4. 일·직장 스토리 -->
-  {story_work_html}
-
-  <!-- 5. 오늘 피해야 할 행동 -->
-  {avoid_html}
-
-  <!-- 5-1. 현실 디테일 블록 -->
-  {real_detail_html}
-
-  <!-- 6. 응원 메시지 -->
-  {cheer_html}
 
   <!-- 이미지 저장 카드 -->
   {image_card_html}
   {share_buttons(card_id, f"별자리운세_{z['kr']}_{today_str}")}
 
+  <!-- 피해야 할 행동 -->
+  <div class="card" style="border-left:5px solid #dc2626">
+    <span class="badge" style="background:#fef2f2;color:#b91c1c">⚠️ 오늘 피해야 할 행동</span>
+    <div style="margin-top:10px">{avoid_items_html}</div>
+  </div>
+
+  <!-- 현실 디테일 -->
+  {real_detail_html}
+
   <!-- 행운 아이템 & 색상 가이드 -->
   <div class="card" style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);border-left:5px solid #f59e0b">
-    <span class="badge" style="background:#fef3c7;color:#92400e">🍀 오늘의 행운 아이템 & 색상 활용 가이드</span>
+    <span class="badge" style="background:#fef3c7;color:#92400e">🍀 오늘의 행운 아이템 & 색상</span>
     <div style="margin-top:14px;display:grid;gap:10px">
-      <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #fde68a;font-size:13px;line-height:1.85;color:#374151">
+      <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #fde68a;
+                  font-size:13px;line-height:1.85;color:#374151">
         <div style="font-weight:700;color:#b45309;margin-bottom:6px">🎨 행운 색상: {lucky_color}</div>
         {color_guide}
       </div>
-      <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #d1fae5;font-size:13px;line-height:1.85;color:#374151">
+      <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #d1fae5;
+                  font-size:13px;line-height:1.85;color:#374151">
         <div style="font-weight:700;color:#065f46;margin-bottom:6px">✨ 행운 아이템: {lucky_item}</div>
         {item_guide}
       </div>
-      <!-- 행운 숫자 제거 (애드센스 심사 기준) -->
     </div>
   </div>
 
-  <!-- 계산 내역 제거 (근거 없는 수치 → 애드센스 심사 기준) -->
-
-  <!-- 운세 지수 바 (fortune.html 연동용 — 화면에는 숨김) -->
+  <!-- 운세 지수 바 (fortune.html 연동용) -->
   {score_html}
 
-  <!-- 별자리 고유 정보 (차별화·정보성 강화) -->
+  <!-- 별자리 고유 정보 -->
   {zodiac_info_card(z['kr'], z['emoji'])}
 
-  <!-- 공통 엔딩 -->
+  <!-- SEO 키워드 -->
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
 
@@ -1999,732 +2132,340 @@ def build_chinese_post(c, today_str):
     rating  = stars()
     card_id = f"fc-{c['en']}"
 
-    kst_now    = now_kst()
-    today_dot  = kst_now.strftime("%Y년 %-m월 %-d일")
-    today_sync = kst_now.strftime("%Y년 %m월 %d일")
+    kst_now  = now_kst()
+    today_dot = kst_now.strftime("%Y년 %-m월 %-d일")
 
-    # ── 운세 지수 (요일·월 보정 적용) ──
     raw_total, raw_money, raw_health, raw_love = pick_score(c['kr'])
     total, money, health, love, calc_html = _apply_adjustments(
         raw_total, raw_money, raw_health, raw_love
     )
 
-    # ── 행운 색상·아이템 (② 조건부 가이드 포함) ──
-    lucky_color  = pick_color()
-    lucky_item   = pick_lucky_item(c['kr']) or random.choice([
-        '수정 팔찌','흰 조약돌','파란 볼펜','노란 메모지','향초','작은 수첩'
-    ])
-    lucky_number = pick_number()
-    color_guide  = get_color_guide(lucky_color)
-    item_guide   = get_item_guide(lucky_item)
+    signal = "흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "주의 ▼")
 
-    # ══════════════════════════════════════════════
-    # ① 출생연도별 맞춤 키워드 데이터 (엑셀 VLOOKUP 대체)
-    # ══════════════════════════════════════════════
-    # 연도대별 특성 → 맞춤 조언 매핑 (40년대~20년대)
-    _YEAR_PROFILE = {
-        range(1940,1950): ("40년대생",
-            "오래 쌓아온 경험이 오늘 빛나는 날이에요. 주변에서 조언을 구하는 사람이 있다면 아끼지 말고 나눠주세요. 그 한마디가 누군가의 흐름을 바꿉니다.",
-            "된장찌개·두부·나물 등 발효식품", "5, 8", "계단이 많거나 바닥이 미끄러운 장소"),
-        range(1950,1960): ("50년대생",
-            "천천히 가는 것 같아도 결국 도달하는 분들이에요. 오늘 한 가지 작은 결정을 미루지 말고 끝내보세요. 작게라도 완성하는 것 자체가 오늘의 에너지를 만듭니다.",
-            "제철 나물·현미밥 등 담백한 식단", "3, 6", "급경사 계단이나 미끄러운 바닥"),
-        range(1960,1970): ("60년대생",
-            "오랜 경험에서 나오는 직관이 오늘 유독 맞는 날이에요. 논리보다 감이 먼저 반응한다면 그쪽을 믿어보세요. 틀릴 확률이 낮은 날입니다.",
-            "등푸른 생선·견과류 등 오메가3 식품", "1, 7", "소음이 심한 혼잡한 장소"),
-        range(1970,1980): ("70년대생",
-            "판단력이 살아있는 날이에요. 오늘 결정해야 할 일이 있다면 망설이지 말고 내리세요. 너무 오래 생각하면 오히려 헷갈리는 날입니다.",
-            "고구마·브로콜리 등 항산화 식품", "2, 9", "밀폐된 실내나 환기가 안 되는 공간"),
-        range(1980,1990): ("80년대생",
-            "에너지가 올라오는 날이에요. 미뤄두던 일 하나만 오늘 처리하세요. '나중에'가 쌓이면 짐이 되지만 오늘 하나 처리하면 내일이 가벼워집니다.",
-            "닭가슴살·달걀 등 단백질 식품", "4, 6", "충동적인 쇼핑 앱·판매 사이트"),
-        range(1990,2000): ("90년대생",
-            "뭔가 바꾸고 싶은 충동이 드는 날일 수 있어요. 그 충동 자체는 맞습니다. 다만 오늘은 실행보다 계획 정리에 쓰는 게 더 유리해요. 내일 움직이면 됩니다.",
-            "아보카도·블루베리 등 슈퍼푸드", "3, 7", "인파가 너무 많은 핫플레이스"),
-        range(2000,2010): ("00년대생",
-            "아이디어가 갑자기 떠오르는 날이에요. 그 순간 메모해두지 않으면 저녁에 기억 못 합니다. 떠오른 것은 바로 메모, 실행은 차근차근 해도 됩니다.",
-            "바나나·아몬드 등 에너지 식품", "1, 5", "집중이 필요한데 소음이 많은 장소"),
-        range(2010,2020): ("10년대생",
-            "오늘 새로운 걸 하나 배우면 생각보다 빠르게 흡수되는 날이에요. 학교 수업이든 유튜브든 뭔가 새로 접하기 좋은 날입니다.",
-            "치즈·우유 등 칼슘이 풍부한 식품", "2, 8", "불필요한 경쟁심이 생기는 장소"),
-    }
-    def _get_year_profile(year_int):
-        for yr_range, profile in _YEAR_PROFILE.items():
-            if year_int in yr_range:
-                return profile
-        return ("", "오늘 하루도 당신만의 속도로 나아가세요.", "균형 잡힌 식사", "7", "혼잡한 장소")
-
-    # ══════════════════════════════════════════════
-    # ④ 띠별 궁합 데이터 (오늘의 찰떡궁합·거리두기)
-    # ══════════════════════════════════════════════
-    _CHINESE_COMPAT = {
-        '쥐띠':    {'best': ('용띠','🐲','말 꺼내기 전에 이미 통하는 날이에요. 오늘 같이 있으면 일이 빠르게 풀립니다'),
-                   'avoid':('말띠','🐴','방향이 달라 말투가 튀기 쉬운 날이에요. 중요한 결정은 둘이 같이 하지 마세요')},
-        '소띠':    {'best': ('닭띠','🐓','서로 말 안 해도 눈치로 통하는 날이에요. 같이 있으면 신기하게 일이 맞아떨어져요'),
-                   'avoid':('양띠','🐑','속도가 달라서 괜히 답답해지는 조합이에요. 오늘은 서로 각자 페이스로 가세요')},
-        '호랑이띠':{'best': ('말띠','🐴','오늘 같이 움직이면 혼자 할 때보다 두 배 빠르게 진행돼요'),
-                   'avoid':('원숭이띠','🐵','오늘 주도권 얘기 꺼내면 분위기 이상해질 수 있어요. 역할 먼저 정하고 시작하세요')},
-        '토끼띠':  {'best': ('양띠','🐑','오늘 같이 있으면 이유 없이 편안해지는 날이에요. 힘든 말 꺼내기 좋은 상대예요'),
-                   'avoid':('닭띠','🐓','말투가 엇갈리기 쉬운 날이에요. 오늘 피드백 주고받는 건 다음으로 미루세요')},
-        '용띠':    {'best': ('쥐띠','🐭','오늘 아이디어 막힐 때 이 사람한테 물어보세요. 의외의 각도에서 답이 나와요'),
-                   'avoid':('개띠','🐶','원칙 얘기 꺼내면 분위기가 굳어지는 조합이에요. 오늘은 가볍게 지나가세요')},
-        '뱀띠':    {'best': ('닭띠','🐓','오늘 이 사람과 대화하면 생각이 정리돼요. 복잡한 것 같이 풀기 좋은 날이에요'),
-                   'avoid':('돼지띠','🐷','가치관이 달라 은근히 걸리는 말이 나올 수 있어요. 오늘은 깊은 대화 피하세요')},
-        '말띠':    {'best': ('호랑이띠','🐯','오늘 이 사람이랑 있으면 괜히 기분이 올라가요. 같이 움직이면 잘 풀리는 날이에요'),
-                   'avoid':('쥐띠','🐭','세세한 것과 큰 그림이 자꾸 엇갈려요. 오늘 같이 결정하는 건 보류하세요')},
-        '양띠':    {'best': ('토끼띠','🐰','말 안 해도 알아주는 날이에요. 오늘 힘들면 이 사람한테 연락해보세요'),
-                   'avoid':('소띠','🐮','원칙과 감성이 부딪히는 날이에요. 오늘은 의견 충돌 없이 각자 하는 게 나아요')},
-        '원숭이띠':{'best': ('쥐띠','🐭','오늘 이 사람이랑 브레인스토밍하면 아이디어가 쏟아져요'),
-                   'avoid':('호랑이띠','🐯','서로 리드하려다 말투가 강해지는 날이에요. 역할 나누고 시작하세요')},
-        '닭띠':    {'best': ('소띠','🐮','오늘 같이 일하면 군더더기 없이 깔끔하게 마무리돼요'),
-                   'avoid':('토끼띠','🐰','기준이 달라서 스트레스 받기 쉬운 조합이에요. 오늘은 각자 방식대로 하세요')},
-        '개띠':    {'best': ('호랑이띠','🐯','오늘 이 사람이 옆에 있으면 괜히 든든한 날이에요. 믿고 같이 해도 됩니다'),
-                   'avoid':('용띠','🐲','자존심이 부딪히기 쉬운 날이에요. 오늘은 먼저 양보하는 쪽이 이기는 날이에요')},
-        '돼지띠':  {'best': ('토끼띠','🐰','오늘 이 사람이랑 있으면 기분이 풀려요. 괜히 웃게 되는 조합이에요'),
-                   'avoid':('뱀띠','🐍','사소한 말 한마디가 오래 남는 날이에요. 오늘은 가볍게 대화하는 게 좋아요')},
-    }
-    compat = _CHINESE_COMPAT.get(c['kr'], {})
-    best_compat   = compat.get('best',  ('', '', '오늘 주변 사람 중 말 잘 통하는 사람 한 명 찾아보세요'))
-    avoid_compat  = compat.get('avoid', ('', '', '감정적으로 걸리는 대화는 오늘 저녁 이후로 미루세요'))
-
-    compat_html = f'''
-<div class="card" style="background:linear-gradient(135deg,#fff7ed,#fef3c7);border-left:5px solid #f59e0b">
-  <span class="badge" style="background:#fef3c7;color:#92400e">💑 오늘의 띠별 궁합</span>
-  <div style="margin-top:14px;display:grid;gap:10px">
-    <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #d1fae5">
-      <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:6px">
-        🟢 오늘 잘 맞는 띠: {best_compat[1]} {best_compat[0]}
-      </div>
-      <div style="font-size:13px;color:#374151;line-height:1.8">{best_compat[2]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:6px">
-        오늘 {best_compat[0]}와 대화하거나 같이 있는 시간이 생기면 놓치지 마세요.
-      </div>
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #fee2e2">
-      <div style="font-size:13px;font-weight:700;color:#991b1b;margin-bottom:6px">
-        🔴 오늘 거리두기: {avoid_compat[1]} {avoid_compat[0]}
-      </div>
-      <div style="font-size:13px;color:#374151;line-height:1.8">{avoid_compat[2]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:6px">
-        오늘 {avoid_compat[0]}와 중요한 얘기는 감정이 차분해진 내일 이후로 미루세요.
-      </div>
-    </div>
-  </div>
-</div>'''
-
-    # ══════════════════════════════════════════════
-    # ② 시간대별 운세 흐름 지수 (수식 기반 자동 계산)
-    # ══════════════════════════════════════════════
-    def _time_score(base, morning_mod, afternoon_mod, evening_mod):
-        clamp = lambda v: max(1, min(100, v))
-        return (clamp(base + morning_mod),
-                clamp(base + afternoon_mod),
-                clamp(base + evening_mod))
-
-    # 총운 기반 시간대별 분배 (요일 특성 반영)
-    dow = now_kst().weekday()  # 0=월 … 6=일
-    _TIME_MOD = {  # (오전, 오후, 저녁) 모디파이어
-        0: ( 8, -12,  4),   # 월: 오전 집중, 오후 하락
-        1: ( 5,   3,  7),   # 화: 오후·저녁 고루 좋음
-        2: (10,  -8,  6),   # 수: 오전 강세, 오후 주의
-        3: ( 7,   5, 10),   # 목: 저녁 최고
-        4: ( 3,   8, 12),   # 금: 오후~저녁 상승
-        5: (-5,   2, 10),   # 토: 저녁 강세
-        6: ( 2,  -5,  8),   # 일: 오전·저녁 무난
-    }
-    tm, ta, te = _TIME_MOD[dow]
-    am_score, pm_score, ev_score = _time_score(total, tm, ta, te)
-
-    def _time_label(score):
-        if score >= 80: return ("#16a34a", "최적 ★", "중요한 일, 연락, 결정 — 지금 하세요")
-        if score >= 65: return ("#d97706", "보통 ◐", "무난하게 진행 가능, 급한 일 아니면 여유롭게")
-        return ("#dc2626", "주의 ▼", "중요 결정·감정 대화는 이 시간대 피하세요")
-
-    am_c, am_lv, am_tip = _time_label(am_score)
-    pm_c, pm_lv, pm_tip = _time_label(pm_score)
-    ev_c, ev_lv, ev_tip = _time_label(ev_score)
-
-    time_flow_html = f'''
-<div class="card" style="background:#f8faff;border-left:5px solid #3b82f6">
-  <span class="badge" style="background:#dbeafe;color:#1d4ed8">⏰ 시간대별 운세 흐름</span>
-  <div style="margin-top:14px">
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead>
-        <tr style="background:#eff6ff">
-          <th style="padding:10px 8px;text-align:left;color:#1e40af;font-weight:700;border-radius:8px 0 0 0">시간대</th>
-          <th style="padding:10px 8px;text-align:center;color:#1e40af;font-weight:700">지수</th>
-          <th style="padding:10px 8px;text-align:center;color:#1e40af;font-weight:700">평가</th>
-          <th style="padding:10px 8px;text-align:left;color:#1e40af;font-weight:700;border-radius:0 8px 0 0">추천 행동</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-bottom:1px solid #e0e7ff">
-          <td style="padding:10px 8px;font-weight:700">🌅 오전<br><span style="font-size:11px;color:#6b7280;font-weight:400">06:00~12:00</span></td>
-          <td style="padding:10px 8px;text-align:center;font-weight:900;color:{am_c};font-size:16px">{am_score}점</td>
-          <td style="padding:10px 8px;text-align:center;color:{am_c};font-weight:700">{am_lv}</td>
-          <td style="padding:10px 8px;color:#374151;line-height:1.6">{am_tip}<br><span style="font-size:11px;color:#6b7280">미뤄두던 중요한 일 하나, 오전에 처리하면 오후가 가벼워집니다</span></td>
-        </tr>
-        <tr style="border-bottom:1px solid #e0e7ff">
-          <td style="padding:10px 8px;font-weight:700">☀️ 오후<br><span style="font-size:11px;color:#6b7280;font-weight:400">12:00~18:00</span></td>
-          <td style="padding:10px 8px;text-align:center;font-weight:900;color:{pm_c};font-size:16px">{pm_score}점</td>
-          <td style="padding:10px 8px;text-align:center;color:{pm_c};font-weight:700">{pm_lv}</td>
-          <td style="padding:10px 8px;color:#374151;line-height:1.6">{pm_tip}<br><span style="font-size:11px;color:#6b7280">연락, 답장, 부탁처럼 사람이 필요한 일은 오후에 하세요</span></td>
-        </tr>
-        <tr>
-          <td style="padding:10px 8px;font-weight:700">🌙 저녁<br><span style="font-size:11px;color:#6b7280;font-weight:400">18:00~24:00</span></td>
-          <td style="padding:10px 8px;text-align:center;font-weight:900;color:{ev_c};font-size:16px">{ev_score}점</td>
-          <td style="padding:10px 8px;text-align:center;color:{ev_c};font-weight:700">{ev_lv}</td>
-          <td style="padding:10px 8px;color:#374151;line-height:1.6">{ev_tip}<br><span style="font-size:11px;color:#6b7280">감정 대화, 가까운 사람과의 시간, 오늘 하루 정리에 적합</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>'''
-
-    # ══════════════════════════════════════════════
-    # ③ 실전 체크포인트 (IF 조건문 기반 정교화)
-    # ══════════════════════════════════════════════
-    checkpoints = []
-    # 금전운 조건
-    if money < 60:
-        checkpoints.append(("💰", "#dc2626",
-            f"오늘 지갑 조심 (지수 {money}점)",
-            "오늘 오후에 '이거 하나쯤이야'가 연달아 나올 수 있는 날이에요. 장바구니에 담았다면 내일 아침에 다시 보세요. 80%는 안 사게 됩니다.",
-            "쓰지 않는 구독 서비스 하나만 오늘 끊어도 한 달 지출이 달라집니다. 카드 명세서 10분만 훑어보세요."))
-    elif money >= 85:
-        checkpoints.append(("💰", "#16a34a",
-            f"챙길 돈 있는 날 (지수 {money}점)",
-            "환급금, 포인트 전환, 캐시백 신청 중 미뤄둔 게 있으면 오늘 처리하세요. 귀찮아서 묵혀둔 것들이 오늘은 손에 잡히는 날입니다.",
-            f"오전 10시~오후 1시 사이가 금전 처리에 가장 유리한 타이밍이에요. 작은 것부터 하나씩 처리해 두세요."))
-    else:
-        checkpoints.append(("💰", "#d97706",
-            f"무난한 금전 흐름 (지수 {money}점)",
-            "크게 들어오지도 크게 나가지도 않는 날이에요. 오늘은 지출 내역 한 번 훑어보고, 쓰는지도 몰랐던 자동결제 하나 정리해두세요. 작은 것인데 나중에 쌓여요.",
-            "충동구매보다 '원래 사려던 것'을 다시 보는 게 오늘 돈을 아끼는 흐름입니다."))
-
-    # 건강운 조건
-    if health >= 90:
-        checkpoints.append(("💪", "#16a34a",
-            f"몸이 따라주는 날 (지수 {health}점)",
-            "오늘은 미뤄두던 운동이나 바깥 활동 하기에 딱 좋아요. 몸이 움직이고 싶다는 신호를 보내는 날입니다.",
-            "새로운 운동 루틴을 시작하기 좋은 타이밍이에요. 거창하게 시작하지 않아도 됩니다. 20분 걷기부터도 오늘의 시작이에요."))
-    elif health < 60:
-        checkpoints.append(("💪", "#dc2626",
-            f"몸 신호 무시하지 마세요 (지수 {health}점)",
-            "오늘 무리하면 내일 모레 더 크게 무너질 수 있어요. 야근, 과음, 잠 줄이기 — 오늘만큼은 셋 다 패스하세요.",
-            "점심 먹고 10분 눈 감는 것만으로도 오후가 달라집니다. 몸이 쉬고 싶다는 신호는 진짜입니다."))
-    else:
-        checkpoints.append(("💪", "#d97706",
-            f"체력 관리 챙기는 날 (지수 {health}점)",
-            "특별히 아픈 건 아닌데 왠지 기운이 없는 날일 수 있어요. 물 충분히 마시고, 점심은 제시간에 드세요. 작은 것이지만 오늘은 그게 전부입니다.",
-            "오후 3시쯤 견과류나 과일 하나 챙겨 먹으면 저녁까지 집중력이 유지됩니다."))
-
-    # 연애운 조건
-    if love >= 80:
-        checkpoints.append(("❤️", "#e11d48",
-            f"연락해도 되는 날 (지수 {love}점)",
-            "오래 연락 못 했던 사람, 미루던 답장, 하고 싶었던 말 — 오늘 그 중 하나만 실행해 보세요. 타이밍이 맞는 날입니다.",
-            f"오후 3시~6시 사이에 보내는 메시지가 가장 잘 닿아요. 거창한 말 필요 없어요. '요즘 어때요?' 한 줄로 시작해보세요."))
-    elif love < 55:
-        checkpoints.append(("❤️", "#6b7280",
-            f"감정 말고 거리 먼저 (지수 {love}점)",
-            "오늘 중요한 감정 대화는 저녁 이후로 미루세요. 낮 동안은 말이 의도와 다르게 나가기 쉬운 흐름이에요.",
-            "상대가 이상한 게 아닐 수 있어요. 오늘은 내 컨디션이 예민한 날일 수 있으니 반응하기 전에 한 번 더 생각하세요."))
-
-    # 총운 기반 종합 조언
-    if total >= 85:
-        checkpoints.append(("🌟", "#7c3aed",
-            f"오늘 움직이기 좋은 날 (종합 {total}점)",
-            "미뤄두던 결정, 꺼내지 못했던 말, 시작 못 했던 일 — 오늘이 그 날입니다. 완벽하지 않아도 됩니다. 일단 시작하는 것 자체가 오늘의 정답입니다.",
-            f"골든 타임은 {_DOW_GOLDEN_TIME[dow]}이에요. 이 시간대에 핵심 한 가지만 처리해도 오늘 하루 흐름이 달라져요."))
-    elif total < 55:
-        checkpoints.append(("🌟", "#6b7280",
-            f"새로 시작보다 점검하는 날 (종합 {total}점)",
-            "오늘 새로 벌이는 것보다 기존 것을 마무리하거나 정리하는 게 맞는 날이에요. 쌓인 것 덜어내는 것만으로도 오늘 하루 잘 한 겁니다.",
-            "지금 안 되는 게 실력 문제가 아니라 타이밍 문제일 수 있어요. 2~3일만 기다려보세요. 흐름이 바뀝니다."))
-
-    checkpoint_html_rows = ""
-    for icon, color, title_cp, main, detail_cp in checkpoints:
-        checkpoint_html_rows += f'''
-        <tr style="border-bottom:1px solid #f3f0ff">
-          <td style="padding:12px 8px;vertical-align:top">
-            <span style="font-size:20px">{icon}</span>
-          </td>
-          <td style="padding:12px 8px">
-            <div style="font-size:13px;font-weight:700;color:{color};margin-bottom:4px">{title_cp}</div>
-            <div style="font-size:13px;color:#374151;line-height:1.8;margin-bottom:6px">{main}</div>
-            <div style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:6px;
-                        padding:8px;line-height:1.7;border-left:3px solid {color}">
-              💡 {detail_cp}
-            </div>
-          </td>
-        </tr>'''
-
-    checkpoint_section = f'''
-<div class="card">
-  <span class="badge">✅ 오늘 실전 체크포인트 (지수 연동 자동 분석)</span>
-  <table style="width:100%;border-collapse:collapse;margin-top:12px">
-    {checkpoint_html_rows}
-  </table>
-</div>'''
-
-    # ══════════════════════════════════════════════
-    # ① 출생연도별 맞춤 운세 섹션 (본문 카드)
-    # ══════════════════════════════════════════════
-    current_year = kst_now.year
-    years = [y for y in c['year'].split(',') if int(y) <= current_year]
-
-    # 이미지 카드용 (간략)
+    # 출생연도별 운세
+    year_rows = []
     year_rows_in_card = ""
-    for y in years:
-        yr_fortune = chinese_fortune(c['en'])
-        plain = str(yr_fortune).replace('\n', ' ').strip()
-        short = plain[:80] + ('…' if len(plain) > 80 else '')
-        year_rows_in_card += (
-            f'<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;'
-            f'border-bottom:1px solid rgba(255,255,255,0.18)">'
-            f'<div style="min-width:62px;background:rgba(255,255,255,0.22);color:#fff;'
-            f'border-radius:8px;padding:4px 7px;text-align:center;font-size:11px;'
-            f'font-weight:700;flex-shrink:0">{y}년생</div>'
-            f'<div style="font-size:12px;color:rgba(255,255,255,0.9);line-height:1.65;flex:1">{short}</div>'
-            f'</div>'
-        )
+    for yr in c['years']:
+        yf = birth_year_fortune(c['en'], yr)
+        year_rows.append(f'<div style="padding:10px 0;border-bottom:1px solid #f3f4f6">' +
+            f'<span style="font-size:13px;font-weight:700;color:#92400e">{yr}년생</span> ' +
+            f'<span style="font-size:13px;color:#374151;line-height:1.8">{yf}</span></div>')
+        year_rows_in_card += f'<div style="font-size:11px;color:rgba(255,255,255,0.9);padding:3px 0">' +             f'<b>{yr}년생</b> {yf[:40]}…</div>'
 
-    # 본문용 연도별 맞춤 카드
-    year_detail_rows = ""
-    for y in years:
-        yr_int = int(y)
-        _, yr_advice, yr_food, yr_num, yr_avoid = _get_year_profile(yr_int)
-        yr_fortune_text = chinese_fortune(c['en'])
-        plain = str(yr_fortune_text).replace('\n', ' ').strip()
-        year_detail_rows += f'''
-        <tr style="border-bottom:1px solid #fef3c7">
-          <td style="padding:12px 8px;vertical-align:top;min-width:70px">
-            <div style="background:#f59e0b;color:#fff;border-radius:8px;padding:5px 8px;
-                        text-align:center;font-size:12px;font-weight:700">{y}년생</div>
-          </td>
-          <td style="padding:12px 8px">
-            <div style="font-size:13px;color:#374151;line-height:1.8;margin-bottom:8px">{yr_advice}</div>
-            <div style="font-size:12px;background:#fff7ed;border-radius:8px;padding:8px;
-                        border-left:3px solid #f59e0b;color:#78350f;line-height:1.7">
-              🍽 추천 음식: <b>{yr_food}</b><br>
-              🔢 행운의 숫자: <b>{yr_num}</b>&nbsp;&nbsp;
-              🚫 조심할 장소: {yr_avoid}
-            </div>
-          </td>
-        </tr>'''
+    year_section_html = "".join(year_rows)
 
-    year_section_html = f'''
-<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fff7ed);border-left:5px solid #f59e0b">
-  <span class="badge" style="background:#fef3c7;color:#92400e">📅 출생연도별 오늘 맞춤 운세</span>
-  <p style="font-size:13px;color:#78350f;margin:10px 0 14px;line-height:1.8">
-    같은 {c['kr']}라도 출생연도에 따라 오늘의 기운과 에너지가 미묘하게 다르게 나타납니다.
-    아래에서 본인의 출생연도를 찾아 맞춤 운세를 확인해 보세요.
-  </p>
-  <table style="width:100%;border-collapse:collapse">
-    {year_detail_rows}
-  </table>
-</div>'''
+    # 궁합
+    compat = get_compat(c['en'])
+    best_compat  = compat.get('best',  (''  , '', '오늘 주변 사람 중 말 잘 통하는 사람 한 명 찾아보세요'))
+    avoid_compat = compat.get('avoid', ('', '', '감정적으로 걸리는 대화는 오늘 저녁 이후로 미루세요'))
 
-    # ── 주의점 본문 추출 ──
-    caution_kws = ["주의", "조심", "피하", "삼가", "무리하지", "충동", "서두르지"]
-    plain_fortune = str(fortune).replace('\n', ' ').strip()
-    caution_sentence = next(
-        (s.strip() for s in plain_fortune.split('. ')
-         if any(k in s for k in caution_kws) and len(s.strip()) > 10), ""
-    )
-    caution_html = f'''
-<div style="background:#fff8e1;border-left:4px solid #f59e0b;border-radius:10px;
-            padding:14px 16px;margin-bottom:16px">
-  <div style="font-size:12px;font-weight:700;color:#d97706;margin-bottom:6px">⚠️ 오늘의 주의점</div>
-  <div style="font-size:14px;color:#555;line-height:1.75">{caution_sentence}</div>
-</div>''' if caution_sentence else ""
-
-    # ── 운세 지수 바 차트 ──
-    def _sc(v): return ("#16a34a","상승 ↑") if v>=80 else (("#d97706","보통") if v>=65 else ("#dc2626","주의 ⚠"))
-    def _bar(label, emoji, pct):
-        c2, lv = _sc(pct); f2 = round(pct/10)
-        return (f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">'
-                f'<span style="min-width:65px;font-size:12px">{emoji} {label}</span>'
-                f'<span style="font-family:monospace;color:{c2};font-size:13px">{"█"*f2}{"░"*(10-f2)}</span>'
-                f'<span style="font-size:12px;font-weight:700;color:{c2};min-width:28px">{pct}%</span>'
-                f'<span style="font-size:11px;color:{c2}">{lv}</span></div>')
-
-    # ── 제목: 4가지 패턴 순환 (날짜 홀짝 + 점수 조건 조합) ──
-    kst_day  = kst_now.day
-    kst_mon  = kst_now.month
-    year_abbr = ",".join(y[-2:]+"년" for y in years[:5])  # 예: 47·59·71·83·95년
-    # 점수 기반 접두어 (③ IF 로직)
-    if money < 60:   score_prefix = f"[금전운 주의] "
-    elif total >= 85: score_prefix = f"[오늘 최고의 날] "
-    elif health < 60: score_prefix = f"[건강 관리 필요] "
-    else:             score_prefix = ""
-    # 제목 4종 순환
-    _TITLE_PATTERNS = [
-        # 패턴1: 종합 지수 노출
-        f"{c['kr']} {today_sync} 오늘의 띠운세 | 종합 지수 {total}% {score_prefix.strip()}",
-        # 패턴2: 출생연도 타겟팅
-        f"오늘의 {c['kr']} 운세 ({year_abbr}생) {kst_mon}월 {kst_day}일 핵심 요약",
-        # 패턴3: 액션 가이드형
-        f"{score_prefix}{c['kr']} {kst_mon}월 {kst_day}일 반드시 체크할 포인트 | 지수 {total}%",
-        # 패턴4: SEO 앞배치형 (띠+운세 먼저)
-        f"오늘의 {c['kr']} 운세 {today_sync} | 행운 색상·실전 체크포인트 포함",
-    ]
-    # index.html 매칭 필수 키워드 보존: 띠명, YYYY년, MM월, DD일, 띠운세
-    # → 패턴1·4만 "띠운세" 포함 → 짝수/홀수 날짜로 순환
-    # 홀수 날짜: 패턴1(지수 노출) / 짝수 날짜: 패턴4(SEO 앞배치)
-    # 단, fetchChinesePost() 매칭을 위해 기본 패턴은 유지하되 suffix 변경
-    if kst_day % 4 == 0:   signal_title = _TITLE_PATTERNS[3]
-    elif kst_day % 4 == 1: signal_title = _TITLE_PATTERNS[0]
-    elif kst_day % 4 == 2: signal_title = _TITLE_PATTERNS[1]
-    else:                  signal_title = _TITLE_PATTERNS[2]
-
-    # index.html fetchChinesePost() 매칭 필수: [띠명, YYYY년, MM월, DD일, 띠운세] 포함 보장
-    title = f"{c['kr']} {today_sync} 오늘의 띠운세 | {signal_title.split('|')[-1].strip()}"
-
-    # ── 신호 키워드 (score_html·hero용) ──
-    avg = (total + money) / 2
-    _SIG_UP   = ["오늘 작은 수입 챙길 타이밍", "환급·포인트 확인하기 좋은 날", "들어오는 흐름의 날"]
-    _SIG_WARN = ["오늘 충동 결제 특히 주의", "지갑 닫는 게 최선인 날", "신중하게 보는 날"]
-    _SIG_REV  = ["예상 밖 연락이 올 수 있는 날", "뒤집히는 흐름의 날", "약속 하나가 바뀔 수 있는 날"]
-    _SIG_MID  = ["잔잔하게 흘러가는 날", "무리하지 않으면 괜찮은 날", "차분하게 챙기는 날"]
-    if avg >= 80:                signal = random.choice(_SIG_UP)
-    elif avg <= 55:              signal = random.choice(_SIG_WARN)
-    elif abs(total-money) >= 30: signal = random.choice(_SIG_REV)
-    else:                        signal = random.choice(_SIG_MID)
-
-    # ── 띠별 구어체 오프닝 & 현실 디테일 ──
-    chinese_human_voice = _get_chinese_human_voice(c['kr'])
-    chinese_real_detail = _get_chinese_real_detail_html(c['kr'])
-    chinese_human_html = ""
-    if chinese_human_voice:
-        chinese_human_html = f'''
-<div class="card" style="background:#f9fafb;border-left:4px solid #d1d5db">
-  <p style="font-size:14px;line-height:1.9;color:#555;font-style:italic;margin:0">
-    💭 {chinese_human_voice}
-  </p>
-</div>'''
-
+    # score_html (fortune.html 연동)
     score_html = f'''<div style="display:none" aria-hidden="true">
-<div class="card" style="background:#f8f0ff">
-  <span class="badge">📊 오늘의 운세 지수 · <strong style="color:#6c3483">{signal}</strong></span>
+<div class="card" style="background:#fff8ee">
   <div style="margin-top:12px">
-    {_bar("종합운","🌟",total)}{_bar("금전운","💰",money)}{_bar("건강운","💪",health)}{_bar("애정운","❤️",love)}
+    {_zodiac_score_bar("종합운","🌟",total)}
+    {_zodiac_score_bar("금전운","💰",money)}
+    {_zodiac_score_bar("건강운","💪",health)}
+    {_zodiac_score_bar("애정운","❤️",love)}
   </div>
-</div>
+</div></div>'''
+
+    # 이미지 저장 카드
+    image_card_html = f'''
+<div id="{card_id}" class="fortune-card" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
+  <div class="fc-emoji">{c['emoji']}</div>
+  <div class="fc-title">{c['kr']}</div>
+  <div class="fc-sub">{today_str}</div>
+  <div class="fc-stars">{rating}</div>
+  <div class="fc-text">{fortune}</div>
+  <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.3);padding-top:12px">
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:8px">📅 출생연도별</div>
+    {year_rows_in_card}
+  </div>
+  <div class="fc-watermark" style="margin-top:14px">todayhoroscopelaboratory.blogspot.com · {today_str}</div>
 </div>'''
 
-    # ── 공감형 오프닝 (human_voice 맨 위) ──
-    chinese_opening_html = f'''
-<div style="padding:1.4rem 1.6rem 1.2rem;background:linear-gradient(135deg,#fffbeb,#fef3c7);
-            border-radius:16px;margin-bottom:16px;border-left:4px solid #f59e0b">
-  <p style="font-size:15px;line-height:2.05;color:#374151;font-weight:500;margin:0;word-break:keep-all">
-    💭 {chinese_human_voice}
-  </p>
-</div>''' if chinese_human_voice else ''
+    # ── 별과띠가만나는시간 방식 — 하나의 흐르는 스토리 ──
+    kst_day = kst_now.day
 
-    # ── 띠별 공통 엔딩 7종 (날짜 순환) ──
-    _c_endings = [
-        ("오늘 하루가 예상대로 흘러가지 않아도 됩니다.",
-         "지금 이 감각은 혼자만 경험하는 것이 아닙니다.",
-         "오늘 마음에 걸리는 것 하나만 직면해보시기 바랍니다."),
-        ("운세가 모든 상황에 정확히 맞지는 않습니다.",
-         "근데 오늘 이 글이 '나 요즘 이랬는데'가 됐다면, 그걸로 오늘은 잘 읽은 거예요.",
-         "오늘도 잘 살아내셨습니다."),
-        ("좋은 흐름이 오든, 어려운 흐름이 오든.",
-         "결국 오늘을 어떻게 사용하느냐가 내일을 만들어 냅니다.",
-         "오늘 딱 하나 — 가장 마음에 걸리는 것, 그거 하나만 해보세요."),
-        ("오늘 읽으면서 공감이 되거나 위로가 되는 부분이 있었다면.",
-         "그 감각이 맞습니다. 결국 오늘 이 이야기는 지금 이 순간의 당신에 관한 것입니다.",
-         "내일도 함께하겠습니다."),
-        ("힘들었던 날이든, 그냥 지나간 날이든.",
-         "오늘 여기까지 온 것만으로 이미 충분히 잘 하고 있는 것입니다.",
-         "그 감각은 혼자만 경험하는 것이 아닙니다."),
-        ("오늘 하루 수고하셨습니다.",
-         "눈에 보이지 않더라도 분명히 쌓이고 있는 것들이 있습니다.",
-         "내일도 함께하겠습니다."),
-        ("같은 띠여도 오늘 하루를 어떻게 쓰느냐는 각자 달라요.",
-         "오늘 당신이 고른 것들이 쌓여서 당신만의 흐름이 돼요.",
-         "오늘 가장 자연스럽게 오는 것을 따라가보시기 바랍니다."),
+    # 공감층 (띠별 고유 감각)
+    _C_EMPATHY_LOCAL = {
+        "쥐띠":   "정보 수집은 빠르지만 실행으로 이어지지 못하는 날입니다.",
+        "소띠":   "묵묵히 나아가고 있으나 결과가 아직 보이지 않는 날입니다.",
+        "호랑이띠": "에너지는 충분하지만 방향을 정하지 못하고 있는 날입니다.",
+        "토끼띠": "여러 가지를 동시에 진행하다 완성에 이르지 못한 느낌이 드는 날입니다.",
+        "용띠":   "에너지는 넘치지만 어디에 써야 할지 모르는 날입니다.",
+        "뱀띠":   "흐름이 보이지만 확신을 갖기 어려운 날입니다.",
+        "말띠":   "전하고 싶은 말이 있으나 적절한 타이밍을 찾지 못하고 있는 날입니다.",
+        "양띠":   "타인을 배려하는 데 집중하다 스스로가 뒷전이 된 날들이 쌓인 상태입니다.",
+        "원숭이띠": "성과를 보여주고 싶지만 타이밍을 잡지 못하고 있는 날입니다.",
+        "닭띠":   "충분히 준비되지 않았다는 판단으로 실행을 계속 미루고 있는 날입니다.",
+        "개띠":   "오래 참아온 말이 있으나 꺼내기 어려운 상황인 날입니다.",
+        "돼지띠": "예민해진 감각이 부담으로 작용하는 날입니다.",
+    }
+    empathy = _C_EMPATHY_LOCAL.get(c['kr'], "")
+
+    def _flow(score):
+        if score >= 80: return "오늘 흐름이 잘 열려 있는 날입니다."
+        if score >= 65: return "안정적인 흐름의 날입니다."
+        if score >= 50: return "잔잔하게 지나가는 날입니다."
+        return "신중하게 움직이는 것이 좋은 날입니다."
+
+    # 인과 브릿지 (오늘 흐름 → 출생연도 → 궁합)
+    _to_year_bridges = [
+        "그 흐름이 출생연도에 따라 조금씩 다르게 나타납니다.",
+        f"오늘 {c['kr']}의 에너지는 태어난 해에 따라 다른 방식으로 작동합니다.",
+        "같은 띠라도 출생연도별로 오늘 흐름의 강도가 달라집니다.",
+        "그 에너지가 출생연도와 만나면 이렇게 구체화됩니다.",
+        "오늘의 흐름을 출생연도별로 더 자세히 살펴보겠습니다.",
     ]
-    _ce = _c_endings[now_kst().day % len(_c_endings)]
-    chinese_ending_html = f'''
-<div style="margin:24px 0 0 0;border-radius:18px;overflow:hidden;
-            box-shadow:0 2px 12px rgba(245,158,11,0.1)">
-  <div style="background:linear-gradient(90deg,#d97706,#f59e0b);
-              padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
-    <span style="font-size:14px">{c['emoji']}</span>
-    <span style="font-size:11px;font-weight:700;color:#fef3c7;letter-spacing:0.1em">
-      오늘 {c['kr']}에게 전하는 말
-    </span>
+    _to_compat_bridges = [
+        "오늘 누구와 함께하느냐도 이 흐름에 영향을 줍니다.",
+        f"그리고 오늘 {c['kr']}에게 잘 맞는 띠와 거리를 둬야 할 띠가 있습니다.",
+        "오늘의 에너지는 주변 사람에 따라 더 강해지거나 약해집니다.",
+        "그 흐름에서 궁합이 오늘을 결정하는 변수가 됩니다.",
+        "오늘 함께하는 사람이 이 흐름을 좌우합니다.",
+    ]
+
+    tyb = _to_year_bridges[kst_day % len(_to_year_bridges)]
+    tcb = _to_compat_bridges[(kst_day+1) % len(_to_compat_bridges)]
+
+    # 행동 제안
+    _c_actions = [
+        "오늘 하루 이것 하나만 실천하시기 바랍니다.",
+        "지금 가장 먼저 떠오른 것을 오늘의 방향으로 삼으시기 바랍니다.",
+        "복잡하게 생각하지 않아도 됩니다. 오늘은 하나면 충분합니다.",
+        "오늘의 방향이 이 흐름 안에 있습니다.",
+        "오늘 가장 자연스럽게 오는 것을 따라가시기 바랍니다.",
+    ]
+    action = _c_actions[kst_day % len(_c_actions)]
+
+    # 엔딩
+    _ce = _c_endings[kst_now.day % len(_c_endings)]
+
+    # 하나의 흐르는 스토리
+    story_html = f'''
+<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+
+  <!-- ① 공감 — 독자 감정 포착 -->
+  <div style="padding:1.6rem 1.8rem 1.4rem;
+              background:linear-gradient(135deg,#fffbeb,#fef3c7);
+              border-radius:18px;margin-bottom:0;border-left:4px solid #f59e0b">
+    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
+              margin:0;word-break:keep-all">
+      💭 {empathy}
+    </p>
   </div>
-  <div style="background:linear-gradient(160deg,#fffbeb,#fef9c3);padding:1.4rem 1.5rem 0.5rem">
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem 0;word-break:keep-all">{_ce[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.2rem 0;
-              font-style:italic;padding-left:0.8rem;border-left:3px solid #fcd34d;
-              word-break:keep-all">{_ce[1]}</p>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#f59e0b,#92400e);margin:0 auto"></div>
+
+  <!-- ② 인과·연결 스토리 -->
+  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+
+    <!-- 오늘의 흐름 -->
+    <div style="border-left:5px solid #f59e0b;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">오늘 {c['kr']}의 흐름 · {_flow(total)}</div>
+      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
+                margin:0 0 12px;word-break:keep-all">{fortune}</p>
+    </div>
+
+    <!-- 연결: 오늘 흐름 → 출생연도 -->
+    <div style="background:#f9fafb;padding:8px 18px;
+                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;text-align:center">{tyb}</p>
+    </div>
+
+    <!-- 출생연도별 -->
+    <div style="border-left:5px solid #d97706;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:12px;font-weight:600">📅 출생연도별 오늘 운세</div>
+      {year_section_html}
+    </div>
+
+    <!-- 연결: 출생연도 → 궁합 -->
+    <div style="background:#f9fafb;padding:8px 18px;
+                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;text-align:center">{tcb}</p>
+    </div>
+
+    <!-- 궁합 -->
+    <div style="border-left:5px solid #16a34a;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:12px;font-weight:600">💑 오늘의 띠별 궁합</div>
+      <div style="display:grid;gap:10px">
+        <div style="background:#f0fdf4;border-radius:10px;padding:14px;border:1px solid #d1fae5">
+          <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:6px">
+            🟢 오늘 잘 맞는 띠: {best_compat[1]} {best_compat[0]}
+          </div>
+          <div style="font-size:13px;color:#374151;line-height:1.85">{best_compat[2]}</div>
+        </div>
+        <div style="background:#fef2f2;border-radius:10px;padding:14px;border:1px solid #fee2e2">
+          <div style="font-size:13px;font-weight:700;color:#991b1b;margin-bottom:6px">
+            🔴 오늘 거리두기: {avoid_compat[1]} {avoid_compat[0]}
+          </div>
+          <div style="font-size:13px;color:#374151;line-height:1.85">{avoid_compat[2]}</div>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div style="background:#92400e;padding:1rem 1.5rem;text-align:center">
-    <div style="font-size:11px;color:#fcd34d;letter-spacing:0.12em;
-                margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
-    <span style="font-size:16px;font-weight:800;color:#fff;
-                 word-break:keep-all;line-height:1.6">❝ {_ce[2]} ❞</span>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#92400e,#f59e0b);margin:0 auto"></div>
+
+  <!-- ③ 오늘 하나만 — 엔딩 -->
+  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(146,64,14,0.1)">
+    <div style="background:linear-gradient(90deg,#92400e,#d97706);
+                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
+      <span style="font-size:14px">{c['emoji']}</span>
+      <span style="font-size:11px;font-weight:700;color:#fef3c7;letter-spacing:0.1em">
+        오늘 {c['kr']}에게 전하는 말
+      </span>
+    </div>
+    <div style="background:linear-gradient(160deg,#fffbeb,#fef9c3);
+                padding:1.4rem 1.5rem 0.5rem">
+      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+                margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
+      <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.2rem;
+                font-style:italic;padding-left:0.8rem;
+                border-left:3px solid #fbbf24;word-break:keep-all">{_ce[1]}</p>
+    </div>
+    <div style="background:#92400e;padding:1rem 1.5rem;text-align:center">
+      <div style="font-size:11px;color:#fde68a;letter-spacing:0.12em;
+                  margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
+      <span style="font-size:16px;font-weight:800;color:#fff;
+                   word-break:keep-all;line-height:1.6">❝ {_ce[2]} ❞</span>
+    </div>
   </div>
+
 </div>'''
 
-    # ── 행운 가이드 카드 ──
-    lucky_guide_html = f'''
-<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);border-left:5px solid #f59e0b">
-  <span class="badge" style="background:#fef3c7;color:#92400e">🍀 오늘의 행운 아이템 & 색상 활용 가이드</span>
-  <div style="margin-top:14px;display:grid;gap:10px">
-    <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #fde68a;
-                font-size:13px;line-height:1.85;color:#374151">
-      <div style="font-weight:700;color:#b45309;margin-bottom:6px">🎨 행운 색상: {lucky_color}</div>
-      {color_guide}
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #d1fae5;
-                font-size:13px;line-height:1.85;color:#374151">
-      <div style="font-weight:700;color:#065f46;margin-bottom:6px">✨ 행운 아이템: {lucky_item}</div>
-      {item_guide}
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #e0e7ff;font-size:13px;color:#374151">
-      <div style="font-weight:700;color:#4338ca;margin-bottom:4px">🔢 행운 숫자: {lucky_number}</div>
-      오늘 중요한 선택의 순간에 이 숫자를 떠올려 보세요. 비밀번호, 약속 시간, 좌석 번호 등 작은 선택에서도 의미를 찾을 수 있습니다.
-    </div>
-  </div>
-</div>'''
-
-    # ── SEO 키워드 (확장) ──
-    years_tags = [f"{y}년생 {c['kr']}" for y in years]
+    # SEO 키워드
     kw_list = [
-        c['kr'], f"{c['kr']} 오늘운세", f"{c['kr']} 오늘의운세",
-        f"{c['kr']} 띠운세", f"{c['kr']} {today_dot}",
-        f"{c['kr']} 재물운", f"{c['kr']} 건강운", f"{c['kr']} 애정운",
-        "띠운세 오늘", "오늘의운세", "무료운세", f"운세 {today_dot[:4]}",
-        "재물운 상승", "오늘 주의", "띠별운세",
-        f"{c['kr']} 시간대별 운세", f"{c['kr']} 출생연도별 운세",
-        f"{c['kr']} 궁합", f"오늘 찰떡궁합 {best_compat[0]}",
-        f"행운 색상 {lucky_color}", f"행운 아이템 {lucky_item}",
-        "운세 지수", "오늘 골든타임",
-    ] + years_tags
+        c['kr'], f"{c['kr']} 오늘운세", f"{c['kr']} 운세",
+        f"{c['kr']} 오늘의운세", f"{c['kr']} {today_dot}",
+        f"{c['kr']} 띠운세", f"띠별운세", "오늘운세", "무료운세",
+        f"{c['kr']} 출생연도", f"{c['kr']} 궁합",
+    ]
+    for yr in c['years']:
+        kw_list.append(f"{yr}년생 오늘운세")
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
     content = f"""{style()}
 <div class="wrap">
-  <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+  <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
     <h1>{c['emoji']} {c['kr']} 오늘의 운세</h1>
-    <p>{today_str} · {signal}</p>
+    <p>{today_str} · {c['year']}</p>
+    <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);
+                padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">
+      {signal}
+    </div>
   </div>
 
-  <!-- 공감형 오프닝 (맨 위) -->
-  {chinese_opening_html}
-
-  <!-- 운세 지수 바 (fortune.html 연동용 — 화면에는 숨김) -->
-  {score_html}
-  <!-- calc_html 제거 (근거 없는 수치 → 애드센스 심사 기준) -->
-
-  <!-- 시간대별 운세 흐름 -->
-  {time_flow_html}
+  <!-- 하나의 흐르는 스토리 -->
+  {story_html}
 
   <!-- 이미지 저장 카드 -->
-  <div id="{card_id}" class="fortune-card" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
-    <div class="fc-emoji">{c['emoji']}</div>
-    <div class="fc-title">{c['kr']}</div>
-    <div class="fc-sub">{today_str}</div>
-    <div class="fc-stars">{rating}</div>
-    <div class="fc-text">{fortune}</div>
-    <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.3);padding-top:12px">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:8px">📅 출생연도별 오늘 운세</div>
-      {year_rows_in_card}
-    </div>
-    <div class="fc-watermark" style="margin-top:14px">todayhoroscopelaboratory.blogspot.com · {today_str}</div>
-  </div>
-
+  {post_img("chinese")}
+  {image_card_html}
   {share_buttons(card_id, f"{c['kr']}_운세_{today_dot}")}
 
-  <!-- 대표 이미지 -->
-  {post_img("chinese")}
+  <!-- score_html (fortune.html 연동) -->
+  {score_html}
 
-  <!-- 출생연도별 맞춤 운세 -->
-  {year_section_html}
-
-  <!-- 실전 체크포인트 -->
-  {checkpoint_section}
-
-  {caution_html}
-
-  <!-- 현실 디테일 -->
-  {chinese_real_detail}
-
-  <!-- 띠별 궁합 -->
-  {compat_html}
-
-  <!-- 행운 아이템·색상 가이드 -->
-  {lucky_guide_html}
-
-  <!-- 공통 엔딩 -->
-  {chinese_ending_html}
-
-  <div class="card"><span class="badge">🔍 관련 키워드</span><div class="tag-cloud">{tag_html}</div></div>
-  <div class="meta"><p>{c['kr']} 출생연도: {c['year']}</p><p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
+  <!-- SEO 키워드 -->
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html}</div>
+  </div>
+  <div class="meta"><p>{c['kr']} 출생연도: {c['year']}</p>
+    <p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
   {site_link()}
 </div>"""
     return title, content, ["띠운세", c['kr'], "운세", "오늘운세"]
 
 
-def zodiac_weekly_fortune(kr_name):
-    """주간 운세 CSV에서 가져오기 — zodiac_weekly_1000.csv"""
-    if not zodiac_weekly.empty and 'zodiac' in zodiac_weekly.columns:
-        m = zodiac_weekly[zodiac_weekly['zodiac'] == kr_name]
-        if not m.empty:
-            text = m.sample(1).iloc[0]['fortune']
-            return str(text).replace('\n\n', '<br><br>').replace('\n', '<br>')
-    return sentence()
-
-def zodiac_monthly_fortune(kr_name):
-    """월간 운세 CSV에서 가져오기 — zodiac_monthly_1000.csv"""
-    if not zodiac_monthly.empty and 'zodiac' in zodiac_monthly.columns:
-        m = zodiac_monthly[zodiac_monthly['zodiac'] == kr_name]
-        if not m.empty:
-            text = m.sample(1).iloc[0]['fortune']
-            return str(text).replace('\n\n', '<br><br>').replace('\n', '<br>')
-    return sentence()
-
-def chinese_weekly_fortune(en_name):
-    """띠 주간 운세 CSV에서 가져오기 — chinese_weekly_1000.csv"""
-    if not chinese_weekly.empty and 'animal_zodiac' in chinese_weekly.columns:
-        m = chinese_weekly[chinese_weekly['animal_zodiac'] == en_name]
-        if not m.empty:
-            return m.sample(1).iloc[0]['fortune']
-    return sentence()
-
-def chinese_monthly_fortune(en_name):
-    """띠 월간 운세 CSV에서 가져오기 — chinese_monthly_1000.csv"""
-    if not chinese_monthly.empty and 'animal_zodiac' in chinese_monthly.columns:
-        m = chinese_monthly[chinese_monthly['animal_zodiac'] == en_name]
-        if not m.empty:
-            return m.sample(1).iloc[0]['fortune']
-    return sentence()
-
 def build_zodiac_weekly_post(today_str):
-    """별자리별 주간운세 12개 개별 발행 — 매주 월요일 / 스토리텔링 구조"""
-    week_range = get_week_range()
-    today_date = now_kst().date()
-    mon_date   = date.fromordinal(today_date.toordinal() - today_date.weekday())
-    month_str  = mon_date.strftime("%Y년 %m월")
-
-    # 주간 공감형 오프닝 풀
-    _W_OPENINGS = [
-        "이번 주의 흐름을 점검할 시간입니다. 방향에 대한 의문이 드는 것은 자연스러운 과정입니다.",
-        "새로운 한 주가 시작되었습니다. 이번 주를 어떻게 운영할지 함께 살펴보겠습니다.",
-        "이번 주 별자리가 전달하는 에너지가 무엇인지 확인할 시간입니다.",
-        "한 주를 온전히 살아내는 것은 쉽지 않은 일입니다. 이번 주의 흐름을 미리 파악해 두시기 바랍니다.",
-        "새로운 한 주가 시작되었습니다. 이번 주는 지난주와 다른 흐름이 예상됩니다.",
-    ]
-
-    # 주간 공통 엔딩 풀
-    _W_ENDINGS = [
-        ("이번 주 하루하루의 축적이 결국 하나의 흐름을 만들어 냅니다.",
-         "현재 올바른 방향으로 나아가고 있습니다. 이러한 감각은 혼자만 경험하는 것이 아닙니다.",
-         "이번 주 가장 마음에 걸리는 한 가지에 집중하시기 바랍니다."),
-        ("순탄한 주간이든 인내가 필요한 주간이든, 끝까지 완수하는 것이 중요합니다.",
-         "이번 주의 흐름을 파악하였으니 보다 안정적으로 움직이실 수 있습니다.",
-         "오늘 하루에만 집중하시기 바랍니다. 내일의 흐름은 내일이 결정합니다."),
-        ("이번 주 별자리가 전달한 방향을 참고하여 나머지는 스스로 결정하시기 바랍니다.",
-         "운세는 방향을 제시하는 도구입니다. 그 방향을 어떻게 걸어가느냐는 본인의 선택입니다.",
-         "이번 주도 최선을 다하시기 바랍니다."),
-    ]
+    """별자리별 주간운세 12개 — 별과띠가만나는시간 방식 스토리텔링"""
+    kst_now   = now_kst()
+    # 이번 주 월요일 기준
+    dow       = kst_now.weekday()
+    mon_date  = (kst_now - timedelta(days=dow)).date()
+    sun_date  = mon_date + timedelta(days=6)
+    month_str = f"{mon_date.month}월"
+    week_num  = (mon_date.day - 1) // 7 + 1
+    week_label = f"{month_str} {week_num}주차"
+    week_range = f"{mon_date.month}/{mon_date.day} ~ {sun_date.month}/{sun_date.day}"
 
     results = []
     for z in ZODIACS:
-        fortune = zodiac_weekly_fortune(z['kr'])
-        rating  = stars()
-        card_id = f"zwfc-{z['en']}"
-        total, money, health, love = pick_score(z['kr'])
+        fortune  = zodiac_weekly_fortune(z['kr'])
+        rating   = stars()
+        card_id  = f"zwfc-{z['en']}"
 
-        scores = {"총운": total, "금전운": money, "건강운": health, "애정운": love}
-        top = max(scores, key=scores.get)
-        low = min(scores, key=scores.get)
-        if scores[top] >= 80:
-            signal_map = {
-                "총운":  "이번 주 움직이기 좋은 흐름",
-                "금전운": "이번 주 환급·포인트 챙길 타이밍",
-                "건강운": "이번 주 새 운동 루틴 시작하기 좋은 날",
-                "애정운": "이번 주 먼저 연락해도 되는 흐름",
-            }
-            signal = signal_map.get(top, f"이번 주 {top} 주목")
-        elif scores[low] <= 55:
-            signal_map_warn = {
-                "총운":  "이번 주 버티는 게 전략인 흐름",
-                "금전운": "이번 주 충동 결제 특히 주의",
-                "건강운": "이번 주 무리하지 않는 게 핵심",
-                "애정운": "이번 주 감정 대화 타이밍 조심",
-            }
-            signal = signal_map_warn.get(low, f"이번 주 {low} 주의")
-        else:
-            signal = "이번 주 잔잔하게 챙기는 흐름"
+        raw_total, raw_money, raw_health, raw_love = pick_score(z['kr'])
+        total = raw_total
+        signal = "이번 주 흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "신중한 흐름 ▼")
 
-        # 주차 계산 (검색 유입 기간 연장)
-        week_num = (mon_date.day - 1) // 7 + 1
-        week_label = f"{month_str} {week_num}주차"
-        title = f"{z['kr']} {week_label} 주간운세 {week_range} | {signal}"
+        # 별자리 특성
+        z_info   = ZODIAC_INFO.get(z['kr'], {})
+        z_tip    = z_info.get("tip", "")
+        z_compat = z_info.get("compatible", "")
 
-        # ── _flow_level (주간용) ──
         def _w_flow(score):
             if score >= 80: return "이번 주 흐름이 잘 열려 있는 주간입니다."
             if score >= 65: return "안정적인 흐름의 주간입니다."
             if score >= 50: return "잔잔하게 흘러가는 주간입니다."
             return "신중하게 움직여야 하는 주간입니다."
 
-        # ── 공감형 오프닝 ──
-        _wi = now_kst().day % len(_W_OPENINGS)
-        opening = _W_OPENINGS[_wi]
+        opening = random.choice(_W_OPENINGS)
+        _we     = _W_ENDINGS[kst_now.day % len(_W_ENDINGS)]
 
-        # ── 이번 주 흐름 스토리 ──
-        weekly_story_html = f'''
-<div class="card" style="border-left:5px solid #7c3aed">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-    <span style="font-size:22px">📅</span>
-    <div>
-      <div style="font-size:16px;font-weight:700;color:#7c3aed">이번 주 흐름</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:2px">{_w_flow(total)} · {week_range}</div>
-    </div>
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#333;font-weight:500;margin:0 0 10px 0">{fortune}</p>
-  <!-- 점수 바 제거 (근거 없는 수치 — 애드센스 심사 기준) -->
-</div>'''
+        # 공감층 (별자리별 이번 주 감각)
+        _W_EMPATHY_LOCAL = {
+            "양자리":     "이번 주 시작은 의욕 있게 했는데 어느 순간 힘이 빠지는 패턴이 반복되고 있습니다.",
+            "황소자리":   "이번 주 변화가 생길 것 같아 불안한 감각이 있습니다.",
+            "쌍둥이자리": "이번 주 너무 많은 것에 동시에 관심이 가서 정작 중요한 것을 놓칠 것 같습니다.",
+            "게자리":     "이번 주 감정 기복이 평소보다 조금 더 크게 느껴지는 시기입니다.",
+            "사자자리":   "이번 주 열심히 하고 있는데 주변의 반응이 기대에 미치지 못하는 상황입니다.",
+            "처녀자리":   "이번 주 완벽하게 준비하려다 오히려 시작이 늦어지고 있습니다.",
+            "천칭자리":   "이번 주 결정해야 할 것이 있는데 어느 쪽이 맞는지 계속 고민 중입니다.",
+            "전갈자리":   "이번 주 주변을 너무 많이 분석하다 정작 자신의 에너지가 소진되고 있습니다.",
+            "사수자리":   "이번 주 새로운 것을 시작하고 싶은 충동이 강한데 마무리할 것들이 쌓여 있습니다.",
+            "염소자리":   "이번 주 꾸준히 하고 있는데 결과가 아직 보이지 않아 지치는 시기입니다.",
+            "물병자리":   "이번 주 자신만의 방식이 맞는지 의심이 드는 순간이 있습니다.",
+            "물고기자리": "이번 주 타인의 감정에 너무 많이 영향을 받아 자신의 중심을 잃을 것 같습니다.",
+        }
+        empathy = _W_EMPATHY_LOCAL.get(z['kr'], "")
 
-        # ── 공통 엔딩 ──
-        _we = _W_ENDINGS[now_kst().day % len(_W_ENDINGS)]
-        weekly_ending_html = f'''
-<div style="margin:24px 0 0 0;border-radius:18px;overflow:hidden;
-            box-shadow:0 2px 12px rgba(124,58,237,0.08)">
-  <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
-              padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
-    <span style="font-size:14px">{z['emoji']}</span>
-    <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
-      이번 주 {z['kr']}에게 전하는 말
-    </span>
-  </div>
-  <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 0.5rem">
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem 0;word-break:keep-all">{_we[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem 0;
-              font-style:italic;padding-left:0.8rem;border-left:3px solid #c4b5fd;
-              word-break:keep-all">{_we[1]}</p>
-  </div>
-  <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
-    <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
-                margin-bottom:0.4rem;font-weight:600">이번 주 하나만 한다면</div>
-    <span style="font-size:16px;font-weight:800;color:#fff;
-                 word-break:keep-all;line-height:1.6">❝ {_we[2]} ❞</span>
-  </div>
-</div>'''
+        # 인과 브릿지 (공감 → 이번 주 흐름 → 별자리 특성 → 엔딩)
+        kst_day = kst_now.day
+        _to_flow_bridges = [
+            f"그 감각이 이번 주 {z['kr']}의 흐름에서 비롯된 것입니다.",
+            f"이번 주 {z['kr']}의 에너지가 그 방향을 만들어내고 있습니다.",
+            f"그 이유가 이번 주 흐름 안에 있습니다.",
+            f"그것이 이번 주 {z['kr']}에게 나타나는 자연스러운 에너지입니다.",
+            f"이번 주 별자리 흐름이 그 감각의 원인입니다.",
+        ]
+        _to_tip_bridges = [
+            f"그 흐름을 알고 나면 이번 주를 다르게 쓸 수 있습니다.",
+            f"그리고 이번 주 {z['kr']}에게 가장 중요한 것이 있습니다.",
+            f"이번 주 이 흐름을 가장 잘 활용하는 방법은 이것입니다.",
+            f"그 에너지를 어떻게 쓰느냐가 이번 주를 결정합니다.",
+            f"이번 주 {z['kr']}의 핵심 방향입니다.",
+        ]
 
-        # 별자리 고유 정보 섹션 (날짜 무관 상시 검색 유입)
-        zodiac_info_weekly = zodiac_info_card(z['kr'], z['emoji'])
+        tfb = _to_flow_bridges[kst_day % len(_to_flow_bridges)]
+        ttb = _to_tip_bridges[(kst_day+1) % len(_to_tip_bridges)]
 
+        # compat html
+        compat_tip_html_w = (
+            f'<div style="background:#f5f3ff;border-radius:10px;padding:11px 14px;' +
+            f'font-size:13px;color:#5b21b6;line-height:1.85;' +
+            f'border-left:3px solid #a78bfa;word-break:keep-all;margin-top:10px">' +
+            f'💡 이번 주 잘 맞는 별자리: {z_compat}</div>'
+        ) if z_compat else ''
+
+        # SEO
         kw_list = [
             z['kr'], f"{z['kr']} 주간운세", f"{z['kr']} 이번주운세",
             f"{z['kr']} {week_label}", "별자리 주간운세",
@@ -2732,6 +2473,81 @@ def build_zodiac_weekly_post(today_str):
             f"{z['kr']} 특징", f"{z['kr']} 성격", f"{z['kr']} 궁합",
         ]
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
+
+        title = f"{z['kr']} {week_label} 주간운세 {week_range} | {signal}"
+
+        # 하나의 흐르는 스토리
+        story_html = f'''
+<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+
+  <!-- ① 공감 -->
+  <div style="padding:1.6rem 1.8rem 1.4rem;
+              background:linear-gradient(135deg,#faf5ff,#f0f9ff);
+              border-radius:18px;margin-bottom:0;border-left:4px solid #a78bfa">
+    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
+              margin:0;word-break:keep-all">💭 {empathy}</p>
+  </div>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#a78bfa,#7c3aed);margin:0 auto"></div>
+
+  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+
+    <!-- ② 인과 — 이번 주 흐름 -->
+    <div style="border-left:5px solid #7c3aed;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">이번 주 흐름 · {_w_flow(total)}</div>
+      <p style="font-size:13px;color:#6b7280;font-style:italic;
+                margin:0 0 14px;word-break:keep-all">{tfb}</p>
+      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
+                margin:0;word-break:keep-all">{fortune}</p>
+    </div>
+
+    <!-- 연결 -->
+    <div style="background:#f9fafb;padding:8px 18px;
+                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
+                text-align:center">{ttb}</p>
+    </div>
+
+    <!-- ③ 별자리 특성 + 궁합 -->
+    <div style="border-left:5px solid #a78bfa;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">{z['emoji']} {z['kr']}이 이번 주 집중해야 할 것</div>
+      <p style="font-size:14px;line-height:2.05;color:#374151;
+                margin:0;word-break:keep-all">{z_tip if z_tip else f"이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
+      {compat_tip_html_w}
+    </div>
+
+  </div>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto"></div>
+
+  <!-- ④ 이번 주 하나만 — 엔딩 -->
+  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
+    <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
+                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
+      <span style="font-size:14px">{z['emoji']}</span>
+      <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
+        이번 주 {z['kr']}에게 전하는 말
+      </span>
+    </div>
+    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);
+                padding:1.4rem 1.5rem 0.5rem">
+      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+                margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
+      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
+                font-style:italic;padding-left:0.8rem;
+                border-left:3px solid #c4b5fd;word-break:keep-all">{_we[1]}</p>
+    </div>
+    <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
+      <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
+                  margin-bottom:0.4rem;font-weight:600">이번 주 하나만 한다면</div>
+      <span style="font-size:16px;font-weight:800;color:#fff;
+                   word-break:keep-all;line-height:1.6">❝ {_we[2]} ❞</span>
+    </div>
+  </div>
+
+</div>'''
 
         content_html = f"""{style()}
 <div class="wrap">
@@ -2742,15 +2558,7 @@ def build_zodiac_weekly_post(today_str):
                 padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
   </div>
 
-  <!-- 공감형 오프닝 -->
-  <div style="padding:1.4rem 1.6rem 1.2rem;background:linear-gradient(135deg,#faf5ff,#f0f9ff);
-              border-radius:16px;margin-bottom:16px;border-left:4px solid #a78bfa">
-    <p style="font-size:15px;line-height:2.05;color:#374151;font-weight:500;
-              margin:0;word-break:keep-all">💭 {opening}</p>
-  </div>
-
-  <!-- 이번 주 흐름 -->
-  {weekly_story_html}
+  {story_html}
 
   <!-- 이미지 저장 카드 -->
   <div id="{card_id}" class="fortune-card">
@@ -2762,14 +2570,9 @@ def build_zodiac_weekly_post(today_str):
     <div class="fc-watermark">todayhoroscopelaboratory.blogspot.com · {week_range}</div>
   </div>
   {share_buttons(card_id, f"{z['kr']}_주간운세")}
-
   {post_img("weekly")}
 
-  <!-- 공통 엔딩 -->
-  {weekly_ending_html}
-
-  <!-- 별자리 고유 정보 (날짜 무관 상시 검색 유입 강화) -->
-  {zodiac_info_weekly}
+  {zodiac_info_card(z['kr'], z['emoji'])}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
@@ -2777,335 +2580,252 @@ def build_zodiac_weekly_post(today_str):
   {site_link()}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매주 업데이트</div>
 </div>"""
+
         results.append((title, content_html, ["별자리주간", z['kr'], "주간운세"]))
     return results
 
 
 def build_chinese_monthly_post(today_str):
-    """띠별 월간운세 12개 개별 발행 — 매월 1일 / v2 구조"""
+    """띠별 월간운세 12개 — 별과띠가만나는시간 방식 스토리텔링"""
     month_str = get_next_month_str()
     results   = []
 
-    # ── v2 CSV 로드 ──
-    v2_path = os.path.join(DATA, "chinese_monthly_v2.csv")
-    v2_df   = pd.DataFrame()
-    if os.path.exists(v2_path):
-        v2_df = pd.read_csv(v2_path, encoding="utf-8")
+    v2_df = csv("chinese_monthly_v2.csv")
 
     def _v2_row(en_name):
-        """띠별 v2 데이터 랜덤 1행 반환. 없으면 None."""
         if v2_df.empty:
             return None
         m = v2_df[v2_df['animal_zodiac'] == en_name]
         return m.sample(1).iloc[0] if not m.empty else None
 
-    # ── 띠별 고유 특성 정보 (독창성·정보성 강화) ──
+    # ── 띠별 고유 특성 정보 ──
     _CHINESE_INFO = {
-        "rat":    {"kr":"쥐띠", "trait":"빠른 판단력과 정보 수집 능력이 뛰어난 타입", "strength":"민첩함·창의성·적응력", "weakness":"과도한 걱정·우유부단", "monthly_tip":"이달 쥐띠는 정보가 곧 기회입니다. 빠르게 움직이되 검증을 먼저 하는 것이 이달 핵심입니다."},
-        "ox":     {"kr":"소띠", "trait":"꾸준하고 성실하며 한번 시작한 것은 끝까지 완수하는 타입", "strength":"인내·신뢰감·실행력", "weakness":"변화 거부·고집", "monthly_tip":"이달 소띠는 꾸준함이 가장 강한 무기입니다. 새로 시작하는 것보다 지속하는 것이 이달 더 좋은 결과를 만들어 냅니다."},
-        "tiger":  {"kr":"호랑이띠", "trait":"용감하고 카리스마가 강하며 리더십이 자연스럽게 나오는 타입", "strength":"추진력·용기·리더십", "weakness":"충동적·기다림 어려움", "monthly_tip":"이달 호랑이띠는 에너지가 넘치는 시기입니다. 그 에너지를 한 방향으로 집중하는 것이 이달 가장 중요한 전략입니다."},
-        "rabbit": {"kr":"토끼띠", "trait":"섬세하고 눈치가 빠르며 조화를 추구하는 타입", "strength":"공감능력·세심함·사교성", "weakness":"우유부단·회피 경향", "monthly_tip":"이달 토끼띠는 관계에서 가장 빛나는 시기입니다. 먼저 다가가는 것이 이달 더 좋은 연결을 만들어 줍니다."},
-        "dragon": {"kr":"용띠", "trait":"카리스마가 강하고 이상이 높으며 큰 그림을 보는 타입", "strength":"열정·창의성·카리스마", "weakness":"완벽주의·고집", "monthly_tip":"이달 용띠는 큰 아이디어를 실행으로 옮기기 좋은 시기입니다. 단, 세부 계획도 함께 챙기시기 바랍니다."},
-        "snake":  {"kr":"뱀띠", "trait":"직관이 예리하고 신중하며 깊게 생각하는 타입", "strength":"통찰력·신중함·집중력", "weakness":"의심·감정 표현 어려움", "monthly_tip":"이달 뱀띠는 직관이 가장 정확하게 작동하는 시기입니다. 충분히 관찰한 후 움직이는 것이 이달 맞는 방식입니다."},
-        "horse":  {"kr":"말띠", "trait":"자유를 사랑하고 활동적이며 변화를 즐기는 타입", "strength":"열정·적응력·사교성", "weakness":"끈기 부족·집중 분산", "monthly_tip":"이달 말띠는 활동적인 에너지가 올라오는 시기입니다. 하나에 집중하는 것이 이달 가장 좋은 결과를 만들어 냅니다."},
-        "goat":   {"kr":"양띠", "trait":"온화하고 배려심이 깊으며 예술적 감수성이 풍부한 타입", "strength":"공감능력·창의성·온화함", "weakness":"자기주장 약함·의존적", "monthly_tip":"이달 양띠는 자신의 의견을 먼저 표현하는 연습이 필요한 시기입니다. 배려만큼 자기 자신도 챙기시기 바랍니다."},
-        "monkey": {"kr":"원숭이띠", "trait":"재치 있고 영리하며 새로운 것을 빠르게 습득하는 타입", "strength":"지능·유머·적응력", "weakness":"집중력 분산·변덕", "monthly_tip":"이달 원숭이띠는 아이디어가 풍부한 시기입니다. 그 아이디어를 하나 선택해서 완성하는 것이 이달 핵심입니다."},
-        "rooster":{"kr":"닭띠", "trait":"성실하고 꼼꼼하며 완벽을 추구하는 타입", "strength":"성실함·책임감·분석력", "weakness":"완벽주의·비판적", "monthly_tip":"이달 닭띠는 꼼꼼함이 빛나는 시기입니다. 완벽하지 않아도 진행하는 연습이 이달 더 좋은 결과를 만들어 냅니다."},
-        "dog":    {"kr":"개띠", "trait":"충성스럽고 정직하며 신뢰를 중시하는 타입", "strength":"충성심·정직함·책임감", "weakness":"걱정 많음·융통성 부족", "monthly_tip":"이달 개띠는 신뢰를 쌓는 행동이 가장 빛나는 시기입니다. 말보다 행동으로 보여주는 것이 이달 가장 강한 전략입니다."},
-        "pig":    {"kr":"돼지띠", "trait":"낙천적이고 인정이 많으며 베푸는 것을 좋아하는 타입", "strength":"낙천성·인정·성실함", "weakness":"순진함·지나친 관대함", "monthly_tip":"이달 돼지띠는 나눔이 돌아오는 흐름입니다. 베푸는 것도 좋지만 자신의 여유를 먼저 확인하시기 바랍니다."},
-    }
-    def _chinese_info_card(en_name):
-        info = _CHINESE_INFO.get(en_name)
-        if not info: return ""
-        return f'''
-<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-left:5px solid #f59e0b">
-  <span class="badge" style="background:#fef3c7;color:#92400e">🐾 {info["kr"]} 이달의 특성</span>
-  <div style="margin-top:12px">
-    <div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:8px">{info["trait"]}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #fde68a">
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;font-weight:600">강점</div>
-        <div style="font-size:13px;font-weight:600;color:#374151">{info["strength"]}</div>
-      </div>
-      <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #fde68a">
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;font-weight:600">주의</div>
-        <div style="font-size:13px;font-weight:600;color:#374151">{info["weakness"]}</div>
-      </div>
-    </div>
-    <div style="background:#fef3c7;border-radius:8px;padding:12px;font-size:14px;
-                line-height:1.9;color:#374151;word-break:keep-all">{info["monthly_tip"]}</div>
-  </div>
-</div>'''
-
-
-    # ── 운세 지수 이유 문구 풀 ──
-    _SCORE_REASON = {
-        "total_up":   [
-            "조용히 쌓아온 것들이 이달 중순쯤 하나씩 드러나기 시작하는 흐름입니다.",
-            "기다리던 연락이나 결과가 이달 안에 들어올 가능성이 있습니다.",
-            "먼저 움직이는 쪽이 유리한 달입니다. 타이밍을 놓치지 마시기 바랍니다.",
-        ],
-        "total_warn": [
-            "이달은 새로 시작하기보다 유지하는 것이 더 현명한 달입니다.",
-            "무리하게 밀어붙일수록 손해가 커지는 흐름입니다. 속도를 줄이시기 바랍니다.",
-        ],
-        "money_up":   [
-            "충동구매를 줄이면 이달 말에 생각보다 금전이 남는 구조입니다.",
-            "미루어두었던 환급·정산을 이달 안에 반드시 챙기시기 바랍니다.",
-            "쓰는 것보다 지키는 것이 이달 금전 흐름의 핵심입니다.",
-        ],
-        "money_warn": [
-            "이달 큰 지출 결정은 다음 달로 미루는 것이 훨씬 유리합니다.",
-            "투자보다 저축이 맞는 달입니다. 이달만큼은 지키는 것이 버는 것입니다.",
-        ],
-        "health_up":  [
-            "체력이 올라오는 달입니다. 새로운 운동 루틴을 시작하기 좋은 타이밍입니다.",
-            "몸이 따라주는 달입니다. 미루어두었던 건강검진이나 운동을 이달 안에 실행하시기 바랍니다.",
-            "숙면만 지켜도 이달 에너지가 달라지는 흐름입니다.",
-        ],
-        "health_warn":[
-            "이달 중순 이후 과로 누적에 주의가 필요합니다. 지금부터 무리하지 마시기 바랍니다.",
-            "소화와 수면 이 두 가지만 챙겨도 이달을 버티는 데 충분한 기반이 됩니다.",
-        ],
-        "love_up":    [
-            "이미 가까운 사람에게서 감정이 발전할 가능성이 더 높은 달입니다.",
-            "먼저 연락하거나 먼저 표현하는 쪽이 유리한 흐름입니다.",
-            "말 한마디가 관계의 깊이를 바꾸는 달입니다. 솔직하게 표현해보시기 바랍니다.",
-        ],
-        "love_warn":  [
-            "오해가 생기기 쉬운 달입니다. 말하기 전에 한 번 더 생각하시기 바랍니다.",
-            "감정적 반응보다 한 박자 여유를 두는 것이 이달 관계를 지켜줍니다.",
-        ],
+        "rat":     {"kr":"쥐띠",    "trait":"빠른 판단력과 정보 수집 능력이 뛰어난 타입", "strength":"민첩함·창의성·적응력", "weakness":"과도한 걱정·우유부단", "monthly_tip":"이달 쥐띠는 정보가 곧 기회입니다. 빠르게 움직이되 검증을 먼저 하는 것이 이달 핵심입니다."},
+        "ox":      {"kr":"소띠",    "trait":"꾸준하고 성실하며 한번 시작한 것은 끝까지 완수하는 타입", "strength":"인내·신뢰감·실행력", "weakness":"변화 거부·고집", "monthly_tip":"이달 소띠는 꾸준함이 가장 강한 무기입니다. 새로 시작하는 것보다 지속하는 것이 이달 더 좋은 결과를 만들어 냅니다."},
+        "tiger":   {"kr":"호랑이띠","trait":"용감하고 카리스마가 강하며 리더십이 자연스럽게 나오는 타입", "strength":"추진력·용기·리더십", "weakness":"충동적·기다림 어려움", "monthly_tip":"이달 호랑이띠는 에너지가 넘치는 시기입니다. 그 에너지를 한 방향으로 집중하는 것이 이달 가장 중요한 전략입니다."},
+        "rabbit":  {"kr":"토끼띠",  "trait":"섬세하고 눈치가 빠르며 조화를 추구하는 타입", "strength":"공감능력·세심함·사교성", "weakness":"우유부단·회피 경향", "monthly_tip":"이달 토끼띠는 관계에서 가장 빛나는 시기입니다. 먼저 다가가는 것이 이달 더 좋은 연결을 만들어 줍니다."},
+        "dragon":  {"kr":"용띠",    "trait":"카리스마가 강하고 이상이 높으며 큰 그림을 보는 타입", "strength":"열정·창의성·카리스마", "weakness":"완벽주의·고집", "monthly_tip":"이달 용띠는 큰 아이디어를 실행으로 옮기기 좋은 시기입니다. 단, 세부 계획도 함께 챙기시기 바랍니다."},
+        "snake":   {"kr":"뱀띠",    "trait":"직관이 예리하고 신중하며 깊게 생각하는 타입", "strength":"통찰력·신중함·집중력", "weakness":"의심·감정 표현 어려움", "monthly_tip":"이달 뱀띠는 직관이 가장 정확하게 작동하는 시기입니다. 충분히 관찰한 후 움직이는 것이 이달 맞는 방식입니다."},
+        "horse":   {"kr":"말띠",    "trait":"자유를 사랑하고 활동적이며 변화를 즐기는 타입", "strength":"열정·적응력·사교성", "weakness":"끈기 부족·집중 분산", "monthly_tip":"이달 말띠는 활동적인 에너지가 올라오는 시기입니다. 하나에 집중하는 것이 이달 가장 좋은 결과를 만들어 냅니다."},
+        "goat":    {"kr":"양띠",    "trait":"온화하고 배려심이 깊으며 예술적 감수성이 풍부한 타입", "strength":"공감능력·창의성·온화함", "weakness":"자기주장 약함·의존적", "monthly_tip":"이달 양띠는 자신의 의견을 먼저 표현하는 연습이 필요한 시기입니다. 배려만큼 자기 자신도 챙기시기 바랍니다."},
+        "monkey":  {"kr":"원숭이띠","trait":"재치 있고 영리하며 새로운 것을 빠르게 습득하는 타입", "strength":"지능·유머·적응력", "weakness":"집중력 분산·변덕", "monthly_tip":"이달 원숭이띠는 아이디어가 풍부한 시기입니다. 그 아이디어를 하나 선택해서 완성하는 것이 이달 핵심입니다."},
+        "rooster": {"kr":"닭띠",    "trait":"성실하고 꼼꼼하며 완벽을 추구하는 타입", "strength":"성실함·책임감·분석력", "weakness":"완벽주의·비판적", "monthly_tip":"이달 닭띠는 꼼꼼함이 빛나는 시기입니다. 완벽하지 않아도 진행하는 연습이 이달 더 좋은 결과를 만들어 냅니다."},
+        "dog":     {"kr":"개띠",    "trait":"충성스럽고 정직하며 신뢰를 중시하는 타입", "strength":"충성심·정직함·책임감", "weakness":"걱정 많음·융통성 부족", "monthly_tip":"이달 개띠는 신뢰를 쌓는 행동이 가장 빛나는 시기입니다. 말보다 행동으로 보여주는 것이 이달 가장 강한 전략입니다."},
+        "pig":     {"kr":"돼지띠",  "trait":"낙천적이고 인정이 많으며 베푸는 것을 좋아하는 타입", "strength":"낙천성·인정·성실함", "weakness":"순진함·지나친 관대함", "monthly_tip":"이달 돼지띠는 나눔이 돌아오는 흐름입니다. 베푸는 것도 좋지만 자신의 여유를 먼저 확인하시기 바랍니다."},
     }
 
-    def _score_reason(label, val):
-        if label == "total":
-            pool = _SCORE_REASON["total_up"] if val >= 65 else _SCORE_REASON["total_warn"]
-        elif label == "money":
-            pool = _SCORE_REASON["money_up"] if val >= 65 else _SCORE_REASON["money_warn"]
-        elif label == "health":
-            pool = _SCORE_REASON["health_up"] if val >= 65 else _SCORE_REASON["health_warn"]
-        else:
-            pool = _SCORE_REASON["love_up"] if val >= 65 else _SCORE_REASON["love_warn"]
-        return random.choice(pool)
+    for c in CHINESE_ZODIACS:
+        card_id   = f"cmc-{c['en']}"
+        v2        = _v2_row(c['en'])
+        info      = _CHINESE_INFO.get(c['en'], {})
+        kst_now   = now_kst()
+        kst_day   = kst_now.day
 
-    def _bar(pct):
-        filled = round(pct / 10)
-        return "█" * filled + "░" * (10 - filled)
+        # v2 데이터 추출
+        headline  = str(v2['headline'])  if v2 is not None and 'headline'  in v2.index else f"이달 {c['kr']}에게 중요한 변화가 시작됩니다."
+        upper     = str(v2['upper'])     if v2 is not None and 'upper'     in v2.index else ""
+        mid       = str(v2['mid'])       if v2 is not None and 'mid'       in v2.index else ""
+        lower     = str(v2['lower'])     if v2 is not None and 'lower'     in v2.index else ""
+        lucky_kw  = str(v2['lucky'])     if v2 is not None and 'lucky'     in v2.index else ""
+        avoid_kw  = str(v2['avoid'])     if v2 is not None and 'avoid'     in v2.index else ""
+        sympathy  = str(v2['sympathy'])  if v2 is not None and 'sympathy'  in v2.index else ""
 
-    for c in CHINESE:
-        v2  = _v2_row(c['en'])
-        rating  = stars()
-        card_id = f"cmfc-{c['en']}"
-        total, money, health, love = pick_score(c['kr'])
+        monthly_tip = info.get("monthly_tip", "")
+        trait       = info.get("trait", "")
 
-        # ── 제목 신호 ──
-        scores = {"총운": total, "금전운": money, "건강운": health, "애정운": love}
-        top = max(scores, key=scores.get)
-        low = min(scores, key=scores.get)
-        if scores[top] >= 80:
-            signal_map = {
-                "총운":  "이달 움직이기 좋은 흐름",
-                "금전운": "이달 환급·포인트 챙길 타이밍",
-                "건강운": "이달 새 운동 루틴 시작하기 딱",
-                "애정운": "이달 먼저 연락해도 되는 흐름",
-            }
-            signal = signal_map.get(top, f"이달 {top} 상승")
-        elif scores[low] <= 55:
-            signal_map_warn = {
-                "총운":  "이달 버티는 게 전략인 흐름",
-                "금전운": "이달 충동 결제 주의",
-                "건강운": "이달 무리하지 않는 게 핵심",
-                "애정운": "이달 감정 대화 타이밍 조심",
-            }
-            signal = signal_map_warn.get(low, f"이달 {low} 주의")
-        else:
-            signal = "이달 잔잔하게 챙기는 흐름"
-        title = f"{c['kr']} {month_str} 월간운세 | {signal}"
+        # 공감층 — 이달 띠별 감각
+        _M_EMPATHY = {
+            "rat":     "이달 빠르게 움직이고 싶은데 주변 상황이 따라오지 않는 느낌이 있습니다.",
+            "ox":      "이달 꾸준히 하고 있는데 결과가 아직 안 보여서 지치는 시기입니다.",
+            "tiger":   "이달 에너지는 넘치는데 어디에 집중해야 할지 방향이 안 잡히는 상태입니다.",
+            "rabbit":  "이달 여러 사람을 챙기다 정작 자신을 돌보지 못하고 있는 느낌입니다.",
+            "dragon":  "이달 큰 그림은 보이는데 세부 실행이 따라가지 못하는 상황입니다.",
+            "snake":   "이달 흐름이 보이는데 확신이 서지 않아 움직이지 못하고 있습니다.",
+            "horse":   "이달 하고 싶은 것이 많은데 하나를 선택하면 나머지를 놓치는 것 같아 불안합니다.",
+            "goat":    "이달 타인의 기대에 맞추다 자신이 원하는 것이 무엇인지 잊어버린 것 같습니다.",
+            "monkey":  "이달 아이디어는 넘치는데 완성까지 이어지지 않는 패턴이 반복되고 있습니다.",
+            "rooster": "이달 완벽하게 준비하려다 시작 자체가 계속 미뤄지고 있습니다.",
+            "dog":     "이달 믿었던 무언가에서 실망감이 생겨 방향을 다시 잡고 싶은 상태입니다.",
+            "pig":     "이달 베푸는 것이 많은데 정작 돌아오는 것이 없다는 느낌이 있습니다.",
+        }
+        empathy = _M_EMPATHY.get(c['en'], "")
 
-        # ── v2 데이터 추출 ──
-        headline    = v2['headline']    if v2 is not None else chinese_monthly_fortune(c['en'])
-        upper_txt   = v2['upper']       if v2 is not None else chinese_monthly_fortune(c['en'])
-        mid_txt     = v2['mid']         if v2 is not None else chinese_monthly_fortune(c['en'])
-        lower_txt   = v2['lower']       if v2 is not None else chinese_monthly_fortune(c['en'])
-        lucky_color  = v2['lucky_color']  if v2 is not None else "골드"
-        lucky_number = v2['lucky_number'] if v2 is not None else "3"
-        lucky_place  = v2['lucky_place']  if v2 is not None else "카페"
-        avoid_kw     = v2['avoid']        if v2 is not None else "즉흥적인 결정"
-        sympathy     = v2['sympathy']     if v2 is not None else ""
+        # 인과 브릿지
+        _to_period_bridges = [
+            f"그 흐름이 이달 상순·중순·하순에 걸쳐 이렇게 전개됩니다.",
+            f"이달 {c['kr']}의 에너지가 기간별로 다르게 작동합니다.",
+            f"그 원인이 이달 흐름 안에 있습니다. 기간별로 살펴보겠습니다.",
+            f"이달을 세 구간으로 나누면 그 흐름이 더 명확하게 보입니다.",
+            f"그 감각이 이달 어떻게 전개되는지 살펴보겠습니다.",
+        ]
+        _to_tip_bridges_m = [
+            f"그 흐름을 알고 나면 이달을 다르게 쓸 수 있습니다.",
+            f"이달 {c['kr']}에게 가장 중요한 방향이 있습니다.",
+            f"이달 이 흐름을 가장 잘 활용하는 방법입니다.",
+            f"그리고 이달 {c['kr']}의 고유한 강점이 작동합니다.",
+            f"이달의 핵심 방향입니다.",
+        ]
+        tpb = _to_period_bridges[kst_day % len(_to_period_bridges)]
+        tmb = _to_tip_bridges_m[(kst_day+1) % len(_to_tip_bridges_m)]
 
-        # ── 모바일 최적화: \n → <br> ──
-        def _mb(text):
-            return str(text).replace('\n', '<br>')
-
-        # ── 1. 핵심 한줄 운세 블록 ──
-        headline_html = f'''
-<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fef9c3);
-     border-left:5px solid #f59e0b;padding:18px 16px">
-  <p style="font-size:17px;font-weight:900;color:#92400e;
-            line-height:1.7;margin:0">{_mb(headline)}</p>
-</div>'''
-
-        # ── 2. 운세 지수 (이유 포함) ──
-        score_html = f'''
-<div class="card" style="background:#fffbeb">
-  <span class="badge" style="background:#fef3c7;color:#92400e">📊 이번 달 운세 지수</span>
-  <div style="margin-top:14px;display:grid;gap:10px">
-    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fde68a">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:700">🌟 종합운</span>
-        <span style="font-size:13px;font-weight:900;color:#d97706">{total}%</span>
-      </div>
-      <div style="font-family:monospace;font-size:13px;color:#f59e0b;letter-spacing:1px">{_bar(total)}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("total",total)}</div>
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fee2e2">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:700">💰 금전운</span>
-        <span style="font-size:13px;font-weight:900;color:#dc2626">{money}%</span>
-      </div>
-      <div style="font-family:monospace;font-size:13px;color:#f87171;letter-spacing:1px">{_bar(money)}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("money",money)}</div>
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #d1fae5">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:700">💪 건강운</span>
-        <span style="font-size:13px;font-weight:900;color:#059669">{health}%</span>
-      </div>
-      <div style="font-family:monospace;font-size:13px;color:#34d399;letter-spacing:1px">{_bar(health)}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("health",health)}</div>
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fce7f3">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:700">❤️ 애정운</span>
-        <span style="font-size:13px;font-weight:900;color:#db2777">{love}%</span>
-      </div>
-      <div style="font-family:monospace;font-size:13px;color:#f472b6;letter-spacing:1px">{_bar(love)}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:5px">→ {_score_reason("love",love)}</div>
-    </div>
-  </div>
-</div>'''
-
-        # ── 3. 기간별 운세 (사건형, 모바일 최적화) ──
-        def _period_card(emoji, label, dates, text, grad_from, grad_to, border_color):
-            return f'''
-<div class="card" style="background:linear-gradient(135deg,{grad_from},{grad_to});
-     border-left:5px solid {border_color};padding:16px">
-  <div style="font-size:13px;font-weight:900;color:#374151;margin-bottom:10px">
-    {emoji} <span style="color:{border_color}">{label}</span>
-    <span style="font-size:11px;color:#9ca3af;margin-left:6px">{dates}</span>
-  </div>
-  <p style="font-size:14px;line-height:2;color:#374151;margin:0;
-            white-space:pre-line">{text}</p>
-</div>'''
-
-        period_html = (
-            _period_card("🌱","상순","1~10일",  upper_txt, "#f0fdf4","#ecfdf5","#10b981") +
-            _period_card("🌿","중순","11~20일", mid_txt,   "#eff6ff","#f0f9ff","#3b82f6") +
-            _period_card("🍂","하순","21~말일", lower_txt, "#faf5ff","#fdf4ff","#8b5cf6")
+        # 기간별 HTML
+        period_items = []
+        if upper: period_items.append(("상순", upper, "#3b82f6"))
+        if mid:   period_items.append(("중순", mid,   "#7c3aed"))
+        if lower: period_items.append(("하순", lower, "#16a34a"))
+        period_html = "".join(
+            f'<div style="border-left:4px solid {col};padding:12px 14px;margin-bottom:10px;' +
+            f'background:#fff;border-radius:0 10px 10px 0">' +
+            f'<div style="font-size:11px;font-weight:700;color:{col};margin-bottom:6px">{label}</div>' +
+            f'<p style="font-size:14px;line-height:1.95;color:#374151;margin:0;word-break:keep-all">{txt}</p></div>'
+            for label, txt, col in period_items
         )
 
-        # ── 4. 행운 키워드 블록 ──
-        lucky_html = f'''
-<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);
-     border-left:5px solid #f59e0b">
-  <span class="badge" style="background:#fef3c7;color:#92400e">🍀 이달의 행운 키워드</span>
-  <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-    <div style="background:#fff;border-radius:10px;padding:12px;
-                border:1px solid #fde68a;text-align:center">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">행운의 색</div>
-      <div style="font-size:14px;font-weight:700;color:#92400e">{lucky_color}</div>
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:12px;
-                border:1px solid #dbeafe;text-align:center">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">행운의 숫자</div>
-      <div style="font-size:14px;font-weight:700;color:#1d4ed8">{lucky_number}</div>
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:12px;
-                border:1px solid #d1fae5;text-align:center">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">행운의 장소</div>
-      <div style="font-size:13px;font-weight:700;color:#065f46">{lucky_place}</div>
-    </div>
-    <div style="background:#fff;border-radius:10px;padding:12px;
-                border:1px solid #fee2e2;text-align:center">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">이달 피할 것</div>
-      <div style="font-size:13px;font-weight:700;color:#dc2626">{avoid_kw}</div>
-    </div>
-  </div>
-</div>'''
+        # lucky / avoid HTML
+        lucky_html = f'<div style="background:#f0fdf4;border-radius:10px;padding:12px 14px;' +             f'font-size:13px;color:#065f46;line-height:1.85;border-left:3px solid #16a34a;' +             f'word-break:keep-all;margin-bottom:8px">✅ 이달 행운 키워드: {lucky_kw}</div>' if lucky_kw else ''
+        avoid_html_m = f'<div style="background:#fef2f2;border-radius:10px;padding:12px 14px;' +             f'font-size:13px;color:#991b1b;line-height:1.85;border-left:3px solid #dc2626;' +             f'word-break:keep-all">⚠️ 이달 조심: {avoid_kw}</div>' if avoid_kw else ''
 
-        # ── 5. 현실 공감 문장 ──
-        sympathy_html = ""
-        if sympathy:
-            sympathy_html = f'''
-<div class="card" style="background:#f9fafb;border-left:4px solid #d1d5db">
-  <span class="badge" style="background:#f3f4f6;color:#374151">💬 지금 이런 느낌이라면</span>
-  <p style="margin-top:12px;font-size:14px;line-height:2;color:#374151;
-            font-style:italic;white-space:pre-line">{sympathy}</p>
-</div>'''
+        # 이달 엔딩
+        _me_pool = [
+            ("이달을 잘 살아내는 것으로 충분합니다.",
+             f"이달 {c['kr']}의 에너지를 믿으시기 바랍니다.",
+             monthly_tip if monthly_tip else "이달 하나만 선택하고 그것에 집중하시기 바랍니다."),
+            (f"이달 {c['kr']}에게 필요한 것은 방향입니다.",
+             "방향이 맞으면 속도는 자연스럽게 따라옵니다.",
+             monthly_tip if monthly_tip else "오늘 이것 하나만 실천하시기 바랍니다."),
+            ("이달 쌓이고 있는 것들이 있습니다.",
+             "눈에 보이지 않더라도 분명히 진행 중입니다.",
+             monthly_tip if monthly_tip else "이달 가장 중요한 한 가지에 집중하시기 바랍니다."),
+        ]
+        _me = _me_pool[kst_day % len(_me_pool)]
 
-        # ── 이미지 저장 카드 (게임링크 없음) ──
-        card_html = f'''
-<div id="{card_id}" class="fortune-card"
-     style="background:linear-gradient(135deg,#f59e0b,#92400e)">
+        # SEO
+        kw_list = [
+            c['kr'], f"{c['kr']} 월간운세", f"{c['kr']} {month_str}",
+            f"{c['kr']} 이달운세", "띠별월간", "월간운세", "무료운세",
+            f"{c['kr']} 특징", f"{c['kr']} 이달",
+        ]
+        tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
+
+        title = f"{c['kr']} {month_str} 월간운세 | {headline[:20]}"
+
+        # 이미지 저장 카드
+        image_card_html = f'''
+<div id="{card_id}" class="fortune-card" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
   <div class="fc-emoji">{c['emoji']}</div>
   <div class="fc-title">{c['kr']} 월간운세</div>
   <div class="fc-sub">{month_str}</div>
-  <div class="fc-stars">{rating}</div>
-  <div class="fc-text" style="white-space:pre-line">{_mb(headline)}</div>
-  <div class="fc-watermark">
-    todayhoroscopelaboratory.blogspot.com · {month_str}
-  </div>
+  <div class="fc-text">{headline}</div>
+  <div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.8)">{sympathy[:60] + "…" if len(sympathy) > 60 else sympathy}</div>
+  <div class="fc-watermark" style="margin-top:14px">todayhoroscopelaboratory.blogspot.com</div>
 </div>'''
 
-        # ── 관련 키워드 ──
-        kw_list  = [c['kr'], f"{c['kr']} 월간운세", f"{c['kr']} 이달운세",
-                    "띠별 월간운세", f"{c['kr']} {month_str}", "월간운세", "띠운세"]
-        tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
+        # 하나의 흐르는 스토리
+        story_html = f'''
+<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+
+  <!-- ① 공감 -->
+  <div style="padding:1.6rem 1.8rem 1.4rem;
+              background:linear-gradient(135deg,#fdf4ff,#ede9fe);
+              border-radius:18px;margin-bottom:0;border-left:4px solid #7c3aed">
+    <p style="font-size:15px;line-height:2.1;color:#374151;font-weight:500;
+              margin:0;word-break:keep-all">💭 {empathy}</p>
+  </div>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#7c3aed,#5b21b6);margin:0 auto"></div>
+
+  <div style="border:1.5px solid #e5e7eb;border-radius:18px;overflow:hidden">
+
+    <!-- ② 이달 큰 흐름 -->
+    <div style="border-left:5px solid #7c3aed;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">이달 {c['kr']} 전체 흐름</div>
+      <p style="font-size:15px;line-height:2.1;color:#1f2937;font-weight:500;
+                margin:0 0 10px;word-break:keep-all">{headline}</p>
+      <p style="font-size:14px;line-height:2.05;color:#374151;
+                margin:0;word-break:keep-all">{sympathy}</p>
+    </div>
+
+    <!-- 연결 -->
+    <div style="background:#f9fafb;padding:8px 18px;
+                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
+                text-align:center">{tpb}</p>
+    </div>
+
+    <!-- ③ 기간별 흐름 -->
+    <div style="border-left:5px solid #6d28d9;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:12px;font-weight:600">📅 {month_str} 기간별 흐름</div>
+      {period_html}
+    </div>
+
+    <!-- 연결 -->
+    <div style="background:#f9fafb;padding:8px 18px;
+                border-top:1px dashed #e5e7eb;border-bottom:1px dashed #e5e7eb">
+      <p style="font-size:13px;color:#6b7280;font-style:italic;margin:0;
+                text-align:center">{tmb}</p>
+    </div>
+
+    <!-- ④ 띠별 특성 + 행운·조심 -->
+    <div style="border-left:5px solid #a78bfa;padding:20px 18px 16px;background:#fff">
+      <div style="font-size:11px;color:#9ca3af;letter-spacing:0.08em;
+                  margin-bottom:10px;font-weight:600">{c['emoji']} {c['kr']} 이달의 특성</div>
+      <p style="font-size:14px;line-height:2.05;color:#374151;
+                margin:0 0 12px;word-break:keep-all">{trait}</p>
+      {lucky_html}
+      {avoid_html_m}
+    </div>
+
+  </div>
+
+  <div style="width:2px;height:24px;background:linear-gradient(#5b21b6,#7c3aed);margin:0 auto"></div>
+
+  <!-- ⑤ 이달 하나만 — 엔딩 -->
+  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.1)">
+    <div style="background:linear-gradient(90deg,#5b21b6,#7c3aed);
+                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
+      <span style="font-size:14px">{c['emoji']}</span>
+      <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
+        이달 {c['kr']}에게 전하는 말
+      </span>
+    </div>
+    <div style="background:linear-gradient(160deg,#fdf4ff,#ede9fe);
+                padding:1.4rem 1.5rem 0.5rem">
+      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+                margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
+      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
+                font-style:italic;padding-left:0.8rem;
+                border-left:3px solid #c4b5fd;word-break:keep-all">{_me[1]}</p>
+    </div>
+    <div style="background:#4c1d95;padding:1rem 1.5rem;text-align:center">
+      <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
+                  margin-bottom:0.4rem;font-weight:600">이달 하나만 한다면</div>
+      <span style="font-size:16px;font-weight:800;color:#fff;
+                   word-break:keep-all;line-height:1.6">❝ {_me[2]} ❞</span>
+    </div>
+  </div>
+
+</div>'''
 
         content_html = f"""{style()}
 <div class="wrap">
-
-  <!-- 히어로 -->
-  <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+  <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
     <h1>🌙 {c['emoji']} {c['kr']} 월간운세</h1>
     <p>{month_str}</p>
     <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
-                padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
+                padding:3px 12px;border-radius:20px;font-size:12px">{headline[:25]}</div>
   </div>
 
-  <!-- 1. 핵심 한줄 운세 -->
-  {headline_html}
+  {story_html}
 
-  <!-- 2. 이미지 저장 카드 -->
-  {card_html}
+  {image_card_html}
   {share_buttons(card_id, f"{c['kr']}_월간운세")}
-
-  <!-- 대표 이미지 -->
   {post_img("monthly")}
 
-  <!-- 운세 지수 % 제거 (근거 없는 수치 — 애드센스 심사 기준) -->
-
-  <!-- 4. 기간별 운세 (사건형) -->
-  <div style="margin:6px 0 4px;font-size:13px;font-weight:700;
-              color:#374151;padding:0 4px">📅 {month_str} 기간별 흐름</div>
-  {period_html}
-
-  <!-- 5. 행운 키워드 -->
-  {lucky_html}
-
-  <!-- 6. 현실 공감 문장 -->
-  {sympathy_html}
-
-  <!-- 관련 키워드 -->
-  <div class="card">
-    <span class="badge">🔍 관련 키워드</span>
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
-
-  <!-- 띠별 고유 특성 정보 (독창성·정보성 강화) -->
-  {_chinese_info_card(c['en'])}
-
   {site_link()}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매월 업데이트</div>
 </div>"""
@@ -3114,67 +2834,6 @@ def build_chinese_monthly_post(today_str):
     return results
 
 
-# ─────────────────────────────────────────
-# Refresh Token으로 Access Token 자동 발급
-# ─────────────────────────────────────────
-BLOG_ID       = os.environ.get("BLOG_ID","")
-REFRESH_TOKEN = os.environ.get("BLOGGER_REFRESH_TOKEN","")
-CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID","")
-CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET","")
-
-def get_access_token():
-    resp = requests.post("https://oauth2.googleapis.com/token", data={
-        "grant_type":    "refresh_token",
-        "refresh_token": REFRESH_TOKEN,
-        "client_id":     CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-    })
-    if resp.status_code == 200:
-        print("🔑 Access Token 자동 갱신 완료")
-        return resp.json().get("access_token","")
-    else:
-        print(f"❌ Token 갱신 실패: {resp.text[:120]}")
-        return os.environ.get("BLOGGER_TOKEN","")
-
-ACCESS_TOKEN = get_access_token() if REFRESH_TOKEN else os.environ.get("BLOGGER_TOKEN","")
-
-def post_blogger(title, content, labels, idx, total):
-    if not BLOG_ID or not ACCESS_TOKEN:
-        print(f"[{idx:02d}/{total}] (테스트) {title[:50]}")
-        return True
-
-    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
-    
-    for attempt in range(1, 4):  # 최대 3회 재시도
-        resp = requests.post(url,
-            headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
-            json={"title":title,"content":content,"labels":labels}
-        )
-        if resp.status_code == 200:
-            print(f"[{idx:02d}/{total}] ✅ {title[:45]}  →  200")
-            time.sleep(3)   # 분당 쿼터 보호: 3초 간격
-            return True
-        elif resp.status_code == 429:
-            wait = 60 * attempt  # 1분, 2분, 3분
-            print(f"[{idx:02d}/{total}] ⏳ 429 쿼터 초과 — {wait}초 대기 후 재시도 ({attempt}/3)...")
-            time.sleep(wait)
-        else:
-            print(f"[{idx:02d}/{total}] ❌ {title[:45]}  →  {resp.status_code}")
-            print(f"        오류: {resp.text[:120]}")
-            time.sleep(3)
-            return False
-
-    print(f"[{idx:02d}/{total}] ❌ {title[:45]}  →  3회 재시도 후 실패")
-    return False
-
-
-# ─────────────────────────────────────────
-# 메인
-# ─────────────────────────────────────────
-
-# ─────────────────────────────────────────
-# ⑥ 운세SNS — 별자리 12개 통합 (간결 카드형)
-# ─────────────────────────────────────────
 def build_sns_zodiac_post(today_str):
     """별자리 12개를 한 포스트에 — 공감형 스토리 카드형"""
     title = f"✨ 오늘의 별자리 운세 전체 {today_str} — 12별자리 한눈에"
