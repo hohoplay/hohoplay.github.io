@@ -1501,6 +1501,39 @@ def build_quote_post(today_str):
     return title, content, ["오늘의명언", "위로명언", "명언", "운세", category]
 
 
+_Z_SIGNAL_MONEY_UP   = ["금전운 상승 타이밍", "재물운 급상승", "수입 기회 포착", "금전 흐름 반전"]
+_Z_SIGNAL_LOVE_UP    = ["연애운 급변", "인연 접촉 신호", "애정운 상승 중", "관계 반전 예고"]
+_Z_SIGNAL_WARN       = ["오늘 주의 필요", "신중함이 필요한 날", "충동 결정 주의", "조심해야 할 타이밍"]
+_Z_SIGNAL_TOTAL_UP   = ["오늘 총운 최고조", "행운 기회 포착", "운세 상승 흐름 확인", "오늘 놓치면 후회"]
+_Z_SIGNAL_MID        = ["오늘 균형 잡힌 하루", "안정적 흐름 확인", "차분한 기운의 날"]
+
+def _zodiac_seo_title(z_kr, today_dot, total, money, health, love):
+    """지수 기반 CTR 최적화 제목 생성"""
+    scores = {"money": money, "love": love, "total": total, "health": health}
+    top_key = max(scores, key=scores.get)
+    avg = (total + money + love) / 3
+
+    if top_key == "money" and money >= 78:
+        signal = random.choice(_Z_SIGNAL_MONEY_UP)
+    elif top_key == "love" and love >= 78:
+        signal = random.choice(_Z_SIGNAL_LOVE_UP)
+    elif total >= 82:
+        signal = random.choice(_Z_SIGNAL_TOTAL_UP)
+    elif avg <= 58:
+        signal = random.choice(_Z_SIGNAL_WARN)
+    elif abs(money - love) >= 35:
+        signal = f"{'금전운' if money > love else '연애운'} 반전 주목"
+    else:
+        signal = random.choice(_Z_SIGNAL_MID)
+
+    patterns = [
+        f"{today_dot} {z_kr} 운세 | {signal}",
+        f"{z_kr} 오늘운세 ({today_dot}) – {signal} 확인",
+        f"[{today_dot}] {z_kr} 별자리 운세 — {signal}",
+        f"{z_kr} {today_dot} 오늘의 운세 · {signal}",
+    ]
+    return random.choice(patterns), signal
+
 _Z_TOTAL_INTRO_UP = [
     # 공감 → 긴장 → 행동 → 반전
     "혼자 모든 것을 짊어지는 느낌이 강했던 시기였을 수 있습니다. 오늘은 그 흐름이 조금 달라집니다. 예상치 못한 연락이나 신호가 들어온다면 흘려보내지 마시기 바랍니다. 그것이 오늘 흐름의 시작입니다.",
@@ -2574,6 +2607,14 @@ def build_zodiac_weekly_post(today_str):
         results.append((title, content_html, ["별자리주간", z['kr'], "주간운세"]))
     return results
 
+
+def chinese_monthly_fortune(en_name):
+    """띠 월간 운세 CSV에서 가져오기 — chinese_monthly_1000.csv"""
+    if not chinese_monthly.empty and 'animal_zodiac' in chinese_monthly.columns:
+        m = chinese_monthly[chinese_monthly['animal_zodiac'] == en_name]
+        if not m.empty:
+            return m.sample(1).iloc[0]['fortune']
+    return sentence()
 
 def build_chinese_monthly_post(today_str):
     """띠별 월간운세 12개 — 별과띠가만나는시간 방식 스토리텔링"""
