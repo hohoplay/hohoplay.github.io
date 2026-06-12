@@ -4130,6 +4130,44 @@ def build_omnibus_post(today_str: str) -> tuple:
     return title, content_html, labels
 
 
+def post_blogger(title, content, labels, idx, total):
+    if not BLOG_ID or not ACCESS_TOKEN:
+        print(f"[{idx:02d}/{total}] (테스트) {title[:50]}")
+        return True
+
+    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
+    
+    for attempt in range(1, 4):  # 최대 3회 재시도
+        resp = requests.post(url,
+            headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
+            json={"title":title,"content":content,"labels":labels}
+        )
+        if resp.status_code == 200:
+            print(f"[{idx:02d}/{total}] ✅ {title[:45]}  →  200")
+            time.sleep(3)   # 분당 쿼터 보호: 3초 간격
+            return True
+        elif resp.status_code == 429:
+            wait = 60 * attempt  # 1분, 2분, 3분
+            print(f"[{idx:02d}/{total}] ⏳ 429 쿼터 초과 — {wait}초 대기 후 재시도 ({attempt}/3)...")
+            time.sleep(wait)
+        else:
+            print(f"[{idx:02d}/{total}] ❌ {title[:45]}  →  {resp.status_code}")
+            print(f"        오류: {resp.text[:120]}")
+            time.sleep(3)
+            return False
+
+    print(f"[{idx:02d}/{total}] ❌ {title[:45]}  →  3회 재시도 후 실패")
+    return False
+
+
+# ─────────────────────────────────────────
+# 메인
+# ─────────────────────────────────────────
+
+# ─────────────────────────────────────────
+# ⑥ 운세SNS — 별자리 12개 통합 (간결 카드형)
+# ─────────────────────────────────────────
+
 def main():
     today_str = now_kst().strftime("%Y년 %m월 %d일")
     kst_now   = now_kst()
