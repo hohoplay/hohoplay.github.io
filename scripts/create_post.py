@@ -3931,7 +3931,7 @@ def build_omnibus_post(today_str: str) -> tuple:
 
 
     # ── 오늘의 명언 ──
-    quote_text, _, _ = pick_quote()
+    quote_text = pick_quote()[0]
     quote_clean = _plain(str(quote_text), 120)
 
     # ── SEO 키워드 태그 ──
