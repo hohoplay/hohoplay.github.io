@@ -104,19 +104,18 @@ ZODIACS = [
     {"en":"pisces",      "kr":"물고기자리","date":"2/19~3/20",  "emoji":"♓"},
 ]
 
-def _make_chinese_years(base_year: int) -> str:
+def _make_chinese_years(base_year: int) -> list:
     """base_year부터 12년 주기로 1940년 이후 ~ 미래 1주기 연도 생성."""
     START = 1940
     current_year = now_kst().year
-    # base_year에서 START 이후 첫 해당 연도 찾기
     y = base_year
     while y < START:
         y += 12
     years = []
     while y <= current_year + 12:
-        years.append(str(y))
+        years.append(int(y))
         y += 12
-    return ",".join(years)
+    return years
 
 # 각 띠의 기준 연도(1900년대 최초 해당 연도)
 _CHINESE_BASE = {
@@ -126,19 +125,21 @@ _CHINESE_BASE = {
 }
 
 CHINESE = [
-    {"en":"rat",     "kr":"쥐띠",    "year":_make_chinese_years(_CHINESE_BASE["rat"]),     "emoji":"🐭"},
-    {"en":"ox",      "kr":"소띠",    "year":_make_chinese_years(_CHINESE_BASE["ox"]),      "emoji":"🐮"},
-    {"en":"tiger",   "kr":"호랑이띠","year":_make_chinese_years(_CHINESE_BASE["tiger"]),   "emoji":"🐯"},
-    {"en":"rabbit",  "kr":"토끼띠",  "year":_make_chinese_years(_CHINESE_BASE["rabbit"]),  "emoji":"🐰"},
-    {"en":"dragon",  "kr":"용띠",    "year":_make_chinese_years(_CHINESE_BASE["dragon"]),  "emoji":"🐲"},
-    {"en":"snake",   "kr":"뱀띠",    "year":_make_chinese_years(_CHINESE_BASE["snake"]),   "emoji":"🐍"},
-    {"en":"horse",   "kr":"말띠",    "year":_make_chinese_years(_CHINESE_BASE["horse"]),   "emoji":"🐴"},
-    {"en":"sheep",   "kr":"양띠",    "year":_make_chinese_years(_CHINESE_BASE["sheep"]),   "emoji":"🐑"},
-    {"en":"monkey",  "kr":"원숭이띠","year":_make_chinese_years(_CHINESE_BASE["monkey"]),  "emoji":"🐵"},
-    {"en":"rooster", "kr":"닭띠",    "year":_make_chinese_years(_CHINESE_BASE["rooster"]), "emoji":"🐓"},
-    {"en":"dog",     "kr":"개띠",    "year":_make_chinese_years(_CHINESE_BASE["dog"]),     "emoji":"🐶"},
-    {"en":"pig",     "kr":"돼지띠",  "year":_make_chinese_years(_CHINESE_BASE["pig"]),     "emoji":"🐷"},
+    {"en":"rat",     "kr":"쥐띠",    "years":_make_chinese_years(_CHINESE_BASE["rat"]),     "emoji":"🐭"},
+    {"en":"ox",      "kr":"소띠",    "years":_make_chinese_years(_CHINESE_BASE["ox"]),      "emoji":"🐮"},
+    {"en":"tiger",   "kr":"호랑이띠","years":_make_chinese_years(_CHINESE_BASE["tiger"]),   "emoji":"🐯"},
+    {"en":"rabbit",  "kr":"토끼띠",  "years":_make_chinese_years(_CHINESE_BASE["rabbit"]),  "emoji":"🐰"},
+    {"en":"dragon",  "kr":"용띠",    "years":_make_chinese_years(_CHINESE_BASE["dragon"]),  "emoji":"🐲"},
+    {"en":"snake",   "kr":"뱀띠",    "years":_make_chinese_years(_CHINESE_BASE["snake"]),   "emoji":"🐍"},
+    {"en":"horse",   "kr":"말띠",    "years":_make_chinese_years(_CHINESE_BASE["horse"]),   "emoji":"🐴"},
+    {"en":"sheep",   "kr":"양띠",    "years":_make_chinese_years(_CHINESE_BASE["sheep"]),   "emoji":"🐑"},
+    {"en":"monkey",  "kr":"원숭이띠","years":_make_chinese_years(_CHINESE_BASE["monkey"]),  "emoji":"🐵"},
+    {"en":"rooster", "kr":"닭띠",    "years":_make_chinese_years(_CHINESE_BASE["rooster"]), "emoji":"🐓"},
+    {"en":"dog",     "kr":"개띠",    "years":_make_chinese_years(_CHINESE_BASE["dog"]),     "emoji":"🐶"},
+    {"en":"pig",     "kr":"돼지띠",  "years":_make_chinese_years(_CHINESE_BASE["pig"]),     "emoji":"🐷"},
 ]
+
+CHINESE_ZODIACS = CHINESE  # 별칭 — build_chinese_monthly_post 등에서 사용
 
 RATINGS = ["★★★☆☆","★★★★☆","★★★★★","★★☆☆☆","★★★★☆","★★★☆☆"]
 
@@ -1770,6 +1771,143 @@ def _zodiac_score_bar(label, emoji, pct):
 
 
 
+def zodiac_weekly_fortune(kr_name):
+    """주간 운세 CSV에서 가져오기 — zodiac_weekly_1000.csv"""
+    if not zodiac_weekly.empty and 'zodiac' in zodiac_weekly.columns:
+        m = zodiac_weekly[zodiac_weekly['zodiac'] == kr_name]
+        if not m.empty:
+            kst = now_kst()
+            seed = kst.month * 100 + kst.day
+            idx = seed % len(m)
+            text = m.iloc[idx]['fortune']
+            return str(text).replace('\n\n', '<br><br>').replace('\n', '<br>')
+    return sentence()
+
+def get_compat(en_name):
+    """띠별 오늘 궁합 반환"""
+    _COMPAT = {
+        "rat":     {"best": ("🐲", "용띠", "오늘 용띠와 나누는 대화에서 좋은 아이디어가 나옵니다."),
+                   "avoid": ("🐴", "말띠", "감정이 섞인 대화는 오늘 저녁 이후로 미루시기 바랍니다.")},
+        "ox":      {"best": ("🐍", "뱀띠", "오늘 뱀띠의 조언이 실질적인 도움이 됩니다."),
+                   "avoid": ("🐑", "양띠", "서로 다른 방향을 보고 있는 날입니다.")},
+        "tiger":   {"best": ("🐴", "말띠", "오늘 말띠와 함께하면 에너지가 두 배가 됩니다."),
+                   "avoid": ("🐵", "원숭이띠", "의견 충돌이 생기기 쉬운 날입니다.")},
+        "rabbit":  {"best": ("🐑", "양띠", "오늘 양띠와의 시간이 마음을 편하게 해줍니다."),
+                   "avoid": ("🐓", "닭띠", "세심함의 방향이 다른 날입니다.")},
+        "dragon":  {"best": ("🐭", "쥐띠", "오늘 쥐띠의 빠른 판단이 좋은 시너지를 만듭니다."),
+                   "avoid": ("🐶", "개띠", "가치관이 부딪히기 쉬운 날입니다.")},
+        "snake":   {"best": ("🐮", "소띠", "오늘 소띠의 꾸준함이 뱀띠를 안정시켜 줍니다."),
+                   "avoid": ("🐷", "돼지띠", "서로 다른 속도로 움직이는 날입니다.")},
+        "horse":   {"best": ("🐯", "호랑이띠", "오늘 호랑이띠와 함께하면 추진력이 강해집니다."),
+                   "avoid": ("🐭", "쥐띠", "방향이 엇갈리기 쉬운 날입니다.")},
+        "sheep":   {"best": ("🐰", "토끼띠", "오늘 토끼띠와의 대화가 따뜻하게 이어집니다."),
+                   "avoid": ("🐮", "소띠", "페이스가 맞지 않는 날입니다.")},
+        "monkey":  {"best": ("🐲", "용띠", "오늘 용띠와의 협업에서 좋은 결과가 나옵니다."),
+                   "avoid": ("🐯", "호랑이띠", "주도권 다툼이 생기기 쉬운 날입니다.")},
+        "rooster": {"best": ("🐍", "뱀띠", "오늘 뱀띠의 직관이 닭띠의 계획을 완성시켜 줍니다."),
+                   "avoid": ("🐰", "토끼띠", "감수성의 차이가 드러나는 날입니다.")},
+        "dog":     {"best": ("🐴", "말띠", "오늘 말띠와 함께하면 활기가 생깁니다."),
+                   "avoid": ("🐲", "용띠", "기가 센 두 띠가 부딪히기 쉬운 날입니다.")},
+        "pig":     {"best": ("🐰", "토끼띠", "오늘 토끼띠와의 시간이 가장 편안합니다."),
+                   "avoid": ("🐍", "뱀띠", "서로 읽기 어려운 날입니다.")},
+    }
+    return _COMPAT.get(en_name, {})
+
+def birth_year_fortune(en_name, year):
+    """출생연도별 맞춤 운세 반환"""
+    _YEAR_FORTUNE = {
+        1924: "올해 중요한 결정을 앞두고 있다면 서두르지 않는 것이 맞습니다.",
+        1936: "오래 쌓아온 경험이 오늘 빛을 발하는 날입니다.",
+        1948: "정보는 빠른데 시작을 못 하고 있다면, 오늘 딱 하나만 실행해보시기 바랍니다.",
+        1960: "오늘 중요한 연락이 오전에 들어올 수 있습니다. 빠르게 확인하시기 바랍니다.",
+        1972: "오늘 에너지가 넘치지만 분산되기 쉬운 날입니다. 하나에 집중하시기 바랍니다.",
+        1984: "오늘 새로운 시도를 하기 좋은 흐름입니다. 작은 것 하나를 시작해보시기 바랍니다.",
+        1996: "오늘 주변의 조언을 귀담아듣는 것이 중요한 날입니다.",
+        2008: "오늘 배움에 집중하기 좋은 날입니다.",
+        1925: "여유롭게 움직이는 것이 오늘 가장 맞는 방식입니다.",
+        1937: "계획대로 움직이면 좋은 결과가 나오는 날입니다.",
+        1949: "묵묵히 가고 있는데 결과가 아직 안 보이는 날입니다. 조금만 더 기다리시기 바랍니다.",
+        1961: "오늘 계획을 한 번 점검하기 좋은 날입니다.",
+        1973: "오늘 단 지출을 오늘 한 번 정리해두면 다음 달이 달라집니다.",
+        1985: "맞춰야 할 것 같은데 맞추기 싫은 날입니다. 자신의 기준을 지키시기 바랍니다.",
+        1997: "오늘 여러 개 잡으려다 하나도 못 끝낼 수 있습니다. 하나만 선택하시기 바랍니다.",
+        2009: "오늘 집중력이 필요한 날입니다.",
+    }
+    # 연도별 기본 메시지 반환
+    msg = _YEAR_FORTUNE.get(year, f"오늘 {year}년생에게 중요한 것은 하나에 집중하는 것입니다.")
+    return msg
+
+# ── 별자리 주간운세 오프닝·엔딩 풀 ──
+_W_OPENINGS = [
+    "이번 주의 흐름을 점검할 시간입니다. 방향에 대한 의문이 드는 것은 자연스러운 과정입니다.",
+    "새로운 한 주가 시작되었습니다. 이번 주를 어떻게 운영할지 함께 살펴보겠습니다.",
+    "이번 주 별자리가 전달하는 에너지가 무엇인지 확인할 시간입니다.",
+    "한 주를 온전히 살아내는 것은 쉽지 않은 일입니다. 이번 주의 흐름을 미리 파악해 두시기 바랍니다.",
+    "새로운 한 주가 시작되었습니다. 이번 주는 지난주와 다른 흐름이 예상됩니다.",
+]
+
+_W_ENDINGS = [
+    ("이번 주 하루하루의 축적이 결국 하나의 흐름을 만들어 냅니다.",
+     "현재 올바른 방향으로 나아가고 있습니다. 이러한 감각은 혼자만 경험하는 것이 아닙니다.",
+     "이번 주 가장 마음에 걸리는 한 가지에 집중하시기 바랍니다."),
+    ("순탄한 주간이든 인내가 필요한 주간이든, 끝까지 완수하는 것이 중요합니다.",
+     "이번 주의 흐름을 파악하였으니 보다 안정적으로 움직이실 수 있습니다.",
+     "오늘 하루에만 집중하시기 바랍니다. 내일의 흐름은 내일이 결정합니다."),
+    ("이번 주 별자리가 전달한 방향을 참고하여 나머지는 스스로 결정하시기 바랍니다.",
+     "운세는 방향을 제시하는 도구입니다. 그 방향을 어떻게 걸어가느냐는 본인의 선택입니다.",
+     "이번 주도 최선을 다하시기 바랍니다."),
+]
+
+# ── 별자리운세 엔딩 풀 (날짜 순환) ──
+_z_endings = [
+    ("오늘 여기까지 온 것만으로 이미 충분히 잘 하고 있는 것입니다.",
+     "그 감각은 혼자만 경험하는 것이 아닙니다.",
+     "오늘 하루 수고하셨습니다."),
+    ("오늘도 잘 살아내셨습니다.",
+     "좋은 흐름이든 어려운 흐름이든, 오늘을 버텨낸 것이 내일을 만듭니다.",
+     "오늘 가장 마음에 걸리는 것 하나만 직면해보시기 바랍니다."),
+    ("현재 올바른 방향으로 나아가고 있습니다.",
+     "운세는 방향을 제시하는 도구입니다. 그 방향을 어떻게 걸어가느냐는 본인의 선택입니다.",
+     "오늘 하루, 한 가지를 제대로 완수하시기 바랍니다."),
+    ("순탄한 날이든 인내가 필요한 날이든, 끝까지 완수하는 것이 중요합니다.",
+     "이번 흐름을 파악하였으니 보다 안정적으로 움직이실 수 있습니다.",
+     "오늘 하루에만 집중하시기 바랍니다. 내일의 흐름은 내일이 결정합니다."),
+    ("지금 하고 있는 것들이 쌓이고 있습니다.",
+     "보이지 않더라도 분명히 그렇습니다.",
+     "오늘 목록에서 하나를 완성하시기 바랍니다. 그것이 오늘의 진짜 시작입니다."),
+    ("오늘 어제보다 조금 더 나아진 것이 있습니다.",
+     "크지 않아도 됩니다. 작은 전진이 쌓여 큰 변화가 됩니다.",
+     "오늘 잘 한 것 하나를 자기 전에 떠올려 보시기 바랍니다."),
+    ("결과가 보이지 않는 시기에도 과정은 쌓이고 있습니다.",
+     "지금 이 시기가 나중에 가장 단단한 토대가 되어줄 것입니다.",
+     "오늘 하나를 완성하시기 바랍니다. 새로운 시작은 내일 해도 됩니다."),
+]
+
+# ── 띠운세 엔딩 풀 (날짜 순환) ──
+_c_endings = [
+    ("오늘 하루가 예상대로 흘러가지 않아도 됩니다.",
+     "지금 이 감각은 혼자만 경험하는 것이 아닙니다.",
+     "오늘 마음에 걸리는 것 하나만 직면해보시기 바랍니다."),
+    ("오늘 여기까지 온 것만으로 이미 충분히 잘 하고 있는 것입니다.",
+     "그 감각은 혼자만 경험하는 것이 아닙니다.",
+     "오늘 하루 수고하셨습니다."),
+    ("오늘의 작은 선택이 내일의 방향을 만들어 냅니다.",
+     "지금 버티고 있는 것, 그 자체가 이미 대단한 일입니다.",
+     "오늘 딱 하나만 선택하고 그것에 집중하시기 바랍니다."),
+    ("가야 할 방향이 보이지 않는 날이 있습니다.",
+     "그것은 약한 것이 아닙니다. 잠시 멈추고 살펴보는 것입니다.",
+     "오늘 한 걸음만 내딛는 것으로도 충분합니다."),
+    ("흔들리는 것이 당연한 날이 있습니다.",
+     "오늘은 결과보다 방향이 더 중요한 날입니다.",
+     "그 방향이 맞다면 속도는 이후에 따라옵니다."),
+    ("쉬는 것도 전략입니다. 오늘은 그 전략이 맞는 날입니다.",
+     "지금 하고 있는 것들이 쌓이고 있습니다.",
+     "보이지 않더라도 분명히 그렇습니다."),
+    ("잘 하고 있습니다. 오늘도.",
+     "지금 이 시기가 전환점이 되는 날들입니다.",
+     "오늘도 최선을 다하시기 바랍니다."),
+]
+
 def build_zodiac_post(z, today_str):
     fortune_raw = zodiac_fortune(z['kr'])
     rating      = stars()
@@ -2378,7 +2516,7 @@ def build_chinese_post(c, today_str):
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
     <h1>{c['emoji']} {c['kr']} 오늘의 운세</h1>
-    <p>{today_str} · {c['year']}</p>
+    <p>{today_str} · {', '.join(map(str, c['years']))}</p>
     <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">
       {signal}
@@ -2400,7 +2538,7 @@ def build_chinese_post(c, today_str):
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
-  <div class="meta"><p>{c['kr']} 출생연도: {c['year']}</p>
+  <div class="meta"><p>{c['kr']} 출생연도: {', '.join(map(str, c['years']))}</p>
     <p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
   {site_link()}
 </div>"""
@@ -2984,7 +3122,7 @@ def build_sns_chinese_post(today_str):
 
     cards_html = ""
     for c in CHINESE:
-        years_filtered = [y for y in c['year'].split(',') if 1940 <= int(y) <= 2030][:3]
+        years_filtered = [y for y in c['years'] if 1940 <= int(str(y)) <= 2030][:3]
         yr_fortune = chinese_fortune(c['en'])
         plain = str(yr_fortune).strip()
         sentences = plain.split('. ')
@@ -3054,7 +3192,7 @@ def build_sns_chinese_post(today_str):
     cards_html = ""
     for c in CHINESE:
         # 1940년 이상, 2030년 이하 연도만, 최대 4개
-        years_filtered = [y for y in c['year'].split(',') if 1940 <= int(y) <= 2030][:4]
+        years_filtered = [y for y in c['years'] if 1940 <= int(str(y)) <= 2030][:4]
 
         year_rows_html = ""
         for y in years_filtered:
@@ -3999,21 +4137,6 @@ def main():
     # 수동 실행 시 강제 포함 옵션
     force_weekly  = os.environ.get("FORCE_WEEKLY",  "false").lower() == "true"
     force_monthly = os.environ.get("FORCE_MONTHLY", "false").lower() == "true"
-    # MONTHLY_ONLY=true 이면 띠별 월간운세 12개만 발행하고 종료
-    monthly_only  = os.environ.get("MONTHLY_ONLY",  "false").lower() == "true"
-
-    if monthly_only:
-        print(f"🌙 MONTHLY_ONLY 모드 — 띠별 월간운세 12개만 발행")
-        posts.extend(build_chinese_monthly_post(today_str))
-        total = len(posts)
-        print(f"\n🌟 {today_str} 띠별 월간운세 단독 포스팅 시작 — 총 {total}개\n")
-        success = 0
-        for i, (title, content, labels) in enumerate(posts, 1):
-            if post_blogger(title, content, labels, i, total):
-                success += 1
-        print(f"\n✅ 완료: {success}/{total}개 게시 성공")
-        return
-
     # ① 오늘의 명언 1개
     posts.append(build_quote_post(today_str))
 
