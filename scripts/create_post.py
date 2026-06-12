@@ -2302,6 +2302,7 @@ def build_chinese_post(c, today_str):
     )
 
     signal = "흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "주의 ▼")
+    title  = f"{c['kr']} {today_dot} 오늘의 운세 | {signal}"
 
     # 출생연도별 운세
     year_rows = []
