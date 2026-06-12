@@ -2799,43 +2799,82 @@ def build_chinese_monthly_post(today_str):
         m = v2_df[v2_df['animal_zodiac'] == en_name]
         return m.sample(1).iloc[0] if not m.empty else None
 
+    # ── 띠별 고유 특성 정보 (독창성·정보성 강화) ──
+    _CHINESE_INFO = {
+        "rat":    {"kr":"쥐띠", "trait":"빠른 판단력과 정보 수집 능력이 뛰어난 타입", "strength":"민첩함·창의성·적응력", "weakness":"과도한 걱정·우유부단", "monthly_tip":"이달 쥐띠는 정보가 곧 기회입니다. 빠르게 움직이되 검증을 먼저 하는 것이 이달 핵심입니다."},
+        "ox":     {"kr":"소띠", "trait":"꾸준하고 성실하며 한번 시작한 것은 끝까지 완수하는 타입", "strength":"인내·신뢰감·실행력", "weakness":"변화 거부·고집", "monthly_tip":"이달 소띠는 꾸준함이 가장 강한 무기입니다. 새로 시작하는 것보다 지속하는 것이 이달 더 좋은 결과를 만들어 냅니다."},
+        "tiger":  {"kr":"호랑이띠", "trait":"용감하고 카리스마가 강하며 리더십이 자연스럽게 나오는 타입", "strength":"추진력·용기·리더십", "weakness":"충동적·기다림 어려움", "monthly_tip":"이달 호랑이띠는 에너지가 넘치는 시기입니다. 그 에너지를 한 방향으로 집중하는 것이 이달 가장 중요한 전략입니다."},
+        "rabbit": {"kr":"토끼띠", "trait":"섬세하고 눈치가 빠르며 조화를 추구하는 타입", "strength":"공감능력·세심함·사교성", "weakness":"우유부단·회피 경향", "monthly_tip":"이달 토끼띠는 관계에서 가장 빛나는 시기입니다. 먼저 다가가는 것이 이달 더 좋은 연결을 만들어 줍니다."},
+        "dragon": {"kr":"용띠", "trait":"카리스마가 강하고 이상이 높으며 큰 그림을 보는 타입", "strength":"열정·창의성·카리스마", "weakness":"완벽주의·고집", "monthly_tip":"이달 용띠는 큰 아이디어를 실행으로 옮기기 좋은 시기입니다. 단, 세부 계획도 함께 챙기시기 바랍니다."},
+        "snake":  {"kr":"뱀띠", "trait":"직관이 예리하고 신중하며 깊게 생각하는 타입", "strength":"통찰력·신중함·집중력", "weakness":"의심·감정 표현 어려움", "monthly_tip":"이달 뱀띠는 직관이 가장 정확하게 작동하는 시기입니다. 충분히 관찰한 후 움직이는 것이 이달 맞는 방식입니다."},
+        "horse":  {"kr":"말띠", "trait":"자유를 사랑하고 활동적이며 변화를 즐기는 타입", "strength":"열정·적응력·사교성", "weakness":"끈기 부족·집중 분산", "monthly_tip":"이달 말띠는 활동적인 에너지가 올라오는 시기입니다. 하나에 집중하는 것이 이달 가장 좋은 결과를 만들어 냅니다."},
+        "goat":   {"kr":"양띠", "trait":"온화하고 배려심이 깊으며 예술적 감수성이 풍부한 타입", "strength":"공감능력·창의성·온화함", "weakness":"자기주장 약함·의존적", "monthly_tip":"이달 양띠는 자신의 의견을 먼저 표현하는 연습이 필요한 시기입니다. 배려만큼 자기 자신도 챙기시기 바랍니다."},
+        "monkey": {"kr":"원숭이띠", "trait":"재치 있고 영리하며 새로운 것을 빠르게 습득하는 타입", "strength":"지능·유머·적응력", "weakness":"집중력 분산·변덕", "monthly_tip":"이달 원숭이띠는 아이디어가 풍부한 시기입니다. 그 아이디어를 하나 선택해서 완성하는 것이 이달 핵심입니다."},
+        "rooster":{"kr":"닭띠", "trait":"성실하고 꼼꼼하며 완벽을 추구하는 타입", "strength":"성실함·책임감·분석력", "weakness":"완벽주의·비판적", "monthly_tip":"이달 닭띠는 꼼꼼함이 빛나는 시기입니다. 완벽하지 않아도 진행하는 연습이 이달 더 좋은 결과를 만들어 냅니다."},
+        "dog":    {"kr":"개띠", "trait":"충성스럽고 정직하며 신뢰를 중시하는 타입", "strength":"충성심·정직함·책임감", "weakness":"걱정 많음·융통성 부족", "monthly_tip":"이달 개띠는 신뢰를 쌓는 행동이 가장 빛나는 시기입니다. 말보다 행동으로 보여주는 것이 이달 가장 강한 전략입니다."},
+        "pig":    {"kr":"돼지띠", "trait":"낙천적이고 인정이 많으며 베푸는 것을 좋아하는 타입", "strength":"낙천성·인정·성실함", "weakness":"순진함·지나친 관대함", "monthly_tip":"이달 돼지띠는 나눔이 돌아오는 흐름입니다. 베푸는 것도 좋지만 자신의 여유를 먼저 확인하시기 바랍니다."},
+    }
+    def _chinese_info_card(en_name):
+        info = _CHINESE_INFO.get(en_name)
+        if not info: return ""
+        return f'''
+<div class="card" style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-left:5px solid #f59e0b">
+  <span class="badge" style="background:#fef3c7;color:#92400e">🐾 {info["kr"]} 이달의 특성</span>
+  <div style="margin-top:12px">
+    <div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:8px">{info["trait"]}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #fde68a">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;font-weight:600">강점</div>
+        <div style="font-size:13px;font-weight:600;color:#374151">{info["strength"]}</div>
+      </div>
+      <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #fde68a">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;font-weight:600">주의</div>
+        <div style="font-size:13px;font-weight:600;color:#374151">{info["weakness"]}</div>
+      </div>
+    </div>
+    <div style="background:#fef3c7;border-radius:8px;padding:12px;font-size:14px;
+                line-height:1.9;color:#374151;word-break:keep-all">{info["monthly_tip"]}</div>
+  </div>
+</div>'''
+
+
     # ── 운세 지수 이유 문구 풀 ──
     _SCORE_REASON = {
         "total_up":   [
-            "조용히 쌓아온 것들이 이달 중순쯤 하나씩 보이기 시작하는 흐름",
-            "기다리던 연락이나 결과가 이달 안에 들어올 가능성 있음",
-            "먼저 움직이는 쪽이 유리한 달 — 타이밍 놓치지 마세요",
+            "조용히 쌓아온 것들이 이달 중순쯤 하나씩 드러나기 시작하는 흐름입니다.",
+            "기다리던 연락이나 결과가 이달 안에 들어올 가능성이 있습니다.",
+            "먼저 움직이는 쪽이 유리한 달입니다. 타이밍을 놓치지 마시기 바랍니다.",
         ],
         "total_warn": [
-            "이달은 새로 벌이기보다 버티는 게 더 현명한 달",
-            "무리하게 밀어붙일수록 손해가 커지는 흐름 — 속도 줄이세요",
+            "이달은 새로 시작하기보다 유지하는 것이 더 현명한 달입니다.",
+            "무리하게 밀어붙일수록 손해가 커지는 흐름입니다. 속도를 줄이시기 바랍니다.",
         ],
         "money_up":   [
-            "충동구매만 줄이면 이달 말에 생각보다 돈이 남는 구조",
-            "미뤄둔 환급·정산 이달 안에 꼭 챙기세요. 안 챙기면 그냥 사라집니다",
-            "쓰는 것보다 지키는 것이 이달 금전운의 핵심",
+            "충동구매를 줄이면 이달 말에 생각보다 금전이 남는 구조입니다.",
+            "미루어두었던 환급·정산을 이달 안에 반드시 챙기시기 바랍니다.",
+            "쓰는 것보다 지키는 것이 이달 금전 흐름의 핵심입니다.",
         ],
         "money_warn": [
-            "이달 큰 지출 결정은 다음 달로 미루는 게 훨씬 유리합니다",
-            "투자보다 저축 — 이달만큼은 지키는 게 버는 것입니다",
+            "이달 큰 지출 결정은 다음 달로 미루는 것이 훨씬 유리합니다.",
+            "투자보다 저축이 맞는 달입니다. 이달만큼은 지키는 것이 버는 것입니다.",
         ],
         "health_up":  [
-            "체력이 올라오는 달 — 새 운동 루틴 시작하기 딱 좋은 타이밍",
-            "몸이 따라주는 달이에요. 미뤄뒀던 건강검진이나 운동, 이달 안에 해두세요",
-            "숙면만 지켜도 이달 에너지가 확 달라지는 흐름",
+            "체력이 올라오는 달입니다. 새로운 운동 루틴을 시작하기 좋은 타이밍입니다.",
+            "몸이 따라주는 달입니다. 미루어두었던 건강검진이나 운동을 이달 안에 실행하시기 바랍니다.",
+            "숙면만 지켜도 이달 에너지가 달라지는 흐름입니다.",
         ],
         "health_warn":[
-            "이달 중순 이후 과로 누적 주의 — 지금부터 무리하지 마세요",
-            "소화·수면 이 두 가지만 챙기면 이달 버티는 데 든든한 기반이 돼요",
+            "이달 중순 이후 과로 누적에 주의가 필요합니다. 지금부터 무리하지 마시기 바랍니다.",
+            "소화와 수면 이 두 가지만 챙겨도 이달을 버티는 데 충분한 기반이 됩니다.",
         ],
         "love_up":    [
-            "썸보다 이미 가까운 사람에게서 감정 발전 가능성이 더 높은 달",
-            "먼저 연락하거나 먼저 표현하는 쪽이 유리한 흐름입니다",
-            "말 한마디가 관계 깊이를 바꾸는 달 — 솔직하게 꺼내보세요",
+            "이미 가까운 사람에게서 감정이 발전할 가능성이 더 높은 달입니다.",
+            "먼저 연락하거나 먼저 표현하는 쪽이 유리한 흐름입니다.",
+            "말 한마디가 관계의 깊이를 바꾸는 달입니다. 솔직하게 표현해보시기 바랍니다.",
         ],
         "love_warn":  [
-            "오해가 생기기 쉬운 달 — 말하기 전에 한 번 더 생각하세요",
-            "감정적 반응보다 한 박자 여유가 이달 관계를 지킵니다",
+            "오해가 생기기 쉬운 달입니다. 말하기 전에 한 번 더 생각하시기 바랍니다.",
+            "감정적 반응보다 한 박자 여유를 두는 것이 이달 관계를 지켜줍니다.",
         ],
     }
 
@@ -3045,8 +3084,7 @@ def build_chinese_monthly_post(today_str):
   <!-- 대표 이미지 -->
   {post_img("monthly")}
 
-  <!-- 3. 운세 지수 (이유 포함) -->
-  {score_html}
+  <!-- 운세 지수 % 제거 (근거 없는 수치 — 애드센스 심사 기준) -->
 
   <!-- 4. 기간별 운세 (사건형) -->
   <div style="margin:6px 0 4px;font-size:13px;font-weight:700;
@@ -3064,6 +3102,9 @@ def build_chinese_monthly_post(today_str):
     <span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
+
+  <!-- 띠별 고유 특성 정보 (독창성·정보성 강화) -->
+  {_chinese_info_card(c['en'])}
 
   {site_link()}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매월 업데이트</div>
@@ -3779,9 +3820,8 @@ def _omnibus_bridge(
     c_peak_time='', c_peak_tip='', c_low_time='', c_low_tip=''
 ) -> str:
     """
-    소설처럼 흐르는 브릿지 — 카드박스/이모지 없이 산문으로 자연스럽게 연결
-    시간 정보는 골든타임(_TIME_POOL) 1회만 노출.
-    peak/low/contact는 시간 표기 없이 행동 조언 텍스트(tip/reason)만 사용.
+    별자리×띠 스토리텔링 브릿지 — 골든타임·연락시간 제거
+    별자리 특성 + 띠 특성 + 궁합 + 행동 제안 중심
     """
     zb = f"<b style='color:#5b21b6'>{z_kr}</b>"
     cb = f"<b style='color:#b45309'>{c_kr}</b>"
@@ -3794,182 +3834,108 @@ def _omnibus_bridge(
             story = row[3]
             break
     if not story:
-        story = f"{zb}와 {cb}, 오늘 같은 흐름 위에 서 있어요."
+        story = f"{zb}와 {cb}, 오늘 같은 흐름 위에 서 있습니다."
 
-    # 조합별 시간 가이드 — 요일 고정 반복 방지
-    tg = _TIME_POOL[idx % len(_TIME_POOL)]
-    time_label  = tg["label"]
-    time_why    = tg["why"]
-    time_action = tg["action"]
-    time_goal   = tg["goal"]
-
-    # ── 인라인 하이라이트 스타일 (반드시 prose 생성 전에 정의) ──
-    def hl_time(t):   return f"<b style='color:#2563eb'>{t}</b>"
     def hl_warn(t):   return f"<b style='color:#dc2626'>{t}</b>"
     def hl_item(t):   return f"<b style='color:#059669'>{t}</b>"
     def hl_compat(t): return f"<b style='color:#7c3aed'>{t}</b>"
 
-    # ── 시간 정보 1회 노출 원칙 ──
-    # 골든타임(_TIME_POOL)만 시간 표기, peak/low/contact는 조언 텍스트만 사용
-
-    # 띠별 행동 조언 (시간 표기 없이 tip만)
-    peak_tip_only = str(c_peak_tip).strip() if c_peak_tip else ""
-    low_tip_only  = str(c_low_tip).strip()  if c_low_tip  else ""
-
-    # 별자리 연락 조언 (시간 표기 없이 reason만)
-    contact_tip_only = str(z_contact_reason).strip() if z_contact_reason else ""
-
-    # 띠+별자리 행동 조언 산문 — 시간 없이 흐름에 녹임
-    behavior_parts = []
-    if peak_tip_only:
-        behavior_parts.append(f"{cb}는 오늘 {peak_tip_only}")
-    if low_tip_only:
-        behavior_parts.append(f"에너지가 처지는 시간대엔 {low_tip_only}")
-    if contact_tip_only:
-        behavior_parts.append(contact_tip_only)
-    behavior_prose = " ".join(behavior_parts)
-
-    # 시간대를 산문 안에 녹인 문장들 — 골든타임 1회만
-    time_prose_a = (
-        f"오늘의 골든타임은 {hl_time(time_label)}이에요. "
-        f"{time_why} "
-        f"{time_action}"
-    )
-    time_prose_b = (
-        f"오늘은 {hl_time(time_label)}을 어떻게 쓰느냐가 갈려요. "
-        f"{time_action}"
-    )
-    time_prose_c = (
-        f"시간 얘기를 하나 할게요. {hl_time(time_label)}, 이 구간을 잘 보세요. "
-        f"{time_why}"
-    )
-
-    # 목표 문장 — 조합 idx로 다르게
-    _goal_variants = [
-        f"오늘은 이것만 해보세요. {time_goal}",
-        f"의외로 여기서 답이 나옵니다. {time_goal}",
-        f"지금은 고르는 때예요. {time_goal}",
-        f"오늘 하루, 이 하나만 챙기면 돼요. {time_goal}",
-        f"이거 하나면 오늘 하루 다 쓴 거예요. {time_goal}",
-        f"복잡하게 생각할 필요 없어요. {time_goal}",
-    ]
-    goal_prose = _goal_variants[idx % len(_goal_variants)]
-
-    # 행동 조언이 있을 때만 추가하는 보조 산문
-    tf = (f"<br><br>{behavior_prose}" if behavior_prose else "")
-
     # 궁합 산문
     compat_prose = (
         f"오늘 {hl_compat(z_compatible)}이나 {hl_compat(c_best)}와 나누는 대화가 "
-        f"의외로 좋은 방향을 열어줄 수 있어요. "
-        f"반대로 {hl_warn(c_avoid)}와 감정이 섞인 이야기는 오늘 저녁 이후로 미뤄두는 게 나아요."
+        f"의외로 좋은 방향을 열어줄 수 있습니다. "
+        f"반대로 {hl_warn(c_avoid)}와 감정이 섞인 이야기는 오늘 저녁 이후로 미루는 것이 좋습니다."
     )
 
-    # 행운 산문
-    item_prose = (
-        f"오늘 {hl_item(z_item)}을 가까이 두거나 "
-        f"{hl_item(z_color)} 소품 하나를 챙겨보세요. "
-        f"작은 것인데 하루가 조금 달라지거든요."
-    )
+    # 행동 제안 산문
+    _goal_variants = [
+        f"오늘은 이것 하나만 실천해보시기 바랍니다.",
+        f"의외로 이 방향에서 답이 나옵니다.",
+        f"지금은 선택하는 때입니다.",
+        f"오늘 하루 이 하나만 챙기면 충분합니다.",
+        f"복잡하게 생각하지 않아도 됩니다.",
+        f"오늘의 방향이 여기에 있습니다.",
+    ]
+    goal_prose = _goal_variants[idx % len(_goal_variants)]
 
-    # 피해야 할 것 산문 — idx 기반 변형
+    # 피해야 할 것 산문
     _avoid_variants = [
-        (f"오늘 {hl_warn(avoid_action)}은 잠시 멈추는 편이 유리해요. "
-         f"억지로 밀어붙이는 날이 아니에요."),
-        (f"오늘 {hl_warn(avoid_action)}은 내려놓아도 돼요. "
-         f"오늘은 그 방향보다 다른 쪽에 에너지를 쓰는 게 맞아요."),
-        (f"{hl_warn(avoid_action)}은 오늘 굳이 건드리지 않아도 되는 것들이에요. "
-         f"비워두는 것도 오늘의 선택이에요."),
-        (f"오늘 {hl_warn(avoid_action)} 쪽으로 힘을 쏟으면 뒷맛이 남아요. "
-         f"지금은 그쪽보다 나머지에 집중할 타이밍이에요."),
+        (f"오늘 {hl_warn(avoid_action)}은 잠시 멈추는 편이 유리합니다. "
+         f"억지로 밀어붙이는 날이 아닙니다."),
+        (f"오늘 {hl_warn(avoid_action)}은 내려놓아도 됩니다. "
+         f"오늘은 다른 쪽에 에너지를 쓰는 것이 맞습니다."),
+        (f"{hl_warn(avoid_action)}은 오늘 굳이 건드리지 않아도 되는 것입니다. "
+         f"비워두는 것도 오늘의 선택입니다."),
+        (f"오늘 {hl_warn(avoid_action)} 쪽으로 힘을 쏟으면 뒷맛이 남습니다. "
+         f"지금은 나머지에 집중할 타이밍입니다."),
     ]
     avoid_prose = _avoid_variants[idx % len(_avoid_variants)]
 
-    # ── 12가지 산문 패턴 ──
-    # z_core(별자리 오늘 운세 핵심문), c_core(띠 오늘 운세 핵심문)를
-    # 스토리 안에 인과적으로 녹여 "별자리가 이러니까 띠가 이렇게 작용한다"는 흐름을 만듦
+    # ── 12가지 산문 패턴 (골든타임·연락시간 제거) ──
     patterns = [
-        # 0: 스토리 → 실시간 별자리 코어 → 골든타임
+        # 0: 스토리 → 별자리 코어 → 행동
         f"{story}<br><br>"
         f"오늘 {zb}의 흐름을 보면, {z_core} "
-        f"그 흐름 위에서 {time_prose_a} "
-        f"{goal_prose}"
-        + tf,
+        f"{goal_prose}",
 
-        # 1: 골든타임 먼저 → 스토리 → 띠 코어로 마무리
-        f"{time_prose_c}<br><br>"
+        # 1: 스토리 → 띠 코어 → 행동
         f"{story}<br><br>"
-        f"오늘 {cb}가 전하는 한 마디는 이거예요. {c_core} "
-        f"{goal_prose}"
-        + tf,
+        f"오늘 {cb}가 전하는 한 마디입니다. {c_core} "
+        f"{goal_prose}",
 
-        # 2: 띠 코어 → 별자리와 연결 → 행동
-        f"오늘 {cb}의 에너지가 이런 말을 하고 있어요. {c_core}<br><br>"
-        f"{zb}인 당신에게 그 에너지가 닿으면 어떻게 되냐면, {story}<br><br>"
-        f"{time_prose_b} {goal_prose}"
-        + tf,
+        # 2: 띠 코어 → 별자리 연결 → 궁합
+        f"오늘 {cb}의 에너지가 이런 방향을 가리키고 있습니다. {c_core}<br><br>"
+        f"{zb}인 분들에게 그 에너지가 닿으면, {story}<br><br>"
+        f"{compat_prose}",
 
-        # 3: 테마 선언 → 스토리 → 별자리 코어 → 궁합
-        f"오늘의 테마는 {tb}이에요. {zb}와 {cb}가 같은 흐름 위에 서 있는 날이거든요.<br><br>"
+        # 3: 테마 → 스토리 → 별자리 코어 → 궁합
+        f"오늘의 테마는 {tb}입니다. {zb}와 {cb}가 같은 흐름 위에 서 있는 날입니다.<br><br>"
         f"{story}<br><br>"
-        f"오늘 {zb}의 흐름은 이래요. {z_core} "
-        f"{compat_prose}"
-        + tf,
+        f"오늘 {zb}의 흐름입니다. {z_core} "
+        f"{compat_prose}",
 
-        # 4: 스토리 → 피해야 할 것 → 띠 코어로 방향 제시
+        # 4: 스토리 → 피해야 할 것 → 띠 코어
         f"{story}<br><br>"
         f"{avoid_prose}<br><br>"
-        f"대신 {cb}가 오늘 이런 방향을 가리키고 있어요. {c_core} "
-        f"{time_prose_b}"
-        + tf,
+        f"대신 {cb}가 오늘 이런 방향을 가리키고 있습니다. {c_core}",
 
-        # 5: 행운 팁 → 별자리↔띠 연결 스토리 → 골든타임
-        f"오늘 {zb}와 {cb}에게 먼저 작은 팁 하나. {item_prose}<br><br>"
+        # 5: 스토리 → 별자리↔띠 코어 교차
         f"{story}<br><br>"
-        f"{time_prose_a} {goal_prose}"
-        + tf,
+        f"오늘 {zb}의 에너지: {z_core}<br><br>"
+        f"오늘 {cb}의 에너지: {c_core} "
+        f"{goal_prose}",
 
-        # 6: 띠 코어 → 별자리가 받는 방식 → 행동
-        f"오늘 {cb}의 에너지가 이렇게 흐르고 있어요. {c_core}<br><br>"
-        f"그 에너지를 {zb}는 이렇게 받을 수 있어요. {z_core}<br><br>"
-        f"둘이 만나는 지점에서 오늘 가장 잘 되는 것: {time_prose_c} {goal_prose}"
-        + tf,
+        # 6: 띠 코어 → 별자리 받는 방식 → 행동
+        f"오늘 {cb}의 에너지가 이렇게 흐르고 있습니다. {c_core}<br><br>"
+        f"그 에너지를 {zb}는 이렇게 받을 수 있습니다. {z_core}<br><br>"
+        f"{goal_prose}",
 
-        # 7: 스토리 → 행동 조언 → 골든타임 → 궁합
+        # 7: 스토리 → 궁합
         f"{story}<br><br>"
-        f"{time_prose_a}<br><br>"
-        + (f"{behavior_prose}<br><br>" if behavior_prose else "")
-        + f"{compat_prose} {goal_prose}",
+        f"{compat_prose}",
 
-        # 8: 공감 오프닝 → 별자리 코어 → 스토리 → 골든타임
-        f"오늘 {zb}인 분들, 잠깐 이야기 들어보실게요?<br><br>"
-        f"오늘 당신의 흐름이 이렇게 보여요. {z_core}<br><br>"
-        f"그 흐름에서 {cb}의 에너지가 이렇게 작용해요. {story}<br><br>"
-        f"{time_prose_b} {goal_prose}"
-        + tf,
+        # 8: 별자리 코어 → 스토리 → 행동
+        f"오늘 {zb}의 흐름이 이렇게 보입니다. {z_core}<br><br>"
+        f"그 흐름에서 {cb}의 에너지가 이렇게 작용합니다. {story}<br><br>"
+        f"{goal_prose}",
 
-        # 9: 스토리 → 행운 → 띠 코어 → 골든타임
+        # 9: 스토리 → 띠 코어 → 피해야 할 것
         f"{story}<br><br>"
-        f"{item_prose}<br><br>"
-        f"오늘 {cb}가 건네는 말도 같은 방향이에요. {c_core} "
-        f"그리고 {time_prose_a}"
-        + tf,
+        f"오늘 {cb}가 건네는 말도 같은 방향입니다. {c_core}<br><br>"
+        f"{avoid_prose}",
 
-        # 10: 긍정 선언 → 스토리 → 별자리↔띠 코어 교차 → 피해야 할 것
-        f"오늘 {zb}와 {cb}의 흐름이 생각보다 좋은 방향으로 맞닿아 있어요.<br><br>"
+        # 10: 긍정 선언 → 스토리 → 코어 교차
+        f"오늘 {zb}와 {cb}의 흐름이 좋은 방향으로 맞닿아 있습니다.<br><br>"
         f"{story}<br><br>"
-        f"{zb}의 오늘: {z_core} {cb}의 오늘: {c_core}<br><br>"
-        f"{avoid_prose}"
-        + tf,
+        f"{zb}의 오늘: {z_core} {cb}의 오늘: {c_core}",
 
-        # 11: 마무리형 → 스토리 → 골든타임 → 궁합
-        f"마지막으로 {zb}와 {cb}인 분들께.<br><br>"
+        # 11: 마무리형 → 스토리 → 궁합
+        f"{zb}와 {cb}인 분들께 오늘의 이야기를 전합니다.<br><br>"
         f"{story}<br><br>"
-        f"{time_prose_a}<br><br>"
-        f"{compat_prose}"
-        + tf,
+        f"{compat_prose}",
     ]
     return patterns[idx % len(patterns)]
+
 
 
 def build_omnibus_post(today_str: str) -> tuple:
