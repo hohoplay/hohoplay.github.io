@@ -2551,16 +2551,91 @@ def build_chinese_post(c, today_str):
 
 
 def build_zodiac_weekly_post(today_str):
-    """별자리별 주간운세 12개 — 별과띠가만나는시간 방식 스토리텔링"""
-    kst_now   = now_kst()
-    # 이번 주 월요일 기준
-    dow       = kst_now.weekday()
-    mon_date  = (kst_now - timedelta(days=dow)).date()
-    sun_date  = mon_date + timedelta(days=6)
-    month_str = f"{mon_date.month}월"
-    week_num  = (mon_date.day - 1) // 7 + 1
+    """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성"""
+    kst_now    = now_kst()
+    dow        = kst_now.weekday()
+    mon_date   = (kst_now - timedelta(days=dow)).date()
+    sun_date   = mon_date + timedelta(days=6)
+    month_str  = f"{mon_date.month}월"
+    week_num   = (mon_date.day - 1) // 7 + 1
     week_label = f"{month_str} {week_num}주차"
     week_range = f"{mon_date.month}/{mon_date.day} ~ {sun_date.month}/{sun_date.day}"
+
+    # 별자리별 4영역 주간 내용 풀
+    _W_AREAS = {
+        "양자리": {
+            "관계": "이번 주 관계에서 먼저 움직이는 것이 유리합니다. 양자리의 직접적인 방식이 오히려 상대방에게 신뢰를 줍니다. 연락하고 싶었던 사람이 있다면 이번 주가 맞는 타이밍입니다.",
+            "일":   "이번 주 새로운 프로젝트나 아이디어를 시작하기 좋은 흐름입니다. 단, 여러 가지를 동시에 시작하려는 충동을 조심하시기 바랍니다. 하나에 집중하는 것이 이번 주 핵심 전략입니다.",
+            "돈":   "이번 주 충동적인 지출이 생기기 쉬운 흐름입니다. 구매 전 하루 더 생각하는 습관이 이번 주 금전을 지켜줍니다.",
+            "건강": "이번 주 에너지가 넘치는 만큼 과도하게 소비하지 않도록 주의하시기 바랍니다. 80%만 사용하고 20%는 남겨두는 것이 이번 주 건강 포인트입니다.",
+        },
+        "황소자리": {
+            "관계": "이번 주 오래된 인연에서 따뜻한 에너지를 얻는 흐름입니다. 새로운 만남보다 기존 관계를 더 깊게 만드는 것이 이번 주 맞는 방향입니다.",
+            "일":   "이번 주 꾸준히 해온 것들이 인정받기 시작하는 흐름입니다. 새로운 것을 시작하기보다 기존 것을 완성하는 데 집중하시기 바랍니다.",
+            "돈":   "이번 주 안정적인 금전 흐름이 이어집니다. 장기 저축 목표를 점검하거나 불필요한 지출을 정리하기 좋은 시기입니다.",
+            "건강": "이번 주 규칙적인 루틴이 가장 중요합니다. 흐트러진 생활 패턴이 있다면 이번 주 다시 정비하시기 바랍니다.",
+        },
+        "쌍둥이자리": {
+            "관계": "이번 주 대화에서 좋은 연결이 만들어지는 흐름입니다. 쌍둥이자리의 언어 능력이 이번 주 관계에서 가장 빛나는 시기입니다.",
+            "일":   "이번 주 정보 수집과 소통이 중요한 업무에서 탁월한 결과가 나옵니다. 단, 집중력이 분산되지 않도록 할 일 목록을 두 가지로 줄이시기 바랍니다.",
+            "돈":   "이번 주 다양한 금전 정보가 들어오는 흐름입니다. 비교 검토 후 결정하는 것이 이번 주 현명한 소비 방식입니다.",
+            "건강": "이번 주 정신적 피로가 쌓이기 쉬운 시기입니다. 하루 30분이라도 디지털 기기에서 벗어나는 시간을 확보하시기 바랍니다.",
+        },
+        "게자리": {
+            "관계": "이번 주 공감 능력이 가장 높아지는 시기입니다. 주변 사람들의 마음을 읽고 배려하는 것이 관계를 더 깊게 만들어 줍니다. 단, 타인의 감정을 너무 많이 흡수하지 않도록 주의하시기 바랍니다.",
+            "일":   "이번 주 꼼꼼하게 챙기는 업무에서 좋은 결과가 나옵니다. 팀 내 분위기를 살피는 것도 이번 주 중요한 역할입니다.",
+            "돈":   "이번 주 감정적 소비를 조심하시기 바랍니다. 기분에 따른 지출보다 계획된 소비가 이번 주 맞는 방향입니다.",
+            "건강": "이번 주 감정이 소화기에 영향을 주기 쉬운 시기입니다. 따뜻한 음식과 충분한 수면이 이번 주 건강 포인트입니다.",
+        },
+        "사자자리": {
+            "관계": "이번 주 존재감이 빛나는 시기입니다. 주변 사람들에게 진심 어린 격려를 전하는 것이 이번 주 관계에서 가장 강한 카드입니다.",
+            "일":   "이번 주 발표나 제안에서 탁월한 결과가 기대됩니다. 사자자리의 카리스마가 이번 주 업무에서 가장 빛나는 시기입니다.",
+            "돈":   "이번 주 큰 지출 결정은 다음 주로 미루시기 바랍니다. 자신에게 투자하는 지출은 이번 주 가치 있습니다.",
+            "건강": "이번 주 에너지를 폭발적으로 사용하는 패턴을 조심하시기 바랍니다. 번아웃이 오기 전에 미리 충전하는 것이 이번 주 핵심입니다.",
+        },
+        "처녀자리": {
+            "관계": "이번 주 말보다 행동으로 마음을 전하는 것이 효과적입니다. 작은 것을 챙겨주는 세심한 배려가 이번 주 관계를 빛나게 합니다.",
+            "일":   "이번 주 꼼꼼함이 중요한 실수를 막아주는 시기입니다. 단, 완벽을 추구하다 진행이 늦어지지 않도록 80% 완성도에서 진행하는 연습이 필요합니다.",
+            "돈":   "이번 주 가계부 점검과 불필요한 자동결제 정리에 좋은 타이밍입니다. 처녀자리의 꼼꼼한 금전 감각이 이번 주 빛을 발합니다.",
+            "건강": "이번 주 소화기 건강에 신경 쓰시기 바랍니다. 규칙적인 식사와 충분한 수분 섭취가 이번 주 건강 포인트입니다.",
+        },
+        "천칭자리": {
+            "관계": "이번 주 균형 잡힌 관계가 더욱 단단해지는 흐름입니다. 갈등이 있다면 이번 주 중재하기 좋은 타이밍입니다. 자신의 의견도 분명히 표현하시기 바랍니다.",
+            "일":   "이번 주 결정을 더 이상 미루지 않는 것이 중요합니다. 기한을 정하고 그 안에 결정하는 연습이 이번 주 핵심입니다.",
+            "돈":   "이번 주 수입과 지출의 균형을 점검하기 좋은 흐름입니다. 파트너와 금전 계획을 함께 이야기하기 좋은 시기입니다.",
+            "건강": "이번 주 몸의 균형을 맞추는 것이 중요합니다. 요가나 필라테스 등 균형을 잡는 운동이 이번 주 잘 맞습니다.",
+        },
+        "전갈자리": {
+            "관계": "이번 주 깊은 연결이 강화되는 흐름입니다. 신뢰하는 사람에게 마음을 조금 열어보시기 바랍니다. 솔직한 대화가 관계를 더 단단하게 만들어 줍니다.",
+            "일":   "이번 주 집중력이 최고조인 시기입니다. 어려운 업무나 분석이 필요한 과제를 처리하기 좋은 흐름입니다.",
+            "돈":   "이번 주 직관적인 금전 판단이 정확한 흐름입니다. 숨겨진 비용이 있는지 꼼꼼하게 확인하시기 바랍니다.",
+            "건강": "이번 주 감정을 억누르는 것이 몸으로 나오기 쉬운 시기입니다. 강도 높은 운동으로 감정을 건강하게 발산하시기 바랍니다.",
+        },
+        "사수자리": {
+            "관계": "이번 주 새로운 만남이나 인연이 시작되기 좋은 흐름입니다. 자유로운 방식으로 다가가는 것이 이번 주 관계에서 가장 자연스럽습니다.",
+            "일":   "이번 주 마무리가 중요합니다. 새로 시작하는 것보다 기존 것을 완성하는 데 집중하시기 바랍니다. 사수자리의 큰 그림이 이번 주 팀에게 방향을 제시합니다.",
+            "돈":   "이번 주 큰 수입과 큰 지출이 동시에 생기기 쉬운 흐름입니다. 작은 지출들을 꼼꼼하게 관리하시기 바랍니다.",
+            "건강": "이번 주 야외 활동이 가장 좋은 충전 방법입니다. 실내보다 야외에서 움직이는 시간을 늘리시기 바랍니다.",
+        },
+        "염소자리": {
+            "관계": "이번 주 신뢰를 바탕으로 한 관계가 빛을 발하는 흐름입니다. 말보다 행동으로 신뢰를 보여주는 것이 이번 주 관계에서 가장 강합니다.",
+            "일":   "이번 주 목표를 향해 한 걸음씩 나아가는 흐름입니다. 빠른 결과를 기대하지 말고 지금 하고 있는 것들이 쌓이고 있다는 것을 믿으시기 바랍니다.",
+            "돈":   "이번 주 장기 금전 계획을 실행하기 좋은 흐름입니다. 안전한 금융 상품을 검토하거나 저축 목표를 점검하기 좋은 타이밍입니다.",
+            "건강": "이번 주 관절이나 무릎 건강에 주의하시기 바랍니다. 무리하게 일하다 신체에 무리가 오는 패턴을 조심하시기 바랍니다.",
+        },
+        "물병자리": {
+            "관계": "이번 주 공통된 가치관에서 관계가 깊어지는 흐름입니다. 지적인 교류가 이번 주 가장 좋은 연결 방식입니다.",
+            "일":   "이번 주 독창적인 아이디어가 인정받는 흐름입니다. 남들이 생각하지 못한 방식으로 접근하는 것이 이번 주 가장 강한 전략입니다.",
+            "돈":   "이번 주 새로운 수입원 아이디어가 구체화되는 흐름입니다. 기술이나 혁신과 관련된 금전 기회에 주목하시기 바랍니다.",
+            "건강": "이번 주 뇌와 신경계 건강에 신경 쓰시기 바랍니다. 디지털 기기에서 벗어나는 시간을 의도적으로 만드시기 바랍니다.",
+        },
+        "물고기자리": {
+            "관계": "이번 주 깊은 공감이 중요한 연결을 만드는 흐름입니다. 누군가의 아픔을 진심으로 이해해주는 것이 이번 주 가장 강한 관계의 힘입니다.",
+            "일":   "이번 주 창의적인 작업에서 탁월한 결과가 나오는 흐름입니다. 직관을 신뢰하고 감성적인 접근을 시도하시기 바랍니다.",
+            "돈":   "이번 주 타인을 위한 지출이 많아지지 않도록 주의하시기 바랍니다. 자신의 여유를 먼저 확인한 후 베푸는 것이 이번 주 맞는 방향입니다.",
+            "건강": "이번 주 감정이 신체에 영향을 주기 쉬운 시기입니다. 충분한 수면과 물 가까이에서 시간을 보내는 것이 이번 주 건강 포인트입니다.",
+        },
+    }
 
     results = []
     for z in ZODIACS:
@@ -2572,7 +2647,6 @@ def build_zodiac_weekly_post(today_str):
         total = raw_total
         signal = "이번 주 흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "신중한 흐름 ▼")
 
-        # 별자리 특성
         z_info   = ZODIAC_INFO.get(z['kr'], {})
         z_tip    = z_info.get("tip", "")
         z_compat = z_info.get("compatible", "")
@@ -2583,10 +2657,10 @@ def build_zodiac_weekly_post(today_str):
             if score >= 50: return "잔잔하게 흘러가는 주간입니다."
             return "신중하게 움직여야 하는 주간입니다."
 
-        opening = random.choice(_W_OPENINGS)
-        _we     = _W_ENDINGS[kst_now.day % len(_W_ENDINGS)]
+        _we  = _W_ENDINGS[kst_now.day % len(_W_ENDINGS)]
+        kst_day = kst_now.day
 
-        # 공감층 (별자리별 이번 주 감각)
+        # 공감층
         _W_EMPATHY_LOCAL = {
             "양자리":     "이번 주 시작은 의욕 있게 했는데 어느 순간 힘이 빠지는 패턴이 반복되고 있습니다.",
             "황소자리":   "이번 주 변화가 생길 것 같아 불안한 감각이 있습니다.",
@@ -2603,46 +2677,39 @@ def build_zodiac_weekly_post(today_str):
         }
         empathy = _W_EMPATHY_LOCAL.get(z['kr'], "")
 
-        # 인과 브릿지 (공감 → 이번 주 흐름 → 별자리 특성 → 엔딩)
-        kst_day = kst_now.day
-        _to_flow_bridges = [
+        # 이번 주 4영역 내용
+        areas = _W_AREAS.get(z['kr'], {})
+        area_rel    = areas.get("관계", "이번 주 관계에서 먼저 움직이는 것이 유리합니다.")
+        area_work   = areas.get("일",   "이번 주 집중력이 높아지는 흐름입니다.")
+        area_money  = areas.get("돈",   "이번 주 계획된 소비가 맞는 방향입니다.")
+        area_health = areas.get("건강", "이번 주 충분한 휴식이 필요합니다.")
+
+        # 브릿지
+        _bridges = [
             f"그 감각이 이번 주 {z['kr']}의 흐름에서 비롯된 것입니다.",
             f"이번 주 {z['kr']}의 에너지가 그 방향을 만들어내고 있습니다.",
             f"그 이유가 이번 주 흐름 안에 있습니다.",
-            f"그것이 이번 주 {z['kr']}에게 나타나는 자연스러운 에너지입니다.",
             f"이번 주 별자리 흐름이 그 감각의 원인입니다.",
         ]
-        _to_tip_bridges = [
-            f"그 흐름을 알고 나면 이번 주를 다르게 쓸 수 있습니다.",
-            f"그리고 이번 주 {z['kr']}에게 가장 중요한 것이 있습니다.",
-            f"이번 주 이 흐름을 가장 잘 활용하는 방법은 이것입니다.",
-            f"그 에너지를 어떻게 쓰느냐가 이번 주를 결정합니다.",
-            f"이번 주 {z['kr']}의 핵심 방향입니다.",
-        ]
+        tfb = _bridges[kst_day % len(_bridges)]
 
-        tfb = _to_flow_bridges[kst_day % len(_to_flow_bridges)]
-        ttb = _to_tip_bridges[(kst_day+1) % len(_to_tip_bridges)]
-
-        # compat html
         compat_tip_html_w = (
-            f'<div style="background:#f5f3ff;border-radius:10px;padding:11px 14px;' +
+            f'<div style="background:#f5f3ff;border-radius:10px;padding:10px 14px;' +
             f'font-size:13px;color:#5b21b6;line-height:1.85;' +
             f'border-left:3px solid #a78bfa;word-break:keep-all;margin-top:10px">' +
             f'💡 이번 주 잘 맞는 별자리: {z_compat}</div>'
         ) if z_compat else ''
 
-        # SEO
         kw_list = [
             z['kr'], f"{z['kr']} 주간운세", f"{z['kr']} 이번주운세",
             f"{z['kr']} {week_label}", "별자리 주간운세",
             f"{z['kr']} {month_str}", "주간운세", "별자리운세",
             f"{z['kr']} 특징", f"{z['kr']} 성격", f"{z['kr']} 궁합",
+            f"{z['kr']} 관계운", f"{z['kr']} 금전운", f"{z['kr']} 건강운",
         ]
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
-
         title = f"{z['kr']} {week_label} 주간운세 {week_range} | {signal}"
 
-        # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
@@ -2653,24 +2720,57 @@ def build_zodiac_weekly_post(today_str):
               font-weight:500;margin:0;word-break:keep-all">💭 {empathy}</p>
   </div>
 
-  <div style="width:2px;height:20px;background:linear-gradient(#a78bfa,#7c3aed);margin:0 auto 1.6rem"></div>
+  <div style="width:2px;height:20px;background:#a78bfa;margin:0 auto 1.6rem"></div>
 
-  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
-                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <div style="font-size:15px;line-height:2.1;color:#374151;
+              word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{tfb}</p>
+    <p style="margin:0 0 0.5em 0;font-size:13px;color:#a78bfa;font-style:italic">{tfb}</p>
+    <p style="margin:0 0 1.6em 0">{fortune}</p>
 
-    <p style="margin:0 0 1.4em 0">{fortune}</p>
+    <div style="display:grid;gap:12px;margin-bottom:1.6em">
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{ttb}</p>
+      <div style="border-left:4px solid #e11d48;padding:14px 16px;
+                  background:#fff8fa;border-radius:0 12px 12px 0">
+        <div style="font-size:11px;font-weight:700;color:#e11d48;
+                    letter-spacing:0.08em;margin-bottom:8px">❤️ 관계</div>
+        <p style="font-size:14px;line-height:1.95;color:#374151;
+                  margin:0;word-break:keep-all">{area_rel}</p>
+      </div>
 
+      <div style="border-left:4px solid #3b82f6;padding:14px 16px;
+                  background:#f8fbff;border-radius:0 12px 12px 0">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;
+                    letter-spacing:0.08em;margin-bottom:8px">💼 일</div>
+        <p style="font-size:14px;line-height:1.95;color:#374151;
+                  margin:0;word-break:keep-all">{area_work}</p>
+      </div>
+
+      <div style="border-left:4px solid #d97706;padding:14px 16px;
+                  background:#fffcf5;border-radius:0 12px 12px 0">
+        <div style="font-size:11px;font-weight:700;color:#d97706;
+                    letter-spacing:0.08em;margin-bottom:8px">💰 돈</div>
+        <p style="font-size:14px;line-height:1.95;color:#374151;
+                  margin:0;word-break:keep-all">{area_money}</p>
+      </div>
+
+      <div style="border-left:4px solid #16a34a;padding:14px 16px;
+                  background:#f5fdf7;border-radius:0 12px 12px 0">
+        <div style="font-size:11px;font-weight:700;color:#16a34a;
+                    letter-spacing:0.08em;margin-bottom:8px">💪 건강</div>
+        <p style="font-size:14px;line-height:1.95;color:#374151;
+                  margin:0;word-break:keep-all">{area_health}</p>
+      </div>
+
+    </div>
+
+    <p style="margin:0 0 0.5em 0;font-size:13px;color:#a78bfa;font-style:italic">이번 주 {z['kr']}이 집중해야 할 것입니다.</p>
     <p style="margin:0 0 1.4em 0">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
-
     {compat_tip_html_w}
 
   </div>
 
-  <div style="width:2px;height:20px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto 1.6rem"></div>
+  <div style="width:2px;height:20px;background:#7c3aed;margin:0 auto 1.6rem"></div>
 
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
     <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
@@ -2708,7 +2808,6 @@ def build_zodiac_weekly_post(today_str):
 
   {story_html}
 
-  <!-- 이미지 저장 카드 -->
   <div id="{card_id}" class="fortune-card">
     <div class="fc-emoji">{z['emoji']}</div>
     <div class="fc-title">{z['kr']} 주간운세</div>
@@ -2732,14 +2831,6 @@ def build_zodiac_weekly_post(today_str):
         results.append((title, content_html, ["별자리주간", z['kr'], "주간운세"]))
     return results
 
-
-def chinese_monthly_fortune(en_name):
-    """띠 월간 운세 CSV에서 가져오기 — chinese_monthly_1000.csv"""
-    if not chinese_monthly.empty and 'animal_zodiac' in chinese_monthly.columns:
-        m = chinese_monthly[chinese_monthly['animal_zodiac'] == en_name]
-        if not m.empty:
-            return m.sample(1).iloc[0]['fortune']
-    return sentence()
 
 def build_chinese_monthly_post(today_str):
     """띠별 월간운세 12개 — 별과띠가만나는시간 방식 스토리텔링"""
