@@ -4130,6 +4130,30 @@ def build_omnibus_post(today_str: str) -> tuple:
     return title, content_html, labels
 
 
+# ─────────────────────────────────────────
+# Blogger API 인증 설정
+# ─────────────────────────────────────────
+BLOG_ID       = os.environ.get("BLOG_ID","")
+REFRESH_TOKEN = os.environ.get("BLOGGER_REFRESH_TOKEN","")
+CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID","")
+CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET","")
+
+def get_access_token():
+    resp = requests.post("https://oauth2.googleapis.com/token", data={
+        "grant_type":    "refresh_token",
+        "refresh_token": REFRESH_TOKEN,
+        "client_id":     CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+    })
+    if resp.status_code == 200:
+        print("🔑 Access Token 자동 갱신 완료")
+        return resp.json().get("access_token","")
+    else:
+        print(f"❌ Token 갱신 실패: {resp.text[:120]}")
+        return os.environ.get("BLOGGER_TOKEN","")
+
+ACCESS_TOKEN = get_access_token() if REFRESH_TOKEN else os.environ.get("BLOGGER_TOKEN","")
+
 def post_blogger(title, content, labels, idx, total):
     if not BLOG_ID or not ACCESS_TOKEN:
         print(f"[{idx:02d}/{total}] (테스트) {title[:50]}")
