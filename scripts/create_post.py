@@ -2524,7 +2524,7 @@ def build_chinese_post(c, today_str):
     )
 
     signal = "흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "주의 ▼")
-    title  = f"{c['kr']} {today_sync} 오늘의 운세 | 띠운세 {signal}"
+    title  = f"{c['kr']} {today_dot} 오늘의 운세 | {signal}"
 
     # 출생연도별 운세
     year_rows = []
@@ -2750,10 +2750,10 @@ def build_zodiac_weekly_post(today_str):
     dow        = kst_now.weekday()
     mon_date   = (kst_now - timedelta(days=dow)).date()
     sun_date   = mon_date + timedelta(days=6)
-    month_str  = f"{mon_date.month:02d}월"
+    month_str  = f"{mon_date.month}월"
     week_num   = (mon_date.day - 1) // 7 + 1
     week_label = f"{month_str} {week_num}주차"
-    week_range = f"{mon_date.month:02d}/{mon_date.day:02d} ~ {sun_date.month:02d}/{sun_date.day:02d}"
+    week_range = f"{mon_date.month}/{mon_date.day} ~ {sun_date.month}/{sun_date.day}"
 
     # 별자리별 4영역 주간 내용 풀
     _W_AREAS = {
