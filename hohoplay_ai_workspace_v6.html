@@ -216,7 +216,7 @@
             <!-- ── 탭1: AI 채팅 ── -->
             <div id="tab-content-control" class="flex-1 flex flex-col overflow-hidden relative">
                 <!-- 파일 연동 헤더 -->
-                <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center justify-between shrink-0">
+                <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center justify-between shrink-0 flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <i data-lucide="folder-open" class="w-3.5 h-3.5 text-indigo-400 animate-pulse"></i>
                         <span class="text-[11px] font-bold text-slate-300">로컬 PC 파일 연동</span>
@@ -231,6 +231,16 @@
                         </button>
                         <input type="file" id="file-input" class="hidden" multiple />
                     </div>
+                </div>
+
+                <!-- GitHub 저장소 연동 -->
+                <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center gap-2 shrink-0">
+                    <i data-lucide="github" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                    <input type="text" id="github-url-input" placeholder="GitHub 파일 URL (예: https://github.com/hohoplay/hohoplay.github.io/blob/main/game1.html)"
+                        class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 mono" />
+                    <button onclick="fetchGithubFile()" id="github-fetch-btn" class="bg-slate-800 border border-slate-700 hover:border-indigo-500 hover:text-indigo-300 text-[10px] text-slate-400 px-2 py-1 rounded-lg flex items-center gap-1 transition-all font-bold shrink-0">
+                        <i data-lucide="download-cloud" class="w-3 h-3"></i>가져오기
+                    </button>
                 </div>
 
                 <!-- 드롭 오버레이 -->
@@ -552,6 +562,9 @@ window.onload = function() {
 
     const inp = document.getElementById('chat-input');
     inp.addEventListener('keydown', e => { if(e.key==='Enter') sendChatMessage(); });
+
+    const ghInp = document.getElementById('github-url-input');
+    ghInp.addEventListener('keydown', e => { if(e.key==='Enter') fetchGithubFile(); });
 
     // API 키 저장 여부 확인
     const savedKey = localStorage.getItem('hohoplay_claude_api_key');
@@ -1317,6 +1330,74 @@ function handleFiles(files) {
             document.getElementById('uploaded-files-list').classList.remove('hidden');
         }
     });
+}
+
+// ═══════════════════════════════════════════════
+// GitHub 저장소 파일 가져오기
+// ═══════════════════════════════════════════════
+function githubUrlToRaw(url) {
+    url = url.trim();
+    // 이미 raw 주소인 경우
+    if(url.includes('raw.githubusercontent.com')) return url;
+    // https://github.com/{user}/{repo}/blob/{branch}/{path}
+    const m = url.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/);
+    if(m) {
+        const [, user, repo, branch, path] = m;
+        return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
+    }
+    // https://{user}.github.io/{repo-path}/{file} → raw 추정 (main 브랜치 가정)
+    const m2 = url.match(/^https?:\/\/([^.]+)\.github\.io\/(.+)$/);
+    if(m2) {
+        const [, user, path] = m2;
+        return `https://raw.githubusercontent.com/${user}/${user}.github.io/main/${path}`;
+    }
+    return url;
+}
+
+async function fetchGithubFile() {
+    const input = document.getElementById('github-url-input');
+    const btn = document.getElementById('github-fetch-btn');
+    const url = input.value.trim();
+    if(!url) { addLog('❌ GitHub URL을 입력해 주세요.'); return; }
+
+    const rawUrl = githubUrlToRaw(url);
+    const fileName = rawUrl.split('/').pop() || 'github-file';
+
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i>가져오는 중';
+    lucide.createIcons();
+    addLog(`🌐 GitHub 파일 가져오는 중: ${fileName}`);
+
+    try {
+        const res = await fetch(rawUrl);
+        if(!res.ok) throw new Error(`HTTP ${res.status} - 파일을 찾을 수 없습니다 (브랜치/경로 확인)`);
+        const text = await res.text();
+
+        localFilesData.push({ name: fileName, content: text, source: rawUrl });
+
+        const pills = document.getElementById('files-pills');
+        const listEl = document.getElementById('uploaded-files-list');
+        const pill = document.createElement('span');
+        pill.className = 'flex items-center gap-1 bg-emerald-900/60 border border-emerald-800/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full mono whitespace-nowrap';
+        pill.innerHTML = `🌐 ${fileName}`;
+        pills.appendChild(pill);
+        listEl.classList.remove('hidden');
+
+        addLog(`✅ GitHub 파일 연동 완료: ${fileName} (${text.length}자)`);
+        input.value = '';
+
+        // 시스템 메시지로 안내
+        appendMessage('assistant','또다른 나','👑',
+            `📂 <strong class="text-white">${fileName}</strong> 파일을 GitHub에서 가져왔습니다! (${text.length.toLocaleString()}자)<br>이제 이 파일에 대해 질문하시면 AI가 내용을 참고하여 답변합니다.`);
+
+    } catch(e) {
+        addLog(`❌ GitHub 가져오기 실패: ${e.message}`);
+        appendMessage('assistant','시스템','⚠️', `⚠️ GitHub 파일을 가져오지 못했습니다: ${e.message}<br>raw.githubusercontent.com 형식의 URL인지 확인해 주세요.`);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="download-cloud" class="w-3 h-3"></i>가져오기';
+        lucide.createIcons();
+    }
 }
 
 // ═══════════════════════════════════════════════
