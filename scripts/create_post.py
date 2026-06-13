@@ -1042,6 +1042,84 @@ def get_week_range():
 def get_month():
     return now_kst().strftime("%Y년 %m월")
 
+import re as _re
+
+def _plain(text, max_len=None):
+    """HTML 태그 제거 + 공백 정리 + (선택) 길이 제한"""
+    if not text:
+        return ""
+    clean = _re.sub(r'<br\s*/?>', ' ', str(text))
+    clean = _re.sub(r'<[^>]+>', '', clean)
+    clean = _re.sub(r'\s+', ' ', clean).strip()
+    if max_len and len(clean) > max_len:
+        clean = clean[:max_len].rstrip() + '...'
+    return clean
+
+
+def _extract_core_sentence(raw, max_len=90):
+    """운세 원문에서 핵심 문장 한 개를 추출 (HTML 제거 후 첫 문단의 첫 문장)"""
+    if not raw:
+        return ""
+    plain = _plain(raw)
+    # 문장 단위 분리 (. ! ? 다음 공백 기준)
+    sentences = _re.split(r'(?<=[.!?])\s+', plain)
+    sentences = [s.strip() for s in sentences if len(s.strip()) > 5]
+    if not sentences:
+        return _plain(raw, max_len)
+    core = sentences[0]
+    if len(core) > max_len:
+        core = core[:max_len].rstrip() + '...'
+    return core
+
+
+def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
+                     z_contact_time='', z_contact_reason='',
+                     c_peak_time='', c_peak_tip='', c_low_time='', c_low_tip='',
+                     z_item='', z_color='', z_lucky_num='', z_compatible='',
+                     c_best='', c_avoid='', best_time_label='', avoid_action='',
+                     z_signal=''):
+    """별자리×띠 한 쌍의 연결 문단 생성"""
+    parts = []
+
+    # 시작 — 별자리 핵심 운세
+    if z_core:
+        parts.append(f"{z_kr}는 오늘 {z_core}")
+
+    # 연결 — 띠 핵심 운세
+    if c_core:
+        parts.append(f"한편 {c_kr}에게는 {c_core}")
+
+    # 테마 기반 한 줄 정리
+    if theme:
+        parts.append(f"오늘은 '{theme}'이 두 사람을 이어주는 키워드입니다.")
+
+    # 추가 정보 (연락 시간대, 컨디션 피크 등) — 짝수 인덱스에만 덧붙여 다양성 확보
+    if idx % 2 == 0:
+        if z_contact_time and z_contact_reason:
+            parts.append(f"{z_kr}는 {z_contact_time}에 연락하면 {z_contact_reason}.")
+        if c_peak_time and c_peak_tip:
+            parts.append(f"{c_kr}는 {c_peak_time}에 컨디션이 가장 좋으니 {c_peak_tip}.")
+    else:
+        if c_low_time and c_low_tip:
+            parts.append(f"{c_kr}는 {c_low_time}에는 {c_low_tip}.")
+        if z_compatible:
+            parts.append(f"{z_kr}와 잘 맞는 별자리는 {z_compatible}입니다.")
+
+    return " ".join(parts) if parts else f"{z_kr}와 {c_kr}, 오늘은 서로에게 좋은 자극이 되는 하루입니다."
+
+
+def _season_backdrop(dt):
+    """월에 따른 계절 배경 텍스트 반환"""
+    m = dt.month
+    if m in (3, 4, 5):
+        return "봄밤의 이야기"
+    elif m in (6, 7, 8):
+        return "여름밤의 이야기"
+    elif m in (9, 10, 11):
+        return "가을밤의 이야기"
+    else:
+        return "겨울밤의 이야기"
+
 def get_next_month_str():
     """
     1일       → 이번달 운세 (당월 발행)
@@ -2517,7 +2595,6 @@ def build_chinese_post(c, today_str):
 
     kst_now  = now_kst()
     today_dot = kst_now.strftime("%Y년 %-m월 %-d일")
-    today_sync = kst_now.strftime("%Y년 %m월 %d일")  # 별칭 (호환성)
 
     raw_total, raw_money, raw_health, raw_love = pick_score(c['kr'])
     total, money, health, love, calc_html = _apply_adjustments(
@@ -2525,7 +2602,7 @@ def build_chinese_post(c, today_str):
     )
 
     signal = "흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "주의 ▼")
-    title  = f"{c['kr']} {today_dot} 오늘의 운세 | {signal}"
+    title  = f"{c['kr']} {today_sync} 오늘의 운세 | 띠운세 {signal}"
 
     # 출생연도별 운세
     year_rows = []
@@ -2751,10 +2828,10 @@ def build_zodiac_weekly_post(today_str):
     dow        = kst_now.weekday()
     mon_date   = (kst_now - timedelta(days=dow)).date()
     sun_date   = mon_date + timedelta(days=6)
-    month_str  = f"{mon_date.month}월"
+    month_str  = f"{mon_date.month:02d}월"
     week_num   = (mon_date.day - 1) // 7 + 1
     week_label = f"{month_str} {week_num}주차"
-    week_range = f"{mon_date.month}/{mon_date.day} ~ {sun_date.month}/{sun_date.day}"
+    week_range = f"{mon_date.month:02d}/{mon_date.day:02d} ~ {sun_date.month:02d}/{sun_date.day:02d}"
 
     # 별자리별 4영역 주간 내용 풀
     _W_AREAS = {
