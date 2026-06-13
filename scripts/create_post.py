@@ -1108,6 +1108,67 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
     return " ".join(parts) if parts else f"{z_kr}와 {c_kr}, 오늘은 서로에게 좋은 자극이 되는 하루입니다."
 
 
+# ── 오늘의 이야기 오프닝/클로징 문구 ──
+_OMNIBUS_OPENINGS = [
+    "오늘 하늘은 열두 개의 별자리와 열두 개의 띠에게 각자 다른 이야기를 건넵니다.",
+    "별과 띠가 만나는 시간, 오늘 당신의 이야기는 어디서부터 시작될까요.",
+    "오늘 밤, 별자리와 띠가 만들어내는 열두 개의 짧은 이야기를 들려드립니다.",
+    "하루가 시작되기 전, 별과 띠가 먼저 오늘의 흐름을 살짝 알려줍니다.",
+    "오늘은 어떤 별이 당신의 어깨를 두드릴까요. 열두 가지 이야기를 펼쳐봅니다.",
+]
+
+_OMNIBUS_CLOSINGS = [
+    "오늘 하루도, 당신의 별과 띠가 함께합니다.",
+    "내일은 또 다른 이야기가 펼쳐집니다. 오늘도 좋은 하루 되세요.",
+    "별과 띠가 전하는 이야기는 여기까지입니다. 편안한 하루 보내세요.",
+    "오늘의 이야기가 작은 힌트가 되었기를 바랍니다.",
+    "당신의 오늘을, 별과 띠가 조용히 응원합니다.",
+]
+
+# ── 마무리 — 통찰 / 다리(연결) / 오늘의 행동 제안 (날짜별 순환) ──
+_COMMON_ENDINGS = [
+    {"insight": "오늘은 서두르기보다 차분히 흐름을 따라가는 게 더 좋은 결과를 만듭니다.",
+     "bridge":  "별자리든 띠든, 결국 오늘 하루를 채우는 건 당신의 선택입니다.",
+     "action":  "오늘 마음에 걸리는 일 한 가지를 먼저 정리해보세요"},
+    {"insight": "작은 변화가 오늘 하루의 분위기를 크게 바꿀 수 있는 날입니다.",
+     "bridge":  "운세는 방향을 알려줄 뿐, 걸음을 옮기는 건 언제나 당신입니다.",
+     "action":  "평소와 다른 길로 한 번 걸어보세요"},
+    {"insight": "오늘은 누군가에게 먼저 다가가면 예상보다 좋은 반응이 돌아옵니다.",
+     "bridge":  "사람과의 연결이 오늘 하루의 행운을 좌우할 수 있습니다.",
+     "action":  "오늘 한동안 연락하지 못한 사람에게 안부를 전해보세요"},
+    {"insight": "무리하지 않고 컨디션을 살피는 것이 오늘의 핵심입니다.",
+     "bridge":  "몸과 마음의 신호에 귀를 기울이면 하루가 훨씬 편안해집니다.",
+     "action":  "오늘은 평소보다 10분 더 쉬어가는 시간을 가져보세요"},
+    {"insight": "오늘은 미뤄둔 일을 마무리하기에 좋은 흐름이 흐릅니다.",
+     "bridge":  "작은 마무리 하나가 마음의 무게를 가볍게 해줍니다.",
+     "action":  "오늘 미뤄둔 일 중 가장 작은 것부터 끝내보세요"},
+    {"insight": "오늘은 돈과 관련된 결정을 내리기 전에 한 번 더 생각해보는 게 좋습니다.",
+     "bridge":  "신중함이 오늘 하루의 운을 지켜주는 방패가 됩니다.",
+     "action":  "오늘 지출 계획을 한 번 점검해보세요"},
+    {"insight": "오늘은 평소보다 직감이 또렷하게 작동하는 날입니다.",
+     "bridge":  "머리로 따지기보다 마음이 먼저 말하는 답에 귀 기울여보세요.",
+     "action":  "오늘 고민하던 일, 첫 느낌대로 결정해보세요"},
+]
+
+# ── 별자리 × 띠 12쌍 매칭 (날짜에 따라 매일 다른 조합) ──
+_OMNIBUS_THEMES = [
+    "시작", "균형", "소통", "마음", "도전", "안정",
+    "성장", "직관", "관계", "휴식", "결실", "전환",
+]
+
+def _build_connect_map(kst_dt):
+    """오늘 날짜를 시드로 별자리×띠 12쌍을 순환 매칭"""
+    z_names = [z['kr'] for z in ZODIACS]
+    c_names = [c['kr'] for c in CHINESE]
+    shift = kst_dt.timetuple().tm_yday % len(c_names)  # 1년 주기로 매칭 순환
+    pairs = []
+    for i, z_kr in enumerate(z_names):
+        c_kr = c_names[(i + shift) % len(c_names)]
+        theme = _OMNIBUS_THEMES[i % len(_OMNIBUS_THEMES)]
+        pairs.append((z_kr, c_kr, theme, i))
+    return pairs
+
+
 def _season_backdrop(dt):
     """월에 따른 계절 배경 텍스트 반환"""
     m = dt.month
@@ -2594,7 +2655,7 @@ def build_chinese_post(c, today_str):
     card_id = f"fc-{c['en']}"
 
     kst_now  = now_kst()
-    today_dot = kst_now.strftime("%Y년 %-m월 %-d일")
+    today_sync = kst_now.strftime("%Y년 %m월 %d일")
 
     raw_total, raw_money, raw_health, raw_love = pick_score(c['kr'])
     total, money, health, love, calc_html = _apply_adjustments(
@@ -2779,7 +2840,7 @@ def build_chinese_post(c, today_str):
     # SEO 키워드
     kw_list = [
         c['kr'], f"{c['kr']} 오늘운세", f"{c['kr']} 운세",
-        f"{c['kr']} 오늘의운세", f"{c['kr']} {today_dot}",
+        f"{c['kr']} 오늘의운세", f"{c['kr']} {today_sync}",
         f"{c['kr']} 띠운세", f"띠별운세", "오늘운세", "무료운세",
         f"{c['kr']} 출생연도", f"{c['kr']} 궁합",
     ]
@@ -2804,7 +2865,7 @@ def build_chinese_post(c, today_str):
   <!-- 이미지 저장 카드 -->
   {post_img("chinese")}
   {image_card_html}
-  {share_buttons(card_id, f"{c['kr']}_운세_{today_dot}")}
+  {share_buttons(card_id, f"{c['kr']}_운세_{today_sync}")}
 
   <!-- score_html (fortune.html 연동) -->
   {score_html}
@@ -3604,7 +3665,7 @@ def build_omnibus_post(today_str: str) -> tuple:
 
     # ── 12쌍 문단 생성 (모든 실시간 데이터 → 브릿지로 전달) ──
     paragraphs = []
-    for idx, (z_kr, c_kr, theme, _) in enumerate(_CONNECT_MAP):
+    for idx, (z_kr, c_kr, theme, _) in enumerate(_build_connect_map(kst_dt)):
         zd = z_data.get(z_kr, {})
         cd = c_data.get(c_kr, {})
         para = _omnibus_bridge(
