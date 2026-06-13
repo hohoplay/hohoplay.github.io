@@ -90,18 +90,18 @@ chinese_monthly   = csv("chinese_monthly_1000.csv")
 # 정적 데이터
 # ─────────────────────────────────────────
 ZODIACS = [
-    {"en":"aries",       "kr":"양자리",    "date":"3/21~4/19",  "emoji":"♈"},
-    {"en":"taurus",      "kr":"황소자리",  "date":"4/20~5/20",  "emoji":"♉"},
-    {"en":"gemini",      "kr":"쌍둥이자리","date":"5/21~6/21",  "emoji":"♊"},
-    {"en":"cancer",      "kr":"게자리",    "date":"6/22~7/22",  "emoji":"♋"},
-    {"en":"leo",         "kr":"사자자리",  "date":"7/23~8/22",  "emoji":"♌"},
-    {"en":"virgo",       "kr":"처녀자리",  "date":"8/23~9/22",  "emoji":"♍"},
-    {"en":"libra",       "kr":"천칭자리",  "date":"9/23~10/22", "emoji":"♎"},
-    {"en":"scorpio",     "kr":"전갈자리",  "date":"10/23~11/21","emoji":"♏"},
-    {"en":"sagittarius", "kr":"사수자리",  "date":"11/22~12/21","emoji":"♐"},
-    {"en":"capricorn",   "kr":"염소자리",  "date":"12/22~1/19", "emoji":"♑"},
-    {"en":"aquarius",    "kr":"물병자리",  "date":"1/20~2/18",  "emoji":"♒"},
-    {"en":"pisces",      "kr":"물고기자리","date":"2/19~3/20",  "emoji":"♓"},
+    {"en":"aries",       "kr":"양자리",    "date":"3/21~4/19",  "emoji":""},
+    {"en":"taurus",      "kr":"황소자리",  "date":"4/20~5/20",  "emoji":""},
+    {"en":"gemini",      "kr":"쌍둥이자리","date":"5/21~6/21",  "emoji":""},
+    {"en":"cancer",      "kr":"게자리",    "date":"6/22~7/22",  "emoji":""},
+    {"en":"leo",         "kr":"사자자리",  "date":"7/23~8/22",  "emoji":""},
+    {"en":"virgo",       "kr":"처녀자리",  "date":"8/23~9/22",  "emoji":""},
+    {"en":"libra",       "kr":"천칭자리",  "date":"9/23~10/22", "emoji":""},
+    {"en":"scorpio",     "kr":"전갈자리",  "date":"10/23~11/21","emoji":""},
+    {"en":"sagittarius", "kr":"사수자리",  "date":"11/22~12/21","emoji":""},
+    {"en":"capricorn",   "kr":"염소자리",  "date":"12/22~1/19", "emoji":""},
+    {"en":"aquarius",    "kr":"물병자리",  "date":"1/20~2/18",  "emoji":""},
+    {"en":"pisces",      "kr":"물고기자리","date":"2/19~3/20",  "emoji":""},
 ]
 
 def _make_chinese_years(base_year: int) -> list:
@@ -1067,6 +1067,117 @@ def get_next_month_str():
 # ─────────────────────────────────────────
 # 공통 CSS
 # ─────────────────────────────────────────
+
+# ── 별자리·띠별 명언 카테고리 매핑 ──
+_ZODIAC_QUOTE_CAT = {
+    "양자리":     "도전",   # 추진력·시작
+    "황소자리":   "인내",   # 꾸준함·안정
+    "쌍둥이자리": "성장",   # 호기심·변화
+    "게자리":     "관계",   # 공감·가족
+    "사자자리":   "도전",   # 리더십·카리스마
+    "처녀자리":   "성장",   # 분석·완성
+    "천칭자리":   "관계",   # 균형·조화
+    "전갈자리":   "인생",   # 통찰·깊이
+    "사수자리":   "도전",   # 모험·자유
+    "염소자리":   "인내",   # 목표·성실
+    "물병자리":   "성장",   # 혁신·독창성
+    "물고기자리": "인생",   # 감수성·직관
+}
+
+_CHINESE_QUOTE_CAT = {
+    "쥐띠":    "성장",   # 적응력·창의성
+    "소띠":    "인내",   # 꾸준함·신뢰
+    "호랑이띠":"도전",   # 용기·추진력
+    "토끼띠":  "관계",   # 세심함·조화
+    "용띠":    "도전",   # 열정·카리스마
+    "뱀띠":    "인생",   # 직관·통찰
+    "말띠":    "도전",   # 자유·열정
+    "양띠":    "관계",   # 온화함·공감
+    "원숭이띠":"성장",   # 지능·유머
+    "닭띠":    "인내",   # 성실·책임
+    "개띠":    "관계",   # 충성·신뢰
+    "돼지띠":  "인생",   # 낙천·인정
+}
+
+def pick_quote_for(name, kst_day):
+    """별자리 또는 띠 이름으로 오늘 날짜 시드 기반 명언 1개 선택"""
+    cat = _ZODIAC_QUOTE_CAT.get(name) or _CHINESE_QUOTE_CAT.get(name, "인생")
+    pool = fortune_quotes[fortune_quotes["category"] == cat]
+    if pool.empty:
+        pool = fortune_quotes
+    idx = kst_day % len(pool)
+    row = pool.iloc[idx]
+    return {
+        "quote":      str(row["quote_ko"]),
+        "author":     str(row["author_ko"]),
+        "profession": str(row["profession"]),
+        "apply":      str(row["apply"]),
+        "meaning":    str(row["meaning"]),
+    }
+
+def _quote_bridge_html(q, color="#7c3aed", light="#faf5ff"):
+    """명언 브릿지 HTML — 엔딩 박스 바로 위 삽입용"""
+    return f'''
+<div style="margin:0 0 1.6rem;padding:18px 20px;
+            background:{light};border-radius:14px;
+            border-left:4px solid {color}">
+  <div style="font-size:11px;font-weight:700;color:{color};
+              letter-spacing:0.08em;margin-bottom:10px">
+    오늘 이 흐름에 어울리는 말
+  </div>
+  <p style="font-size:15px;line-height:2.0;color:#1f2937;
+            font-weight:500;margin:0 0 8px;word-break:keep-all;
+            font-style:italic">
+    "{q["quote"]}"
+  </p>
+  <p style="font-size:12px;color:#6b7280;margin:0 0 12px">
+    — {q["author"]} ({q["profession"]})
+  </p>
+  <p style="font-size:13px;line-height:1.9;color:#374151;
+            margin:0;word-break:keep-all">
+    {q["apply"]}
+  </p>
+</div>'''
+
+def comment_prompt(post_type='general'):
+    """포스트 타입별 댓글 유도 문구"""
+    _prompts = {
+        'zodiac': (
+            "오늘 이 운세가 맞으셨나요?",
+            "별자리 운세는 매일 달라집니다. 오늘 하루가 어떠셨는지 댓글로 알려주시면 내일도 함께 살펴보겠습니다."
+        ),
+        'chinese': (
+            "오늘 띠 운세가 맞으셨나요?",
+            "같은 띠라도 오늘 어떤 하루를 보내셨는지 댓글로 남겨주시면 다음 운세에 참고하겠습니다."
+        ),
+        'weekly': (
+            "이번 주 흐름이 맞으셨나요?",
+            "주간 운세는 방향을 제시합니다. 이번 주 어떤 일이 있으셨는지 댓글로 알려주시면 다음 주도 함께 살펴보겠습니다."
+        ),
+        'monthly': (
+            "이달 흐름이 맞으셨나요?",
+            "월간 운세는 큰 흐름을 봅니다. 이달 어떤 변화가 있으셨는지 댓글로 남겨주시면 다음 달 운세에 반영해보겠습니다."
+        ),
+        'quote': (
+            "오늘의 명언이 마음에 닿으셨나요?",
+            "어떤 문장이 오늘 가장 와닿으셨는지 댓글로 알려주시면 비슷한 인물의 이야기를 더 준비해보겠습니다."
+        ),
+        'omnibus': (
+            "오늘 별과 띠의 조합이 맞으셨나요?",
+            "자신의 별자리와 띠 조합이 오늘 어떻게 느껴지셨는지 댓글로 남겨주시면 내일도 함께 살펴보겠습니다."
+        ),
+    }
+    title, body = _prompts.get(post_type, _prompts['zodiac'])
+    return f'''
+<div style="margin:24px 0 8px;padding:18px 20px;
+            background:linear-gradient(135deg,#f8f9fa,#f0f4ff);
+            border-radius:14px;border:1px solid #e5e7eb;text-align:center">
+  <p style="font-size:15px;font-weight:700;color:#374151;
+            margin:0 0 8px;word-break:keep-all">{title}</p>
+  <p style="font-size:13px;color:#6b7280;line-height:1.85;
+            margin:0;word-break:keep-all">{body}</p>
+</div>'''
+
 def style():
     return """<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -1495,6 +1606,7 @@ def build_quote_post(today_str):
     <div class="tag-cloud">{tag_html}</div>
   </div>
 
+  {comment_prompt("quote")}
   {site_link()}
   <div class="meta">※ 매일 업데이트 · 실존 인물의 명언과 오늘의 이야기</div>
 </div>"""
@@ -2089,18 +2201,18 @@ def build_zodiac_post(z, today_str):
     # 재료 준비
     kst_day = kst_now.day
     _Z_EMPATHY_LOCAL = {
-        "양자리":     "시작을 원하지만 실행으로 이어지지 않는 날이 있습니다.",
-        "황소자리":   "꾸준히 노력하고 있으나 방향에 대한 의문이 생기는 날입니다.",
-        "쌍둥이자리": "여러 가지에 관심이 분산되어 완성에 어려움을 느끼는 날입니다.",
-        "게자리":     "표현해도 달라지지 않을 것 같아 감정을 억누르고 있는 날입니다.",
-        "사자자리":   "최선을 다하고 있으나 주변의 인정이 느껴지지 않는 날입니다.",
-        "처녀자리":   "완성도에 대한 부담으로 시작을 미루고 있는 날입니다.",
-        "천칭자리":   "마음에 걸리는 것이 있으나 표현하기 어려운 날입니다.",
-        "전갈자리":   "상대방을 지나치게 잘 파악하는 것이 오히려 피로로 이어지는 날입니다.",
-        "사수자리":   "변화를 원하지만 어디서 시작해야 할지 방향을 찾기 어려운 날입니다.",
-        "염소자리":   "지속적으로 노력하고 있으나 결과가 아직 보이지 않는 날입니다.",
-        "물병자리":   "기준에 맞추기도, 그렇다고 벗어나기도 어려운 날입니다.",
-        "물고기자리": "타인을 챙기는 데 집중하다 스스로를 돌보지 못한 날들이 쌓인 상태입니다.",
+        "양자리":     "시작하고 싶습니다. 그런데 손이 가지 않습니다. 에너지가 너무 커서 어디서 시작해야 할지 방향을 못 정한 것입니다.",
+        "황소자리":   "계속 하고 있습니다. 그런데 이 방향이 맞는지 모르겠습니다. 그 의심이 오늘 더 크게 느껴지는 날입니다.",
+        "쌍둥이자리": "이것도 하고 싶고, 저것도 하고 싶습니다. 결국 오늘도 아무것도 완성하지 못할 것 같은 날입니다.",
+        "게자리":     "말하고 싶은 것이 있습니다. 그런데 말해봐야 달라질 것이 없을 것 같습니다. 그래서 오늘도 참고 있습니다.",
+        "사자자리":   "열심히 하고 있습니다. 아무도 모르는 것 같습니다. 그게 오늘 유독 크게 느껴지는 날입니다.",
+        "처녀자리":   "완벽하게 하고 싶습니다. 그래서 시작을 못 하고 있습니다. 오늘도 그 패턴이 반복되고 있습니다.",
+        "천칭자리":   "마음에 걸리는 것이 있습니다. 말하기가 어렵습니다. 오늘 그 무게가 특히 크게 느껴지는 날입니다.",
+        "전갈자리":   "다 보입니다. 상대방이 무슨 생각을 하는지, 무엇을 원하는지. 그게 오늘은 오히려 피곤한 날입니다.",
+        "사수자리":   "바꾸고 싶습니다. 그런데 어디서 시작해야 할지 모르겠습니다. 그 막막함이 오늘 더 크게 느껴지는 날입니다.",
+        "염소자리":   "계속 하고 있습니다. 결과가 안 보입니다. 오늘은 그 기다림이 특히 길게 느껴지는 날입니다.",
+        "물병자리":   "맞추자니 답답합니다. 벗어나자니 두렵습니다. 그 사이에서 오늘 하루를 보내고 있습니다.",
+        "물고기자리": "남을 챙겼습니다. 오늘도, 어제도, 그제도. 그런데 정작 자신은 언제 챙겼는지 기억이 나지 않습니다.",
     }
     empathy = _Z_EMPATHY_LOCAL.get(z['kr'], "")
 
@@ -2173,6 +2285,9 @@ def build_zodiac_post(z, today_str):
 
     # 오늘 하나만 (엔딩 박스)
     _ze = _z_endings[kst_now.day % len(_z_endings)]
+    # 별자리별 명언 — 오늘 날짜 시드 기반
+    _zq  = pick_quote_for(z['kr'], kst_day)
+    _zq_html = _quote_bridge_html(_zq, color="#7c3aed", light="#faf5ff")
 
     # ── 하나의 흐르는 스토리 HTML (별과띠가만나는시간 방식) ──
     story_html = f'''
@@ -2216,6 +2331,8 @@ def build_zodiac_post(z, today_str):
   </div>
 
   <div style="width:2px;height:20px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto 1.6rem"></div>
+
+  {_zq_html}
 
   <div style="border-radius:18px;overflow:hidden;
               box-shadow:0 2px 12px rgba(91,33,182,0.08)">
@@ -2318,6 +2435,7 @@ def build_zodiac_post(z, today_str):
   </div>
 
   {site_link()}
+  {comment_prompt("zodiac")}
   <div class="meta"><p>{z['kr']} ({z['date']})</p><p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
 </div>"""
     return title, content, ["별자리운세", z['kr'], "운세", "오늘운세"]
@@ -2387,18 +2505,18 @@ def build_chinese_post(c, today_str):
 
     # 공감층 (띠별 고유 감각)
     _C_EMPATHY_LOCAL = {
-        "쥐띠":   "정보 수집은 빠르지만 실행으로 이어지지 못하는 날입니다.",
-        "소띠":   "묵묵히 나아가고 있으나 결과가 아직 보이지 않는 날입니다.",
-        "호랑이띠": "에너지는 충분하지만 방향을 정하지 못하고 있는 날입니다.",
+        "쥐띠":   "정보는 충분합니다. 그런데 실행이 안 됩니다. 오늘도 그 패턴이 반복되고 있습니다.",
+        "소띠":   "묵묵히 하고 있습니다. 결과가 없습니다. 오늘은 그 기다림이 특히 무겁게 느껴지는 날입니다.",
+        "호랑이띠": "힘은 있습니다. 그런데 어디로 써야 할지 모르겠습니다. 오늘 그 에너지가 방향 없이 맴돌고 있습니다.",
         "토끼띠": "여러 가지를 동시에 진행하다 완성에 이르지 못한 느낌이 드는 날입니다.",
         "용띠":   "에너지는 넘치지만 어디에 써야 할지 모르는 날입니다.",
         "뱀띠":   "흐름이 보이지만 확신을 갖기 어려운 날입니다.",
         "말띠":   "전하고 싶은 말이 있으나 적절한 타이밍을 찾지 못하고 있는 날입니다.",
         "양띠":   "타인을 배려하는 데 집중하다 스스로가 뒷전이 된 날들이 쌓인 상태입니다.",
         "원숭이띠": "성과를 보여주고 싶지만 타이밍을 잡지 못하고 있는 날입니다.",
-        "닭띠":   "충분히 준비되지 않았다는 판단으로 실행을 계속 미루고 있는 날입니다.",
-        "개띠":   "오래 참아온 말이 있으나 꺼내기 어려운 상황인 날입니다.",
-        "돼지띠": "예민해진 감각이 부담으로 작용하는 날입니다.",
+        "닭띠":   "아직 준비가 덜 됐습니다. 오늘도 그렇게 생각합니다. 어제도 그렇게 생각했습니다.",
+        "개띠":   "하고 싶은 말이 있습니다. 오래됐습니다. 그런데 아직도 꺼내지 못하고 있습니다.",
+        "돼지띠": "모든 것이 느껴집니다. 너무 많이. 오늘은 그 예민함이 오히려 버거운 날입니다.",
     }
     empathy = _C_EMPATHY_LOCAL.get(c['kr'], "")
 
@@ -2439,6 +2557,9 @@ def build_chinese_post(c, today_str):
 
     # 엔딩
     _ce = _c_endings[kst_now.day % len(_c_endings)]
+    # 띠별 명언 — 오늘 날짜 시드 기반
+    _cq  = pick_quote_for(c['kr'], kst_day)
+    _cq_html = _quote_bridge_html(_cq, color="#92400e", light="#fffbeb")
 
     # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
     story_html = f'''
@@ -2478,6 +2599,8 @@ def build_chinese_post(c, today_str):
   </div>
 
   <div style="width:2px;height:20px;background:linear-gradient(#92400e,#f59e0b);margin:0 auto 1.6rem"></div>
+
+  {_cq_html}
 
   <div style="border-radius:18px;overflow:hidden;
               box-shadow:0 2px 12px rgba(146,64,14,0.1)">
@@ -2543,9 +2666,11 @@ def build_chinese_post(c, today_str):
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
+  {comment_prompt("chinese")}
   <div class="meta"><p>{c['kr']} 출생연도: {', '.join(map(str, c['years']))}</p>
     <p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
-  {site_link()}
+  {comment_prompt("omnibus")}
+{site_link()}
 </div>"""
     return title, content, ["띠운세", c['kr'], "운세", "오늘운세"]
 
@@ -2825,6 +2950,7 @@ def build_zodiac_weekly_post(today_str):
     <div class="tag-cloud">{tag_html}</div>
   </div>
   {site_link()}
+  {comment_prompt("weekly")}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매주 업데이트</div>
 </div>"""
 
@@ -3047,773 +3173,12 @@ def build_chinese_monthly_post(today_str):
     <div class="tag-cloud">{tag_html}</div>
   </div>
   {site_link()}
+  {comment_prompt("monthly")}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매월 업데이트</div>
 </div>"""
 
         results.append((title, content_html, ["띠별월간", c['kr'], "월간운세"]))
     return results
-
-
-def build_sns_zodiac_post(today_str):
-    """별자리 12개를 한 포스트에 — 공감형 스토리 카드형"""
-    title = f"✨ 오늘의 별자리 운세 전체 {today_str} — 12별자리 한눈에"
-
-    kw = ["별자리운세", "오늘운세", "별자리", today_str,
-          "양자리", "황소자리", "쌍둥이자리", "게자리", "사자자리", "처녀자리",
-          "천칭자리", "전갈자리", "사수자리", "염소자리", "물병자리", "물고기자리",
-          "12별자리운세", "별자리운세전체", "오늘의별자리", "별자리총정리",
-          "오늘운세보기", "무료운세", "운세2026"]
-    labels = ["별자리운세통합", "운세SNS", "운세", "별자리운세"]
-
-    # 별자리별 공감형 한 줄
-    _Z_EMPATHY = {
-        "양자리": "시작을 원하지만 실행으로 이어지지 않는 날이 있습니다.",
-        "황소자리": "꾸준히 노력하고 있으나 방향에 대한 의문이 생기는 날입니다.",
-        "쌍둥이자리": "여러 가지에 관심이 분산되어 완성에 어려움을 느끼는 날입니다.",
-        "게자리": "표현해도 달라지지 않을 것 같아 감정을 억누르고 있는 날입니다.",
-        "사자자리": "최선을 다하고 있으나 주변의 인정이 느껴지지 않는 날입니다.",
-        "처녀자리": "완성도에 대한 부담으로 시작을 미루고 있는 날입니다.",
-        "천칭자리": "마음에 걸리는 것이 있으나 표현하기 어려운 날입니다.",
-        "전갈자리": "상대방을 지나치게 잘 파악하는 것이 오히려 피로로 이어지는 날입니다.",
-        "사수자리": "변화를 원하지만 어디서 시작해야 할지 방향을 찾기 어려운 날입니다.",
-        "염소자리": "지속적으로 노력하고 있으나 결과가 아직 보이지 않는 날입니다.",
-        "물병자리": "기준에 맞추기도, 그렇다고 벗어나기도 어려운 날입니다.",
-        "물고기자리": "타인을 챙기는 데 집중하다 스스로를 돌보지 못한 날들이 쌓인 상태입니다.",
-    }
-
-    cards_html = ""
-    for z in ZODIACS:
-        fortune = zodiac_fortune(z['kr'])
-        plain = fortune.replace('<br><br>', ' ').replace('<br>', ' ').strip()
-        sentences = plain.split('. ')
-        short = ''
-        for s in sentences:
-            candidate = (short + s + '. ').strip()
-            if len(candidate) >= 80:
-                short = candidate
-                break
-            short = candidate
-        if len(short) > 180:
-            short = short[:177] + '…'
-        if len(short) < 50:
-            short = plain[:150] + ('…' if len(plain) > 150 else '')
-
-        empathy = _Z_EMPATHY.get(z['kr'], '오늘 어떤 하루 보내고 있으세요.')
-
-        cards_html += f"""
-<div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);
-            border-left:4px solid #7c3aed;padding:14px;margin-bottom:12px">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-    <span style="font-size:28px;line-height:1">{z['emoji']}</span>
-    <div>
-      <span style="font-weight:900;font-size:15px;color:#4c1d95">{z['kr']}</span>
-      <span style="font-size:11px;color:#9ca3af;margin-left:6px">{z['date']}</span>
-    </div>
-  </div>
-  <p style="font-size:12px;color:#7c3aed;font-style:italic;margin:0 0 6px 0;
-            line-height:1.6">💭 {empathy}</p>
-  <p style="font-size:13px;color:#374151;line-height:1.75;margin:0">{short}</p>
-</div>"""
-
-    card_id = f"sns-zodiac-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
-    content_html = f"""{style()}
-<div class="wrap">
-  <div class="hero" style="background:linear-gradient(135deg,#667eea,#764ba2)">
-    <h1>✨ 오늘의 별자리 운세</h1>
-    <p>{today_str} · 12별자리 전체</p>
-  </div>
-  <div id="{card_id}" style="background:#f8f7ff;border-radius:16px;padding:16px;margin-bottom:16px">
-    {cards_html}
-    <div style="text-align:center;margin-top:8px;font-size:11px;color:#aaa">✨ todayhoroscopelaboratory.blogspot.com · {today_str}</div>
-  </div>
-  {share_buttons(card_id, f"별자리운세전체_{today_str}")}
-  <div style="background:#eef2ff;border-radius:12px;padding:12px;font-size:12px;color:#666;
-              text-align:center;margin-bottom:16px">
-    🔮 내 별자리 카드를 클릭하면 오늘의 상세 운세를 확인할 수 있어요
-  </div>
-  <div class="card"><span class="badge">🔍 관련 키워드</span>
-    <div class="tag-cloud">{''.join(f'<span class="tag">{k}</span>' for k in kw)}</div>
-  </div>
-  {site_link()}
-  <div class="meta">※ 재미로 보는 운세 콘텐츠 · 매일 업데이트</div>
-</div>"""
-
-    return title, content_html, labels
-
-
-# ─────────────────────────────────────────
-# ⑦ 운세SNS — 띠 12개 통합 (간결 카드형)
-# ─────────────────────────────────────────
-def build_sns_chinese_post(today_str):
-    """띠 12개를 한 포스트에 — 공감형 스토리 카드형"""
-    title = f"🐾 오늘의 띠별 운세 전체 {today_str} — 12띠 한눈에"
-
-    kw = ["띠운세", "오늘운세", "띠별운세", today_str,
-          "쥐띠", "소띠", "호랑이띠", "토끼띠", "용띠", "뱀띠",
-          "말띠", "양띠", "원숭이띠", "닭띠", "개띠", "돼지띠",
-          "12띠운세", "띠운세전체", "오늘의띠운세", "띠운세총정리",
-          "오늘운세보기", "무료운세", "운세2026"]
-    labels = ["띠운세통합", "운세SNS", "운세", "띠운세"]
-
-    # 띠별 공감형 한 줄
-    _C_EMPATHY = {
-        "쥐띠": "정보 수집은 빠르지만 실행으로 이어지지 못하는 날입니다.",
-        "소띠": "묵묵히 나아가고 있으나 결과가 아직 보이지 않는 날입니다.",
-        "호랑이띠": "기준에 맞춰야 한다는 것을 알면서도 받아들이기 어려운 날입니다.",
-        "토끼띠": "여러 가지를 동시에 진행하다 완성에 이르지 못한 느낌이 드는 날입니다.",
-        "용띠": "에너지는 충분하지만 방향을 정하지 못하고 있는 날입니다.",
-        "뱀띠": "흐름이 보이지만 확신을 갖기 어려운 날입니다.",
-        "말띠": "전하고 싶은 말이 있으나 적절한 타이밍을 찾지 못하고 있는 날입니다.",
-        "양띠": "타인을 배려하는 데 집중하다 스스로가 뒷전이 된 날들이 쌓인 상태입니다.",
-        "원숭이띠": "성과를 보여주고 싶지만 타이밍을 잡지 못하고 있는 날입니다.",
-        "닭띠": "충분히 준비되지 않았다는 판단으로 실행을 계속 미루고 있는 날입니다.",
-        "개띠": "오래 참아온 말이 있으나 꺼내기 어려운 상황인 날입니다.",
-        "돼지띠": "예민해진 감각이 부담으로 작용하는 날입니다.",
-    }
-
-    cards_html = ""
-    for c in CHINESE:
-        years_filtered = [y for y in c['years'] if 1940 <= int(str(y)) <= 2030][:3]
-        yr_fortune = chinese_fortune(c['en'])
-        plain = str(yr_fortune).strip()
-        sentences = plain.split('. ')
-        short = ''
-        for s in sentences:
-            candidate = (short + s + '. ').strip()
-            if len(candidate) >= 80:
-                short = candidate
-                break
-            short = candidate
-        if len(short) > 180:
-            short = short[:177] + '…'
-        if len(short) < 40:
-            short = plain[:120] + ('…' if len(plain) > 120 else '')
-
-        empathy = _C_EMPATHY.get(c['kr'], '오늘 어떤 하루 보내고 있으세요.')
-        years_str = "·".join(f"{y}년생" for y in years_filtered)
-
-        cards_html += f"""
-<div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);
-            border-left:4px solid #f59e0b;padding:14px;margin-bottom:12px">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-    <span style="font-size:28px;line-height:1">{c['emoji']}</span>
-    <div>
-      <span style="font-weight:900;font-size:15px;color:#92400e">{c['kr']}</span>
-      <span style="font-size:11px;color:#9ca3af;margin-left:6px">{years_str}</span>
-    </div>
-  </div>
-  <p style="font-size:12px;color:#d97706;font-style:italic;margin:0 0 6px 0;
-            line-height:1.6">💭 {empathy}</p>
-  <p style="font-size:13px;color:#374151;line-height:1.75;margin:0">{short}</p>
-</div>"""
-
-    card_id = f"sns-chinese-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
-    content_html = f"""{style()}
-<div class="wrap">
-  <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-    <h1>🐾 오늘의 띠별 운세</h1>
-    <p>{today_str} · 12띠 전체</p>
-  </div>
-  <div id="{card_id}" style="background:#fffbeb;border-radius:16px;padding:16px;margin-bottom:16px">
-    {cards_html}
-    <div style="text-align:center;margin-top:8px;font-size:11px;color:#aaa">🐾 todayhoroscopelaboratory.blogspot.com · {today_str}</div>
-  </div>
-  {share_buttons(card_id, f"띠별운세전체_{today_str}")}
-  <div style="background:#fef3c7;border-radius:12px;padding:12px;font-size:12px;color:#666;
-              text-align:center;margin-bottom:16px">
-    🐾 내 띠 카드를 클릭하면 출생연도별 상세 운세를 확인할 수 있어요
-  </div>
-  <div class="card"><span class="badge">🔍 관련 키워드</span>
-    <div class="tag-cloud">{''.join(f'<span class="tag">{k}</span>' for k in kw)}</div>
-  </div>
-  {site_link()}
-  <div class="meta">※ 재미로 보는 운세 콘텐츠 · 매일 업데이트</div>
-</div>"""
-
-    return title, content_html, labels
-
-    # kw를 HTML 생성 전에 먼저 정의
-    kw = ["띠운세", "오늘운세", "띠별운세", today_str,
-          "쥐띠", "소띠", "호랑이띠", "토끼띠", "용띠", "뱀띠",
-          "말띠", "양띠", "원숭이띠", "닭띠", "개띠", "돼지띠",
-          "12띠운세", "띠운세전체", "오늘의띠운세", "띠운세총정리",
-          "오늘운세보기", "무료운세", "운세2026"]
-    labels = ["띠운세통합", "운세SNS", "운세", "띠운세"]
-
-    cards_html = ""
-    for c in CHINESE:
-        # 1940년 이상, 2030년 이하 연도만, 최대 4개
-        years_filtered = [y for y in c['years'] if 1940 <= int(str(y)) <= 2030][:4]
-
-        year_rows_html = ""
-        for y in years_filtered:
-            yr_fortune = chinese_fortune(c['en'])
-            plain = str(yr_fortune).strip()
-            sentences = plain.split('. ')
-            short = ''
-            for s in sentences:
-                candidate = (short + s + '. ').strip()
-                if len(candidate) >= 80:
-                    short = candidate
-                    break
-                short = candidate
-            if len(short) > 180:
-                short = short[:177] + '…'
-            if len(short) < 40:
-                short = plain[:120] + ('…' if len(plain) > 120 else '')
-            year_rows_html += f"""
-<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #fde68a">
-  <div style="min-width:64px;background:#f59e0b;color:#fff;border-radius:8px;padding:4px 8px;
-              text-align:center;font-size:12px;font-weight:700;flex-shrink:0">{y}년생</div>
-  <div style="font-size:13px;color:#444;line-height:1.7">{short}</div>
-</div>"""
-
-        cards_html += f"""
-<div style="background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);
-            border-left:4px solid #f59e0b;padding:14px;margin-bottom:12px">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-    <span style="font-size:28px;line-height:1">{c['emoji']}</span>
-    <span style="font-weight:900;font-size:15px;color:#92400e">{c['kr']}</span>
-  </div>
-  {year_rows_html}
-</div>"""
-
-    card_id = f"sns-chinese-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
-    content_html = f"""{style()}
-<div class="wrap">
-  <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-    <h1>🐾 오늘의 띠별 운세</h1>
-    <p>{today_str} · 12띠 전체</p>
-  </div>
-  <div id="{card_id}" style="background:#fffbeb;border-radius:16px;padding:16px;margin-bottom:16px">
-    {cards_html}
-    <div style="text-align:center;margin-top:8px;font-size:11px;color:#aaa">🐾 todayhoroscopelaboratory.blogspot.com · {today_str}</div>
-  </div>
-  {share_buttons(card_id, f"띠별운세전체_{today_str}")}
-  <div style="background:#fef3c7;border-radius:12px;padding:12px;font-size:12px;color:#666;text-align:center;margin-bottom:16px">
-    🐾 각 띠를 클릭하면 출생연도별 상세 운세를 확인할 수 있어요
-  </div>
-  <div class="card"><span class="badge">🔍 관련 키워드</span>
-    <div class="tag-cloud">{''.join(f'<span class="tag">{k}</span>' for k in kw)}</div>
-  </div>
-  {site_link()}
-  <div class="meta">※ 재미로 보는 운세 콘텐츠 · 매일 업데이트</div>
-</div>"""
-
-    return title, content_html, labels
-
-
-# ─────────────────────────────────────────
-# ⑧  별자리가 만나는 시간 — 옴니버스 스토리텔링 (매일 1개)
-# 라벨: 별과띠가만나는시간
-# URL: /search/label/별과띠가만나는시간
-# ─────────────────────────────────────────
-
-# 스토리 연결 구조: (별자리, 띠) → (테마, 별자리↔띠 인과 연결형 내러티브)
-# 원칙: 별자리의 감정·상황 → 띠의 에너지가 그것을 어떻게 밀거나 잡아주는지 서사로 연결
-_CONNECT_MAP = [
-    ("양자리",   "용띠",    "시작",
-     "시작하고 싶지만 손이 가지 않는 날이 있습니다. 그것은 두려움이 아닙니다. "
-     "에너지가 너무 커서 어디서 시작해야 할지 방향을 못 정한 것입니다. "
-     "오늘 용띠의 추진력이 양자리의 그 등을 밀어주는 날입니다."),
-    ("황소자리", "뱀띠",    "결실",
-     "열심히 하고 있는데 이게 맞는 방향인지 흔들리는 날이 있어요. "
-     "뱀띠의 날카로운 직관이 오늘 황소자리의 그 확신을 다시 세워줍니다."),
-    ("쌍둥이자리","토끼띠",  "연결",
-     "이것저것 신경 쓰이다 결국 아무것도 완성하지 못한 느낌이 드는 날입니다. "
-     "토끼띠가 오늘 쌍둥이자리에게 '그거 하나만 해'라고 조용히 말해줍니다."),
-    ("게자리",   "말띠",    "용기",
-     "말해봤자 뭐가 달라지나 싶어서 그냥 넘기는 날들이 쌓이고 있지 않으세요. "
-     "오늘 말띠의 직진 에너지가 게자리의 그 망설임을 걷어내줍니다."),
-    ("사자자리", "원숭이띠", "존재감",
-     "열심히 하고 있는데 아무도 알아주지 않는 것 같은 날입니다. "
-     "원숭이띠의 타이밍 감각이 오늘 사자자리의 존재감을 드러내는 방법을 알려줍니다."),
-    ("처녀자리", "닭띠",    "완성",
-     "요즘 뭔가 계속 미루게 되는 것이 있지 않으세요. 완벽하지 않아서. "
-     "닭띠의 실행력이 오늘 처녀자리의 완벽주의를 부드럽게 풀어줍니다."),
-    ("천칭자리", "개띠",    "관계",
-     "말로 꺼내기엔 애매하고 그냥 넘기기엔 걸리는 게 마음에 남아 있지 않으세요. "
-     "오늘 개띠의 솔직함이 천칭자리가 참아왔던 말을 꺼낼 수 있는 분위기를 만들어줍니다."),
-    ("전갈자리", "돼지띠",  "직관",
-     "사람을 너무 잘 읽어서 오히려 지치는 날이 있어요. "
-     "돼지띠의 너그러움이 오늘 전갈자리의 날 선 감각을 부드럽게 감싸줍니다."),
-    ("사수자리", "쥐띠",    "전환",
-     "변화를 원하지만 어디서 시작해야 할지 모르는 답답함이 있는 날입니다. "
-     "쥐띠가 오늘 사수자리의 변화 에너지에 방향을 달아줍니다."),
-    ("염소자리", "소띠",    "신뢰",
-     "결과가 안 보여서 이게 맞나 싶은 날, 주변이 먼저 나아가는 것 같아 조바심 나는 날. "
-     "오늘 소띠의 뚝심이 염소자리 옆을 함께 걷습니다. 눈에 안 보여도 분명히 쌓이고 있어요."),
-    ("물병자리", "호랑이띠", "다름",
-     "맞춰야 할 것 같은데 맞추기가 싫고, 그렇다고 혼자 튀는 것 같아서 눌러두는 아이디어가 있지 않으세요. "
-     "호랑이띠의 배짱이 오늘 물병자리에게 '그냥 해도 돼'라는 신호가 됩니다."),
-    ("물고기자리","양띠",   "쉬어가기",
-     "타인을 챙기다 스스로를 돌보지 못한 날들이 쌓여 오늘 유독 무거운 날입니다. "
-     "양띠의 조용한 온기가 오늘 물고기자리에게 쉬어도 된다는 허락이 됩니다."),
-]
-
-
-_OMNIBUS_OPENINGS = [
-    "별자리와 띠가 같은 날 위에 놓일 때, 각각의 이야기가 달라집니다. "
-    "오늘 두 흐름이 어떻게 교차하는지 살펴보시기 바랍니다. "
-    "본인의 별자리와 띠 조합을 찾아 천천히 읽어보시기 바랍니다.",
-
-    "오늘 하루의 흐름을 별자리와 띠가 각각 다른 시각으로 분석하고 있습니다. "
-    "두 시각이 겹치는 지점에서 예상치 못한 답이 나오는 날입니다. "
-    "읽는 과정에서 공감이 되는 부분이 있다면 그것을 오늘의 기준으로 삼으시기 바랍니다.",
-
-    "운세가 모든 상황에 정확히 들어맞지는 않습니다. "
-    "그러나 오늘 이 글이 현재 상황을 돌아보는 계기가 된다면, 그것으로 충분한 역할을 한 것입니다. "
-    "별자리와 띠가 오늘을 어떻게 해석하는지 함께 살펴보겠습니다.",
-
-    "오늘 별자리와 띠의 에너지가 교차하는 구간이 존재합니다. "
-    "그 구간에서의 행동이 하루 전체의 흐름을 결정하기도 합니다. "
-    "본인의 조합을 찾아 오늘의 방향을 확인하시기 바랍니다.",
-
-    "별자리는 감각을 분석하고, 띠는 흐름을 읽습니다. "
-    "오늘은 그 두 가지가 교차하는 지점에서 오늘의 방향을 제시합니다. "
-    "읽은 후 마음에 남는 것이 있다면 그것이 오늘 가장 필요한 방향입니다.",
-]
-
-_OMNIBUS_CLOSINGS = [
-    "오늘 읽은 내용 중 한 가지를 선택하여 실천에 옮기시기 바랍니다. "
-    "모든 내용을 기억하려 하면 오히려 남는 것이 없습니다. "
-    "가장 마음에 남는 한 가지로 오늘 하루를 충실히 마무리하시기 바랍니다.",
-
-    "운세는 미래를 단정 짓는 것이 아닙니다. "
-    "현재 느끼고 있는 감각은 개인만의 경험이 아닙니다. "
-    "오늘 이 글이 현재 상황을 돌아보는 계기가 되었다면 충분한 역할을 한 것입니다.",
-
-    "끝까지 읽어주신 것에 감사드립니다. "
-    "읽은 후 무언가 하나라도 달라진 것이 있다면 오늘 이 글은 제 역할을 다한 것입니다.",
-
-    "좋은 흐름은 파악한 사람에게 먼저 기회로 다가옵니다. "
-    "오늘 그 흐름을 확인하였으니 이제 실천할 차례입니다. "
-    "크게 시작하지 않아도 됩니다. 작은 한 가지가 오늘의 시작입니다.",
-
-    "오늘 어떤 시간에 무엇을 했는지가 내일의 흐름으로 이어집니다. "
-    "이 글이 오늘의 선택에 조금이라도 도움이 되었기를 바랍니다.",
-
-    "순탄한 날이든 힘든 날이든, 오늘 여기까지 온 것 자체가 이미 충분히 잘 해낸 것입니다. "
-    "이러한 감각은 혼자만 경험하는 것이 아닙니다. 누구나 이런 과정을 거치며 살아갑니다.",
-
-    "오늘 읽으면서 공감이 되는 부분이 있었다면, 그 감각이 맞습니다. "
-    "별자리든 띠든, 결국 오늘 이 이야기는 지금 이 순간의 당신에 관한 것입니다.",
-]
-
-# 날씨·계절 배경 텍스트 (날짜 기반)
-def _season_backdrop(kst_dt):
-    m = kst_dt.month
-    if m in (3, 4, 5):
-        return "봄의 기운이 가득한 오늘,"
-    elif m in (6, 7, 8):
-        return "여름의 열기 속 오늘,"
-    elif m in (9, 10, 11):
-        return "가을 바람이 살랑이는 오늘,"
-    else:
-        return "겨울의 고요함이 내려앉은 오늘,"
-
-def _plain(text: str, max_len: int = 90) -> str:
-    """HTML 태그·줄바꿈 제거 후 max_len자 이내 반환"""
-    import re
-    t = re.sub(r'<[^>]+>', '', str(text))
-    t = t.replace('\n', ' ').strip()
-    return t[:max_len] + ('…' if len(t) > max_len else '')
-
-
-def _extract_core_sentence(fortune_raw: str) -> str:
-    """
-    zodiac_fortune / chinese_fortune 원문에서 핵심 문장 1~2개 추출.
-    - HTML 태그 제거 → 첫 번째 완전한 문장(마침표/요/죠/다 로 끝나는 것) 반환
-    - 너무 짧으면(<20자) 두 번째 문장도 합침
-    """
-    import re
-    text = re.sub(r'<[^>]+>', '', str(fortune_raw))
-    text = text.replace('\n', ' ').strip()
-    # 문장 분리: 마침표·물음표·느낌표 기준
-    sentences = re.split(r'(?<=[다요죠])\s+', text)
-    sentences = [s.strip() for s in sentences if len(s.strip()) > 5]
-    if not sentences:
-        return text[:80]
-    core = sentences[0]
-    if len(core) < 20 and len(sentences) > 1:
-        core = core + ' ' + sentences[1]
-    return core[:120]
-
-
-# ── 개선된 시간대별 골든타임 가이드 (왜 + 무엇을) ──
-# ── 시간대 풀 (12개) — 별자리×띠 조합마다 다르게 배정
-# 요일 고정 → 반복 문제 해결: 조합 idx로 풀에서 선택
-_TIME_POOL = [
-    {"label": "오전 9시~11시",
-     "why": "하루 중 집중력이 가장 높은 시간대예요. 외부 방해가 적고 뇌가 아직 피로를 덜 쌓은 상태라 판단이 빠르게 나와요.",
-     "action": "오래 묵혀두던 결정이나 작업을 이 시간에 꺼내세요. 오후로 넘기면 에너지가 분산돼요.",
-     "goal": "오전 9시에 오늘 끝내야 할 것 하나를 먼저 정해두세요. 고르는 데 5분이면 돼요."},
-    {"label": "오전 10시~낮 12시",
-     "why": "뇌가 워밍업을 마치고 최고 속도로 돌아가는 시간대예요. 분석이 필요한 일, 글쓰기, 기획이 이 시간에 가장 잘 풀려요.",
-     "action": "밀어붙일 때보다 고르는 때예요. 여러 선택지 중 하나를 이 시간에 결정하세요.",
-     "goal": "빈 문서 하나 열고 떠오르는 것부터 적어보세요. 완성이 아니라 꺼내는 게 목표예요."},
-    {"label": "오전 11시~오후 1시",
-     "why": "하루의 흐름이 가장 안정적으로 유지되는 시간대입니다. 오전의 집중력과 오후의 여유가 겹치는 구간입니다.",
-     "action": "설득이나 협상이 필요한 대화는 이 시간에 꺼내세요. 상대방도 이 구간이 비교적 열려 있어요.",
-     "goal": "오늘 가장 중요한 연락 하나, 이 시간 안에 보내세요."},
-    {"label": "오후 1시~3시",
-     "why": "점심 후 에너지가 재충전되면서 오후 집중력이 올라오는 시간입니다. 창의적인 판단이 이 시간에 가장 잘 나옵니다.",
-     "action": "의외로 여기서 답이 나옵니다. 막혀 있던 문제를 이 시간에 다시 꺼내보세요.",
-     "goal": "오후 1시에 오늘 남은 것 중 가장 걸리는 것 하나만 골라 집중하세요."},
-    {"label": "오후 2시~4시",
-     "why": "업무 추진력이 다시 올라오는 시간대입니다. 사람들의 집중력이 돌아오고 결정이 빠르게 이루어지는 구간입니다.",
-     "action": "타이밍이 결과를 바꿉니다. 부탁이나 제안이 필요한 대화는 지금이 적절한 시간입니다.",
-     "goal": "오늘 핵심 연락 하나, 오후 2시 전에 보내세요."},
-    {"label": "오후 3시~5시",
-     "why": "하루의 피로가 아직 덜 쌓인 상태에서 대인관계 에너지가 올라오는 시간입니다. 대화가 자연스럽게 열리는 구간입니다.",
-     "action": "저녁으로 넘기면 타이밍을 놓쳐요. 마무리 연락이나 짧은 감사 메시지는 지금 보내세요.",
-     "goal": "연락하고 싶었던 사람 한 명, 짧은 안부 하나 지금 보내세요."},
-    {"label": "오후 4시~6시",
-     "why": "하루를 마무리하면서 감정과 생각이 정리되는 시간입니다. 중요한 것들이 선명해지는 구간입니다.",
-     "action": "잠시 멈추는 편이 유리합니다. 오늘 한 일을 짧게 정리하고, 내일 할 것 3개만 적어두세요.",
-     "goal": "오늘 가장 잘 한 것 하나를 메모해두세요. 작은 기록이 내일을 만들어요."},
-    {"label": "오후 5시~7시",
-     "why": "퇴근 후 첫 두 시간은 하루 중 가장 자유로운 시간입니다. 억압 없이 자신이 원하는 것에 집중할 수 있는 구간입니다.",
-     "action": "오늘 하고 싶었는데 못 한 것을 이 시간에 꺼내보시기 바랍니다. 작은 것 하나라도 자신을 위해 쓰는 것이 맞습니다.",
-     "goal": "오후 5시 이후 30분, 오늘 자신을 위한 것 하나에만 써보세요."},
-    {"label": "저녁 7시~9시",
-     "why": "하루의 긴장이 풀리면서 진정으로 하고 싶은 말이 나오는 시간입니다. 감정이 안정되면서 대화가 깊어지는 구간입니다.",
-     "action": "낮에 꺼내지 못한 말이 있다면 지금이 적절한 시간입니다. 저녁은 그 말이 가장 자연스럽게 닿는 시간입니다.",
-     "goal": "오늘 하고 싶었던 말 하나, 저녁 7시 이후에 꺼내보세요."},
-    {"label": "오전 7시~9시",
-     "why": "하루를 여는 첫 두 시간이 그날의 흐름을 결정합니다. 외부 방해가 없는 이른 시간에 집중하면 오전 전체가 달라집니다.",
-     "action": "오늘 가장 걸리는 것 하나를 오전에 먼저 처리하시기 바랍니다. 나중으로 미루면 하루 내내 머릿속에 남습니다.",
-     "goal": "일어나서 오늘 할 것 하나만 정해두세요. 커피 한 잔 마시기 전에 그것만 결정하면 돼요."},
-    {"label": "낮 12시~오후 2시",
-     "why": "점심 시간은 하루의 피로를 리셋하는 구간입니다. 이 시간을 제대로 활용하면 오후가 완전히 달라집니다.",
-     "action": "오늘 점심은 제대로 먹고, 10분 걸어보세요. 오후 집중력이 눈에 띄게 달라져요.",
-     "goal": "핸드폰 내려두고 진짜 쉬는 점심 30분을 만들어보세요."},
-    {"label": "오전 6시~8시",
-     "why": "세상이 아직 조용한 이 시간, 자신만을 위한 공간이 생깁니다. 이 시간에 한 가지를 시작하면 하루 전체가 달라집니다.",
-     "action": "오늘 아침 이른 시간에 시작하고 싶었던 것 하나를 꺼내보시기 바랍니다. 짧아도 됩니다.",
-     "goal": "조용한 아침 5분, 오늘 하루를 어떻게 보낼지 생각해보세요."},
-]
-
-# ── 공통 엔딩 풀 (날짜 기반 순환, 3파트 구조) ──
-# insight: 오늘 하루를 꿰뚫는 통찰 문장
-# bridge:  별과 띠가 같은 이야기를 한다는 연결 문장
-# action:  독자에게 건네는 단 하나의 행동 제안 (인용구 형태)
-_COMMON_ENDINGS = [
-    # 1일
-    {
-        "insight": "오늘은 빠르게 움직이는 것보다 타이밍을 파악하는 것이 유리한 하루입니다.",
-        "bridge":  "별자리와 띠는 서로 다른 언어를 사용하지만, 오늘은 같은 이야기를 전달하고 있습니다.",
-        "action":  "미루어 두었던 것 하나를 시작하시기 바랍니다.",
-    },
-    # 2일
-    {
-        "insight": "오늘은 크게 바꾸는 날이 아닙니다. 작은 것 하나를 제대로 선택하는 날입니다.",
-        "bridge":  "별자리는 감각으로 읽고, 띠는 흐름으로 읽습니다. 오늘 그 둘이 같은 방향을 가리키고 있습니다.",
-        "action":  "현재 마음에 걸리는 것이 오늘 해야 할 것입니다.",
-    },
-    # 3일
-    {
-        "insight": "억지로 밀어붙이는 것보다 흐름에 올라타는 것이 더 멀리 갑니다. 오늘이 그러한 날입니다.",
-        "bridge":  "별자리와 띠가 오늘 같은 방향을 제시하고 있습니다. 받아들일 준비가 되어 있다면 이미 절반은 된 것입니다.",
-        "action":  "오늘 하루, 한 가지를 제대로 완수하시기 바랍니다.",
-    },
-    # 4일
-    {
-        "insight": "오늘은 많이 하는 것보다 잘 선택하는 것이 기억에 남는 하루가 될 것입니다.",
-        "bridge":  "별자리와 띠가 각각 다른 방향에서 출발하였지만, 오늘은 같은 지점에서 만나고 있습니다.",
-        "action":  "오래 묵혀두었던 것 하나를 오늘 꺼내 보시기 바랍니다.",
-    },
-    # 5일
-    {
-        "insight": "오늘 주변의 흐름이 조용히 바뀌고 있습니다. 눈에 잘 띄지 않는 방향에서 변화가 시작됩니다.",
-        "bridge":  "별자리가 감지한 것을 띠가 확인해주고 있습니다. 오늘의 방향은 하나입니다.",
-        "action":  "지금 이 순간, 가장 먼저 떠오른 것을 실행하시기 바랍니다.",
-    },
-    # 6일
-    {
-        "insight": "서두르면 놓치는 날이 있습니다. 오늘이 그러한 날일 수 있으므로 한 박자 늦게 움직이시기 바랍니다.",
-        "bridge":  "오늘 별자리와 띠가 보내는 신호는 동일합니다. 속도보다 방향이 중요한 날입니다.",
-        "action":  "잠시 멈추고, 현재 가장 걸리는 것 하나를 선택하시기 바랍니다.",
-    },
-    # 7일
-    {
-        "insight": "오늘은 준비된 사람에게 기회가 열리는 날입니다. 그 기회는 요란하지 않게 찾아옵니다.",
-        "bridge":  "별자리와 띠가 오늘 같은 방향의 에너지를 보내고 있습니다. 그 흐름을 활용하시기 바랍니다.",
-        "action":  "준비해 두었던 것을 오늘 한 발 내딛어 보시기 바랍니다.",
-    },
-    # 8일
-    {
-        "insight": "오늘은 결과보다 방향을 설정하는 날입니다. 방향이 맞으면 속도는 이후에 따라옵니다.",
-        "bridge":  "별자리가 오늘 향하는 방향과 띠가 움직이는 방향이 오늘 정확히 일치합니다.",
-        "action":  "완성이 아니라 방향 하나만 정하시기 바랍니다.",
-    },
-    # 9일
-    {
-        "insight": "오늘은 말보다 행동이 더 멀리 닿는 날입니다. 설명 없이 움직이는 것이 유리합니다.",
-        "bridge":  "별자리와 띠, 둘 다 오늘 같은 곳에 에너지를 집중하고 있습니다.",
-        "action":  "말하려던 것을 오늘 실행으로 옮겨 보시기 바랍니다.",
-    },
-    # 10일
-    {
-        "insight": "오늘은 새로 시작하는 것보다 이어가는 것에 더 큰 힘이 있는 날입니다.",
-        "bridge":  "별자리의 감각과 띠의 뚝심이 오늘 같은 리듬으로 움직이고 있습니다.",
-        "action":  "어제 하다 멈춘 것을 오늘 다시 꺼내 보시기 바랍니다.",
-    },
-    # 11일
-    {
-        "insight": "오늘은 혼자 안고 있던 것을 한 사람에게라도 꺼내는 것이 더 가볍게 만들어 줍니다.",
-        "bridge":  "별자리는 감정의 흐름을 읽고, 띠는 관계의 흐름을 읽습니다. 오늘 둘이 같은 방향을 가리키고 있습니다.",
-        "action":  "오늘 연락하고 싶었던 사람에게 짧게라도 먼저 연락하시기 바랍니다.",
-    },
-    # 12일
-    {
-        "insight": "오늘은 완벽하게 하려다 아무것도 못 하는 것보다, 작게라도 완성하는 것이 훨씬 낫습니다.",
-        "bridge":  "별자리와 띠가 오늘 완성을 향해 함께 나아가고 있습니다.",
-        "action":  "80% 완성 단계에서 내보내시기 바랍니다. 나머지는 다음 단계에서 보완할 수 있습니다.",
-    },
-    # 13일
-    {
-        "insight": "오늘은 기다리는 것보다 먼저 움직이는 쪽에 기회가 있는 날입니다.",
-        "bridge":  "별자리와 띠, 둘 다 오늘 먼저 행동할 것을 권하고 있습니다.",
-        "action":  "기다리던 것을 오늘 먼저 꺼내 보시기 바랍니다.",
-    },
-    # 14일
-    {
-        "insight": "오늘은 감정이 앞서는 날입니다. 판단은 하루 뒤에 해도 늦지 않습니다.",
-        "bridge":  "별자리는 오늘 감정을 분석하고, 띠는 그 감정을 어떻게 활용할지 알고 있습니다.",
-        "action":  "오늘 느낀 것을 어딘가에 기록해 두시기 바랍니다.",
-    },
-    # 15일
-    {
-        "insight": "오늘은 에너지가 고르게 퍼지는 날입니다. 한 곳에 집중하기보다 여러 곳에 적절히 배분하는 것이 효과적입니다.",
-        "bridge":  "별자리와 띠가 오늘 같은 템포로 움직이고 있습니다. 무리하지 않아도 되는 날입니다.",
-        "action":  "오늘은 나누어서 하시기 바랍니다. 한꺼번에 하지 않아도 됩니다.",
-    },
-    # 16일
-    {
-        "insight": "오늘은 결정보다 관찰이 더 유리한 날입니다. 조금 더 살펴본 후 움직이는 것이 맞습니다.",
-        "bridge":  "별자리와 띠, 둘 다 오늘 관망하는 것을 권하고 있습니다.",
-        "action":  "결정은 내일로 미루고, 오늘은 관찰하는 날로 활용하시기 바랍니다.",
-    },
-    # 17일
-    {
-        "insight": "오늘은 자신을 위한 것을 실천하기 좋은 날입니다. 타인을 위한 일은 잠시 내려놓아도 괜찮습니다.",
-        "bridge":  "별자리와 띠가 오늘 내면을 향하고 있습니다. 외부가 아닌 내면에 집중할 때입니다.",
-        "action":  "오늘 하루, 자신을 위한 것 하나를 먼저 실천하시기 바랍니다.",
-    },
-    # 18일
-    {
-        "insight": "오늘은 작은 디테일이 큰 차이를 만드는 날입니다. 사소하다고 지나치지 마시기 바랍니다.",
-        "bridge":  "별자리의 예민함과 띠의 꼼꼼함이 오늘 같은 방향을 보고 있습니다.",
-        "action":  "오늘 그냥 넘기려던 것을 한 번 더 확인하시기 바랍니다.",
-    },
-    # 19일
-    {
-        "insight": "오늘은 혼자 생각하는 것보다 한 사람에게 이야기하는 것이 더 빨리 해결되는 날입니다.",
-        "bridge":  "별자리는 오늘 연결을 향하고, 띠는 그 연결을 이어가는 방법을 알고 있습니다.",
-        "action":  "지금 머릿속에 있는 것을 한 사람에게 꺼내 보시기 바랍니다.",
-    },
-    # 20일
-    {
-        "insight": "오늘은 에너지가 낮은 날일 수 있습니다. 억지로 끌어올리려 하지 말고 자연스러운 흐름에 맡기는 것이 낫습니다.",
-        "bridge":  "별자리와 띠, 둘 다 오늘 쉬어도 된다고 말하고 있습니다.",
-        "action":  "오늘은 많이 하지 않아도 됩니다. 한 가지만 하고 쉬시기 바랍니다.",
-    },
-    # 21일
-    {
-        "insight": "오늘은 계획대로 되지 않는 것처럼 보일 수 있습니다. 그 빈자리에서 예상 밖의 것이 들어옵니다.",
-        "bridge":  "별자리와 띠가 오늘 계획 밖의 방향을 가리키고 있습니다. 그쪽이 오늘의 진짜 흐름입니다.",
-        "action":  "오늘 계획이 틀어지면, 그 방향을 따라가 보시기 바랍니다.",
-    },
-    # 22일
-    {
-        "insight": "오늘은 감사한 것 하나를 기억하는 것만으로 하루 전체의 무게가 달라지는 날입니다.",
-        "bridge":  "별자리와 띠가 오늘 현재 가진 것에 집중하라고 말하고 있습니다.",
-        "action":  "오늘 잘 된 것 하나를 자기 전에 떠올려 보시기 바랍니다.",
-    },
-    # 23일
-    {
-        "insight": "오늘은 설명하지 않아도 되는 날입니다. 감각이 맞다면 그대로 움직여도 됩니다.",
-        "bridge":  "별자리의 직관과 띠의 감각이 오늘 같은 방향을 향하고 있습니다.",
-        "action":  "설명하지 말고, 오늘은 바로 실행하시기 바랍니다.",
-    },
-    # 24일
-    {
-        "insight": "오늘은 오래된 것을 다시 꺼내기 좋은 날입니다. 이전에 포기했던 것이 오늘 다르게 보일 수 있습니다.",
-        "bridge":  "별자리와 띠가 오늘 돌아보는 것을 권하고 있습니다. 과거를 돌아보는 것이 앞을 여는 날입니다.",
-        "action":  "이전에 포기했던 것을 오늘 다시 한 번 열어 보시기 바랍니다.",
-    },
-    # 25일
-    {
-        "insight": "오늘은 에너지가 올라오는 날입니다. 그 에너지를 어디에 사용하느냐가 오늘의 핵심입니다.",
-        "bridge":  "별자리와 띠 둘 다 오늘 에너지가 모이고 있습니다. 분산되게 두면 아까운 날입니다.",
-        "action":  "오늘 에너지를 한 곳에만 집중하시기 바랍니다. 한 곳에 집중하는 것만으로 오늘 하루를 충실히 쓴 것입니다.",
-    },
-    # 26일
-    {
-        "insight": "오늘은 타인에게 인정받으려 하기보다 스스로 인정하는 것이 더 힘이 되는 날입니다.",
-        "bridge":  "별자리와 띠가 오늘 내면에서 답을 찾으라고 말하고 있습니다.",
-        "action":  "오늘 잘 한 것은 타인이 아닌 스스로가 먼저 인정해도 됩니다.",
-    },
-    # 27일
-    {
-        "insight": "오늘은 한 번에 모두 해결하려는 마음을 내려놓을수록 실제로 더 많이 이루어지는 날입니다.",
-        "bridge":  "별자리는 오늘 줄이는 것을 말하고, 띠는 집중을 말합니다. 같은 방향입니다.",
-        "action":  "오늘 목록에서 하나를 지우시기 바랍니다. 그것이 오늘의 진짜 시작입니다.",
-    },
-    # 28일
-    {
-        "insight": "오늘은 누군가의 말 한마디가 예상보다 오래 남는 날입니다. 좋은 방향으로 기억될 말을 먼저 전하시기 바랍니다.",
-        "bridge":  "별자리와 띠가 오늘 말의 무게에 대해 같은 이야기를 하고 있습니다.",
-        "action":  "오늘 하고 싶었던 말을 생각나는 사람에게 짧게 전하시기 바랍니다.",
-    },
-    # 29일
-    {
-        "insight": "오늘은 기대와 다르게 흘러도 그것이 더 나은 방향일 수 있는 날입니다.",
-        "bridge":  "별자리가 예상한 것을 띠가 다른 각도로 열어주는 날입니다. 둘이 함께일 때 더 잘 보입니다.",
-        "action":  "계획대로 되지 않았다면, 그 방향에서 새로운 것을 찾아보시기 바랍니다.",
-    },
-    # 30일
-    {
-        "insight": "오늘은 마무리가 시작보다 중요한 날입니다. 완성하는 것이 다음을 여는 날입니다.",
-        "bridge":  "별자리와 띠가 오늘 마무리를 향해 함께 나아가고 있습니다.",
-        "action":  "오늘 하나를 완성하시기 바랍니다. 새로운 시작은 내일 해도 됩니다.",
-    },
-    # 31일
-    {
-        "insight": "오늘은 흐름을 거스르지 않는 사람이 가장 멀리 나아가는 날입니다.",
-        "bridge":  "별자리와 띠가 오늘 같은 물결 위에 있습니다. 그 흐름을 활용하시기 바랍니다.",
-        "action":  "억지로 만들려 하지 말고, 오늘 자연스럽게 찾아오는 것을 잡으시기 바랍니다.",
-    },
-]
-
-
-
-
-def _omnibus_bridge(
-    z_kr, z_core, c_kr, c_core, theme, idx,
-    z_item, z_color, z_lucky_num,
-    z_compatible, c_best, c_avoid,
-    best_time_label, avoid_action, z_signal,
-    z_contact_time='', z_contact_reason='',
-    c_peak_time='', c_peak_tip='', c_low_time='', c_low_tip=''
-) -> str:
-    """
-    별자리×띠 스토리텔링 브릿지 — 골든타임·연락시간 제거
-    별자리 특성 + 띠 특성 + 궁합 + 행동 제안 중심
-    """
-    zb = f"<b style='color:#5b21b6'>{z_kr}</b>"
-    cb = f"<b style='color:#b45309'>{c_kr}</b>"
-    tb = f"<b style='color:#0369a1'>{theme}</b>"
-
-    # _CONNECT_MAP 스토리
-    story = ""
-    for row in _CONNECT_MAP:
-        if row[0] == z_kr and row[2] == theme:
-            story = row[3]
-            break
-    if not story:
-        story = f"{zb}와 {cb}, 오늘 같은 흐름 위에 서 있습니다."
-
-    def hl_warn(t):   return f"<b style='color:#dc2626'>{t}</b>"
-    def hl_item(t):   return f"<b style='color:#059669'>{t}</b>"
-    def hl_compat(t): return f"<b style='color:#7c3aed'>{t}</b>"
-
-    # 궁합 산문
-    compat_prose = (
-        f"오늘 {hl_compat(z_compatible)}이나 {hl_compat(c_best)}와 나누는 대화가 "
-        f"의외로 좋은 방향을 열어줄 수 있습니다. "
-        f"반대로 {hl_warn(c_avoid)}와 감정이 섞인 이야기는 오늘 저녁 이후로 미루는 것이 좋습니다."
-    )
-
-    # 행동 제안 산문
-    _goal_variants = [
-        f"오늘은 이것 하나만 실천해보시기 바랍니다.",
-        f"의외로 이 방향에서 답이 나옵니다.",
-        f"지금은 선택하는 때입니다.",
-        f"오늘 하루 이 하나만 챙기면 충분합니다.",
-        f"복잡하게 생각하지 않아도 됩니다.",
-        f"오늘의 방향이 여기에 있습니다.",
-    ]
-    goal_prose = _goal_variants[idx % len(_goal_variants)]
-
-    # 피해야 할 것 산문
-    _avoid_variants = [
-        (f"오늘 {hl_warn(avoid_action)}은 잠시 멈추는 편이 유리합니다. "
-         f"억지로 밀어붙이는 날이 아닙니다."),
-        (f"오늘 {hl_warn(avoid_action)}은 내려놓아도 됩니다. "
-         f"오늘은 다른 쪽에 에너지를 쓰는 것이 맞습니다."),
-        (f"{hl_warn(avoid_action)}은 오늘 굳이 건드리지 않아도 되는 것입니다. "
-         f"비워두는 것도 오늘의 선택입니다."),
-        (f"오늘 {hl_warn(avoid_action)} 쪽으로 힘을 쏟으면 뒷맛이 남습니다. "
-         f"지금은 나머지에 집중할 타이밍입니다."),
-    ]
-    avoid_prose = _avoid_variants[idx % len(_avoid_variants)]
-
-    # ── 12가지 산문 패턴 (골든타임·연락시간 제거) ──
-    patterns = [
-        # 0: 스토리 → 별자리 코어 → 행동
-        f"{story}<br><br>"
-        f"오늘 {zb}의 흐름을 보면, {z_core} "
-        f"{goal_prose}",
-
-        # 1: 스토리 → 띠 코어 → 행동
-        f"{story}<br><br>"
-        f"오늘 {cb}가 전하는 한 마디입니다. {c_core} "
-        f"{goal_prose}",
-
-        # 2: 띠 코어 → 별자리 연결 → 궁합
-        f"오늘 {cb}의 에너지가 이런 방향을 가리키고 있습니다. {c_core}<br><br>"
-        f"{zb}인 분들에게 그 에너지가 닿으면, {story}<br><br>"
-        f"{compat_prose}",
-
-        # 3: 테마 → 스토리 → 별자리 코어 → 궁합
-        f"오늘의 테마는 {tb}입니다. {zb}와 {cb}가 같은 흐름 위에 서 있는 날입니다.<br><br>"
-        f"{story}<br><br>"
-        f"오늘 {zb}의 흐름입니다. {z_core} "
-        f"{compat_prose}",
-
-        # 4: 스토리 → 피해야 할 것 → 띠 코어
-        f"{story}<br><br>"
-        f"{avoid_prose}<br><br>"
-        f"대신 {cb}가 오늘 이런 방향을 가리키고 있습니다. {c_core}",
-
-        # 5: 스토리 → 별자리↔띠 코어 교차
-        f"{story}<br><br>"
-        f"오늘 {zb}의 에너지: {z_core}<br><br>"
-        f"오늘 {cb}의 에너지: {c_core} "
-        f"{goal_prose}",
-
-        # 6: 띠 코어 → 별자리 받는 방식 → 행동
-        f"오늘 {cb}의 에너지가 이렇게 흐르고 있습니다. {c_core}<br><br>"
-        f"그 에너지를 {zb}는 이렇게 받을 수 있습니다. {z_core}<br><br>"
-        f"{goal_prose}",
-
-        # 7: 스토리 → 궁합
-        f"{story}<br><br>"
-        f"{compat_prose}",
-
-        # 8: 별자리 코어 → 스토리 → 행동
-        f"오늘 {zb}의 흐름이 이렇게 보입니다. {z_core}<br><br>"
-        f"그 흐름에서 {cb}의 에너지가 이렇게 작용합니다. {story}<br><br>"
-        f"{goal_prose}",
-
-        # 9: 스토리 → 띠 코어 → 피해야 할 것
-        f"{story}<br><br>"
-        f"오늘 {cb}가 건네는 말도 같은 방향입니다. {c_core}<br><br>"
-        f"{avoid_prose}",
-
-        # 10: 긍정 선언 → 스토리 → 코어 교차
-        f"오늘 {zb}와 {cb}의 흐름이 좋은 방향으로 맞닿아 있습니다.<br><br>"
-        f"{story}<br><br>"
-        f"{zb}의 오늘: {z_core} {cb}의 오늘: {c_core}",
-
-        # 11: 마무리형 → 스토리 → 궁합
-        f"{zb}와 {cb}인 분들께 오늘의 이야기를 전합니다.<br><br>"
-        f"{story}<br><br>"
-        f"{compat_prose}",
-    ]
-    return patterns[idx % len(patterns)]
 
 
 
@@ -3824,6 +3189,169 @@ def build_omnibus_post(today_str: str) -> tuple:
     - 날짜가 달라지면 내용이 자동으로 달라짐 (CSV 데이터 기반)
     라벨: 별과띠가만나는시간
     """
+
+    # ── 별자리×띠 스페셜 조언 데이터베이스 (2+4 방식) ──
+    # 2: 오늘따라 잘 어울리는 이유
+    # 4: 오늘 이 조합의 실천 조언
+    _SPECIAL_ADVICE = {
+        # 양자리
+        ("양자리","쥐띠"):    ("오늘 양자리의 추진력과 쥐띠의 정보력이 같은 방향을 가리키고 있습니다. 빠르게 판단하고 빠르게 실행하는 두 에너지가 오늘 완벽하게 맞물립니다.", "오늘 이 두 에너지가 만난다면 가장 먼저 떠오른 아이디어를 바로 실행해보시기 바랍니다."),
+        ("양자리","소띠"):    ("오늘 양자리의 시작 에너지가 소띠의 완성 에너지를 만납니다. 시작은 양자리가, 마무리는 소띠가 담당하는 최고의 조합입니다.", "오늘 양자리인 분은 먼저 제안하고, 소띠인 분은 그것을 구체화하는 역할을 나눠보시기 바랍니다."),
+        ("양자리","호랑이띠"):("오늘 두 화성 에너지가 만나는 날입니다. 양자리와 호랑이띠 모두 앞으로 나아가는 힘이 강한 조합입니다.", "오늘 이 두 에너지가 만난다면 서로의 추진력을 인정하고 방향만 맞추면 강력한 시너지가 생깁니다."),
+        ("양자리","토끼띠"):  ("오늘 양자리의 직접적인 에너지가 토끼띠의 세심함을 만납니다. 속도와 배려가 균형을 이루는 날입니다.", "오늘 양자리인 분은 속도를 조금 늦추고, 토끼띠인 분의 섬세한 조언에 귀 기울여보시기 바랍니다."),
+        ("양자리","용띠"):    ("오늘 두 강한 에너지가 같은 방향을 바라보는 날입니다. 양자리의 시작력과 용띠의 카리스마가 오늘 극대화됩니다.", "오늘 이 조합이 함께 움직인다면 누구도 막을 수 없는 흐름을 만들 수 있습니다."),
+        ("양자리","뱀띠"):    ("오늘 양자리의 빠른 실행과 뱀띠의 깊은 직관이 만납니다. 빠르게 가되 방향을 틀리지 않는 조합입니다.", "오늘 결정 전에 뱀띠의 직관적 판단을 먼저 확인하시기 바랍니다."),
+        ("양자리","말띠"):    ("오늘 가장 강한 행동 에너지가 모이는 날입니다. 양자리와 말띠 모두 멈추는 것이 가장 어려운 타입입니다.", "오늘 이 두 에너지가 만난다면 함께 움직이되 중간에 한 번 방향을 점검하시기 바랍니다."),
+        ("양자리","양띠"):    ("오늘 양자리의 추진력이 양띠의 따뜻함을 만납니다. 관계에서 좋은 에너지가 흐르는 조합입니다.", "오늘 먼저 다가가는 것이 좋은 결과를 만듭니다. 양자리인 분이 먼저 연락하시기 바랍니다."),
+        ("양자리","원숭이띠"):("오늘 양자리의 즉흥성과 원숭이띠의 재치가 만나는 날입니다. 예상치 못한 방식으로 문제가 풀리는 조합입니다.", "오늘 고민을 오래 하지 말고 첫 번째로 떠오른 방법을 바로 시도해보시기 바랍니다."),
+        ("양자리","닭띠"):    ("오늘 양자리의 속도에 닭띠의 꼼꼼함이 더해지는 날입니다. 빠르고 정확한 최고의 조합입니다.", "오늘 중요한 업무가 있다면 양자리가 추진하고 닭띠가 검토하는 방식으로 진행하시기 바랍니다."),
+        ("양자리","개띠"):    ("오늘 양자리의 열정과 개띠의 신뢰가 만납니다. 함께라면 어떤 어려운 일도 헤쳐나갈 수 있는 조합입니다.", "오늘 서로에 대한 믿음을 바탕으로 한 발씩 내딛어보시기 바랍니다."),
+        ("양자리","돼지띠"):  ("오늘 양자리의 에너지가 돼지띠의 낙천성을 만납니다. 어떤 일이든 긍정적으로 시작할 수 있는 날입니다.", "오늘 함께 새로운 것을 시작하기 가장 좋은 조합입니다. 오늘 바로 실행하시기 바랍니다."),
+        # 황소자리
+        ("황소자리","쥐띠"):  ("오늘 황소자리의 안정성과 쥐띠의 정보력이 결합하는 날입니다. 신중하게 정보를 모아 확실한 결정을 내리는 최고의 조합입니다.", "오늘 큰 결정이 있다면 쥐띠의 정보와 황소자리의 판단을 결합해보시기 바랍니다."),
+        ("황소자리","소띠"):  ("오늘 두 꾸준한 에너지가 만납니다. 둘 다 느리지만 확실하게 가는 타입이라 오늘 함께하면 흔들리지 않는 기반을 만들 수 있습니다.", "오늘 장기적인 계획을 함께 세우기 가장 좋은 조합입니다."),
+        ("황소자리","호랑이띠"):("오늘 황소자리의 안정과 호랑이띠의 추진력이 만납니다. 서로 다른 속도를 존중하면 강력한 시너지가 생기는 날입니다.", "오늘 서로의 방식을 인정하면서 함께 움직이면 예상보다 빠른 결과가 나옵니다."),
+        ("황소자리","토끼띠"):("오늘 두 금성 에너지가 만나는 날입니다. 황소자리와 토끼띠 모두 아름다움과 조화를 추구하는 타입입니다.", "오늘 함께 좋은 것을 즐기는 시간을 만들어보시기 바랍니다."),
+        ("황소자리","용띠"):  ("오늘 황소자리의 꾸준함이 용띠의 큰 그림을 실현하는 기반이 되는 날입니다.", "오늘 용띠의 아이디어를 황소자리가 현실적으로 구체화하는 역할을 해보시기 바랍니다."),
+        ("황소자리","뱀띠"):  ("오늘 황소자리와 뱀띠, 두 신중한 에너지가 만납니다. 서두르지 않고 정확하게 가는 최고의 조합입니다.", "오늘 성급하게 결론을 내리지 말고 충분히 검토한 후 움직이시기 바랍니다."),
+        ("황소자리","말띠"):  ("오늘 황소자리의 안정과 말띠의 변화 에너지가 만납니다. 서로 배울 것이 많은 조합입니다.", "오늘 황소자리는 새로운 관점을 열어두고, 말띠는 인내심을 발휘하면 좋은 결과가 나옵니다."),
+        ("황소자리","양띠"):  ("오늘 두 온화한 에너지가 만나는 날입니다. 서로를 배려하는 따뜻한 흐름이 이어집니다.", "오늘 함께하는 시간이 두 사람 모두에게 에너지를 충전시켜주는 날입니다."),
+        ("황소자리","원숭이띠"):("오늘 황소자리의 꾸준함과 원숭이띠의 재치가 만납니다. 황소자리가 기반을 잡고 원숭이띠가 아이디어를 더하는 조합입니다.", "오늘 원숭이띠의 창의적 제안을 황소자리가 현실적으로 검토하는 방식으로 진행하시기 바랍니다."),
+        ("황소자리","닭띠"):  ("오늘 두 꼼꼼한 에너지가 만납니다. 황소자리와 닭띠 모두 정확함을 추구하는 타입이라 오늘 함께하면 실수가 없는 날입니다.", "오늘 중요한 문서나 계획을 함께 검토하기 가장 좋은 조합입니다."),
+        ("황소자리","개띠"):  ("오늘 황소자리의 신뢰와 개띠의 충성심이 만납니다. 오래된 관계가 더 깊어지는 날입니다.", "오늘 오래 알아온 사람과 함께 시간을 보내면 특별한 에너지가 생깁니다."),
+        ("황소자리","돼지띠"):("오늘 황소자리의 안정과 돼지띠의 낙천성이 만납니다. 편안하고 즐거운 에너지가 흐르는 날입니다.", "오늘 함께 좋아하는 것을 즐기는 시간이 두 사람 모두에게 최고의 충전이 됩니다."),
+        # 쌍둥이자리
+        ("쌍둥이자리","쥐띠"):("오늘 두 빠른 정보 에너지가 만납니다. 쌍둥이자리의 소통 능력과 쥐띠의 정보 수집력이 시너지를 만드는 날입니다.", "오늘 중요한 정보를 교환하거나 대화를 나누기 가장 좋은 조합입니다."),
+        ("쌍둥이자리","소띠"):("오늘 쌍둥이자리의 아이디어와 소띠의 실행력이 만납니다. 생각을 현실로 만드는 최고의 조합입니다.", "오늘 쌍둥이자리의 아이디어 중 하나를 골라 소띠와 함께 실행해보시기 바랍니다."),
+        ("쌍둥이자리","호랑이띠"):("오늘 쌍둥이자리의 말과 호랑이띠의 행동이 만나는 날입니다. 말이 바로 행동으로 연결되는 강력한 조합입니다.", "오늘 함께 결정하고 바로 실행하시기 바랍니다. 망설이면 이 에너지가 분산됩니다."),
+        ("쌍둥이자리","토끼띠"):("오늘 두 소통 에너지가 만납니다. 쌍둥이자리와 토끼띠 모두 말이 잘 통하는 타입이라 오늘 대화가 깊어지는 날입니다.", "오늘 솔직한 대화를 나누기 가장 좋은 조합입니다."),
+        ("쌍둥이자리","용띠"):("오늘 쌍둥이자리의 창의성과 용띠의 카리스마가 만납니다. 아이디어가 큰 영향력을 발휘하는 날입니다.", "오늘 쌍둥이자리의 아이디어를 용띠가 실현하는 방식으로 협력하시기 바랍니다."),
+        ("쌍둥이자리","뱀띠"):("오늘 쌍둥이자리의 빠른 말과 뱀띠의 깊은 통찰이 만납니다. 표면과 깊이가 동시에 작동하는 조합입니다.", "오늘 뱀띠의 직관이 쌍둥이자리의 아이디어를 더 깊게 만들어줍니다."),
+        ("쌍둥이자리","말띠"):("오늘 두 자유로운 에너지가 만나는 날입니다. 쌍둥이자리와 말띠 모두 활동적이고 소통을 좋아하는 타입입니다.", "오늘 함께 새로운 것을 탐색하거나 이야기를 나누는 시간이 최고의 에너지를 만들어냅니다."),
+        ("쌍둥이자리","양띠"):("오늘 쌍둥이자리의 말과 양띠의 감성이 만납니다. 표현이 마음에 닿는 날입니다.", "오늘 하고 싶었던 말을 솔직하게 전하기 좋은 날입니다."),
+        ("쌍둥이자리","원숭이띠"):("오늘 두 재치 있는 에너지가 만납니다. 쌍둥이자리와 원숭이띠가 함께하면 어떤 문제도 유머로 풀어낼 수 있습니다.", "오늘 함께 있으면 분위기가 밝아지는 조합입니다."),
+        ("쌍둥이자리","닭띠"):("오늘 쌍둥이자리의 창의성과 닭띠의 꼼꼼함이 만납니다. 아이디어가 실수 없이 완성되는 날입니다.", "오늘 쌍둥이자리가 아이디어를 내고 닭띠가 검토하는 방식으로 진행하시기 바랍니다."),
+        ("쌍둥이자리","개띠"):("오늘 쌍둥이자리의 소통과 개띠의 신뢰가 만납니다. 말이 믿음으로 연결되는 날입니다.", "오늘 솔직한 대화가 관계를 더 단단하게 만들어줍니다."),
+        ("쌍둥이자리","돼지띠"):("오늘 쌍둥이자리의 재치와 돼지띠의 낙천성이 만납니다. 함께 있으면 즐거운 에너지가 넘치는 날입니다.", "오늘 함께 가벼운 것을 즐기면 두 사람 모두 에너지가 올라갑니다."),
+        # 게자리
+        ("게자리","쥐띠"):   ("오늘 게자리의 감성과 쥐띠의 논리가 만납니다. 마음과 머리가 함께 작동하는 균형 잡힌 조합입니다.", "오늘 중요한 결정 앞에서 감정과 이성을 모두 활용하시기 바랍니다."),
+        ("게자리","소띠"):   ("오늘 두 가정적인 에너지가 만납니다. 안정과 따뜻함이 극대화되는 날입니다.", "오늘 가까운 사람들과 함께하는 시간이 두 사람 모두에게 최고의 에너지를 만들어냅니다."),
+        ("게자리","호랑이띠"):("오늘 게자리의 감성이 호랑이띠의 추진력을 부드럽게 만드는 날입니다.", "오늘 호랑이띠인 분이 게자리인 분의 마음을 먼저 확인하고 움직이면 더 좋은 결과가 나옵니다."),
+        ("게자리","토끼띠"): ("오늘 두 섬세한 에너지가 만납니다. 서로의 마음을 가장 잘 이해하는 조합입니다.", "오늘 말하지 않아도 통하는 대화가 이어질 것입니다."),
+        ("게자리","용띠"):   ("오늘 게자리의 깊은 감성이 용띠의 큰 에너지를 부드럽게 감싸는 날입니다.", "오늘 용띠인 분이 게자리인 분의 배려에서 힘을 얻을 수 있습니다."),
+        ("게자리","뱀띠"):   ("오늘 게자리의 직관과 뱀띠의 통찰이 만납니다. 두 사람 모두 보이지 않는 것을 감지하는 능력이 있습니다.", "오늘 서로의 직관을 나누면 예상치 못한 답이 나옵니다."),
+        ("게자리","말띠"):   ("오늘 게자리의 안정과 말띠의 자유가 만납니다. 서로 다른 에너지가 균형을 이루는 날입니다.", "오늘 게자리는 말띠에게 안정감을, 말띠는 게자리에게 새로운 자극을 주는 날입니다."),
+        ("게자리","양띠"):   ("오늘 두 공감 에너지가 만납니다. 서로의 감정을 가장 잘 이해하는 최고의 조합입니다.", "오늘 힘든 것이 있다면 서로 털어놓기 가장 좋은 날입니다."),
+        ("게자리","원숭이띠"):("오늘 게자리의 감성과 원숭이띠의 재치가 만납니다. 진지함과 유머가 균형을 이루는 날입니다.", "오늘 원숭이띠의 유머가 게자리의 무거운 마음을 가볍게 해줄 것입니다."),
+        ("게자리","닭띠"):   ("오늘 게자리의 배려와 닭띠의 성실함이 만납니다. 서로를 위해 최선을 다하는 조합입니다.", "오늘 상대방을 위해 작은 것 하나를 챙겨보시기 바랍니다."),
+        ("게자리","개띠"):   ("오늘 게자리의 따뜻함과 개띠의 충성심이 만납니다. 서로에 대한 신뢰가 더욱 깊어지는 날입니다.", "오늘 오래된 인연에게 마음을 표현하기 가장 좋은 날입니다."),
+        ("게자리","돼지띠"): ("오늘 두 따뜻한 에너지가 만납니다. 게자리와 돼지띠가 함께하면 주변 모든 사람이 편안해지는 날입니다.", "오늘 함께 있는 것만으로도 서로에게 큰 위로가 되는 날입니다."),
+        # 사자자리
+        ("사자자리","쥐띠"):  ("오늘 사자자리의 존재감과 쥐띠의 정보력이 만납니다. 무대 위에서 빛나면서도 정확한 판단을 내리는 날입니다.", "오늘 사자자리가 앞에 서고 쥐띠가 정보를 지원하는 방식으로 함께 움직이시기 바랍니다."),
+        ("사자자리","소띠"):  ("오늘 사자자리의 화려함과 소띠의 꾸준함이 만납니다. 빛나면서도 흔들리지 않는 조합입니다.", "오늘 사자자리의 아이디어를 소띠가 현실적으로 구체화하면 최고의 결과가 나옵니다."),
+        ("사자자리","호랑이띠"):("오늘 두 강한 카리스마가 만나는 날입니다. 서로의 영역을 인정하면 최고의 시너지가 생깁니다.", "오늘 서로의 강점을 인정하고 각자의 역할을 명확히 하면 함께 빛날 수 있습니다."),
+        ("사자자리","토끼띠"):("오늘 사자자리의 카리스마가 토끼띠의 세심함을 만납니다. 강함과 부드러움이 균형을 이루는 날입니다.", "오늘 사자자리인 분은 토끼띠인 분의 배려에서 힘을 얻을 수 있습니다."),
+        ("사자자리","용띠"):  ("오늘 두 최강 에너지가 만나는 날입니다. 함께라면 무엇이든 가능한 조합입니다.", "오늘 함께 큰 목표를 향해 움직이기 가장 좋은 날입니다."),
+        ("사자자리","뱀띠"):  ("오늘 사자자리의 화려함과 뱀띠의 통찰이 만납니다. 보이는 것과 보이지 않는 것 모두를 다루는 날입니다.", "오늘 뱀띠의 직관이 사자자리의 결정을 더 날카롭게 만들어줍니다."),
+        ("사자자리","말띠"):  ("오늘 두 활동적인 에너지가 만납니다. 사자자리와 말띠 모두 앞으로 나아가는 힘이 강한 날입니다.", "오늘 함께 움직이면 누구도 막을 수 없는 에너지가 만들어집니다."),
+        ("사자자리","양띠"):  ("오늘 사자자리의 존재감과 양띠의 따뜻함이 만납니다. 강함과 부드러움이 조화를 이루는 날입니다.", "오늘 사자자리인 분은 진심 어린 격려를, 양띠인 분은 그 격려에 힘을 얻는 날입니다."),
+        ("사자자리","원숭이띠"):("오늘 사자자리의 카리스마와 원숭이띠의 재치가 만납니다. 무대 위에서 빛나면서도 웃음이 끊이지 않는 날입니다.", "오늘 함께 있으면 분위기를 압도하는 에너지가 만들어집니다."),
+        ("사자자리","닭띠"):  ("오늘 사자자리의 화려함과 닭띠의 꼼꼼함이 만납니다. 빛나면서도 실수가 없는 최고의 조합입니다.", "오늘 닭띠가 꼼꼼하게 준비한 것 위에서 사자자리가 빛나는 방식으로 진행하시기 바랍니다."),
+        ("사자자리","개띠"):  ("오늘 사자자리의 리더십과 개띠의 충성심이 만납니다. 이끄는 자와 따르는 자가 완벽하게 맞는 날입니다.", "오늘 사자자리인 분이 방향을 제시하고 개띠인 분이 함께 움직이면 최고의 결과가 나옵니다."),
+        ("사자자리","돼지띠"):("오늘 사자자리의 존재감과 돼지띠의 낙천성이 만납니다. 빛나면서도 즐거운 에너지가 넘치는 날입니다.", "오늘 함께 있으면 주변 모두가 행복해지는 조합입니다."),
+        # 처녀자리
+        ("처녀자리","쥐띠"):  ("오늘 두 분석적인 에너지가 만납니다. 처녀자리의 꼼꼼함과 쥐띠의 정보력이 결합하면 어떤 문제도 해결할 수 있습니다.", "오늘 복잡한 문제를 함께 분석하기 가장 좋은 조합입니다."),
+        ("처녀자리","소띠"):  ("오늘 두 성실한 에너지가 만납니다. 처녀자리와 소띠 모두 꾸준히 하는 것을 최고의 가치로 여기는 타입입니다.", "오늘 함께 오래 걸리는 일을 시작하기 가장 좋은 날입니다."),
+        ("처녀자리","호랑이띠"):("오늘 처녀자리의 꼼꼼함이 호랑이띠의 추진력을 정확하게 만드는 날입니다.", "오늘 처녀자리가 계획을 세우고 호랑이띠가 실행하는 방식으로 진행하시기 바랍니다."),
+        ("처녀자리","토끼띠"):("오늘 두 세심한 에너지가 만납니다. 처녀자리와 토끼띠 모두 디테일에 강한 타입이라 함께하면 완벽에 가까운 결과가 나옵니다.", "오늘 중요한 것을 함께 점검하기 가장 좋은 조합입니다."),
+        ("처녀자리","용띠"):  ("오늘 처녀자리의 세밀함이 용띠의 큰 그림을 완성하는 날입니다.", "오늘 용띠의 비전을 처녀자리가 구체적으로 설계하면 최고의 결과가 나옵니다."),
+        ("처녀자리","뱀띠"):  ("오늘 두 신중한 에너지가 만납니다. 처녀자리와 뱀띠 모두 깊이 생각하고 정확하게 움직이는 타입입니다.", "오늘 서두르지 말고 충분히 검토한 후 움직이시기 바랍니다."),
+        ("처녀자리","말띠"):  ("오늘 처녀자리의 꼼꼼함이 말띠의 속도를 정확하게 만드는 날입니다.", "오늘 말띠인 분은 처녀자리인 분의 세심한 조언에 귀 기울이면 실수를 줄일 수 있습니다."),
+        ("처녀자리","양띠"):  ("오늘 처녀자리의 배려와 양띠의 감성이 만납니다. 세심하게 챙기는 따뜻한 에너지가 흐르는 날입니다.", "오늘 상대방을 위한 작은 배려가 큰 감동을 만드는 날입니다."),
+        ("처녀자리","원숭이띠"):("오늘 처녀자리의 꼼꼼함과 원숭이띠의 창의성이 만납니다. 아이디어가 실수 없이 실현되는 날입니다.", "오늘 원숭이띠의 아이디어를 처녀자리가 꼼꼼하게 검토하면 완벽한 결과가 나옵니다."),
+        ("처녀자리","닭띠"):  ("오늘 두 완벽주의 에너지가 만납니다. 처녀자리와 닭띠 모두 정확함을 추구하는 타입이라 함께하면 실수가 없는 날입니다.", "오늘 80%에서 멈추는 연습을 함께 해보시기 바랍니다. 완성이 완벽보다 중요합니다."),
+        ("처녀자리","개띠"):  ("오늘 처녀자리의 성실함과 개띠의 충성심이 만납니다. 서로를 신뢰하며 함께하는 에너지가 빛나는 날입니다.", "오늘 서로의 노력을 진심으로 인정해주시기 바랍니다."),
+        ("처녀자리","돼지띠"):("오늘 처녀자리의 꼼꼼함이 돼지띠의 따뜻함을 만납니다. 세심하게 챙기면서도 즐거운 에너지가 흐르는 날입니다.", "오늘 처녀자리인 분이 계획하고 돼지띠인 분이 분위기를 밝히는 방식으로 진행하시기 바랍니다."),
+        # 천칭자리
+        ("천칭자리","쥐띠"):  ("오늘 천칭자리의 균형 감각과 쥐띠의 정보력이 만납니다. 공정하고 정확한 판단을 내리는 최고의 날입니다.", "오늘 중요한 결정 앞에서 두 사람이 함께 검토하면 가장 좋은 답이 나옵니다."),
+        ("천칭자리","소띠"):  ("오늘 천칭자리의 조화와 소띠의 안정이 만납니다. 평화롭고 따뜻한 에너지가 흐르는 날입니다.", "오늘 오래 유지해온 것들이 더욱 단단해지는 날입니다."),
+        ("천칭자리","호랑이띠"):("오늘 천칭자리의 조화와 호랑이띠의 추진력이 만납니다. 부드럽게 이끄는 강력한 조합입니다.", "오늘 천칭자리가 방향을 제시하고 호랑이띠가 실행하면 최고의 결과가 나옵니다."),
+        ("천칭자리","토끼띠"):("오늘 두 금성 에너지가 만나는 날입니다. 천칭자리와 토끼띠 모두 아름다움과 조화를 추구하는 타입이라 함께하면 최고의 분위기가 만들어집니다.", "오늘 함께 좋은 것을 즐기는 시간을 만들어보시기 바랍니다."),
+        ("천칭자리","용띠"):  ("오늘 천칭자리의 균형과 용띠의 큰 그림이 만납니다. 공정하면서도 웅장한 에너지가 흐르는 날입니다.", "오늘 용띠의 큰 아이디어를 천칭자리가 균형 있게 조율하면 최고의 결과가 나옵니다."),
+        ("천칭자리","뱀띠"):  ("오늘 천칭자리의 균형과 뱀띠의 직관이 만납니다. 공정하면서도 예리한 판단이 나오는 날입니다.", "오늘 뱀띠의 직관과 천칭자리의 균형 감각을 결합하면 최선의 결정이 나옵니다."),
+        ("천칭자리","말띠"):  ("오늘 천칭자리의 조화와 말띠의 자유가 만납니다. 균형을 유지하면서도 자유롭게 움직이는 날입니다.", "오늘 서로의 다른 속도를 인정하면 좋은 관계가 유지됩니다."),
+        ("천칭자리","양띠"):  ("오늘 두 조화로운 에너지가 만납니다. 천칭자리와 양띠가 함께하면 주변 분위기가 편안해지는 날입니다.", "오늘 함께 있으면 서로에게 편안한 에너지를 주는 날입니다."),
+        ("천칭자리","원숭이띠"):("오늘 천칭자리의 균형과 원숭이띠의 재치가 만납니다. 공정하면서도 즐거운 에너지가 흐르는 날입니다.", "오늘 중요한 결정을 유머 있게 풀어가면 좋은 결과가 나옵니다."),
+        ("천칭자리","닭띠"):  ("오늘 천칭자리의 공정함과 닭띠의 꼼꼼함이 만납니다. 실수 없이 균형 잡힌 결과가 나오는 날입니다.", "오늘 함께 중요한 것을 점검하기 가장 좋은 조합입니다."),
+        ("천칭자리","개띠"):  ("오늘 천칭자리의 공정함과 개띠의 정직함이 만납니다. 진실하고 균형 잡힌 에너지가 흐르는 날입니다.", "오늘 솔직한 대화가 관계를 더 건강하게 만드는 날입니다."),
+        ("천칭자리","돼지띠"):("오늘 천칭자리의 조화와 돼지띠의 낙천성이 만납니다. 균형 잡히면서도 즐거운 에너지가 흐르는 날입니다.", "오늘 함께 좋은 것을 나누는 시간이 두 사람 모두에게 최고의 에너지를 만들어냅니다."),
+        # 전갈자리
+        ("전갈자리","쥐띠"):  ("오늘 전갈자리의 통찰과 쥐띠의 정보력이 만납니다. 보이지 않는 것까지 파악하는 최강의 분석 조합입니다.", "오늘 함께 중요한 정보를 분석하면 다른 사람이 보지 못한 것을 발견할 수 있습니다."),
+        ("전갈자리","소띠"):  ("오늘 전갈자리의 깊이와 소띠의 꾸준함이 만납니다. 깊게 파고들면서도 끝까지 가는 조합입니다.", "오늘 오래 걸리는 중요한 일에 함께 집중하기 가장 좋은 날입니다."),
+        ("전갈자리","호랑이띠"):("오늘 두 강렬한 에너지가 만나는 날입니다. 전갈자리의 깊이와 호랑이띠의 추진력이 결합하면 어떤 목표도 달성할 수 있습니다.", "오늘 서로의 강점을 인정하고 함께 움직이면 강력한 시너지가 생깁니다."),
+        ("전갈자리","토끼띠"):("오늘 전갈자리의 깊이와 토끼띠의 섬세함이 만납니다. 깊고 세심한 에너지가 흐르는 날입니다.", "오늘 전갈자리인 분이 마음을 조금 열면 토끼띠인 분과 깊은 연결이 생깁니다."),
+        ("전갈자리","용띠"):  ("오늘 두 강력한 에너지가 같은 방향을 향하는 날입니다. 전갈자리의 통찰과 용띠의 카리스마가 결합하면 누구도 막을 수 없습니다.", "오늘 큰 목표를 향해 함께 움직이기 가장 좋은 날입니다."),
+        ("전갈자리","뱀띠"):  ("오늘 두 직관적인 에너지가 만나는 날입니다. 전갈자리와 뱀띠 모두 말하지 않아도 통하는 타입입니다.", "오늘 말 없이도 서로를 이해하는 깊은 연결이 생기는 날입니다."),
+        ("전갈자리","말띠"):  ("오늘 전갈자리의 깊이와 말띠의 자유가 만납니다. 서로 다른 에너지가 균형을 이루는 날입니다.", "오늘 전갈자리인 분은 조금 가볍게, 말띠인 분은 조금 깊게 접근하면 좋은 균형이 생깁니다."),
+        ("전갈자리","양띠"):  ("오늘 전갈자리의 강렬함과 양띠의 따뜻함이 만납니다. 강함과 부드러움이 균형을 이루는 날입니다.", "오늘 전갈자리인 분이 양띠인 분의 따뜻함에서 힘을 얻을 수 있습니다."),
+        ("전갈자리","원숭이띠"):("오늘 전갈자리의 통찰과 원숭이띠의 재치가 만납니다. 깊으면서도 유머 있는 조합입니다.", "오늘 원숭이띠의 유머가 전갈자리의 긴장을 풀어주는 날입니다."),
+        ("전갈자리","닭띠"):  ("오늘 전갈자리의 통찰과 닭띠의 꼼꼼함이 만납니다. 깊이 보면서도 정확하게 마무리하는 최고의 조합입니다.", "오늘 중요한 프로젝트를 함께 마무리하기 가장 좋은 날입니다."),
+        ("전갈자리","개띠"):  ("오늘 전갈자리의 깊이와 개띠의 충성심이 만납니다. 깊고 신뢰할 수 있는 관계가 빛나는 날입니다.", "오늘 서로에 대한 신뢰를 확인하는 사건이 생길 수 있습니다."),
+        ("전갈자리","돼지띠"):("오늘 전갈자리의 깊이와 돼지띠의 따뜻함이 만납니다. 강렬함과 온화함이 균형을 이루는 날입니다.", "오늘 전갈자리인 분이 돼지띠인 분의 따뜻한 에너지에서 위로를 얻을 수 있습니다."),
+        # 사수자리
+        ("사수자리","쥐띠"):  ("오늘 사수자리의 큰 그림과 쥐띠의 정보력이 만납니다. 방향은 사수자리가, 정보는 쥐띠가 담당하는 최고의 조합입니다.", "오늘 함께 새로운 가능성을 탐색하기 가장 좋은 날입니다."),
+        ("사수자리","소띠"):  ("오늘 사수자리의 모험심과 소띠의 꾸준함이 만납니다. 크게 꿈꾸면서도 착실하게 실현하는 조합입니다.", "오늘 사수자리의 큰 목표를 소띠가 단계적으로 실현하는 계획을 세워보시기 바랍니다."),
+        ("사수자리","호랑이띠"):("오늘 두 자유로운 에너지가 만나는 날입니다. 사수자리와 호랑이띠 모두 앞으로 나아가는 힘이 강한 최고의 조합입니다.", "오늘 함께 새로운 것을 시작하면 그 어떤 날보다 강력한 에너지가 만들어집니다."),
+        ("사수자리","토끼띠"):("오늘 사수자리의 자유와 토끼띠의 섬세함이 만납니다. 큰 방향과 세심한 배려가 균형을 이루는 날입니다.", "오늘 사수자리인 분이 토끼띠인 분의 세심한 조언을 받아들이면 더 좋은 결과가 나옵니다."),
+        ("사수자리","용띠"):  ("오늘 두 큰 에너지가 만나는 날입니다. 사수자리의 낙관성과 용띠의 카리스마가 결합하면 불가능한 것이 없습니다.", "오늘 함께 큰 꿈을 향해 첫 발을 내딛어보시기 바랍니다."),
+        ("사수자리","뱀띠"):  ("오늘 사수자리의 직접적인 에너지와 뱀띠의 깊은 직관이 만납니다. 빠르게 가되 방향을 틀리지 않는 날입니다.", "오늘 뱀띠의 직관적 경고에 귀 기울이면 사수자리가 더 빠르게 목표에 도달할 수 있습니다."),
+        ("사수자리","말띠"):  ("오늘 두 자유로운 에너지가 만납니다. 사수자리와 말띠가 함께하면 어디든 갈 수 있는 날입니다.", "오늘 함께 새로운 곳을 탐험하거나 새로운 경험을 해보시기 바랍니다."),
+        ("사수자리","양띠"):  ("오늘 사수자리의 낙관성과 양띠의 따뜻함이 만납니다. 긍정적이고 따뜻한 에너지가 넘치는 날입니다.", "오늘 함께 있으면 모든 것이 가능하다는 느낌이 드는 조합입니다."),
+        ("사수자리","원숭이띠"):("오늘 두 유머 있는 에너지가 만납니다. 사수자리와 원숭이띠가 함께하면 웃음이 끊이지 않는 날입니다.", "오늘 함께 있으면 어떤 어려운 상황도 가볍게 넘길 수 있습니다."),
+        ("사수자리","닭띠"):  ("오늘 사수자리의 큰 그림과 닭띠의 꼼꼼함이 만납니다. 비전이 정확하게 실현되는 날입니다.", "오늘 사수자리가 방향을 제시하고 닭띠가 세부 계획을 세우면 최고의 결과가 나옵니다."),
+        ("사수자리","개띠"):  ("오늘 사수자리의 자유와 개띠의 충성심이 만납니다. 자유롭게 움직이면서도 서로를 믿는 조합입니다.", "오늘 서로에 대한 믿음을 바탕으로 각자의 방향으로 움직여도 결국 같은 곳에 만나는 날입니다."),
+        ("사수자리","돼지띠"):("오늘 사수자리의 낙관성과 돼지띠의 낙천성이 만납니다. 두 긍정 에너지가 결합하면 어떤 상황도 좋게 바뀝니다.", "오늘 함께 있으면 주변 모두가 행복해지는 최고의 조합입니다."),
+        # 염소자리
+        ("염소자리","쥐띠"):  ("오늘 염소자리의 목표 지향성과 쥐띠의 정보력이 만납니다. 정확한 정보를 바탕으로 목표를 향해 나아가는 최고의 조합입니다.", "오늘 쥐띠의 정보를 활용해서 염소자리의 목표를 더 빠르게 달성하는 방법을 찾아보시기 바랍니다."),
+        ("염소자리","소띠"):  ("오늘 두 성실한 에너지가 만납니다. 염소자리와 소띠 모두 꾸준히 해야 이루는 것이 최고의 성취임을 아는 타입입니다.", "오늘 장기적인 목표를 함께 점검하기 가장 좋은 날입니다."),
+        ("염소자리","호랑이띠"):("오늘 염소자리의 꾸준함과 호랑이띠의 추진력이 만납니다. 안정적으로 빠르게 가는 최고의 조합입니다.", "오늘 호랑이띠가 시작하고 염소자리가 마무리하는 방식으로 진행하시기 바랍니다."),
+        ("염소자리","토끼띠"):("오늘 염소자리의 성실함과 토끼띠의 세심함이 만납니다. 정확하고 배려 있는 에너지가 흐르는 날입니다.", "오늘 함께 중요한 것을 꼼꼼하게 챙기기 가장 좋은 조합입니다."),
+        ("염소자리","용띠"):  ("오늘 염소자리의 인내와 용띠의 카리스마가 만납니다. 큰 그림을 착실하게 실현하는 최고의 조합입니다.", "오늘 용띠의 큰 아이디어를 염소자리가 단계적으로 실현하는 계획을 세워보시기 바랍니다."),
+        ("염소자리","뱀띠"):  ("오늘 두 신중한 에너지가 만납니다. 염소자리와 뱀띠 모두 깊이 생각하고 정확하게 움직이는 타입이라 함께하면 실수가 없습니다.", "오늘 중요한 결정을 함께 검토하기 가장 좋은 날입니다."),
+        ("염소자리","말띠"):  ("오늘 염소자리의 안정과 말띠의 활동성이 만납니다. 안정적인 기반 위에서 자유롭게 움직이는 조합입니다.", "오늘 말띠인 분이 염소자리인 분의 안정적인 조언에 귀 기울이면 더 좋은 결과가 나옵니다."),
+        ("염소자리","양띠"):  ("오늘 염소자리의 목표 지향성과 양띠의 따뜻함이 만납니다. 성실하면서도 따뜻한 에너지가 흐르는 날입니다.", "오늘 서로의 다른 방식을 인정하면 좋은 균형이 생깁니다."),
+        ("염소자리","원숭이띠"):("오늘 염소자리의 꾸준함과 원숭이띠의 창의성이 만납니다. 아이디어가 현실적으로 실현되는 최고의 조합입니다.", "오늘 원숭이띠의 창의적 아이디어를 염소자리가 현실적으로 구체화하면 최고의 결과가 나옵니다."),
+        ("염소자리","닭띠"):  ("오늘 두 꼼꼼한 에너지가 만납니다. 염소자리와 닭띠가 함께하면 실수 없이 목표를 달성하는 날입니다.", "오늘 함께 중요한 것을 완성하기 가장 좋은 조합입니다."),
+        ("염소자리","개띠"):  ("오늘 염소자리의 책임감과 개띠의 충성심이 만납니다. 서로를 믿고 함께 나아가는 최고의 조합입니다.", "오늘 오래 함께 해온 목표를 다시 점검하기 좋은 날입니다."),
+        ("염소자리","돼지띠"):("오늘 염소자리의 성실함과 돼지띠의 낙천성이 만납니다. 열심히 하면서도 즐길 수 있는 에너지가 흐르는 날입니다.", "오늘 염소자리인 분이 돼지띠인 분의 낙천적 에너지에서 힘을 얻을 수 있습니다."),
+        # 물병자리
+        ("물병자리","쥐띠"):  ("오늘 두 빠른 두뇌 에너지가 만납니다. 물병자리의 혁신성과 쥐띠의 정보력이 결합하면 최고의 아이디어가 나옵니다.", "오늘 함께 브레인스토밍하기 가장 좋은 날입니다."),
+        ("물병자리","소띠"):  ("오늘 물병자리의 혁신성과 소띠의 실행력이 만납니다. 새로운 아이디어가 현실이 되는 날입니다.", "오늘 물병자리의 혁신적 아이디어를 소띠가 착실하게 실현하면 최고의 결과가 나옵니다."),
+        ("물병자리","호랑이띠"):("오늘 물병자리의 독창성과 호랑이띠의 추진력이 만납니다. 혁신적이면서도 강력하게 실행하는 조합입니다.", "오늘 새로운 방식으로 빠르게 움직이면 누구도 따라오지 못하는 결과가 나옵니다."),
+        ("물병자리","토끼띠"):("오늘 물병자리의 독창성과 토끼띠의 세심함이 만납니다. 혁신적이면서도 배려 있는 에너지가 흐르는 날입니다.", "오늘 물병자리의 아이디어를 토끼띠가 사람들이 받아들일 수 있게 부드럽게 전달하는 역할을 해보시기 바랍니다."),
+        ("물병자리","용띠"):  ("오늘 두 강력한 혁신 에너지가 만납니다. 물병자리의 독창성과 용띠의 카리스마가 결합하면 세상을 바꾸는 힘이 생깁니다.", "오늘 함께 큰 변화를 만들어가기 가장 좋은 날입니다."),
+        ("물병자리","뱀띠"):  ("오늘 물병자리의 혁신성과 뱀띠의 깊은 통찰이 만납니다. 미래를 내다보는 최고의 조합입니다.", "오늘 함께 장기적인 방향을 설계하기 가장 좋은 날입니다."),
+        ("물병자리","말띠"):  ("오늘 두 자유로운 에너지가 만납니다. 물병자리와 말띠 모두 틀에 박히는 것을 싫어하는 타입이라 함께하면 새로운 가능성이 열립니다.", "오늘 기존 방식에서 벗어나 새로운 것을 시도하기 가장 좋은 날입니다."),
+        ("물병자리","양띠"):  ("오늘 물병자리의 혁신성과 양띠의 감성이 만납니다. 새로운 것이 따뜻하게 전달되는 날입니다.", "오늘 물병자리의 아이디어를 양띠의 감성으로 표현하면 더 많은 사람의 마음에 닿습니다."),
+        ("물병자리","원숭이띠"):("오늘 두 창의적인 에너지가 만납니다. 물병자리와 원숭이띠가 함께하면 아무도 생각하지 못한 해결책이 나오는 날입니다.", "오늘 자유롭게 아이디어를 나누면 최고의 결과가 나옵니다."),
+        ("물병자리","닭띠"):  ("오늘 물병자리의 혁신성과 닭띠의 꼼꼼함이 만납니다. 새로운 아이디어가 정확하게 실현되는 날입니다.", "오늘 물병자리가 아이디어를 내고 닭띠가 꼼꼼하게 검토하면 완벽한 결과가 나옵니다."),
+        ("물병자리","개띠"):  ("오늘 물병자리의 독창성과 개띠의 충성심이 만납니다. 혁신적이면서도 신뢰할 수 있는 에너지가 흐르는 날입니다.", "오늘 물병자리의 새로운 시도를 개띠가 끝까지 함께 지지해주는 날입니다."),
+        ("물병자리","돼지띠"):("오늘 물병자리의 독창성과 돼지띠의 낙천성이 만납니다. 혁신적이면서도 즐거운 에너지가 넘치는 날입니다.", "오늘 새로운 것을 시도하되 즐기면서 하면 최고의 결과가 나오는 날입니다."),
+        # 물고기자리
+        ("물고기자리","쥐띠"): ("오늘 물고기자리의 직관과 쥐띠의 정보력이 만납니다. 감각과 논리가 함께 작동하는 최고의 판단이 나오는 날입니다.", "오늘 중요한 결정 앞에서 물고기자리의 직관과 쥐띠의 정보를 결합하면 최선의 답이 나옵니다."),
+        ("물고기자리","소띠"): ("오늘 물고기자리의 감성과 소띠의 꾸준함이 만납니다. 깊은 감성이 착실하게 실현되는 날입니다.", "오늘 물고기자리인 분의 감성적 아이디어를 소띠인 분이 현실로 만들어주는 역할을 해보시기 바랍니다."),
+        ("물고기자리","호랑이띠"):("오늘 물고기자리의 감성과 호랑이띠의 추진력이 만납니다. 마음이 행동으로 연결되는 강력한 날입니다.", "오늘 물고기자리가 방향을 감지하고 호랑이띠가 실행하면 최고의 결과가 나옵니다."),
+        ("물고기자리","토끼띠"):("오늘 두 섬세한 감성 에너지가 만납니다. 물고기자리와 토끼띠가 함께하면 말하지 않아도 통하는 날입니다.", "오늘 서로의 마음을 가장 잘 이해하는 조합입니다. 깊은 대화를 나눠보시기 바랍니다."),
+        ("물고기자리","용띠"): ("오늘 물고기자리의 깊은 감성이 용띠의 큰 에너지를 인간적으로 만드는 날입니다.", "오늘 물고기자리인 분이 용띠인 분에게 감성적인 관점을 더해주면 더 좋은 결과가 나옵니다."),
+        ("물고기자리","뱀띠"): ("오늘 두 직관적인 에너지가 만납니다. 물고기자리와 뱀띠 모두 보이지 않는 것을 감지하는 능력이 있어 말 없이도 통하는 날입니다.", "오늘 서로의 직관을 나누면 예상치 못한 깊은 통찰이 나옵니다."),
+        ("물고기자리","말띠"): ("오늘 물고기자리의 감성과 말띠의 활동성이 만납니다. 내면과 외면이 균형을 이루는 날입니다.", "오늘 말띠인 분이 물고기자리인 분의 직관적 감각에서 방향을 찾으면 더 빠르게 목표에 도달합니다."),
+        ("물고기자리","양띠"): ("오늘 두 공감 에너지가 만나는 날입니다. 물고기자리와 양띠가 함께하면 주변 모든 사람이 위로받는 날입니다.", "오늘 힘든 사람 곁에 함께 있어주기 가장 좋은 조합입니다."),
+        ("물고기자리","원숭이띠"):("오늘 물고기자리의 감성과 원숭이띠의 재치가 만납니다. 진지함과 유머가 균형을 이루는 날입니다.", "오늘 원숭이띠의 유머가 물고기자리의 무거운 감정을 가볍게 해주는 날입니다."),
+        ("물고기자리","닭띠"): ("오늘 물고기자리의 직관과 닭띠의 꼼꼼함이 만납니다. 감각과 정확함이 결합하는 최고의 조합입니다.", "오늘 물고기자리의 직관적 아이디어를 닭띠가 꼼꼼하게 구체화하면 완벽한 결과가 나옵니다."),
+        ("물고기자리","개띠"): ("오늘 물고기자리의 공감과 개띠의 충성심이 만납니다. 서로를 진심으로 아끼는 에너지가 빛나는 날입니다.", "오늘 오래된 소중한 인연에게 마음을 전하기 가장 좋은 날입니다."),
+        ("물고기자리","돼지띠"):("오늘 두 따뜻한 에너지가 만나는 날입니다. 물고기자리와 돼지띠가 함께하면 세상에서 가장 따뜻한 공간이 만들어집니다.", "오늘 함께 있는 것만으로도 서로에게 큰 위로와 힘이 되는 날입니다."),
+    }
+
     kst_dt  = now_kst()
     season  = _season_backdrop(kst_dt)
     opening = random.choice(_OMNIBUS_OPENINGS)
@@ -3945,12 +3473,29 @@ def build_omnibus_post(today_str: str) -> tuple:
             avoid_action= random.choice(_Z_AVOID_ACTIONS)[0],
             z_signal    = zd.get('signal', theme),
         )
+        # ── 스페셜 조언 (2+4) ──
+        special = _SPECIAL_ADVICE.get((z_kr, c_kr))
+        if special:
+            reason, action = special
+            special_html = (
+                f'<div style="margin:10px 0 6px;padding:12px 14px;'
+                f'background:linear-gradient(135deg,#fdf4ff,#f0f9ff);'
+                f'border-radius:12px;border-left:3px solid #a78bfa">'
+                f'<div style="font-size:11px;color:#7c3aed;font-weight:700;'
+                f'letter-spacing:0.08em;margin-bottom:6px">✦ {z_kr} × {c_kr} 오늘의 조합</div>'
+                f'<p style="font-size:13px;line-height:1.9;color:#374151;margin:0 0 6px;word-break:keep-all">'
+                f'{reason}</p>'
+                f'<p style="font-size:13px;line-height:1.9;color:#6d28d9;margin:0;'
+                f'font-style:italic;word-break:keep-all">→ {action}</p>'
+                f'</div>'
+            )
+        else:
+            special_html = ''
+
         paragraphs.append(
             f'<p style="margin:0 0 1.2em 0;text-indent:0">'
-            f'<span style="font-size:12px;color:#c4b5fd;margin-right:3px;vertical-align:middle">'
-            f'{ZODIACS[[z["kr"] for z in ZODIACS].index(z_kr)]["emoji"] if z_kr in [z["kr"] for z in ZODIACS] else "✦"}'
-            f'</span>'
             f'{para}</p>'
+            f'{special_html}'
         )
 
     # 6조합씩 2장으로 분할
@@ -4262,10 +3807,8 @@ def main():
         posts.append(build_chinese_post(c, today_str))
 
     # ⑥ 운세SNS — 별자리 통합 1개 (매일)
-    posts.append(build_sns_zodiac_post(today_str))
 
     # ⑦ 운세SNS — 띠 통합 1개 (매일)
-    posts.append(build_sns_chinese_post(today_str))
 
     # ⑧ 별자리가 만나는 시간 — 옴니버스 스토리텔링 1개 (매일)
     posts.append(build_omnibus_post(today_str))
@@ -4310,7 +3853,7 @@ def main():
     monthly = " + 띠별월간 12"   if (is_last_monday or force_monthly) else ""
     count   = 28 + (12 if kst_now.weekday() == 0 else 0) + (12 if kst_now.day == 1 else 0)
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
-    print(f"구성: 오늘의명언 1 + 별자리 12 + 띠 12 + SNS통합 2 + 별과띠가만나는시간 1{weekly}{monthly} = {count}개\n")
+    print(f"구성: 오늘의명언 1 + 별자리 12 + 띠 12 + 별과띠가만나는시간 1{weekly}{monthly} = {count}개\n")
 
     success = 0
     for i, (title, content, labels) in enumerate(posts, 1):
