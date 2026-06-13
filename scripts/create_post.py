@@ -69,6 +69,7 @@ fortune_4000      = csv("fortune_sentences_4000.csv")
 daily_365         = csv("daily_fortunes_365.csv")
 fortune_365       = csv("fortune_365_days.csv")
 fortune_quotes    = csv("fortune_quotes_10000.csv")   # ← 오늘의명언용
+proverbs          = csv("proverbs_200.csv")            # ← 별자리주간·띠별월간 속담용
 zodiac_kr         = csv("zodiac_fortune_1000.csv")
 fortune_score     = csv("fortune_score.csv")          # ← 운세 지수
 lucky_items       = csv("lucky_items_1000.csv")        # ← 행운의 아이템 (별자리용)
@@ -1136,6 +1137,74 @@ def _quote_bridge_html(q, color="#7c3aed", light="#faf5ff"):
   <p style="font-size:13px;line-height:1.9;color:#374151;
             margin:0;word-break:keep-all">
     {q["apply"]}
+  </p>
+</div>'''
+
+
+# ── 별자리주간·띠별월간 속담 카테고리 매핑 ──
+_ZODIAC_WEEKLY_PROVERB_CAT = {
+    "양자리":     "도전",   # 추진력·시작
+    "황소자리":   "인내",   # 꾸준함
+    "쌍둥이자리": "지혜",   # 정보·소통
+    "게자리":     "관계",   # 공감·가족
+    "사자자리":   "도전",   # 리더십
+    "처녀자리":   "지혜",   # 분석·완성
+    "천칭자리":   "관계",   # 균형·조화
+    "전갈자리":   "지혜",   # 통찰
+    "사수자리":   "도전",   # 모험
+    "염소자리":   "인내",   # 목표·성실
+    "물병자리":   "지혜",   # 혁신
+    "물고기자리": "관계",   # 공감·직관
+}
+
+_CHINESE_MONTHLY_PROVERB_CAT = {
+    "쥐띠":    "지혜",   # 정보·적응
+    "소띠":    "인내",   # 꾸준함
+    "호랑이띠":"도전",   # 용기
+    "토끼띠":  "관계",   # 세심함
+    "용띠":    "도전",   # 열정
+    "뱀띠":    "지혜",   # 통찰
+    "말띠":    "도전",   # 자유·열정
+    "양띠":    "관계",   # 온화함
+    "원숭이띠":"지혜",   # 재치
+    "닭띠":    "인내",   # 성실
+    "개띠":    "관계",   # 충성·신뢰
+    "돼지띠":  "금전",   # 낙천·베풀기
+}
+
+def pick_proverb_for(name, kst_day, mode='weekly'):
+    """별자리(주간) 또는 띠(월간) 이름으로 속담 1개 선택"""
+    if mode == 'weekly':
+        cat = _ZODIAC_WEEKLY_PROVERB_CAT.get(name, "지혜")
+    else:
+        cat = _CHINESE_MONTHLY_PROVERB_CAT.get(name, "지혜")
+    pool = proverbs[proverbs["category"] == cat]
+    if pool.empty:
+        pool = proverbs
+    idx = (kst_day + hash(name)) % len(pool)
+    row = pool.iloc[idx]
+    return {
+        "proverb": str(row["속담"]),
+        "meaning": str(row["풀이"]),
+    }
+
+def _proverb_bridge_html(p, color="#7c3aed", light="#faf5ff"):
+    """속담 브릿지 HTML — 엔딩 박스 바로 위 삽입용"""
+    return f'''
+<div style="margin:0 0 1.6rem;padding:18px 20px;
+            background:{light};border-radius:14px;
+            border-left:4px solid {color}">
+  <div style="font-size:11px;font-weight:700;color:{color};
+              letter-spacing:0.08em;margin-bottom:10px">
+    이 흐름에 어울리는 속담
+  </div>
+  <p style="font-size:17px;line-height:1.9;color:#1f2937;
+            font-weight:500;margin:0 0 8px;word-break:keep-all">
+    "{p["proverb"]}"
+  </p>
+  <p style="font-size:13px;line-height:1.9;color:#374151;
+            margin:0;word-break:keep-all">
+    {p["meaning"]}
   </p>
 </div>'''
 
@@ -2783,6 +2852,9 @@ def build_zodiac_weekly_post(today_str):
             return "신중하게 움직여야 하는 주간입니다."
 
         _we  = _W_ENDINGS[kst_now.day % len(_W_ENDINGS)]
+        # 별자리별 속담 — 오늘 날짜 시드 기반
+        _wq  = pick_proverb_for(z['kr'], kst_now.day, mode='weekly')
+        _wq_html = _proverb_bridge_html(_wq, color="#7c3aed", light="#faf5ff")
         kst_day = kst_now.day
 
         # 공감층
@@ -2896,6 +2968,8 @@ def build_zodiac_weekly_post(today_str):
   </div>
 
   <div style="width:2px;height:20px;background:#7c3aed;margin:0 auto 1.6rem"></div>
+
+  {_wq_html}
 
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
     <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
@@ -3071,6 +3145,9 @@ def build_chinese_monthly_post(today_str):
              monthly_tip if monthly_tip else "이달 가장 중요한 한 가지에 집중하시기 바랍니다."),
         ]
         _me = _me_pool[kst_day % len(_me_pool)]
+        # 띠별 속담 — 날짜 시드 기반
+        _mq  = pick_proverb_for(c['kr'], kst_day, mode='monthly')
+        _mq_html = _proverb_bridge_html(_mq, color="#5b21b6", light="#fdf4ff")
 
         # SEO
         kw_list = [
@@ -3128,6 +3205,8 @@ def build_chinese_monthly_post(today_str):
   </div>
 
   <div style="width:2px;height:20px;background:linear-gradient(#5b21b6,#7c3aed);margin:0 auto 1.6rem"></div>
+
+  {_mq_html}
 
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.1)">
     <div style="background:linear-gradient(90deg,#5b21b6,#7c3aed);
