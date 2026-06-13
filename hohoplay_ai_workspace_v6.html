@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hohoplay AI Workspace v6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        * { font-family: 'Noto Sans KR', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        @keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+        @keyframes pulse2  { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+        @keyframes float   { 0%,100%{transform:translate(-50%,-50%) translateY(0);} 50%{transform:translate(-50%,-50%) translateY(-5px);} }
+        @keyframes walkX   { 0%,100%{transform:translate(-50%,-50%) scaleX(1);} 49%{transform:translate(-50%,-50%) scaleX(1);} 50%{transform:translate(-50%,-50%) scaleX(-1);} 99%{transform:translate(-50%,-50%) scaleX(-1);} }
+        @keyframes bugShake{ 0%,100%{transform:translate(-50%,-50%) rotate(0deg);} 25%{transform:translate(-50%,-50%) rotate(-8deg);} 75%{transform:translate(-50%,-50%) rotate(8deg);} }
+        @keyframes meetingBounce { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
+        @keyframes typingBounce { 0%,80%,100%{transform:scaleY(0.4);} 40%{transform:scaleY(1);} }
+        @keyframes errorPulse { 0%,100%{box-shadow:0 0 18px rgba(239,68,68,0.6);} 50%{box-shadow:0 0 4px rgba(239,68,68,0.1);} }
+        @keyframes workPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.6;transform:scale(0.92);} }
+        @keyframes progressGlow { 0%,100%{box-shadow:0 0 8px #6366f1;} 50%{box-shadow:0 0 20px #818cf8;} }
+
+        .bubble-anim    { animation: slideUp .3s ease-out forwards; }
+        .fade-in        { animation: fadeIn .4s ease-out forwards; }
+        .char-float     { animation: float 3s ease-in-out infinite; }
+        .char-bug       { animation: bugShake .4s infinite; }
+        .char-meeting   { animation: meetingBounce .6s ease-in-out infinite; }
+        .char-work      { animation: workPulse 2s ease-in-out infinite; }
+        .error-border   { animation: errorPulse 1.8s infinite; }
+        .progress-glow  { animation: progressGlow 2s infinite; }
+
+        .typing-dot { display:inline-block; width:5px; height:5px; background:#6366f1; border-radius:50%; animation:typingBounce 1.4s infinite ease-in-out; }
+        .typing-dot:nth-child(2){animation-delay:.2s;}
+        .typing-dot:nth-child(3){animation-delay:.4s;}
+
+        .tab-active { border-bottom-color:#6366f1!important; color:#818cf8!important; }
+        .tab-inactive { border-bottom-color:transparent; color:#94a3b8; }
+        .tab-inactive:hover { color:#e2e8f0; }
+
+        .bubble-speech {
+            position:absolute; bottom:100%; left:50%; transform:translateX(-50%);
+            background:#1e293b; border:1px solid #334155; border-radius:10px;
+            padding:4px 8px; font-size:10px; white-space:nowrap; color:#e2e8f0;
+            pointer-events:none; margin-bottom:4px; z-index:50;
+            box-shadow:0 4px 12px rgba(0,0,0,.4);
+        }
+        .bubble-speech::after {
+            content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+            border:5px solid transparent; border-top-color:#1e293b;
+        }
+
+        .step-done span:first-child  { background:#4f46e5!important; border-color:#6366f1!important; }
+        .step-active span:first-child { background:#6366f1!important; border-color:#818cf8!important; animation:meetingBounce .7s infinite; }
+
+        .grid-dot-bg {
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+        .ai-msg-stream { white-space: pre-wrap; line-height: 1.7; }
+
+        /* HR card hover */
+        .hr-card:hover { border-color:#4f46e5; transform:translateY(-1px); }
+        .hr-card { transition: border-color .2s, transform .2s; }
+
+        /* memory card */
+        .mem-card:hover { border-color:#4f46e5; }
+        .mem-card { transition: border-color .2s; cursor:pointer; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen overflow-hidden flex flex-col" id="app-body">
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header class="flex items-center justify-between px-5 py-3 bg-slate-900 border-b border-slate-800 shrink-0">
+    <div class="flex items-center gap-3">
+        <div class="p-2 bg-indigo-600 rounded-lg animate-pulse">
+            <i data-lucide="briefcase" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+            <h1 class="text-lg font-black text-white flex items-center gap-2">
+                hohoplay
+                <span class="text-indigo-400 font-bold text-[11px] px-2 py-0.5 bg-indigo-950 border border-indigo-800 rounded-full">AI 가상오피스 v6.0 · Claude API</span>
+            </h1>
+            <p class="text-[10px] text-slate-500 mono">AI 비서 실시간 협업 · 레벨업 육성 · 기획 관리 · PC 이관 백업</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-3 text-xs">
+        <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+            <span id="sys-indicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span id="sys-text" class="text-slate-300 mono text-[11px]">Claude API 연결 대기 중</span>
+        </div>
+        <div class="bg-indigo-900/40 text-indigo-300 border border-indigo-800/60 px-3 py-1.5 rounded-lg font-bold">
+            대표: hohoplay
+        </div>
+    </div>
+</header>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main class="flex flex-1 overflow-hidden">
+
+    <!-- ═══ LEFT: 오피스 맵 ═══ -->
+    <section class="w-1/2 flex flex-col border-r border-slate-800 bg-slate-900/60 overflow-hidden" id="left-workspace">
+        <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 z-10">
+            <h2 class="text-xs font-bold text-slate-300 flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
+                hohoplay 가상 HQ 실시간 활동 모니터링
+            </h2>
+            <div class="flex items-center gap-3 text-[10px] text-slate-400">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span>활동중</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600 inline-block"></span>대기중</span>
+                <span id="map-error-tag" class="items-center gap-1 hidden">
+                    <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block"></span>버그 발생
+                </span>
+            </div>
+        </div>
+
+        <!-- 오피스 맵 -->
+        <div id="office-map" class="flex-1 relative grid-dot-bg overflow-hidden select-none">
+            <!-- 구역들 -->
+            <div class="absolute" style="left:44%;top:38%;transform:translate(-50%,-50%);">
+                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32">
+                    <span class="text-2xl block">🖥️</span>
+                    <span class="text-[10px] font-bold text-slate-400 block mt-1">업무 기획 데스크</span>
+                </div>
+            </div>
+            <div class="absolute" style="left:44%;top:80%;transform:translate(-50%,-50%);">
+                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32" id="meeting-zone">
+                    <span class="text-2xl block">🤝</span>
+                    <span class="text-[10px] font-bold text-slate-400 block mt-1">대형 회의실</span>
+                </div>
+            </div>
+            <div class="absolute" style="left:13%;top:14%;transform:translate(-50%,-50%);">
+                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32">
+                    <span class="text-2xl block">☕</span>
+                    <span class="text-[10px] font-bold text-slate-400 block mt-1">탕비실</span>
+                </div>
+            </div>
+            <div class="absolute" style="left:80%;top:14%;transform:translate(-50%,-50%);">
+                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32">
+                    <span class="text-2xl block">💾</span>
+                    <span class="text-[10px] font-bold text-slate-400 block mt-1">서버 & 데이터</span>
+                </div>
+            </div>
+
+            <!-- 캐릭터 레이어 -->
+            <div id="characters-layer" class="absolute inset-0 z-20"></div>
+
+            <!-- 워크플로우 패널 -->
+            <div id="workflow-panel" class="absolute bottom-3 left-3 right-3 bg-slate-900/97 border-2 border-indigo-500 rounded-xl p-3 shadow-2xl z-30 hidden">
+                <div class="flex items-center justify-between mb-1.5">
+                    <h3 class="text-[11px] font-bold text-indigo-400 flex items-center gap-1">
+                        <i data-lucide="sparkles" class="w-3 h-3 animate-spin"></i>
+                        AI 스쿼드 연쇄 협업 진행 중...
+                    </h3>
+                    <span id="workflow-tag" class="text-[9px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded mono">기획</span>
+                </div>
+                <p id="workflow-command" class="text-[11px] text-white mb-2 italic opacity-80">"지시 내용"</p>
+                <div class="relative w-full h-1.5 bg-slate-800 rounded-full mb-2.5 overflow-hidden">
+                    <div id="workflow-progress-bar" class="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full transition-all duration-1000 progress-glow" style="width:0%"></div>
+                </div>
+                <div class="flex items-center justify-between text-[9px] text-slate-400">
+                    <span id="step-0" class="flex flex-col items-center gap-1"><span class="w-5 h-5 rounded-full flex items-center justify-center border border-slate-700 bg-slate-900 text-[10px]">🔍</span>수집</span>
+                    <span id="step-1" class="flex flex-col items-center gap-1"><span class="w-5 h-5 rounded-full flex items-center justify-center border border-slate-700 bg-slate-900 text-[10px]">✍️</span>초안</span>
+                    <span id="step-2" class="flex flex-col items-center gap-1"><span class="w-5 h-5 rounded-full flex items-center justify-center border border-slate-700 bg-slate-900 text-[10px]">👑</span>조율</span>
+                    <span id="step-3" class="flex flex-col items-center gap-1"><span class="w-5 h-5 rounded-full flex items-center justify-center border border-slate-700 bg-slate-900 text-[10px]">📢</span>브리핑</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 로그 패널 -->
+        <div class="h-44 bg-slate-900 border-t border-slate-800 flex flex-col shrink-0">
+            <div class="px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping"></span>
+                    실시간 오피스 업무 로그
+                </span>
+                <div class="flex items-center gap-2">
+                    <button onclick="triggerSimulatedBug()" class="text-[10px] bg-rose-950/80 text-rose-300 hover:bg-rose-900 border border-rose-800/80 px-2 py-1 rounded font-bold flex items-center gap-1 transition-all">
+                        <i data-lucide="alert-circle" class="w-3 h-3"></i>⚠️ 버그 테스트
+                    </button>
+                    <button onclick="clearLogs()" class="text-[10px] text-slate-500 hover:text-slate-300 transition-colors">로그 비우기</button>
+                </div>
+            </div>
+            <div id="log-container" class="flex-1 p-3 overflow-y-auto mono text-[11px] space-y-1"></div>
+        </div>
+    </section>
+
+    <!-- ═══ RIGHT: 탭 패널 ═══ -->
+    <section class="w-1/2 flex flex-col bg-slate-900 overflow-hidden">
+        <!-- 탭 버튼 -->
+        <div class="flex bg-slate-950 px-2 border-b border-slate-800 shrink-0">
+            <button onclick="switchTab('control')" id="tab-btn-control" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-active">
+                <i data-lucide="message-square" class="w-3.5 h-3.5"></i>[1] AI 채팅
+            </button>
+            <button onclick="switchTab('memory')" id="tab-btn-memory" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive relative">
+                <i data-lucide="database" class="w-3.5 h-3.5"></i>[2] 기억 저장소
+                <span id="memory-count-badge" class="absolute top-1 right-0.5 px-1 py-0.5 bg-indigo-600 text-white text-[9px] rounded-full mono">0</span>
+            </button>
+            <button onclick="switchTab('hr')" id="tab-btn-hr" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive">
+                <i data-lucide="users" class="w-3.5 h-3.5"></i>[3] AI 인사관리
+            </button>
+            <button onclick="switchTab('stats')" id="tab-btn-stats" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive">
+                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>[4] 포트폴리오
+            </button>
+        </div>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- ── 탭1: AI 채팅 ── -->
+            <div id="tab-content-control" class="flex-1 flex flex-col overflow-hidden relative">
+                <!-- 파일 연동 헤더 -->
+                <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="folder-open" class="w-3.5 h-3.5 text-indigo-400 animate-pulse"></i>
+                        <span class="text-[11px] font-bold text-slate-300">로컬 PC 파일 연동</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <!-- API 키 입력 -->
+                        <input type="password" id="api-key-input" placeholder="Claude API Key 입력..." 
+                            class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-48 mono" />
+                        <button onclick="saveApiKey()" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold">연결</button>
+                        <button id="folder-trigger-btn" class="bg-slate-800 border border-slate-700 text-[10px] text-slate-400 px-2 py-1 rounded-lg hover:text-slate-200 flex items-center gap-1 transition-all">
+                            <i data-lucide="upload-cloud" class="w-3 h-3"></i>파일 투하
+                        </button>
+                        <input type="file" id="file-input" class="hidden" multiple />
+                    </div>
+                </div>
+
+                <!-- 드롭 오버레이 -->
+                <div id="drop-overlay" class="absolute inset-0 bg-indigo-950/90 border-4 border-dashed border-indigo-500 rounded-xl z-50 flex flex-col items-center justify-center text-center transition-all duration-300 pointer-events-none opacity-0">
+                    <i data-lucide="upload-cloud" class="w-14 h-14 text-indigo-400 mb-3 animate-bounce"></i>
+                    <h3 class="text-lg font-black text-white mb-1">파일 드롭 감지!</h3>
+                    <p class="text-xs text-slate-300">파일을 이곳에 놓으시면 AI가 분석합니다.</p>
+                </div>
+
+                <!-- 연동 파일 목록 -->
+                <div id="uploaded-files-list" class="bg-indigo-950/40 border-b border-indigo-900/60 px-4 py-2 items-center gap-2 overflow-x-auto shrink-0 hidden">
+                    <span class="text-[10px] font-bold text-indigo-400 mono shrink-0">연동 파일:</span>
+                    <div id="files-pills" class="flex gap-1.5 overflow-x-auto pb-0.5"></div>
+                </div>
+
+                <!-- 채팅 메시지 -->
+                <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/40">
+                    <div class="flex items-start gap-2.5 fade-in">
+                        <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm shrink-0">👑</div>
+                        <div>
+                            <span class="text-[10px] font-bold text-emerald-400">또다른 나 (조정자)</span>
+                            <div class="mt-1 bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl rounded-tl-none max-w-sm text-slate-200 leading-relaxed shadow-md">
+                                안녕하십니까, hohoplay 대표님! 🎉<br>
+                                상단에 <strong class="text-indigo-400">Claude API Key</strong>를 입력하시면 저희 AI 비서진이 실시간으로 답변해 드립니다.<br>
+                                기획·분석·코드·마케팅 등 어떤 업무도 처리 가능합니다!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 타이핑 인디케이터 -->
+                <div id="typing-indicator" class="px-4 py-2 bg-slate-950/60 border-t border-slate-900 flex items-center gap-2 hidden shrink-0">
+                    <span class="flex gap-1 items-end">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </span>
+                    <span id="typing-name" class="text-[10px] text-slate-400">AI 비서진이 응답 중...</span>
+                </div>
+
+                <!-- 입력창 -->
+                <div class="p-3 bg-slate-950 border-t border-slate-800 shrink-0 space-y-2">
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="save-memory-toggle" class="rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-0" />
+                            <span class="text-[10px] text-slate-400 flex items-center gap-1">
+                                <i data-lucide="save" class="w-3 h-3 text-indigo-400"></i>
+                                응답을 기억 저장소에 자동 저장
+                            </span>
+                        </label>
+                        <span id="api-status-chip" class="text-[10px] mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-500">API 미연결</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-indigo-500 transition-colors">
+                        <input type="text" id="chat-input"
+                            placeholder="대표님, 업무 지시나 질문을 입력하세요... (Enter)"
+                            class="flex-1 bg-transparent border-none text-xs text-white placeholder-slate-600 focus:outline-none" />
+                        <button onclick="sendChatMessage()" id="send-btn"
+                            class="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md shrink-0">
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── 탭2: 기억 저장소 ── -->
+            <div id="tab-content-memory" class="flex-1 overflow-y-auto p-4 space-y-4 hidden">
+                <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
+                    <button onclick="switchMemorySubTab('reports')" id="mem-subtab-reports"
+                        class="flex-1 py-1.5 text-[11px] font-bold rounded-md bg-slate-800 text-indigo-400 transition-all">
+                        📄 보존 기획보고서
+                    </button>
+                    <button onclick="switchMemorySubTab('ai-cores')" id="mem-subtab-ai-cores"
+                        class="flex-1 py-1.5 text-[11px] font-bold rounded-md text-slate-400 hover:text-slate-200 transition-all">
+                        💾 AI 직원별 내부 기억
+                    </button>
+                </div>
+
+                <!-- 보고서 섹션 -->
+                <div id="memory-reports-section" class="space-y-3">
+                    <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-300">보존 중인 비즈니스 기억</h3>
+                            <p class="text-[10px] text-slate-500">PC 이관 백업 시 포함됩니다.</p>
+                        </div>
+                        <span id="memory-stats-label" class="text-xs mono font-bold text-indigo-400">총 0건</span>
+                    </div>
+                    <div id="memory-list-container" class="space-y-2"></div>
+                    <div id="selected-memory-view" class="mt-3 p-4 bg-slate-950 border border-indigo-500/80 rounded-2xl space-y-3 shadow-xl hidden">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                            <div>
+                                <span id="detail-category" class="text-[10px] text-indigo-400 mono font-bold uppercase">CATEGORY</span>
+                                <h3 id="detail-title" class="text-sm font-bold text-white mt-0.5">Title</h3>
+                            </div>
+                            <button id="detail-download-btn" class="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-lg transition-colors">
+                                <i data-lucide="download" class="w-3 h-3"></i>저장
+                            </button>
+                        </div>
+                        <div id="detail-content" class="text-xs text-slate-300 whitespace-pre-line leading-relaxed mono max-h-72 overflow-y-auto p-3 bg-slate-900 rounded-lg border border-slate-800"></div>
+                        <div class="flex items-center justify-between text-[10px] text-slate-500">
+                            <span id="detail-author">작성자</span>
+                            <span id="detail-date">날짜</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI 코어 섹션 -->
+                <div id="memory-ai-cores-section" class="space-y-3 hidden">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-300">
+                        💡 직원별 기억은 매 기획 업무 완수 시마다 자동 업데이트됩니다.
+                    </div>
+                    <div id="ai-memory-core-container" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- ── 탭3: HR 인사관리 ── -->
+            <div id="tab-content-hr" class="flex-1 overflow-y-auto p-5 space-y-5 hidden">
+                <div class="flex items-center justify-between bg-gradient-to-r from-slate-950 to-indigo-950/40 p-4 rounded-2xl border border-indigo-500/20 shadow-md">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+                            <i data-lucide="award" class="w-4 h-4 text-amber-400"></i>
+                            AI 임직원 레벨업 시스템
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">지시를 처리할수록 경험치 획득 및 레벨 상승.</p>
+                    </div>
+                    <button onclick="openHireInternModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 font-bold transition-colors">
+                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>인턴 채용
+                    </button>
+                </div>
+                <div>
+                    <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">사내 AI 임직원 명단</h4>
+                    <div id="hr-staff-list" class="grid grid-cols-1 gap-3"></div>
+                </div>
+            </div>
+
+            <!-- ── 탭4: 포트폴리오 & 이관 ── -->
+            <div id="tab-content-stats" class="flex-1 overflow-y-auto p-5 space-y-5 hidden">
+                <div class="bg-gradient-to-br from-indigo-950/30 to-slate-950 p-4 rounded-2xl border border-indigo-500/30 space-y-3 shadow-xl">
+                    <div>
+                        <h3 class="text-sm font-bold text-indigo-400 flex items-center gap-1.5">
+                            <i data-lucide="share-2" class="w-4 h-4"></i>
+                            비즈니스 데이터 백업 & 이관
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">기획안·직원 레벨·경험치 전체를 이관 파일로 추출합니다.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="exportWorkspaceData()" class="p-4 bg-slate-900 border border-slate-800 hover:border-indigo-500 rounded-xl transition-all text-left flex flex-col justify-between h-24 group">
+                            <div class="flex items-center justify-between w-full">
+                                <span class="text-xs font-bold text-indigo-400">📦 파일로 이관</span>
+                                <i data-lucide="download" class="w-4 h-4 text-slate-600 group-hover:text-indigo-400"></i>
+                            </div>
+                            <p class="text-[10px] text-slate-400">전체 오피스 데이터를 .json으로 저장합니다.</p>
+                        </button>
+                        <button onclick="document.getElementById('backup-file-input').click()" class="p-4 bg-slate-900 border border-slate-800 hover:border-emerald-500 rounded-xl transition-all text-left flex flex-col justify-between h-24 group">
+                            <div class="flex items-center justify-between w-full">
+                                <span class="text-xs font-bold text-emerald-400">📥 파일 불러오기</span>
+                                <i data-lucide="upload" class="w-4 h-4 text-slate-600 group-hover:text-emerald-400"></i>
+                            </div>
+                            <p class="text-[10px] text-slate-400">백업 .json을 불러와 오피스를 동기화합니다.</p>
+                        </button>
+                        <input type="file" id="backup-file-input" class="hidden" accept=".json" onchange="importWorkspaceData(event)" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <span class="text-[10px] text-slate-500 block mono">누적 지시 처리량</span>
+                        <span id="stat-total-tasks" class="text-2xl font-black mono text-white mt-1 block">0건</span>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <span class="text-[10px] text-slate-500 block mono">AI 비서 업무 연동율</span>
+                        <span class="text-2xl font-black mono text-emerald-400 mt-1 block">98%</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <h3 class="text-xs font-bold text-slate-300">hohoplay 비즈니스 포트폴리오</h3>
+                    <div class="space-y-2.5">
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>👾 모바일 캐주얼 게임 개발</span>
+                                <span id="stat-game-count" class="mono">8건</span>
+                            </div>
+                            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                <div id="bar-game" class="bg-indigo-500 h-full rounded-full transition-all duration-1000" style="width:30%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>🔮 힐링 운세/타로 분석</span>
+                                <span id="stat-tarot-count" class="mono">6건</span>
+                            </div>
+                            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                <div id="bar-tarot" class="bg-pink-500 h-full rounded-full transition-all duration-1000" style="width:25%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>📢 소셜 마케팅 / 네이버커넥트</span>
+                                <span id="stat-marketing-count" class="mono">7건</span>
+                            </div>
+                            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                <div id="bar-marketing" class="bg-emerald-500 h-full rounded-full transition-all duration-1000" style="width:30%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>🏢 미래형 무인 연습실 공간 임대</span>
+                                <span id="stat-unmanned-count" class="mono">3건</span>
+                            </div>
+                            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                <div id="bar-unmanned" class="bg-amber-500 h-full rounded-full transition-all duration-1000" style="width:15%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- ══════ 인턴 채용 모달 ══════ -->
+<div id="hire-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[110] items-center justify-center hidden">
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
+        <div class="flex items-center gap-3 text-indigo-400">
+            <i data-lucide="user-plus" class="w-5 h-5"></i>
+            <h4 class="text-sm font-bold text-white">신규 인턴 비서 스카우트</h4>
+        </div>
+        <div class="space-y-3">
+            <label class="block text-[11px] text-slate-400">인턴 이름을 지정하세요.</label>
+            <input type="text" id="intern-name-input" placeholder="예: 인턴 길동" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500" />
+            <label class="block text-[11px] text-slate-400">캐릭터 이모지</label>
+            <select id="intern-emoji-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                <option value="🐣">🐣 병아리 인턴</option>
+                <option value="🐥">🐥 짹짹이 비서</option>
+                <option value="👶">👶 새내기 사원</option>
+                <option value="⚡">⚡ 엘리트 인턴</option>
+                <option value="🔥">🔥 열정 신입</option>
+            </select>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+            <button onclick="closeHireInternModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-colors">취소</button>
+            <button onclick="confirmHireIntern()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors">채용 승인</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════ 공용 확인 모달 ══════ -->
+<div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] items-center justify-center hidden">
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
+        <div class="flex items-center gap-3">
+            <i id="modal-icon" data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+            <h4 id="modal-title" class="text-sm font-bold text-white">확인 요청</h4>
+        </div>
+        <p id="modal-body" class="text-xs text-slate-300 leading-relaxed"></p>
+        <div class="flex items-center justify-end gap-2">
+            <button id="modal-cancel-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-colors">취소</button>
+            <button id="modal-confirm-btn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors">확인</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// 데이터 정의
+// ═══════════════════════════════════════════════
+const DEFAULT_STAFF = {
+    collector:   { id:'collector',   name:'자료 수집가',  role:'인터넷/시장 자료 분석',         status:'정직원', level:1, xp:0, color:'bg-blue-500',    emoji:'🔍', initialPos:{x:15,y:30} },
+    writer:      { id:'writer',      name:'글초안 작성기', role:'콘텐츠/블로그/기획안 작성',      status:'정직원', level:1, xp:0, color:'bg-amber-500',   emoji:'✍️', initialPos:{x:45,y:30} },
+    sns:         { id:'sns',         name:'고객질문 수집기',role:'SNS 질문 및 피드백 수집',       status:'정직원', level:1, xp:0, color:'bg-pink-500',    emoji:'💬', initialPos:{x:75,y:30} },
+    coordinator: { id:'coordinator', name:'또다른 나',    role:'업무 종합 및 최종 조율(대표)',    status:'정직원', level:1, xp:0, color:'bg-emerald-500', emoji:'👑', initialPos:{x:45,y:65} },
+    presenter:   { id:'presenter',   name:'발표자',       role:'요약 브리핑 및 발표 준비',       status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:15,y:65} },
+    intern:      { id:'intern',      name:'인턴 사원',    role:'잡무 처리 및 피드백 서포트',     status:'인턴',   level:1, xp:0, color:'bg-slate-500',   emoji:'☕', initialPos:{x:75,y:65} }
+};
+
+const STAFF_SPEECHES = {
+    collector:   ['데이터 수집 중...', '시장 분석 완료!', '새 자료 발견!', '검색 엔진 가동 중'],
+    writer:      ['초안 작성 중...', '문장 다듬는 중', '완성도 99%!', '글 쓰는 중 🖊'],
+    sns:         ['SNS 모니터링 중', '피드백 수집!', 'DM 확인 중...', '댓글 분석 완료'],
+    coordinator: ['업무 조율 중...', '팀 협업 가동!', '대표님 지시 확인', '전략 수립 중'],
+    presenter:   ['브리핑 준비 중', '발표 자료 제작', '요약 완료!', '프레젠테이션 ↗'],
+    intern:      ['커피 심부름 중☕', '잡무 처리 중!', '열심히 배우는 중', '성장 중 🌱']
+};
+
+const BUBBLE_MESSAGES = {
+    idle:    ['대기 중...', '준비 완료!', '지시 기다리는 중'],
+    bug:     ['버그다!!😱', '시스템 오류!', '핫패치 필요!'],
+    meeting: ['회의 참여 중', '아이디어 제안!', '협업 중!']
+};
+
+let staffState = {};
+let staffMemories = {};
+let memories = [];
+let staffPositions = {};
+let activeWorkflow = null;
+let activeBug = null;
+let localFilesData = [];
+let activeMemorySubTab = 'reports';
+let apiKey = '';
+let chatHistory = [];
+let stats = { totalTasks:0, gameProjectCount:8, tarotProjectCount:6, marketingCount:7, unmannedRoomCount:3 };
+
+// ═══════════════════════════════════════════════
+// 초기화
+// ═══════════════════════════════════════════════
+window.onload = function() {
+    loadAll();
+    initStaffPositions();
+    renderCharacters();
+    renderHRStaffList();
+    renderMemoryList();
+    renderAIHarddiskMemories();
+    updateStatsUI();
+    setupFileHandlers();
+    startAutonomousMovement();
+    startRandomBubbles();
+    addLog('🟢 hohoplay 가상 오피스 v6.0 정상 시동.');
+    addLog('🔑 Claude API Key를 입력하여 AI 채팅을 활성화하세요.');
+    lucide.createIcons();
+
+    const inp = document.getElementById('chat-input');
+    inp.addEventListener('keydown', e => { if(e.key==='Enter') sendChatMessage(); });
+
+    // API 키 저장 여부 확인
+    const savedKey = localStorage.getItem('hohoplay_claude_api_key');
+    if(savedKey) {
+        apiKey = savedKey;
+        document.getElementById('api-key-input').value = '••••••••••••••••';
+        updateApiStatus(true);
+    }
+};
+
+function loadAll() {
+    // 직원 상태
+    try { staffState = JSON.parse(localStorage.getItem('hohoplay_staff_v6')) || {...DEFAULT_STAFF}; }
+    catch(e) { staffState = {...DEFAULT_STAFF}; }
+    // 직원 기억
+    try { staffMemories = JSON.parse(localStorage.getItem('hohoplay_staffmem_v6')) || generateDefaultAICores(); }
+    catch(e) { staffMemories = generateDefaultAICores(); }
+    // 기억 목록
+    try { memories = JSON.parse(localStorage.getItem('hohoplay_memories_v6')) || getDefaultMemories(); }
+    catch(e) { memories = getDefaultMemories(); }
+    // 통계
+    try { const s = JSON.parse(localStorage.getItem('hohoplay_stats_v6')); if(s) stats = s; }
+    catch(e) {}
+    stats.totalTasks = memories.length;
+}
+
+function saveAll() {
+    localStorage.setItem('hohoplay_staff_v6', JSON.stringify(staffState));
+    localStorage.setItem('hohoplay_staffmem_v6', JSON.stringify(staffMemories));
+    localStorage.setItem('hohoplay_memories_v6', JSON.stringify(memories));
+    localStorage.setItem('hohoplay_stats_v6', JSON.stringify(stats));
+}
+
+function generateDefaultAICores() {
+    const cores = {};
+    Object.keys(DEFAULT_STAFF).forEach(k => {
+        cores[k] = {
+            daily:       `[할 일 요약]\n - hohoplay 도메인별 최신 시장 자료 색인 중.`,
+            peerAnalysis:`[동료 협업 분석]\n - 스쿼드 연동 상태 최우수.`,
+            weekly:      `[1주일 대화 정리]\n - 기획안 초안 작성 중.`,
+            monthly:     `[30일 장기 기억]\n - 누적 성과 보존 완료.`
+        };
+    });
+    return cores;
+}
+
+function getDefaultMemories() {
+    return [
+        { id:'init_1', title:'hohoplay 타로 및 운세 모바일 게임 시장성 분석', category:'운세/게임',
+          content:'타로 시장 분석 데이터: 국내 운세 앱 시장 규모 연 2,400억 추정.\n모바일 캐주얼 게임과의 크로스 마케팅 가능성 높음.\nhohoplay 기존 게임 플랫폼과의 시너지 확보 전략 수립 필요.', author:'자료 수집가', date:'2026-06-13' },
+        { id:'init_2', title:'무인 연습실 공간 임대 사업 타당성 초안', category:'무인연습실',
+          content:'무인 연습실 공간 임대 전략:\n초기 투자 비용 1,200만원 추정.\n월 예상 수익 250만원 (80% 가동률 기준).\nAI 예약 시스템 및 IoT 연동 필수.', author:'또다른 나', date:'2026-06-12' }
+    ];
+}
+
+// ═══════════════════════════════════════════════
+// API 관련
+// ═══════════════════════════════════════════════
+function saveApiKey() {
+    const inp = document.getElementById('api-key-input');
+    const val = inp.value.trim();
+    if(!val || val.startsWith('••')) {
+        if(apiKey) { addLog('✅ 기존 API Key 유지 중.'); return; }
+        addLog('❌ API Key를 입력해 주세요.'); return;
+    }
+    apiKey = val;
+    localStorage.setItem('hohoplay_claude_api_key', apiKey);
+    inp.value = '••••••••••••••••';
+    updateApiStatus(true);
+    addLog('✅ Claude API Key 연결 완료!');
+    document.getElementById('sys-text').textContent = 'Claude API 연결됨';
+}
+
+function updateApiStatus(connected) {
+    const chip = document.getElementById('api-status-chip');
+    if(connected) {
+        chip.textContent = 'API 연결됨 ✓';
+        chip.className = 'text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-400 border border-emerald-700/50';
+        document.getElementById('sys-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+    } else {
+        chip.textContent = 'API 미연결';
+        chip.className = 'text-[10px] mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-500';
+    }
+}
+
+// ═══════════════════════════════════════════════
+// 채팅 & Claude API
+// ═══════════════════════════════════════════════
+async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if(!msg) return;
+    input.value = '';
+
+    appendMessage('user', '대표님 (You)', '👑', msg);
+    addLog(`👑 대표님 지시: "${msg.substring(0,40)}${msg.length>40?'...':''}"`);
+    chatHistory.push({role:'user', content: msg});
+
+    if(!apiKey) {
+        setTimeout(()=>{
+            const fake = `[API 미연결] "${msg}"에 대한 답변을 드리려면 상단에 Claude API Key를 먼저 입력해 주세요! 🔑`;
+            appendMessage('assistant','또다른 나','👑', fake);
+            chatHistory.push({role:'assistant',content:fake});
+        },500);
+        return;
+    }
+
+    showTyping(true);
+    triggerWorkflowAnim(msg);
+
+    try {
+        const systemPrompt = buildSystemPrompt();
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-6',
+                max_tokens: 1500,
+                system: systemPrompt,
+                messages: chatHistory.slice(-10)
+            })
+        });
+
+        if(!res.ok) {
+            const err = await res.json().catch(()=>({}));
+            throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        const reply = data.content?.[0]?.text || '(응답 없음)';
+        chatHistory.push({role:'assistant', content:reply});
+
+        showTyping(false);
+        finishWorkflowAnim();
+
+        // 발표자 이름으로 표시
+        appendMessage('assistant','또다른 나 (조정자)','👑', formatMarkdown(reply));
+        addLog(`🤖 AI 응답 완료 (${reply.length}자)`);
+
+        // 경험치 지급
+        grantXPToAll(15);
+        stats.totalTasks++;
+        saveAll();
+        updateStatsUI();
+
+        // 기억 자동 저장
+        if(document.getElementById('save-memory-toggle').checked) {
+            autoSaveMemory(msg, reply);
+        }
+
+    } catch(e) {
+        showTyping(false);
+        stopWorkflowAnim();
+        const errMsg = `⚠️ API 오류: ${e.message}`;
+        appendMessage('assistant','시스템','⚠️', errMsg);
+        addLog(`❌ ${errMsg}`);
+    }
+}
+
+function buildSystemPrompt() {
+    let sys = `당신은 hohoplay 가상 오피스의 AI 비서 조정자 "또다른 나"입니다.
+hohoplay는 한국의 1인 개발자 겸 콘텐츠 크리에이터가 운영하는 개인 프로젝트입니다.
+주요 사업: 브라우저 HTML5 게임 플랫폼(HOHO PLAY), 운세/타로 블로그, SNS 마케팅, 무인 연습실.
+당신의 역할: 기획 지원, 코드 작성, 마케팅 전략, 프로젝트 관리.
+답변 언어: 한국어. 답변은 간결하고 실용적으로. 코드가 필요하면 마크다운 코드블록 사용.`;
+    if(localFilesData.length > 0) {
+        sys += `\n\n[연동된 로컬 파일]\n${localFilesData.map(f=>`파일명: ${f.name}\n내용(앞부분):\n${f.content.substring(0,800)}`).join('\n---\n')}`;
+    }
+    return sys;
+}
+
+function formatMarkdown(text) {
+    // 간단한 마크다운 → HTML 변환
+    return text
+        .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-slate-900 border border-slate-700 rounded-lg p-3 overflow-x-auto mono text-emerald-300 text-[11px] my-2"><code>$2</code></pre>')
+        .replace(/`([^`]+)`/g, '<code class="bg-slate-800 text-amber-300 px-1 rounded mono text-[11px]">$1</code>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em class="text-slate-300">$1</em>')
+        .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-indigo-300 mt-2 mb-1">$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold text-indigo-400 mt-2 mb-1">$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1 class="text-lg font-black text-indigo-300 mt-2 mb-1">$1</h1>')
+        .replace(/^- (.+)$/gm, '<li class="ml-4 text-slate-300 list-disc">$1</li>')
+        .replace(/\n/g, '<br>');
+}
+
+function appendMessage(role, name, emoji, html) {
+    const c = document.getElementById('chat-messages-container');
+    const d = document.createElement('div');
+    d.className = role==='user'
+        ? 'flex items-start gap-2.5 justify-end bubble-anim'
+        : 'flex items-start gap-2.5 bubble-anim';
+    if(role==='user') {
+        d.innerHTML = `<div class="text-right"><span class="text-[10px] font-bold text-indigo-400">${name}</span><div class="mt-1 bg-indigo-700 text-xs px-3 py-2 rounded-xl rounded-tr-none max-w-sm text-white leading-relaxed">${html}</div></div><div class="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center text-sm shrink-0">${emoji}</div>`;
+    } else {
+        d.innerHTML = `<div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-sm shrink-0">${emoji}</div><div class="min-w-0"><span class="text-[10px] font-bold text-slate-400">${name}</span><div class="mt-1 bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl rounded-tl-none max-w-sm text-slate-200 leading-relaxed ai-msg-stream">${html}</div></div>`;
+    }
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+}
+
+function showTyping(v) {
+    const t = document.getElementById('typing-indicator');
+    if(v) t.classList.remove('hidden'); else t.classList.add('hidden');
+}
+
+function autoSaveMemory(question, answer) {
+    const title = question.length > 30 ? question.substring(0,30)+'...' : question;
+    const mem = {
+        id: 'mem_'+Date.now(),
+        title: title,
+        category: detectCategory(question),
+        content: `[질문]\n${question}\n\n[AI 답변]\n${answer}`,
+        author: '또다른 나',
+        date: new Date().toISOString().split('T')[0]
+    };
+    memories.unshift(mem);
+    saveAll();
+    renderMemoryList();
+    updateStatsUI();
+    addLog(`💾 기억 자동 저장: "${title}"`);
+    document.getElementById('memory-count-badge').textContent = memories.length;
+}
+
+function detectCategory(text) {
+    if(/게임|game|html|canvas|js/i.test(text)) return '게임개발';
+    if(/타로|운세|점|별자리/i.test(text)) return '운세/타로';
+    if(/마케팅|sns|블로그|광고/i.test(text)) return '마케팅';
+    if(/연습실|임대|무인/i.test(text)) return '무인연습실';
+    if(/코드|python|css|api/i.test(text)) return '개발';
+    return '기획/전략';
+}
+
+// ═══════════════════════════════════════════════
+// 오피스 캐릭터 & 애니메이션
+// ═══════════════════════════════════════════════
+function initStaffPositions() {
+    Object.keys(staffState).forEach(id => {
+        const s = staffState[id];
+        staffPositions[id] = {
+            x: s.initialPos?.x ?? 45,
+            y: s.initialPos?.y ?? 50,
+            bubble: '',
+            anim: 'float'
+        };
+    });
+}
+
+function renderCharacters() {
+    const container = document.getElementById('characters-layer');
+    container.innerHTML = '';
+    Object.keys(staffState).forEach(id => {
+        const staff = staffState[id];
+        const pos = staffPositions[id];
+        if(!pos) return;
+
+        const el = document.createElement('div');
+        el.className = 'absolute z-20 flex flex-col items-center';
+        el.style.left = pos.x + '%';
+        el.style.top  = pos.y + '%';
+        el.id = 'char-' + id;
+
+        const animClass = pos.anim==='bug' ? 'char-bug' : pos.anim==='meeting' ? 'char-meeting' : pos.anim==='work' ? 'char-work' : 'char-float';
+        const bubbleHTML = pos.bubble
+            ? `<div class="bubble-speech">${pos.bubble}</div>`
+            : '';
+
+        el.innerHTML = `
+            <div class="relative flex flex-col items-center ${animClass}" style="animation-delay:${Math.random()*2}s">
+                ${bubbleHTML}
+                <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform ${staff.color} border-2 border-slate-950">
+                    <span class="text-lg">${staff.emoji}</span>
+                </div>
+                <span class="absolute -top-1 -right-1 bg-slate-900 text-[10px] border border-indigo-500 text-white font-bold w-4 h-4 rounded-full flex items-center justify-center mono">L${staff.level}</span>
+                <div class="mt-1 text-center whitespace-nowrap">
+                    <span class="text-[10px] font-bold text-white drop-shadow">${staff.name}</span>
+                </div>
+            </div>`;
+        container.appendChild(el);
+    });
+}
+
+function startAutonomousMovement() {
+    setInterval(() => {
+        if(activeWorkflow || activeBug) return;
+        const keys = Object.keys(staffState);
+        const id = keys[Math.floor(Math.random()*keys.length)];
+        if(staffPositions[id]) {
+            const s = staffState[id];
+            staffPositions[id].x = Math.max(10, Math.min(88, (s.initialPos?.x??45) + Math.random()*14-7));
+            staffPositions[id].y = Math.max(16, Math.min(84, (s.initialPos?.y??50) + Math.random()*14-7));
+            staffPositions[id].anim = 'float';
+            staffPositions[id].bubble = '';
+            renderCharacters();
+        }
+    }, 5000);
+}
+
+function startRandomBubbles() {
+    setInterval(() => {
+        if(activeWorkflow || activeBug) return;
+        const keys = Object.keys(staffState);
+        const id = keys[Math.floor(Math.random()*keys.length)];
+        if(staffPositions[id]) {
+            const speeches = STAFF_SPEECHES[id] || ['작업 중...'];
+            staffPositions[id].bubble = speeches[Math.floor(Math.random()*speeches.length)];
+            renderCharacters();
+            setTimeout(()=>{
+                if(staffPositions[id]) staffPositions[id].bubble='';
+                renderCharacters();
+            }, 3000);
+        }
+    }, 4000);
+}
+
+// ═══════════════════════════════════════════════
+// 워크플로우 애니메이션
+// ═══════════════════════════════════════════════
+function triggerWorkflowAnim(command) {
+    if(activeWorkflow) return;
+    activeWorkflow = command;
+
+    const panel = document.getElementById('workflow-panel');
+    const tag   = document.getElementById('workflow-tag');
+    const cmd   = document.getElementById('workflow-command');
+    const bar   = document.getElementById('workflow-progress-bar');
+    const steps = [0,1,2,3].map(i=>document.getElementById('step-'+i));
+
+    panel.classList.remove('hidden');
+    tag.textContent  = detectCategory(command);
+    cmd.textContent  = `"${command.substring(0,40)}${command.length>40?'...':''}"`;
+    bar.style.width  = '0%';
+    steps.forEach(s=>{ s.className='flex flex-col items-center gap-1'; });
+
+    // 모든 직원을 회의실로 이동
+    Object.keys(staffState).forEach((id,i) => {
+        setTimeout(()=>{
+            if(staffPositions[id]) {
+                staffPositions[id].x = 30 + (i%3)*15;
+                staffPositions[id].y = 75 + (Math.floor(i/3)*8);
+                staffPositions[id].anim = 'meeting';
+                staffPositions[id].bubble = BUBBLE_MESSAGES.meeting[Math.floor(Math.random()*3)];
+            }
+            renderCharacters();
+        }, i*300);
+    });
+
+    // 진행바 & 스텝 애니메이션
+    const stepNames = ['collector','writer','coordinator','presenter'];
+    let step = 0;
+    const iv = setInterval(()=>{
+        bar.style.width = ((step+1)/4*100)+'%';
+        if(step>0) steps[step-1].className='step-done flex flex-col items-center gap-1';
+        steps[step].className = 'step-active flex flex-col items-center gap-1';
+        if(stepNames[step] && staffPositions[stepNames[step]]) {
+            staffPositions[stepNames[step]].bubble = ['열심히 분석 중!','초안 작성!','조율 완료!','브리핑 준비!'][step];
+            renderCharacters();
+        }
+        addLog(`[Step ${step+1}/4] ${['정보 수집','초안 작성','대표 조율','요약 브리핑'][step]} 진행 중...`);
+        step++;
+        if(step>=4) clearInterval(iv);
+    }, 600);
+}
+
+function finishWorkflowAnim() {
+    const bar = document.getElementById('workflow-progress-bar');
+    bar.style.width = '100%';
+    [0,1,2,3].forEach(i=>{ document.getElementById('step-'+i).className='step-done flex flex-col items-center gap-1'; });
+    setTimeout(()=>stopWorkflowAnim(), 1200);
+}
+
+function stopWorkflowAnim() {
+    activeWorkflow = null;
+    document.getElementById('workflow-panel').classList.add('hidden');
+    Object.keys(staffState).forEach(id => {
+        if(staffPositions[id]) {
+            const s = staffState[id];
+            staffPositions[id].x = s.initialPos?.x ?? 45;
+            staffPositions[id].y = s.initialPos?.y ?? 50;
+            staffPositions[id].anim = 'float';
+            staffPositions[id].bubble = '';
+        }
+    });
+    renderCharacters();
+}
+
+// ═══════════════════════════════════════════════
+// 버그 시뮬레이션
+// ═══════════════════════════════════════════════
+function triggerSimulatedBug() {
+    if(activeBug || activeWorkflow) { addLog('⚠️ 이미 이벤트 진행 중.'); return; }
+    activeBug = true;
+
+    document.getElementById('map-error-tag').classList.remove('hidden');
+    document.getElementById('sys-text').textContent = '⚠️ 버그 감지! 핫패치 가동 중...';
+    document.getElementById('sys-indicator').className = 'w-2 h-2 rounded-full bg-rose-500 animate-ping';
+
+    // 랜덤 직원 버그 상태
+    const keys = Object.keys(staffState);
+    const bugId = keys[Math.floor(Math.random()*keys.length)];
+    if(staffPositions[bugId]) {
+        staffPositions[bugId].anim = 'bug';
+        staffPositions[bugId].bubble = BUBBLE_MESSAGES.bug[Math.floor(Math.random()*3)];
+    }
+    addLog(`🐛 버그 감지: ${staffState[bugId].name} 시스템 충돌!`);
+
+    // 나머지 직원들이 모여서 디버깅
+    keys.filter(k=>k!==bugId).forEach((id,i)=>{
+        setTimeout(()=>{
+            if(staffPositions[id]) {
+                staffPositions[id].x = 40 + (i%2)*12;
+                staffPositions[id].y = 55 + Math.floor(i/2)*10;
+                staffPositions[id].anim = 'meeting';
+                staffPositions[id].bubble = ['디버깅 중!','코드 점검!','핫패치!'][i%3];
+            }
+        }, i*200);
+    });
+    renderCharacters();
+
+    // 오피스 맵 에러 테두리
+    document.getElementById('office-map').classList.add('error-border');
+
+    addLog('🔧 조정자: 핫패치 시스템 가동. 자가 치유 프로토콜 실행...');
+    setTimeout(()=>addLog('⚡ 자료 수집가: 오류 코드 분석 완료.'), 1500);
+    setTimeout(()=>addLog('✅ 글초안 작성기: 버그 격리 성공. 패치 적용 중.'), 3000);
+    setTimeout(()=>{
+        addLog('🎉 버그 수정 완료! 시스템 정상 복구.');
+        activeBug = false;
+        document.getElementById('map-error-tag').classList.add('hidden');
+        document.getElementById('office-map').classList.remove('error-border');
+        document.getElementById('sys-text').textContent = 'Claude API 연결됨';
+        document.getElementById('sys-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+
+        // 원상복귀
+        keys.forEach(id=>{
+            if(staffPositions[id]) {
+                const s = staffState[id];
+                staffPositions[id].x = s.initialPos?.x??45;
+                staffPositions[id].y = s.initialPos?.y??50;
+                staffPositions[id].anim = 'float';
+                staffPositions[id].bubble = '수리 완료! 🎉';
+            }
+        });
+        renderCharacters();
+        grantXPToAll(20);
+        saveAll();
+        renderHRStaffList();
+        setTimeout(()=>{
+            Object.keys(staffPositions).forEach(id=>{ staffPositions[id].bubble=''; });
+            renderCharacters();
+        }, 2500);
+    }, 5000);
+}
+
+// ═══════════════════════════════════════════════
+// HR / 경험치 / 레벨업
+// ═══════════════════════════════════════════════
+const XP_PER_LEVEL = 100;
+
+function grantXPToAll(xp) {
+    Object.keys(staffState).forEach(id => {
+        staffState[id].xp += xp;
+        while(staffState[id].xp >= XP_PER_LEVEL) {
+            staffState[id].xp -= XP_PER_LEVEL;
+            staffState[id].level++;
+            addLog(`🎉 ${staffState[id].name} → Lv.${staffState[id].level} 레벨업!`);
+            if(staffPositions[id]) staffPositions[id].bubble = `Lv.${staffState[id].level} 달성! 🎉`;
+        }
+    });
+    renderCharacters();
+    renderHRStaffList();
+    saveAll();
+}
+
+function renderHRStaffList() {
+    const container = document.getElementById('hr-staff-list');
+    if(!container) return;
+    container.innerHTML = '';
+    Object.values(staffState).forEach(staff => {
+        const card = document.createElement('div');
+        card.className = 'hr-card bg-slate-950 border border-slate-800 rounded-xl p-4';
+        const xpPct = Math.min(100, Math.round(staff.xp/XP_PER_LEVEL*100));
+        const statusColor = staff.status==='정직원' ? 'text-emerald-400 bg-emerald-900/30 border-emerald-800/50' : 'text-slate-400 bg-slate-800/50 border-slate-700/50';
+        card.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full ${staff.color} flex items-center justify-center text-xl shrink-0">${staff.emoji}</div>
+                    <div>
+                        <div class="text-white font-bold text-sm">${staff.name}</div>
+                        <div class="text-slate-400 text-[11px]">${staff.role}</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-indigo-400 font-black mono text-lg">Lv.${staff.level}</div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${statusColor} font-bold">${staff.status}</span>
+                </div>
+            </div>
+            <div class="mt-3 space-y-1">
+                <div class="flex justify-between text-[10px] text-slate-500">
+                    <span>경험치</span><span class="mono">${staff.xp}/${XP_PER_LEVEL} XP</span>
+                </div>
+                <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-600 to-indigo-400 h-full rounded-full transition-all duration-700" style="width:${xpPct}%"></div>
+                </div>
+            </div>`;
+        container.appendChild(card);
+    });
+    lucide.createIcons();
+}
+
+function openHireInternModal() {
+    document.getElementById('hire-modal').classList.remove('hidden');
+    document.getElementById('hire-modal').classList.add('flex');
+}
+function closeHireInternModal() {
+    document.getElementById('hire-modal').classList.remove('flex');
+    document.getElementById('hire-modal').classList.add('hidden');
+}
+function confirmHireIntern() {
+    const name  = document.getElementById('intern-name-input').value.trim();
+    const emoji = document.getElementById('intern-emoji-select').value;
+    if(!name) { alert('이름을 입력하세요!'); return; }
+
+    const colors = ['bg-violet-500','bg-cyan-500','bg-lime-500','bg-orange-500','bg-teal-500'];
+    const id = 'intern_'+Date.now();
+    staffState[id] = {
+        id, name, role:'인턴 업무 보조', status:'인턴', level:1, xp:0,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        emoji, initialPos:{ x:20+Math.random()*60, y:30+Math.random()*50 }
+    };
+    staffPositions[id] = { x:staffState[id].initialPos.x, y:staffState[id].initialPos.y, bubble:'신규 입사!🎉', anim:'float' };
+    staffMemories[id] = generateDefaultAICores()[Object.keys(DEFAULT_STAFF)[0]];
+
+    document.getElementById('intern-name-input').value = '';
+    closeHireInternModal();
+    addLog(`🎉 신규 인턴 "${name}" 채용 완료!`);
+    renderCharacters();
+    renderHRStaffList();
+    saveAll();
+    setTimeout(()=>{ if(staffPositions[id]) staffPositions[id].bubble=''; renderCharacters(); }, 3000);
+}
+
+// ═══════════════════════════════════════════════
+// 기억 저장소
+// ═══════════════════════════════════════════════
+function renderMemoryList() {
+    const list = document.getElementById('memory-list-container');
+    const badge = document.getElementById('memory-count-badge');
+    const statsLabel = document.getElementById('memory-stats-label');
+    if(!list) return;
+    list.innerHTML = '';
+    badge.textContent = memories.length;
+    if(statsLabel) statsLabel.textContent = `총 ${memories.length}건 보관 중`;
+
+    const catColors = {
+        '게임개발':'bg-indigo-900/50 text-indigo-400 border-indigo-800/60',
+        '운세/게임':'bg-pink-900/50 text-pink-400 border-pink-800/60',
+        '운세/타로':'bg-pink-900/50 text-pink-400 border-pink-800/60',
+        '마케팅'   :'bg-emerald-900/50 text-emerald-400 border-emerald-800/60',
+        '무인연습실':'bg-amber-900/50 text-amber-400 border-amber-800/60',
+        '개발'     :'bg-cyan-900/50 text-cyan-400 border-cyan-800/60',
+        '기획/전략' :'bg-violet-900/50 text-violet-400 border-violet-800/60'
+    };
+
+    memories.forEach(mem => {
+        const card = document.createElement('div');
+        card.className = 'mem-card bg-slate-950 border border-slate-800 rounded-xl p-4';
+        const catCls = catColors[mem.category] || 'bg-slate-800 text-slate-400 border-slate-700';
+        card.innerHTML = `
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-xs font-bold text-white truncate">${mem.title}</h4>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] px-1.5 py-0.5 rounded border mono font-bold ${catCls}">${mem.category}</span>
+                        <span class="text-[10px] text-slate-500">${mem.author} · ${mem.date}</span>
+                    </div>
+                </div>
+                <button onclick="deleteMemory('${mem.id}')" class="text-slate-600 hover:text-rose-400 transition-colors shrink-0">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>`;
+        card.addEventListener('click', e => { if(!e.target.closest('button')) openMemoryDetail(mem); });
+        list.appendChild(card);
+    });
+
+    if(memories.length===0) {
+        list.innerHTML = '<div class="text-center text-slate-500 text-xs py-8">저장된 기억이 없습니다.<br>채팅에서 자동 저장 옵션을 켜거나 AI와 대화해 보세요!</div>';
+    }
+    lucide.createIcons();
+}
+
+function openMemoryDetail(mem) {
+    document.getElementById('selected-memory-view').classList.remove('hidden');
+    document.getElementById('detail-category').textContent = mem.category;
+    document.getElementById('detail-title').textContent = mem.title;
+    document.getElementById('detail-content').textContent = mem.content;
+    document.getElementById('detail-author').textContent = `작성: ${mem.author}`;
+    document.getElementById('detail-date').textContent = `날짜: ${mem.date}`;
+    document.getElementById('detail-download-btn').onclick = () => downloadMemory(mem);
+    document.getElementById('selected-memory-view').scrollIntoView({behavior:'smooth'});
+}
+
+function deleteMemory(id) {
+    memories = memories.filter(m=>m.id!==id);
+    saveAll();
+    renderMemoryList();
+    document.getElementById('selected-memory-view').classList.add('hidden');
+    addLog(`🗑️ 기억 삭제 완료.`);
+}
+
+function downloadMemory(mem) {
+    const blob = new Blob([`[제목] ${mem.title}\n[분류] ${mem.category}\n[작성자] ${mem.author}\n[날짜] ${mem.date}\n\n${mem.content}`], {type:'text/plain;charset=utf-8'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download = `${mem.title.substring(0,30)}.txt`; a.click();
+}
+
+function renderAIHarddiskMemories() {
+    const container = document.getElementById('ai-memory-core-container');
+    if(!container) return;
+    container.innerHTML = '';
+    const labels = { daily:'📅 일일 요약', peerAnalysis:'🤝 협업 분석', weekly:'📆 주간 정리', monthly:'🗂️ 월간 기억' };
+    Object.keys(staffState).forEach(id => {
+        const staff  = staffState[id];
+        const mems   = staffMemories[id] || {};
+        const card = document.createElement('div');
+        card.className = 'bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3';
+        card.innerHTML = `<div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full ${staff.color} flex items-center justify-center">${staff.emoji}</div><div><div class="text-xs font-bold text-white">${staff.name}</div><div class="text-[10px] text-slate-500">${staff.role}</div></div></div>`;
+        Object.keys(labels).forEach(key => {
+            if(!mems[key]) return;
+            const seg = document.createElement('div');
+            seg.className = 'bg-slate-900 rounded-lg p-3 border border-slate-800';
+            seg.innerHTML = `<div class="text-[10px] font-bold text-indigo-400 mb-1">${labels[key]}</div><div class="text-[11px] text-slate-300 whitespace-pre-line leading-relaxed">${mems[key]}</div>`;
+            card.appendChild(seg);
+        });
+        container.appendChild(card);
+    });
+}
+
+function switchMemorySubTab(tab) {
+    activeMemorySubTab = tab;
+    const reports = document.getElementById('memory-reports-section');
+    const cores   = document.getElementById('memory-ai-cores-section');
+    const btnR    = document.getElementById('mem-subtab-reports');
+    const btnC    = document.getElementById('mem-subtab-ai-cores');
+    if(tab==='reports') {
+        reports.classList.remove('hidden');
+        cores.classList.add('hidden');
+        btnR.className = 'flex-1 py-1.5 text-[11px] font-bold rounded-md bg-slate-800 text-indigo-400 transition-all';
+        btnC.className = 'flex-1 py-1.5 text-[11px] font-bold rounded-md text-slate-400 hover:text-slate-200 transition-all';
+    } else {
+        reports.classList.add('hidden');
+        cores.classList.remove('hidden');
+        btnC.className = 'flex-1 py-1.5 text-[11px] font-bold rounded-md bg-slate-800 text-indigo-400 transition-all';
+        btnR.className = 'flex-1 py-1.5 text-[11px] font-bold rounded-md text-slate-400 hover:text-slate-200 transition-all';
+        renderAIHarddiskMemories();
+    }
+}
+
+// ═══════════════════════════════════════════════
+// 탭 전환
+// ═══════════════════════════════════════════════
+function switchTab(tabId) {
+    const tabs = ['control','memory','hr','stats'];
+    tabs.forEach(t => {
+        const btn  = document.getElementById('tab-btn-'+t);
+        const cont = document.getElementById('tab-content-'+t);
+        if(t===tabId) {
+            btn.className  = btn.className.replace('tab-inactive','tab-active').replace('tab-active','tab-active'); // ensure active
+            btn.classList.add('tab-active'); btn.classList.remove('tab-inactive');
+            cont.classList.remove('hidden');
+        } else {
+            btn.classList.remove('tab-active'); btn.classList.add('tab-inactive');
+            cont.classList.add('hidden');
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════
+// 통계 UI
+// ═══════════════════════════════════════════════
+function updateStatsUI() {
+    stats.totalTasks = memories.length;
+    const el = document.getElementById('stat-total-tasks');
+    if(el) el.textContent = stats.totalTasks+'건';
+    const total = stats.gameProjectCount + stats.tarotProjectCount + stats.marketingCount + stats.unmannedRoomCount || 1;
+    const barGame = document.getElementById('bar-game');
+    const barTarot= document.getElementById('bar-tarot');
+    const barMkt  = document.getElementById('bar-marketing');
+    const barUnm  = document.getElementById('bar-unmanned');
+    const statGame= document.getElementById('stat-game-count');
+    const statTarot=document.getElementById('stat-tarot-count');
+    const statMkt = document.getElementById('stat-marketing-count');
+    const statUnm = document.getElementById('stat-unmanned-count');
+    if(barGame)  barGame.style.width  = (stats.gameProjectCount/total*100)+'%';
+    if(barTarot) barTarot.style.width = (stats.tarotProjectCount/total*100)+'%';
+    if(barMkt)   barMkt.style.width   = (stats.marketingCount/total*100)+'%';
+    if(barUnm)   barUnm.style.width   = (stats.unmannedRoomCount/total*100)+'%';
+    if(statGame)  statGame.textContent  = stats.gameProjectCount+'건';
+    if(statTarot) statTarot.textContent = stats.tarotProjectCount+'건';
+    if(statMkt)   statMkt.textContent   = stats.marketingCount+'건';
+    if(statUnm)   statUnm.textContent   = stats.unmannedRoomCount+'건';
+}
+
+// ═══════════════════════════════════════════════
+// 로그
+// ═══════════════════════════════════════════════
+function addLog(text) {
+    const container = document.getElementById('log-container');
+    const now = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const item = document.createElement('div');
+    item.className = 'flex gap-2 py-0.5';
+    item.innerHTML = `<span class="text-slate-600 shrink-0 mono">${now}</span><span class="text-slate-200">${text}</span>`;
+    container.insertBefore(item, container.firstChild);
+    if(container.children.length > 80) container.removeChild(container.lastChild);
+}
+function clearLogs() { document.getElementById('log-container').innerHTML = ''; }
+
+// ═══════════════════════════════════════════════
+// 파일 핸들러
+// ═══════════════════════════════════════════════
+function setupFileHandlers() {
+    const overlay  = document.getElementById('drop-overlay');
+    const fileInp  = document.getElementById('file-input');
+    const trigBtn  = document.getElementById('folder-trigger-btn');
+    trigBtn.addEventListener('click', ()=>fileInp.click());
+    fileInp.addEventListener('change', e=>handleFiles(Array.from(e.target.files)));
+    window.addEventListener('dragover', e=>{ e.preventDefault(); overlay.classList.remove('opacity-0','pointer-events-none'); });
+    window.addEventListener('dragleave', e=>{ if(!e.relatedTarget) overlay.classList.add('opacity-0','pointer-events-none'); });
+    window.addEventListener('drop', e=>{
+        e.preventDefault();
+        overlay.classList.add('opacity-0','pointer-events-none');
+        handleFiles(Array.from(e.dataTransfer.files));
+    });
+}
+
+function handleFiles(files) {
+    const pills = document.getElementById('files-pills');
+    const listEl = document.getElementById('uploaded-files-list');
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            localFilesData.push({name:file.name, content:e.target.result||''});
+            const pill = document.createElement('span');
+            pill.className = 'flex items-center gap-1 bg-indigo-900/60 border border-indigo-800/60 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full mono whitespace-nowrap';
+            pill.innerHTML = `📄 ${file.name}`;
+            pills.appendChild(pill);
+            addLog(`🔗 파일 연동: ${file.name}`);
+            listEl.classList.remove('hidden');
+        };
+        if(file.type.startsWith('text') || file.name.endsWith('.json') || file.name.endsWith('.csv') || file.name.endsWith('.js') || file.name.endsWith('.html') || file.name.endsWith('.py') || file.name.endsWith('.md')) {
+            reader.readAsText(file);
+        } else {
+            localFilesData.push({name:file.name, content:'(바이너리 파일)'});
+            addLog(`🔗 파일 연동: ${file.name} (텍스트 불가)`);
+            const pill = document.createElement('span');
+            pill.className = 'flex items-center gap-1 bg-indigo-900/60 border border-indigo-800/60 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full mono whitespace-nowrap';
+            pill.innerHTML = `📄 ${file.name}`;
+            pills.appendChild(pill);
+            document.getElementById('uploaded-files-list').classList.remove('hidden');
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════
+// 데이터 백업 / 이관
+// ═══════════════════════════════════════════════
+function exportWorkspaceData() {
+    const data = {
+        version: 'v6', exportDate: new Date().toISOString(),
+        staffState, staffMemories, memories, stats
+    };
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `hohoplay_office_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    addLog('📦 오피스 데이터 백업 파일 다운로드 완료.');
+}
+
+function importWorkspaceData(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+        try {
+            const data = JSON.parse(evt.target.result);
+            if(data.staffState) staffState = data.staffState;
+            if(data.staffMemories) staffMemories = data.staffMemories;
+            if(data.memories) memories = data.memories;
+            if(data.stats) stats = data.stats;
+            saveAll();
+            initStaffPositions();
+            renderCharacters();
+            renderHRStaffList();
+            renderMemoryList();
+            renderAIHarddiskMemories();
+            updateStatsUI();
+            addLog(`✅ 이관 파일 "${file.name}" 로드 완료!`);
+        } catch(err) { addLog('❌ 이관 파일 파싱 오류: '+err.message); }
+    };
+    reader.readAsText(file);
+}
+</script>
+</body>
+</html>
