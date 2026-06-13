@@ -663,7 +663,14 @@ async function sendChatMessage() {
     addLog(`👑 대표님 지시: "${msg.substring(0,40)}${msg.length>40?'...':''}"`);
     chatHistory.push({role:'user', content: msg});
 
+    // 대화 모드 감지
+    const mode = detectChatMode(msg);
+
     if(!apiKey) {
+        if(mode.type === 'greeting') {
+            await playGreetingSequence();
+            return;
+        }
         setTimeout(()=>{
             const fake = `[API 미연결] "${msg}"에 대한 답변을 드리려면 상단에 Claude API Key를 먼저 입력해 주세요! 🔑`;
             appendMessage('assistant','또다른 나','👑', fake);
@@ -673,10 +680,25 @@ async function sendChatMessage() {
     }
 
     showTyping(true);
-    triggerWorkflowAnim(msg);
+
+    // 인사 모드: 전 직원 즉시 인사 (애니메이션만, API 호출 없음)
+    if(mode.type === 'greeting') {
+        await playGreetingSequence();
+    }
+    // 회의 모드: 여러 직원이 의견 나누는 회의 시뮬레이션
+    else if(mode.type === 'meeting') {
+        triggerWorkflowAnim(msg);
+    }
+    // 개인 호출 모드: 특정 직원만 회의실로 호출
+    else if(mode.type === 'direct') {
+        triggerDirectCallAnim(mode.staffId);
+    }
+    else {
+        triggerWorkflowAnim(msg);
+    }
 
     try {
-        const systemPrompt = buildSystemPrompt();
+        const systemPrompt = buildSystemPrompt(mode);
         const res = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: {
@@ -687,7 +709,7 @@ async function sendChatMessage() {
             },
             body: JSON.stringify({
                 model: 'claude-sonnet-4-6',
-                max_tokens: 1500,
+                max_tokens: 2000,
                 system: systemPrompt,
                 messages: chatHistory.slice(-10)
             })
@@ -703,10 +725,21 @@ async function sendChatMessage() {
         chatHistory.push({role:'assistant', content:reply});
 
         showTyping(false);
-        finishWorkflowAnim();
 
-        // 발표자 이름으로 표시
-        appendMessage('assistant','또다른 나 (조정자)','👑', formatMarkdown(reply));
+        if(mode.type === 'meeting') {
+            finishWorkflowAnim();
+            renderMeetingReplies(reply);
+        } else if(mode.type === 'direct') {
+            stopDirectCallAnim(mode.staffId);
+            renderDirectReply(mode.staffId, reply);
+        } else if(mode.type === 'greeting') {
+            // 인사 모드는 조정자가 마무리 인사
+            appendMessage('assistant', staffState.coordinator?.name || '또다른 나', staffState.coordinator?.emoji || '👑', formatMarkdown(reply));
+        } else {
+            finishWorkflowAnim();
+            appendMessage('assistant','또다른 나 (조정자)','👑', formatMarkdown(reply));
+        }
+
         addLog(`🤖 AI 응답 완료 (${reply.length}자)`);
 
         // 경험치 지급
@@ -729,14 +762,208 @@ async function sendChatMessage() {
     }
 }
 
-function buildSystemPrompt() {
-    let sys = `당신은 hohoplay 가상 오피스의 AI 비서 조정자 "또다른 나"입니다.
+// ═══════════════════════════════════════════════
+// 대화 모드 감지 (인사 / 회의 / 개인 호출)
+// ═══════════════════════════════════════════════
+function detectChatMode(msg) {
+    const lower = msg.trim();
+
+    // 1) 인사 감지
+    if(/^(안녕|hi|hello|하이|반가워|좋은 ?아침|좋은 ?하루|굿모닝|왔어요?|왔습니다)/i.test(lower) && lower.length < 15) {
+        return { type:'greeting' };
+    }
+
+    // 2) 개인 호출 감지: "OOO야", "OOO씨", "OOO 불러", "OOO한테", 직원 이름 포함 + 짧은 멘트
+    for(const id of Object.keys(staffState)) {
+        const name = staffState[id].name;
+        // 이름 일부만 써도 매칭 (2글자 이상)
+        const shortName = name.replace(/\s/g,'');
+        if(lower.includes(shortName) || lower.includes(name)) {
+            // "회의", "전체", "다같이" 같은 단어 없으면 개인 호출로 판단
+            if(!/회의|전체|다같이|모두|미팅|브리핑/.test(lower)) {
+                return { type:'direct', staffId:id };
+            }
+        }
+    }
+
+    // 3) 회의/전체 의견 요청 감지
+    if(/회의|전체|다같이|모두|미팅|브리핑|의견|어떻게 생각|아이디어/.test(lower)) {
+        return { type:'meeting' };
+    }
+
+    // 기본: 일반 업무 지시 (조정자 단독 응답)
+    return { type:'normal' };
+}
+
+// ═══════════════════════════════════════════════
+// 인사 시퀀스: 전 직원이 순서대로 인사
+// ═══════════════════════════════════════════════
+function playGreetingSequence() {
+    return new Promise(resolve => {
+        const order = Object.keys(staffState);
+        const greetings = {
+            collector:   '안녕하세요 대표님! 오늘도 시장 자료 열심히 모을게요 🔍',
+            writer:      '대표님 안녕하세요! 글 쓸 준비 완료입니다 ✍️',
+            sns:         '좋은 아침입니다! SNS 반응 체크 중이에요 💬',
+            coordinator: '대표님, 안녕하십니까! 오늘 업무 준비 완료입니다 👑',
+            presenter:   '대표님 안녕하세요! 브리핑 준비해둘게요 📢',
+            intern:      '대표님 안녕하세요!! 오늘도 열심히 하겠습니다 🐣'
+        };
+
+        order.forEach((id, i) => {
+            setTimeout(() => {
+                const staff = staffState[id];
+                const text = greetings[id] || `${staff.name}: 안녕하세요 대표님! 👋`;
+                appendMessage('assistant', staff.name, staff.emoji, text);
+                if(staffPositions[id]) {
+                    staffPositions[id].bubble = '안녕하세요! 👋';
+                    renderCharacters();
+                    setTimeout(()=>{ if(staffPositions[id]) staffPositions[id].bubble=''; renderCharacters(); }, 2500);
+                }
+                if(i === order.length-1) setTimeout(resolve, 400);
+            }, i * 450);
+        });
+    });
+}
+
+// ═══════════════════════════════════════════════
+// 회의 모드 애니메이션 & 응답 파싱
+// ═══════════════════════════════════════════════
+function renderMeetingReplies(reply) {
+    // AI가 "이름: 의견" 형식으로 답변하도록 프롬프트에서 유도.
+    // 줄 단위로 파싱하여 직원별 말풍선으로 분리 출력.
+    const lines = reply.split('\n').filter(l=>l.trim());
+    const nameMap = {};
+    Object.values(staffState).forEach(s => { nameMap[s.name] = s; });
+
+    let buffer = [];
+    let currentStaff = null;
+
+    const flush = () => {
+        if(currentStaff && buffer.length) {
+            appendMessage('assistant', currentStaff.name, currentStaff.emoji, formatMarkdown(buffer.join('\n')));
+        } else if(buffer.length) {
+            appendMessage('assistant','또다른 나 (조정자)','👑', formatMarkdown(buffer.join('\n')));
+        }
+        buffer = [];
+    };
+
+    lines.forEach(line => {
+        const m = line.match(/^\s*\*{0,2}([가-힣a-zA-Z ]{2,12})\*{0,2}\s*[:：]\s*(.*)$/);
+        if(m && nameMap[m[1].trim()]) {
+            flush();
+            currentStaff = nameMap[m[1].trim()];
+            buffer.push(m[2]);
+            // 말풍선
+            const id = currentStaff.id;
+            if(staffPositions[id]) {
+                staffPositions[id].bubble = (m[2] || '').substring(0,16) + ((m[2]||'').length>16?'...':'');
+                renderCharacters();
+                setTimeout(()=>{ if(staffPositions[id]) staffPositions[id].bubble=''; renderCharacters(); }, 3500);
+            }
+        } else {
+            buffer.push(line);
+        }
+    });
+    flush();
+}
+
+// ═══════════════════════════════════════════════
+// 개인 호출 모드
+// ═══════════════════════════════════════════════
+function triggerDirectCallAnim(staffId) {
+    activeWorkflow = staffId;
+    const staff = staffState[staffId];
+    if(!staffPositions[staffId]) return;
+
+    // 해당 직원을 업무 데스크(중앙)로 이동
+    staffPositions[staffId].x = 44;
+    staffPositions[staffId].y = 50;
+    staffPositions[staffId].anim = 'work';
+    staffPositions[staffId].bubble = '대표님이 부르셨다! 🙋';
+    renderCharacters();
+    addLog(`📞 ${staff.name} 호출됨 - 개별 답변 준비 중...`);
+}
+
+function stopDirectCallAnim(staffId) {
+    activeWorkflow = null;
+    if(!staffPositions[staffId]) return;
+    const s = staffState[staffId];
+    staffPositions[staffId].x = s.initialPos?.x ?? 45;
+    staffPositions[staffId].y = s.initialPos?.y ?? 50;
+    staffPositions[staffId].anim = 'float';
+    staffPositions[staffId].bubble = '';
+    renderCharacters();
+}
+
+function renderDirectReply(staffId, reply) {
+    const staff = staffState[staffId];
+    appendMessage('assistant', staff.name, staff.emoji, formatMarkdown(reply));
+    if(staffPositions[staffId]) {
+        staffPositions[staffId].bubble = '답변 완료! ✅';
+        renderCharacters();
+        setTimeout(()=>{ if(staffPositions[staffId]) staffPositions[staffId].bubble=''; renderCharacters(); }, 2500);
+    }
+}
+
+function buildSystemPrompt(mode) {
+    mode = mode || { type:'normal' };
+
+    const staffListText = Object.values(staffState).map(s =>
+        `- ${s.name} (${s.emoji}, Lv.${s.level}): ${s.role}`
+    ).join('\n');
+
+    let sys = `당신은 hohoplay 가상 오피스의 AI 비서 시스템입니다.
 hohoplay는 한국의 1인 개발자 겸 콘텐츠 크리에이터가 운영하는 개인 프로젝트입니다.
 주요 사업: 브라우저 HTML5 게임 플랫폼(HOHO PLAY), 운세/타로 블로그, SNS 마케팅, 무인 연습실.
-당신의 역할: 기획 지원, 코드 작성, 마케팅 전략, 프로젝트 관리.
-답변 언어: 한국어. 답변은 간결하고 실용적으로. 코드가 필요하면 마크다운 코드블록 사용.`;
+
+[사내 AI 직원 명단]
+${staffListText}
+
+답변 언어: 한국어. 코드가 필요하면 마크다운 코드블록 사용.`;
+
+    if(mode.type === 'meeting') {
+        sys += `
+
+[현재 모드: 전체 회의]
+대표님이 전 직원에게 의견을 요청했습니다.
+반드시 아래 형식으로, 각 직원의 역할에 맞는 짧고 개성 있는 의견을 한 명씩 작성하세요 (최소 3명 이상, 가능하면 전원):
+
+이름: 의견 내용 (1~3문장, 직원의 역할/성격에 맞는 말투)
+
+예시:
+자료 수집가: 최근 시장 데이터를 보면 이 아이디어는 가능성이 있어 보입니다.
+글초안 작성기: 콘텐츠 톤은 이렇게 잡으면 좋을 것 같아요.
+또다른 나: 종합하면, 이렇게 진행하는 게 최선입니다.
+
+마지막엔 "또다른 나"가 전체 의견을 종합한 결론을 내려주세요.
+다른 설명 문구 없이, 위 "이름: 내용" 형식 줄들로만 구성하세요.`;
+    }
+    else if(mode.type === 'direct') {
+        const staff = staffState[mode.staffId];
+        sys += `
+
+[현재 모드: 개인 호출]
+대표님이 "${staff.name}" (${staff.emoji}, ${staff.role})을 직접 호출했습니다.
+당신은 지금부터 "${staff.name}" 본인으로서 1인칭으로 답변하세요.
+직원의 역할과 성격에 맞는 말투로, 실질적이고 전문적인 답변을 제공하세요.
+다른 직원 이름을 적지 말고, 오직 "${staff.name}"의 입장에서만 답변하세요.`;
+    }
+    else if(mode.type === 'greeting') {
+        sys += `
+
+[현재 모드: 인사]
+대표님이 출근 인사를 했습니다. "또다른 나" 입장에서 짧고 따뜻하게 오늘 업무를 시작하는 인사를 1~2문장으로 작성하세요.`;
+    }
+    else {
+        sys += `
+
+[현재 모드: 일반 업무 지시]
+"또다른 나(조정자)" 입장에서 종합적이고 실용적인 답변을 제공하세요.`;
+    }
+
     if(localFilesData.length > 0) {
-        sys += `\n\n[연동된 로컬 파일]\n${localFilesData.map(f=>`파일명: ${f.name}\n내용(앞부분):\n${f.content.substring(0,800)}`).join('\n---\n')}`;
+        sys += `\n\n[연동된 로컬/GitHub 파일]\n${localFilesData.map(f=>`파일명: ${f.name}\n내용(앞부분):\n${f.content.substring(0,800)}`).join('\n---\n')}`;
     }
     return sys;
 }
