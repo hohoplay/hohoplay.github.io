@@ -495,7 +495,7 @@ def sentence():
     for df in [fortune_emotion, fortune_1000, fortune_4000]:
         if not df.empty and 'sentence' in df.columns:
             pool += df['sentence'].dropna().tolist()
-    return random.choice(pool) if pool else "오늘도 좋은 하루 되세요."
+    return random.choice(pool) if pool else "오늘도 좋은 하루가 되시기 바랍니다."
 
 def pick_quote():
     """fortune_quotes_real.csv에서 오늘 날짜 기반으로 명언 선택"""
@@ -1078,6 +1078,11 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
     """별자리×띠 한 쌍의 연결 문단 생성"""
     parts = []
 
+    # CSV에서 온 텍스트는 격식체로 보정
+    z_contact_reason = _to_formal(z_contact_reason) if z_contact_reason else z_contact_reason
+    c_peak_tip = _to_formal(c_peak_tip) if c_peak_tip else c_peak_tip
+    c_low_tip  = _to_formal(c_low_tip)  if c_low_tip  else c_low_tip
+
     # 시작 — 별자리 핵심 운세
     if z_core:
         parts.append(f"{z_kr}는 오늘 {z_core}")
@@ -1090,15 +1095,15 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
     if theme:
         parts.append(f"오늘은 '{theme}'이 두 사람을 이어주는 키워드입니다.")
 
-    # 추가 정보 (연락 시간대, 컨디션 피크 등) — 짝수 인덱스에만 덧붙여 다양성 확보
+    # 추가 정보 (컨디션 팁 등) — 짝수 인덱스에만 덧붙여 다양성 확보 (시간대 표기 제거)
     if idx % 2 == 0:
-        if z_contact_time and z_contact_reason:
-            parts.append(f"{z_kr}는 {z_contact_time}에 연락하면 {z_contact_reason}.")
-        if c_peak_time and c_peak_tip:
-            parts.append(f"{c_kr}는 {c_peak_time}에 컨디션이 가장 좋으니 {c_peak_tip}.")
+        if z_contact_reason:
+            parts.append(f"{z_kr}는 오늘 {z_contact_reason}")
+        if c_peak_tip:
+            parts.append(f"{c_kr}는 오늘 {c_peak_tip}")
     else:
-        if c_low_time and c_low_tip:
-            parts.append(f"{c_kr}는 {c_low_time}에는 {c_low_tip}.")
+        if c_low_tip:
+            parts.append(f"{c_kr}는 오늘 {c_low_tip}")
         if z_compatible:
             parts.append(f"{z_kr}와 잘 맞는 별자리는 {z_compatible}입니다.")
 
@@ -1116,35 +1121,35 @@ _OMNIBUS_OPENINGS = [
 
 _OMNIBUS_CLOSINGS = [
     "오늘 하루도, 당신의 별과 띠가 함께합니다.",
-    "내일은 또 다른 이야기가 펼쳐집니다. 오늘도 좋은 하루 되세요.",
-    "별과 띠가 전하는 이야기는 여기까지입니다. 편안한 하루 보내세요.",
+    "내일은 또 다른 이야기가 펼쳐집니다. 오늘도 좋은 하루가 되시기 바랍니다.",
+    "별과 띠가 전하는 이야기는 여기까지입니다. 편안한 하루를 보내시기 바랍니다.",
     "오늘의 이야기가 작은 힌트가 되었기를 바랍니다.",
     "당신의 오늘을, 별과 띠가 조용히 응원합니다.",
 ]
 
 # ── 마무리 — 통찰 / 다리(연결) / 오늘의 행동 제안 (날짜별 순환) ──
 _COMMON_ENDINGS = [
-    {"insight": "오늘은 서두르기보다 차분히 흐름을 따라가는 게 더 좋은 결과를 만듭니다.",
-     "bridge":  "별자리든 띠든, 결국 오늘 하루를 채우는 건 당신의 선택입니다.",
-     "action":  "오늘 마음에 걸리는 일 한 가지를 먼저 정리해보세요"},
+    {"insight": "오늘은 서두르기보다 차분히 흐름을 따라가는 것이 더 좋은 결과를 만듭니다.",
+     "bridge":  "별자리든 띠든, 결국 오늘 하루를 채우는 것은 당신의 선택입니다.",
+     "action":  "오늘 마음에 걸리는 일 한 가지를 먼저 정리해보시기 바랍니다"},
     {"insight": "작은 변화가 오늘 하루의 분위기를 크게 바꿀 수 있는 날입니다.",
-     "bridge":  "운세는 방향을 알려줄 뿐, 걸음을 옮기는 건 언제나 당신입니다.",
-     "action":  "평소와 다른 길로 한 번 걸어보세요"},
+     "bridge":  "운세는 방향을 알려줄 뿐, 걸음을 옮기는 것은 언제나 당신입니다.",
+     "action":  "평소와 다른 길로 한 번 걸어보시기 바랍니다"},
     {"insight": "오늘은 누군가에게 먼저 다가가면 예상보다 좋은 반응이 돌아옵니다.",
-     "bridge":  "사람과의 연결이 오늘 하루의 행운을 좌우할 수 있습니다.",
-     "action":  "오늘 한동안 연락하지 못한 사람에게 안부를 전해보세요"},
+     "bridge":  "사람과의 연결이 오늘 하루의 행운에 영향을 줄 수 있습니다.",
+     "action":  "오늘 한동안 연락하지 못한 사람에게 안부를 전해보시기 바랍니다"},
     {"insight": "무리하지 않고 컨디션을 살피는 것이 오늘의 핵심입니다.",
      "bridge":  "몸과 마음의 신호에 귀를 기울이면 하루가 훨씬 편안해집니다.",
-     "action":  "오늘은 평소보다 10분 더 쉬어가는 시간을 가져보세요"},
+     "action":  "오늘은 평소보다 10분 더 쉬어가는 시간을 가져보시기 바랍니다"},
     {"insight": "오늘은 미뤄둔 일을 마무리하기에 좋은 흐름이 흐릅니다.",
      "bridge":  "작은 마무리 하나가 마음의 무게를 가볍게 해줍니다.",
-     "action":  "오늘 미뤄둔 일 중 가장 작은 것부터 끝내보세요"},
-    {"insight": "오늘은 돈과 관련된 결정을 내리기 전에 한 번 더 생각해보는 게 좋습니다.",
+     "action":  "오늘 미뤄둔 일 중 가장 작은 것부터 끝내보시기 바랍니다"},
+    {"insight": "오늘은 돈과 관련된 결정을 내리기 전에 한 번 더 생각해보는 것이 좋습니다.",
      "bridge":  "신중함이 오늘 하루의 운을 지켜주는 방패가 됩니다.",
-     "action":  "오늘 지출 계획을 한 번 점검해보세요"},
+     "action":  "오늘 지출 계획을 한 번 점검해보시기 바랍니다"},
     {"insight": "오늘은 평소보다 직감이 또렷하게 작동하는 날입니다.",
-     "bridge":  "머리로 따지기보다 마음이 먼저 말하는 답에 귀 기울여보세요.",
-     "action":  "오늘 고민하던 일, 첫 느낌대로 결정해보세요"},
+     "bridge":  "머리로 따지기보다 마음이 먼저 말하는 답에 귀 기울여보시기 바랍니다.",
+     "action":  "오늘 고민하던 일은 첫 느낌대로 결정해보시기 바랍니다"},
 ]
 
 # ── 별자리 × 띠 12쌍 매칭 (날짜에 따라 매일 다른 조합) ──
@@ -3804,7 +3809,7 @@ def build_omnibus_post(today_str: str) -> tuple:
             special_html = (
                 f'<div style="margin:10px 0 6px;padding:12px 14px;'
                 f'background:linear-gradient(135deg,#fdf4ff,#f0f9ff);'
-                f'border-radius:12px;border-left:3px solid #a78bfa">'
+                f'border-radius:12px">'
                 f'<div style="font-size:11px;color:#7c3aed;font-weight:700;'
                 f'letter-spacing:0.08em;margin-bottom:6px">✦ {z_kr} × {c_kr} 오늘의 조합</div>'
                 f'<p style="font-size:13px;line-height:1.9;color:#374151;margin:0 0 6px;word-break:keep-all">'
@@ -3957,7 +3962,7 @@ def build_omnibus_post(today_str: str) -> tuple:
     content_html = f"""{style()}
 <style>
 .novel-page {{
-  max-width: 660px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 4px;
   font-family: 'Noto Serif KR', Georgia, serif;
