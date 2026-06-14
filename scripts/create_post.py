@@ -3152,6 +3152,30 @@ def build_zodiac_weekly_post(today_str):
     <p style="margin:0 0 1.4em 0">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
     {compat_tip_html_w}
 
+    <!-- 별자리 기본 정보 -->
+    <div style="margin-top:1.6em;padding-top:1.4em;border-top:1px dashed #e5e7eb">
+      <div style="font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.08em;margin-bottom:10px">
+        {z['emoji']} {z['kr']} 기본 정보
+      </div>
+      <p style="font-size:14px;line-height:1.95;color:#374151;margin:0 0 12px;word-break:keep-all">
+        {z_info.get("trait","")}
+      </p>
+      <div style="display:grid;gap:8px">
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ede9fe;font-size:13px">
+          <div style="color:#7c3aed;font-weight:700;margin-bottom:4px">🌿 원소 · 지배성</div>
+          <div style="color:#374151">{z_info.get("element","")} · {z_info.get("ruling","")}</div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #d1fae5;font-size:13px">
+          <div style="color:#065f46;font-weight:700;margin-bottom:4px">✅ 강점</div>
+          <div style="color:#374151">{z_info.get("strength","")}</div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #fee2e2;font-size:13px">
+          <div style="color:#991b1b;font-weight:700;margin-bottom:4px">⚠️ 주의할 점</div>
+          <div style="color:#374151">{z_info.get("weakness","")}</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div style="width:2px;height:20px;background:#7c3aed;margin:0 auto 1.6rem"></div>
@@ -3222,8 +3246,6 @@ def build_zodiac_weekly_post(today_str):
   </div>
   {share_buttons(card_id, f"{z['kr']}_주간운세")}
   {post_img("weekly")}
-
-  {zodiac_info_card(z['kr'], z['emoji'])}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
