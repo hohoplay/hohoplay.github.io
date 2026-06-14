@@ -9,7 +9,7 @@
  27개/일 × 30일 = 810개/월
 """
 
-import os, random, time
+import os, random, time, re
 import pandas as pd
 import requests
 from datetime import datetime, date, timezone, timedelta
@@ -287,23 +287,23 @@ COLOR_EFFECT = {
 ITEM_USAGE = [
     # (키워드 리스트, 사용법 설명)
     (["수정","크리스탈","돌","원석"],
-     "오늘 수정은 왼손에 쥐거나 주머니에 넣어 다니세요. 머릿속이 복잡한 날일수록 손에 뭔가 잡히는 게 생각보다 집중에 도움이 돼요."),
+     "오늘 수정은 왼손에 쥐거나 주머니에 넣고 다니시기 바랍니다. 머릿속이 복잡한 날일수록 손에 무언가 잡히는 감각이 집중에 도움이 됩니다."),
     (["동전","코인"],
-     "지갑 깊숙이 넣어 두세요. 작은 거지만 '돈 자리를 비워두지 않는다'는 감각이 오늘 지출 습관을 조금 달리 만들어줘요."),
+     "지갑 깊숙이 넣어두시기 바랍니다. 작은 행동이지만 돈 자리를 비워두지 않는다는 감각이 오늘 지출 습관에 영향을 줍니다."),
     (["꽃","꽃잎","식물","화분"],
-     "오늘 책상이나 창가에 꽃이나 식물 하나 두시기 바랍니다. 초록이 눈에 들어오는 것만으로도 기분이 달라지는 날입니다."),
+     "오늘 책상이나 창가에 꽃이나 식물 하나를 두시기 바랍니다. 초록이 눈에 들어오는 것만으로도 기분이 달라지는 날입니다."),
     (["반지","팔찌","목걸이","귀걸이","주얼리"],
-     "오늘 이 아이템 착용할 때 잠깐 거울 한 번만 보세요. '오늘 나 괜찮다'는 생각 하나가 하루 분위기를 바꾸는 경우 있어요."),
+     "오늘 이 아이템을 착용할 때 거울을 한 번 보시기 바랍니다. 작은 확인이 하루의 분위기를 바꿀 수 있습니다."),
     (["향초","향","아로마"],
-     "아침에 5분만 켜두시기 바랍니다. 후각이 뇌를 자극합니다. 향 하나로 오전 집중력이 눈에 띄게 달라지는 경우가 많습니다."),
+     "아침에 5분만 켜두시기 바랍니다. 후각이 뇌를 자극합니다. 향 하나로 오전 집중력이 달라지는 경우가 많습니다."),
     (["거울","미러"],
-     "외출 전 거울 한 번만 똑바로 보세요. '잘 될 거야'보다 그냥 '오늘도 나 왔네'라는 마음으로 접근하면 충분합니다."),
+     "외출 전 거울을 한 번 보시기 바랍니다. 결과를 미리 단정하지 말고 오늘 하루를 시작하는 마음으로 접근하면 충분합니다."),
     (["책","노트","수첩","다이어리"],
-     "오늘 머릿속에 맴도는 것들 짧게라도 적어보세요. 생각이 글이 되면 무게가 달라져요. 나중에 보면 의외로 도움이 됩니다."),
+     "오늘 머릿속에 떠오르는 것들을 짧게라도 적어보시기 바랍니다. 생각이 글이 되면 무게가 달라집니다. 나중에 도움이 되는 경우가 많습니다."),
     (["열쇠","키"],
-     "오늘 막혀있던 일의 실마리가 뜻밖의 방향에서 나올 수 있어요. 고집 부리던 방향 한 번만 바꿔보세요. 그게 오늘의 열쇠예요."),
+     "오늘 막혀있던 일의 실마리가 뜻밖의 방향에서 나올 수 있습니다. 고집하던 방향을 한 번 바꿔보시기 바랍니다."),
     (["조약돌","돌","스톤"],
-     "힘들 때 손으로 쥐어보세요. 이상하게 들리겠지만 손에 뭔가 잡히는 감각이 마음을 차분하게 만들어주는 경우가 있어요."),
+     "힘들 때 손으로 쥐어보시기 바랍니다. 손에 무언가 잡히는 감각이 마음을 차분하게 만들어주는 경우가 있습니다."),
 ]
 
 def get_color_guide(color_name):
@@ -322,7 +322,7 @@ def get_color_guide(color_name):
             f"{items} 중 하나를 오늘 곁에 두거나 착용해보세요. "
             f"{usage}"
         )
-    return f"오늘 '{color_name}' 컬러를 소품이나 옷에 활용해보시기 바랍니다. 미묘하게 기분이 달라지는 날입니다."
+    return f"오늘 '{color_name}' 컬러를 소품이나 옷에 활용해보시기 바랍니다. 기분이 달라지는 날입니다."
 
 def get_item_guide(item_name):
     """행운 아이템 → 활용법 문자열 반환"""
@@ -330,7 +330,7 @@ def get_item_guide(item_name):
     for keywords, usage in ITEM_USAGE:
         if any(kw in item_lower for kw in keywords):
             return usage
-    return f"오늘 '{item_name}' 가방이나 책상 위에 두세요. 작은 거지만 오늘은 그 자리가 의미 있어요."
+    return f"오늘 '{item_name}'을 가방이나 책상 위에 두시기 바랍니다. 작은 것이지만 오늘은 그 자리가 의미가 있습니다."
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -448,7 +448,7 @@ ZODIAC_INFO = {
 }
 
 def zodiac_info_card(z_kr, emoji):
-    """별자리 배경 지식 카드 HTML 생성"""
+    """별자리 배경 지식 카드 HTML 생성 — 행운숫자·조언 제거 (명언 카드와 중복 방지)"""
     info = ZODIAC_INFO.get(z_kr)
     if not info:
         return ""
@@ -463,17 +463,9 @@ def zodiac_info_card(z_kr, emoji):
       {info["trait"]}
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
-      <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ede9fe">
-        <div style="color:#7c3aed;font-weight:700;margin-bottom:4px">🌿 원소 · 지배성</div>
-        <div style="color:#374151">{info["element"]}</div>
-        <div style="color:#374151">{info["ruling"]}</div>
-      </div>
-      <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #dbeafe">
-        <div style="color:#1d4ed8;font-weight:700;margin-bottom:4px">💎 행운 스톤 · 숫자</div>
-        <div style="color:#374151">{info["stone"]}</div>
-        <div style="color:#374151">행운 숫자: {info["number"]}</div>
-      </div>
+    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ede9fe;font-size:13px">
+      <div style="color:#7c3aed;font-weight:700;margin-bottom:4px">🌿 원소 · 지배성</div>
+      <div style="color:#374151">{info["element"]} · {info["ruling"]}</div>
     </div>
 
     <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #d1fae5;font-size:13px">
@@ -489,12 +481,6 @@ def zodiac_info_card(z_kr, emoji):
     <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #fef3c7;font-size:13px">
       <div style="color:#92400e;font-weight:700;margin-bottom:4px">💑 궁합 좋은 별자리</div>
       <div style="color:#374151">{info["compatible"]}</div>
-    </div>
-
-    <div style="background:linear-gradient(135deg,#7c3aed15,#1d4ed815);border-radius:8px;
-                padding:12px;border:1px solid #c4b5fd;font-size:13px;line-height:1.8">
-      <div style="color:#5b21b6;font-weight:700;margin-bottom:6px">💡 오늘의 {z_kr} 조언</div>
-      <div style="color:#374151">{info["tip"]}</div>
     </div>
 
   </div>
@@ -556,8 +542,36 @@ def chinese_fortune(en_name):
     if not chinese_zodiac.empty:
         m = chinese_zodiac[chinese_zodiac['animal_zodiac'] == en_name]
         if not m.empty:
-            return m.sample(1).iloc[0]['fortune']
+            text = str(m.sample(1).iloc[0]['fortune'])
+            return _to_formal(text)
     return sentence()
+
+def _to_formal(text):
+    """구어체 → 격식체 자동 변환 (CSV 원본 데이터 보정용)"""
+    fixes = [
+        (r'거든요\.', '습니다.'), (r'잖아요\.', '습니다.'),
+        (r'이에요\.', '입니다.'), (r'아니에요\.', '아닙니다.'),
+        (r'아니에요\b', '아닙니다'), (r'거예요\.', '것입니다.'),
+        (r'거예요\b', '것입니다'), (r'이에요\b', '입니다'),
+        (r'네요\.', '습니다.'), (r'에요\.', '입니다.'),
+        (r'에요\b', '입니다'), (r'봐요\.', '보시기 바랍니다.'),
+        (r'보세요\.', '보시기 바랍니다.'), (r'하세요\.', '하시기 바랍니다.'),
+        (r'하세요\b', '하시기 바랍니다'), (r'마세요\.', '마시기 바랍니다.'),
+        (r'주세요\.', '주시기 바랍니다.'), (r'나요\.', '습니다.'),
+        (r'가요\.', '갑니다.'), (r'아요\.', '습니다.'),
+        (r'있어요\.', '있습니다.'), (r'없어요\.', '없습니다.'),
+        (r'해요\.', '합니다.'), (r'돼요\.', '됩니다.'),
+        (r'돼요\b', '됩니다'), (r'와요\.', '옵니다.'),
+        (r'줘요\.', '줍니다.'), (r'줘요\b', '줍니다'),
+        (r'이죠\?', '입니까?'), (r'이죠\b', '입니다'),
+        (r'죠\?', '습니까?'), (r'죠\b', '습니다'),
+        (r'거든요\b', '습니다'), (r'잖아요\b', '습니다'),
+        (r'네요\b', '습니다'), (r'해요\b', '합니다'),
+        (r'있어요\b', '있습니다'), (r'없어요\b', '없습니다'),
+    ]
+    for pattern, replacement in fixes:
+        text = re.sub(pattern, replacement, text)
+    return text
 
 # ═══════════════════════════════════════════════════════════════════
 # 별자리별 고유 성격 기반 현실 디테일 풀 (AI 티 제거 + "헉 맞는데?" 포인트)
@@ -887,36 +901,27 @@ def _get_zodiac_human_voice(kr_name):
     return ""
 
 def _get_zodiac_real_detail_html(kr_name, lucky_color):
-    """'헉 맞는데?' 현실 디테일 블록 HTML 생성"""
+    """'헉 맞는데?' 현실 디테일 블록 — 통합 박스 내부용 (래퍼 없음, 연락시간 제거, 격식체)"""
     d = _ZODIAC_REAL_DETAIL.get(kr_name, {})
     if not d:
         return ""
     return f'''
-<div class="card" style="background:linear-gradient(135deg,#fefce8,#fff7ed);border-left:5px solid #f59e0b">
-  <span class="badge" style="background:#fef3c7;color:#92400e">🔍 오늘의 현실 체크 — {kr_name} 한정</span>
-  <div style="margin-top:14px;display:grid;gap:10px">
-    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fde68a">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">📱 연락 올 가능성 높은 시간</div>
-      <div style="font-size:15px;font-weight:700;color:#92400e">{d["contact_time"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">이 시간대에 진동이 울리면 바로 확인하세요.</div>
-    </div>
+    <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:2px">🔍 오늘의 현실 체크 — {kr_name} 한정</div>
     <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fee2e2">
       <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">💸 오늘 돈 새기 가장 쉬운 행동</div>
       <div style="font-size:14px;font-weight:700;color:#dc2626">{d["money_leak"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">결제 전 한 번만 더 생각하세요.</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">결제 전 한 번 더 생각해보시기 바랍니다.</div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">😤 오늘 은근히 신경 긁는 사람 유형</div>
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">😤 오늘 은근히 신경 쓰이는 사람 유형</div>
       <div style="font-size:14px;font-weight:700;color:#4338ca">{d["annoying_person"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">맞닥뜨려도 오늘만큼은 흘려보내세요.</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">마주치더라도 오늘만큼은 넘기시기 바랍니다.</div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #d1fae5">
       <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">🌙 오늘 밤 후회할 가능성 높은 행동</div>
       <div style="font-size:14px;font-weight:700;color:#065f46">{d["regret_tonight"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">지금 알았으니 피할 수 있습니다.</div>
-    </div>
-  </div>
-</div>'''
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">미리 알았으니 피할 수 있습니다.</div>
+    </div>'''
 
 def _get_chinese_human_voice(kr_name):
     """띠별 구어체 오프닝 랜덤 선택"""
@@ -926,36 +931,28 @@ def _get_chinese_human_voice(kr_name):
     return ""
 
 def _get_chinese_real_detail_html(kr_name):
-    """띠별 '헉 맞는데?' 현실 디테일 블록 HTML"""
+    """띠별 '헉 맞는데?' 현실 디테일 블록 — 통합박스 내부용 (래퍼 없음, 연락시간 제거, 격식체)
+    현재 build_chinese_post에서는 호출되지 않음 (참고용으로 보관)"""
     d = _CHINESE_REAL_DETAIL.get(kr_name, {})
     if not d:
         return ""
     return f'''
-<div class="card" style="background:linear-gradient(135deg,#fefce8,#fff7ed);border-left:5px solid #f59e0b">
-  <span class="badge" style="background:#fef3c7;color:#92400e">🔍 오늘의 현실 체크 — {kr_name} 한정</span>
-  <div style="margin-top:14px;display:grid;gap:10px">
-    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fde68a">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">📱 연락 올 가능성 높은 시간</div>
-      <div style="font-size:15px;font-weight:700;color:#92400e">{d["contact_time"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">이 시간대에 진동이 울리면 바로 확인하세요.</div>
-    </div>
+    <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:2px">🔍 오늘의 현실 체크 — {kr_name} 한정</div>
     <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #fee2e2">
       <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">💸 오늘 돈 새기 가장 쉬운 행동</div>
       <div style="font-size:14px;font-weight:700;color:#dc2626">{d["money_leak"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">결제 전 한 번만 더 생각하세요.</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">결제 전 한 번 더 생각해보시기 바랍니다.</div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">😤 오늘 은근히 신경 긁는 사람 유형</div>
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">😤 오늘 은근히 신경 쓰이는 사람 유형</div>
       <div style="font-size:14px;font-weight:700;color:#4338ca">{d["annoying_person"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">맞닥뜨려도 오늘만큼은 흘려보내세요.</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">마주치더라도 오늘만큼은 넘기시기 바랍니다.</div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #d1fae5">
       <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">🌙 오늘 밤 후회할 가능성 높은 행동</div>
       <div style="font-size:14px;font-weight:700;color:#065f46">{d["regret_tonight"]}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">지금 알았으니 피할 수 있습니다.</div>
-    </div>
-  </div>
-</div>'''
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">미리 알았으니 피할 수 있습니다.</div>
+    </div>'''
 
 def weekly_fortune_general():
     if not weekly_500.empty and 'sentence' in weekly_500.columns:
@@ -2540,25 +2537,48 @@ def build_zodiac_post(z, today_str):
 
   <div style="width:2px;height:20px;background:linear-gradient(#7c3aed,#a78bfa);margin:0 auto 1.6rem"></div>
 
-  {_zq_html}
-
   <div style="border-radius:18px;overflow:hidden;
               box-shadow:0 2px 12px rgba(91,33,182,0.08)">
-    <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
-                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
-      <span style="font-size:14px">{z['emoji']}</span>
-      <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
-        오늘 {z['kr']}에게 전하는 말
-      </span>
-    </div>
+
+    <!-- 명언 영역 -->
     <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);
-                padding:1.4rem 1.5rem 0.5rem">
+                padding:1.4rem 1.5rem 1.2rem">
+      <div style="font-size:11px;font-weight:700;color:#7c3aed;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        오늘 이 흐름에 어울리는 말
+      </div>
+      <p style="font-size:15px;line-height:2.0;color:#1f2937;
+                font-weight:500;margin:0 0 8px;word-break:keep-all;
+                font-style:italic">
+        "{_zq["quote"]}"
+      </p>
+      <p style="font-size:12px;color:#9d8bc7;margin:0 0 14px">
+        — {_zq["author"]} ({_zq["profession"]})
+      </p>
+      <p style="font-size:13px;line-height:1.9;color:#5b21b6;
+                margin:0 0 0;word-break:keep-all">
+        {_zq["apply"]}
+      </p>
+    </div>
+
+    <!-- 연결선 -->
+    <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
+
+    <!-- 엔딩 영역 -->
+    <div style="background:linear-gradient(160deg,#fdf4ff,#faf5ff);
+                padding:1.2rem 1.5rem 0.5rem">
+      <div style="font-size:11px;font-weight:700;color:#7c3aed;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        {z['emoji']} 오늘 {z['kr']}에게 전하는 말
+      </div>
       <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
                 margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
       <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
                 font-style:italic;padding-left:0.8rem;
                 border-left:3px solid #c4b5fd;word-break:keep-all">{_ze[1]}</p>
     </div>
+
+    <!-- 행동 영역 -->
     <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
       <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
                   margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
@@ -2605,19 +2625,24 @@ def build_zodiac_post(z, today_str):
   {image_card_html}
   {share_buttons(card_id, f"별자리운세_{z['kr']}_{today_str}")}
 
-  <!-- 피해야 할 행동 -->
-  <div class="card" style="border-left:5px solid #dc2626">
-    <span class="badge" style="background:#fef2f2;color:#b91c1c">⚠️ 오늘 피해야 할 행동</span>
-    <div style="margin-top:10px">{avoid_items_html}</div>
-  </div>
+  <!-- 오늘 더 알아두면 좋은 것들 — 하나의 박스로 통합 -->
+  <div class="card" style="border-left:5px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff7ed)">
+    <span class="badge" style="background:#fef3c7;color:#92400e">🔍 오늘 더 알아두면 좋은 것들</span>
 
-  <!-- 현실 디테일 -->
-  {real_detail_html}
+    <!-- 피해야 할 행동 -->
+    <div style="margin-top:14px">
+      <div style="font-size:12px;font-weight:700;color:#b91c1c;margin-bottom:8px">⚠️ 오늘 피해야 할 행동</div>
+      {avoid_items_html}
+    </div>
 
-  <!-- 행운 아이템 & 색상 가이드 -->
-  <div class="card" style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);border-left:5px solid #f59e0b">
-    <span class="badge" style="background:#fef3c7;color:#92400e">🍀 오늘의 행운 아이템 & 색상</span>
-    <div style="margin-top:14px;display:grid;gap:10px">
+    <!-- 현실 디테일 -->
+    <div style="margin-top:16px;display:grid;gap:10px">
+      {real_detail_html}
+    </div>
+
+    <!-- 행운 아이템 & 색상 -->
+    <div style="margin-top:16px;display:grid;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#b45309;margin-bottom:2px">🍀 오늘의 행운 아이템 & 색상</div>
       <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #fde68a;
                   font-size:13px;line-height:1.85;color:#374151">
         <div style="font-weight:700;color:#b45309;margin-bottom:6px">🎨 행운 색상: {lucky_color}</div>
@@ -2808,25 +2833,48 @@ def build_chinese_post(c, today_str):
 
   <div style="width:2px;height:20px;background:linear-gradient(#92400e,#f59e0b);margin:0 auto 1.6rem"></div>
 
-  {_cq_html}
-
   <div style="border-radius:18px;overflow:hidden;
               box-shadow:0 2px 12px rgba(146,64,14,0.1)">
-    <div style="background:linear-gradient(90deg,#92400e,#d97706);
-                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
-      <span style="font-size:14px">{c['emoji']}</span>
-      <span style="font-size:11px;font-weight:700;color:#fef3c7;letter-spacing:0.1em">
-        오늘 {c['kr']}에게 전하는 말
-      </span>
-    </div>
+
+    <!-- 명언 영역 -->
     <div style="background:linear-gradient(160deg,#fffbeb,#fef9c3);
-                padding:1.4rem 1.5rem 0.5rem">
+                padding:1.4rem 1.5rem 1.2rem">
+      <div style="font-size:11px;font-weight:700;color:#92400e;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        오늘 이 흐름에 어울리는 말
+      </div>
+      <p style="font-size:15px;line-height:2.0;color:#1f2937;
+                font-weight:500;margin:0 0 8px;word-break:keep-all;
+                font-style:italic">
+        "{_cq["quote"]}"
+      </p>
+      <p style="font-size:12px;color:#9a7b4f;margin:0 0 14px">
+        — {_cq["author"]} ({_cq["profession"]})
+      </p>
+      <p style="font-size:13px;line-height:1.9;color:#78350f;
+                margin:0 0 0;word-break:keep-all">
+        {_cq["apply"]}
+      </p>
+    </div>
+
+    <!-- 연결선 -->
+    <div style="height:1px;background:rgba(146,64,14,0.12);margin:0 1.5rem"></div>
+
+    <!-- 엔딩 영역 -->
+    <div style="background:linear-gradient(160deg,#fef9c3,#fffbeb);
+                padding:1.2rem 1.5rem 0.5rem">
+      <div style="font-size:11px;font-weight:700;color:#92400e;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        {c['emoji']} 오늘 {c['kr']}에게 전하는 말
+      </div>
       <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
                 margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
       <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.2rem;
                 font-style:italic;padding-left:0.8rem;
                 border-left:3px solid #fbbf24;word-break:keep-all">{_ce[1]}</p>
     </div>
+
+    <!-- 행동 영역 -->
     <div style="background:#92400e;padding:1rem 1.5rem;text-align:center">
       <div style="font-size:11px;color:#fde68a;letter-spacing:0.12em;
                   margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
@@ -3108,23 +3156,41 @@ def build_zodiac_weekly_post(today_str):
 
   <div style="width:2px;height:20px;background:#7c3aed;margin:0 auto 1.6rem"></div>
 
-  {_wq_html}
-
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
-    <div style="background:linear-gradient(90deg,#7c3aed,#a78bfa);
-                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
-      <span style="font-size:14px">{z['emoji']}</span>
-      <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
-        이번 주 {z['kr']}에게 전하는 말
-      </span>
+
+    <!-- 속담 영역 -->
+    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 1.2rem">
+      <div style="font-size:11px;font-weight:700;color:#7c3aed;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        이 흐름에 어울리는 속담
+      </div>
+      <p style="font-size:17px;line-height:1.9;color:#1f2937;
+                font-weight:500;margin:0 0 8px;word-break:keep-all">
+        "{_wq["proverb"]}"
+      </p>
+      <p style="font-size:13px;line-height:1.9;color:#6d28d9;
+                margin:0;word-break:keep-all">
+        {_wq["meaning"]}
+      </p>
     </div>
-    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 0.5rem">
+
+    <!-- 연결선 -->
+    <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
+
+    <!-- 엔딩 영역 -->
+    <div style="background:linear-gradient(160deg,#fdf4ff,#faf5ff);padding:1.2rem 1.5rem 0.5rem">
+      <div style="font-size:11px;font-weight:700;color:#7c3aed;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        {z['emoji']} 이번 주 {z['kr']}에게 전하는 말
+      </div>
       <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
                 margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
       <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
                 font-style:italic;padding-left:0.8rem;
                 border-left:3px solid #c4b5fd;word-break:keep-all">{_we[1]}</p>
     </div>
+
+    <!-- 행동 영역 -->
     <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
       <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
                   margin-bottom:0.4rem;font-weight:600">이번 주 하나만 한다면</div>
@@ -3345,23 +3411,41 @@ def build_chinese_monthly_post(today_str):
 
   <div style="width:2px;height:20px;background:linear-gradient(#5b21b6,#7c3aed);margin:0 auto 1.6rem"></div>
 
-  {_mq_html}
-
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.1)">
-    <div style="background:linear-gradient(90deg,#5b21b6,#7c3aed);
-                padding:0.6rem 1.3rem;display:flex;align-items:center;gap:8px">
-      <span style="font-size:14px">{c['emoji']}</span>
-      <span style="font-size:11px;font-weight:700;color:#ede9fe;letter-spacing:0.1em">
-        이달 {c['kr']}에게 전하는 말
-      </span>
+
+    <!-- 속담 영역 -->
+    <div style="background:linear-gradient(160deg,#fdf4ff,#ede9fe);padding:1.4rem 1.5rem 1.2rem">
+      <div style="font-size:11px;font-weight:700;color:#5b21b6;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        이 흐름에 어울리는 속담
+      </div>
+      <p style="font-size:17px;line-height:1.9;color:#1f2937;
+                font-weight:500;margin:0 0 8px;word-break:keep-all">
+        "{_mq["proverb"]}"
+      </p>
+      <p style="font-size:13px;line-height:1.9;color:#6d28d9;
+                margin:0;word-break:keep-all">
+        {_mq["meaning"]}
+      </p>
     </div>
-    <div style="background:linear-gradient(160deg,#fdf4ff,#ede9fe);padding:1.4rem 1.5rem 0.5rem">
+
+    <!-- 연결선 -->
+    <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
+
+    <!-- 엔딩 영역 -->
+    <div style="background:linear-gradient(160deg,#ede9fe,#fdf4ff);padding:1.2rem 1.5rem 0.5rem">
+      <div style="font-size:11px;font-weight:700;color:#5b21b6;
+                  letter-spacing:0.08em;margin-bottom:10px">
+        {c['emoji']} 이달 {c['kr']}에게 전하는 말
+      </div>
       <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
                 margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
       <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
                 font-style:italic;padding-left:0.8rem;
                 border-left:3px solid #c4b5fd;word-break:keep-all">{_me[1]}</p>
     </div>
+
+    <!-- 행동 영역 -->
     <div style="background:#4c1d95;padding:1rem 1.5rem;text-align:center">
       <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
                   margin-bottom:0.4rem;font-weight:600">이달 하나만 한다면</div>
