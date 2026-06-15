@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title>Hohoplay AI Workspace v6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest" onerror="console.warn('lucide load failed - icons disabled')"></script>
@@ -73,9 +73,15 @@
         /* memory card */
         .mem-card:hover { border-color:#4f46e5; }
         .mem-card { transition: border-color .2s; cursor:pointer; }
+
+        /* dvh 미지원 브라우저 fallback */
+        #app-body { height: 100vh; }
+        @supports (height: 100dvh) {
+            #app-body { height: 100dvh; }
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen overflow-hidden flex flex-col" id="app-body">
+<body class="bg-slate-950 text-slate-100 overflow-hidden flex flex-col" id="app-body">
 
 <!-- ══════════════ HEADER ══════════════ -->
 <header class="flex items-center justify-between px-3 md:px-5 py-2 md:py-3 bg-slate-900 border-b border-slate-800 shrink-0 flex-wrap gap-y-1">
@@ -94,7 +100,8 @@
     <div class="flex items-center gap-2 md:gap-3 text-xs shrink-0">
         <div class="flex items-center gap-2 bg-slate-800 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-700">
             <span id="sys-indicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
-            <span id="sys-text" class="text-slate-300 mono text-[10px] md:text-[11px] hidden sm:inline">Claude API 연결 대기 중</span>
+            <span id="sys-text" class="text-slate-300 mono text-[10px] md:text-[11px] hidden md:inline">Claude API 연결 대기 중</span>
+            <span id="sys-text-mobile" class="text-slate-300 mono text-[10px] md:hidden">대기중</span>
         </div>
         <div class="bg-indigo-900/40 text-indigo-300 border border-indigo-800/60 px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-bold text-[11px] whitespace-nowrap">
             대표: hohoplay
@@ -106,7 +113,7 @@
 <main class="flex flex-col md:flex-row flex-1 overflow-hidden">
 
     <!-- ═══ LEFT: 오피스 맵 ═══ -->
-    <section class="w-full md:w-1/2 h-[30vh] md:h-auto flex flex-col border-r-0 md:border-r border-b md:border-b-0 border-slate-800 bg-slate-900/60 overflow-hidden shrink-0" id="left-workspace">
+    <section class="w-full md:w-1/2 h-[30dvh] md:h-auto flex flex-col border-r-0 md:border-r border-b md:border-b-0 border-slate-800 bg-slate-900/60 overflow-hidden shrink-0" id="left-workspace">
         <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 z-10">
             <h2 class="text-xs font-bold text-slate-300 flex items-center gap-2">
                 <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
@@ -231,7 +238,7 @@
                         <!-- API 키 입력 -->
                         <input type="password" id="api-key-input" placeholder="Claude API Key 입력..." 
                             class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 flex-1 md:w-48 mono min-w-0" />
-                        <button onclick="saveApiKey()" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">연결</button>
+                        <button onclick="saveApiKey()" id="api-key-btn" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">연결</button>
                         <button id="folder-trigger-btn" class="bg-slate-800 border border-slate-700 text-[10px] text-slate-400 px-2 py-1 rounded-lg hover:text-slate-200 flex items-center gap-1 transition-all shrink-0">
                             <i data-lucide="upload-cloud" class="w-3 h-3"></i><span class="hidden sm:inline">파일 투하</span>
                         </button>
@@ -242,10 +249,13 @@
                 <!-- GitHub 저장소 연동 -->
                 <div class="bg-slate-950 border-b border-slate-800 px-2 md:px-4 py-2 flex items-center gap-2 shrink-0">
                     <i data-lucide="github" class="w-3.5 h-3.5 text-slate-400 shrink-0 hidden sm:block"></i>
-                    <input type="text" id="github-url-input" placeholder="GitHub 파일 URL..."
+                    <input type="text" id="github-url-input" placeholder="GitHub 파일 URL 또는 저장소 URL..."
                         class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 mono min-w-0" />
                     <button onclick="fetchGithubFile()" id="github-fetch-btn" class="bg-slate-800 border border-slate-700 hover:border-indigo-500 hover:text-indigo-300 text-[10px] text-slate-400 px-2 py-1 rounded-lg flex items-center gap-1 transition-all font-bold shrink-0">
                         <i data-lucide="download-cloud" class="w-3 h-3"></i><span class="hidden sm:inline">가져오기</span>
+                    </button>
+                    <button onclick="openGithubBrowser()" id="github-browse-btn" class="bg-slate-800 border border-slate-700 hover:border-indigo-500 hover:text-indigo-300 text-[10px] text-slate-400 px-2 py-1 rounded-lg flex items-center gap-1 transition-all font-bold shrink-0">
+                        <i data-lucide="folder-tree" class="w-3 h-3"></i><span class="hidden sm:inline">저장소 탐색</span>
                     </button>
                 </div>
 
@@ -289,9 +299,8 @@
 
                 <!-- 입력창 -->
                 <div class="p-3 bg-slate-950 border-t border-slate-800 shrink-0 space-y-2">
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 px-1 flex-wrap gap-y-1">
+                    <div class="flex items-center text-[11px] text-slate-400 px-1 flex-wrap gap-y-1">
                         <div id="staff-call-toggles" class="flex items-center gap-2 flex-wrap"></div>
-                        <span id="api-status-chip" class="text-[10px] mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-500 shrink-0">API 미연결</span>
                     </div>
                     <div class="flex items-end gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-indigo-500 transition-colors">
                         <textarea id="chat-input" rows="1"
@@ -517,7 +526,43 @@
     </div>
 </div>
 
-<!-- ══════ 공용 확인 모달 ══════ -->
+<!-- ══════ GitHub 저장소 탐색 모달 ══════ -->
+<div id="github-browser-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[120] items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-lg w-full shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-indigo-400">
+                <i data-lucide="folder-tree" class="w-5 h-5"></i>
+                <h4 class="text-sm font-bold text-white">GitHub 저장소 탐색</h4>
+            </div>
+            <button onclick="closeGithubBrowser()" class="text-slate-500 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <input type="text" id="github-repo-input" placeholder="예: https://github.com/hohoplay/hohoplay.github.io"
+                class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 mono" />
+            <button onclick="loadGithubRepoTree()" id="github-repo-load-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] px-3 py-2 rounded-lg font-bold transition-colors shrink-0">불러오기</button>
+        </div>
+
+        <!-- 경로 탐색 (브레드크럼) -->
+        <div id="github-browser-path" class="text-[10px] text-slate-500 mono"></div>
+
+        <!-- 파일/폴더 목록 -->
+        <div id="github-browser-list" class="flex-1 overflow-y-auto space-y-1 border border-slate-800 rounded-lg p-2 bg-slate-950 min-h-[200px]">
+            <div class="text-center text-slate-500 text-xs py-8">저장소 URL을 입력하고 "불러오기"를 눌러주세요.</div>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px]">
+            <span id="github-browser-selected-count" class="text-slate-400">선택된 파일: 0개</span>
+            <div class="flex items-center gap-2">
+                <button onclick="closeGithubBrowser()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-colors">취소</button>
+                <button onclick="importSelectedGithubFiles()" id="github-import-btn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors">선택 파일 가져오기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
         <div class="flex items-center gap-3">
@@ -617,11 +662,14 @@ window.onload = function() {
     const ghInp = document.getElementById('github-url-input');
     ghInp.addEventListener('keydown', e => { if(e.key==='Enter') fetchGithubFile(); });
 
+    const ghRepoInp = document.getElementById('github-repo-input');
+    if(ghRepoInp) ghRepoInp.addEventListener('keydown', e => { if(e.key==='Enter') loadGithubRepoTree(); });
+
     // API 키 저장 여부 확인
     const savedKey = localStorage.getItem('hohoplay_claude_api_key');
     if(savedKey) {
         apiKey = savedKey;
-        document.getElementById('api-key-input').value = '••••••••••••••••';
+        setApiKeyConnectedUI();
         updateApiStatus(true);
     }
 };
@@ -676,6 +724,20 @@ function getDefaultMemories() {
 // ═══════════════════════════════════════════════
 function saveApiKey() {
     const inp = document.getElementById('api-key-input');
+    const btn = document.getElementById('api-key-btn');
+
+    // "변경" 모드: 입력란을 비우고 새 키 입력 받기
+    if(btn.dataset.mode === 'change') {
+        inp.value = '';
+        inp.readOnly = false;
+        inp.type = 'password';
+        inp.placeholder = '새 Claude API Key 입력...';
+        inp.focus();
+        btn.textContent = '연결';
+        btn.dataset.mode = 'connect';
+        return;
+    }
+
     const val = inp.value.trim();
     if(!val || val.startsWith('••')) {
         if(apiKey) { addLog('✅ 기존 API Key 유지 중.'); return; }
@@ -683,21 +745,39 @@ function saveApiKey() {
     }
     apiKey = val;
     localStorage.setItem('hohoplay_claude_api_key', apiKey);
-    inp.value = '••••••••••••••••';
+    setApiKeyConnectedUI();
     updateApiStatus(true);
     addLog('✅ Claude API Key 연결 완료!');
-    document.getElementById('sys-text').textContent = 'Claude API 연결됨';
+    setSysText('Claude API 연결됨', '연결됨');
+}
+
+// 연결 완료 상태 UI: 입력란 마스킹+읽기전용, 버튼을 "변경"으로 전환
+function setApiKeyConnectedUI() {
+    const inp = document.getElementById('api-key-input');
+    const btn = document.getElementById('api-key-btn');
+    inp.value = '••••••••••••••••';
+    inp.readOnly = true;
+    inp.placeholder = '';
+    btn.textContent = '변경';
+    btn.dataset.mode = 'change';
+}
+
+// 데스크탑/모바일 상태 텍스트 동시 갱신
+function setSysText(fullText, shortText) {
+    const el = document.getElementById('sys-text');
+    const elM = document.getElementById('sys-text-mobile');
+    if(el) el.textContent = fullText;
+    if(elM) elM.textContent = shortText !== undefined ? shortText : fullText;
 }
 
 function updateApiStatus(connected) {
-    const chip = document.getElementById('api-status-chip');
+    const sysIndicator = document.getElementById('sys-indicator');
     if(connected) {
-        chip.textContent = 'API 연결됨 ✓';
-        chip.className = 'text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-400 border border-emerald-700/50';
-        document.getElementById('sys-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+        setSysText('Claude API 연결됨', '연결됨');
+        sysIndicator.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0';
     } else {
-        chip.textContent = 'API 미연결';
-        chip.className = 'text-[10px] mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-500';
+        setSysText('Claude API 연결 대기 중', '대기중');
+        sysIndicator.className = 'w-2 h-2 rounded-full bg-slate-500 shrink-0';
     }
 }
 
@@ -1380,7 +1460,7 @@ function triggerSimulatedBug() {
     activeBug = true;
 
     document.getElementById('map-error-tag').classList.remove('hidden');
-    document.getElementById('sys-text').textContent = '⚠️ 버그 감지! 핫패치 가동 중...';
+    setSysText('⚠️ 버그 감지! 핫패치 가동 중...', '⚠️ 버그');
     document.getElementById('sys-indicator').className = 'w-2 h-2 rounded-full bg-rose-500 animate-ping';
 
     // 랜덤 직원 버그 상태
@@ -1416,8 +1496,8 @@ function triggerSimulatedBug() {
         activeBug = false;
         document.getElementById('map-error-tag').classList.add('hidden');
         document.getElementById('office-map').classList.remove('error-border');
-        document.getElementById('sys-text').textContent = 'Claude API 연결됨';
         document.getElementById('sys-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+        setSysText(apiKey ? 'Claude API 연결됨' : 'Claude API 연결 대기 중', apiKey ? '연결됨' : '대기중');
 
         // 원상복귀
         keys.forEach(id=>{
@@ -2032,8 +2112,258 @@ async function fetchGithubFile() {
 }
 
 // ═══════════════════════════════════════════════
-// 데이터 백업 / 이관
+// GitHub 저장소 탐색기
 // ═══════════════════════════════════════════════
+let ghBrowserState = {
+    owner: null,
+    repo: null,
+    branch: 'main',
+    path: '',          // 현재 탐색 중인 경로
+    selectedFiles: {},  // { "path/to/file.html": {name, path} }
+};
+
+// 입력 URL → { owner, repo } 파싱
+function parseGithubRepoUrl(url) {
+    url = url.trim();
+    // https://github.com/{owner}/{repo}(/...)?
+    let m = url.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+?)(?:\.git)?\/?(?:$|\/)/);
+    if(m) return { owner: m[1], repo: m[2] };
+
+    // https://{owner}.github.io(/...)?  → {owner}/{owner}.github.io
+    m = url.match(/^https?:\/\/([^.\/]+)\.github\.io\/?/);
+    if(m) return { owner: m[1], repo: `${m[1]}.github.io` };
+
+    // owner/repo 형식 직접 입력
+    m = url.match(/^([^\/\s]+)\/([^\/\s]+)$/);
+    if(m) return { owner: m[1], repo: m[2] };
+
+    return null;
+}
+
+function openGithubBrowser() {
+    const modal = document.getElementById('github-browser-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    // GitHub URL 입력란에 값이 있으면 자동으로 채워줌
+    const ghInp = document.getElementById('github-url-input');
+    const repoInp = document.getElementById('github-repo-input');
+    if(ghInp.value.trim() && !repoInp.value.trim()) {
+        repoInp.value = ghInp.value.trim();
+    }
+    safeCreateIcons();
+}
+
+function closeGithubBrowser() {
+    const modal = document.getElementById('github-browser-modal');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+}
+
+async function loadGithubRepoTree() {
+    const repoInp = document.getElementById('github-repo-input');
+    const url = repoInp.value.trim();
+    if(!url) { addLog('❌ 저장소 URL을 입력해 주세요.'); return; }
+
+    const parsed = parseGithubRepoUrl(url);
+    if(!parsed) {
+        appendListMessage('저장소 URL 형식을 인식할 수 없습니다. "https://github.com/owner/repo" 형식으로 입력해 주세요.');
+        return;
+    }
+
+    ghBrowserState.owner = parsed.owner;
+    ghBrowserState.repo = parsed.repo;
+    ghBrowserState.path = '';
+    ghBrowserState.selectedFiles = {};
+
+    const btn = document.getElementById('github-repo-load-btn');
+    btn.disabled = true;
+    btn.textContent = '불러오는 중...';
+
+    // main → master 순서로 시도
+    let success = false;
+    for(const branch of ['main','master']) {
+        const ok = await fetchGithubDirectory(parsed.owner, parsed.repo, branch, '');
+        if(ok) {
+            ghBrowserState.branch = branch;
+            success = true;
+            break;
+        }
+    }
+
+    btn.disabled = false;
+    btn.textContent = '불러오기';
+
+    if(!success) {
+        appendListMessage(`❌ 저장소(${parsed.owner}/${parsed.repo})를 불러오지 못했습니다.<br>main/master 브랜치 모두 실패했거나, GitHub API 접근이 차단되었을 수 있습니다.`);
+        addLog(`❌ GitHub 저장소 탐색 실패: ${parsed.owner}/${parsed.repo}`);
+    }
+}
+
+// GitHub Contents API로 디렉토리 내용 가져오기. 성공 시 true 반환
+async function fetchGithubDirectory(owner, repo, branch, path) {
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+    try {
+        const res = await fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github+json' } });
+        if(!res.ok) return false;
+        const items = await res.json();
+        if(!Array.isArray(items)) return false;
+
+        ghBrowserState.path = path;
+        renderGithubBrowserList(items);
+        renderGithubBrowserPath();
+        addLog(`📂 저장소 탐색: ${owner}/${repo} (${branch}) - ${path || '/'}`);
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
+
+function renderGithubBrowserPath() {
+    const el = document.getElementById('github-browser-path');
+    const parts = ghBrowserState.path ? ghBrowserState.path.split('/') : [];
+    let html = `<span class="cursor-pointer hover:text-indigo-400" onclick="navigateGithubPath('')">📦 ${ghBrowserState.owner}/${ghBrowserState.repo}</span>`;
+    let acc = '';
+    parts.forEach((p, i) => {
+        acc += (i>0?'/':'') + p;
+        const pathSnapshot = acc;
+        html += ` / <span class="cursor-pointer hover:text-indigo-400" onclick="navigateGithubPath('${pathSnapshot}')">${p}</span>`;
+    });
+    el.innerHTML = html;
+}
+
+async function navigateGithubPath(path) {
+    const btn = document.getElementById('github-repo-load-btn');
+    const listEl = document.getElementById('github-browser-list');
+    listEl.innerHTML = '<div class="text-center text-slate-500 text-xs py-8">불러오는 중...</div>';
+    const ok = await fetchGithubDirectory(ghBrowserState.owner, ghBrowserState.repo, ghBrowserState.branch, path);
+    if(!ok) {
+        appendListMessage('❌ 폴더를 불러오지 못했습니다.');
+    }
+}
+
+function renderGithubBrowserList(items) {
+    const listEl = document.getElementById('github-browser-list');
+    listEl.innerHTML = '';
+
+    // 폴더 먼저, 파일 나중 (이름순)
+    const dirs = items.filter(i=>i.type==='dir').sort((a,b)=>a.name.localeCompare(b.name));
+    const files = items.filter(i=>i.type!=='dir').sort((a,b)=>a.name.localeCompare(b.name));
+
+    if(dirs.length === 0 && files.length === 0) {
+        listEl.innerHTML = '<div class="text-center text-slate-500 text-xs py-8">빈 폴더입니다.</div>';
+        return;
+    }
+
+    // 상위 폴더로 가기
+    if(ghBrowserState.path) {
+        const parentPath = ghBrowserState.path.split('/').slice(0,-1).join('/');
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 px-2 py-1.5 rounded hover:bg-slate-800 cursor-pointer text-slate-400 text-xs';
+        row.innerHTML = `<i data-lucide="corner-left-up" class="w-3.5 h-3.5"></i> .. (상위 폴더)`;
+        row.onclick = () => navigateGithubPath(parentPath);
+        listEl.appendChild(row);
+    }
+
+    dirs.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 px-2 py-1.5 rounded hover:bg-slate-800 cursor-pointer text-slate-300 text-xs';
+        row.innerHTML = `<i data-lucide="folder" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i><span class="truncate">${item.name}/</span>`;
+        row.onclick = () => navigateGithubPath(item.path);
+        listEl.appendChild(row);
+    });
+
+    files.forEach(item => {
+        const isTextLike = /\.(html|htm|css|js|json|md|txt|csv|py|xml|svg|yml|yaml)$/i.test(item.name);
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 px-2 py-1.5 rounded hover:bg-slate-800 text-xs';
+        const checked = ghBrowserState.selectedFiles[item.path] ? 'checked' : '';
+        const disabledAttr = isTextLike ? '' : 'disabled';
+        const titleAttr = isTextLike ? '' : 'title="텍스트 기반 파일만 가져올 수 있습니다"';
+        row.innerHTML = `
+            <input type="checkbox" class="gh-file-checkbox rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0 w-3.5 h-3.5 shrink-0" ${checked} ${disabledAttr} ${titleAttr} data-path="${item.path}" data-name="${item.name}" />
+            <i data-lucide="file-text" class="w-3.5 h-3.5 ${isTextLike?'text-slate-400':'text-slate-600'} shrink-0"></i>
+            <span class="truncate ${isTextLike?'text-slate-300':'text-slate-600'}">${item.name}</span>
+            <span class="text-slate-600 ml-auto shrink-0">${formatFileSize(item.size)}</span>`;
+        const cb = row.querySelector('.gh-file-checkbox');
+        if(isTextLike) {
+            cb.addEventListener('change', () => {
+                if(cb.checked) {
+                    ghBrowserState.selectedFiles[item.path] = { name: item.name, path: item.path };
+                } else {
+                    delete ghBrowserState.selectedFiles[item.path];
+                }
+                updateGithubSelectedCount();
+            });
+        }
+        listEl.appendChild(row);
+    });
+
+    updateGithubSelectedCount();
+    safeCreateIcons();
+}
+
+function formatFileSize(bytes) {
+    if(bytes < 1024) return bytes + 'B';
+    if(bytes < 1024*1024) return Math.round(bytes/1024) + 'KB';
+    return (bytes/1024/1024).toFixed(1) + 'MB';
+}
+
+function updateGithubSelectedCount() {
+    const count = Object.keys(ghBrowserState.selectedFiles).length;
+    document.getElementById('github-browser-selected-count').textContent = `선택된 파일: ${count}개`;
+}
+
+function appendListMessage(html) {
+    document.getElementById('github-browser-list').innerHTML = `<div class="text-center text-slate-500 text-xs py-8 leading-relaxed">${html}</div>`;
+}
+
+async function importSelectedGithubFiles() {
+    const files = Object.values(ghBrowserState.selectedFiles);
+    if(files.length === 0) { addLog('❌ 선택된 파일이 없습니다.'); return; }
+
+    const btn = document.getElementById('github-import-btn');
+    btn.disabled = true;
+    btn.textContent = '가져오는 중...';
+
+    let successCount = 0;
+    for(const f of files) {
+        const rawUrl = `https://raw.githubusercontent.com/${ghBrowserState.owner}/${ghBrowserState.repo}/${ghBrowserState.branch}/${f.path}`;
+        addLog(`🌐 가져오는 중: ${f.path}`);
+        try {
+            const res = await fetch(rawUrl, { cache: 'no-store' });
+            if(!res.ok) { addLog(`❌ 실패 (HTTP ${res.status}): ${f.path}`); continue; }
+            const text = await res.text();
+            localFilesData.push({ name: f.name, content: text, source: rawUrl });
+
+            const pills = document.getElementById('files-pills');
+            const listEl = document.getElementById('uploaded-files-list');
+            const pill = document.createElement('span');
+            pill.className = 'flex items-center gap-1 bg-emerald-900/60 border border-emerald-800/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full mono whitespace-nowrap';
+            pill.innerHTML = `🌐 ${f.name}`;
+            pills.appendChild(pill);
+            listEl.classList.remove('hidden');
+
+            addLog(`✅ 가져오기 완료: ${f.name} (${text.length}자)`);
+            successCount++;
+        } catch(e) {
+            addLog(`❌ 가져오기 실패: ${f.path} - ${e.message}`);
+        }
+    }
+
+    btn.disabled = false;
+    btn.textContent = '선택 파일 가져오기';
+
+    if(successCount > 0) {
+        appendMessage('assistant','또다른 나','👑',
+            `📂 GitHub 저장소(<strong class="text-white">${ghBrowserState.owner}/${ghBrowserState.repo}</strong>)에서 <strong class="text-white">${successCount}개</strong> 파일을 가져왔습니다!<br>${files.slice(0,successCount).map(f=>`· ${f.name}`).join('<br>')}<br><br>이제 이 파일들에 대해 질문하시면 AI가 내용을 참고하여 답변합니다.`);
+    }
+
+    ghBrowserState.selectedFiles = {};
+    closeGithubBrowser();
+}
+
+
 function exportWorkspaceData() {
     const data = {
         version: 'v6', exportDate: new Date().toISOString(),
