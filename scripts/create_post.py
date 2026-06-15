@@ -2717,12 +2717,17 @@ def build_chinese_post(c, today_str):
     title  = f"{c['kr']} {today_sync} 오늘의 운세 | 띠운세 {signal}"
 
     # 출생연도별 운세
+    # (사람용: 산문 / 기계용: fortune.html parseFortune_Chinese 신규조 — display:flex 행)
     year_sentences = []
     year_rows_in_card = ""
     for yr in c['years']:
         yf = birth_year_fortune(c['en'], yr)
         year_sentences.append(f'<strong>{yr}년생</strong>은 {yf}')
-        year_rows_in_card += f'<div style="font-size:11px;color:rgba(255,255,255,0.9);padding:3px 0">' +             f'<b>{yr}년생</b> {yf[:40]}…</div>'
+        year_rows_in_card += (
+            f'<div style="display:flex;gap:8px;font-size:11px;'
+            f'color:rgba(255,255,255,0.9);padding:3px 0">'
+            f'<b>{yr}년생</b><div>{yf}</div></div>'
+        )
 
     year_section_html = " ".join(year_sentences)
 
@@ -2751,7 +2756,7 @@ def build_chinese_post(c, today_str):
   <div class="fc-stars">{rating}</div>
   <div class="fc-text">{fortune}</div>
   <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.3);padding-top:12px">
-    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:8px">📅 출생연도별</div>
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:8px">📅 출생연도별 오늘 운세</div>
     {year_rows_in_card}
   </div>
   <div class="fc-watermark" style="margin-top:14px">todayhoroscopelaboratory.blogspot.com · {today_str}</div>
