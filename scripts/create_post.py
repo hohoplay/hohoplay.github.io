@@ -70,6 +70,21 @@ daily_365         = csv("daily_fortunes_365.csv")
 fortune_365       = csv("fortune_365_days.csv")
 fortune_quotes    = csv("fortune_quotes_10000.csv")   # ← 오늘의명언용
 proverbs          = csv("proverbs_200.csv")            # ← 별자리주간·띠별월간 속담용
+seo_keywords      = csv("fortune_seo_keywords_3000.csv") # ← SEO 키워드 풀
+
+def pick_seo_keywords(name, day_seed, n=2):
+    """이름(별자리/띠)이 포함된 SEO 키워드를 날짜 시드로 n개 선택"""
+    if seo_keywords.empty or 'keyword' not in seo_keywords.columns:
+        return []
+    pool = seo_keywords[seo_keywords['keyword'].astype(str).str.contains(name, na=False)]
+    if pool.empty:
+        return []
+    pool = pool.reset_index(drop=True)
+    result = []
+    for i in range(n):
+        idx = (day_seed + i * 37) % len(pool)
+        result.append(str(pool.iloc[idx]['keyword']))
+    return result
 zodiac_kr         = csv("zodiac_fortune_1000.csv")
 fortune_score     = csv("fortune_score.csv")          # ← 운세 지수
 lucky_items       = csv("lucky_items_1000.csv")        # ← 행운의 아이템 (별자리용)
@@ -1349,6 +1364,21 @@ def _proverb_bridge_html(p, color="#7c3aed", light="#faf5ff"):
   </p>
 </div>'''
 
+
+# ── B. 심리적 통찰 한 문장 — 명언/속담 직전에 자연스럽게 삽입 ──
+_INSIGHT_BRIDGE = [
+    "오늘 같은 흐름에서는 직관적인 판단보다 논리적인 분석이 도움이 됩니다.",
+    "오늘처럼 마음이 복잡할 때는 감정보다 사실을 먼저 점검하는 것이 좋습니다.",
+    "이런 날은 빠른 결정보다 한 번 더 생각하는 여유가 도움이 됩니다.",
+    "오늘 같은 기운에서는 익숙한 방식보다 새로운 시각이 필요할 수 있습니다.",
+    "오늘은 혼자 판단하기보다 주변의 의견을 들어보는 것이 좋은 선택이 됩니다.",
+    "이런 흐름에서는 감정을 따르기보다 차분히 우선순위를 정리하는 것이 효과적입니다.",
+    "오늘 같은 날은 큰 결정을 미루고 작은 것부터 정리하는 것이 도움이 됩니다.",
+]
+
+def pick_insight_bridge(day_seed):
+    return _INSIGHT_BRIDGE[day_seed % len(_INSIGHT_BRIDGE)]
+
 def comment_prompt(post_type='general'):
     """포스트 타입별 댓글 유도 문구"""
     _prompts = {
@@ -1650,39 +1680,14 @@ def build_quote_post(today_str):
   </div>
 </div>"""
 
-    # 명언의 의미 섹션
-    meaning_section = f"""
-<div class="card" style="background:#fefce8;border-left:4px solid #eab308">
-  <div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:10px">
-    💡 이 명언의 의미
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#374151;margin:0;word-break:keep-all">
-    {meaning}
-  </p>
-</div>"""
+    # 명언의 의미 — 산문용
+    meaning_p = f"<p>{meaning}</p>"
 
-    # 배경 및 맥락 섹션
-    background_section = f"""
-<div class="card" style="background:#f0f9ff;border-left:4px solid #0ea5e9">
-  <div style="font-size:14px;font-weight:700;color:#0c4a6e;margin-bottom:10px">
-    🌍 이 말이 나온 배경
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#374151;margin:0;word-break:keep-all">
-    {background}
-  </p>
-</div>"""
+    # 배경 및 맥락 — 산문용
+    background_p = f"<p>{background}</p>"
 
-    # 오늘 적용 섹션
-    apply_section = f"""
-<div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:14px;
-            padding:20px;margin:16px 0;border-left:4px solid #16a34a">
-  <div style="font-size:14px;font-weight:700;color:#14532d;margin-bottom:10px">
-    ✅ 오늘 이렇게 적용해보시기 바랍니다
-  </div>
-  <p style="font-size:15px;line-height:2.0;color:#374151;margin:0;word-break:keep-all">
-    {apply_}
-  </p>
-</div>"""
+    # 오늘 적용 — 산문용
+    apply_p = f"<p>{apply_}</p>"
 
     # 공감·위로 파트
     empathy  = random.choice(_EMPATHY_POOL)
@@ -1792,23 +1797,14 @@ def build_quote_post(today_str):
   <!-- 명언 원문 -->
   {quote_section}
 
-  <!-- 명언의 의미 -->
-  {meaning_section}
-
-  <!-- 배경과 맥락 -->
-  {background_section}
-
-  <!-- 공감·위로 스토리 -->
-  <div class="card" style="background:#fafafa">
-    <span class="badge">💭 오늘 당신에게</span>
-    <div class="qc-body" style="margin-top:12px">
-      <p>{emotion}</p>
-      <p>{comfort}</p>
-    </div>
+  <!-- 명언부터 적용까지 하나의 흐름 -->
+  <div class="qc-body" style="margin-top:1.2rem">
+    {meaning_p}
+    {background_p}
+    <p>{emotion}</p>
+    <p>{comfort}</p>
+    {apply_p}
   </div>
-
-  <!-- 오늘 적용 -->
-  {apply_section}
 
   <!-- SEO 키워드 -->
   <div class="card">
@@ -2545,8 +2541,6 @@ def build_zodiac_post(z, today_str):
     </p>
   </div>
 
-  <div style="border-top:1px dashed #e0d9f5;margin:0 0 1.6rem"></div>
-
   <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
                                   word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
@@ -2571,9 +2565,9 @@ def build_zodiac_post(z, today_str):
     {_para(4)}<br>
     <span style="font-size:13px;color:#1e3a8a">{work_detail}</span></p>
 
-  </div>
+    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day)}</p>
 
-  <div style="border-top:1px dashed #e0d9f5;margin:0 0 1.6rem"></div>
+  </div>
 
   <div style="border-radius:18px;overflow:hidden;
               box-shadow:0 2px 12px rgba(91,33,182,0.08)">
@@ -2604,7 +2598,7 @@ def build_zodiac_post(z, today_str):
 
     <!-- 엔딩 영역 -->
     <div style="background:linear-gradient(160deg,#fdf4ff,#faf5ff);
-                padding:1.2rem 1.5rem 0.5rem">
+                padding:1.2rem 1.5rem 1.4rem">
       <div style="font-size:11px;font-weight:700;color:#7c3aed;
                   letter-spacing:0.08em;margin-bottom:10px">
         {z['emoji']} 오늘 {z['kr']}에게 전하는 말
@@ -2616,13 +2610,6 @@ def build_zodiac_post(z, today_str):
                 border-left:3px solid #c4b5fd;word-break:keep-all">{_ze[1]}</p>
     </div>
 
-    <!-- 행동 영역 -->
-    <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
-      <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
-                  margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
-      <span style="font-size:16px;font-weight:800;color:#fff;
-                   word-break:keep-all;line-height:1.6">❝ {_ze[2]} ❞</span>
-    </div>
   </div>
 
 </div>'''
@@ -2637,6 +2624,7 @@ def build_zodiac_post(z, today_str):
         f"{z['kr']} 특징", f"{z['kr']} 성격", f"{z['kr']} 궁합",
         f"{z['kr']} 조언",
     ]
+    kw_list += pick_seo_keywords(z['kr'], kst_day)
     if z_compat:
         for comp in z_compat.replace(" ","").split(","):
             kw_list.append(f"{z['kr']} {comp} 궁합")
@@ -2843,8 +2831,6 @@ def build_chinese_post(c, today_str):
     </p>
   </div>
 
-  <div style="border-top:1px dashed #fde9c4;margin:0 0 1.6rem"></div>
-
   <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
                                   word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
@@ -2864,9 +2850,9 @@ def build_chinese_post(c, today_str):
       {avoid_compat[2]}
     </p>
 
-  </div>
+    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day+1)}</p>
 
-  <div style="border-top:1px dashed #fde9c4;margin:0 0 1.6rem"></div>
+  </div>
 
   <div style="border-radius:18px;overflow:hidden;
               box-shadow:0 2px 12px rgba(146,64,14,0.1)">
@@ -2897,7 +2883,7 @@ def build_chinese_post(c, today_str):
 
     <!-- 엔딩 영역 -->
     <div style="background:linear-gradient(160deg,#fef9c3,#fffbeb);
-                padding:1.2rem 1.5rem 0.5rem">
+                padding:1.2rem 1.5rem 1.4rem">
       <div style="font-size:11px;font-weight:700;color:#92400e;
                   letter-spacing:0.08em;margin-bottom:10px">
         {c['emoji']} 오늘 {c['kr']}에게 전하는 말
@@ -2909,13 +2895,6 @@ def build_chinese_post(c, today_str):
                 border-left:3px solid #fbbf24;word-break:keep-all">{_ce[1]}</p>
     </div>
 
-    <!-- 행동 영역 -->
-    <div style="background:#92400e;padding:1rem 1.5rem;text-align:center">
-      <div style="font-size:11px;color:#fde68a;letter-spacing:0.12em;
-                  margin-bottom:0.4rem;font-weight:600">오늘 하나만 한다면</div>
-      <span style="font-size:16px;font-weight:800;color:#fff;
-                   word-break:keep-all;line-height:1.6">❝ {_ce[2]} ❞</span>
-    </div>
   </div>
 
 </div>'''
@@ -2929,6 +2908,7 @@ def build_chinese_post(c, today_str):
     ]
     for yr in c['years']:
         kw_list.append(f"{yr}년생 오늘운세")
+    kw_list += pick_seo_keywords(c['kr'], kst_day)
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
     content = f"""{style()}
@@ -3123,6 +3103,7 @@ def build_zodiac_weekly_post(today_str):
             f"{z['kr']} 특징", f"{z['kr']} 성격", f"{z['kr']} 궁합",
             f"{z['kr']} 관계운", f"{z['kr']} 금전운", f"{z['kr']} 건강운",
         ]
+        kw_list += pick_seo_keywords(z['kr'], kst_day)
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
         title = f"{z['kr']} {week_label} 주간운세 {week_range} | {signal}"
 
@@ -3135,8 +3116,6 @@ def build_zodiac_weekly_post(today_str):
     <p style="font-size:15px;line-height:2.1;color:#374151;
               font-weight:500;margin:0;word-break:keep-all">💭 {empathy}</p>
   </div>
-
-  <div style="border-top:1px dashed #e0d9f5;margin:0 0 1.6rem"></div>
 
   <div style="font-size:15px;line-height:2.1;color:#374151;
               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
@@ -3161,7 +3140,7 @@ def build_zodiac_weekly_post(today_str):
     {compat_tip_html_w}
 
     <!-- 별자리 기본 정보 -->
-    <div style="margin-top:1.6em;padding-top:1.4em;border-top:1px dashed #e5e7eb">
+    <div>
       <div style="font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.08em;margin-bottom:10px">
         {z['emoji']} {z['kr']} 기본 정보
       </div>
@@ -3184,9 +3163,9 @@ def build_zodiac_weekly_post(today_str):
       </div>
     </div>
 
-  </div>
+    <p style="margin:1.4em 0 0 0">{pick_insight_bridge(kst_day+2)}</p>
 
-  <div style="border-top:1px dashed #e0d9f5;margin:0 0 1.6rem"></div>
+  </div>
 
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
 
@@ -3210,7 +3189,7 @@ def build_zodiac_weekly_post(today_str):
     <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
 
     <!-- 엔딩 영역 -->
-    <div style="background:linear-gradient(160deg,#fdf4ff,#faf5ff);padding:1.2rem 1.5rem 0.5rem">
+    <div style="background:linear-gradient(160deg,#fdf4ff,#faf5ff);padding:1.2rem 1.5rem 1.4rem">
       <div style="font-size:11px;font-weight:700;color:#7c3aed;
                   letter-spacing:0.08em;margin-bottom:10px">
         {z['emoji']} 이번 주 {z['kr']}에게 전하는 말
@@ -3222,13 +3201,6 @@ def build_zodiac_weekly_post(today_str):
                 border-left:3px solid #c4b5fd;word-break:keep-all">{_we[1]}</p>
     </div>
 
-    <!-- 행동 영역 -->
-    <div style="background:#5b21b6;padding:1rem 1.5rem;text-align:center">
-      <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
-                  margin-bottom:0.4rem;font-weight:600">이번 주 하나만 한다면</div>
-      <span style="font-size:16px;font-weight:800;color:#fff;
-                   word-break:keep-all;line-height:1.6">❝ {_we[2]} ❞</span>
-    </div>
   </div>
 
 </div>'''
@@ -3272,7 +3244,18 @@ def build_chinese_monthly_post(today_str):
     month_str = get_next_month_str()
     results   = []
 
-    v2_df = csv("chinese_monthly_v2.csv")
+    v2_df    = csv("chinese_monthly_v2.csv")
+    m1000_df = csv("chinese_monthly_1000.csv")  # ← 추가 fortune 풀 (다양성 확보)
+
+    def _m1000_fortune(en_name, day_seed):
+        """chinese_monthly_1000.csv에서 띠별 fortune 1개 — 날짜 시드 기반"""
+        if m1000_df.empty or 'animal_zodiac' not in m1000_df.columns:
+            return ""
+        m = m1000_df[m1000_df['animal_zodiac'] == en_name]
+        if m.empty:
+            return ""
+        idx = day_seed % len(m)
+        return str(m.iloc[idx]['fortune'])
 
     def _v2_row(en_name):
         if v2_df.empty:
@@ -3350,6 +3333,9 @@ def build_chinese_monthly_post(today_str):
         tpb = _to_period_bridges[kst_day % len(_to_period_bridges)]
         tmb = _to_tip_bridges_m[(kst_day+1) % len(_to_tip_bridges_m)]
 
+        # 추가 fortune (chinese_monthly_1000.csv) — 다양성 보강
+        extra_fortune = _m1000_fortune(c['en'], kst_day + kst_now.month)
+
         # 기간별 HTML
         period_items = []
         if upper: period_items.append(("상순", upper, "#3b82f6"))
@@ -3387,6 +3373,7 @@ def build_chinese_monthly_post(today_str):
             f"{c['kr']} 이달운세", "띠별월간", "월간운세", "무료운세",
             f"{c['kr']} 특징", f"{c['kr']} 이달",
         ]
+        kw_list += pick_seo_keywords(c['kr'], kst_day)
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
         title = f"{c['kr']} {month_str} 월간운세 | {headline[:20]}"
@@ -3413,8 +3400,6 @@ def build_chinese_monthly_post(today_str):
               font-weight:500;margin:0;word-break:keep-all">💭 {empathy}</p>
   </div>
 
-  <div style="border-top:1px dashed #e5d9f9;margin:0 0 1.6rem"></div>
-
   <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
                                   word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
@@ -3429,12 +3414,14 @@ def build_chinese_monthly_post(today_str):
 
     <p style="margin:0 0 1.4em 0">{trait}</p>
 
+    {f'<p style="margin:0 0 1.4em 0">{extra_fortune}</p>' if extra_fortune else ''}
+
     {lucky_html}
     {avoid_html_m}
 
-  </div>
+    <p style="margin:1.4em 0 0 0">{pick_insight_bridge(kst_day+3)}</p>
 
-  <div style="border-top:1px dashed #e5d9f9;margin:0 0 1.6rem"></div>
+  </div>
 
   <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.1)">
 
@@ -3458,7 +3445,7 @@ def build_chinese_monthly_post(today_str):
     <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
 
     <!-- 엔딩 영역 -->
-    <div style="background:linear-gradient(160deg,#ede9fe,#fdf4ff);padding:1.2rem 1.5rem 0.5rem">
+    <div style="background:linear-gradient(160deg,#ede9fe,#fdf4ff);padding:1.2rem 1.5rem 1.4rem">
       <div style="font-size:11px;font-weight:700;color:#5b21b6;
                   letter-spacing:0.08em;margin-bottom:10px">
         {c['emoji']} 이달 {c['kr']}에게 전하는 말
@@ -3470,13 +3457,6 @@ def build_chinese_monthly_post(today_str):
                 border-left:3px solid #c4b5fd;word-break:keep-all">{_me[1]}</p>
     </div>
 
-    <!-- 행동 영역 -->
-    <div style="background:#4c1d95;padding:1rem 1.5rem;text-align:center">
-      <div style="font-size:11px;color:#c4b5fd;letter-spacing:0.12em;
-                  margin-bottom:0.4rem;font-weight:600">이달 하나만 한다면</div>
-      <span style="font-size:16px;font-weight:800;color:#fff;
-                   word-break:keep-all;line-height:1.6">❝ {_me[2]} ❞</span>
-    </div>
   </div>
 
 </div>'''
@@ -3954,7 +3934,7 @@ def build_omnibus_post(today_str: str) -> tuple:
     {ending_html}
   </div>
   <button id="savebtn-{card_id}" class="save-btn" onclick="saveFortuneCard('{card_id}', '별과띠가만나는시간_{part_label}_{today_str}')">📸 이미지 저장</button>
-  <div style="margin:24px 0 8px 0;border-top:1px dashed #e5e7eb;padding-top:24px"></div>
+  <div style="margin:24px 0 8px 0"></div>
 """
 
     content_html = f"""{style()}
