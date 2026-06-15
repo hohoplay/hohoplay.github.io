@@ -1377,7 +1377,13 @@ _INSIGHT_BRIDGE = [
 ]
 
 def pick_insight_bridge(day_seed):
-    return _INSIGHT_BRIDGE[day_seed % len(_INSIGHT_BRIDGE)]
+    """심리적 통찰 한 문장 — 자체 풀 + fortune_sentences_4000.csv 결합"""
+    pool = list(_INSIGHT_BRIDGE)
+    if not fortune_4000.empty and 'sentence' in fortune_4000.columns:
+        extra = fortune_4000['sentence'].dropna().tolist()
+        if extra:
+            pool.append(extra[day_seed % len(extra)])
+    return pool[day_seed % len(pool)]
 
 def comment_prompt(post_type='general'):
     """포스트 타입별 댓글 유도 문구"""
@@ -3252,14 +3258,14 @@ def build_chinese_monthly_post(today_str):
     v2_df    = csv("chinese_monthly_v2.csv")
     m1000_df = csv("chinese_monthly_1000.csv")  # ← 추가 fortune 풀 (다양성 확보)
 
-    def _m1000_fortune(en_name, day_seed):
-        """chinese_monthly_1000.csv에서 띠별 fortune 1개 — 날짜 시드 기반"""
+    def _m1000_fortune(en_name, month_seed):
+        """chinese_monthly_1000.csv에서 띠별 fortune 1개 — 월 기준 시드(일간 운세와 분리)"""
         if m1000_df.empty or 'animal_zodiac' not in m1000_df.columns:
             return ""
         m = m1000_df[m1000_df['animal_zodiac'] == en_name]
         if m.empty:
             return ""
-        idx = day_seed % len(m)
+        idx = month_seed % len(m)
         return str(m.iloc[idx]['fortune'])
 
     def _v2_row(en_name):
@@ -3338,8 +3344,18 @@ def build_chinese_monthly_post(today_str):
         tpb = _to_period_bridges[kst_day % len(_to_period_bridges)]
         tmb = _to_tip_bridges_m[(kst_day+1) % len(_to_tip_bridges_m)]
 
-        # 추가 fortune (chinese_monthly_1000.csv) — 다양성 보강
-        extra_fortune = _m1000_fortune(c['en'], kst_day + kst_now.month)
+        # 추가 fortune (chinese_monthly_1000.csv) — 월 기준 시드 (일간운세 day 시드와 분리)
+        _month_seed = kst_now.year * 12 + kst_now.month  # 월이 바뀌면 값이 바뀌는 시드
+        extra_fortune = _m1000_fortune(c['en'], _month_seed)
+
+        # trait → extra_fortune 자연스러운 연결 어미 (월 시드로 순환)
+        _EXTRA_LINKS = [
+            "여기에 더해, 이달의 흐름을 짚어보면 이렇습니다.",
+            "이런 성향이 이달에는 이렇게 이어집니다.",
+            "이달의 흐름에서도 이 특성이 드러납니다.",
+            "이런 기질이 이달 흐름과 만나면 다음과 같습니다.",
+        ]
+        extra_link = _EXTRA_LINKS[_month_seed % len(_EXTRA_LINKS)]
 
         # 기간별 HTML
         period_items = []
@@ -3419,7 +3435,7 @@ def build_chinese_monthly_post(today_str):
 
     <p style="margin:0 0 1.4em 0">{trait}</p>
 
-    {f'<p style="margin:0 0 1.4em 0">{extra_fortune}</p>' if extra_fortune else ''}
+    {f'<p style="margin:0 0 1.4em 0">{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
 
     {lucky_html}
     {avoid_html_m}
