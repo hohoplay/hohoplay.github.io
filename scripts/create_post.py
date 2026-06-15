@@ -2547,19 +2547,19 @@ def build_zodiac_post(z, today_str):
     <p style="margin:0 0 1.4em 0">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}<br>
     {_para(0)}</p>
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{lb}</p>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{lb}</h2>
 
     <p style="margin:0 0 1.4em 0">{love_intro}<br>
     {_para(2)}<br>
     <span style="font-size:13px;color:#9f1239">{love_detail}</span></p>
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{mb}</p>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{mb}</h2>
 
     <p style="margin:0 0 1.4em 0">{money_intro}<br>
     {_para(3)}<br>
     <span style="font-size:13px;color:#78350f">{money_detail}</span></p>
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#a78bfa;font-style:italic">{wb}</p>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{wb}</h2>
 
     <p style="margin:0 0 1.4em 0">{work_intro}<br>
     {_para(4)}<br>
@@ -2841,13 +2841,13 @@ def build_chinese_post(c, today_str):
 
     <p style="margin:0 0 1.4em 0">{fortune}</p>
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#f59e0b;font-style:italic">{tyb}</p>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b;font-style:italic">{tyb}</h2>
 
     <div style="margin:0 0 1.4em 0">
       {year_section_html}
     </div>
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#f59e0b;font-style:italic">{tcb}</p>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b;font-style:italic">{tcb}</h2>
 
     <p style="margin:0 0 1.4em 0">
       <span style="font-weight:700;color:#065f46">{best_compat[1]} {best_compat[0]}</span>의 경우,
@@ -3125,7 +3125,7 @@ def build_zodiac_weekly_post(today_str):
   <div style="font-size:15px;line-height:2.1;color:#374151;
               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
-    <p style="margin:0 0 0.5em 0;font-size:13px;color:#a78bfa;font-style:italic">{tfb}</p>
+    <h2 style="margin:0 0 0.5em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{tfb}</h2>
     <p style="margin:0 0 1.6em 0">{fortune}</p>
 
     <p style="margin:1.4em 0 0.4em;font-size:14px;font-weight:700;color:#e11d48">❤️ 관계</p>
@@ -3411,11 +3411,11 @@ def build_chinese_monthly_post(today_str):
     <p style="margin:0 0 1.4em 0">{headline}<br>
     {sympathy}</p>
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#7c3aed;font-style:italic">{tpb}</p>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed;font-style:italic">{tpb}</h2>
 
     <p style="margin:0 0 1.4em 0">{period_html}</p>
 
-    <p style="margin:0 0 0.6em 0;font-size:13px;color:#7c3aed;font-style:italic">{tmb}</p>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed;font-style:italic">{tmb}</h2>
 
     <p style="margin:0 0 1.4em 0">{trait}</p>
 
