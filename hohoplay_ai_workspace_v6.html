@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hohoplay AI Workspace v6</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest" onerror="console.warn('lucide load failed - icons disabled')"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
         * { font-family: 'Noto Sans KR', sans-serif; }
@@ -78,41 +78,47 @@
 <body class="bg-slate-950 text-slate-100 h-screen overflow-hidden flex flex-col" id="app-body">
 
 <!-- ══════════════ HEADER ══════════════ -->
-<header class="flex items-center justify-between px-5 py-3 bg-slate-900 border-b border-slate-800 shrink-0">
-    <div class="flex items-center gap-3">
-        <div class="p-2 bg-indigo-600 rounded-lg animate-pulse">
-            <i data-lucide="briefcase" class="w-5 h-5 text-white"></i>
+<header class="flex items-center justify-between px-3 md:px-5 py-2 md:py-3 bg-slate-900 border-b border-slate-800 shrink-0 flex-wrap gap-y-1">
+    <div class="flex items-center gap-2 md:gap-3 min-w-0">
+        <div class="p-1.5 md:p-2 bg-indigo-600 rounded-lg animate-pulse shrink-0">
+            <i data-lucide="briefcase" class="w-4 h-4 md:w-5 md:h-5 text-white"></i>
         </div>
-        <div>
-            <h1 class="text-lg font-black text-white flex items-center gap-2">
+        <div class="min-w-0">
+            <h1 class="text-sm md:text-lg font-black text-white flex items-center gap-2 flex-wrap">
                 hohoplay
-                <span class="text-indigo-400 font-bold text-[11px] px-2 py-0.5 bg-indigo-950 border border-indigo-800 rounded-full">AI 가상오피스 v6.0 · Claude API</span>
+                <span class="text-indigo-400 font-bold text-[10px] md:text-[11px] px-2 py-0.5 bg-indigo-950 border border-indigo-800 rounded-full whitespace-nowrap">AI 가상오피스 v6.0</span>
             </h1>
-            <p class="text-[10px] text-slate-500 mono">AI 비서 실시간 협업 · 레벨업 육성 · 기획 관리 · PC 이관 백업</p>
+            <p class="text-[10px] text-slate-500 mono hidden md:block">AI 비서 실시간 협업 · 레벨업 육성 · 기획 관리 · PC 이관 백업</p>
         </div>
     </div>
-    <div class="flex items-center gap-3 text-xs">
-        <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
-            <span id="sys-indicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            <span id="sys-text" class="text-slate-300 mono text-[11px]">Claude API 연결 대기 중</span>
+    <div class="flex items-center gap-2 md:gap-3 text-xs shrink-0">
+        <div class="flex items-center gap-2 bg-slate-800 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-700">
+            <span id="sys-indicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+            <span id="sys-text" class="text-slate-300 mono text-[10px] md:text-[11px] hidden sm:inline">Claude API 연결 대기 중</span>
         </div>
-        <div class="bg-indigo-900/40 text-indigo-300 border border-indigo-800/60 px-3 py-1.5 rounded-lg font-bold">
+        <div class="bg-indigo-900/40 text-indigo-300 border border-indigo-800/60 px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-bold text-[11px] whitespace-nowrap">
             대표: hohoplay
         </div>
     </div>
 </header>
 
 <!-- ══════════════ MAIN ══════════════ -->
-<main class="flex flex-1 overflow-hidden">
+<main class="flex flex-col md:flex-row flex-1 overflow-hidden">
 
     <!-- ═══ LEFT: 오피스 맵 ═══ -->
-    <section class="w-1/2 flex flex-col border-r border-slate-800 bg-slate-900/60 overflow-hidden" id="left-workspace">
+    <section class="w-full md:w-1/2 h-[30vh] md:h-auto flex flex-col border-r-0 md:border-r border-b md:border-b-0 border-slate-800 bg-slate-900/60 overflow-hidden shrink-0" id="left-workspace">
         <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 z-10">
             <h2 class="text-xs font-bold text-slate-300 flex items-center gap-2">
                 <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
-                hohoplay 가상 HQ 실시간 활동 모니터링
+                <span class="hidden md:inline">hohoplay 가상 HQ 실시간 활동 모니터링</span>
+                <span class="md:hidden">hohoplay HQ</span>
             </h2>
-            <div class="flex items-center gap-3 text-[10px] text-slate-400">
+            <!-- 모바일 전용: 오피스맵 / 로그 탭 전환 -->
+            <div class="flex md:hidden items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800">
+                <button onclick="switchLeftMobileTab('map')" id="left-mobile-tab-map" class="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-800 text-indigo-400 transition-all">🗺️ 오피스</button>
+                <button onclick="switchLeftMobileTab('log')" id="left-mobile-tab-log" class="text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 transition-all">📋 로그</button>
+            </div>
+            <div class="hidden md:flex items-center gap-3 text-[10px] text-slate-400">
                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span>활동중</span>
                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600 inline-block"></span>대기중</span>
                 <span id="map-error-tag" class="items-center gap-1 hidden">
@@ -122,7 +128,7 @@
         </div>
 
         <!-- 오피스 맵 -->
-        <div id="office-map" class="flex-1 relative grid-dot-bg overflow-hidden select-none">
+        <div id="office-map" class="flex-1 md:basis-1/2 relative grid-dot-bg overflow-hidden select-none min-h-0">
             <!-- 구역들 -->
             <div class="absolute" style="left:44%;top:38%;transform:translate(-50%,-50%);">
                 <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32">
@@ -175,7 +181,7 @@
         </div>
 
         <!-- 로그 패널 -->
-        <div class="h-44 bg-slate-900 border-t border-slate-800 flex flex-col shrink-0">
+        <div id="log-panel" class="hidden md:flex flex-1 md:basis-1/2 bg-slate-900 border-t border-slate-800 flex-col shrink-0 min-h-0">
             <div class="px-4 py-2 border-b border-slate-800 flex items-center justify-between">
                 <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping"></span>
@@ -193,20 +199,20 @@
     </section>
 
     <!-- ═══ RIGHT: 탭 패널 ═══ -->
-    <section class="w-1/2 flex flex-col bg-slate-900 overflow-hidden">
+    <section class="w-full md:w-1/2 flex-1 flex flex-col bg-slate-900 overflow-hidden min-h-0">
         <!-- 탭 버튼 -->
-        <div class="flex bg-slate-950 px-2 border-b border-slate-800 shrink-0">
-            <button onclick="switchTab('control')" id="tab-btn-control" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-active">
+        <div class="flex bg-slate-950 px-2 border-b border-slate-800 shrink-0 overflow-x-auto">
+            <button onclick="switchTab('control')" id="tab-btn-control" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-active shrink-0 whitespace-nowrap">
                 <i data-lucide="message-square" class="w-3.5 h-3.5"></i>[1] AI 채팅
             </button>
-            <button onclick="switchTab('memory')" id="tab-btn-memory" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive relative">
+            <button onclick="switchTab('memory')" id="tab-btn-memory" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive relative shrink-0 whitespace-nowrap">
                 <i data-lucide="database" class="w-3.5 h-3.5"></i>[2] 기억 저장소
                 <span id="memory-count-badge" class="absolute top-1 right-0.5 px-1 py-0.5 bg-indigo-600 text-white text-[9px] rounded-full mono">0</span>
             </button>
-            <button onclick="switchTab('hr')" id="tab-btn-hr" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive">
+            <button onclick="switchTab('hr'); closeStaffDetail();" id="tab-btn-hr" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap">
                 <i data-lucide="users" class="w-3.5 h-3.5"></i>[3] AI 인사관리
             </button>
-            <button onclick="switchTab('stats')" id="tab-btn-stats" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive">
+            <button onclick="switchTab('stats')" id="tab-btn-stats" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap">
                 <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>[4] 포트폴리오
             </button>
         </div>
@@ -216,30 +222,30 @@
             <!-- ── 탭1: AI 채팅 ── -->
             <div id="tab-content-control" class="flex-1 flex flex-col overflow-hidden relative">
                 <!-- 파일 연동 헤더 -->
-                <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center justify-between shrink-0 flex-wrap gap-2">
-                    <div class="flex items-center gap-2">
+                <div class="bg-slate-950 border-b border-slate-800 px-2 md:px-4 py-2 flex items-center justify-between shrink-0 flex-wrap gap-2">
+                    <div class="hidden md:flex items-center gap-2">
                         <i data-lucide="folder-open" class="w-3.5 h-3.5 text-indigo-400 animate-pulse"></i>
                         <span class="text-[11px] font-bold text-slate-300">로컬 PC 파일 연동</span>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 w-full md:w-auto">
                         <!-- API 키 입력 -->
                         <input type="password" id="api-key-input" placeholder="Claude API Key 입력..." 
-                            class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-48 mono" />
-                        <button onclick="saveApiKey()" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold">연결</button>
-                        <button id="folder-trigger-btn" class="bg-slate-800 border border-slate-700 text-[10px] text-slate-400 px-2 py-1 rounded-lg hover:text-slate-200 flex items-center gap-1 transition-all">
-                            <i data-lucide="upload-cloud" class="w-3 h-3"></i>파일 투하
+                            class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 flex-1 md:w-48 mono min-w-0" />
+                        <button onclick="saveApiKey()" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">연결</button>
+                        <button id="folder-trigger-btn" class="bg-slate-800 border border-slate-700 text-[10px] text-slate-400 px-2 py-1 rounded-lg hover:text-slate-200 flex items-center gap-1 transition-all shrink-0">
+                            <i data-lucide="upload-cloud" class="w-3 h-3"></i><span class="hidden sm:inline">파일 투하</span>
                         </button>
                         <input type="file" id="file-input" class="hidden" multiple />
                     </div>
                 </div>
 
                 <!-- GitHub 저장소 연동 -->
-                <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center gap-2 shrink-0">
-                    <i data-lucide="github" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                    <input type="text" id="github-url-input" placeholder="GitHub 파일 URL (예: https://github.com/hohoplay/hohoplay.github.io/blob/main/game1.html)"
-                        class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 mono" />
+                <div class="bg-slate-950 border-b border-slate-800 px-2 md:px-4 py-2 flex items-center gap-2 shrink-0">
+                    <i data-lucide="github" class="w-3.5 h-3.5 text-slate-400 shrink-0 hidden sm:block"></i>
+                    <input type="text" id="github-url-input" placeholder="GitHub 파일 URL..."
+                        class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 mono min-w-0" />
                     <button onclick="fetchGithubFile()" id="github-fetch-btn" class="bg-slate-800 border border-slate-700 hover:border-indigo-500 hover:text-indigo-300 text-[10px] text-slate-400 px-2 py-1 rounded-lg flex items-center gap-1 transition-all font-bold shrink-0">
-                        <i data-lucide="download-cloud" class="w-3 h-3"></i>가져오기
+                        <i data-lucide="download-cloud" class="w-3 h-3"></i><span class="hidden sm:inline">가져오기</span>
                     </button>
                 </div>
 
@@ -283,20 +289,14 @@
 
                 <!-- 입력창 -->
                 <div class="p-3 bg-slate-950 border-t border-slate-800 shrink-0 space-y-2">
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" id="save-memory-toggle" class="rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-0" />
-                            <span class="text-[10px] text-slate-400 flex items-center gap-1">
-                                <i data-lucide="save" class="w-3 h-3 text-indigo-400"></i>
-                                응답을 기억 저장소에 자동 저장
-                            </span>
-                        </label>
-                        <span id="api-status-chip" class="text-[10px] mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-500">API 미연결</span>
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 px-1 flex-wrap gap-y-1">
+                        <div id="staff-call-toggles" class="flex items-center gap-2 flex-wrap"></div>
+                        <span id="api-status-chip" class="text-[10px] mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-500 shrink-0">API 미연결</span>
                     </div>
-                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-indigo-500 transition-colors">
-                        <input type="text" id="chat-input"
-                            placeholder="대표님, 업무 지시나 질문을 입력하세요... (Enter)"
-                            class="flex-1 bg-transparent border-none text-xs text-white placeholder-slate-600 focus:outline-none" />
+                    <div class="flex items-end gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-indigo-500 transition-colors">
+                        <textarea id="chat-input" rows="1"
+                            placeholder="대표님, 업무 지시나 질문을 입력하세요... (Enter 전송 / Shift+Enter 줄바꿈)"
+                            class="flex-1 bg-transparent border-none text-xs text-white placeholder-slate-600 focus:outline-none resize-none max-h-32 overflow-y-auto leading-relaxed py-1"></textarea>
                         <button onclick="sendChatMessage()" id="send-btn"
                             class="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md shrink-0">
                             <i data-lucide="send" class="w-3.5 h-3.5"></i>
@@ -357,21 +357,51 @@
 
             <!-- ── 탭3: HR 인사관리 ── -->
             <div id="tab-content-hr" class="flex-1 overflow-y-auto p-5 space-y-5 hidden">
-                <div class="flex items-center justify-between bg-gradient-to-r from-slate-950 to-indigo-950/40 p-4 rounded-2xl border border-indigo-500/20 shadow-md">
-                    <div>
-                        <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-                            <i data-lucide="award" class="w-4 h-4 text-amber-400"></i>
-                            AI 임직원 레벨업 시스템
-                        </h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">지시를 처리할수록 경험치 획득 및 레벨 상승.</p>
+                <!-- 목록 뷰 -->
+                <div id="hr-list-view" class="space-y-5">
+                    <div class="flex items-center justify-between bg-gradient-to-r from-slate-950 to-indigo-950/40 p-4 rounded-2xl border border-indigo-500/20 shadow-md">
+                        <div>
+                            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+                                <i data-lucide="award" class="w-4 h-4 text-amber-400"></i>
+                                AI 임직원 레벨업 시스템
+                            </h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">지시를 처리할수록 경험치 획득 및 레벨 상승. 카드를 클릭하면 상세 정보를 볼 수 있습니다.</p>
+                        </div>
+                        <button onclick="openHireInternModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 font-bold transition-colors shrink-0">
+                            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>인턴 채용
+                        </button>
                     </div>
-                    <button onclick="openHireInternModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 font-bold transition-colors">
-                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>인턴 채용
-                    </button>
+                    <div>
+                        <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">사내 AI 임직원 명단</h4>
+                        <div id="hr-staff-list" class="grid grid-cols-1 gap-3"></div>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">사내 AI 임직원 명단</h4>
-                    <div id="hr-staff-list" class="grid grid-cols-1 gap-3"></div>
+
+                <!-- 개인 상세 뷰 -->
+                <div id="hr-detail-view" class="space-y-4 hidden">
+                    <button onclick="closeStaffDetail()" class="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-white transition-colors">
+                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>전체 직원 목록으로
+                    </button>
+
+                    <div id="hr-detail-header" class="bg-gradient-to-r from-slate-950 to-indigo-950/40 p-4 rounded-2xl border border-indigo-500/20 shadow-md flex items-center gap-4"></div>
+
+                    <!-- 경험치/레벨 카드 -->
+                    <div id="hr-detail-stats" class="bg-slate-950 border border-slate-800 rounded-xl p-4"></div>
+
+                    <!-- AI 내부 기억 (일일/협업/주간/월간) -->
+                    <div>
+                        <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">💾 내부 기억 카드</h4>
+                        <div id="hr-detail-cores" class="space-y-2"></div>
+                    </div>
+
+                    <!-- 이 직원과의 대화/업무 기억 -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">📄 관련 업무 기억 (기억 저장소)</h4>
+                            <span id="hr-detail-mem-count" class="text-[10px] text-indigo-400 mono"></span>
+                        </div>
+                        <div id="hr-detail-memories" class="space-y-2"></div>
+                    </div>
                 </div>
             </div>
 
@@ -511,7 +541,7 @@ const DEFAULT_STAFF = {
     writer:      { id:'writer',      name:'글초안 작성기', role:'콘텐츠/블로그/기획안 작성',      status:'정직원', level:1, xp:0, color:'bg-amber-500',   emoji:'✍️', initialPos:{x:45,y:30} },
     sns:         { id:'sns',         name:'고객질문 수집기',role:'SNS 질문 및 피드백 수집',       status:'정직원', level:1, xp:0, color:'bg-pink-500',    emoji:'💬', initialPos:{x:75,y:30} },
     coordinator: { id:'coordinator', name:'또다른 나',    role:'업무 종합 및 최종 조율(대표)',    status:'정직원', level:1, xp:0, color:'bg-emerald-500', emoji:'👑', initialPos:{x:45,y:65} },
-    presenter:   { id:'presenter',   name:'발표자',       role:'요약 브리핑 및 발표 준비',       status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:15,y:65} },
+    presenter:   { id:'presenter',   name:'비서',         role:'요약 브리핑 및 일정/잡무 보조',  status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:15,y:65} },
     intern:      { id:'intern',      name:'인턴 사원',    role:'잡무 처리 및 피드백 서포트',     status:'인턴',   level:1, xp:0, color:'bg-slate-500',   emoji:'☕', initialPos:{x:75,y:65} }
 };
 
@@ -520,7 +550,7 @@ const STAFF_SPEECHES = {
     writer:      ['초안 작성 중...', '문장 다듬는 중', '완성도 99%!', '글 쓰는 중 🖊'],
     sns:         ['SNS 모니터링 중', '피드백 수집!', 'DM 확인 중...', '댓글 분석 완료'],
     coordinator: ['업무 조율 중...', '팀 협업 가동!', '대표님 지시 확인', '전략 수립 중'],
-    presenter:   ['브리핑 준비 중', '발표 자료 제작', '요약 완료!', '프레젠테이션 ↗'],
+    presenter:   ['일정 정리 중', '브리핑 준비!', '요약 완료!', '메모 작성 중 📝'],
     intern:      ['커피 심부름 중☕', '잡무 처리 중!', '열심히 배우는 중', '성장 중 🌱']
 };
 
@@ -541,6 +571,16 @@ let activeMemorySubTab = 'reports';
 let apiKey = '';
 let chatHistory = [];
 let stats = { totalTasks:0, gameProjectCount:8, tarotProjectCount:6, marketingCount:7, unmannedRoomCount:3 };
+let lastMode = null; // "이어서" 요청 시 직전 모드 재사용
+
+// lucide CDN이 차단/로드 실패해도 전체 스크립트가 멈추지 않도록 안전 래퍼
+function safeCreateIcons() {
+    try {
+        if(typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    } catch(e) { /* lucide 미로드 시 무시 */ }
+}
 
 // ═══════════════════════════════════════════════
 // 초기화
@@ -558,10 +598,21 @@ window.onload = function() {
     startRandomBubbles();
     addLog('🟢 hohoplay 가상 오피스 v6.0 정상 시동.');
     addLog('🔑 Claude API Key를 입력하여 AI 채팅을 활성화하세요.');
-    lucide.createIcons();
+    safeCreateIcons();
 
     const inp = document.getElementById('chat-input');
-    inp.addEventListener('keydown', e => { if(e.key==='Enter') sendChatMessage(); });
+    inp.addEventListener('keydown', e => {
+        if(e.key==='Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendChatMessage();
+        }
+    });
+    inp.addEventListener('input', () => {
+        inp.style.height = 'auto';
+        inp.style.height = Math.min(inp.scrollHeight, 128) + 'px';
+    });
+
+    renderStaffCallToggles();
 
     const ghInp = document.getElementById('github-url-input');
     ghInp.addEventListener('keydown', e => { if(e.key==='Enter') fetchGithubFile(); });
@@ -658,13 +709,16 @@ async function sendChatMessage() {
     const msg = input.value.trim();
     if(!msg) return;
     input.value = '';
+    input.style.height = 'auto';
 
     appendMessage('user', '대표님 (You)', '👑', msg);
     addLog(`👑 대표님 지시: "${msg.substring(0,40)}${msg.length>40?'...':''}"`);
     chatHistory.push({role:'user', content: msg});
 
-    // 대화 모드 감지
-    const mode = detectChatMode(msg);
+    // "이어서 말해줘" 류는 직전 모드를 유지
+    const isContinue = /^(이어서|계속|이어말해|이어서 말해|계속해|계속 말해)/.test(msg.trim());
+    const mode = isContinue && lastMode ? lastMode : detectChatMode(msg);
+    lastMode = mode;
 
     if(!apiKey) {
         if(mode.type === 'greeting') {
@@ -698,7 +752,7 @@ async function sendChatMessage() {
     }
 
     try {
-        const systemPrompt = buildSystemPrompt(mode);
+        const systemPrompt = buildSystemPrompt(mode, isContinue);
         const res = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: {
@@ -709,7 +763,7 @@ async function sendChatMessage() {
             },
             body: JSON.stringify({
                 model: 'claude-sonnet-4-6',
-                max_tokens: 2000,
+                max_tokens: 4096,
                 system: systemPrompt,
                 messages: chatHistory.slice(-10)
             })
@@ -722,36 +776,48 @@ async function sendChatMessage() {
 
         const data = await res.json();
         const reply = data.content?.[0]?.text || '(응답 없음)';
+        const truncated = data.stop_reason === 'max_tokens';
         chatHistory.push({role:'assistant', content:reply});
 
         showTyping(false);
 
+        let participants = [];
+
         if(mode.type === 'meeting') {
             finishWorkflowAnim();
-            renderMeetingReplies(reply);
+            participants = renderMeetingReplies(reply);
         } else if(mode.type === 'direct') {
             stopDirectCallAnim(mode.staffId);
             renderDirectReply(mode.staffId, reply);
+            participants = [mode.staffId];
         } else if(mode.type === 'greeting') {
-            // 인사 모드는 조정자가 마무리 인사
+            // 인사 모드는 조정자가 마무리 인사 (경험치 없음 - 단순 인사)
             appendMessage('assistant', staffState.coordinator?.name || '또다른 나', staffState.coordinator?.emoji || '👑', formatMarkdown(reply));
         } else {
             finishWorkflowAnim();
             appendMessage('assistant','또다른 나 (조정자)','👑', formatMarkdown(reply));
+            participants = ['coordinator'];
         }
 
-        addLog(`🤖 AI 응답 완료 (${reply.length}자)`);
+        if(truncated) {
+            appendMessage('assistant','시스템','✂️', `⚠️ 답변이 길어 일부 잘렸습니다. <strong class="text-indigo-300">"이어서"</strong> 라고 입력하시면 같은 담당자가 계속 이어서 답변합니다.`);
+        }
 
-        // 경험치 지급
-        grantXPToAll(15);
+        addLog(`🤖 AI 응답 완료 (${reply.length}자)${truncated?' [잘림]':''}`);
+
+        // 경험치 지급 (실제 업무를 수행한 직원에게만 차등 지급)
+        const taskSummary = msg.substring(0, 60);
+        if(participants.length === 1) {
+            grantXP(participants, 25, taskSummary); // 개인 호출/일반 지시 - 더 큰 경험치
+        } else if(participants.length > 1) {
+            grantXP(participants, 15, taskSummary); // 회의 참여 - 분산 경험치
+        }
         stats.totalTasks++;
         saveAll();
         updateStatsUI();
 
-        // 기억 자동 저장
-        if(document.getElementById('save-memory-toggle').checked) {
-            autoSaveMemory(msg, reply);
-        }
+        // 기억 자동 저장 (항상 실행)
+        autoSaveMemory(msg, reply);
 
     } catch(e) {
         showTyping(false);
@@ -767,6 +833,18 @@ async function sendChatMessage() {
 // ═══════════════════════════════════════════════
 function detectChatMode(msg) {
     const lower = msg.trim();
+
+    // 0) 체크박스로 특정 직원이 선택되어 있으면 최우선으로 개인 호출/회의
+    if(isAllStaffChecked()) {
+        return { type:'meeting' }; // 전원 대상 (focusIds 없음)
+    }
+    const checkedStaff = getCheckedStaffIds();
+    if(checkedStaff.length === 1) {
+        return { type:'direct', staffId: checkedStaff[0] };
+    }
+    if(checkedStaff.length > 1) {
+        return { type:'meeting', focusIds: checkedStaff };
+    }
 
     // 1) 인사 감지
     if(/^(안녕|hi|hello|하이|반가워|좋은 ?아침|좋은 ?하루|굿모닝|왔어요?|왔습니다)/i.test(lower) && lower.length < 15) {
@@ -796,6 +874,64 @@ function detectChatMode(msg) {
 }
 
 // ═══════════════════════════════════════════════
+// 직원 호출 체크박스
+// ═══════════════════════════════════════════════
+function renderStaffCallToggles() {
+    const container = document.getElementById('staff-call-toggles');
+    if(!container) return;
+    container.innerHTML = '<span class="text-[10px] text-slate-500 mr-1">담당 호출:</span>';
+
+    // 전체 직원 토글
+    const allLabel = document.createElement('label');
+    allLabel.className = 'flex items-center gap-1 cursor-pointer bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-800/60 rounded-full px-2 py-0.5 transition-colors';
+    allLabel.innerHTML = `
+        <input type="checkbox" id="staff-call-all" class="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0 w-3 h-3" onchange="onAllToggleChange()" />
+        <span class="text-[10px] text-indigo-300 font-bold">👥 전체 직원</span>`;
+    container.appendChild(allLabel);
+
+    Object.values(staffState).forEach(staff => {
+        const label = document.createElement('label');
+        label.className = 'flex items-center gap-1 cursor-pointer bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-full px-2 py-0.5 transition-colors';
+        label.innerHTML = `
+            <input type="checkbox" class="staff-call-checkbox rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0 w-3 h-3" data-staff-id="${staff.id}" onchange="onStaffToggleChange()" />
+            <span class="text-[10px] text-slate-300">${staff.emoji} ${staff.name}</span>`;
+        container.appendChild(label);
+    });
+}
+
+function getCheckedStaffIds() {
+    return Array.from(document.querySelectorAll('.staff-call-checkbox:checked')).map(el=>el.dataset.staffId);
+}
+
+function isAllStaffChecked() {
+    const el = document.getElementById('staff-call-all');
+    return el ? el.checked : false;
+}
+
+function onAllToggleChange() {
+    const allChecked = isAllStaffChecked();
+    if(allChecked) {
+        // 개별 체크박스 모두 해제
+        document.querySelectorAll('.staff-call-checkbox').forEach(el=>el.checked=false);
+        addLog('📌 전체 직원 회의 모드 선택됨.');
+    }
+}
+
+function onStaffToggleChange() {
+    const ids = getCheckedStaffIds();
+    if(ids.length === 0) return;
+    // 개별 직원 선택 시 "전체 직원" 해제
+    const allEl = document.getElementById('staff-call-all');
+    if(allEl) allEl.checked = false;
+
+    if(ids.length === 1) {
+        addLog(`📌 "${staffState[ids[0]].name}" 담당 호출 모드 선택됨.`);
+    } else {
+        addLog(`📌 ${ids.map(id=>staffState[id].name).join(', ')} 담당 회의 모드 선택됨.`);
+    }
+}
+
+// ═══════════════════════════════════════════════
 // 인사 시퀀스: 전 직원이 순서대로 인사
 // ═══════════════════════════════════════════════
 function playGreetingSequence() {
@@ -806,7 +942,7 @@ function playGreetingSequence() {
             writer:      '대표님 안녕하세요! 글 쓸 준비 완료입니다 ✍️',
             sns:         '좋은 아침입니다! SNS 반응 체크 중이에요 💬',
             coordinator: '대표님, 안녕하십니까! 오늘 업무 준비 완료입니다 👑',
-            presenter:   '대표님 안녕하세요! 브리핑 준비해둘게요 📢',
+            presenter:   '대표님 안녕하세요! 오늘 일정 정리해둘게요 📢',
             intern:      '대표님 안녕하세요!! 오늘도 열심히 하겠습니다 🐣'
         };
 
@@ -838,12 +974,15 @@ function renderMeetingReplies(reply) {
 
     let buffer = [];
     let currentStaff = null;
+    const participantIds = new Set();
 
     const flush = () => {
         if(currentStaff && buffer.length) {
             appendMessage('assistant', currentStaff.name, currentStaff.emoji, formatMarkdown(buffer.join('\n')));
+            participantIds.add(currentStaff.id);
         } else if(buffer.length) {
             appendMessage('assistant','또다른 나 (조정자)','👑', formatMarkdown(buffer.join('\n')));
+            participantIds.add('coordinator');
         }
         buffer = [];
     };
@@ -866,6 +1005,8 @@ function renderMeetingReplies(reply) {
         }
     });
     flush();
+
+    return Array.from(participantIds);
 }
 
 // ═══════════════════════════════════════════════
@@ -906,11 +1047,38 @@ function renderDirectReply(staffId, reply) {
     }
 }
 
-function buildSystemPrompt(mode) {
+// ═══════════════════════════════════════════════
+// 레벨 기반 전문성(Seniority) 헬퍼
+// ═══════════════════════════════════════════════
+function getSeniorityLabel(level) {
+    if(level >= 10) return '수석 전문가';
+    if(level >= 7)  return '시니어';
+    if(level >= 4)  return '주니어 전문가';
+    if(level >= 2)  return '실무 적응 중';
+    return '신입';
+}
+
+function getSeniorityGuide(level) {
+    if(level >= 10) {
+        return `- 수석 전문가 수준: 깊은 인사이트와 구체적인 수치/사례를 곁들여, 단순 답변을 넘어 전략적 제언까지 포함하세요.`;
+    }
+    if(level >= 7) {
+        return `- 시니어 수준: 다양한 경험을 바탕으로 여러 대안을 비교 제시하고, 리스크나 주의점까지 짚어주세요.`;
+    }
+    if(level >= 4) {
+        return `- 주니어 전문가 수준: 기본기는 탄탄하므로 실용적이고 구체적인 답변을 제공하되, 가끔 "추가로 확인이 필요할 수 있다"는 식의 신중함을 보이세요.`;
+    }
+    if(level >= 2) {
+        return `- 실무 적응 중 수준: 성실하게 답변하되, 아직 경험이 많지 않아 다소 기본적이거나 교과서적인 답변일 수 있습니다.`;
+    }
+    return `- 신입 수준: 의욕은 넘치지만 경험이 적어 다소 단순하거나 일반적인 답변을 합니다. 열정적인 태도를 보여주세요.`;
+}
+
+function buildSystemPrompt(mode, isContinue) {
     mode = mode || { type:'normal' };
 
     const staffListText = Object.values(staffState).map(s =>
-        `- ${s.name} (${s.emoji}, Lv.${s.level}): ${s.role}`
+        `- ${s.name} (${s.emoji}, Lv.${s.level}, ${getSeniorityLabel(s.level)}): ${s.role}`
     ).join('\n');
 
     let sys = `당신은 hohoplay 가상 오피스의 AI 비서 시스템입니다.
@@ -923,11 +1091,16 @@ ${staffListText}
 답변 언어: 한국어. 코드가 필요하면 마크다운 코드블록 사용.`;
 
     if(mode.type === 'meeting') {
+        let focusNote = '';
+        if(mode.focusIds && mode.focusIds.length) {
+            const names = mode.focusIds.map(id=>staffState[id]?.name).filter(Boolean);
+            focusNote = `\n특히 대표님이 직접 선택한 담당자(${names.join(', ')})의 의견을 중심으로, 반드시 포함하세요.`;
+        }
         sys += `
 
 [현재 모드: 전체 회의]
 대표님이 전 직원에게 의견을 요청했습니다.
-반드시 아래 형식으로, 각 직원의 역할에 맞는 짧고 개성 있는 의견을 한 명씩 작성하세요 (최소 3명 이상, 가능하면 전원):
+반드시 아래 형식으로, 각 직원의 역할에 맞는 짧고 개성 있는 의견을 한 명씩 작성하세요 (최소 3명 이상, 가능하면 전원):${focusNote}
 
 이름: 의견 내용 (1~3문장, 직원의 역할/성격에 맞는 말투)
 
@@ -941,13 +1114,22 @@ ${staffListText}
     }
     else if(mode.type === 'direct') {
         const staff = staffState[mode.staffId];
+        const seniority = getSeniorityLabel(staff.level);
+        const mem = staffMemories[mode.staffId] || {};
+        let memoryNote = '';
+        if(mem.daily || mem.weekly) {
+            memoryNote = `\n\n[당신의 누적 업무 경험 - 답변 시 자연스럽게 참고/활용하세요]`;
+            if(mem.weekly) memoryNote += `\n${mem.weekly}`;
+            if(mem.daily) memoryNote += `\n${mem.daily}`;
+        }
         sys += `
 
 [현재 모드: 개인 호출]
-대표님이 "${staff.name}" (${staff.emoji}, ${staff.role})을 직접 호출했습니다.
+대표님이 "${staff.name}" (${staff.emoji}, Lv.${staff.level} · ${seniority}, ${staff.role})을 직접 호출했습니다.
 당신은 지금부터 "${staff.name}" 본인으로서 1인칭으로 답변하세요.
-직원의 역할과 성격에 맞는 말투로, 실질적이고 전문적인 답변을 제공하세요.
-다른 직원 이름을 적지 말고, 오직 "${staff.name}"의 입장에서만 답변하세요.`;
+직원의 역할과 성격에 맞는 말투로 답변하되, 레벨(경력)에 따라 전문성의 깊이를 다르게 표현하세요:
+${getSeniorityGuide(staff.level)}
+다른 직원 이름을 적지 말고, 오직 "${staff.name}"의 입장에서만 답변하세요.${memoryNote}`;
     }
     else if(mode.type === 'greeting') {
         sys += `
@@ -960,6 +1142,14 @@ ${staffListText}
 
 [현재 모드: 일반 업무 지시]
 "또다른 나(조정자)" 입장에서 종합적이고 실용적인 답변을 제공하세요.`;
+    }
+
+    if(isContinue) {
+        sys += `
+
+[참고: 이어서 요청]
+대표님이 "이어서"라고 요청했습니다. 직전 답변이 길이 제한으로 중간에 끊겼을 가능성이 있습니다.
+같은 담당자/형식을 유지한 채, 끊긴 부분부터 자연스럽게 이어서 답변을 계속하세요. 처음부터 다시 반복하지 마세요.`;
     }
 
     if(localFilesData.length > 0) {
@@ -1066,12 +1256,12 @@ function renderCharacters() {
         el.innerHTML = `
             <div class="relative flex flex-col items-center ${animClass}" style="animation-delay:${Math.random()*2}s">
                 ${bubbleHTML}
-                <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform ${staff.color} border-2 border-slate-950">
-                    <span class="text-lg">${staff.emoji}</span>
+                <div onclick="openStaffDetail('${id}')" class="w-9 h-9 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform ${staff.color} border-2 border-slate-950" title="${staff.name} 상세보기">
+                    <span class="text-base">${staff.emoji}</span>
                 </div>
-                <span class="absolute -top-1 -right-1 bg-slate-900 text-[10px] border border-indigo-500 text-white font-bold w-4 h-4 rounded-full flex items-center justify-center mono">L${staff.level}</span>
-                <div class="mt-1 text-center whitespace-nowrap">
-                    <span class="text-[10px] font-bold text-white drop-shadow">${staff.name}</span>
+                <span class="absolute -top-1 -right-1 bg-slate-900 text-[9px] border border-indigo-500 text-white font-bold w-4 h-4 rounded-full flex items-center justify-center mono pointer-events-none">L${staff.level}</span>
+                <div class="mt-0.5 text-center whitespace-nowrap pointer-events-none">
+                    <span class="text-[9px] font-bold text-white drop-shadow">${staff.name}</span>
                 </div>
             </div>`;
         container.appendChild(el);
@@ -1240,7 +1430,7 @@ function triggerSimulatedBug() {
             }
         });
         renderCharacters();
-        grantXPToAll(20);
+        grantXP(Object.keys(staffState), 20, '시스템 버그 협업 디버깅');
         saveAll();
         renderHRStaffList();
         setTimeout(()=>{
@@ -1255,19 +1445,49 @@ function triggerSimulatedBug() {
 // ═══════════════════════════════════════════════
 const XP_PER_LEVEL = 100;
 
-function grantXPToAll(xp) {
-    Object.keys(staffState).forEach(id => {
-        staffState[id].xp += xp;
-        while(staffState[id].xp >= XP_PER_LEVEL) {
-            staffState[id].xp -= XP_PER_LEVEL;
-            staffState[id].level++;
-            addLog(`🎉 ${staffState[id].name} → Lv.${staffState[id].level} 레벨업!`);
-            if(staffPositions[id]) staffPositions[id].bubble = `Lv.${staffState[id].level} 달성! 🎉`;
+// 실제 업무를 수행한 직원에게만 차등 경험치 지급
+// staffIds: 이번 업무에 참여한 직원 id 배열
+// task: 업무 내용 요약 (레벨업 시 기억에 기록)
+function grantXP(staffIds, xp, task) {
+    if(!staffIds || staffIds.length === 0) return;
+    staffIds.forEach(id => {
+        const staff = staffState[id];
+        if(!staff) return;
+        staff.xp += xp;
+        while(staff.xp >= XP_PER_LEVEL) {
+            staff.xp -= XP_PER_LEVEL;
+            staff.level++;
+            addLog(`🎉 ${staff.name} → Lv.${staff.level} 레벨업!`);
+            if(staffPositions[id]) staffPositions[id].bubble = `Lv.${staff.level} 달성! 🎉`;
+            recordLevelUpMemory(id, task);
         }
     });
     renderCharacters();
     renderHRStaffList();
     saveAll();
+}
+
+// 레벨업 시점의 누적 경험을 직원 내부 기억(daily/weekly)에 자동 기록
+function recordLevelUpMemory(staffId, task) {
+    const staff = staffState[staffId];
+    if(!staffMemories[staffId]) {
+        staffMemories[staffId] = { daily:'', peerAnalysis:'', weekly:'', monthly:'' };
+    }
+    const mem = staffMemories[staffId];
+    const dateStr = new Date().toISOString().split('T')[0];
+    const taskSummary = (task || '업무').substring(0, 60);
+
+    // daily: 최근 처리 업무 누적 (최대 5줄 유지)
+    const dailyLines = (mem.daily || '').split('\n').filter(l=>l.trim());
+    dailyLines.push(`- [${dateStr}] Lv.${staff.level} 달성 — "${taskSummary}" 처리 경험 누적`);
+    mem.daily = dailyLines.slice(-5).join('\n');
+
+    // weekly: 레벨업 마일스톤 기록
+    const weeklyLines = (mem.weekly || '').split('\n').filter(l=>l.trim());
+    weeklyLines.push(`- Lv.${staff.level} 달성: ${staff.role} 분야 전문성 강화 (${dateStr})`);
+    mem.weekly = weeklyLines.slice(-6).join('\n');
+
+    addLog(`💾 ${staff.name}의 내부 기억(daily/weekly)에 Lv.${staff.level} 경험 기록됨.`);
 }
 
 function renderHRStaffList() {
@@ -1276,7 +1496,8 @@ function renderHRStaffList() {
     container.innerHTML = '';
     Object.values(staffState).forEach(staff => {
         const card = document.createElement('div');
-        card.className = 'hr-card bg-slate-950 border border-slate-800 rounded-xl p-4';
+        card.className = 'hr-card bg-slate-950 border border-slate-800 rounded-xl p-4 cursor-pointer';
+        card.onclick = () => openStaffDetail(staff.id);
         const xpPct = Math.min(100, Math.round(staff.xp/XP_PER_LEVEL*100));
         const statusColor = staff.status==='정직원' ? 'text-emerald-400 bg-emerald-900/30 border-emerald-800/50' : 'text-slate-400 bg-slate-800/50 border-slate-700/50';
         card.innerHTML = `
@@ -1288,9 +1509,12 @@ function renderHRStaffList() {
                         <div class="text-slate-400 text-[11px]">${staff.role}</div>
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-indigo-400 font-black mono text-lg">Lv.${staff.level}</div>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${statusColor} font-bold">${staff.status}</span>
+                <div class="text-right flex items-center gap-2">
+                    <div>
+                        <div class="text-indigo-400 font-black mono text-lg">Lv.${staff.level}</div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full border ${statusColor} font-bold">${staff.status}</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-600"></i>
                 </div>
             </div>
             <div class="mt-3 space-y-1">
@@ -1303,7 +1527,115 @@ function renderHRStaffList() {
             </div>`;
         container.appendChild(card);
     });
-    lucide.createIcons();
+    safeCreateIcons();
+}
+
+// ═══════════════════════════════════════════════
+// 직원 개인 상세페이지
+// ═══════════════════════════════════════════════
+function openStaffDetail(staffId) {
+    // [3] AI 인사관리 탭으로 전환
+    switchTab('hr');
+    renderStaffDetail(staffId);
+    document.getElementById('hr-list-view').classList.add('hidden');
+    document.getElementById('hr-detail-view').classList.remove('hidden');
+}
+
+function closeStaffDetail() {
+    document.getElementById('hr-detail-view').classList.add('hidden');
+    document.getElementById('hr-list-view').classList.remove('hidden');
+}
+
+function renderStaffDetail(staffId) {
+    const staff = staffState[staffId];
+    if(!staff) return;
+
+    // 헤더
+    const xpPct = Math.min(100, Math.round(staff.xp/XP_PER_LEVEL*100));
+    const statusColor = staff.status==='정직원' ? 'text-emerald-400 bg-emerald-900/30 border-emerald-800/50' : 'text-slate-400 bg-slate-800/50 border-slate-700/50';
+    document.getElementById('hr-detail-header').innerHTML = `
+        <div class="w-16 h-16 rounded-full ${staff.color} flex items-center justify-center text-3xl shrink-0 shadow-lg">${staff.emoji}</div>
+        <div class="flex-1">
+            <h3 class="text-lg font-black text-white">${staff.name}</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">${staff.role}</p>
+            <span class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full border ${statusColor} font-bold">${staff.status}</span>
+        </div>
+        <div class="text-right shrink-0">
+            <div class="text-indigo-400 font-black mono text-2xl">Lv.${staff.level}</div>
+            <div class="text-[10px] text-slate-500 mono">${staff.xp}/${XP_PER_LEVEL} XP</div>
+        </div>`;
+
+    // 경험치 바
+    document.getElementById('hr-detail-stats').innerHTML = `
+        <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+            <span>다음 레벨까지 경험치</span><span class="mono">${staff.xp}/${XP_PER_LEVEL} XP</span>
+        </div>
+        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-400 h-full rounded-full transition-all duration-700 progress-glow" style="width:${xpPct}%"></div>
+        </div>`;
+
+    // 내부 기억 카드 (일일/협업/주간/월간)
+    const coresContainer = document.getElementById('hr-detail-cores');
+    coresContainer.innerHTML = '';
+    const mems = staffMemories[staffId] || {};
+    const labels = { daily:'📅 일일 요약', peerAnalysis:'🤝 협업 분석', weekly:'📆 주간 정리', monthly:'🗂️ 월간 기억' };
+    let hasCore = false;
+    Object.keys(labels).forEach(key => {
+        if(!mems[key]) return;
+        hasCore = true;
+        const seg = document.createElement('div');
+        seg.className = 'bg-slate-950 rounded-lg p-3 border border-slate-800';
+        seg.innerHTML = `<div class="text-[10px] font-bold text-indigo-400 mb-1">${labels[key]}</div><div class="text-[11px] text-slate-300 whitespace-pre-line leading-relaxed">${mems[key]}</div>`;
+        coresContainer.appendChild(seg);
+    });
+    if(!hasCore) {
+        coresContainer.innerHTML = '<div class="text-center text-slate-500 text-xs py-4">아직 기록된 내부 기억이 없습니다.</div>';
+    }
+
+    // 관련 업무 기억 (이 직원이 작성자인 memories)
+    const memContainer = document.getElementById('hr-detail-memories');
+    const countLabel = document.getElementById('hr-detail-mem-count');
+    memContainer.innerHTML = '';
+    const relatedMems = memories.filter(m => m.author === staff.name);
+    countLabel.textContent = `총 ${relatedMems.length}건`;
+
+    const catColors = {
+        '게임개발':'bg-indigo-900/50 text-indigo-400 border-indigo-800/60',
+        '운세/게임':'bg-pink-900/50 text-pink-400 border-pink-800/60',
+        '운세/타로':'bg-pink-900/50 text-pink-400 border-pink-800/60',
+        '마케팅'   :'bg-emerald-900/50 text-emerald-400 border-emerald-800/60',
+        '무인연습실':'bg-amber-900/50 text-amber-400 border-amber-800/60',
+        '개발'     :'bg-cyan-900/50 text-cyan-400 border-cyan-800/60',
+        '기획/전략' :'bg-violet-900/50 text-violet-400 border-violet-800/60'
+    };
+
+    if(relatedMems.length === 0) {
+        memContainer.innerHTML = '<div class="text-center text-slate-500 text-xs py-6">아직 이 직원과 관련된 기억이 없습니다.<br>채팅에서 이 직원을 호출하면 기록이 쌓입니다.</div>';
+    } else {
+        relatedMems.forEach(mem => {
+            const card = document.createElement('div');
+            card.className = 'mem-card bg-slate-950 border border-slate-800 rounded-xl p-3 cursor-pointer';
+            const catCls = catColors[mem.category] || 'bg-slate-800 text-slate-400 border-slate-700';
+            card.innerHTML = `
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-bold text-white truncate">${mem.title}</h4>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] px-1.5 py-0.5 rounded border mono font-bold ${catCls}">${mem.category}</span>
+                            <span class="text-[10px] text-slate-500">${mem.date}</span>
+                        </div>
+                    </div>
+                </div>`;
+            card.addEventListener('click', () => {
+                switchTab('memory');
+                switchMemorySubTab('reports');
+                setTimeout(()=>openMemoryDetail(mem), 50);
+            });
+            memContainer.appendChild(card);
+        });
+    }
+
+    safeCreateIcons();
 }
 
 function openHireInternModal() {
@@ -1334,6 +1666,7 @@ function confirmHireIntern() {
     addLog(`🎉 신규 인턴 "${name}" 채용 완료!`);
     renderCharacters();
     renderHRStaffList();
+    renderStaffCallToggles();
     saveAll();
     setTimeout(()=>{ if(staffPositions[id]) staffPositions[id].bubble=''; renderCharacters(); }, 3000);
 }
@@ -1384,7 +1717,7 @@ function renderMemoryList() {
     if(memories.length===0) {
         list.innerHTML = '<div class="text-center text-slate-500 text-xs py-8">저장된 기억이 없습니다.<br>채팅에서 자동 저장 옵션을 켜거나 AI와 대화해 보세요!</div>';
     }
-    lucide.createIcons();
+    safeCreateIcons();
 }
 
 function openMemoryDetail(mem) {
@@ -1471,6 +1804,31 @@ function switchTab(tabId) {
             cont.classList.add('hidden');
         }
     });
+}
+
+// ═══════════════════════════════════════════════
+// 모바일 전용: 오피스맵 / 로그 탭 전환
+// ═══════════════════════════════════════════════
+function switchLeftMobileTab(which) {
+    const mapEl = document.getElementById('office-map');
+    const logEl = document.getElementById('log-panel');
+    const btnMap = document.getElementById('left-mobile-tab-map');
+    const btnLog = document.getElementById('left-mobile-tab-log');
+    if(which === 'map') {
+        mapEl.classList.remove('hidden');
+        mapEl.classList.add('flex-1');
+        logEl.classList.add('hidden');
+        logEl.classList.remove('flex');
+        btnMap.className = 'text-[10px] font-bold px-2 py-1 rounded-md bg-slate-800 text-indigo-400 transition-all';
+        btnLog.className = 'text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 transition-all';
+    } else {
+        mapEl.classList.add('hidden');
+        mapEl.classList.remove('flex-1');
+        logEl.classList.remove('hidden');
+        logEl.classList.add('flex');
+        btnLog.className = 'text-[10px] font-bold px-2 py-1 rounded-md bg-slate-800 text-indigo-400 transition-all';
+        btnMap.className = 'text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 transition-all';
+    }
 }
 
 // ═══════════════════════════════════════════════
@@ -1562,23 +1920,51 @@ function handleFiles(files) {
 // ═══════════════════════════════════════════════
 // GitHub 저장소 파일 가져오기
 // ═══════════════════════════════════════════════
-function githubUrlToRaw(url) {
+// 입력 URL로부터 시도해볼 raw URL 후보 목록을 생성
+function githubUrlToRawCandidates(url) {
     url = url.trim();
-    // 이미 raw 주소인 경우
-    if(url.includes('raw.githubusercontent.com')) return url;
+    const candidates = [];
+
+    // 이미 raw 주소인 경우 그대로 1개만
+    if(url.includes('raw.githubusercontent.com')) {
+        candidates.push(url);
+        return candidates;
+    }
+
     // https://github.com/{user}/{repo}/blob/{branch}/{path}
-    const m = url.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/);
+    let m = url.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/);
     if(m) {
         const [, user, repo, branch, path] = m;
-        return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
+        candidates.push(`https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`);
+        return candidates;
     }
-    // https://{user}.github.io/{repo-path}/{file} → raw 추정 (main 브랜치 가정)
-    const m2 = url.match(/^https?:\/\/([^.]+)\.github\.io\/(.+)$/);
-    if(m2) {
-        const [, user, path] = m2;
-        return `https://raw.githubusercontent.com/${user}/${user}.github.io/main/${path}`;
+
+    // https://github.com/{user}/{repo} (저장소 루트만 입력) → README 시도
+    m = url.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?$/);
+    if(m) {
+        const [, user, repo] = m;
+        ['main','master','gh-pages'].forEach(branch=>{
+            candidates.push(`https://raw.githubusercontent.com/${user}/${repo}/${branch}/README.md`);
+        });
+        return candidates;
     }
-    return url;
+
+    // https://{user}.github.io/{path} → {user}/{user}.github.io 저장소, main/master/gh-pages 순서로 시도
+    m = url.match(/^https?:\/\/([^.\/]+)\.github\.io\/?(.*)$/);
+    if(m) {
+        const [, user, rawPath] = m;
+        let path = rawPath.replace(/^\/+/, '');
+        // 경로가 비었거나 슬래시로 끝나면 index.html로 보정
+        if(path === '' || path.endsWith('/')) path += 'index.html';
+        ['main','master','gh-pages'].forEach(branch=>{
+            candidates.push(`https://raw.githubusercontent.com/${user}/${user}.github.io/${branch}/${path}`);
+        });
+        return candidates;
+    }
+
+    // 그 외: 입력 그대로 시도
+    candidates.push(url);
+    return candidates;
 }
 
 async function fetchGithubFile() {
@@ -1587,44 +1973,62 @@ async function fetchGithubFile() {
     const url = input.value.trim();
     if(!url) { addLog('❌ GitHub URL을 입력해 주세요.'); return; }
 
-    const rawUrl = githubUrlToRaw(url);
-    const fileName = rawUrl.split('/').pop() || 'github-file';
+    const candidates = githubUrlToRawCandidates(url);
 
     btn.disabled = true;
     btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i>가져오는 중';
-    lucide.createIcons();
-    addLog(`🌐 GitHub 파일 가져오는 중: ${fileName}`);
+    safeCreateIcons();
 
-    try {
-        const res = await fetch(rawUrl);
-        if(!res.ok) throw new Error(`HTTP ${res.status} - 파일을 찾을 수 없습니다 (브랜치/경로 확인)`);
-        const text = await res.text();
+    const attemptResults = []; // { url, status } 기록
 
-        localFilesData.push({ name: fileName, content: text, source: rawUrl });
+    for(const rawUrl of candidates) {
+        const fileName = rawUrl.split('/').pop() || 'github-file';
+        addLog(`🌐 GitHub 파일 가져오는 중: ${rawUrl}`);
+        try {
+            const res = await fetch(rawUrl, { cache: 'no-store' });
+            if(!res.ok) {
+                attemptResults.push({ url: rawUrl, status: `HTTP ${res.status}` });
+                continue; // 다음 후보 시도
+            }
+            const text = await res.text();
 
-        const pills = document.getElementById('files-pills');
-        const listEl = document.getElementById('uploaded-files-list');
-        const pill = document.createElement('span');
-        pill.className = 'flex items-center gap-1 bg-emerald-900/60 border border-emerald-800/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full mono whitespace-nowrap';
-        pill.innerHTML = `🌐 ${fileName}`;
-        pills.appendChild(pill);
-        listEl.classList.remove('hidden');
+            localFilesData.push({ name: fileName, content: text, source: rawUrl });
 
-        addLog(`✅ GitHub 파일 연동 완료: ${fileName} (${text.length}자)`);
-        input.value = '';
+            const pills = document.getElementById('files-pills');
+            const listEl = document.getElementById('uploaded-files-list');
+            const pill = document.createElement('span');
+            pill.className = 'flex items-center gap-1 bg-emerald-900/60 border border-emerald-800/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full mono whitespace-nowrap';
+            pill.innerHTML = `🌐 ${fileName}`;
+            pills.appendChild(pill);
+            listEl.classList.remove('hidden');
 
-        // 시스템 메시지로 안내
-        appendMessage('assistant','또다른 나','👑',
-            `📂 <strong class="text-white">${fileName}</strong> 파일을 GitHub에서 가져왔습니다! (${text.length.toLocaleString()}자)<br>이제 이 파일에 대해 질문하시면 AI가 내용을 참고하여 답변합니다.`);
+            addLog(`✅ GitHub 파일 연동 완료: ${fileName} (${text.length}자) ← ${rawUrl}`);
+            input.value = '';
 
-    } catch(e) {
-        addLog(`❌ GitHub 가져오기 실패: ${e.message}`);
-        appendMessage('assistant','시스템','⚠️', `⚠️ GitHub 파일을 가져오지 못했습니다: ${e.message}<br>raw.githubusercontent.com 형식의 URL인지 확인해 주세요.`);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="download-cloud" class="w-3 h-3"></i>가져오기';
-        lucide.createIcons();
+            appendMessage('assistant','또다른 나','👑',
+                `📂 <strong class="text-white">${fileName}</strong> 파일을 GitHub에서 가져왔습니다! (${text.length.toLocaleString()}자)<br>이제 이 파일에 대해 질문하시면 AI가 내용을 참고하여 답변합니다.`);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="download-cloud" class="w-3 h-3"></i><span class="hidden sm:inline">가져오기</span>';
+            safeCreateIcons();
+            return; // 성공 시 종료
+        } catch(e) {
+            // fetch 자체가 실패 (네트워크/CORS/차단)
+            attemptResults.push({ url: rawUrl, status: `네트워크 오류 (CORS/연결 차단 가능): ${e.message}` });
+        }
     }
+
+    // 모든 후보 실패
+    addLog(`❌ GitHub 가져오기 실패 - 시도한 URL ${attemptResults.length}개 모두 실패`);
+    appendMessage('assistant','시스템','⚠️',
+        `⚠️ GitHub 파일을 가져오지 못했습니다.<br><br>` +
+        attemptResults.map(r=>`<code class="text-amber-300 text-[10px]">${r.url}</code><br>→ <span class="text-rose-300 text-[10px]">${r.status}</span>`).join('<br><br>') +
+        `<br><br>모두 <strong>HTTP 404</strong>라면 해당 브랜치에 그 파일이 없다는 뜻입니다. 다른 이름일 수 있으니, GitHub 저장소에서 정확한 파일명을 확인해 주세요.<br>` +
+        `"네트워크 오류"라면 브라우저가 raw.githubusercontent.com 자체를 차단하고 있을 수 있습니다 (방화벽/확장 프로그램 확인).`);
+
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="download-cloud" class="w-3 h-3"></i><span class="hidden sm:inline">가져오기</span>';
+    safeCreateIcons();
 }
 
 // ═══════════════════════════════════════════════
@@ -1659,6 +2063,7 @@ function importWorkspaceData(e) {
             renderMemoryList();
             renderAIHarddiskMemories();
             updateStatsUI();
+            renderStaffCallToggles();
             addLog(`✅ 이관 파일 "${file.name}" 로드 완료!`);
         } catch(err) { addLog('❌ 이관 파일 파싱 오류: '+err.message); }
     };
