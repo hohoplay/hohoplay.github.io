@@ -2804,6 +2804,9 @@ def build_zodiac_post(z, today_str):
 def build_chinese_post(c, today_str):
     fortune = chinese_fortune(c['en'])
 
+    kst_now  = now_kst()
+    today_sync = kst_now.strftime("%Y년 %m월 %d일")
+
     # peak_tip, low_tip — 시간대 제외하고 내용(tip)만 활용
     _cz_row = chinese_zodiac[chinese_zodiac['animal_zodiac'] == c['en']]
     _peak_tip = ''
@@ -2816,9 +2819,6 @@ def build_chinese_post(c, today_str):
             _low_tip  = _to_formal(str(_sample['low_tip'].iloc[0]))
     rating  = stars()
     card_id = f"fc-{c['en']}"
-
-    kst_now  = now_kst()
-    today_sync = kst_now.strftime("%Y년 %m월 %d일")
 
     raw_total, raw_money, raw_health, raw_love = pick_score(c['kr'])
     total, money, health, love, calc_html = _apply_adjustments(
