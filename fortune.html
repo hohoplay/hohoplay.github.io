@@ -6469,10 +6469,24 @@ ${info.usage}`;
         patternWarning = `<p style="background:rgba(249,115,22,.1);border-left:3px solid #f97316;border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.88rem;color:#fed7aa;margin:1.2rem 0">⚠️ <strong>과부하 주의</strong> — ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 매 단계 에너지가 급격하게 바뀌고 있어요. 이처럼 서로 다른 성격의 흐름을 모두 혼자 감당하려다 보면 지치기 쉬워요. 조금은 숨을 고를 필요가 있어요.</p>`;
       }
 
-      // ── 핵심 조언 (getAction + getConclusion, 구어체 자연스럽게) ──
-      const actionRaw     = getAction(present)    || '';
-      const conclusionRaw = getConclusion(future) || '';
-      const coreAdvice    = [actionRaw, conclusionRaw].filter(Boolean).join(' ');
+      // ── 핵심 조언 — 현재/미래 카드 키워드 + 슈트 기반으로 생성 ──
+      const ACTION_BY_SUIT = {
+        major:     '오늘은 직감이 이끄는 방향을 한 번 믿어보세요.',
+        wands:     '오늘 가장 마음이 끌리는 방향으로 작게 한 발짝 움직여봐요.',
+        cups:      '오늘 소중한 사람에게 먼저 다가가거나, 자신의 감정을 솔직하게 꺼내봐요.',
+        swords:    '오늘은 머릿속 복잡한 생각 중 하나를 정리하는 데만 집중해봐요.',
+        pentacles: '오늘 잘 되고 있는 현실적인 부분 하나를 먼저 확인하고 다음 걸음을 내딛어봐요.',
+      };
+      const CONCLUSION_BY_SUIT = {
+        major:     '지금 이 흐름 안에 이미 답이 있을 거예요.',
+        wands:     '앞으로의 흐름을 믿고 한 걸음씩 나아가면 돼요.',
+        cups:      '마음이 가는 방향이 지금 당신에게 가장 정직한 나침반이에요.',
+        swords:    '생각을 정리하고 나면 길이 훨씬 선명하게 보일 거예요.',
+        pentacles: '지금 쌓아온 것들이 생각보다 단단한 기반이 되어줄 거예요.',
+      };
+      const actionRaw     = ACTION_BY_SUIT[suits3[1]]    || ACTION_BY_SUIT.major;
+      const conclusionRaw = CONCLUSION_BY_SUIT[suits3[2]] || CONCLUSION_BY_SUIT.major;
+      const coreAdvice    = actionRaw + ' ' + conclusionRaw;
 
       // ── 역방향 안내 ──
       const revCards = tDrawnCards.filter(c => c.isReversed);
