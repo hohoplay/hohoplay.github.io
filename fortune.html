@@ -5744,11 +5744,21 @@ ${info.usage}`;
         // ── 산문형 스토리텔링으로 통합 ──
         var dreamProse = '';
         if (stages) {
-            // ── 첫 줄: 꿈 헤드라인 + 공감 ──
+            // ── 1단락: 꿈 공감 (헤드라인) ──
             var headDream = stages.empathy || ('"' + _mbtiDreamKeyword + '" 꿈, 무의식이 강한 신호를 보내고 있어요.');
 
-            // ── 본문: 심층 해석 + MBTI 연결 ──
-            var bodyDream = [stages.deep, stages.mbtiLink].filter(Boolean).join(' ');
+            // ── 2단락: 꿈의 심층 의미 + 꿈 상징 데이터 연결 ──
+            var bodyDeep = stages.deep || '';
+            // 긍정/부정 상징을 본문에 자연스럽게 녹임
+            var symbolLine = '';
+            if (positive && negative) {
+                symbolLine = '"<strong style="color:#c9a84c">' + _mbtiDreamKeyword + '</strong>" 꿈은 '
+                    + '<strong style="color:#86efac">' + positive + '</strong>의 가능성과 함께, '
+                    + '<strong style="color:#fca5a5">' + negative + '</strong>에 대한 무의식의 경고를 동시에 담고 있어요.';
+            }
+
+            // ── 3단락: MBTI 성향 × 꿈 연결 ──
+            var bodyMbtiLink = stages.mbtiLink || '';
 
             // ── 경고/기회 ──
             var alertDream = stages.alert || '';
@@ -5758,13 +5768,21 @@ ${info.usage}`;
 
             dreamProse = `
               <div style="font-size:.9rem;line-height:2;color:#e0d5f0;padding:.3rem .1rem">
-                <p style="font-size:.93rem;font-weight:700;color:#c4b5fd;line-height:1.8;margin-bottom:.9rem">
+
+                <p style="font-size:.93rem;font-weight:700;color:#c4b5fd;line-height:1.8;margin-bottom:1rem">
                   ${headDream}
                 </p>
 
-                <p>${bodyDream}</p>
+                ${symbolLine ? `<p style="margin-bottom:1rem">${symbolLine}</p>` : ''}
 
-                ${alertDream ? `<p style="background:rgba(248,113,113,.1);border-left:3px solid rgba(248,113,113,.5);border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.87rem;color:#fca5a5;margin:1rem 0">
+                ${bodyDeep ? `<p style="margin-bottom:1rem">${bodyDeep}</p>` : ''}
+
+                ${bodyMbtiLink ? `<p style="background:rgba(167,139,250,.08);border-left:3px solid rgba(167,139,250,.4);border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-bottom:1rem;font-size:.88rem;color:#ddd6fe">
+                  🧠 <strong style="color:#a78bfa">${_mbtiDreamMbti}</strong> 성향과의 연결<br>
+                  <span style="display:block;margin-top:.4rem">${bodyMbtiLink}</span>
+                </p>` : ''}
+
+                ${alertDream ? `<p style="background:rgba(248,113,113,.1);border-left:3px solid rgba(248,113,113,.5);border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.87rem;color:#fca5a5;margin-top:.5rem">
                   ⚠️ ${alertDream}
                 </p>` : ''}
 
@@ -5772,6 +5790,7 @@ ${info.usage}`;
                   <p style="font-size:.72rem;font-weight:700;color:#4ade80;margin:0 0 .45rem">💡 오늘의 행동</p>
                   <p style="font-size:.88rem;line-height:1.9;margin:0;color:#e0d5f0">${actionDream}</p>
                 </div>` : ''}
+
               </div>
             `;
         } else {
