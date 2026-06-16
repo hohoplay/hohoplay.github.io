@@ -71,6 +71,8 @@ fortune_365       = csv("fortune_365_days.csv")
 fortune_quotes    = csv("fortune_quotes_10000.csv")   # ← 오늘의명언용
 proverbs          = csv("proverbs_200.csv")            # ← 별자리주간·띠별월간 속담용
 seo_keywords      = csv("fortune_seo_keywords_3000.csv") # ← SEO 키워드 풀
+library_bridge    = csv("fortune_library_bridge.csv")    # ← 서재 브릿지 (카테고리 매칭)
+farewell_bridge   = csv("fortune_farewell_bridge.csv")   # ← 배웅 인사
 
 def pick_seo_keywords(name, day_seed, n=2):
     """이름(별자리/띠)이 포함된 SEO 키워드를 날짜 시드로 n개 선택"""
@@ -1308,7 +1310,7 @@ _CHINESE_MONTHLY_PROVERB_CAT = {
 }
 
 def pick_proverb_for(name, kst_day, mode='weekly'):
-    """별자리(주간) 또는 띠(월간) 이름으로 속담 1개 선택"""
+    """별자리(주간) 또는 띠(월간) 이름으로 속담 1개 선택 — 부정적 속담 제외"""
     if mode == 'weekly':
         cat = _ZODIAC_WEEKLY_PROVERB_CAT.get(name, "지혜")
     else:
@@ -1316,8 +1318,19 @@ def pick_proverb_for(name, kst_day, mode='weekly'):
     pool = proverbs[proverbs["category"] == cat]
     if pool.empty:
         pool = proverbs
-    idx = (kst_day + hash(name)) % len(pool)
-    row = pool.iloc[idx]
+
+    # 부정적·갈등성 속담 제외 (번호 기준)
+    _NEGATIVE_PROVERB_NOS = {
+        10, 12, 32, 35, 36, 37, 90, 94, 95, 109,
+        116, 124, 129, 130, 138, 140, 141, 156, 158,
+        165, 169, 172, 175, 176, 183, 199
+    }
+    filtered = pool[~pool["번호"].isin(_NEGATIVE_PROVERB_NOS)]
+    if filtered.empty:
+        filtered = pool  # 필터 후 비면 원본 사용
+
+    idx = (kst_day + hash(name)) % len(filtered)
+    row = filtered.iloc[idx % len(filtered)]
     return {
         "proverb": str(row["속담"]),
         "meaning": str(row["풀이"]),
@@ -1344,7 +1357,8 @@ def _proverb_bridge_html(p, color="#7c3aed", light="#faf5ff"):
 </div>'''
 
 
-# ── B. 심리적 통찰 한 문장 — 명언/속담 직전에 자연스럽게 삽입 ──
+# ── B. 심리적 통찰 한 문장 — 포스트 종류별 풀 분리 ──
+# 일일 운세용 (오늘 표현 OK)
 _INSIGHT_BRIDGE = [
     "오늘 같은 흐름에서는 직관적인 판단보다 논리적인 분석이 도움이 됩니다.",
     "오늘처럼 마음이 복잡할 때는 감정보다 사실을 먼저 점검하는 것이 좋습니다.",
@@ -1355,13 +1369,154 @@ _INSIGHT_BRIDGE = [
     "오늘 같은 날은 큰 결정을 미루고 작은 것부터 정리하는 것이 도움이 됩니다.",
 ]
 
-def pick_insight_bridge(day_seed):
-    """심리적 통찰 한 문장 — 자체 풀 + fortune_sentences_4000.csv 결합"""
-    pool = list(_INSIGHT_BRIDGE)
+# 주간/월간용 (이번 주/이 시기 표현 — "오늘" 없음)
+_INSIGHT_BRIDGE_WEEKLY = [
+    "이번 주 같은 흐름에서는 직관적인 판단보다 논리적인 분석이 도움이 됩니다.",
+    "이번 주처럼 마음이 복잡할 때는 감정보다 사실을 먼저 점검하는 것이 좋습니다.",
+    "이런 시기에는 빠른 결정보다 한 번 더 생각하는 여유가 도움이 됩니다.",
+    "이번 주 같은 기운에서는 익숙한 방식보다 새로운 시각이 필요할 수 있습니다.",
+    "이번 주에는 혼자 판단하기보다 주변의 의견을 들어보는 것이 좋은 선택이 됩니다.",
+    "이런 흐름에서는 감정을 따르기보다 차분히 우선순위를 정리하는 것이 효과적입니다.",
+    "이번 주에는 큰 결정을 미루고 작은 것부터 정리하는 것이 도움이 됩니다.",
+]
+
+
+# ── 서재 컨셉 도입 브릿지 — 명언/속담 직전 "사람 냄새" 문장 ──
+_HUMAN_BRIDGE_ZODIAC = [
+    "오늘 당신에게 찾아온 기운을 읽어내려 가다 보니, 고전의 한 구절이 깊은 잔상으로 남았습니다.",
+    "오늘의 운세 흐름을 살피다가 문득 서재 서가에서 발견한 문장 하나가 마음을 머물게 했습니다.",
+    "서랍 속에 깊이 넣어두었던 책 한 권을 꺼내어 읽다가, 오늘의 당신에게 꼭 전하고 싶은 문장을 발견했습니다.",
+    "무수한 기록 속에서 오늘의 당신을 지켜줄 만한 철학적인 단상을 조용히 짚어보았습니다.",
+    "오늘의 흐름을 따라가다 보니 오래된 책 한 줄이 유독 선명하게 눈에 들어왔습니다.",
+    "오늘 이 운세를 정리하면서 불현듯 어느 철학자의 말이 떠올라 함께 나누고 싶어졌습니다.",
+    "하루의 기운을 읽어가다 문득 손에 잡히는 책 한 권이 있었습니다. 그 안에서 당신에게 어울리는 문장을 찾았습니다.",
+]
+
+_HUMAN_BRIDGE_CHINESE = [
+    "오늘 띠의 흐름을 살피다 보니, 오래전 읽었던 책 한 구절이 문득 손에 잡혀 왔습니다.",
+    "오늘의 기운을 정리하면서 서재 한편에 꽂혀 있던 오래된 책이 눈에 들어왔습니다.",
+    "무수한 인생의 기록 중에서 오늘 당신의 흐름과 가장 맞닿은 문장을 골라보았습니다.",
+    "오늘 이 띠의 에너지를 읽다가, 마음속에 오래 간직해 온 구절 하나가 떠올랐습니다.",
+    "하루의 운세를 정리하고 나면 종종 어울리는 말이 생각납니다. 오늘도 그런 날이었습니다.",
+    "책장을 넘기다 보니 오늘의 당신에게 조용히 건네고 싶은 문장 하나가 남았습니다.",
+    "오늘 띠별 흐름을 따라가다, 마치 이 날을 위해 쓰인 듯한 구절 하나가 눈에 걸렸습니다.",
+]
+
+_HUMAN_BRIDGE_WEEKLY = [
+    "한 주의 큰 흐름을 구조화하다 보니, 오래된 삶의 지혜가 담긴 옛 언어가 명확한 이정표를 제시해 주었습니다.",
+    "이번 주를 정리하다 문득 오래된 속담 하나가 모든 것을 간결하게 설명해 주었습니다.",
+    "한 주의 흐름을 살피다 보면 어느 순간 옛 말의 정확함에 놀랄 때가 있습니다. 이번 주가 그랬습니다.",
+    "이번 주 별자리의 흐름을 읽어가다가, 도서관 서가 어딘가에서 꺼내온 듯한 오래된 문장이 떠올랐습니다.",
+    "한 주를 앞두고 가장 어울리는 삶의 격언을 고르다 보니 이 속담이 가장 먼저 손에 잡혔습니다.",
+    "이번 주의 방향을 잡아줄 오래된 지혜 한 줄을 서재에서 찾아보았습니다.",
+    "일주일의 흐름을 정리하다 보면 결국 옛사람의 말이 가장 정확한 나침반이 되어 줍니다.",
+]
+
+_HUMAN_BRIDGE_MONTHLY = [
+    "이번 달 당신의 변화를 도서관 색인처럼 체계적으로 정리해 나가던 중, 시대를 관통하는 삶의 격언이 문득 떠올랐습니다.",
+    "장기적인 변화의 흐름 속에서 길을 잃지 않도록, 오래된 처세의 기록에서 지혜를 빌려와 보았습니다.",
+    "한 달의 큰 흐름을 구조화하다 보니, 오래된 삶의 지혜가 담긴 옛 언어가 명확한 이정표를 제시해 주었습니다.",
+    "이달의 흐름을 정리하면서 책장 한켠에서 먼지를 털며 꺼낸 속담 하나가 유독 마음에 남았습니다.",
+    "한 달을 내다보다 보면 결국 오래된 말 한 줄이 가장 정확한 방향을 알려줄 때가 있습니다.",
+    "이달의 에너지를 살피다 보니 어느 옛 어른의 말씀이 문득 선명하게 떠올랐습니다.",
+    "월간 흐름을 구조화하던 중 시대를 가로질러 여전히 유효한 삶의 지혜 하나를 꺼내 왔습니다.",
+]
+
+def pick_human_bridge(seed_num, content_type="zodiac", category="인생"):
+    """서재 컨셉 도입 브릿지 — 카테고리 매칭 CSV 기반
+    content_type: zodiac / chinese / weekly / monthly
+    category: 인생 / 성장 / 도전 / 인내 / 관계 (속담의 지혜·금전은 자동 변환)
+    """
+    # 속담 카테고리 → 브릿지 카테고리 변환
+    _cat_map = {'지혜': '인생', '금전': '인생', '삶': '인생', '성공': '성장'}
+    category = _cat_map.get(category, category)
+    # 브릿지에 없는 카테고리면 '인생'으로
+    if category not in ('인생', '성장', '도전', '인내', '관계'):
+        category = '인생'
+
+    if not library_bridge.empty and 'post_type' in library_bridge.columns:
+        pool = library_bridge[
+            (library_bridge['post_type'] == content_type) &
+            (library_bridge['category'] == category)
+        ]
+        if pool.empty:
+            pool = library_bridge[library_bridge['post_type'] == content_type]
+        if not pool.empty:
+            pool = pool.reset_index(drop=True)
+            return str(pool.iloc[seed_num % len(pool)]['sentence'])
+    # CSV 없으면 기존 풀 fallback
+    if content_type == "zodiac":
+        pool = _HUMAN_BRIDGE_ZODIAC
+    elif content_type == "chinese":
+        pool = _HUMAN_BRIDGE_CHINESE
+    elif content_type == "weekly":
+        pool = _HUMAN_BRIDGE_WEEKLY
+    else:
+        pool = _HUMAN_BRIDGE_MONTHLY
+    return pool[seed_num % len(pool)]
+
+
+# ── 배웅 인사 — 책방을 나서는 독자에게 건네는 다정한 마지막 문장 ──
+_FAREWELL_DAILY = [
+    "오늘 이곳 서재에서 잠시 머무셨던 시간이 당신의 하루에 작은 나침반이 되었기를 바랍니다. 당신의 발걸음이 닿는 곳마다 평온함이 함께하기를 조용히 응원하겠습니다.",
+    "무수한 기록들 속에서 오늘의 문장을 고르고 당신에게 건넬 수 있어 감사한 시간이었습니다. 문을 열고 나서는 당신의 오늘 하루가 조금 더 다정하고 따뜻하기를 진심으로 바랍니다.",
+    "마음이 복잡하거나 잠시 삶의 결을 가다듬고 싶을 때, 이곳의 서가는 언제나 같은 자리에서 조용히 불을 밝히고 있겠습니다. 오늘 하루도 당신만의 속도로 묵묵히 빛나시기 바랍니다.",
+    "오늘 서가에서 나누었던 짧은 지혜의 조각들이 당신이 걷는 길에 작은 온기가 되어주기를 바랍니다. 당신이 마주할 매 순간의 선택을 신뢰하며, 오늘의 배웅을 전합니다.",
+    "오늘 이 한 편의 운세를 함께 읽어내려 가주셔서 감사합니다. 당신이 오늘 하루를 온전히 당신답게 보내시기를 조용히 바라겠습니다.",
+    "서가의 문은 언제나 열려 있습니다. 오늘의 흐름이 당신에게 작은 힘이 되었기를 바라며, 조심히 돌아가시기 바랍니다.",
+    "짧은 시간이었지만 오늘의 흐름을 함께 살펴볼 수 있어 감사했습니다. 당신의 하루 마지막이 처음보다 조금 더 가볍기를 바랍니다.",
+]
+
+_FAREWELL_WEEKLY = [
+    "이번 한 주를 함께 내다볼 수 있어 감사한 시간이었습니다. 이곳의 서가는 다음 주에도 같은 자리에서 조용히 당신을 기다리고 있겠습니다.",
+    "한 주의 흐름을 함께 살펴보았습니다. 이 작은 지혜의 조각들이 당신의 이번 주 발걸음에 작은 빛이 되어주기를 바랍니다.",
+    "이번 주도 당신만의 속도로 나아가시기 바랍니다. 길이 흔들릴 때 이곳 서가의 문은 언제나 열려 있겠습니다.",
+    "한 주의 방향을 함께 정리해 드릴 수 있어 감사했습니다. 당신의 이번 주가 오늘 이 글보다 훨씬 더 풍요롭기를 진심으로 바랍니다.",
+    "이번 주를 담담하게 걸어가시기 바랍니다. 무수한 기록들 중에서 이 글이 당신의 한 주에 작은 나침반이 되었기를 바라며 배웅합니다.",
+]
+
+_FAREWELL_MONTHLY = [
+    "이달의 큰 흐름을 함께 살펴볼 수 있어 감사했습니다. 이곳의 서가는 다음 달에도 같은 자리에서 조용히 불을 밝히고 있겠습니다.",
+    "한 달의 흐름을 도서관 색인처럼 정리해 드릴 수 있어 감사한 시간이었습니다. 이달의 당신이 스스로를 충분히 신뢰하며 나아가시기를 바랍니다.",
+    "이달의 지혜 조각들이 당신의 매일매일에 작은 온기가 되어주기를 바랍니다. 한 달을 당신만의 속도로 묵묵히 빛나시기 바랍니다.",
+    "이달의 방향을 함께 짚어볼 수 있어 감사했습니다. 서가는 언제나 같은 자리에서 당신을 기다리고 있겠습니다. 조심히 돌아가시기 바랍니다.",
+    "이달의 흐름을 함께 살펴보았습니다. 당신이 마주할 이달의 매 순간을 신뢰하며, 조용히 배웅을 전합니다.",
+]
+
+def pick_farewell_bridge(seed_num, mode='daily'):
+    """책방을 나서는 독자에게 건네는 다정한 배웅 인사 — CSV 기반
+    mode: daily / weekly / monthly
+    """
+    if not farewell_bridge.empty and 'mode' in farewell_bridge.columns:
+        pool = farewell_bridge[farewell_bridge['mode'] == mode]
+        if pool.empty:
+            pool = farewell_bridge[farewell_bridge['mode'] == 'daily']
+        if not pool.empty:
+            pool = pool.reset_index(drop=True)
+            return str(pool.iloc[seed_num % len(pool)]['sentence'])
+    # CSV 없으면 기존 풀 fallback
+    if mode == 'weekly':
+        pool = _FAREWELL_WEEKLY
+    elif mode == 'monthly':
+        pool = _FAREWELL_MONTHLY
+    else:
+        pool = _FAREWELL_DAILY
+    return pool[seed_num % len(pool)]
+
+def pick_insight_bridge(day_seed, mode='daily'):
+    """심리적 통찰 한 문장 — 자체 풀 + fortune_sentences_4000.csv 결합
+    mode='daily'  → '오늘' 표현 (별자리운세·띠운세)
+    mode='weekly' → '이번 주' 표현 (별자리주간·띠별월간)
+    """
+    base_pool = _INSIGHT_BRIDGE_WEEKLY if mode == 'weekly' else _INSIGHT_BRIDGE
+    pool = list(base_pool)
+    # fortune_4000에서 추가 — 주간은 "오늘" 포함 문장 제외
     if not fortune_4000.empty and 'sentence' in fortune_4000.columns:
-        extra = fortune_4000['sentence'].dropna().tolist()
-        if extra:
-            pool.append(extra[day_seed % len(extra)])
+        extra_all = fortune_4000['sentence'].dropna().tolist()
+        if mode == 'weekly':
+            extra_all = [s for s in extra_all if '오늘' not in s]
+        if extra_all:
+            pool.append(extra_all[day_seed % len(extra_all)])
     return pool[day_seed % len(pool)]
 
 def comment_prompt(post_type='general'):
@@ -2575,6 +2730,8 @@ def build_zodiac_post(z, today_str):
   </div>
 
   <div style="background:none;padding:0;margin:0">
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
+              word-break:keep-all;font-style:italic">{pick_human_bridge(kst_day, "zodiac", _zq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">
       오늘 이 흐름에 어울리는 말
     </p>
@@ -2590,6 +2747,8 @@ def build_zodiac_post(z, today_str):
               margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
               font-style:italic;word-break:keep-all">{_ze[1]}</p>
+    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
+              word-break:keep-all;font-style:italic">{pick_farewell_bridge(kst_day, "daily")}</p>
   </div>
 
 </div>'''
@@ -2926,6 +3085,8 @@ def build_chinese_post(c, today_str):
   </div>
 
   <div style="background:none;padding:0;margin:0">
+    <p style="font-size:13px;color:#9a7b4f;margin:0 0 1.2rem;
+              word-break:keep-all;font-style:italic">{pick_human_bridge(kst_day, "chinese", _cq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9a7b4f;margin:0 0 0.4rem;word-break:keep-all">
       오늘 이 흐름에 어울리는 말
     </p>
@@ -2943,6 +3104,8 @@ def build_chinese_post(c, today_str):
               margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;
               font-style:italic;word-break:keep-all">{_ce[1]}</p>
+    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
+              word-break:keep-all;font-style:italic">{pick_farewell_bridge(kst_day, "daily")}</p>
   </div>
 
 </div>'''
@@ -3093,6 +3256,15 @@ def build_zodiac_weekly_post(today_str):
 
         z_info   = ZODIAC_INFO.get(z['kr'], {})
         z_tip    = z_info.get("tip", "")
+        # 주간운세 — "오늘" 표현을 "이번 주" 표현으로 치환
+        if z_tip:
+            z_tip = (z_tip
+                .replace("오늘 ", "이번 주 ")
+                .replace("오늘은 ", "이번 주에는 ")
+                .replace("오늘도 ", "이번 주도 ")
+                .replace("하루 한 번", "하루하루")
+                .replace("하루에", "한 주에")
+            )
         z_compat = z_info.get("compatible", "")
 
         def _w_flow(score):
@@ -3192,8 +3364,10 @@ def build_zodiac_weekly_post(today_str):
       ⚠️ {z_info.get("weakness","")}
     </p>
 
-    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day+2)}</p>
+    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day+2, mode='weekly')}</p>
 
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
+              word-break:keep-all;font-style:italic">{pick_human_bridge(kst_day, "weekly", _wq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">이 흐름에 어울리는 속담</p>
     <p style="font-size:17px;line-height:1.9;color:#1f2937;
               font-weight:500;margin:0 0 6px;word-break:keep-all;
@@ -3205,6 +3379,8 @@ def build_zodiac_weekly_post(today_str):
               margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
               font-style:italic;word-break:keep-all">{_we[1]}</p>
+    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
+              word-break:keep-all;font-style:italic">{pick_farewell_bridge(kst_day, "weekly")}</p>
 
   </div>
 
@@ -3342,6 +3518,17 @@ def build_chinese_monthly_post(today_str):
         _month_seed = kst_now.year * 12 + kst_now.month  # 월이 바뀌면 값이 바뀌는 시드
         extra_fortune = _m1000_fortune(c['en'], _month_seed)
 
+        # peak_tip / low_tip — 시간대 제외, 내용만 활용 (월 시드)
+        _cz_row_m = chinese_zodiac[chinese_zodiac['animal_zodiac'] == c['en']]
+        _m_peak_tip = ''
+        _m_low_tip  = ''
+        if not _cz_row_m.empty:
+            _sample_m = _cz_row_m.sample(1, random_state=_month_seed % 100)
+            if 'peak_tip' in _cz_row_m.columns:
+                _m_peak_tip = _to_formal(str(_sample_m['peak_tip'].iloc[0]))
+            if 'low_tip' in _cz_row_m.columns:
+                _m_low_tip  = _to_formal(str(_sample_m['low_tip'].iloc[0]))
+
         # trait → extra_fortune 자연스러운 연결 어미 (월 시드로 순환)
         _EXTRA_LINKS = [
             "여기에 더해, 이달의 흐름을 짚어보면 이렇습니다.",
@@ -3372,7 +3559,7 @@ def build_chinese_monthly_post(today_str):
              monthly_tip if monthly_tip else "이달 하나만 선택하고 그것에 집중하시기 바랍니다."),
             (f"이달 {c['kr']}에게 필요한 것은 방향입니다.",
              "방향이 맞으면 속도는 자연스럽게 따라옵니다.",
-             monthly_tip if monthly_tip else "오늘 이것 하나만 실천하시기 바랍니다."),
+             monthly_tip if monthly_tip else "이달 이것 하나만 실천하시기 바랍니다."),
             ("이달 쌓이고 있는 것들이 있습니다.",
              "눈에 보이지 않더라도 분명히 진행 중입니다.",
              monthly_tip if monthly_tip else "이달 가장 중요한 한 가지에 집중하시기 바랍니다."),
@@ -3427,25 +3614,35 @@ def build_chinese_monthly_post(today_str):
 
     {f'<p style="margin:0 0 1.4em 0">{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
 
+    <p style="margin:0 0 1.4em 0">{_m_peak_tip}</p>
+
     {lucky_html}
     {avoid_html_m}
 
-    <p style="margin:1.4em 0 0 0">{pick_insight_bridge(kst_day+3)}</p>
+    <p style="margin:0 0 1.4em 0;font-size:14px;color:#6b7280">{_m_low_tip}</p>
+
+    <p style="margin:1.4em 0 0 0">{pick_insight_bridge(kst_day+3, mode='weekly')}</p>
 
   </div>
 
   <div style="background:none;padding:0;margin:0">
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
+              word-break:keep-all;font-style:italic">{pick_human_bridge(_month_seed, "monthly", _mq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">이 흐름에 어울리는 속담</p>
     <p style="font-size:17px;line-height:1.9;color:#1f2937;
               font-weight:500;margin:0 0 6px;word-break:keep-all;
               font-style:italic">"{_mq["proverb"]}"</p>
     <p style="font-size:13px;line-height:1.9;color:#6d28d9;
-              margin:0 0 1.6rem;word-break:keep-all">{_mq["meaning"]}</p>
+              margin:0 0 0.8rem;word-break:keep-all">{_mq["meaning"]}</p>
+    <p style="font-size:13px;line-height:1.9;color:#78350f;
+              margin:0 0 1.6rem;word-break:keep-all">{info.get("monthly_tip","")}</p>
 
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
               margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
               font-style:italic;word-break:keep-all">{_me[1]}</p>
+    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
+              word-break:keep-all;font-style:italic">{pick_farewell_bridge(_month_seed, "monthly")}</p>
   </div>
 
 </div>'''
