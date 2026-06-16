@@ -5272,9 +5272,9 @@ ${info.usage}`;
             var uniqueSuitsM = new Set(suits3m);
             var patternWarnM = '';
             if (uniqueSuitsM.size === 1) {
-                patternWarnM = '<p style="background:rgba(249,115,22,.1);border-left:3px solid #f97316;border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.85rem;color:#fed7aa;margin:1rem 0">⚠️ <strong>치우침 주의</strong> — 세 장 모두 같은 성격의 에너지예요. ' + mbti + '의 성향과 맞물려 이 방향으로 더 깊이 빠져들기 쉬우니, 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
+                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. ' + mbti + '의 성향과 맞물려 이 방향으로 더 깊이 빠져들기 쉬우니, 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
             } else if (uniqueSuitsM.size === 3) {
-                patternWarnM = '<p style="background:rgba(249,115,22,.1);border-left:3px solid #f97316;border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.85rem;color:#fed7aa;margin:1rem 0">⚠️ <strong>과부하 주의</strong> — ' + kP + '에서 ' + kC + ', 그리고 ' + kF + '으로 매 단계 에너지가 급격하게 바뀌고 있어요. ' + mbti + ' 성향상 이 모든 흐름을 혼자 완벽하게 감당하려는 경향이 있을 수 있어요. 조금은 숨을 고를 필요가 있어요.</p>';
+                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ' + kP + '에서 ' + kC + ', 그리고 ' + kF + '으로 매 단계 에너지가 급격하게 바뀌고 있어요. ' + mbti + ' 성향상 이 모든 흐름을 혼자 완벽하게 감당하려는 경향이 있을 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>';
             }
 
             // ── MBTI 결론 ──
@@ -5294,7 +5294,7 @@ ${info.usage}`;
 
             // ── 역방향 안내 ──
             var revLine = revNote
-                ? '<p style="font-size:.83rem;color:#a090dd;background:rgba(100,80,180,.08);border-left:2px solid rgba(160,120,220,.4);padding:.7rem 1rem;border-radius:0 8px 8px 0;margin-top:.8rem">' + revNote + '</p>'
+                ? '<p style="margin-top:.8rem;font-size:.83rem;color:#a090dd;font-style:italic;line-height:1.8">💜 ' + revNote + '</p>'
                 : '';
 
             // ━━━━ 산문 HTML 조립 ━━━━
@@ -5340,15 +5340,13 @@ ${info.usage}`;
 
               ${patternWarnM}
 
-              <div style="background:linear-gradient(135deg,rgba(74,40,128,.25),rgba(30,18,53,.4));border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:.85rem 1rem;margin-top:.8rem">
-                <p style="font-size:.72rem;font-weight:700;color:#c9a84c;margin:0 0 .45rem">🧠 ${mbti} 성향 × 카드 종합</p>
-                <p style="font-size:.88rem;line-height:1.9;margin:0;color:#e8e0f0">${mbtiConclusion}</p>
-              </div>
+              <p style="margin-top:1.2rem;line-height:2;color:#e0d5f0">
+                그리고 <strong style="color:#c9a84c">${mbti}</strong>인 당신에게 카드는 이렇게 말하고 있어요. ${mbtiConclusion}
+              </p>
 
-              <div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.28);border-radius:12px;padding:.85rem 1rem;margin-top:.6rem">
-                <p style="font-size:.72rem;font-weight:700;color:#4ade80;margin:0 0 .45rem">💡 핵심 조언</p>
-                <p style="font-size:.88rem;line-height:1.9;margin:0;color:#e0d5f0">${actionAdvice}</p>
-              </div>
+              <p style="margin-top:1rem;line-height:2;color:#e0d5f0">
+                <strong style="color:#4ade80">오늘은,</strong> ${actionAdvice}
+              </p>
 
               ${revLine}
             `;
@@ -5777,19 +5775,17 @@ ${info.usage}`;
 
                 ${bodyDeep ? `<p style="margin-bottom:1rem">${bodyDeep}</p>` : ''}
 
-                ${bodyMbtiLink ? `<p style="background:rgba(167,139,250,.08);border-left:3px solid rgba(167,139,250,.4);border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-bottom:1rem;font-size:.88rem;color:#ddd6fe">
-                  🧠 <strong style="color:#a78bfa">${_mbtiDreamMbti}</strong> 성향과의 연결<br>
-                  <span style="display:block;margin-top:.4rem">${bodyMbtiLink}</span>
+                ${bodyMbtiLink ? `<p style="margin-bottom:1rem;line-height:2;color:#e0d5f0">
+                  <strong style="color:#a78bfa">${_mbtiDreamMbti}</strong>인 당신과 이 꿈의 연결을 보면, ${bodyMbtiLink}
                 </p>` : ''}
 
-                ${alertDream ? `<p style="background:rgba(248,113,113,.1);border-left:3px solid rgba(248,113,113,.5);border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.87rem;color:#fca5a5;margin-top:.5rem">
-                  ⚠️ ${alertDream}
+                ${alertDream ? `<p style="margin:1rem 0;line-height:2;color:#fca5a5">
+                  다만 ${alertDream}
                 </p>` : ''}
 
-                ${actionDream ? `<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.28);border-radius:12px;padding:.85rem 1rem;margin-top:.8rem">
-                  <p style="font-size:.72rem;font-weight:700;color:#4ade80;margin:0 0 .45rem">💡 오늘의 행동</p>
-                  <p style="font-size:.88rem;line-height:1.9;margin:0;color:#e0d5f0">${actionDream}</p>
-                </div>` : ''}
+                ${actionDream ? `<p style="margin-top:1rem;line-height:2;color:#e0d5f0">
+                  <strong style="color:#4ade80">오늘은,</strong> ${actionDream}
+                </p>` : ''}
 
               </div>
             `;
@@ -6483,9 +6479,9 @@ ${info.usage}`;
       const uniqueSuits = new Set(suits3);
       let patternWarning = '';
       if (uniqueSuits.size === 1) {
-        patternWarning = `<p style="background:rgba(249,115,22,.1);border-left:3px solid #f97316;border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.88rem;color:#fed7aa;margin:1.2rem 0">⚠️ <strong>치우침 주의</strong> — 세 장 모두 같은 성격의 에너지예요. 지금 이 방향으로 너무 깊이 빠져들면 시야가 좁아질 수 있어요. 가끔 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
+        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지라, 지금 이 방향으로 너무 깊이 빠져들면 시야가 좁아질 수 있어요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
       } else if (uniqueSuits.size === 3) {
-        patternWarning = `<p style="background:rgba(249,115,22,.1);border-left:3px solid #f97316;border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.88rem;color:#fed7aa;margin:1.2rem 0">⚠️ <strong>과부하 주의</strong> — ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 매 단계 에너지가 급격하게 바뀌고 있어요. 이처럼 서로 다른 성격의 흐름을 모두 혼자 감당하려다 보면 지치기 쉬워요. 조금은 숨을 고를 필요가 있어요.</p>`;
+        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 매 단계 에너지가 급격하게 바뀌고 있어요. 서로 다른 성격의 흐름을 모두 혼자 감당하려다 보면 지치기 쉬우니, 조금은 숨을 고를 필요가 있어요.</p>`;
       }
 
       // ── 핵심 조언 — 현재/미래 카드 키워드 + 슈트 기반으로 생성 ──
@@ -6510,7 +6506,9 @@ ${info.usage}`;
       // ── 역방향 안내 ──
       const revCards = tDrawnCards.filter(c => c.isReversed);
       const revNote  = revCards.length > 0
-        ? `<p style="background:rgba(120,80,200,.1);border-left:3px solid rgba(160,120,220,.4);border-radius:0 8px 8px 0;padding:.7rem 1rem;font-size:.83rem;color:#c4b0e0;margin-top:1rem">💜 <strong>${revCards.map(c=>c.card_name_ko).join(', ')}</strong> 카드가 역방향이에요. 나쁜 신호가 아니에요 — 그 에너지가 아직 내면에서 익고 있다는 뜻이에요. 억지로 끌어내려 하지 않아도 때가 되면 자연스럽게 드러날 거예요.</p>`
+        ? `<p style="margin-top:.8rem;font-size:.83rem;color:#c4b0e0;font-style:italic;line-height:1.8">
+            💜 ${revCards.map(c=>c.card_name_ko).join(', ')} 카드가 역방향이에요. 나쁜 신호가 아니라, 그 에너지가 아직 내면에서 익어가는 중이에요.
+          </p>`
         : '';
 
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -6554,10 +6552,9 @@ ${info.usage}`;
 
         ${patternWarning}
 
-        <div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.28);border-radius:12px;padding:.85rem 1rem;margin-top:.8rem">
-          <p style="font-size:.72rem;font-weight:700;color:#4ade80;letter-spacing:.07em;margin:0 0 .45rem">💡 핵심 조언</p>
-          <p style="line-height:1.9;font-size:.88rem;margin:0;color:#e0d5f0">${coreAdvice}</p>
-        </div>
+        <p style="margin-top:1.2rem;line-height:2;color:#e0d5f0">
+          그러니 <strong style="color:#4ade80">오늘은,</strong> ${coreAdvice}
+        </p>
 
         ${revNote}
       `;
