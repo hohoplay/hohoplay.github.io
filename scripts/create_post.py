@@ -463,42 +463,21 @@ ZODIAC_INFO = {
 }
 
 def zodiac_info_card(z_kr, emoji):
-    """별자리 배경 지식 카드 HTML 생성 — 행운숫자·조언 제거 (명언 카드와 중복 방지)"""
+    """별자리 배경 지식 — 산문 형태 (박스/테두리 없음)"""
     info = ZODIAC_INFO.get(z_kr)
     if not info:
         return ""
     return f'''
-<div class="card" style="background:linear-gradient(135deg,#faf5ff,#eff6ff);border-left:5px solid #7c3aed">
-  <span class="badge" style="background:#ede9fe;color:#5b21b6">
-    {emoji} {z_kr} 기본 정보
-  </span>
-  <div style="margin-top:14px;display:grid;gap:10px">
-
-    <div style="font-size:14px;color:#374151;line-height:1.85">
-      {info["trait"]}
-    </div>
-
-    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ede9fe;font-size:13px">
-      <div style="color:#7c3aed;font-weight:700;margin-bottom:4px">🌿 원소 · 지배성</div>
-      <div style="color:#374151">{info["element"]} · {info["ruling"]}</div>
-    </div>
-
-    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #d1fae5;font-size:13px">
-      <div style="color:#065f46;font-weight:700;margin-bottom:4px">✅ 강점</div>
-      <div style="color:#374151">{info["strength"]}</div>
-    </div>
-
-    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #fee2e2;font-size:13px">
-      <div style="color:#991b1b;font-weight:700;margin-bottom:4px">⚠️ 주의할 점</div>
-      <div style="color:#374151">{info["weakness"]}</div>
-    </div>
-
-    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #fef3c7;font-size:13px">
-      <div style="color:#92400e;font-weight:700;margin-bottom:4px">💑 궁합 좋은 별자리</div>
-      <div style="color:#374151">{info["compatible"]}</div>
-    </div>
-
-  </div>
+<div style="font-size:14px;line-height:2.0;color:#374151;
+            font-family:'Noto Serif KR',Georgia,serif;
+            margin:0 0 1.4rem;word-break:keep-all">
+  <p style="margin:0 0 0.6rem">{emoji} {z_kr} — {info["trait"]}</p>
+  <p style="font-size:13px;color:#6b7280;margin:0">
+    🌿 {info["element"]} · {info["ruling"]} &nbsp;·&nbsp;
+    ✅ {info["strength"]} &nbsp;·&nbsp;
+    ⚠️ {info["weakness"]} &nbsp;·&nbsp;
+    💑 {info["compatible"]}
+  </p>
 </div>'''
 
 
@@ -1654,36 +1633,31 @@ def build_quote_post(today_str):
     title_patterns = _QUOTE_TITLE_PATTERNS
     title = title_patterns[seed % len(title_patterns)].format(today=today_str)
 
-    # 인물 소개 섹션
+    # 인물 소개 섹션 — 산문
     author_intro = f"""
-<div class="card" style="border-left:5px solid #7c3aed;background:linear-gradient(135deg,#faf5ff,#f3e8ff)">
-  <div style="display:flex;align-items:flex-start;gap:12px">
-    <div style="font-size:36px">📖</div>
-    <div>
-      <div style="font-size:18px;font-weight:900;color:#4c1d95;margin-bottom:4px">{author_ko}</div>
-      <div style="font-size:12px;color:#7c3aed;font-weight:600">{author_en} · {birth}</div>
-      <div style="font-size:13px;color:#6d28d9;margin-top:4px">{profession}</div>
-    </div>
-  </div>
+<div style="font-size:14px;line-height:2.0;color:#374151;
+            font-family:'Noto Serif KR',Georgia,serif;
+            margin:0 0 1.4rem;word-break:keep-all">
+  <p style="margin:0 0 0.4rem">
+    <span style="font-size:16px;font-weight:700;color:#4c1d95">{author_ko}</span>
+    <span style="font-size:12px;color:#9d8bc7;margin-left:8px">{author_en} · {birth}</span>
+  </p>
+  <p style="font-size:13px;color:#6b7280;margin:0">{profession}</p>
 </div>"""
 
-    # 명언 원문 섹션
+    # 명언 원문 섹션 — 산문
     quote_section = f"""
-<div style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);border-radius:18px;
-            padding:24px 22px;margin:20px 0;text-align:center;
-            box-shadow:0 2px 16px rgba(124,58,237,0.08)">
-  <div style="font-size:11px;color:#9ca3af;letter-spacing:0.12em;
-              margin-bottom:14px;font-weight:600">오늘의 명언</div>
-  <div style="font-size:18px;font-weight:800;color:#4c1d95;
-              line-height:1.7;word-break:keep-all;margin-bottom:14px">
+<div style="font-family:'Noto Serif KR',Georgia,serif;
+            margin:1.4rem 0;word-break:keep-all">
+  <p style="font-size:20px;font-weight:800;color:#4c1d95;
+            line-height:1.9;margin:0 0 8px;font-style:italic">
     ❝ {quote} ❞
-  </div>
-  <div style="font-size:12px;color:#9ca3af;font-style:italic;line-height:1.6">
-    {quote_en}
-  </div>
-  <div style="margin-top:12px;font-size:13px;font-weight:700;color:#7c3aed">
+  </p>
+  <p style="font-size:12px;color:#9ca3af;font-style:italic;
+            line-height:1.6;margin:0 0 8px">{quote_en}</p>
+  <p style="font-size:13px;font-weight:700;color:#7c3aed;margin:0">
     — {author_ko} ({birth})
-  </div>
+  </p>
 </div>"""
 
     # 명언의 의미 — 산문용
@@ -1781,8 +1755,7 @@ def build_quote_post(today_str):
     <div class="qc-body">
       <p>{empathy}</p>
     </div>
-    <div style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);border-radius:14px;
-                padding:18px;text-align:center;margin:12px 0">
+    <div style="margin:12px 0;text-align:center">
       <div style="font-size:16px;font-weight:800;color:#4c1d95;line-height:1.7;
                   word-break:keep-all">❝ {quote} ❞</div>
       <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-top:8px">
@@ -2538,17 +2511,13 @@ def build_zodiac_post(z, today_str):
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <div style="background:linear-gradient(135deg,#faf5ff,#f0f9ff);
-              border-radius:18px;padding:1.6rem 1.8rem;
-              border-left:4px solid #a78bfa;margin-bottom:1.6rem">
-    <p style="font-size:15px;line-height:2.1;color:#374151;
-              font-weight:500;margin:0;word-break:keep-all">
-      💭 {empathy}
-    </p>
-  </div>
+  <p style="font-size:15px;line-height:2.1;color:#374151;
+            font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">
+    💭 {empathy}
+  </p>
 
-  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
-                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <div style="font-size:15px;line-height:2.1;color:#374151;
+               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
     <p style="margin:0 0 1.4em 0">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}<br>
     {_para(0)}</p>
@@ -2575,47 +2544,22 @@ def build_zodiac_post(z, today_str):
 
   </div>
 
-  <div style="border-radius:18px;overflow:hidden;
-              box-shadow:0 2px 12px rgba(91,33,182,0.08)">
-
-    <!-- 명언 영역 -->
-    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);
-                padding:1.4rem 1.5rem 1.2rem">
-      <div style="font-size:11px;font-weight:700;color:#7c3aed;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        오늘 이 흐름에 어울리는 말
-      </div>
-      <p style="font-size:15px;line-height:2.0;color:#1f2937;
-                font-weight:500;margin:0 0 8px;word-break:keep-all;
-                font-style:italic">
-        "{_zq["quote"]}"
-      </p>
-      <p style="font-size:12px;color:#9d8bc7;margin:0 0 14px">
-        — {_zq["author"]} ({_zq["profession"]})
-      </p>
-      <p style="font-size:13px;line-height:1.9;color:#5b21b6;
-                margin:0 0 0;word-break:keep-all">
-        {_zq["apply"]}
-      </p>
-    </div>
-
-    <!-- 연결선 -->
-    <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
-
-    <!-- 엔딩 영역 -->
-    <div style="background:linear-gradient(160deg,#fdf4ff,#faf5ff);
-                padding:1.2rem 1.5rem 1.4rem">
-      <div style="font-size:11px;font-weight:700;color:#7c3aed;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        {z['emoji']} 오늘 {z['kr']}에게 전하는 말
-      </div>
-      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-                margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
-      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
-                font-style:italic;padding-left:0.8rem;
-                border-left:3px solid #c4b5fd;word-break:keep-all">{_ze[1]}</p>
-    </div>
-
+  <div style="background:none;padding:0;margin:0">
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">
+      오늘 이 흐름에 어울리는 말
+    </p>
+    <p style="font-size:15px;line-height:2.0;color:#1f2937;
+              font-weight:500;margin:0 0 6px;word-break:keep-all;
+              font-style:italic">"{_zq["quote"]}"</p>
+    <p style="font-size:12px;color:#9d8bc7;margin:0 0 1.2rem">
+      — {_zq["author"]} ({_zq["profession"]})
+    </p>
+    <p style="font-size:13px;line-height:1.9;color:#374151;
+              margin:0 0 1.4rem;word-break:keep-all">{_zq["apply"]}</p>
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
+              font-style:italic;word-break:keep-all">{_ze[1]}</p>
   </div>
 
 </div>'''
@@ -2657,35 +2601,21 @@ def build_zodiac_post(z, today_str):
   {image_card_html}
   {share_buttons(card_id, f"별자리운세_{z['kr']}_{today_str}")}
 
-  <!-- 오늘 더 알아두면 좋은 것들 — 하나의 박스로 통합 -->
-  <div class="card" style="border-left:5px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff7ed)">
-    <span class="badge" style="background:#fef3c7;color:#92400e">🔍 오늘 더 알아두면 좋은 것들</span>
+  <!-- 오늘 더 알아두면 좋은 것들 — 산문 -->
+  <div style="font-size:14px;line-height:2.0;color:#374151;
+              font-family:'Noto Serif KR',Georgia,serif;
+              margin:0 0 1.4rem;word-break:keep-all">
 
-    <!-- 피해야 할 행동 -->
-    <div style="margin-top:14px">
-      <div style="font-size:12px;font-weight:700;color:#b91c1c;margin-bottom:8px">⚠️ 오늘 피해야 할 행동</div>
-      {avoid_items_html}
-    </div>
+    <p style="font-size:13px;font-weight:700;color:#b91c1c;margin:0 0 6px">⚠️ 오늘 피해야 할 행동</p>
+    {avoid_items_html}
 
-    <!-- 현실 디테일 -->
-    <div style="margin-top:16px;display:grid;gap:10px">
-      {real_detail_html}
-    </div>
+    {real_detail_html}
 
-    <!-- 행운 아이템 & 색상 -->
-    <div style="margin-top:16px;display:grid;gap:10px">
-      <div style="font-size:12px;font-weight:700;color:#b45309;margin-bottom:2px">🍀 오늘의 행운 아이템 & 색상</div>
-      <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #fde68a;
-                  font-size:13px;line-height:1.85;color:#374151">
-        <div style="font-weight:700;color:#b45309;margin-bottom:6px">🎨 행운 색상: {lucky_color}</div>
-        {color_guide}
-      </div>
-      <div style="background:#fff;border-radius:10px;padding:14px;border:1px solid #d1fae5;
-                  font-size:13px;line-height:1.85;color:#374151">
-        <div style="font-weight:700;color:#065f46;margin-bottom:6px">✨ 행운 아이템: {lucky_item}</div>
-        {item_guide}
-      </div>
-    </div>
+    <p style="font-size:13px;color:#b45309;margin:1.2rem 0 0.4rem">
+      🎨 행운 색상: <strong>{lucky_color}</strong> &nbsp;·&nbsp; ✨ 행운 아이템: <strong>{lucky_item}</strong>
+    </p>
+    <p style="font-size:13px;color:#374151;margin:0 0 0.6rem">{color_guide}</p>
+    <p style="font-size:13px;color:#374151;margin:0">{item_guide}</p>
   </div>
 
   <!-- 운세 지수 바 (fortune.html 연동용) -->
@@ -2833,17 +2763,13 @@ def build_chinese_post(c, today_str):
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);
-              border-radius:18px;padding:1.6rem 1.8rem;
-              border-left:4px solid #f59e0b;margin-bottom:1.6rem">
-    <p style="font-size:15px;line-height:2.1;color:#374151;
-              font-weight:500;margin:0;word-break:keep-all">
-      💭 {empathy}
-    </p>
-  </div>
+  <p style="font-size:15px;line-height:2.1;color:#374151;
+            font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">
+    💭 {empathy}
+  </p>
 
-  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
-                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <div style="font-size:15px;line-height:2.1;color:#374151;
+               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
     <p style="margin:0 0 1.4em 0">{fortune}</p>
 
@@ -2865,47 +2791,22 @@ def build_chinese_post(c, today_str):
 
   </div>
 
-  <div style="border-radius:18px;overflow:hidden;
-              box-shadow:0 2px 12px rgba(146,64,14,0.1)">
-
-    <!-- 명언 영역 -->
-    <div style="background:linear-gradient(160deg,#fffbeb,#fef9c3);
-                padding:1.4rem 1.5rem 1.2rem">
-      <div style="font-size:11px;font-weight:700;color:#92400e;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        오늘 이 흐름에 어울리는 말
-      </div>
-      <p style="font-size:15px;line-height:2.0;color:#1f2937;
-                font-weight:500;margin:0 0 8px;word-break:keep-all;
-                font-style:italic">
-        "{_cq["quote"]}"
-      </p>
-      <p style="font-size:12px;color:#9a7b4f;margin:0 0 14px">
-        — {_cq["author"]} ({_cq["profession"]})
-      </p>
-      <p style="font-size:13px;line-height:1.9;color:#78350f;
-                margin:0 0 0;word-break:keep-all">
-        {_cq["apply"]}
-      </p>
-    </div>
-
-    <!-- 연결선 -->
-    <div style="height:1px;background:rgba(146,64,14,0.12);margin:0 1.5rem"></div>
-
-    <!-- 엔딩 영역 -->
-    <div style="background:linear-gradient(160deg,#fef9c3,#fffbeb);
-                padding:1.2rem 1.5rem 1.4rem">
-      <div style="font-size:11px;font-weight:700;color:#92400e;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        {c['emoji']} 오늘 {c['kr']}에게 전하는 말
-      </div>
-      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-                margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
-      <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.2rem;
-                font-style:italic;padding-left:0.8rem;
-                border-left:3px solid #fbbf24;word-break:keep-all">{_ce[1]}</p>
-    </div>
-
+  <div style="background:none;padding:0;margin:0">
+    <p style="font-size:13px;color:#9a7b4f;margin:0 0 0.4rem;word-break:keep-all">
+      오늘 이 흐름에 어울리는 말
+    </p>
+    <p style="font-size:15px;line-height:2.0;color:#1f2937;
+              font-weight:500;margin:0 0 6px;word-break:keep-all;
+              font-style:italic">"{_cq["quote"]}"</p>
+    <p style="font-size:12px;color:#9a7b4f;margin:0 0 1.2rem">
+      — {_cq["author"]} ({_cq["profession"]})
+    </p>
+    <p style="font-size:13px;line-height:1.9;color:#374151;
+              margin:0 0 1.4rem;word-break:keep-all">{_cq["apply"]}</p>
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;
+              font-style:italic;word-break:keep-all">{_ce[1]}</p>
   </div>
 
 </div>'''
@@ -3121,15 +3022,11 @@ def build_zodiac_weekly_post(today_str):
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <div style="background:linear-gradient(135deg,#faf5ff,#f0f9ff);
-              border-radius:18px;padding:1.6rem 1.8rem;
-              border-left:4px solid #a78bfa;margin-bottom:1.6rem">
-    <p style="font-size:15px;line-height:2.1;color:#374151;
-              font-weight:500;margin:0;word-break:keep-all">💭 {empathy}</p>
-  </div>
-
   <div style="font-size:15px;line-height:2.1;color:#374151;
               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+
+    <p style="font-size:15px;line-height:2.1;color:#374151;
+              font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
 
     <h2 style="margin:0 0 0.5em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{tfb}</h2>
     <p style="margin:0 0 1.6em 0">{fortune}</p>
@@ -3150,67 +3047,28 @@ def build_zodiac_weekly_post(today_str):
     <p style="margin:0 0 1.4em 0">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
     {compat_tip_html_w}
 
-    <!-- 별자리 기본 정보 -->
-    <div>
-      <div style="font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.08em;margin-bottom:10px">
-        {z['emoji']} {z['kr']} 기본 정보
-      </div>
-      <p style="font-size:14px;line-height:1.95;color:#374151;margin:0 0 12px;word-break:keep-all">
-        {z_info.get("trait","")}
-      </p>
-      <div style="display:grid;gap:8px">
-        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ede9fe;font-size:13px">
-          <div style="color:#7c3aed;font-weight:700;margin-bottom:4px">🌿 원소 · 지배성</div>
-          <div style="color:#374151">{z_info.get("element","")} · {z_info.get("ruling","")}</div>
-        </div>
-        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #d1fae5;font-size:13px">
-          <div style="color:#065f46;font-weight:700;margin-bottom:4px">✅ 강점</div>
-          <div style="color:#374151">{z_info.get("strength","")}</div>
-        </div>
-        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #fee2e2;font-size:13px">
-          <div style="color:#991b1b;font-weight:700;margin-bottom:4px">⚠️ 주의할 점</div>
-          <div style="color:#374151">{z_info.get("weakness","")}</div>
-        </div>
-      </div>
-    </div>
+    <p style="font-size:14px;line-height:1.95;color:#374151;margin:0 0 0.6rem;word-break:keep-all">
+      {z_info.get("trait","")}
+    </p>
+    <p style="font-size:13px;color:#6b7280;margin:0 0 1.6em;word-break:keep-all">
+      🌿 {z_info.get("element","")} · {z_info.get("ruling","")} &nbsp;·&nbsp;
+      ✅ {z_info.get("strength","")} &nbsp;·&nbsp;
+      ⚠️ {z_info.get("weakness","")}
+    </p>
 
-    <p style="margin:1.4em 0 0 0">{pick_insight_bridge(kst_day+2)}</p>
+    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day+2)}</p>
 
-  </div>
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">이 흐름에 어울리는 속담</p>
+    <p style="font-size:17px;line-height:1.9;color:#1f2937;
+              font-weight:500;margin:0 0 6px;word-break:keep-all;
+              font-style:italic">"{_wq["proverb"]}"</p>
+    <p style="font-size:13px;line-height:1.9;color:#6d28d9;
+              margin:0 0 1.6rem;word-break:keep-all">{_wq["meaning"]}</p>
 
-  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.08)">
-
-    <!-- 속담 영역 -->
-    <div style="background:linear-gradient(160deg,#faf5ff,#fdf4ff);padding:1.4rem 1.5rem 1.2rem">
-      <div style="font-size:11px;font-weight:700;color:#7c3aed;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        이 흐름에 어울리는 속담
-      </div>
-      <p style="font-size:17px;line-height:1.9;color:#1f2937;
-                font-weight:500;margin:0 0 8px;word-break:keep-all">
-        "{_wq["proverb"]}"
-      </p>
-      <p style="font-size:13px;line-height:1.9;color:#6d28d9;
-                margin:0;word-break:keep-all">
-        {_wq["meaning"]}
-      </p>
-    </div>
-
-    <!-- 연결선 -->
-    <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
-
-    <!-- 엔딩 영역 -->
-    <div style="background:linear-gradient(160deg,#fdf4ff,#faf5ff);padding:1.2rem 1.5rem 1.4rem">
-      <div style="font-size:11px;font-weight:700;color:#7c3aed;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        {z['emoji']} 이번 주 {z['kr']}에게 전하는 말
-      </div>
-      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-                margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
-      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
-                font-style:italic;padding-left:0.8rem;
-                border-left:3px solid #c4b5fd;word-break:keep-all">{_we[1]}</p>
-    </div>
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
+              font-style:italic;word-break:keep-all">{_we[1]}</p>
 
   </div>
 
@@ -3369,7 +3227,7 @@ def build_chinese_monthly_post(today_str):
 
         # lucky / avoid HTML
         lucky_html = f'<p style="margin:0 0 0.6em 0">이달의 행운 키워드는 {lucky_kw}입니다.</p>' if lucky_kw else ''
-        avoid_html_m = f'<div style="background:#fef2f2;border-radius:10px;padding:12px 14px;' +             f'font-size:13px;color:#991b1b;line-height:1.85;border-left:3px solid #dc2626;' +             f'word-break:keep-all">⚠️ 이달 조심: {avoid_kw}</div>' if avoid_kw else ''
+        avoid_html_m = f'<p style="margin:0 0 1.4em 0">반대로 이달 조심해야 할 것은 {avoid_kw}입니다.</p>' if avoid_kw else ''
 
         # 이달 엔딩
         _me_pool = [
@@ -3414,15 +3272,11 @@ def build_chinese_monthly_post(today_str):
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <div style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);
-              border-radius:18px;padding:1.6rem 1.8rem;
-              border-left:4px solid #7c3aed;margin-bottom:1.6rem">
-    <p style="font-size:15px;line-height:2.1;color:#374151;
-              font-weight:500;margin:0;word-break:keep-all">💭 {empathy}</p>
-  </div>
+  <p style="font-size:15px;line-height:2.1;color:#374151;
+            font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
 
-  <div class="novel-body" style="font-size:15px;line-height:2.1;color:#374151;
-                                  word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <div style="font-size:15px;line-height:2.1;color:#374151;
+               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
     <p style="margin:0 0 1.4em 0">{headline}<br>
     {sympathy}</p>
@@ -3444,40 +3298,18 @@ def build_chinese_monthly_post(today_str):
 
   </div>
 
-  <div style="border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(91,33,182,0.1)">
+  <div style="background:none;padding:0;margin:0">
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">이 흐름에 어울리는 속담</p>
+    <p style="font-size:17px;line-height:1.9;color:#1f2937;
+              font-weight:500;margin:0 0 6px;word-break:keep-all;
+              font-style:italic">"{_mq["proverb"]}"</p>
+    <p style="font-size:13px;line-height:1.9;color:#6d28d9;
+              margin:0 0 1.6rem;word-break:keep-all">{_mq["meaning"]}</p>
 
-    <!-- 속담 영역 -->
-    <div style="background:linear-gradient(160deg,#fdf4ff,#ede9fe);padding:1.4rem 1.5rem 1.2rem">
-      <div style="font-size:11px;font-weight:700;color:#5b21b6;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        이 흐름에 어울리는 속담
-      </div>
-      <p style="font-size:17px;line-height:1.9;color:#1f2937;
-                font-weight:500;margin:0 0 8px;word-break:keep-all">
-        "{_mq["proverb"]}"
-      </p>
-      <p style="font-size:13px;line-height:1.9;color:#6d28d9;
-                margin:0;word-break:keep-all">
-        {_mq["meaning"]}
-      </p>
-    </div>
-
-    <!-- 연결선 -->
-    <div style="height:1px;background:rgba(91,33,182,0.12);margin:0 1.5rem"></div>
-
-    <!-- 엔딩 영역 -->
-    <div style="background:linear-gradient(160deg,#ede9fe,#fdf4ff);padding:1.2rem 1.5rem 1.4rem">
-      <div style="font-size:11px;font-weight:700;color:#5b21b6;
-                  letter-spacing:0.08em;margin-bottom:10px">
-        {c['emoji']} 이달 {c['kr']}에게 전하는 말
-      </div>
-      <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-                margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
-      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.2rem;
-                font-style:italic;padding-left:0.8rem;
-                border-left:3px solid #c4b5fd;word-break:keep-all">{_me[1]}</p>
-    </div>
-
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
+              font-style:italic;word-break:keep-all">{_me[1]}</p>
   </div>
 
 </div>'''
