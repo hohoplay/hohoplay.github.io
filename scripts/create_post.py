@@ -1923,7 +1923,6 @@ def build_quote_post(today_str):
     </div>
   </div>
 
-  {share_buttons(card_id, f"오늘의명언_{today_str}")}
 
   <!-- 인물 소개 -->
   {author_intro}
@@ -2783,29 +2782,6 @@ def build_zodiac_post(z, today_str):
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
 
-  <!-- 대표 이미지 -->
-  {post_img("zodiac")}
-
-  <!-- 이미지 저장 카드 -->
-  {image_card_html}
-  {share_buttons(card_id, f"별자리운세_{z['kr']}_{today_str}")}
-
-  <!-- 오늘 더 알아두면 좋은 것들 — 산문 -->
-  <div style="font-size:14px;line-height:2.0;color:#374151;
-              font-family:'Noto Serif KR',Georgia,serif;
-              margin:0 0 1.4rem;word-break:keep-all">
-
-    <p style="font-size:13px;font-weight:700;color:#b91c1c;margin:0 0 6px">⚠️ 오늘 피해야 할 행동</p>
-    {avoid_items_html}
-
-    {real_detail_html}
-
-    <p style="font-size:13px;color:#b45309;margin:1.2rem 0 0.4rem">
-      🎨 행운 색상: <strong>{lucky_color}</strong> &nbsp;·&nbsp; ✨ 행운 아이템: <strong>{lucky_item}</strong>
-    </p>
-    <p style="font-size:13px;color:#374151;margin:0 0 0.6rem">{color_guide}</p>
-    <p style="font-size:13px;color:#374151;margin:0">{item_guide}</p>
-  </div>
 
   <!-- 운세 지수 바 (fortune.html 연동용) -->
   {score_html}
@@ -3137,9 +3113,6 @@ def build_chinese_post(c, today_str):
   {story_html}
 
   <!-- 이미지 저장 카드 -->
-  {post_img("chinese")}
-  {image_card_html}
-  {share_buttons(card_id, f"{c['kr']}_운세_{today_sync}")}
 
   <!-- score_html (fortune.html 연동) -->
   {score_html}
@@ -3405,8 +3378,6 @@ def build_zodiac_weekly_post(today_str):
     <div class="fc-text">{fortune}</div>
     <div class="fc-watermark">todayhoroscopelaboratory.blogspot.com · {week_range}</div>
   </div>
-  {share_buttons(card_id, f"{z['kr']}_주간운세")}
-  {post_img("weekly")}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
@@ -3658,9 +3629,6 @@ def build_chinese_monthly_post(today_str):
 
   {story_html}
 
-  {image_card_html}
-  {share_buttons(card_id, f"{c['kr']}_월간운세")}
-  {post_img("monthly")}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
