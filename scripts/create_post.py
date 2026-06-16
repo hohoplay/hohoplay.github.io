@@ -2039,14 +2039,41 @@ _Z_CHEER = [
     "당신 곁에 좋은 기운이 흐르고 있습니다. 눈에 보이지 않아도 분명히 쌓이고 있으니, 오늘도 힘내시기 바랍니다. ⭐",
 ]
 
-def _split_fortune_sections(fortune_text):
-    """운세 원문을 문단으로 분리해 섹션별로 배분"""
+def _split_fortune_sections(fortune_text, min_count=5):
+    """운세 원문을 문단으로 분리해 섹션별로 배분 — 부족 시 sentence()로 보충"""
+    import re
     plain = fortune_text.replace('<br><br>', '\n\n').replace('<br>', '\n')
+    # 1차: 문단 단위 분리
     paras = [p.strip() for p in plain.split('\n\n') if p.strip()]
-    # 문단이 부족하면 단일 문장 단위로 보충
+    # 2차: 문단이 부족하면 문장 단위로 분리
     if len(paras) < 2:
-        lines = [l.strip() for l in plain.split('\n') if l.strip()]
-        paras = lines
+        # 마침표/다/!? 기준으로 문장 분리 (원문 첫 덩어리 보존)
+        sentences = re.split(r'(?<=[다\.!?])\s+(?=[가-힣A-Z])', plain.strip())
+        # 10자 이상만, 잘린 조각 제외
+        valid = [s.strip() for s in sentences if len(s.strip()) > 10]
+        # paras[0]은 원문 첫 덩어리 (문장 잘림 방지)
+        if valid:
+            paras = valid
+        else:
+            paras = [plain.strip()]
+    # 3차: 그래도 부족하면 sentence() 풀에서 보충 (중복 방지)
+    _extra_pool = [
+        "오늘 하루 흐름을 잘 따라가면 의외의 성과가 있을 수 있습니다.",
+        "작은 결정들이 쌓여 오늘의 방향을 만들어 갑니다.",
+        "지금 이 순간 집중하는 것이 오늘의 가장 중요한 선택입니다.",
+        "오늘은 무리하지 않고 자신의 속도를 지키는 것이 중요합니다.",
+        "오늘 놓치지 말아야 할 것은 주변의 작은 신호입니다.",
+        "충분히 생각하고 움직이면 오늘 좋은 결과를 기대할 수 있습니다.",
+        "오늘 방향이 맞다면 속도는 크게 중요하지 않습니다.",
+    ]
+    idx = 0
+    while len(paras) < min_count:
+        candidate = _extra_pool[idx % len(_extra_pool)]
+        if candidate not in paras:
+            paras.append(candidate)
+        idx += 1
+        if idx > len(_extra_pool) * 2:
+            break
     return paras
 
 def _zodiac_score_badge(pct):
@@ -2358,7 +2385,10 @@ def build_zodiac_post(z, today_str):
 
     paras = _split_fortune_sections(fortune_raw)
     def _para(idx, fallback=""):
-        return paras[idx] if idx < len(paras) else (paras[-1] if paras else fallback)
+        if not paras:
+            return fallback
+        # 인덱스가 범위 내면 그 문장, 초과하면 인덱스 순환(반복 방지)
+        return paras[idx % len(paras)]
 
     real_detail_html = _get_zodiac_real_detail_html(z['kr'], lucky_color)
 
@@ -2638,6 +2668,17 @@ def build_zodiac_post(z, today_str):
 
 def build_chinese_post(c, today_str):
     fortune = chinese_fortune(c['en'])
+
+    # peak_tip, low_tip — 시간대 제외하고 내용(tip)만 활용
+    _cz_row = chinese_zodiac[chinese_zodiac['animal_zodiac'] == c['en']]
+    _peak_tip = ''
+    _low_tip  = ''
+    if not _cz_row.empty:
+        _sample = _cz_row.sample(1, random_state=kst_now.day + 7)
+        if 'peak_tip' in _cz_row.columns:
+            _peak_tip = _to_formal(str(_sample['peak_tip'].iloc[0]))
+        if 'low_tip' in _cz_row.columns:
+            _low_tip  = _to_formal(str(_sample['low_tip'].iloc[0]))
     rating  = stars()
     card_id = f"fc-{c['en']}"
 
@@ -2654,11 +2695,102 @@ def build_chinese_post(c, today_str):
 
     # 출생연도별 운세
     # (사람용: 산문 / 기계용: fortune.html parseFortune_Chinese 신규조 — display:flex 행)
+
+    # 띠별 행동 팁 풀 — 날짜 시드로 순환
+    _YEAR_ACTION_TIPS = {
+        'rat':      ["오늘 정보를 수집하되, 확인 전에 결론 내리는 것은 미루시기 바랍니다.",
+                     "오늘 빠른 판단보다 한 번 더 살피는 것이 더 좋은 결과를 만듭니다.",
+                     "오늘 메모 하나가 나중의 큰 차이를 만들 수 있습니다.",
+                     "오늘 중요한 결정은 충분히 따져본 뒤에 내리시기 바랍니다.",
+                     "오늘 여러 선택지가 있다면 가장 안전한 것부터 시작하시기 바랍니다.",
+                     "오늘 작게 시작하는 것이 오히려 빠른 진전을 만듭니다.",
+                     "오늘 먼저 연락하는 것이 관계를 살리는 방법입니다."],
+        'ox':       ["오늘 속도보다 정확성을 우선하시기 바랍니다.",
+                     "오늘 계획을 세우고 하나씩 처리하면 에너지 낭비가 없습니다.",
+                     "오늘 꾸준함이 가장 강한 전략입니다.",
+                     "오늘 무리하지 않고 자신의 속도를 지키시기 바랍니다.",
+                     "오늘 작은 진전도 의미 있는 전진입니다.",
+                     "오늘 기초를 다지는 것이 나중의 큰 성과로 이어집니다.",
+                     "오늘 신중하게 한 발씩 나아가시기 바랍니다."],
+        'tiger':    ["오늘 에너지가 강한 만큼 방향을 먼저 정하시기 바랍니다.",
+                     "오늘 먼저 나서는 것이 유리한 흐름입니다.",
+                     "오늘 결단이 필요하다면 망설이지 마시기 바랍니다.",
+                     "오늘 열정을 한 곳에 집중하면 성과가 나옵니다.",
+                     "오늘 직접 확인하고 직접 처리하는 것이 맞습니다.",
+                     "오늘 앞장서는 것이 신뢰를 높이는 방법입니다.",
+                     "오늘 즉각적인 행동이 기회를 만듭니다."],
+        'rabbit':   ["오늘 세심한 배려가 관계를 더 깊게 만듭니다.",
+                     "오늘 상대방의 말을 끝까지 들어주시기 바랍니다.",
+                     "오늘 작은 친절 하나가 오래 기억됩니다.",
+                     "오늘 갈등이 있다면 직접 대화로 풀어보시기 바랍니다.",
+                     "오늘 먼저 다가가는 것이 관계를 회복하는 방법입니다.",
+                     "오늘 주변을 살피는 것이 나에게도 돌아옵니다.",
+                     "오늘 온화한 방식이 가장 강한 설득력이 됩니다."],
+        'dragon':   ["오늘 카리스마를 앞세우기보다 팀을 이끄는 방향으로 활용하시기 바랍니다.",
+                     "오늘 큰 그림을 그리되 디테일도 함께 챙기시기 바랍니다.",
+                     "오늘 자신감 있게 나아가되 주변의 의견도 경청하시기 바랍니다.",
+                     "오늘 결단력이 강점인 날입니다. 미루지 마시기 바랍니다.",
+                     "오늘 중심을 잡고 이끄는 역할을 맡으시기 바랍니다.",
+                     "오늘 먼저 행동하면 주변이 따라옵니다.",
+                     "오늘 열정을 구체적인 계획으로 연결하시기 바랍니다."],
+        'snake':    ["오늘 직감을 믿되 사실도 함께 확인하시기 바랍니다.",
+                     "오늘 깊이 생각하고 천천히 말하는 것이 더 효과적입니다.",
+                     "오늘 불필요한 정보는 걸러내고 핵심에 집중하시기 바랍니다.",
+                     "오늘 신중하게 관찰하는 것이 가장 큰 강점입니다.",
+                     "오늘 느리게 가더라도 확실하게 마무리하시기 바랍니다.",
+                     "오늘 말 한마디를 아끼는 것이 신뢰를 높입니다.",
+                     "오늘 통찰을 행동으로 옮기기 좋은 날입니다."],
+        'horse':    ["오늘 에너지를 여러 방향에 나누지 말고 하나에 집중하시기 바랍니다.",
+                     "오늘 자유로운 방식이 가장 좋은 결과를 만듭니다.",
+                     "오늘 속도감을 살리되 방향을 중간에 한 번 점검하시기 바랍니다.",
+                     "오늘 열정이 강한 만큼 무리하지 않도록 주의하시기 바랍니다.",
+                     "오늘 새로운 시도가 좋은 자극이 됩니다.",
+                     "오늘 움직이면서 답을 찾아가시기 바랍니다.",
+                     "오늘 직접 경험하는 것이 가장 빠른 배움입니다."],
+        'sheep':    ["오늘 부드러운 방식이 가장 강한 설득이 됩니다.",
+                     "오늘 주변의 감정을 살피는 것이 관계를 좋게 만듭니다.",
+                     "오늘 먼저 베푸는 것이 더 큰 것으로 돌아옵니다.",
+                     "오늘 온화한 태도가 어려운 상황을 풀어줍니다.",
+                     "오늘 협력하는 것이 혼자 하는 것보다 훨씬 큰 성과를 만듭니다.",
+                     "오늘 타인의 입장에서 생각하면 답이 보입니다.",
+                     "오늘 따뜻한 말 한마디가 관계의 전환점이 됩니다."],
+        'monkey':   ["오늘 창의적인 방식으로 접근하면 막혔던 일이 풀립니다.",
+                     "오늘 유머와 재치가 분위기를 바꾸는 힘이 됩니다.",
+                     "오늘 여러 방법을 시도해보는 것이 좋은 날입니다.",
+                     "오늘 빠른 판단력이 장점입니다. 믿고 실행하시기 바랍니다.",
+                     "오늘 새로운 각도에서 문제를 보면 해결책이 보입니다.",
+                     "오늘 아이디어를 즉시 기록해두시기 바랍니다.",
+                     "오늘 적응력이 가장 큰 무기입니다."],
+        'rooster':  ["오늘 꼼꼼하게 확인하는 것이 실수를 줄여줍니다.",
+                     "오늘 계획대로 하나씩 처리하는 것이 최선입니다.",
+                     "오늘 정확한 정보를 바탕으로 판단하시기 바랍니다.",
+                     "오늘 디테일을 놓치지 않는 것이 성과로 이어집니다.",
+                     "오늘 준비된 만큼 결과가 나옵니다.",
+                     "오늘 체계적으로 움직이면 에너지 낭비가 없습니다.",
+                     "오늘 작은 것도 빠뜨리지 않는 꼼꼼함이 빛을 발합니다."],
+        'dog':      ["오늘 믿는 사람에게 먼저 연락하시기 바랍니다.",
+                     "오늘 의리를 지키는 것이 장기적으로 더 큰 신뢰를 만듭니다.",
+                     "오늘 솔직한 한마디가 관계를 강하게 만듭니다.",
+                     "오늘 주변을 지키는 역할이 자연스럽게 맡겨지는 날입니다.",
+                     "오늘 함께하는 것이 혼자보다 훨씬 강합니다.",
+                     "오늘 충직한 태도가 가장 큰 설득력입니다.",
+                     "오늘 팀을 위한 한 가지를 먼저 하시기 바랍니다."],
+        'pig':      ["오늘 베푸는 마음이 주변을 따뜻하게 만드는 날입니다.",
+                     "오늘 여유를 갖고 즐기는 것이 오히려 더 좋은 결과로 이어집니다.",
+                     "오늘 낙천적인 시각이 어려운 상황을 가볍게 만듭니다.",
+                     "오늘 솔직하게 마음을 표현하면 관계가 더 깊어집니다.",
+                     "오늘 소소한 행복을 발견하는 것이 하루를 풍요롭게 만듭니다.",
+                     "오늘 지갑을 열기 전에 한 번 더 생각하시기 바랍니다.",
+                     "오늘 주변의 소중함을 다시 한번 느끼는 날입니다."],
+    }
+
     year_sentences = []
     year_rows_in_card = ""
-    for yr in c['years']:
-        yf = birth_year_fortune(c['en'], yr)
-        year_sentences.append(f'<strong>{yr}년생</strong>은 {yf}')
+    action_pool = _YEAR_ACTION_TIPS.get(c['en'], ["오늘 하루를 차분히 정리하시기 바랍니다."] * 7)
+    for idx, yr in enumerate(c['years']):
+        yf   = birth_year_fortune(c['en'], yr)
+        tip  = action_pool[(kst_day + idx) % len(action_pool)]
+        year_sentences.append(f'<strong>{yr}년생</strong>은 {yf} {tip}')
         year_rows_in_card += (
             f'<div style="display:flex;gap:8px;font-size:11px;'
             f'color:rgba(255,255,255,0.9);padding:3px 0">'
@@ -2771,7 +2903,9 @@ def build_chinese_post(c, today_str):
   <div style="font-size:15px;line-height:2.1;color:#374151;
                word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
-    <p style="margin:0 0 1.4em 0">{fortune}</p>
+    <p style="margin:0 0 1.4em 0">{fortune} {_peak_tip}</p>
+
+    <p style="margin:0 0 1.4em 0;font-size:14px;color:#6b7280">{_low_tip}</p>
 
     <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b;font-style:italic">{tyb}</h2>
 
@@ -2803,6 +2937,8 @@ def build_chinese_post(c, today_str):
     </p>
     <p style="font-size:13px;line-height:1.9;color:#374151;
               margin:0 0 1.4rem;word-break:keep-all">{_cq["apply"]}</p>
+    <p style="font-size:13px;line-height:1.9;color:#78350f;
+              margin:0 0 1.4rem;word-break:keep-all">{_cq["meaning"]}</p>
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
               margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;
