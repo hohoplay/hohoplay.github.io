@@ -2806,6 +2806,7 @@ def build_chinese_post(c, today_str):
 
     kst_now  = now_kst()
     today_sync = kst_now.strftime("%Y년 %m월 %d일")
+    kst_day  = kst_now.day
 
     # peak_tip, low_tip — 시간대 제외하고 내용(tip)만 활용
     _cz_row = chinese_zodiac[chinese_zodiac['animal_zodiac'] == c['en']]
@@ -2966,7 +2967,6 @@ def build_chinese_post(c, today_str):
 </div>'''
 
     # ── 별과띠가만나는시간 방식 — 하나의 흐르는 스토리 ──
-    kst_day = kst_now.day
 
     # 공감층 (띠별 고유 감각)
     _C_EMPATHY_LOCAL = {
