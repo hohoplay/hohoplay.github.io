@@ -5173,7 +5173,7 @@ ${info.usage}`;
                 + '</div>';
 
             // 종합에서 쓸 카드 요약 저장
-            cardReadings.push({ nameKo: nameKo, isRev: isRev, keyword: getCardKeyword(c, isRev), reading: baseReading });
+            cardReadings.push({ nameKo: nameKo, card_name: nameEn, isRev: isRev, keyword: getCardKeyword(c, isRev), reading: baseReading });
 
             return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.15);border-left:3px solid rgba(201,168,76,.4);border-radius:0 12px 12px 0;padding:14px;margin-bottom:10px">'
                 + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
@@ -5211,11 +5211,15 @@ ${info.usage}`;
 
             // ── 슈트 판별 ──
             function getMbtiSuit(card) {
-                var n = (card.nameKo || card.card_name_ko || card.card_name || '').toLowerCase();
+                // 영문 card_name 기준으로 슈트 판별 (nameKo는 한글이라 포함 검색 불가)
+                var n = (card.card_name || card.nameKo || '').toLowerCase();
                 if (n.includes('wand'))     return 'wands';
                 if (n.includes('cup'))      return 'cups';
                 if (n.includes('sword'))    return 'swords';
                 if (n.includes('pentacle')) return 'pentacles';
+                // arcana 필드로 보조 판별
+                var arcana = (card.arcana || '').toLowerCase();
+                if (arcana === 'minor') return 'wands'; // fallback
                 return 'major';
             }
             var suits3m = [pC, cC, fC].map(getMbtiSuit);
@@ -5319,7 +5323,7 @@ ${info.usage}`;
                 <p style="margin-top:.9rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의
                   당신에게는 <strong>${cC.nameKo}</strong> 카드의 기운이 작동하고 있어요.
                   ${cardNarr(cC)}
-                  ${mbtiHint ? mbti + '의 성향상, ' + mbtiHint : ''}
+                  ${mbtiHint ? mbtiHint : ''}
                   ${cSents[0] ? cSents[0] : ''}
                   ${bridge2}.
                 </p>
