@@ -5373,6 +5373,8 @@ ${info.usage}`;
             + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin:14px 0 10px;letter-spacing:.05em">✦ MBTI × 타로 종합</div>'
             + synthBlock
             + mbtiGuideBlock
+            + getValueHTML('mbti_tarot')
+            + getRetentionHTML('MBTI × 타로 리딩')
             + '<button onclick="mbtiTarotReset()" '
             + 'style="width:100%;margin-top:10px;padding:10px;background:rgba(255,255,255,.07);color:#9b8fb0;'
             + 'border:1px solid rgba(255,255,255,.15);border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">🔄 MBTI+타로 다시보기</button>'
@@ -5534,6 +5536,27 @@ ${info.usage}`;
     // ── 꿈해몽 텍스트 → 5단계 파싱 (DREAM Frame) ──
     // CSV v3 포맷: 파이프(|)로 구분된 5단계
     // D=꿈 공감 | R=심층 해석 | E=MBTI 연결 | A=경고/기회 | M=행동 처방
+
+    // ── 계산대 효과 공통 HTML (가치 확신 문장) ──
+    function getValueHTML(serviceType) {
+        var msgs = {
+            tarot: '지금까지의 흐름이 보여주듯, 카드는 복잡한 생각을 단번에 정리해주는 가장 강력한 나침반이에요. 오늘의 리딩이 당신 안의 이미 알고 있던 답을 선명하게 확인해주는 계기가 되었기를 바라요.',
+            mbti_tarot: '스스로에 대해 누구보다 잘 아는 당신이지만, 때로는 카드 속에 투영된 흐름이 가장 강력한 확신을 주기도 해요. 오늘 이 리딩은 당신의 성향과 카드의 에너지를 가장 정교하게 엮어낸 결과물이에요.',
+            dream: '잠에서 깨어난 순간 사라지기 쉬운 무의식의 메시지를 이토록 선명하게 붙잡아 해석한 것은, 지금 당신에게 아주 중요한 터닝포인트가 찾아왔음을 뜻해요. 이 특별한 신호를 놓치지 마세요.'
+        };
+        return '<p style="margin-top:1.2rem;font-size:.83rem;color:#9b8fb0;line-height:1.9;font-style:italic;text-align:center">'
+            + (msgs[serviceType] || msgs.tarot)
+            + '</p>';
+    }
+
+    // ── 재방문 인사 공통 HTML ──
+    function getRetentionHTML(serviceName) {
+        return '<div style="margin-top:1.2rem;padding:1rem 1.1rem;background:rgba(124,58,237,.07);border-radius:12px;font-size:.82rem;line-height:1.9;color:#c4b0e0;text-align:center">'
+            + '🌿 오늘 함께 나눈 ' + serviceName + ' 이야기가 마음에 작은 위로와 힌트가 되었기를 바라요.<br>'
+            + '살아가다 마음이 무거워지거나 눈앞의 안개가 답답하게 느껴질 때는 언제든 다시 찾아와 주세요. 🚪'
+            + '</div>';
+    }
+
     function parseDreamStages(text) {
         if (!text) return null;
         // 파이프 구분자로 5단계 분리 (v3 포맷)
@@ -5800,6 +5823,8 @@ ${info.usage}`;
             + '<div style="font-size:11px;font-weight:700;color:#7c5cbf;letter-spacing:.06em;margin-bottom:10px;padding-left:2px">'
             + '🧠 ' + _mbtiDreamMbti + ' × ' + _mbtiDreamKeyword + ' 꿈 해석</div>'
             + dreamProse
+            + getValueHTML('dream')
+            + getRetentionHTML('MBTI × 꿈해몽')
             + '<button onclick="mbtiDreamReset()" '
             + 'style="width:100%;margin-top:10px;padding:11px;background:rgba(255,255,255,.06);color:#9b8fb0;'
             + 'border:1px solid rgba(255,255,255,.13);border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">'
@@ -6310,6 +6335,8 @@ ${info.usage}`;
           <div class="tarot-section-title">✨ 통합 해석</div>
           <div class="tarot-integrated">${integrated}</div>
         </div>
+        ${getValueHTML('tarot')}
+        ${getRetentionHTML('타로 리딩')}
         <button class="tarot-reset-btn" onclick="tReset()">🔄 다시 뽑기</button>
         <div class="tarot-guide-box">
           <div class="tarot-guide-title">∴ 타로 리딩 안내 ∴</div>
