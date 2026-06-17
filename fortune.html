@@ -5141,48 +5141,83 @@ ${info.usage}`;
 
         // ── 카드별 단락 해석 (위치별 앵글 차별화) ──
         var cardReadings = []; // 종합에서 재활용
-        var cardBlocks = cards.map(function(item, i) {
+        // MBTI 뒤집기 카운터 초기화
+        window._mbtiRevealedCount = 0;
+        window._mbtiRevealTotal   = 3;
+        window._mbtiCardReadings  = cardReadings;
+        window._mbtiRevealQ       = q;
+
+        // 카드별 데이터 미리 수집 (뒤집기 전)
+        var cardDataList = cards.map(function(item, i) {
             var c = item.card;
-            var nameKo  = c.card_name_ko || c.card_name || '카드';
-            var nameEn  = c.card_name || '';
-            var emoji   = c.emoji || '🃏';
-            var isRev   = item.reversed;
-            var dirBadge = isRev
-                ? '<span style="font-size:10px;background:rgba(100,80,180,.25);color:#a090dd;padding:2px 7px;border-radius:10px">🔄 역방향</span>'
-                : '<span style="font-size:10px;background:rgba(201,168,76,.15);color:#c9a84c;padding:2px 7px;border-radius:10px">✨ 정방향</span>';
-
-            // CSV 해석 텍스트 가져오기
+            var nameKo = c.card_name_ko || c.card_name || '카드';
+            var nameEn = c.card_name || '';
+            var emoji  = c.emoji || '🃏';
+            var isRev  = item.reversed;
             var baseReading = getTarotReading(nameKo, q, isRev, i);
-
-            // 위치별로 다른 앵글 문장 앞에 붙여 차별화
             var posPrefix = ['🌱 과거 — 지금 이 상황의 뿌리가 된 에너지예요.',
                              '🔥 현재 — 지금 이 순간 가장 강하게 작용하는 에너지예요.',
                              '🌟 미래 — 앞으로 흘러갈 방향이 담긴 에너지예요.'][i];
-
-            // 역방향일 때 위치별 추가 멘트
-            var revNote = isRev ? [{
-                past:    '과거에 이 에너지가 충분히 발현되지 못했거나 억눌렸을 수 있어요. 그게 지금의 나를 만든 배경이에요.',
+            var revMemo = isRev ? [{
+                past:    '과거에 이 에너지가 충분히 발현되지 못했거나 억눌렸을 수 있어요.',
                 present: '지금 이 에너지가 안으로 향하고 있어요. 겉으로 드러나기보다 내면에서 무르익는 중이에요.',
                 future:  '아직 완전히 열리지 않은 가능성이에요. 서두르지 않아도 때가 되면 자연스럽게 펼쳐질 거예요.'
             }[['past','present','future'][i]]] : [''];
-
-            var readingBlock = '<div style="font-size:13px;color:#e0d5c4;line-height:1.95;margin-top:8px">'
-                + '<p style="margin-bottom:6px;font-size:11px;color:#c9a84c;font-weight:700">' + posPrefix + '</p>'
-                + (baseReading || (nameKo + '의 에너지가 이 자리에서 ' + (isRev ? '내면을 향해 조용히 흐르고 있어요.' : '선명하게 드러나고 있어요.')))
-                + (revNote[0] ? '<p style="margin-top:8px;font-size:12px;color:#a090dd;background:rgba(100,80,180,.08);border-left:2px solid rgba(160,120,220,.4);padding:.5rem .8rem;border-radius:0 8px 8px 0">' + revNote[0] + '</p>' : '')
-                + '</div>';
-
-            // 종합에서 쓸 카드 요약 저장
             cardReadings.push({ nameKo: nameKo, card_name: nameEn, isRev: isRev, keyword: getCardKeyword(c, isRev), reading: baseReading });
+            return { nameKo:nameKo, nameEn:nameEn, emoji:emoji, isRev:isRev, baseReading:baseReading, posPrefix:posPrefix, revMemo:revMemo[0]||'' };
+        });
 
-            return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.15);border-left:3px solid rgba(201,168,76,.4);border-radius:0 12px 12px 0;padding:14px;margin-bottom:10px">'
-                + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
-                + '<span style="font-size:1.5rem">' + emoji + '</span>'
-                + '<div>'
-                + '<div style="font-size:14px;color:#e8c96a;font-weight:700">' + nameKo + ' <em style="font-size:11px;color:#9b8fb0;font-style:normal">' + nameEn + '</em></div>'
+        // 뒤집기 함수 (전역 등록)
+        window.mbtiRevealCard = function(i) {
+            var el = document.getElementById('mcard-'+i);
+            if (!el || el.classList.contains('t-revealed')) return;
+            el.classList.add('t-revealed');
+            window._mbtiRevealedCount++;
+            if (window._mbtiRevealedCount === window._mbtiRevealTotal) {
+                var allBtn = document.getElementById('mbti-reveal-all-btn');
+                if (allBtn) allBtn.style.display = 'none';
+                // 3장 모두 열리면 종합 해석 렌더
+                var synthArea = document.getElementById('mbti-tarot-synth-area');
+                if (synthArea) synthArea.style.display = 'block';
+            }
+        };
+        window.mbtiRevealAll = function() {
+            for (var j = 0; j < 3; j++) {
+                var el = document.getElementById('mcard-'+j);
+                if (el && !el.classList.contains('t-revealed')) el.classList.add('t-revealed');
+            }
+            window._mbtiRevealedCount = 3;
+            var allBtn = document.getElementById('mbti-reveal-all-btn');
+            if (allBtn) allBtn.style.display = 'none';
+            var synthArea = document.getElementById('mbti-tarot-synth-area');
+            if (synthArea) synthArea.style.display = 'block';
+        };
+
+        var posLabels = ['과거 · PAST','현재 · PRESENT','미래 · FUTURE'];
+        var cardBlocks = cardDataList.map(function(d, i) {
+            var dirBadge = d.isRev
+                ? '<span class="tarot-dir t-rev">🔄 역방향</span>'
+                : '<span class="tarot-dir t-up">✨ 정방향</span>';
+            var readingBlock = '<div style="font-size:13px;color:#e0d5c4;line-height:1.95;margin-top:8px">'
+                + '<p style="margin-bottom:6px;font-size:11px;color:#c9a84c;font-weight:700">' + d.posPrefix + '</p>'
+                + (d.baseReading || (d.nameKo + '의 에너지가 이 자리에서 ' + (d.isRev ? '내면을 향해 조용히 흐르고 있어요.' : '선명하게 드러나고 있어요.')))
+                + (d.revMemo ? '<p style="margin-top:8px;font-size:12px;color:#a090dd">' + d.revMemo + '</p>' : '')
+                + '</div>';
+            return '<div>'
+                + '<div class="tarot-pos-label">' + posLabels[i] + '</div>'
+                + '<div class="tarot-card' + (d.isRev ? ' t-reversed' : '') + '" id="mcard-' + i + '" onclick="mbtiRevealCard(' + i + ')">'
+                + '<div class="tarot-back-sym">✦</div>'
+                + '<div class="tarot-hint">터치하여 공개</div>'
+                + '<div class="tarot-card-face">'
+                + '<div class="tarot-img-wrap"><div class="tarot-emoji-wrap"><div class="tarot-emoji">' + d.emoji + '</div></div></div>'
+                + '<div class="tarot-text-wrap">'
+                + '<div class="tarot-name">' + d.nameEn + '</div>'
+                + '<div class="tarot-name-ko">' + d.nameKo + '</div>'
                 + dirBadge
-                + '</div></div>'
+                + '</div>'
                 + readingBlock
+                + '</div>'
+                + '</div>'
                 + '</div>';
         }).join('');
 
@@ -5275,7 +5310,7 @@ ${info.usage}`;
             if (uniqueSuitsM.size === 1) {
                 patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, 세 장 모두 같은 성격의 에너지가 쏠릴 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
             } else if (uniqueSuitsM.size === 3) {
-                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, ' + kP + '에서 ' + kC + ', 그리고 ' + kF + '으로 매 단계 급격하게 교차하는 에너지 속에서 모든 흐름을 혼자 감당하려다 보면 쉽게 지칠 수 있어요. 조금은 숨을 고를 필요가 있어요.</p>';
+                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, ' + kP + '에서 ' + kC + ', 그리고 ' + kF + '으로 흐르는 에너지가 매 단계 급격하게 바뀌고 있어요. 이 모든 흐름을 혼자 감당하려다 보면 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>';
             }
 
             // ── MBTI 결론 — synthesis_text 첫 줄의 "MBTI인 당신은" 중복 제거 ──
@@ -5310,16 +5345,19 @@ ${info.usage}`;
                 <p>돌이켜보면 당신의 <strong style="color:#c9a84c">과거</strong>는
                   <strong>${pC.nameKo}</strong> 카드가 보여주듯
                   ${cardNarr(pC)}.
-                  ${mbtiHint ? mbtiHint + ' 그 기운이 자연스럽게 이어져' : ''}
-                  ${pSents[0] ? pSents[0] : ''}
+                  ${pC.isRev
+                    ? '그 에너지가 충분히 드러나지 못한 채 안에 쌓여온 만큼,'
+                    : '그 기운이 자연스럽게 이어져,'}
                   ${bridge1}.
                 </p>
 
                 <p style="margin-top:1rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의 당신에게는
                   <strong>${cC.nameKo}</strong> 카드가 중심을 잡고 있네요.
                   ${cardNarr(cC)}.
-                  ${cSents[0] ? cSents[0] : ''}
-                  상황을 한 걸음 물러서서 조율해 나간다면, ${bridge2}.
+                  ${mbtiHint ? mbtiHint : ''}
+                  ${cC.isRev
+                    ? '안쪽에서 익어가는 만큼, 억지로 드러내려 하기보다 흐름을 지켜보는 것이 자연스러워요.'
+                    : '상황을 한 걸음 물러서서 조율해 나간다면, ' + bridge2 + '.'}
                 </p>
 
                 <p style="margin-top:1rem">이 흐름이 이어져 마주할 <strong style="color:#a78bfa">미래</strong>에는
@@ -5328,12 +5366,21 @@ ${info.usage}`;
                   ${fC.isRev
                     ? '서두르지 않아도 때가 되면 자연스럽게 펼쳐질 거예요.'
                     : '지금 이 흐름을 믿고 한 걸음씩 나아가다 보면, 자연스럽게 이 방향으로 이어질 거예요.'}
-                  ${fSents[0] ? fSents[0] : ''}
                 </p>
 
                 ${patternWarnM}
 
-                <p style="margin-top:1rem">${mbtiConclusion}</p>
+                <p style="margin-top:1rem">${mbtiConclusion
+                  .replace(/합니다\./g, '해요.')
+                  .replace(/됩니다\./g, '돼요.')
+                  .replace(/입니다\./g, '이에요.')
+                  .replace(/하세요\./g, '해봐요.')
+                  .replace(/보세요\./g, '봐요.')
+                  .replace(/것입니다\./g, '거예요.')
+                  .replace(/줄 것입니다\./g, '줄 거예요.')
+                  .replace(/됩니다$/g, '돼요')
+                  .replace(/입니다$/g, '이에요')
+                }</p>
 
                 <p style="margin-top:1rem">
                   <strong style="color:#4ade80">오늘만큼은,</strong> ${actionAdvice}
@@ -5372,16 +5419,21 @@ ${info.usage}`;
             + '</div>';
 
         resultDiv.innerHTML = '<div style="background:rgba(255,255,255,.03);border-radius:14px;padding:16px">'
-            + '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin-bottom:12px">STEP 3 — 결과</div>'
+            + '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin-bottom:12px">STEP 3 — 카드를 한 장씩 클릭해서 열어보세요</div>'
             + cardsHtml
             + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin-bottom:10px;letter-spacing:.05em">✦ 카드별 해석</div>'
             + cardBlocks
+            + '<button id="mbti-reveal-all-btn" onclick="mbtiRevealAll()" '
+            + 'style="width:100%;margin:8px 0 14px;padding:9px;background:rgba(201,168,76,.08);color:#c9a84c;'
+            + 'border:1px solid rgba(201,168,76,.25);border-radius:10px;font-weight:700;cursor:pointer;font-size:12px">✦ 전체 공개</button>'
+            + '<div id="mbti-tarot-synth-area" style="display:none">'
             + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin:14px 0 10px;letter-spacing:.05em">✦ MBTI × 타로 종합</div>'
             + synthBlock
             + mbtiGuideBlock
             + '<button onclick="mbtiTarotReset()" '
             + 'style="width:100%;margin-top:10px;padding:10px;background:rgba(255,255,255,.07);color:#9b8fb0;'
             + 'border:1px solid rgba(255,255,255,.15);border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">🔄 MBTI+타로 다시보기</button>'
+            + '</div>'
             + '</div>';
 
         // 컨텍스트 저장 (이후 확장용)
@@ -5473,19 +5525,24 @@ ${info.usage}`;
         }
 
         resDiv.innerHTML = '<div style="margin-top:8px">'
-            + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin-bottom:12px;letter-spacing:.05em">✦ 카드별 해석</div>'
+            + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin-bottom:12px;letter-spacing:.05em">✦ 카드별 해석 — 한 장씩 클릭해서 열어보세요</div>'
             + cardBlocks
+            + '<button id="mbti-reveal-all-btn" onclick="mbtiRevealAll()" '
+            + 'style="width:100%;margin:8px 0 14px;padding:9px;background:rgba(201,168,76,.08);color:#c9a84c;'
+            + 'border:1px solid rgba(201,168,76,.25);border-radius:10px;font-weight:700;cursor:pointer;font-size:12px">✦ 전체 공개</button>'
+            + '<div id="mbti-tarot-synth-area" style="display:none">'
             + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin:14px 0 10px;letter-spacing:.05em">✦ MBTI × 타로 종합</div>'
             + (function(){
-                var pC = { nameKo: cards[0].card.card_name_ko || '카드', isRev: cards[0].reversed };
-                var cC = { nameKo: cards[1].card.card_name_ko || '카드', isRev: cards[1].reversed };
-                var fC = { nameKo: cards[2].card.card_name_ko || '카드', isRev: cards[2].reversed };
+                var pC = { nameKo: cards[0].card.card_name_ko || '카드', card_name: cards[0].card.card_name || '', isRev: cards[0].reversed };
+                var cC = { nameKo: cards[1].card.card_name_ko || '카드', card_name: cards[1].card.card_name || '', isRev: cards[1].reversed };
+                var fC = { nameKo: cards[2].card.card_name_ko || '카드', card_name: cards[2].card.card_name || '', isRev: cards[2].reversed };
                 var revCards = [pC,cC,fC].filter(function(c){return c.isRev;}).map(function(c){return c.nameKo;});
                 var revNote = revCards.length > 0
                     ? '💜 ' + revCards.join(', ') + ' 카드가 역방향이에요. 나쁜 신호가 아니에요 — 그 에너지가 아직 내면에서 익고 있다는 뜻이에요.'
                     : '';
                 return buildConversationalSynth(mbti, coreTrait, pC, cC, fC, synthData, q, revNote);
             })()
+            + '</div>'
             + '</div>';
 
         hideBtnLoading(btn);
@@ -5768,9 +5825,11 @@ ${info.usage}`;
             // 긍정/부정 상징을 본문에 자연스럽게 녹임
             var symbolLine = '';
             if (positive && negative) {
+                // 뱃지 텍스트(·로 연결된 키워드)를 자연스러운 문장으로 가공
+                var posWords = positive.replace(/·/g, ', ');
+                var negWords = negative.replace(/·/g, ', ');
                 symbolLine = '"<strong style="color:#c9a84c">' + _mbtiDreamKeyword + '</strong>" 꿈은 '
-                    + '<strong style="color:#86efac">' + positive + '</strong>의 가능성과 함께, '
-                    + '<strong style="color:#fca5a5">' + negative + '</strong>에 대한 무의식의 경고를 동시에 담고 있어요.';
+                    + posWords + '의 가능성을 품고 있어요. 동시에 ' + negWords + '에 대한 무의식의 경고도 함께 담겨있어요.';
             }
 
             // ── 3단락: MBTI 성향 × 꿈 연결 ──
@@ -5807,8 +5866,8 @@ ${info.usage}`;
                 </p>` : ''}
 
                 ${actionDream ? `<p style="margin-top:1rem;line-height:2;color:#e0d5f0">
-                  <strong style="color:#4ade80">오늘 행동 지침:</strong>
-                  오늘은 ${actionDream.replace(/^오늘[은,\s]+/, '')}
+                  그러니 <strong style="color:#4ade80">오늘만큼은,</strong>
+                  ${actionDream.replace(/^오늘[은,\s]+/, '').replace(/^가장/, '가장').replace(/해보세요\.$/, '해봐요.')}
                 </p>` : ''}
 
                 <p style="margin-top:1rem;font-size:.88rem;color:#c4b0e0;line-height:2">
@@ -6513,7 +6572,7 @@ ${info.usage}`;
       if (uniqueSuits.size === 1) {
         patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. 한 가지 방향으로만 에너지가 흐를 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
       } else if (uniqueSuits.size === 3) {
-        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 매 단계 에너지가 급격하게 바뀌고 있어요. 매 단계 급격하게 교차하는 에너지 속에서 모든 흐름을 혼자 완벽하게 감당하려다 보면 마음이 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>`;
+        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 흐르는 에너지가 매 단계 급격하게 바뀌고 있어요. 이 모든 흐름을 혼자 완벽하게 감당하려다 보면 마음이 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>`;
       }
 
       // ── 핵심 조언 — 현재/미래 카드 키워드 + 슈트 기반으로 생성 ──
@@ -6555,12 +6614,15 @@ ${info.usage}`;
 
           <p>돌이켜보면 당신의 <strong style="color:#c9a84c">과거</strong>는
             <strong>${past.emoji||'🃏'} ${past.card_name_ko}</strong> 카드가 보여주듯
-            ${pastNarr}. ${bridge1}.
+            ${pastNarr}. ${past.isReversed ? '그 에너지가 충분히 드러나지 못한 채 안에 쌓여온 만큼,' : '그 기운이 지금까지 자연스럽게 이어져,'} ${bridge1}.
           </p>
 
           <p style="margin-top:1rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의 당신에게는
             <strong>${present.emoji||'🃏'} ${present.card_name_ko}</strong> 카드가 중심을 잡고 있네요.
-            ${presentNarr}. 상황을 한 걸음 물러서서 바라본다면, ${bridge2}.
+            ${presentNarr}. ${present.isReversed
+              ? '안쪽에서 익어가는 만큼, 억지로 드러내려 하기보다 지금은 흐름을 지켜보는 것이 더 자연스러워요.'
+              : '상황을 한 걸음 물러서서 바라본다면,'}
+            ${present.isReversed ? '' : bridge2 + '.'}
           </p>
 
           <p style="margin-top:1rem">이 흐름이 이어져 마주할 <strong style="color:#a78bfa">미래</strong>에는
