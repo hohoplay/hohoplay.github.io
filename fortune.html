@@ -5170,12 +5170,6 @@ ${info.usage}`;
 
             cardReadings.push({ nameKo: nameKo, card_name: nameEn, isRev: isRev, keyword: getCardKeyword(c, isRev), reading: baseReading });
 
-            var readingBlock = '<div style="font-size:12px;color:#e0d5c4;line-height:1.8;margin-top:8px;text-align:left">'
-                + '<p style="margin-bottom:4px;font-size:10px;color:#c9a84c;font-weight:700">' + posPrefix + '</p>'
-                + (baseReading || (nameKo + '의 에너지가 이 자리에서 ' + (isRev ? '내면을 향해 조용히 흐르고 있어요.' : '선명하게 드러나고 있어요.')))
-                + (revMemo ? '<p style="margin-top:6px;font-size:11px;color:#a090dd">' + revMemo + '</p>' : '')
-                + '</div>';
-
             cardsHtml += '<div>'
                 + '<div class="tarot-pos-label">' + posLabels[i] + '</div>'
                 + '<div class="tarot-card' + (isRev ? ' t-reversed' : '') + '" id="mcard-' + i + '" onclick="mbtiRevealCard(' + i + ')">'
@@ -5189,7 +5183,6 @@ ${info.usage}`;
                 + '<span class="tarot-dir ' + (isRev ? 't-rev' : 't-up') + '">' + (isRev ? '🔄 역방향' : '✨ 정방향') + '</span>'
                 + '<div class="tarot-keywords">' + getCardKeyword(c, isRev) + '</div>'
                 + '</div>'
-                + readingBlock
                 + '</div>'
                 + '</div>'
                 + '</div>';
@@ -5374,6 +5367,38 @@ ${info.usage}`;
         }
 
 
+        // ── 카드별 해석 세로 섹션 ──
+        var posHintsM = [
+            { label:'🌱 과거 자리', hint:'이 에너지가 지금 당신이 서 있는 자리를 만들어왔어요.' },
+            { label:'🔥 현재 자리', hint:'지금 이 순간 가장 강하게 작용하고 있는 에너지예요.' },
+            { label:'🌟 미래 자리', hint:'앞으로 흘러갈 방향에 이 에너지가 기다리고 있어요.' },
+        ];
+        var revPosNotesM = [
+            '과거에 이 에너지가 억눌리거나 충분히 발현되지 못했을 수 있어요. 그 흔적이 지금까지 이어진 거예요.',
+            '지금 이 에너지가 안으로 향하고 있어요. 겉보다 내면에서 크게 움직이고 있는 시기예요.',
+            '아직 완전히 열리지 않은 가능성이에요. 억지로 끌어당기지 않아도 때가 되면 자연스럽게 펼쳐져요.',
+        ];
+        var mbtiCardDetailBlock = '<div style="margin-bottom:6px">'
+            + '<div style="font-size:12px;font-weight:700;color:#c9a84c;letter-spacing:.05em;margin-bottom:10px">🌙 카드별 해석</div>'
+            + cardReadings.map(function(cr, i) {
+                var ph = posHintsM[i];
+                var revNote = cr.isRev ? revPosNotesM[i] : '';
+                return '<div style="padding:1rem 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+                    + '<div style="font-size:.75rem;color:#c9a84c;font-weight:700;margin-bottom:.3rem">' + ph.label + '</div>'
+                    + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">'
+                    + '<span style="font-size:1.2rem">' + (cards[i].card.emoji||'🃏') + '</span>'
+                    + '<span style="font-size:.92rem;color:#e8c96a;font-weight:700">' + cr.nameKo + '</span>'
+                    + '<em style="font-size:.72rem;color:#9b8fb0">' + cr.card_name + '</em>'
+                    + '<span class="tarot-dir ' + (cr.isRev ? 't-rev' : 't-up') + '" style="font-size:.7rem">' + (cr.isRev ? '🔄 역방향' : '✨ 정방향') + '</span>'
+                    + '</div>'
+                    + '<div style="font-size:.85rem;color:#e0d5c4;line-height:1.9">'
+                    + (cr.reading || (cr.nameKo + '의 에너지가 이 자리에서 ' + (cr.isRev ? '내면을 향해 조용히 흐르고 있어요.' : '선명하게 드러나고 있어요.')))
+                    + '</div>'
+                    + (revNote ? '<div style="font-size:.8rem;color:#a090dd;margin-top:.4rem;font-style:italic">' + revNote + '</div>' : '')
+                    + '</div>';
+            }).join('')
+            + '</div>';
+
         var synthBlock =
             '<div style="background:linear-gradient(135deg,rgba(74,40,128,.4),rgba(30,18,53,.6));border-radius:12px;padding:16px;margin-bottom:10px">'
             + '<div style="font-size:11px;color:#c9a84c;margin-bottom:12px;letter-spacing:.05em">🧠 ' + mbti + '(' + coreTrait + ') × 타로 종합 해석</div>'
@@ -5401,6 +5426,7 @@ ${info.usage}`;
             + 'style="width:100%;margin:4px 0 14px;padding:9px;background:rgba(201,168,76,.08);color:#c9a84c;'
             + 'border:1px solid rgba(201,168,76,.25);border-radius:10px;font-weight:700;cursor:pointer;font-size:12px">✦ 전체 공개</button>'
             + '<div id="mbti-tarot-synth-area" style="display:none">'
+            + mbtiCardDetailBlock
             + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin:14px 0 10px;letter-spacing:.05em">✦ MBTI × 타로 종합</div>'
             + synthBlock
             + mbtiGuideBlock
