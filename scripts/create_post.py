@@ -1264,8 +1264,7 @@ def _quote_bridge_html(q, color="#7c3aed", light="#faf5ff"):
     오늘 이 흐름에 어울리는 말
   </div>
   <p style="font-size:15px;line-height:2.0;color:#1f2937;
-            font-weight:500;margin:0 0 8px;word-break:keep-all;
-            font-style:italic">
+            font-weight:500;margin:0 0 8px;word-break:keep-all;">
     "{q["quote"]}"
   </p>
   <p style="font-size:12px;color:#6b7280;margin:0 0 12px">
@@ -1520,43 +1519,17 @@ def pick_insight_bridge(day_seed, mode='daily'):
     return pool[day_seed % len(pool)]
 
 def comment_prompt(post_type='general'):
-    """포스트 타입별 댓글 유도 문구"""
-    _prompts = {
-        'zodiac': (
-            "오늘 이 운세가 맞으셨나요?",
-            "별자리 운세는 매일 달라집니다. 오늘 하루가 어떠셨는지 댓글로 알려주시면 내일도 함께 살펴보겠습니다."
-        ),
-        'chinese': (
-            "오늘 띠 운세가 맞으셨나요?",
-            "같은 띠라도 오늘 어떤 하루를 보내셨는지 댓글로 남겨주시면 다음 운세에 참고하겠습니다. 나의 별자리와 띠 조합이 궁금하시다면 별과띠가만나는시간도 함께 살펴보세요."
-        ),
-        'weekly': (
-            "이번 주 흐름이 맞으셨나요?",
-            "주간 운세는 방향을 제시합니다. 이번 주 어떤 일이 있으셨는지 댓글로 알려주시면 다음 주도 함께 살펴보겠습니다."
-        ),
-        'monthly': (
-            "이달 흐름이 맞으셨나요?",
-            "월간 운세는 큰 흐름을 봅니다. 이달 어떤 변화가 있으셨는지 댓글로 남겨주시면 다음 달 운세에 반영해보겠습니다."
-        ),
-        'quote': (
-            "오늘의 명언이 마음에 닿으셨나요?",
-            "어떤 문장이 오늘 가장 와닿으셨는지 댓글로 알려주시면 비슷한 인물의 이야기를 더 준비해보겠습니다."
-        ),
-        'omnibus': (
-            "오늘 별과 띠의 조합이 맞으셨나요?",
-            "자신의 별자리와 띠 조합이 오늘 어떻게 느껴지셨는지 댓글로 남겨주시면 내일도 함께 살펴보겠습니다."
-        ),
+    """포스트 타입별 댓글 유도 — 산문 한 줄 (박스 없음)"""
+    _sentences = {
+        'zodiac':   "오늘 이 흐름이 어떠셨는지, 댓글로 조용히 남겨주시면 내일도 함께 살펴보겠습니다.",
+        'chinese':  "오늘 하루 이 흐름이 어떠셨는지, 댓글로 남겨주시면 함께 살펴보겠습니다.",
+        'weekly':   "이번 주 흐름이 어떠셨는지, 댓글로 조용히 남겨주시면 다음 주도 함께 살펴보겠습니다.",
+        'monthly':  "이달의 흐름이 어떠셨는지, 댓글로 남겨주시면 다음 달도 함께 살펴보겠습니다.",
+        'quote':    "오늘 이 문장이 마음에 닿으셨다면, 댓글로 조용히 알려주시면 감사하겠습니다.",
+        'omnibus':  "오늘 별과 띠의 조합이 어떻게 느껴지셨는지, 댓글로 남겨주시면 내일도 함께 살펴보겠습니다.",
     }
-    title, body = _prompts.get(post_type, _prompts['zodiac'])
-    return f'''
-<div style="margin:24px 0 8px;padding:18px 20px;
-            background:linear-gradient(135deg,#f8f9fa,#f0f4ff);
-            border-radius:14px;border:1px solid #e5e7eb;text-align:center">
-  <p style="font-size:15px;font-weight:700;color:#374151;
-            margin:0 0 8px;word-break:keep-all">{title}</p>
-  <p style="font-size:13px;color:#6b7280;line-height:1.85;
-            margin:0;word-break:keep-all">{body}</p>
-</div>'''
+    sentence = _sentences.get(post_type, _sentences['zodiac'])
+    return f'<p style="font-size:13px;color:#9ca3af;margin:1.2rem 0 0;word-break:keep-all">{sentence}</p>'
 
 def style():
     return """<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1805,10 +1778,10 @@ def build_quote_post(today_str):
 <div style="font-family:'Noto Serif KR',Georgia,serif;
             margin:1.4rem 0;word-break:keep-all">
   <p style="font-size:20px;font-weight:800;color:#4c1d95;
-            line-height:1.9;margin:0 0 8px;font-style:italic">
+            line-height:1.9;margin:0 0 8px;">
     ❝ {quote} ❞
   </p>
-  <p style="font-size:12px;color:#9ca3af;font-style:italic;
+  <p style="font-size:12px;color:#9ca3af;
             line-height:1.6;margin:0 0 8px">{quote_en}</p>
   <p style="font-size:13px;font-weight:700;color:#7c3aed;margin:0">
     — {author_ko} ({birth})
@@ -2742,6 +2715,8 @@ def build_zodiac_post(z, today_str):
     </p>
     <p style="font-size:13px;line-height:1.9;color:#374151;
               margin:0 0 1.4rem;word-break:keep-all">{_zq["apply"]}</p>
+    <p style="font-size:13px;line-height:1.9;color:#5b21b6;
+              margin:0 0 1.4rem;word-break:keep-all">{_zq["meaning"]}</p>
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
               margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
@@ -3938,16 +3913,12 @@ def build_omnibus_post(today_str: str) -> tuple:
         if special:
             reason, action = special
             special_html = (
-                f'<div style="margin:10px 0 6px;padding:12px 14px;'
-                f'background:linear-gradient(135deg,#fdf4ff,#f0f9ff);'
-                f'border-radius:12px">'
-                f'<div style="font-size:11px;color:#7c3aed;font-weight:700;'
-                f'letter-spacing:0.08em;margin-bottom:6px">✦ {z_kr} × {c_kr} 오늘의 조합</div>'
-                f'<p style="font-size:13px;line-height:1.9;color:#374151;margin:0 0 6px;word-break:keep-all">'
-                f'{reason}</p>'
-                f'<p style="font-size:13px;line-height:1.9;color:#6d28d9;margin:0;'
-                f'word-break:keep-all">→ {action}</p>'
-                f'</div>'
+                f'<p style="font-size:13px;font-weight:700;color:#7c3aed;'
+                f'margin:0.8em 0 0.3em;word-break:keep-all">'
+                f'✦ {z_kr} × {c_kr} 오늘의 조합</p>'
+                f'<p style="font-size:13px;line-height:1.9;color:#374151;'
+                f'margin:0 0 1.2em;word-break:keep-all">'
+                f'{reason} {action}</p>'
             )
         else:
             special_html = ''
@@ -4002,72 +3973,27 @@ def build_omnibus_post(today_str: str) -> tuple:
                     show_opening=False, show_ending=False):
         opening_html = f'<p class="novel-opening">{opening}</p>' if show_opening else ''
         ending_html = f"""
-    <div style="
-      margin: 2.8rem 0 0 0;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 2px 16px rgba(91,33,182,0.08);
-    ">
-      <div style="
-        background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
-        padding: 0.7rem 1.4rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      ">
-        <span style="font-size:15px">🌙</span>
-        <span style="
-          font-size: 12px;
-          font-weight: 700;
-          color: #ede9fe;
-          letter-spacing: 0.12em;
-        ">오늘 별과 띠가 함께 전하는 말</span>
-      </div>
-      <div style="
-        background: linear-gradient(160deg, #faf5ff 0%, #fdf4ff 100%);
-        padding: 1.6rem 1.6rem 0.4rem 1.6rem;
-      ">
-        <p style="
-          font-size: 15.5px;
-          line-height: 2.05;
-          color: #374151;
-          margin: 0 0 1.1rem 0;
-          word-break: keep-all;
-          font-weight: 500;
-        ">{ending_insight}</p>
-        <p style="
-          font-size: 14px;
-          line-height: 1.95;
-          color: #6d28d9;
-          margin: 0 0 1.5rem 0;
-          word-break: keep-all;
-          font-style: italic;
-          padding-left: 0.9rem;
-          border-left: 3px solid #c4b5fd;
-        ">{ending_bridge}</p>
-      </div>
-      <div style="
-        background: #5b21b6;
-        padding: 1.2rem 1.6rem;
-        text-align: center;
-      ">
-        <div style="
-          font-size: 11px;
-          color: #c4b5fd;
-          letter-spacing: 0.14em;
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-        ">오늘 단 하나만 한다면</div>
-        <span style="
-          display: inline-block;
-          font-size: 17px;
-          font-weight: 800;
-          color: #ffffff;
-          letter-spacing: -0.01em;
-          word-break: keep-all;
-          line-height: 1.6;
-        ">❝ {ending_action} ❞</span>
-      </div>
+    <div style="margin:2.8rem 0 0 0">
+      <p style="
+        font-size:12px;font-weight:700;color:#7c3aed;
+        letter-spacing:0.12em;margin:0 0 0.8rem 0;
+      ">🌙 오늘 별과 띠가 함께 전하는 말</p>
+      <p style="
+        font-size:15.5px;line-height:2.05;color:#374151;
+        margin:0 0 1.1rem 0;word-break:keep-all;font-weight:500;
+      ">{ending_insight}</p>
+      <p style="
+        font-size:14px;line-height:1.95;color:#6d28d9;
+        margin:0 0 1.6rem 0;word-break:keep-all;
+      ">{ending_bridge}</p>
+      <p style="
+        font-size:11px;color:#9ca3af;
+        letter-spacing:0.14em;margin:0 0 0.5rem 0;font-weight:600;
+      ">오늘 단 하나만 한다면</p>
+      <p style="
+        font-size:17px;font-weight:800;color:#4c1d95;
+        word-break:keep-all;line-height:1.6;margin:0 0 1.6rem 0;
+      ">❝ {ending_action} ❞</p>
     </div>
     <div class="novel-footer">{closing}</div>
 """ if show_ending else ''
@@ -4080,13 +4006,13 @@ def build_omnibus_post(today_str: str) -> tuple:
     <div class="novel-part">{part_label} · {part_name}</div>
     <div class="novel-rule">&middot; &middot; &middot;</div>
     {opening_html}
-    <div class="novel-body">
+    <div style="font-size:14.5px;line-height:1.95;color:#374151;word-break:keep-all;background:none">
 {story_html}
     </div>
     <div class="novel-rule">&middot; &middot; &middot;</div>
     {ending_html}
   </div>
-  <button id="savebtn-{card_id}" class="save-btn" onclick="saveFortuneCard('{card_id}', '별과띠가만나는시간_{part_label}_{today_str}')">📸 이미지 저장</button>
+  {f'<button id="savebtn-{card_id}" class="save-btn" onclick="saveFortuneCard(\'{card_id}\', \'별과띠가만나는시간_{part_label}_{today_str}\')">📸 이미지 저장</button>' if show_ending else ''}
   <div style="margin:24px 0 8px 0"></div>
 """
 
