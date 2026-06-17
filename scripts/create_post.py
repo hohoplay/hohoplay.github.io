@@ -1528,7 +1528,7 @@ def comment_prompt(post_type='general'):
         ),
         'chinese': (
             "오늘 띠 운세가 맞으셨나요?",
-            "같은 띠라도 오늘 어떤 하루를 보내셨는지 댓글로 남겨주시면 다음 운세에 참고하겠습니다."
+            "같은 띠라도 오늘 어떤 하루를 보내셨는지 댓글로 남겨주시면 다음 운세에 참고하겠습니다. 나의 별자리와 띠 조합이 궁금하시다면 별과띠가만나는시간도 함께 살펴보세요."
         ),
         'weekly': (
             "이번 주 흐름이 맞으셨나요?",
@@ -3124,7 +3124,6 @@ def build_chinese_post(c, today_str):
   {comment_prompt("chinese")}
   <div class="meta"><p>{c['kr']} 출생연도: {', '.join(map(str, c['years']))}</p>
     <p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
-  {comment_prompt("omnibus")}
 {site_link()}
 </div>"""
     return title, content, ["띠운세", c['kr'], "운세", "오늘운세"]
@@ -4179,6 +4178,7 @@ def build_omnibus_post(today_str: str) -> tuple:
     <div class="tag-cloud">{tag_html}</div>
   </div>
 
+  {comment_prompt("omnibus")}
   {site_link()}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매일 업데이트</div>
 </div>"""
