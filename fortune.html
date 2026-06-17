@@ -6481,25 +6481,36 @@ ${info.usage}`;
 
     // ── 카드 단독 의미 — meaning 키워드를 자연스러운 문장으로 가공 (마이너 아르카나용) ──
     function tCardMeaningSentence(card) {
-      // 역방향이어도 정방향 의미를 기반으로 서술 — 부정적 키워드 노출 방지
+      // 항상 upright_meaning 기반 — 부정 키워드 노출 방지
       const raw = card.upright_meaning || card.reversed_meaning || '';
-      const words = raw.split(/[\s,·]+/).filter(Boolean);
-      if (words.length === 0) return `${card.card_name_ko}의 기운이 흐르고 있어요`;
-      // 형용사형(~인, ~운, ~는, ~로운) 단어는 뒤 단어와 묶어서 명사구로
-      function isAdjForm(w) { return /[인운는른]$/.test(w); }
-      let picked = [];
-      for (let i = 0; i < words.length && picked.length < 2; i++) {
-        if (isAdjForm(words[i]) && words[i+1]) {
-          picked.push(words[i] + ' ' + words[i+1]);
-          i++;
-        } else {
-          picked.push(words[i]);
-        }
+      const words = raw.split(/\s+/).filter(w => w && !w.endsWith('의'));
+      if (!words.length) return `${card.card_name_ko}의 기운이 흐르고 있어요`;
+
+      // 형용사형 어미 감지 (한/된/진/운/는/른/로운/스러운 등)
+      // "의지력", "행운" 같은 명사는 제외하고 순수 형용사형만 처리
+      function isAdj(w) {
+        return /(?:한|된|진|로운|스러운|스런|러운)$/.test(w) && w.length > 1;
       }
-      const phrase = picked.length >= 2
-        ? `${picked[0]}${_hasJongseong(picked[0])?"과":"와"} ${picked[1]}의 기운`
-        : `${picked[0]}의 기운`;
-      const subj = `${phrase}${_hasJongseong(phrase)?"이":"가"}`;
+
+      // 형용사+명사 → 명사만 추출, 명사는 그대로
+      function extractNoun(arr, startIdx) {
+        if (startIdx >= arr.length) return [null, startIdx];
+        if (isAdj(arr[startIdx]) && startIdx+1 < arr.length) {
+          return [arr[startIdx+1], startIdx+2]; // 형용사 건너뛰고 명사 사용
+        }
+        return [arr[startIdx], startIdx+1];
+      }
+
+      const [n1, next1] = extractNoun(words, 0);
+      const [n2]        = extractNoun(words, next1);
+
+      if (!n1) return `${card.card_name_ko}의 기운이 흐르고 있어요`;
+
+      const phrase = n2
+        ? `${n1}${_hasJongseong(n1)?'과':'와'} ${n2}의 기운`
+        : `${n1}의 기운`;
+      const subj = `${phrase}${_hasJongseong(phrase)?'이':'가'}`;
+
       return card.isReversed
         ? `${subj} 아직 충분히 펼쳐지지 못하고 내면에서 조용히 익어가고 있어요`
         : `${subj} 지금 가장 중심에서 작용하고 있어요`;
@@ -6563,11 +6574,11 @@ ${info.usage}`;
 
       // ── 핵심 조언 — 현재/미래 카드 키워드 + 슈트 기반으로 생성 ──
       const ACTION_BY_SUIT = {
-        major:     '오늘은 직감이 이끄는 방향을 한 번 믿어보세요.',
-        wands:     '오늘 가장 마음이 끌리는 방향으로 작게 한 발짝 움직여봐요.',
-        cups:      '오늘 소중한 사람에게 먼저 다가가거나, 자신의 감정을 솔직하게 꺼내봐요.',
-        swords:    '오늘은 머릿속 복잡한 생각 중 하나를 정리하는 데만 집중해봐요.',
-        pentacles: '오늘 잘 되고 있는 현실적인 부분 하나를 먼저 확인하고 다음 걸음을 내딛어봐요.',
+        major:     '직감이 이끄는 방향을 한 번 믿어봐요.',
+        wands:     '가장 마음이 끌리는 방향으로 작게 한 발짝 움직여봐요.',
+        cups:      '소중한 사람에게 먼저 다가가거나, 자신의 감정을 솔직하게 꺼내봐요.',
+        swords:    '머릿속 복잡한 생각 중 하나를 정리하는 데만 집중해봐요.',
+        pentacles: '잘 되고 있는 현실적인 부분 하나를 먼저 확인하고 다음 걸음을 내딛어봐요.',
       };
       const CONCLUSION_BY_SUIT = {
         major:     '지금 이 흐름 안에 이미 답이 있을 거예요.',
