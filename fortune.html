@@ -5273,9 +5273,9 @@ ${info.usage}`;
             var uniqueSuitsM = new Set(suits3m);
             var patternWarnM = '';
             if (uniqueSuitsM.size === 1) {
-                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. ' + mbti + '의 성향과 맞물려 이 방향으로 더 깊이 빠져들기 쉬우니, 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
+                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, 세 장 모두 같은 성격의 에너지가 쏠릴 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
             } else if (uniqueSuitsM.size === 3) {
-                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ' + kP + '에서 ' + kC + ', 그리고 ' + kF + '으로 매 단계 에너지가 급격하게 바뀌고 있어요. ' + mbti + ' 성향상 이 모든 흐름을 혼자 완벽하게 감당하려는 경향이 있을 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>';
+                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, ' + kP + '에서 ' + kC + ', 그리고 ' + kF + '으로 매 단계 급격하게 교차하는 에너지 속에서 모든 흐름을 혼자 감당하려다 보면 쉽게 지칠 수 있어요. 조금은 숨을 고를 필요가 있어요.</p>';
             }
 
             // ── MBTI 결론 — synthesis_text 첫 줄의 "MBTI인 당신은" 중복 제거 ──
@@ -5298,57 +5298,49 @@ ${info.usage}`;
                 ? '<p style="margin-top:.8rem;font-size:.83rem;color:#a090dd;font-style:italic;line-height:1.8">덧붙이자면, ' + revNote + '</p>'
                 : '';
 
-            // ━━━━ 산문 HTML 조립 ━━━━
+            // ━━━━ 산문 HTML 조립 (설계도 반영) ━━━━
             return `
-              <div style="padding:.3rem 0 .8rem;text-align:center">
-                <p style="font-size:.92rem;font-weight:700;color:#f0e8d8;line-height:1.8">
-                  [${kP} ➡️ ${kC} ➡️ ${kF}] 에너지가 함께 움직이는 흐름이 보여요
-                </p>
-                <p style="font-size:.8rem;color:#9b8fb0;margin-top:.25rem">
-                  <strong style="color:#c9a84c">${mbti}</strong>(${coreTrait})의 성향과 맞물려,
-                  과거의 <strong style="color:#c9a84c">${kP}</strong>적인 흐름에서
-                  현재의 <strong style="color:#f97316">${kC}</strong>을 거쳐
-                  미래의 <strong style="color:#a78bfa">${kF}</strong>의 여정으로 나아가고 있어요.
-                </p>
-              </div>
+              <div style="font-size:.9rem;line-height:2.1;color:#e0d5f0;padding:.2rem 0">
 
-              <div style="font-size:.88rem;line-height:2;color:#e0d5f0;padding:.3rem .1rem">
+                <p style="font-size:.93rem;font-weight:700;color:#f0e8d8;line-height:1.8;text-align:center;margin-bottom:1.3rem">
+                  [${kP} ➡️ ${kC} ➡️ ${kF}] 에너지의 흐름 속에서,
+                  <strong style="color:#c9a84c">${mbti}</strong> 특유의 통찰이 빛을 발하는 시기예요
+                </p>
+
                 <p>돌이켜보면 당신의 <strong style="color:#c9a84c">과거</strong>는
                   <strong>${pC.nameKo}</strong> 카드가 보여주듯
                   ${cardNarr(pC)}.
+                  ${mbtiHint ? mbtiHint + ' 그 기운이 자연스럽게 이어져' : ''}
                   ${pSents[0] ? pSents[0] : ''}
                   ${bridge1}.
                 </p>
 
-                <p style="margin-top:.9rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의
-                  당신에게는 <strong>${cC.nameKo}</strong> 카드의 기운이 작동하고 있어요.
+                <p style="margin-top:1rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의 당신에게는
+                  <strong>${cC.nameKo}</strong> 카드가 중심을 잡고 있네요.
                   ${cardNarr(cC)}.
-                  ${mbtiHint ? mbtiHint : ''}
                   ${cSents[0] ? cSents[0] : ''}
-                  ${bridge2}.
+                  상황을 한 걸음 물러서서 조율해 나간다면, ${bridge2}.
                 </p>
 
-                <p style="margin-top:.9rem">이 흐름이 이어져 마주할 <strong style="color:#a78bfa">미래</strong>에는
-                  <strong>${fC.nameKo}</strong> 카드가 기다리고 있어요.
+                <p style="margin-top:1rem">이 흐름이 이어져 마주할 <strong style="color:#a78bfa">미래</strong>에는
+                  <strong>${fC.nameKo}</strong> 카드가 당신을 기다리고 있어요.
                   ${cardNarr(fC)}.
                   ${fC.isRev
                     ? '서두르지 않아도 때가 되면 자연스럽게 펼쳐질 거예요.'
                     : '지금 이 흐름을 믿고 한 걸음씩 나아가다 보면, 자연스럽게 이 방향으로 이어질 거예요.'}
                   ${fSents[0] ? fSents[0] : ''}
                 </p>
+
+                ${patternWarnM}
+
+                <p style="margin-top:1rem">${mbtiConclusion}</p>
+
+                <p style="margin-top:1rem">
+                  <strong style="color:#4ade80">오늘만큼은,</strong> ${actionAdvice}
+                </p>
+
+                ${revLine}
               </div>
-
-              ${patternWarnM}
-
-              <p style="margin-top:1.2rem;line-height:2;color:#e0d5f0">
-                ${mbtiConclusion}
-              </p>
-
-              <p style="margin-top:1rem;line-height:2;color:#e0d5f0">
-                <strong style="color:#4ade80">오늘은,</strong> ${actionAdvice}
-              </p>
-
-              ${revLine}
             `;
         }
 
@@ -5765,31 +5757,37 @@ ${info.usage}`;
             var actionDream = stages.action || '';
 
             dreamProse = `
-              <div style="font-size:.9rem;line-height:2;color:#e0d5f0;padding:.3rem .1rem">
+              <div style="font-size:.9rem;line-height:2.1;color:#e0d5f0;padding:.2rem 0">
 
-                <p style="font-size:.93rem;font-weight:700;color:#c4b5fd;line-height:1.8;margin-bottom:1rem">
-                  ${headDream}
+                <p style="font-size:.93rem;font-weight:700;color:#c4b5fd;line-height:1.8;margin-bottom:1.2rem">
+                  당신의 무의식이 보내온 비밀스러운 신호, 마음에 가만히 귀를 기울여 보세요
                 </p>
 
-                ${symbolLine ? `<p style="margin-bottom:1rem">${symbolLine}</p>` : ''}
+                ${symbolLine ? `<p style="margin-bottom:1rem">
+                  무의식 속에 선명하게 남은 ${symbolLine}
+                </p>` : ''}
 
-                ${bodyDeep ? `<p style="margin-bottom:1rem">${bodyDeep}</p>` : ''}
+                ${bodyDeep ? `<p style="margin-bottom:1rem">
+                  당신의 현재 심리 상태와 맞물려 보면, ${bodyDeep}
+                </p>` : ''}
 
-                ${bodyMbtiLink ? `<p style="margin-bottom:1rem;line-height:2;color:#e0d5f0">
-                  <strong style="color:#a78bfa">${_mbtiDreamMbti}</strong>인 당신에게 이 꿈은,
-                  ${bodyMbtiLink.replace(new RegExp(_mbtiDreamMbti + '인 당신은?\\s*'), '당신은 ').replace(new RegExp('^' + _mbtiDreamMbti + '[은는]\\s*'), '')}
+                ${bodyMbtiLink ? `<p style="margin-bottom:1rem">
+                  <strong style="color:#a78bfa">${_mbtiDreamMbti}</strong>인 당신에게 이 꿈은 더욱 특별한 의미로 다가와요.
+                  ${bodyMbtiLink.replace(new RegExp(_mbtiDreamMbti + '인\\s*당신은?\\s*'), '당신은 ').replace(new RegExp('^' + _mbtiDreamMbti + '[은는]\\s*'), '')}
                 </p>` : ''}
 
                 ${alertDream ? `<p style="margin:1rem 0;line-height:2;color:#fca5a5">
-                  다만 ${alertDream}
+                  다만 주의해야 할 점은, ${alertDream}
                 </p>` : ''}
 
                 ${actionDream ? `<p style="margin-top:1rem;line-height:2;color:#e0d5f0">
-                  <strong style="color:#4ade80">오늘은</strong> ${actionDream.replace(/^오늘[은,\s]+/, '')}
+                  <strong style="color:#4ade80">오늘 행동 지침:</strong>
+                  오늘은 ${actionDream.replace(/^오늘[은,\s]+/, '')}
                 </p>` : ''}
 
               </div>
             `;
+
         } else {
             dreamProse = '<div style="font-size:.88rem;color:#e8e0f0;line-height:2;padding:.5rem .1rem">' + mbtiText + '</div>';
         }
@@ -6481,9 +6479,9 @@ ${info.usage}`;
       const uniqueSuits = new Set(suits3);
       let patternWarning = '';
       if (uniqueSuits.size === 1) {
-        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지라, 지금 이 방향으로 너무 깊이 빠져들면 시야가 좁아질 수 있어요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
+        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. 한 가지 방향으로만 에너지가 흐를 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
       } else if (uniqueSuits.size === 3) {
-        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 매 단계 에너지가 급격하게 바뀌고 있어요. 서로 다른 성격의 흐름을 모두 혼자 감당하려다 보면 지치기 쉬우니, 조금은 숨을 고를 필요가 있어요.</p>`;
+        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 매 단계 에너지가 급격하게 바뀌고 있어요. 매 단계 급격하게 교차하는 에너지 속에서 모든 흐름을 혼자 완벽하게 감당하려다 보면 마음이 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>`;
       }
 
       // ── 핵심 조언 — 현재/미래 카드 키워드 + 슈트 기반으로 생성 ──
@@ -6509,7 +6507,7 @@ ${info.usage}`;
       const revCards = tDrawnCards.filter(c => c.isReversed);
       const revNote  = revCards.length > 0
         ? `<p style="margin-top:1rem;font-size:.86rem;color:#c4b0e0;font-style:italic;line-height:1.9">
-            덧붙이자면, ${revCards.map(c=>`<strong style="font-style:normal">${c.card_name_ko}</strong>`).join(', ')} 카드가 역방향으로 나왔어요. 나쁜 신호가 아니에요. 그 에너지가 억눌린 게 아니라, 아직 안에서 익어가는 중이라는 뜻이에요. 억지로 끌어내지 않아도 때가 되면 자연스럽게 드러날 거예요.
+            덧붙이자면, 오늘 역방향 카드가 나타난 부분은 흐름이 잠시 숨을 고르고 있다는 신호이니 너무 걱정하지 마세요. 에너지를 안으로 모으는 과정일 뿐이랍니다.
           </p>`
         : '';
 
@@ -6517,43 +6515,37 @@ ${info.usage}`;
       //  산문 HTML 조립 — 하나의 흐르는 이야기로
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       return `
-        <div style="padding:.4rem 0 1rem;text-align:center">
-          <p style="font-size:.95rem;font-weight:700;color:#f0e8d8;line-height:1.8">
+        <div style="font-size:.9rem;line-height:2.1;color:#e0d5f0;padding:.2rem 0">
+
+          <p style="font-size:.95rem;font-weight:700;color:#f0e8d8;line-height:1.8;text-align:center;margin-bottom:1.3rem">
             ${headlineSeq}
           </p>
-          <p style="font-size:.82rem;color:#9b8fb0;margin-top:.3rem">
-            당신의 삶은 <strong style="color:#c9a84c">과거</strong>의 ${kPast}적인 흐름에서
-            현재의 <strong style="color:#f97316">${kPres}</strong>을 거쳐,
-            미래의 <strong style="color:#a78bfa">${kFuture}</strong>의 여정으로 나아가고 있어요.
-          </p>
-        </div>
 
-        <div style="font-size:.9rem;line-height:2;color:#e0d5f0;padding:.4rem .2rem">
           <p>돌이켜보면 당신의 <strong style="color:#c9a84c">과거</strong>는
             <strong>${past.emoji||'🃏'} ${past.card_name_ko}</strong> 카드가 보여주듯
             ${pastNarr}. ${bridge1}.
           </p>
 
           <p style="margin-top:1rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의 당신에게는
-            <strong>${present.emoji||'🃏'} ${present.card_name_ko}</strong> 카드의 기운이 작동하고 있어요.
-            ${presentNarr}. ${bridge2}.
+            <strong>${present.emoji||'🃏'} ${present.card_name_ko}</strong> 카드가 중심을 잡고 있네요.
+            ${presentNarr}. 상황을 한 걸음 물러서서 바라본다면, ${bridge2}.
           </p>
 
           <p style="margin-top:1rem">이 흐름이 이어져 마주할 <strong style="color:#a78bfa">미래</strong>에는
-            <strong>${future.emoji||'🃏'} ${future.card_name_ko}</strong> 카드가 기다리고 있어요.
+            <strong>${future.emoji||'🃏'} ${future.card_name_ko}</strong> 카드가 당신을 기다리고 있어요.
             ${futureNarr}. ${future.isReversed
               ? '서두르지 않아도 때가 되면 자연스럽게 펼쳐질 거예요.'
               : '지금 이 흐름을 믿고 한 걸음씩 나아가다 보면, 자연스럽게 이 방향으로 이어질 거예요.'}
           </p>
+
+          ${patternWarning}
+
+          <p style="margin-top:1rem">
+            그러니 <strong style="color:#4ade80">오늘만큼은,</strong> ${coreAdvice}
+          </p>
+
+          ${revNote}
         </div>
-
-        ${patternWarning}
-
-        <p style="margin-top:1.2rem;line-height:2;color:#e0d5f0">
-          그러니 <strong style="color:#4ade80">오늘은,</strong> ${coreAdvice}
-        </p>
-
-        ${revNote}
       `;
     }
 
