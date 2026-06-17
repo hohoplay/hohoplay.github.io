@@ -2696,7 +2696,7 @@ def build_zodiac_post(z, today_str):
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
   <p style="font-size:15px;line-height:2.1;color:#374151;
-            font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">
+            margin:0 0 1.4em 0;word-break:keep-all">
     💭 {empathy}
   </p>
 
@@ -2706,19 +2706,19 @@ def build_zodiac_post(z, today_str):
     <p style="margin:0 0 1.4em 0">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}<br>
     {_para(0)}</p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{lb}</h2>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa">{lb}</h2>
 
     <p style="margin:0 0 1.4em 0">{love_intro}<br>
     {_para(2)}<br>
     <span style="font-size:13px;color:#9f1239">{love_detail}</span></p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{mb}</h2>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa">{mb}</h2>
 
     <p style="margin:0 0 1.4em 0">{money_intro}<br>
     {_para(3)}<br>
     <span style="font-size:13px;color:#78350f">{money_detail}</span></p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{wb}</h2>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa">{wb}</h2>
 
     <p style="margin:0 0 1.4em 0">{work_intro}<br>
     {_para(4)}<br>
@@ -2730,13 +2730,13 @@ def build_zodiac_post(z, today_str):
 
   <div style="background:none;padding:0;margin:0">
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
-              word-break:keep-all;font-style:italic">{pick_human_bridge(kst_day, "zodiac", _zq.get("category","인생"))}</p>
+              word-break:keep-all">{pick_human_bridge(kst_day, "zodiac", _zq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">
       오늘 이 흐름에 어울리는 말
     </p>
     <p style="font-size:15px;line-height:2.0;color:#1f2937;
               font-weight:500;margin:0 0 6px;word-break:keep-all;
-              font-style:italic">"{_zq["quote"]}"</p>
+              ">"{_zq["quote"]}"</p>
     <p style="font-size:12px;color:#9d8bc7;margin:0 0 1.2rem">
       — {_zq["author"]} ({_zq["profession"]})
     </p>
@@ -2745,9 +2745,9 @@ def build_zodiac_post(z, today_str):
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
               margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
-              font-style:italic;word-break:keep-all">{_ze[1]}</p>
+              word-break:keep-all">{_ze[1]}</p>
     <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all;font-style:italic">{pick_farewell_bridge(kst_day, "daily")}</p>
+              word-break:keep-all">{pick_farewell_bridge(kst_day, "daily")}</p>
   </div>
 
 </div>'''
@@ -3031,7 +3031,7 @@ def build_chinese_post(c, today_str):
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
   <p style="font-size:15px;line-height:2.1;color:#374151;
-            font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">
+            margin:0 0 1.4em 0;word-break:keep-all">
     💭 {empathy}
   </p>
 
@@ -3042,13 +3042,13 @@ def build_chinese_post(c, today_str):
 
     <p style="margin:0 0 1.4em 0;font-size:14px;color:#6b7280">{_low_tip}</p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b;font-style:italic">{tyb}</h2>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b">{tyb}</h2>
 
     <div style="margin:0 0 1.4em 0">
       {year_section_html}
     </div>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b;font-style:italic">{tcb}</h2>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b">{tcb}</h2>
 
     <p style="margin:0 0 1.4em 0">
       <span style="font-weight:700;color:#065f46">{best_compat[1]} {best_compat[0]}</span>의 경우,
@@ -3062,13 +3062,13 @@ def build_chinese_post(c, today_str):
 
   <div style="background:none;padding:0;margin:0">
     <p style="font-size:13px;color:#9a7b4f;margin:0 0 1.2rem;
-              word-break:keep-all;font-style:italic">{pick_human_bridge(kst_day, "chinese", _cq.get("category","인생"))}</p>
+              word-break:keep-all">{pick_human_bridge(kst_day, "chinese", _cq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9a7b4f;margin:0 0 0.4rem;word-break:keep-all">
       오늘 이 흐름에 어울리는 말
     </p>
     <p style="font-size:15px;line-height:2.0;color:#1f2937;
               font-weight:500;margin:0 0 6px;word-break:keep-all;
-              font-style:italic">"{_cq["quote"]}"</p>
+              ">"{_cq["quote"]}"</p>
     <p style="font-size:12px;color:#9a7b4f;margin:0 0 1.2rem">
       — {_cq["author"]} ({_cq["profession"]})
     </p>
@@ -3079,9 +3079,9 @@ def build_chinese_post(c, today_str):
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
               margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;
-              font-style:italic;word-break:keep-all">{_ce[1]}</p>
+              word-break:keep-all">{_ce[1]}</p>
     <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all;font-style:italic">{pick_farewell_bridge(kst_day, "daily")}</p>
+              word-break:keep-all">{pick_farewell_bridge(kst_day, "daily")}</p>
   </div>
 
 </div>'''
@@ -3307,9 +3307,9 @@ def build_zodiac_weekly_post(today_str):
               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
     <p style="font-size:15px;line-height:2.1;color:#374151;
-              font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
+              margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
 
-    <h2 style="margin:0 0 0.5em 0;font-size:13px;font-weight:500;color:#a78bfa;font-style:italic">{tfb}</h2>
+    <h2 style="margin:0 0 0.5em 0;font-size:13px;font-weight:500;color:#a78bfa">{tfb}</h2>
     <p style="margin:0 0 1.6em 0">{fortune}</p>
 
     <p style="margin:1.4em 0 0.4em;font-size:14px;font-weight:700;color:#e11d48">❤️ 관계</p>
@@ -3324,7 +3324,7 @@ def build_zodiac_weekly_post(today_str):
     <p style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#16a34a">💪 건강</p>
     <p style="margin:0 0 1.6em 0">{area_health}</p>
 
-    <p style="margin:0 0 0.5em 0;font-size:13px;color:#a78bfa;font-style:italic">이번 주 {z['kr']}이 집중해야 할 것입니다.</p>
+    <p style="margin:0 0 0.5em 0;font-size:13px;color:#a78bfa">이번 주 {z['kr']}이 집중해야 할 것입니다.</p>
     <p style="margin:0 0 1.4em 0">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
     {compat_tip_html_w}
 
@@ -3340,20 +3340,20 @@ def build_zodiac_weekly_post(today_str):
     <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day+2, mode='weekly')}</p>
 
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
-              word-break:keep-all;font-style:italic">{pick_human_bridge(kst_day, "weekly", _wq.get("category","인생"))}</p>
+              word-break:keep-all">{pick_human_bridge(kst_day, "weekly", _wq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">이 흐름에 어울리는 속담</p>
     <p style="font-size:17px;line-height:1.9;color:#1f2937;
               font-weight:500;margin:0 0 6px;word-break:keep-all;
-              font-style:italic">"{_wq["proverb"]}"</p>
+              ">"{_wq["proverb"]}"</p>
     <p style="font-size:13px;line-height:1.9;color:#6d28d9;
               margin:0 0 1.6rem;word-break:keep-all">{_wq["meaning"]}</p>
 
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
               margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
-              font-style:italic;word-break:keep-all">{_we[1]}</p>
+              word-break:keep-all">{_we[1]}</p>
     <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all;font-style:italic">{pick_farewell_bridge(kst_day, "weekly")}</p>
+              word-break:keep-all">{pick_farewell_bridge(kst_day, "weekly")}</p>
 
   </div>
 
@@ -3567,7 +3567,7 @@ def build_chinese_monthly_post(today_str):
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
   <p style="font-size:15px;line-height:2.1;color:#374151;
-            font-style:italic;margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
+            margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
 
   <div style="font-size:15px;line-height:2.1;color:#374151;
                word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
@@ -3575,11 +3575,11 @@ def build_chinese_monthly_post(today_str):
     <p style="margin:0 0 1.4em 0">{headline}<br>
     {sympathy}</p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed;font-style:italic">{tpb}</h2>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed">{tpb}</h2>
 
     <p style="margin:0 0 1.4em 0">{period_html}</p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed;font-style:italic">{tmb}</h2>
+    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed">{tmb}</h2>
 
     <p style="margin:0 0 1.4em 0">{trait}</p>
 
@@ -3598,11 +3598,11 @@ def build_chinese_monthly_post(today_str):
 
   <div style="background:none;padding:0;margin:0">
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
-              word-break:keep-all;font-style:italic">{pick_human_bridge(_month_seed, "monthly", _mq.get("category","인생"))}</p>
+              word-break:keep-all">{pick_human_bridge(_month_seed, "monthly", _mq.get("category","인생"))}</p>
     <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">이 흐름에 어울리는 속담</p>
     <p style="font-size:17px;line-height:1.9;color:#1f2937;
               font-weight:500;margin:0 0 6px;word-break:keep-all;
-              font-style:italic">"{_mq["proverb"]}"</p>
+              ">"{_mq["proverb"]}"</p>
     <p style="font-size:13px;line-height:1.9;color:#6d28d9;
               margin:0 0 0.8rem;word-break:keep-all">{_mq["meaning"]}</p>
     <p style="font-size:13px;line-height:1.9;color:#78350f;
@@ -3611,9 +3611,9 @@ def build_chinese_monthly_post(today_str):
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
               margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
-              font-style:italic;word-break:keep-all">{_me[1]}</p>
+              word-break:keep-all">{_me[1]}</p>
     <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all;font-style:italic">{pick_farewell_bridge(_month_seed, "monthly")}</p>
+              word-break:keep-all">{pick_farewell_bridge(_month_seed, "monthly")}</p>
   </div>
 
 </div>'''
@@ -3947,7 +3947,7 @@ def build_omnibus_post(today_str: str) -> tuple:
                 f'<p style="font-size:13px;line-height:1.9;color:#374151;margin:0 0 6px;word-break:keep-all">'
                 f'{reason}</p>'
                 f'<p style="font-size:13px;line-height:1.9;color:#6d28d9;margin:0;'
-                f'font-style:italic;word-break:keep-all">→ {action}</p>'
+                f'word-break:keep-all">→ {action}</p>'
                 f'</div>'
             )
         else:
@@ -4170,7 +4170,7 @@ def build_omnibus_post(today_str: str) -> tuple:
   <!-- 오늘의 한 마디 -->
   <div class="card" style="margin-top:12px">
     <span class="badge">💬 오늘의 한 마디</span>
-    <p style="font-size:14px;line-height:1.85;color:#6b7280;font-style:italic;margin-top:8px">{quote_clean}</p>
+    <p style="font-size:14px;line-height:1.85;color:#6b7280;margin-top:8px">{quote_clean}</p>
   </div>
 
   <!-- SEO 키워드 -->
