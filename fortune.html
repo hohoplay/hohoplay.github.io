@@ -5338,8 +5338,7 @@ ${info.usage}`;
                   ${pC.isRev
                     ? '그 에너지가 충분히 드러나지 못한 채 안에 쌓여온 만큼,'
                     : '그 기운이 자연스럽게 이어져,'}
-                  ${bridge1}.
-                </p>
+                  ${bridge1.replace(/\.+$/, '')}.</p>
 
                 <p style="margin-top:1rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의 당신에게는
                   <strong>${cC.nameKo}</strong> 카드가 중심을 잡고 있네요.
@@ -5347,7 +5346,7 @@ ${info.usage}`;
                   ${mbtiHint ? mbtiHint : ''}
                   ${cC.isRev
                     ? '안쪽에서 익어가는 만큼, 억지로 드러내려 하기보다 흐름을 지켜보는 것이 자연스러워요.'
-                    : '상황을 한 걸음 물러서서 조율해 나간다면, ' + bridge2 + '.'}
+                    : '상황을 한 걸음 물러서서 조율해 나간다면, ' + bridge2.replace(/\.+$/, '') + '.'}
                 </p>
 
                 <p style="margin-top:1rem">이 흐름이 이어져 마주할 <strong style="color:#a78bfa">미래</strong>에는
@@ -6507,20 +6506,23 @@ ${info.usage}`;
       const words = raw.split(/\s+/).filter(w => w && !w.endsWith('의'));
       if (!words.length) return `${card.card_name_ko}의 기운이 흐르고 있어요`;
 
-      // 형용사형 어미 감지 (한/된/진/운/는/른/로운/스러운 등)
-      // "의지력", "행운" 같은 명사는 제외하고 순수 형용사형만 처리
+      // 형용사형 어미 감지 (한/된/진/로운/스러운 + 적으로 끝나는 형용사)
       function isAdj(w) {
-        return /(?:한|된|진|로운|스러운|스런|러운)$/.test(w) && w.length > 1;
+        return /(?:한|된|진|로운|스러운|스런|러운|적)$/.test(w) && w.length > 1;
       }
 
-      // 형용사+명사 → 명사만 추출, 명사는 그대로
+      // 연속된 형용사 모두 건너뛰고 명사 추출
       function extractNoun(arr, startIdx) {
-        if (startIdx >= arr.length) return [null, startIdx];
-        if (isAdj(arr[startIdx]) && startIdx+1 < arr.length) {
-          return [arr[startIdx+1], startIdx+2]; // 형용사 건너뛰고 명사 사용
-        }
-        return [arr[startIdx], startIdx+1];
+        let i = startIdx;
+        while (i < arr.length && isAdj(arr[i])) i++;
+        if (i >= arr.length) return [null, startIdx + 1];
+        return [arr[i], i + 1];
       }
+
+      // 부정적 첫 키워드 카드 (정방향이어도 중립 표현)
+      const NEG_FIRST = new Set(['배신','속임','공포','패배','갈등','비통','손실','붕괴',
+        '상실','슬픔','분노','저항','혼란','불안','위협','억압','파괴','절망',
+        '고통','착취','제한','제약','비탄','후회','악몽','외상','종말']);
 
       const [n1, next1] = extractNoun(words, 0);
       const [n2]        = extractNoun(words, next1);
@@ -6532,9 +6534,13 @@ ${info.usage}`;
         : `${n1}의 기운`;
       const subj = `${phrase}${_hasJongseong(phrase)?'이':'가'}`;
 
-      return card.isReversed
-        ? `${subj} 아직 충분히 펼쳐지지 못하고 내면에서 조용히 익어가고 있어요`
-        : `${subj} 지금 가장 중심에서 작용하고 있어요`;
+      if (card.isReversed) {
+        return `${subj} 아직 충분히 펼쳐지지 못하고 내면에서 조용히 익어가고 있어요`;
+      } else if (NEG_FIRST.has(n1)) {
+        return `${subj} 이 자리에서 중요한 신호로 작용하고 있어요`;
+      } else {
+        return `${subj} 지금 가장 중심에서 작용하고 있어요`;
+      }
     }
 
     // 카드 한 줄 설명 — 메이저는 서사형 데이터, 마이너는 의미 가공 문장
@@ -6632,7 +6638,7 @@ ${info.usage}`;
 
           <p>돌이켜보면 당신의 <strong style="color:#c9a84c">과거</strong>는
             <strong>${past.emoji||'🃏'} ${past.card_name_ko}</strong> 카드가 보여주듯
-            ${pastNarr}. ${past.isReversed ? '그 에너지가 충분히 드러나지 못한 채 안에 쌓여온 만큼,' : '그 기운이 지금까지 자연스럽게 이어져,'} ${bridge1}.
+            ${pastNarr}. ${past.isReversed ? '그 에너지가 충분히 드러나지 못한 채 안에 쌓여온 만큼,' : '그 기운이 지금까지 자연스럽게 이어져,'} ${bridge1.replace(/\.+$/, '')}.
           </p>
 
           <p style="margin-top:1rem">이러한 흐름 위에서 <strong style="color:#f97316">현재</strong>의 당신에게는
@@ -6640,7 +6646,7 @@ ${info.usage}`;
             ${presentNarr}. ${present.isReversed
               ? '안쪽에서 익어가는 만큼, 억지로 드러내려 하기보다 지금은 흐름을 지켜보는 것이 더 자연스러워요.'
               : '상황을 한 걸음 물러서서 바라본다면,'}
-            ${present.isReversed ? '' : bridge2 + '.'}
+            ${present.isReversed ? '' : bridge2.replace(/\.+$/, '') + '.'}
           </p>
 
           <p style="margin-top:1rem">이 흐름이 이어져 마주할 <strong style="color:#a78bfa">미래</strong>에는
