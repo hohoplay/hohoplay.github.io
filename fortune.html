@@ -6208,7 +6208,7 @@ ${info.usage}`;
       document.getElementById('tarot-draw-btn').disabled = false;
     }
 
-    function tDrawCards() {
+    async function tDrawCards() {
       if(!tQuestion || !tDeck.length) return;
       // ── 카드 뽑기 로딩 ──
       const _drawBtn = document.getElementById('tarot-draw-btn');
@@ -6216,6 +6216,8 @@ ${info.usage}`;
       // 로딩 중 광고 슬롯 표시
       const _tarotResultArea = document.getElementById('tarot-result-area');
       if(_tarotResultArea){ _tarotResultArea.style.display='block'; _tarotResultArea.innerHTML='<div style="text-align:center;padding:24px 16px 8px"><span style="display:inline-block;width:24px;height:24px;border:3px solid rgba(120,60,200,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:8px"></span><span style="color:#9b8fb0;font-size:14px">카드를 섞는 중...</span></div>' + getLoadingAdHTML(); }
+      // CSV 먼저 로드 후 카드 렌더 (해석 텍스트가 카드 안에 포함되므로 미리 로드 필요)
+      await Promise.all([loadTarotReadings(), loadTarotBridge()]);
       setTimeout(function(){
         tRevealedCount = 0;
         const pool = tShuffle(tDeck);
@@ -6240,8 +6242,30 @@ ${info.usage}`;
     function renderTarotCards() {
       const row = document.getElementById('tarot-cards-row');
       if(!row) return;
+      const posHints = [
+        { label:'🌱 과거 자리', hint:'이 에너지가 지금 당신이 서 있는 자리를 만들어왔어요.' },
+        { label:'🔥 현재 자리', hint:'지금 이 순간 가장 강하게 작용하고 있는 에너지예요.' },
+        { label:'🌟 미래 자리', hint:'앞으로 흘러갈 방향에 이 에너지가 기다리고 있어요.' },
+      ];
+      const revPosNotes = [
+        '과거에 이 에너지가 억눌리거나 충분히 발현되지 못했을 수 있어요. 그 흔적이 지금까지 이어진 거예요.',
+        '지금 이 에너지가 안으로 향하고 있어요. 겉보다 내면에서 크게 움직이고 있는 시기예요.',
+        '아직 완전히 열리지 않은 가능성이에요. 억지로 끌어당기지 않아도 때가 되면 자연스럽게 펼쳐져요.',
+      ];
       row.innerHTML = tDrawnCards.map((card,i) => {
         const pos = T_POS[i];
+        const ph  = posHints[i];
+        const meaning = card.isReversed ? card.reversed_meaning : card.upright_meaning;
+        const intro = T_CARD_INTRO[card.card_name_ko] || `${card.card_name_ko}은(는) ${(meaning||'').split(' ')[0]}의 에너지를 담은 카드예요.`;
+        const readingText = getTarotReading(card.card_name_ko, tQuestion, card.isReversed, i);
+        const revNote = card.isReversed ? revPosNotes[i] : '';
+        const readingHTML = `
+          <div style="margin-top:.6rem;text-align:left;width:100%">
+            <div style="font-size:.72rem;color:#c9a84c;font-weight:700;margin-bottom:.3rem">${ph.label} — ${ph.hint}</div>
+            <div style="font-size:.82rem;color:#e0d5c4;line-height:1.85">${intro}</div>
+            ${readingText ? `<div style="font-size:.8rem;color:#e0d5c4;line-height:1.85;margin-top:.4rem">${readingText}</div>` : ''}
+            ${revNote ? `<div style="font-size:.78rem;color:#a090dd;margin-top:.4rem;font-style:italic">${revNote}</div>` : ''}
+          </div>`;
         return `
           <div>
             <div class="tarot-pos-label">${pos.labelKo} · ${pos.label}</div>
@@ -6258,6 +6282,7 @@ ${info.usage}`;
                   <span class="tarot-dir ${card.isReversed?'t-rev':'t-up'}">${card.isReversed?'🔄 역방향':'✨ 정방향'}</span>
                   <div class="tarot-keywords">${card.keywords||''}</div>
                 </div>
+                ${readingHTML}
               </div>
             </div>
           </div>`;
@@ -6315,62 +6340,11 @@ ${info.usage}`;
       const area = document.getElementById('tarot-result-area');
       if(!area) return;
       area.style.display = 'block';
-      area.innerHTML = '<div style="text-align:center;padding:24px;color:#9b8fb0"><span style="display:inline-block;width:20px;height:20px;border:2px solid rgba(201,168,76,.25);border-top-color:#c9a84c;border-radius:50%;animation:tspin 1s linear infinite;vertical-align:middle;margin-right:8px"></span>카드 해석을 불러오는 중...</div>';
 
-      // CSV 단락 해석 사전 로드
-      await Promise.all([loadTarotReadings(), loadTarotBridge()]);
-
-      // 카드 해석 3장 — 위치별 앵글 차별화 + CSV 단락 해석
-      const posAngleTarot = [
-        { label: '🌱 과거 자리', hint: '이 에너지가 지금 당신이 서 있는 자리를 만들어왔어요.' },
-        { label: '🔥 현재 자리', hint: '지금 이 순간 가장 강하게 작용하고 있는 에너지예요.' },
-        { label: '🌟 미래 자리', hint: '앞으로 흘러갈 방향에 이 에너지가 기다리고 있어요.' }
-      ];
-      const cardHTML = tDrawnCards.map((card,i) => {
-        const pos = T_POS[i];
-        const meaning = card.isReversed ? card.reversed_meaning : card.upright_meaning;
-        const intro = T_CARD_INTRO[card.card_name_ko] || `${card.card_name_ko}은(는) ${(meaning||'').split(' ')[0]}의 에너지를 담은 카드예요.`;
-        const readingText = getTarotReading(card.card_name_ko, tQuestion, card.isReversed, i);
-        const posHint = posAngleTarot[i];
-        // 역방향 위치별 추가 멘트
-        const revPosNote = card.isReversed ? [
-          '과거에 이 에너지가 억눌리거나 충분히 발현되지 못했을 수 있어요. 그 흔적이 지금까지 이어진 거예요.',
-          '지금 이 에너지가 안으로 향하고 있어요. 겉보다 내면에서 크게 움직이고 있는 시기예요.',
-          '아직 완전히 열리지 않은 가능성이에요. 억지로 끌어당기지 않아도 때가 되면 자연스럽게 펼쳐져요.'
-        ][i] : '';
-        const readingBlock = `
-          <div style="font-size:11px;color:#c9a84c;font-weight:700;margin:.5rem 0 .3rem">${posHint.label} — ${posHint.hint}</div>
-          ${readingText
-            ? `<div style="background:rgba(201,168,76,.06);border-left:2px solid rgba(201,168,76,.35);border-radius:0 10px 10px 0;padding:.75rem 1rem;font-size:.83rem;color:#e0d5c4;line-height:1.9">${readingText}</div>`
-            : ''}
-          ${revPosNote
-            ? `<div style="font-size:.8rem;color:#a090dd;background:rgba(100,80,180,.08);border-left:2px solid rgba(160,120,220,.4);padding:.5rem .8rem;border-radius:0 8px 8px 0;margin-top:.5rem">${revPosNote}</div>`
-            : ''}`;
-        return `
-          <div class="tarot-interp-box">
-            <div class="tcib-pos-row">
-              <span>${pos.icon}</span>
-              <span class="tcib-pos-label">${pos.labelKo} 자리 · ${pos.label}</span>
-            </div>
-            <div class="tcib-pos-desc">${pos.desc}</div>
-            <div class="tcib-card-title">
-              <span style="font-size:1.2rem">${card.emoji||'🃏'}</span>
-              <span class="tcib-card-name">${card.card_name_ko} <em class="tcib-card-name-en">${card.card_name}</em></span>
-              <span class="tcib-dir-badge ${card.isReversed?'rev':'up'}">${card.isReversed?'🔄 역방향':'✨ 정방향'}</span>
-            </div>
-            <div class="tcib-intro">${intro}</div>
-            ${readingBlock}
-          </div>`;
-      }).join('');
-
-      // 통합 해석
+      // 통합 해석 생성
       const integrated = tLocalInterpretation();
 
       area.innerHTML = `
-        <div style="margin-top:.5rem">
-          <div class="tarot-section-title">🌙 카드 해석</div>
-          ${cardHTML}
-        </div>
         <div style="margin-top:1rem">
           <div class="tarot-section-title">✨ 통합 해석</div>
           <div class="tarot-integrated">${integrated}</div>
