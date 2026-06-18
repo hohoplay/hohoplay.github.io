@@ -6092,12 +6092,24 @@ ${info.usage}`;
           1: { 연애: '지금 관계 안에서 ', 직장: '지금 업무에서 ', 일반: '지금 이 순간 ' },
           2: { 연애: '앞으로 관계에서 ', 직장: '앞으로 커리어에서 ', 일반: '앞으로 다가올 때 ' },
         }[idx][cat];
-        const revMark = isReversed ? ' 역방향으로 안을 향하는 에너지예요.' : '';
 
         return `<span style="color:#b8a8d8;font-size:.82em">${posPrefix}${isReversed ? '역방향' : '정방향'} — </span>${empathy} ${flow} ${detail} <strong style="color:#c9a84c">${conclusion}</strong> <em style="color:#9b8fb0;font-size:.92em">${action}</em>`;
       }
 
-      // 78장 외 카드 폴백
+      // CARD_STORIES 없는 마이너 카드 → TAROT_READINGS_MAP(CSV) 사용
+      const dir = isReversed ? '역방향' : '정방향';
+      const csvText = TAROT_READINGS_MAP[nameKo+'|'+cat+'|'+dir]
+                   || TAROT_READINGS_MAP[nameKo+'|일반|'+dir] || '';
+      if (csvText) {
+        const posPrefix2 = {
+          0: { 연애: '관계의 배경에서 ', 직장: '커리어 기반에서 ', 일반: '지나온 시간에서 ' },
+          1: { 연애: '지금 관계 안에서 ', 직장: '지금 업무에서 ', 일반: '지금 이 순간 ' },
+          2: { 연애: '앞으로 관계에서 ', 직장: '앞으로 커리어에서 ', 일반: '앞으로 다가올 때 ' },
+        }[idx][cat];
+        return `<span style="color:#b8a8d8;font-size:.82em">${posPrefix2}${dir} — </span>${csvText}`;
+      }
+
+      // 최종 폴백 (CSV도 없는 경우)
       const keywords2 = meaning.split(/[\s,、]+/).filter(k => k.length > 1).slice(0, 3).join(' · ');
       const posIntro = ['이 에너지가 지금 당신을 만들어온 배경에 있어요.', '이 에너지가 지금 강하게 작용하고 있어요.', '이 에너지가 앞으로 찾아올 흐름이에요.'][idx];
       return `${posIntro} ${isReversed ? '아직 내면에서 익고 있는 가능성이에요.' : '이 흐름을 알아채고 따라가보세요.'} 핵심은 <strong>${keywords2}</strong>예요.`;
