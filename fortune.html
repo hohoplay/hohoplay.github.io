@@ -360,11 +360,16 @@ ${info.usage}`;
             }
             // ── 구 구조: fc-text 클래스 div ──
             const m = raw.match(/<div[^>]*class="fc-text"[^>]*>([\s\S]*?)<\/div>/);
-            if (!m) return null;
-            return m[1]
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<[^>]+>/g, '')
-                .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+            if (m) {
+                const t = m[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim();
+                if (t) return t;
+            }
+            // ── 최종 fallback: 전체 raw에서 <p> 태그 수집 ──
+            const fallParts = [...raw.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
+                .map(m => m[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim())
+                .filter(t => t.length > 15);
+            if (fallParts.length > 0) return fallParts.slice(0, 4).join('\n\n');
+            return null;
         }
 
         // ── 타입 2: 띠 오늘운세 ──
@@ -430,8 +435,13 @@ ${info.usage}`;
             const parts = [...scope.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
                 .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim())
                 .filter(Boolean);
-            if (!parts.length) return null;
-            return parts.join('\n\n');
+            if (parts.length) return parts.join('\n\n');
+            // ── 최종 fallback: 전체 raw <p> 수집 ──
+            const wFall = [...raw.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
+                .map(m => m[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim())
+                .filter(t => t.length > 15);
+            if (wFall.length > 0) return wFall.slice(0, 4).join('\n\n');
+            return null;
         }
 
         // ── 타입 4: 띠 월간운세 (v2 구조) ──
@@ -480,6 +490,19 @@ ${info.usage}`;
             const syM = raw.match(/지금 이런 느낌이라면[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/);
             if (syM) sympathy = strip(syM[1]);
 
+            // ── 최종 fallback: headline 미파싱 시 fc-text 또는 <p> 수집 ──
+            if (!headline) {
+                const fcM2 = raw.match(/<div[^>]*class="fc-text"[^>]*>([\s\S]*?)<\/div>/);
+                if (fcM2) {
+                    headline = fcM2[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim();
+                }
+                if (!headline) {
+                    const pFall = [...raw.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
+                        .map(m => m[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim())
+                        .filter(t => t.length > 15);
+                    if (pFall.length) headline = pFall[0];
+                }
+            }
             return { headline, reasons, periods, luckyVals, sympathy };
         }
 
