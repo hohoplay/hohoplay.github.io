@@ -5317,15 +5317,25 @@ ${info.usage}`;
                 .replace(/됩니다\./g, '돼요.')
                 .replace(/있습니다\./g, '있어요.')
                 .replace(/없습니다\./g, '없어요.')
+                .replace(/입니다\./g, '이에요.')
+                .replace(/겠습니다\./g, '겠어요.')
+                .replace(/줍니다\./g, '줘요.')
+                .replace(/갑니다\./g, '가요.')
                 .replace(/합니다$/g, '해요')
                 .replace(/됩니다$/g, '돼요')
                 .replace(/있습니다$/g, '있어요')
+                .replace(/입니다$/g, '이에요')
+                .replace(/겠습니다$/g, '겠어요')
                 .replace(/말합니다\./g, '말해요.')
                 .replace(/것입니다\./g, '거예요.')
                 .replace(/보세요\./g, '봐요.')
                 .replace(/보세요$/g, '봐요')
+                .replace(/가세요\./g, '가봐요.')
+                .replace(/가세요$/g, '가봐요')
                 .replace(/하세요\./g, '해봐요.')
-                .replace(/하세요$/g, '해봐요');
+                .replace(/하세요$/g, '해봐요')
+                .replace(/나아가세요\./g, '나아가봐요.')
+                .replace(/나아가세요$/g, '나아가봐요');
 
             // ── 핵심 조언 ──
             // reading_text 마지막 "오늘~" 문장을 actionAdvice로 사용 (오늘 제거)
@@ -5385,13 +5395,28 @@ ${info.usage}`;
                 <p style="margin-top:1rem">${mbtiConclusion
                   .replace(/합니다\./g, '해요.')
                   .replace(/됩니다\./g, '돼요.')
+                  .replace(/있습니다\./g, '있어요.')
+                  .replace(/없습니다\./g, '없어요.')
                   .replace(/입니다\./g, '이에요.')
-                  .replace(/하세요\./g, '해봐요.')
-                  .replace(/보세요\./g, '봐요.')
+                  .replace(/겠습니다\./g, '겠어요.')
+                  .replace(/줍니다\./g, '줘요.')
+                  .replace(/갑니다\./g, '가요.')
+                  .replace(/합니다$/g, '해요')
+                  .replace(/됩니다$/g, '돼요')
+                  .replace(/있습니다$/g, '있어요')
+                  .replace(/입니다$/g, '이에요')
+                  .replace(/겠습니다$/g, '겠어요')
+                  .replace(/말합니다\./g, '말해요.')
                   .replace(/것입니다\./g, '거예요.')
                   .replace(/줄 것입니다\./g, '줄 거예요.')
-                  .replace(/됩니다$/g, '돼요')
-                  .replace(/입니다$/g, '이에요')
+                  .replace(/보세요\./g, '봐요.')
+                  .replace(/보세요$/g, '봐요')
+                  .replace(/가세요\./g, '가봐요.')
+                  .replace(/가세요$/g, '가봐요')
+                  .replace(/하세요\./g, '해봐요.')
+                  .replace(/하세요$/g, '해봐요')
+                  .replace(/나아가세요\./g, '나아가봐요.')
+                  .replace(/나아가세요$/g, '나아가봐요')
                 }</p>
 
                 <p style="margin-top:1rem">
@@ -6014,16 +6039,26 @@ ${info.usage}`;
         if(!res.ok) throw new Error('bridge CSV 없음');
         const rawText = await res.text();
         const lines = rawText.trim().split('\n');
+        const headers = lines[0].split(',').map(h=>h.trim());
+        // 컬럼 인덱스 동적 감지
+        const iA   = headers.indexOf('card_a');
+        const iB   = headers.indexOf('card_b');
+        const iPos = headers.indexOf('position_pair');
+        const iDirA= headers.indexOf('dir_a');
+        const iDirB= headers.indexOf('dir_b');
+        const iTxt = headers.indexOf('bridge_text');
         lines.slice(1).forEach(line => {
-          const cols = []; let cur='', inQ=false;
-          for(let i=0;i<line.length;i++){
-            if(line[i]==='\"'){inQ=!inQ;}
-            else if(line[i]===',' && !inQ){cols.push(cur);cur='';}
-            else{cur+=line[i];}
-          }
-          cols.push(cur);
-          const [cardA, cardB, pos, dirA, dirB, text] = cols.map(c=>c.trim());
-          if(cardA&&cardB&&pos&&dirA&&dirB&&text)
+          if(!line.trim()) return;
+          // bridge_text에 쉼표가 있을 수 있으므로 앞 5컬럼만 split, 나머지는 join
+          const parts = line.split(',');
+          const cardA = (parts[iA]||'').trim();
+          const cardB = (parts[iB]||'').trim();
+          const pos   = (parts[iPos]||'').trim();
+          const dirA  = (parts[iDirA]||'').trim();
+          const dirB  = (parts[iDirB]||'').trim();
+          // bridge_text는 iTxt 이후 나머지를 합침
+          const text  = parts.slice(iTxt).join(',').trim().replace(/^"|"$/g,'');
+          if(cardA && cardB && pos && dirA && dirB && text)
             TAROT_BRIDGE_MAP[`${cardA}|${cardB}|${pos}|${dirA}|${dirB}`] = text;
         });
         tBridgeLoaded = true;
