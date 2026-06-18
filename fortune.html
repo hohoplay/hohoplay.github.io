@@ -958,7 +958,7 @@ ${info.usage}`;
         // 별자리 오늘 운세: 라벨을 '별자리운세' 대신 별자리명(e.g. '양자리')으로 조회
         // → 해당 별자리 포스트만 반환되므로 maxResults 초과 누락 문제 완전 해결
         async function fetchFortunePost(label, name) {
-            return fetchByLabelAndTitle(name,
+            return fetchByLabelAndTitle(label,
                 [name, kstYear()+'년', kstMonth()+'월', kstDay()+'일', '오늘의 운세']);
         }
         async function fetchChinesePost(label, name) {
