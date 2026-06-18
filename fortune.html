@@ -1,10 +1,4 @@
 <script>
-        if (typeof BLOG_ID === 'undefined') {
-            var BLOG_ID  = '5608603268556826697';
-            var API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
-            var BASE_URL = 'https://www.googleapis.com/blogger/v3';
-        }
-
         const RATINGS  = ['★★★☆☆','★★★★☆','★★★★★','★★☆☆☆','★★★★☆'];
         const COLORS   = ['골드','라벤더','민트그린','스카이블루','코랄','퍼플','로즈핑크','버건디',
                           '웜그레이','화이트','딥블루','오렌지','그린'];
@@ -6794,15 +6788,4 @@ ${info.usage}`;
         delete btn._origDisabled;
     }
 
-    // ── SPA 연동: window에 전역 노출 ──
-    window.showFortune       = showFortune;
-    window.selectZodiac      = selectZodiac;
-    window.selectChinese     = selectChinese;
-    window.selectZodiacWeekly   = selectZodiacWeekly;
-    window.selectChineseMonthly = selectChineseMonthly;
-    window.fortuneReady = true;
-    if (window._pendingFortune) {
-        window._pendingFortune();
-        window._pendingFortune = null;
-    }
 </script>
