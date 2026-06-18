@@ -564,6 +564,19 @@ def _to_formal(text):
         (r'거든요\b', '습니다'), (r'잖아요\b', '습니다'),
         (r'네요\b', '습니다'), (r'해요\b', '합니다'),
         (r'있어요\b', '있습니다'), (r'없어요\b', '없습니다'),
+        (r'지쳐요\.', '지칩니다.'), (r'지쳐요\b', '지칩니다'),
+        (r'힘들어요\.', '힘듭니다.'), (r'힘들어요\b', '힘듭니다'),
+        (r'어려워요\.', '어렵습니다.'), (r'어려워요\b', '어렵습니다'),
+        (r'좋아요\.', '좋습니다.'), (r'좋아요\b', '좋습니다'),
+        (r'맞아요\.', '맞습니다.'), (r'맞아요\b', '맞습니다'),
+        (r'이에요\.', '입니다.'), (r'이에요\b', '입니다'),
+        # 추가 구어체 패턴
+        (r'살아있어요\.', '살아있습니다.'), (r'살아있어요\b', '살아있습니다'),
+        (r'폭발해요\.', '폭발합니다.'), (r'폭발해요\b', '폭발합니다'),
+        (r'날카로워요\.', '날카롭습니다.'), (r'날카로워요\b', '날카롭습니다'),
+        (r'최고예요\.', '최고입니다.'), (r'최고예요\b', '최고입니다'),
+        (r'남아요\.', '남습니다.'), (r'남아요\b', '남습니다'),
+        (r'달라요\.', '다릅니다.'), (r'달라요\b', '다릅니다'),
     ]
     for pattern, replacement in fixes:
         text = re.sub(pattern, replacement, text)
@@ -1074,7 +1087,17 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
     """별자리×띠 한 쌍의 연결 문단 생성"""
     parts = []
 
-    # CSV에서 온 텍스트는 격식체로 보정
+    def _clean(text, subject):
+        """주어 이중 반복 제거 + 구어체 후처리"""
+        if not text:
+            return text
+        text = _to_formal(text)
+        # "OO자리는 OO자리는" / "OO띠는 OO띠는" 패턴 제거
+        import re as _re
+        text = _re.sub(rf'{re.escape(subject)}[은는이가]\s*', '', text, count=1)
+        return text.strip()
+
+    # CSV에서 온 텍스트 격식체 보정
     z_contact_reason = _to_formal(z_contact_reason) if z_contact_reason else z_contact_reason
     c_peak_tip = _to_formal(c_peak_tip) if c_peak_tip else c_peak_tip
     c_low_tip  = _to_formal(c_low_tip)  if c_low_tip  else c_low_tip
@@ -1091,15 +1114,18 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
     if theme:
         parts.append(f"오늘은 '{theme}'이 두 사람을 이어주는 키워드입니다.")
 
-    # 추가 정보 (컨디션 팁 등) — 짝수 인덱스에만 덧붙여 다양성 확보 (시간대 표기 제거)
+    # 추가 정보 — 주어 중복 방지 처리
     if idx % 2 == 0:
         if z_contact_reason:
-            parts.append(f"{z_kr}는 오늘 {z_contact_reason}")
+            reason = _clean(z_contact_reason, z_kr)
+            parts.append(f"{z_kr}는 오늘 {reason}")
         if c_peak_tip:
-            parts.append(f"{c_kr}는 오늘 {c_peak_tip}")
+            tip = _clean(c_peak_tip, c_kr)
+            parts.append(f"{c_kr}는 오늘 {tip}")
     else:
         if c_low_tip:
-            parts.append(f"{c_kr}는 오늘 {c_low_tip}")
+            tip = _clean(c_low_tip, c_kr)
+            parts.append(f"{c_kr}는 오늘 {tip}")
         if z_compatible:
             parts.append(f"{z_kr}와 잘 맞는 별자리는 {z_compatible}입니다.")
 
@@ -2757,8 +2783,6 @@ def build_zodiac_post(z, today_str):
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
 
-  <!-- 이미지 저장 카드 (fortune.html 파싱용) -->
-  {image_card_html}
 
   <!-- 운세 지수 바 (fortune.html 연동용) -->
   {score_html}
@@ -3089,8 +3113,7 @@ def build_chinese_post(c, today_str):
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
 
-  <!-- 이미지 저장 카드 (fortune.html 파싱용) -->
-  {image_card_html}
+  <!-- 이미지 저장 카드 -->
 
   <!-- score_html (fortune.html 연동) -->
   {score_html}
@@ -3606,8 +3629,6 @@ def build_chinese_monthly_post(today_str):
 
   {story_html}
 
-  <!-- 이미지 저장 카드 (fortune.html 파싱용) -->
-  {image_card_html}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
