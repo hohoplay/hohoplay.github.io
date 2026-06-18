@@ -5573,7 +5573,7 @@ ${info.usage}`;
                 + '</p>'
                 + '<p style="font-size:13px;color:#d4c9ec;line-height:1.85;margin-bottom:8px">'
                 + '<span style="color:#9b8fb0;font-size:11px">' + synthData.present_prefix + '</span> '
-                + '<strong style="color:#e8c96a">' + presentCard + '</strong>이(가) 현재를 말해주고 있습니다.'
+                + '<strong style="color:#e8c96a">' + presentCard + '</strong>' + (presentCard && presentCard[presentCard.length-1] && (presentCard.charCodeAt(presentCard.length-1)-0xAC00)%28 !== 0 ? '이' : '가') + ' 현재를 말해주고 있어요.'
                 + '</p>'
                 + '<p style="font-size:13px;color:#d4c9ec;line-height:1.85;margin-bottom:12px">'
                 + '<span style="color:#9b8fb0;font-size:11px">' + synthData.future_prefix + ' </span>'
@@ -6447,7 +6447,7 @@ ${info.usage}`;
       const cardDetailHTML = tDrawnCards.map((card,i) => {
         const ph = posHints[i];
         const meaning = card.isReversed ? card.reversed_meaning : card.upright_meaning;
-        const intro = T_CARD_INTRO[card.card_name_ko] || `${card.card_name_ko}은(는) ${(meaning||'').split(' ')[0]}의 에너지를 담은 카드예요.`;
+        const intro = T_CARD_INTRO[card.card_name_ko] || `${card.card_name_ko}${_hasJongseong(card.card_name_ko)?'은':'는'} ${(meaning||'').split(' ')[0]}의 에너지를 담은 카드예요.`;
         const readingText = getTarotReading(card.card_name_ko, tQuestion, card.isReversed, i);
         const revNote = card.isReversed ? revPosNotes[i] : '';
         return `
