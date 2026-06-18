@@ -2757,6 +2757,8 @@ def build_zodiac_post(z, today_str):
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
 
+  <!-- 이미지 저장 카드 (fortune.html 파싱용) -->
+  {image_card_html}
 
   <!-- 운세 지수 바 (fortune.html 연동용) -->
   {score_html}
@@ -3087,7 +3089,8 @@ def build_chinese_post(c, today_str):
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
 
-  <!-- 이미지 저장 카드 -->
+  <!-- 이미지 저장 카드 (fortune.html 파싱용) -->
+  {image_card_html}
 
   <!-- score_html (fortune.html 연동) -->
   {score_html}
@@ -3603,6 +3606,8 @@ def build_chinese_monthly_post(today_str):
 
   {story_html}
 
+  <!-- 이미지 저장 카드 (fortune.html 파싱용) -->
+  {image_card_html}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
