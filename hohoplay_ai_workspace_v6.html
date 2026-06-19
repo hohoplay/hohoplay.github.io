@@ -79,6 +79,12 @@
         @supports (height: 100dvh) {
             #app-body { height: 100dvh; }
         }
+
+        /* 토스트 알림 */
+        @keyframes toastIn  { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+        @keyframes toastOut { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(16px);} }
+        .toast-in  { animation: toastIn  .3s ease-out forwards; }
+        .toast-out { animation: toastOut .3s ease-in  forwards; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 overflow-hidden flex flex-col" id="app-body">
@@ -126,9 +132,9 @@
                 <button onclick="switchLeftMobileTab('log')" id="left-mobile-tab-log" class="text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 transition-all">📋 로그</button>
             </div>
             <div class="hidden md:flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg p-0.5 shrink-0" title="업무 진행 방식 선택">
-                <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">⚡ 기본</button>
-                <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🎬 페이싱</button>
-                <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🔗 멀티스텝</button>
+                <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">⚡ 토론 기본</button>
+                <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🎬 토론 심화</button>
+                <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🔗 토론 풀버전</button>
                 <span id="map-error-tag" class="items-center gap-1 hidden ml-1">
                     <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block"></span>
                     <span class="text-rose-400">버그 발생</span>
@@ -139,9 +145,9 @@
         <!-- 모바일 전용: 업무 진행 모드 선택 (채팅 입력창 공간 확보용) -->
         <div class="flex md:hidden items-center justify-center gap-1 bg-slate-950 border-b border-slate-800 px-2 py-1.5 shrink-0">
             <span class="text-[9px] text-slate-500 mr-1 shrink-0">진행방식</span>
-            <button onclick="setWorkMode('basic')" id="workmode-basic-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">⚡ 기본</button>
-            <button onclick="setWorkMode('paced')" id="workmode-paced-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">🎬 페이싱</button>
-            <button onclick="setWorkMode('multistep')" id="workmode-multistep-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">🔗 멀티스텝</button>
+            <button onclick="setWorkMode('basic')" id="workmode-basic-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">⚡ 토론 기본</button>
+            <button onclick="setWorkMode('paced')" id="workmode-paced-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">🎬 토론 심화</button>
+            <button onclick="setWorkMode('multistep')" id="workmode-multistep-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">🔗 토론 풀버전</button>
         </div>
 
         <!-- 오피스 맵 -->
@@ -205,9 +211,6 @@
                     실시간 오피스 업무 로그
                 </span>
                 <div class="flex items-center gap-2">
-                    <button onclick="triggerSimulatedBug()" class="text-[10px] bg-rose-950/80 text-rose-300 hover:bg-rose-900 border border-rose-800/80 px-2 py-1 rounded font-bold flex items-center gap-1 transition-all">
-                        <i data-lucide="alert-circle" class="w-3 h-3"></i>⚠️ 버그 테스트
-                    </button>
                     <button onclick="clearLogs()" class="text-[10px] text-slate-500 hover:text-slate-300 transition-colors">로그 비우기</button>
                 </div>
             </div>
@@ -232,6 +235,10 @@
             <button onclick="switchTab('stats')" id="tab-btn-stats" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap">
                 <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>[4] 포트폴리오
             </button>
+            <button onclick="switchTab('site')" id="tab-btn-site" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap">
+                <i data-lucide="globe" class="w-3.5 h-3.5"></i>[5] 사이트 분석
+                <span id="site-badge" class="ml-1 px-1 py-0.5 bg-emerald-700 text-white text-[9px] rounded-full mono hidden">●</span>
+            </button>
         </div>
 
         <div class="flex-1 flex flex-col overflow-hidden">
@@ -245,10 +252,26 @@
                         <span class="text-[11px] font-bold text-slate-300">로컬 PC 파일 연동</span>
                     </div>
                     <div class="flex items-center gap-2 w-full md:w-auto">
-                        <!-- API 키 입력 -->
-                        <input type="password" id="api-key-input" placeholder="Claude API Key 입력..." 
-                            class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 flex-1 md:w-48 mono min-w-0" />
-                        <button onclick="saveApiKey()" id="api-key-btn" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">연결</button>
+                        <!-- PIN 잠금 시스템 -->
+                        <div id="pin-setup-area" class="flex items-center gap-2 w-full md:w-auto hidden">
+                            <input type="password" id="api-key-input" placeholder="Claude API Key (sk-ant-...)" 
+                                class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 flex-1 md:w-44 mono min-w-0" />
+                            <input type="password" id="pin-setup-input" placeholder="PIN 6자리" maxlength="6"
+                                class="bg-slate-900 border border-amber-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-24 mono text-center tracking-widest" />
+                            <button onclick="saveApiKeyWithPin()" id="api-key-btn" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">저장</button>
+                        </div>
+                        <div id="pin-unlock-area" class="flex items-center gap-2 w-full md:w-auto hidden">
+                            <span class="text-[10px] text-amber-400 font-bold shrink-0">🔒 PIN 입력</span>
+                            <input type="password" id="pin-input" placeholder="6자리 PIN" maxlength="6"
+                                class="bg-slate-900 border border-amber-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-28 mono text-center tracking-widest" />
+                            <button onclick="unlockWithPin()" class="bg-amber-700 hover:bg-amber-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">🔓 해제</button>
+                            <button onclick="resetPinSystem()" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors shrink-0" title="PIN 초기화 (API Key 재입력 필요)">초기화</button>
+                        </div>
+                        <div id="pin-connected-area" class="flex items-center gap-2 hidden">
+                            <span class="text-[10px] text-emerald-400 font-bold">🔓 연결됨</span>
+                            <button onclick="lockPinSystem()" class="text-[10px] text-slate-500 hover:text-amber-400 transition-colors" title="잠금">🔒 잠금</button>
+                            <button onclick="resetPinSystem()" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors" title="PIN 초기화">재설정</button>
+                        </div>
                         <button id="folder-trigger-btn" class="bg-slate-800 border border-slate-700 text-[10px] text-slate-400 px-2 py-1 rounded-lg hover:text-slate-200 flex items-center gap-1 transition-all shrink-0">
                             <i data-lucide="upload-cloud" class="w-3 h-3"></i><span class="hidden sm:inline">파일 투하</span>
                         </button>
@@ -506,6 +529,61 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ── 탭5: 사이트 분석 ── -->
+            <div id="tab-content-site" class="flex-1 flex flex-col overflow-hidden hidden">
+                <!-- 헤더 -->
+                <div class="bg-slate-950 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
+                            hohoplay.github.io 사이트 분석
+                        </h3>
+                        <p class="text-[10px] text-slate-500 mt-0.5">저장소 파일을 자동 수집 → AI 요약 → 전체 파일 기반 대화</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="site-status-chip" class="text-[10px] mono px-2 py-1 rounded-full bg-slate-800 text-slate-400">미로드</span>
+                        <button onclick="startSiteAnalysis()" id="site-load-btn" class="bg-emerald-700 hover:bg-emerald-600 text-white text-[11px] px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors">
+                            <i data-lucide="refresh-cw" class="w-3 h-3"></i>사이트 분석 시작
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 진행 상황 -->
+                <div id="site-progress-area" class="bg-slate-950 border-b border-slate-800 px-4 py-3 hidden shrink-0">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span id="site-progress-label" class="text-[11px] text-emerald-400 font-bold">분석 준비 중...</span>
+                        <span id="site-progress-pct" class="text-[10px] text-slate-500 mono">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div id="site-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <!-- 파일 목록 & 요약 -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+                    <div id="site-empty-msg" class="text-center text-slate-500 text-xs py-12">
+                        "사이트 분석 시작" 버튼을 누르면<br>hohoplay.github.io 저장소의 모든 파일을 자동으로 수집하고<br>AI가 각 파일을 요약합니다.
+                    </div>
+                    <div id="site-summary-header" class="hidden">
+                        <div class="bg-emerald-950/40 border border-emerald-800/50 rounded-xl p-3 mb-3">
+                            <h4 class="text-xs font-bold text-emerald-400 mb-1">📊 전체 사이트 개요</h4>
+                            <div id="site-overview-text" class="text-[11px] text-slate-300 leading-relaxed whitespace-pre-line"></div>
+                        </div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-[11px] font-bold text-slate-400">📄 파일별 AI 요약</h4>
+                            <div class="flex items-center gap-2">
+                                <span id="site-file-count" class="text-[10px] text-slate-500 mono"></span>
+                                <button onclick="sendSiteContextToChat()" class="text-[10px] bg-indigo-700 hover:bg-indigo-600 text-white px-2 py-1 rounded-lg font-bold transition-colors">
+                                    💬 채팅에서 분석하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="site-files-container" class="space-y-2"></div>
+                </div>
+            </div>
+
         </div>
     </section>
 </main>
@@ -630,6 +708,35 @@ let lastMode = null; // "이어서" 요청 시 직전 모드 재사용
 let workMode = 'basic'; // 'basic' | 'paced' | 'multistep' - 업무 진행 방식
 
 // lucide CDN이 차단/로드 실패해도 전체 스크립트가 멈추지 않도록 안전 래퍼
+// ═══════════════════════════════════════════════
+// 토스트 알림 시스템
+// ═══════════════════════════════════════════════
+function showToast(message, type, duration) {
+    type = type || 'error'; // 'error' | 'warning' | 'success' | 'info'
+    duration = duration || 4000;
+
+    const colors = {
+        error:   'bg-rose-950 border-rose-600 text-rose-200',
+        warning: 'bg-amber-950 border-amber-600 text-amber-200',
+        success: 'bg-emerald-950 border-emerald-600 text-emerald-200',
+        info:    'bg-indigo-950 border-indigo-600 text-indigo-200',
+    };
+    const icons = { error:'⚠️', warning:'🔔', success:'✅', info:'💡' };
+
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast-in pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-2xl text-sm font-bold ${colors[type]||colors.error}`;
+    toast.style.backdropFilter = 'blur(8px)';
+    toast.innerHTML = `<span class="text-base shrink-0">${icons[type]||'⚠️'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.remove('toast-in');
+        toast.classList.add('toast-out');
+        setTimeout(() => toast.remove(), 320);
+    }, duration);
+}
+
 function safeCreateIcons() {
     try {
         if(typeof lucide !== 'undefined' && lucide.createIcons) {
@@ -659,6 +766,7 @@ window.onload = function() {
     startRandomBubbles();
     addLog('🟢 hohoplay 가상 오피스 v6.0 정상 시동.');
     addLog('🔑 Claude API Key를 입력하여 AI 채팅을 활성화하세요.');
+    loadSiteCache(); // 사이트 분석 캐시 복원
     safeCreateIcons();
 
     const inp = document.getElementById('chat-input');
@@ -682,16 +790,17 @@ window.onload = function() {
     const ghInp = document.getElementById('github-url-input');
     ghInp.addEventListener('keydown', e => { if(e.key==='Enter') fetchGithubFile(); });
 
+    // PIN 입력란 Enter 처리
+    const pinUnlockInp = document.getElementById('pin-input');
+    if(pinUnlockInp) pinUnlockInp.addEventListener('keydown', e => { if(e.key==='Enter') unlockWithPin(); });
+    const pinSetupInp = document.getElementById('pin-setup-input');
+    if(pinSetupInp) pinSetupInp.addEventListener('keydown', e => { if(e.key==='Enter') saveApiKeyWithPin(); });
+
     const ghRepoInp = document.getElementById('github-repo-input');
     if(ghRepoInp) ghRepoInp.addEventListener('keydown', e => { if(e.key==='Enter') loadGithubRepoTree(); });
 
-    // API 키 저장 여부 확인
-    const savedKey = localStorage.getItem('hohoplay_claude_api_key');
-    if(savedKey) {
-        apiKey = savedKey;
-        setApiKeyConnectedUI();
-        updateApiStatus(true);
-    }
+    // PIN 시스템 초기화
+    initPinSystem();
 };
 
 function loadAll() {
@@ -740,51 +849,136 @@ function getDefaultMemories() {
 }
 
 // ═══════════════════════════════════════════════
-// API 관련
 // ═══════════════════════════════════════════════
-function saveApiKey() {
-    const inp = document.getElementById('api-key-input');
-    const btn = document.getElementById('api-key-btn');
+// PIN 잠금 시스템
+// ═══════════════════════════════════════════════
+const PIN_STORAGE_KEY = 'hohoplay_pin_v6';
+const PIN_ENC_KEY     = 'hohoplay_enc_v6'; // 암호화된 API Key
 
-    // "변경" 모드: 입력란을 비우고 새 키 입력 받기
-    if(btn.dataset.mode === 'change') {
-        inp.value = '';
-        inp.readOnly = false;
-        inp.type = 'password';
-        inp.placeholder = '새 Claude API Key 입력...';
-        inp.focus();
-        btn.textContent = '연결';
-        btn.dataset.mode = 'connect';
+// XOR 기반 간단 암호화 (PIN을 키로 사용)
+function xorEncrypt(text, pin) {
+    return Array.from(text).map((c,i) =>
+        String.fromCharCode(c.charCodeAt(0) ^ pin.charCodeAt(i % pin.length))
+    ).join('');
+}
+function xorDecrypt(enc, pin) { return xorEncrypt(enc, pin); } // XOR은 대칭
+
+function pinHash(pin) {
+    // 간단한 해시: PIN+salt를 반복 XOR
+    let h = 0;
+    const salt = 'hohoplay2026';
+    for(let i=0; i<pin.length+salt.length; i++) {
+        const c = (i<pin.length ? pin : salt).charCodeAt(i < pin.length ? i : i-pin.length);
+        h = ((h << 5) - h + c) & 0xffffffff;
+    }
+    return Math.abs(h).toString(36).padStart(8,'0');
+}
+
+function initPinSystem() {
+    const stored = localStorage.getItem(PIN_STORAGE_KEY);
+    if(!stored) {
+        // 최초 설정: API Key + PIN 입력 받기
+        showPinArea('setup');
+        addLog('🔑 최초 설정: Claude API Key와 6자리 PIN을 입력해 주세요.');
+    } else {
+        // PIN 등록됨: PIN 입력으로 해제
+        showPinArea('unlock');
+        addLog('🔒 PIN을 입력하면 Claude API에 자동 연결됩니다.');
+        // PIN 입력란에 자동 포커스
+        setTimeout(()=>{ const p=document.getElementById('pin-input'); if(p) p.focus(); }, 300);
+    }
+}
+
+function showPinArea(mode) {
+    document.getElementById('pin-setup-area').classList.toggle('hidden', mode!=='setup');
+    document.getElementById('pin-unlock-area').classList.toggle('hidden', mode!=='unlock');
+    document.getElementById('pin-connected-area').classList.toggle('hidden', mode!=='connected');
+}
+
+function saveApiKeyWithPin() {
+    const keyInput = document.getElementById('api-key-input');
+    const pinInput = document.getElementById('pin-setup-input');
+    const key = keyInput.value.trim();
+    const pin = pinInput.value.trim();
+
+    if(!key || !key.startsWith('sk-')) {
+        addLog('❌ 올바른 Claude API Key를 입력해 주세요. (sk-ant-...)'); return;
+    }
+    if(pin.length !== 6 || !/^\d{6}$/.test(pin)) {
+        addLog('❌ PIN은 숫자 6자리여야 합니다.'); return;
+    }
+
+    // API Key 암호화 저장
+    const encKey = btoa(xorEncrypt(key, pin));
+    localStorage.setItem(PIN_ENC_KEY, encKey);
+    localStorage.setItem(PIN_STORAGE_KEY, pinHash(pin));
+
+    // 입력란 초기화
+    keyInput.value = '';
+    pinInput.value = '';
+
+    // 연결 처리
+    apiKey = key;
+    updateApiStatus(true);
+    showPinArea('connected');
+    addLog('✅ API Key를 PIN으로 암호화 저장 완료! 다음부터는 PIN 6자리만 입력하면 됩니다.');
+}
+
+function unlockWithPin() {
+    const pinInput = document.getElementById('pin-input');
+    const pin = pinInput.value.trim();
+
+    if(pin.length !== 6 || !/^\d{6}$/.test(pin)) {
+        addLog('❌ PIN은 숫자 6자리여야 합니다.'); return;
+    }
+
+    const storedHash = localStorage.getItem(PIN_STORAGE_KEY);
+    const encKey     = localStorage.getItem(PIN_ENC_KEY);
+
+    if(!storedHash || !encKey) {
+        addLog('❌ 저장된 PIN 정보가 없습니다. 초기화 후 재설정해 주세요.');
+        resetPinSystem(); return;
+    }
+
+    if(pinHash(pin) !== storedHash) {
+        pinInput.value = '';
+        pinInput.classList.add('border-rose-500');
+        addLog('❌ PIN이 틀렸습니다. 다시 입력해 주세요.');
+        showToast('PIN이 틀렸습니다. 다시 입력해 주세요.', 'error', 3000);
+        setTimeout(()=>pinInput.classList.remove('border-rose-500'), 1500);
         return;
     }
 
-    const val = inp.value.trim();
-    if(!val || val.startsWith('••')) {
-        if(apiKey) {
-            // 기존 키가 살아있는데 빈 값으로 연결을 누른 경우 → 연결됨 UI로 복원
-            setApiKeyConnectedUI();
-            addLog('✅ 기존 API Key 유지 중.');
-            return;
-        }
-        addLog('❌ API Key를 입력해 주세요.'); return;
+    // 복호화
+    try {
+        const decrypted = xorDecrypt(atob(encKey), pin);
+        apiKey = decrypted;
+        pinInput.value = '';
+        updateApiStatus(true);
+        showPinArea('connected');
+        addLog('🔓 PIN 인증 성공! Claude API에 연결되었습니다.');
+    } catch(e) {
+        addLog('❌ 복호화 오류. PIN을 초기화해 주세요.');
+        resetPinSystem();
     }
-    apiKey = val;
-    localStorage.setItem('hohoplay_claude_api_key', apiKey);
-    setApiKeyConnectedUI();
-    updateApiStatus(true);
-    addLog('✅ Claude API Key 연결 완료!');
-    setSysText('Claude API 연결됨', '연결됨');
 }
 
-// 연결 완료 상태 UI: 입력란 마스킹+읽기전용, 버튼을 "변경"으로 전환
-function setApiKeyConnectedUI() {
-    const inp = document.getElementById('api-key-input');
-    const btn = document.getElementById('api-key-btn');
-    inp.value = '••••••••••••••••';
-    inp.readOnly = true;
-    inp.placeholder = '';
-    btn.textContent = '변경';
-    btn.dataset.mode = 'change';
+function lockPinSystem() {
+    apiKey = '';
+    updateApiStatus(false);
+    showPinArea('unlock');
+    addLog('🔒 API 연결이 잠금되었습니다. PIN을 다시 입력해 주세요.');
+    setTimeout(()=>{ const p=document.getElementById('pin-input'); if(p) { p.value=''; p.focus(); } }, 100);
+}
+
+function resetPinSystem() {
+    localStorage.removeItem(PIN_STORAGE_KEY);
+    localStorage.removeItem(PIN_ENC_KEY);
+    localStorage.removeItem('hohoplay_claude_api_key'); // 구버전 키도 삭제
+    apiKey = '';
+    updateApiStatus(false);
+    showPinArea('setup');
+    addLog('🔄 PIN이 초기화되었습니다. API Key와 새 PIN을 설정해 주세요.');
 }
 
 // 데스크탑/모바일 상태 텍스트 동시 갱신
@@ -805,6 +999,12 @@ function updateApiStatus(connected) {
         sysIndicator.className = 'w-2 h-2 rounded-full bg-slate-500 shrink-0';
     }
 }
+
+// 구버전 호환용 (참조가 남아있을 경우를 대비)
+function saveApiKey() { saveApiKeyWithPin(); }
+function setApiKeyConnectedUI() {}
+
+
 
 // ═══════════════════════════════════════════════
 // 채팅 & Claude API
@@ -830,121 +1030,172 @@ async function sendChatMessage() {
             await playGreetingSequence();
             return;
         }
-        setTimeout(()=>{
-            const fake = `[API 미연결] "${msg}"에 대한 답변을 드리려면 상단에 Claude API Key를 먼저 입력해 주세요! 🔑`;
-            appendMessage('assistant','또다른 나','👑', fake);
-            chatHistory.push({role:'assistant',content:fake});
-        },500);
+        showToast('PIN을 입력하여 Claude API에 연결해 주세요.', 'warning', 3500);
         return;
     }
 
     showTyping(true);
 
-    // 인사 모드: 전 직원 즉시 인사 (애니메이션만, API 호출 없음)
     if(mode.type === 'greeting') {
         await playGreetingSequence();
-    }
-    // 멀티스텝 모드: normal/direct 타입에 한해 실제 순차 협업 API 호출
-    else if(workMode === 'multistep' && (mode.type === 'normal' || mode.type === 'direct')) {
         showTyping(false);
-        await runMultistepWorkflow(msg, mode);
-        return; // 멀티스텝은 자체적으로 모든 후처리를 수행
+        return;
     }
-    // 회의 모드: 여러 직원이 의견 나누는 회의 시뮬레이션
-    else if(mode.type === 'meeting') {
-        triggerWorkflowAnim(msg, workMode==='paced' ? 1500 : 600);
-        if(workMode === 'paced') await sleep(4 * 1500 + 800); // 4단계 연출이 끝날 때까지 대기
+
+    // 모든 모드에서 AI 토론 방식 사용 (깊이만 다름)
+    showTyping(false);
+    await runDebateWorkflow(msg, mode, workMode);
+}
+
+// ═══════════════════════════════════════════════
+// AI 토론 워크플로우 (모든 모드 공통)
+// 직원들이 이전 발언을 읽고 서로 반응하며 결론 도출
+// ⚡ 기본: 3회 / 🎬 페이싱: 4회 / 🔗 멀티스텝: 6~7회
+// ═══════════════════════════════════════════════
+async function runDebateWorkflow(msg, mode, wMode) {
+    const participants = new Set();
+    const debateLog = []; // { staffId, name, emoji, text } - 누적 토론 내용
+    const taskSummary = msg.substring(0,60);
+
+    // ── 오피스 맵: 전 직원 회의실 집결 ──
+    activeWorkflow = msg;
+    triggerWorkflowAnim(msg, wMode==='paced' ? 1200 : 500);
+
+    // 모드별 참여 직원 순서 정의
+    // direct 모드면 호출된 직원이 마지막 최종 결론 담당
+    const directStaffId = mode.type === 'direct' ? mode.staffId : null;
+
+    const ROUNDS = {
+        basic:     ['collector', 'writer', 'coordinator'],
+        paced:     ['collector', 'writer', 'sns', 'coordinator'],
+        multistep: ['collector', 'writer', 'sns', 'intern', 'coordinator', 'collector', 'coordinator']
+    };
+
+    // 개인 호출이면: 중간에 그 직원 발언 추가하고, 마지막을 그 직원으로
+    let roundStaffs = ROUNDS[wMode] || ROUNDS.basic;
+    if(directStaffId && directStaffId !== 'coordinator') {
+        roundStaffs = ['collector', directStaffId, 'coordinator'];
+        if(wMode === 'paced')     roundStaffs = ['collector', 'writer', directStaffId, 'coordinator'];
+        if(wMode === 'multistep') roundStaffs = ['collector', 'writer', directStaffId, 'sns', directStaffId, 'coordinator'];
     }
-    // 개인 호출 모드: 특정 직원만 회의실로 호출
-    else if(mode.type === 'direct') {
-        triggerDirectCallAnim(mode.staffId);
-        if(workMode === 'paced') await sleep(2200);
-    }
-    else {
-        triggerWorkflowAnim(msg, workMode==='paced' ? 1500 : 600);
-        if(workMode === 'paced') await sleep(4 * 1500 + 800);
-    }
+
+    // 파일 컨텍스트 요약
+    const fileCtx = localFilesData.length > 0
+        ? `\n\n[참고 파일]\n${localFilesData.map(f=>`${f.name}:\n${f.content.substring(0,500)}`).join('\n---\n')}`
+        : '';
+
+    const totalSteps = roundStaffs.length;
+
+    const moveChar = (id, bubble) => {
+        if(!staffPositions[id]) return;
+        staffPositions[id].anim = 'work';
+        staffPositions[id].bubble = bubble;
+        renderCharacters();
+    };
+    const resetChar = (id) => {
+        if(!staffPositions[id]) return;
+        const s = staffState[id];
+        staffPositions[id].x = s.initialPos?.x ?? 45;
+        staffPositions[id].y = s.initialPos?.y ?? 50;
+        staffPositions[id].anim = 'float';
+        staffPositions[id].bubble = '';
+        renderCharacters();
+    };
 
     try {
-        const systemPrompt = buildSystemPrompt(mode, isContinue);
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'anthropic-version': '2023-06-01',
-                'anthropic-dangerous-direct-browser-access': 'true'
-            },
-            body: JSON.stringify({
-                model: 'claude-sonnet-4-6',
-                max_tokens: 4096,
-                system: systemPrompt,
-                messages: chatHistory.slice(-10)
-            })
-        });
+        for(let i = 0; i < roundStaffs.length; i++) {
+            const staffId = roundStaffs[i];
+            const staff = staffState[staffId];
+            if(!staff) continue;
 
-        if(!res.ok) {
-            const err = await res.json().catch(()=>({}));
-            throw new Error(err.error?.message || `HTTP ${res.status}`);
+            const pct = Math.round(((i+1)/totalSteps)*90);
+            // 진행바 업데이트
+            const bar = document.getElementById('workflow-progress-bar');
+            if(bar) bar.style.width = pct+'%';
+
+            const isLast = (i === roundStaffs.length-1);
+            const isFinalCoordinator = isLast && staffId === 'coordinator';
+
+            // 캐릭터 이동 & 타이핑 표시
+            moveChar(staffId, isLast ? '최종 결론 정리 중... 👑' : '발언 준비 중... 💬');
+            showTyping(true);
+            document.getElementById('typing-name').textContent = `${staff.name}이 발언 중...`;
+            addLog(`[${i+1}/${totalSteps}] ${staff.name} 발언 중...`);
+
+            if(wMode === 'paced') await sleep(800);
+
+            // ── 이전 토론 내용을 시스템 프롬프트에 포함 ──
+            const prevDebate = debateLog.length > 0
+                ? `\n\n[지금까지 우리 팀의 토론 내용]\n${debateLog.map(d=>`${d.name}: ${d.text}`).join('\n\n')}`
+                : '';
+
+            let roleGuide = '';
+            if(isFinalCoordinator) {
+                roleGuide = `당신은 지금까지의 팀 토론을 모두 읽고, 최종 결론과 실행 방안을 정리하는 역할입니다.
+팀원들의 모든 의견을 통합하여 대표님께 명확한 결론과 다음 행동 단계를 제시하세요.
+"[최종 결론]"으로 시작하여 작성하세요.`;
+            } else if(i === 0) {
+                roleGuide = `당신이 가장 먼저 발언합니다. 대표님의 요청에 대해 본인 역할 관점에서 핵심 분석/의견을 3~5문장으로 제시하세요.`;
+            } else {
+                roleGuide = `앞선 동료들의 의견을 읽고, 동의하거나 보완하거나 다른 관점을 추가하세요.
+"${debateLog[debateLog.length-1]?.name}님 말씀처럼..." 또는 "저는 다른 관점에서..." 같이 자연스럽게 이어가세요.
+3~5문장으로 간결하게 발언하세요.`;
+            }
+
+            const sysPrompt = `당신은 hohoplay 가상 오피스의 "${staff.name}" (${staff.emoji}, ${staff.role}, Lv.${staff.level} · ${getSeniorityLabel(staff.level)})입니다.
+${getSeniorityGuide(staff.level)}
+지금 팀 전체가 대표님의 지시에 대해 실시간으로 토론 중입니다.
+${roleGuide}
+한국어로, 1인칭으로, 자연스러운 회의 발언처럼 작성하세요.${fileCtx}${prevDebate}`;
+
+            const maxTok = isFinalCoordinator ? 1200 : (wMode==='multistep' ? 500 : 400);
+            const reply = await callClaudeAPI(sysPrompt, [{role:'user', content:msg}], maxTok);
+
+            // 발언 기록에 추가
+            debateLog.push({ staffId, name:staff.name, emoji:staff.emoji, text:reply });
+            participants.add(staffId);
+
+            showTyping(false);
+            resetChar(staffId);
+
+            // 채팅에 말풍선 출력
+            const tag = isFinalCoordinator
+                ? `<span class="text-emerald-400 text-[10px] font-bold">[최종 결론]</span> `
+                : (i===0 ? `<span class="text-indigo-400 text-[10px] font-bold">[첫 발언]</span> ` : `<span class="text-slate-500 text-[10px]">[발언 ${i+1}]</span> `);
+            appendMessage('assistant', staff.name, staff.emoji, tag + formatMarkdown(reply));
+
+            // 페이싱/멀티스텝은 발언 사이 짧은 딜레이 (사람처럼 보이게)
+            if(!isLast && wMode !== 'basic') await sleep(600);
         }
 
-        const data = await res.json();
-        const reply = data.content?.[0]?.text || '(응답 없음)';
-        const truncated = data.stop_reason === 'max_tokens';
-        chatHistory.push({role:'assistant', content:reply});
+        // ── 완료 처리 ──
+        const bar = document.getElementById('workflow-progress-bar');
+        if(bar) bar.style.width = '100%';
+        finishWorkflowAnim();
 
-        showTyping(false);
+        const finalText = debateLog[debateLog.length-1]?.text || '';
+        chatHistory.push({role:'assistant', content: finalText});
 
-        let participants = [];
+        const xpPerStaff = wMode==='multistep' ? 20 : wMode==='paced' ? 18 : 15;
+        grantXP(Array.from(participants), xpPerStaff, taskSummary);
 
-        if(mode.type === 'meeting') {
-            finishWorkflowAnim();
-            participants = renderMeetingReplies(reply);
-        } else if(mode.type === 'direct') {
-            stopDirectCallAnim(mode.staffId);
-            renderDirectReply(mode.staffId, reply);
-            participants = [mode.staffId];
-        } else if(mode.type === 'greeting') {
-            // 인사 모드는 조정자가 마무리 인사 (경험치 없음 - 단순 인사)
-            appendMessage('assistant', staffState.coordinator?.name || '또다른 나', staffState.coordinator?.emoji || '👑', formatMarkdown(reply));
-        } else {
-            finishWorkflowAnim();
-            appendMessage('assistant','또다른 나 (조정자)','👑', formatMarkdown(reply));
-            participants = ['coordinator'];
-        }
-
-        if(truncated) {
-            appendMessage('assistant','시스템','✂️', `⚠️ 답변이 길어 일부 잘렸습니다. <strong class="text-indigo-300">"이어서"</strong> 라고 입력하시면 같은 담당자가 계속 이어서 답변합니다.`);
-        }
-
-        addLog(`🤖 AI 응답 완료 (${reply.length}자)${truncated?' [잘림]':''}`);
-
-        // 경험치 지급 (실제 업무를 수행한 직원에게만 차등 지급)
-        const taskSummary = msg.substring(0, 60);
-        if(participants.length === 1) {
-            grantXP(participants, 25, taskSummary); // 개인 호출/일반 지시 - 더 큰 경험치
-        } else if(participants.length > 1) {
-            grantXP(participants, 15, taskSummary); // 회의 참여 - 분산 경험치
-        }
         stats.totalTasks++;
         saveAll();
         updateStatsUI();
+        autoSaveMemory(msg, debateLog.map(d=>`${d.name}: ${d.text}`).join('\n\n'));
 
-        // 기억 자동 저장 (항상 실행)
-        autoSaveMemory(msg, reply);
+        addLog(`✅ AI 토론 완료 - ${participants.size}명 참여, ${debateLog.length}회 발언`);
 
     } catch(e) {
         showTyping(false);
         stopWorkflowAnim();
-        const errMsg = `⚠️ API 오류: ${e.message}`;
-        appendMessage('assistant','시스템','⚠️', errMsg);
-        addLog(`❌ ${errMsg}`);
+        appendMessage('assistant','시스템','⚠️', `⚠️ 토론 중 오류: ${e.message}`);
+        addLog(`❌ AI 토론 오류: ${e.message}`);
+        showToast(`AI 토론 오류: ${e.message}`, 'error');
     }
 }
 
-// ═══════════════════════════════════════════════
-// Claude API 호출 헬퍼 (단발성, 멀티스텝에서 사용)
-// ═══════════════════════════════════════════════
+
 async function callClaudeAPI(systemPrompt, messages, maxTokens) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -1111,6 +1362,7 @@ ${draftResult}`;
         const errMsg = `⚠️ 멀티스텝 진행 중 오류: ${e.message}`;
         appendMessage('assistant','시스템','⚠️', errMsg);
         addLog(`❌ ${errMsg}`);
+        showToast(`멀티스텝 오류: ${e.message}`, 'error');
     }
 }
 
@@ -1222,9 +1474,9 @@ function onStaffToggleChange() {
 // 업무 진행 모드 (기본 / 페이싱 / 멀티스텝)
 // ═══════════════════════════════════════════════
 const WORK_MODE_LABELS = {
-    basic:      { name: '기본',     desc: '지시 즉시 1회 응답' },
-    paced:      { name: '페이싱',   desc: '단계별 연출을 천천히 보여준 뒤 1회 응답' },
-    multistep:  { name: '멀티스텝', desc: '여러 직원이 순차적으로 실제 작업 후 결과를 종합 (API 호출 여러 번, 시간/비용 증가)' }
+    basic:      { name: '기본',     desc: '3명 순차 토론 → 조정자 결론 (API 3회, 빠름)' },
+    paced:      { name: '페이싱',   desc: '4명 반론 포함 토론 → 결론 (API 4회, 중간)' },
+    multistep:  { name: '멀티스텝', desc: '전 직원 2라운드 깊은 토론 → 최종 결론 (API 7회, 깊고 느림)' }
 };
 
 function setWorkMode(mode) {
@@ -1748,7 +2000,6 @@ function triggerSimulatedBug() {
             }
         });
         renderCharacters();
-        grantXP(Object.keys(staffState), 20, '시스템 버그 협업 디버깅');
         saveAll();
         renderHRStaffList();
         setTimeout(()=>{
@@ -1776,6 +2027,7 @@ function grantXP(staffIds, xp, task) {
             staff.xp -= XP_PER_LEVEL;
             staff.level++;
             addLog(`🎉 ${staff.name} → Lv.${staff.level} 레벨업!`);
+            showToast(`🎉 ${staff.name} Lv.${staff.level} 레벨업!`, 'success', 3000);
             if(staffPositions[id]) staffPositions[id].bubble = `Lv.${staff.level} 달성! 🎉`;
             recordLevelUpMemory(id, task);
         }
@@ -2109,12 +2361,12 @@ function switchMemorySubTab(tab) {
 // 탭 전환
 // ═══════════════════════════════════════════════
 function switchTab(tabId) {
-    const tabs = ['control','memory','hr','stats'];
+    const tabs = ['control','memory','hr','stats','site'];
     tabs.forEach(t => {
         const btn  = document.getElementById('tab-btn-'+t);
         const cont = document.getElementById('tab-content-'+t);
+        if(!btn || !cont) return;
         if(t===tabId) {
-            btn.className  = btn.className.replace('tab-inactive','tab-active').replace('tab-active','tab-active'); // ensure active
             btn.classList.add('tab-active'); btn.classList.remove('tab-inactive');
             cont.classList.remove('hidden');
         } else {
@@ -2338,6 +2590,7 @@ async function fetchGithubFile() {
 
     // 모든 후보 실패
     addLog(`❌ GitHub 가져오기 실패 - 시도한 URL ${attemptResults.length}개 모두 실패`);
+    showToast('GitHub 파일 가져오기 실패. 경로/브랜치를 확인해 주세요.', 'warning');
     appendMessage('assistant','시스템','⚠️',
         `⚠️ GitHub 파일을 가져오지 못했습니다.<br><br>` +
         attemptResults.map(r=>`<code class="text-amber-300 text-[10px]">${r.url}</code><br>→ <span class="text-rose-300 text-[10px]">${r.status}</span>`).join('<br><br>') +
@@ -2602,11 +2855,234 @@ async function importSelectedGithubFiles() {
 }
 
 
-function exportWorkspaceData() {
-    const data = {
-        version: 'v6', exportDate: new Date().toISOString(),
-        staffState, staffMemories, memories, stats
+// ═══════════════════════════════════════════════
+// 사이트 분석 시스템
+// ═══════════════════════════════════════════════
+const SITE_REPO = { owner: 'hohoplay', repo: 'hohoplay.github.io', branch: 'main' };
+const SITE_CACHE_KEY = 'hohoplay_site_analysis_v6';
+const TEXT_EXTENSIONS = /\.(html|htm|js|css|json|md|txt|csv|xml|svg|yml|yaml|py)$/i;
+
+let siteAnalysisData = {
+    files: [],      // { path, name, size, content, summary, error }
+    overview: '',
+    loadedAt: null,
+};
+
+// 오피스 시작 시 캐시 복원
+function loadSiteCache() {
+    try {
+        const cached = localStorage.getItem(SITE_CACHE_KEY);
+        if(cached) {
+            siteAnalysisData = JSON.parse(cached);
+            if(siteAnalysisData.files?.length > 0) {
+                renderSitePanel();
+                document.getElementById('site-badge').classList.remove('hidden');
+                addLog(`💾 사이트 분석 캐시 복원: ${siteAnalysisData.files.length}개 파일`);
+            }
+        }
+    } catch(e) {}
+}
+
+function saveSiteCache() {
+    try { localStorage.setItem(SITE_CACHE_KEY, JSON.stringify(siteAnalysisData)); } catch(e) {}
+}
+
+// ── 분석 시작: 저장소 파일 목록 → fetch → AI 요약 ──
+async function startSiteAnalysis() {
+    if(!apiKey) {
+        addLog('❌ Claude API Key를 먼저 연결해 주세요.');
+        return;
+    }
+    const btn = document.getElementById('site-load-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i>분석 중...';
+    safeCreateIcons();
+
+    document.getElementById('site-progress-area').classList.remove('hidden');
+    document.getElementById('site-empty-msg').classList.add('hidden');
+    setSiteStatus('파일 목록 수집 중...', 'amber');
+    setSiteProgress(0, '저장소 탐색 중...');
+
+    try {
+        // 1. 저장소 전체 파일 트리 가져오기 (Git Trees API - 재귀 1회 호출)
+        const treeUrl = `https://api.github.com/repos/${SITE_REPO.owner}/${SITE_REPO.repo}/git/trees/${SITE_REPO.branch}?recursive=1`;
+        const treeRes = await fetch(treeUrl, { headers:{ 'Accept':'application/vnd.github+json' } });
+        if(!treeRes.ok) throw new Error(`저장소 접근 실패 (HTTP ${treeRes.status})`);
+        const treeData = await treeRes.json();
+
+        const textFiles = (treeData.tree || [])
+            .filter(f => f.type === 'blob' && TEXT_EXTENSIONS.test(f.path) && f.size < 200000)
+            .sort((a,b) => a.path.localeCompare(b.path));
+
+        addLog(`📂 ${textFiles.length}개 텍스트 파일 발견`);
+        setSiteProgress(5, `${textFiles.length}개 파일 발견 - 내용 다운로드 시작`);
+
+        siteAnalysisData.files = [];
+
+        // 2. 각 파일 fetch + AI 요약 (순차 처리)
+        for(let i = 0; i < textFiles.length; i++) {
+            const f = textFiles[i];
+            const pct = Math.round(5 + (i / textFiles.length) * 85);
+            setSiteProgress(pct, `[${i+1}/${textFiles.length}] ${f.path} 분석 중...`);
+
+            const rawUrl = `https://raw.githubusercontent.com/${SITE_REPO.owner}/${SITE_REPO.repo}/${SITE_REPO.branch}/${f.path}`;
+            let content = '';
+            try {
+                const r = await fetch(rawUrl, { cache:'no-store' });
+                if(r.ok) content = await r.text();
+            } catch(e) { content = ''; }
+
+            // AI 요약 (content가 있을 때만)
+            let summary = '';
+            if(content && content.length > 100) {
+                try {
+                    const sysPrompt = `당신은 hohoplay 프로젝트의 파일 분석가입니다.
+주어진 파일의 내용을 3~5줄로 핵심만 요약하세요:
+- 이 파일이 무엇인지 (역할/기능)
+- 주요 구성 요소 (핵심 함수, 컴포넌트, 설정 등)
+- 특이사항이나 개선이 필요한 부분 (있다면)
+한국어로, 간결하게 작성하세요.`;
+                    summary = await callClaudeAPI(sysPrompt,
+                        [{ role:'user', content: `파일명: ${f.path}\n\n내용(앞 3000자):\n${content.substring(0, 3000)}` }], 300);
+                } catch(e) { summary = '(요약 실패)'; }
+            }
+
+            siteAnalysisData.files.push({
+                path: f.path, name: f.path.split('/').pop(),
+                size: f.size, content, summary,
+                summarizedAt: new Date().toISOString()
+            });
+
+            // 중간 렌더
+            renderSitePanel();
+        }
+
+        setSiteProgress(95, '전체 개요 생성 중...');
+
+        // 3. 전체 개요 생성
+        const summaryList = siteAnalysisData.files
+            .filter(f=>f.summary)
+            .map(f=>`[${f.path}]\n${f.summary}`)
+            .join('\n\n');
+
+        siteAnalysisData.overview = await callClaudeAPI(
+            `당신은 hohoplay 프로젝트 전체를 파악한 분석가입니다.
+아래 파일별 요약을 읽고, 프로젝트 전체 구조와 현황을 5~8줄로 정리하세요.
+(사용 기술 스택, 주요 기능, 파일 구조의 특징, 개선 가능한 부분 등을 포함) 한국어로.`,
+            [{ role:'user', content: summaryList }], 500);
+
+        siteAnalysisData.loadedAt = new Date().toISOString();
+        saveSiteCache();
+
+        setSiteProgress(100, '분석 완료!');
+        setSiteStatus(`${siteAnalysisData.files.length}개 파일 분석 완료`, 'green');
+        document.getElementById('site-badge').classList.remove('hidden');
+
+        // AI 컨텍스트에도 요약을 추가
+        localFilesData = localFilesData.filter(f=>!f._siteAnalysis);
+        localFilesData.push({
+            name: '[사이트 분석 요약]', _siteAnalysis: true,
+            content: `=== hohoplay.github.io 전체 사이트 분석 ===\n${siteAnalysisData.overview}\n\n=== 파일별 요약 ===\n${summaryList}`
+        });
+
+        addLog(`✅ 사이트 분석 완료: ${siteAnalysisData.files.length}개 파일, 채팅에서 바로 질문 가능!`);
+        renderSitePanel();
+
+        setTimeout(()=>{ document.getElementById('site-progress-area').classList.add('hidden'); }, 2000);
+
+    } catch(e) {
+        addLog(`❌ 사이트 분석 실패: ${e.message}`);
+        showToast(`사이트 분석 실패: ${e.message}`, 'error');
+        setSiteStatus('분석 실패 - 재시도 필요', 'red');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="refresh-cw" class="w-3 h-3"></i>재분석';
+    safeCreateIcons();
+}
+
+function setSiteStatus(text, color) {
+    const chip = document.getElementById('site-status-chip');
+    const colorMap = {
+        green: 'bg-emerald-900/60 text-emerald-400 border border-emerald-700/50',
+        amber: 'bg-amber-900/60 text-amber-400 border border-amber-700/50',
+        red:   'bg-rose-900/60 text-rose-400 border border-rose-700/50',
     };
+    chip.textContent = text;
+    chip.className = `text-[10px] mono px-2 py-1 rounded-full ${colorMap[color]||'bg-slate-800 text-slate-400'}`;
+}
+
+function setSiteProgress(pct, label) {
+    document.getElementById('site-progress-bar').style.width = pct+'%';
+    document.getElementById('site-progress-label').textContent = label;
+    document.getElementById('site-progress-pct').textContent = pct+'%';
+}
+
+function renderSitePanel() {
+    const files = siteAnalysisData.files;
+    if(!files.length) return;
+
+    document.getElementById('site-summary-header').classList.remove('hidden');
+    document.getElementById('site-overview-text').textContent = siteAnalysisData.overview || '개요 생성 중...';
+    document.getElementById('site-file-count').textContent = `총 ${files.length}개 파일`;
+
+    const container = document.getElementById('site-files-container');
+    container.innerHTML = '';
+
+    files.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 hover:border-indigo-500 transition-colors cursor-pointer';
+        const ext = f.path.split('.').pop()?.toLowerCase();
+        const extColor = { html:'text-orange-400', js:'text-yellow-400', css:'text-blue-400',
+            json:'text-green-400', md:'text-purple-400' }[ext] || 'text-slate-400';
+        card.innerHTML = `
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <span class="text-[10px] font-bold mono ${extColor}">.${ext}</span>
+                        <span class="text-xs font-bold text-white truncate">${f.path}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">${f.summary || '요약 없음'}</p>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="text-[10px] text-slate-600 mono block">${formatFileSize(f.size||0)}</span>
+                    <button onclick="loadFileToChat('${f.path}')" class="text-[9px] text-indigo-400 hover:text-indigo-300 transition-colors mt-1 block">채팅에 로드</button>
+                </div>
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
+// 특정 파일 전체를 채팅 컨텍스트에 로드
+function loadFileToChat(path) {
+    const f = siteAnalysisData.files.find(f=>f.path===path);
+    if(!f || !f.content) { addLog('❌ 파일 내용 없음.'); return; }
+    localFilesData = localFilesData.filter(lf=>lf.name!==f.name||lf._siteFile);
+    localFilesData.push({ name:f.name, content:f.content, _siteFile:true });
+    const pills = document.getElementById('files-pills');
+    const listEl = document.getElementById('uploaded-files-list');
+    const pill = document.createElement('span');
+    pill.className='flex items-center gap-1 bg-indigo-900/60 border border-indigo-800/60 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full mono whitespace-nowrap';
+    pill.innerHTML=`📄 ${f.name}`;
+    pills.appendChild(pill);
+    listEl.classList.remove('hidden');
+    switchTab('control');
+    addLog(`✅ "${f.path}" → 채팅 컨텍스트에 로드 완료`);
+    appendMessage('assistant','또다른 나','👑',`📄 <strong class="text-white">${f.path}</strong>을 채팅에 로드했습니다. 이 파일에 대해 질문해 주세요!`);
+}
+
+// 전체 요약을 채팅에 보내고 분석 시작
+function sendSiteContextToChat() {
+    if(!siteAnalysisData.files.length) return;
+    switchTab('control');
+    const summaryList = siteAnalysisData.files.filter(f=>f.summary).map(f=>`[${f.path}] ${f.summary}`).join('\n');
+    const msg = `hohoplay.github.io 전체 사이트를 분석해줘.\n\n전체 개요:\n${siteAnalysisData.overview}\n\n파일별 요약:\n${summaryList}`;
+    document.getElementById('chat-input').value = msg;
+    addLog('💬 사이트 분석 컨텍스트를 채팅 입력창에 로드했습니다. 전송 버튼을 눌러주세요.');
+}
+
+
+function exportWorkspaceData() {
     const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = `hohoplay_office_backup_${new Date().toISOString().split('T')[0]}.json`;
@@ -2638,5 +3114,8 @@ function importWorkspaceData(e) {
     reader.readAsText(file);
 }
 </script>
+<!-- ══════ 토스트 알림 컨테이너 ══════ -->
+<div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center gap-2 pointer-events-none" style="width:max-content;max-width:90vw;"></div>
+
 </body>
 </html>
