@@ -4024,6 +4024,12 @@ def build_omnibus_post(today_str: str) -> tuple:
     <div class="novel-footer">{closing}</div>
 """ if show_ending else ''
 
+        save_btn_html = (
+            f'<button id="savebtn-{card_id}" class="save-btn"'
+            f' onclick="saveFortuneCard(\'{card_id}\','
+            f' \'별과띠가만나는시간_{part_label}_{today_str}\')">📸 이미지 저장</button>'
+        ) if show_ending else ''
+
         return f"""
   <div class="novel-page" id="{card_id}">
     <div class="novel-date">{today_str} · {season}</div>
@@ -4038,7 +4044,7 @@ def build_omnibus_post(today_str: str) -> tuple:
     <div class="novel-rule">&middot; &middot; &middot;</div>
     {ending_html}
   </div>
-  {f'<button id="savebtn-{card_id}" class="save-btn" onclick="saveFortuneCard(\'{card_id}\', \'별과띠가만나는시간_{part_label}_{today_str}\')">📸 이미지 저장</button>' if show_ending else ''}
+  {save_btn_html}
   <div style="margin:24px 0 8px 0"></div>
 """
 
