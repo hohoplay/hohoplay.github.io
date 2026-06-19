@@ -1973,6 +1973,13 @@ def build_quote_post(today_str):
 
     return title, content, ["오늘의명언", "위로명언", "명언", "운세", str(category)]
 
+_Z_SIGNAL_MONEY_UP   = ["금전운 상승 타이밍", "재물운 급상승", "수입 기회 포착", "금전 흐름 반전"]
+_Z_SIGNAL_LOVE_UP    = ["연애운 급변", "인연 접촉 신호", "애정운 상승 중", "관계 반전 예고"]
+_Z_SIGNAL_WARN       = ["오늘 주의 필요", "신중함이 필요한 날", "충동 결정 주의", "조심해야 할 타이밍"]
+_Z_SIGNAL_TOTAL_UP   = ["오늘 총운 최고조", "행운 기회 포착", "운세 상승 흐름 확인", "오늘 놓치면 후회"]
+_Z_SIGNAL_MID        = ["오늘 균형 잡힌 하루", "안정적 흐름 확인", "차분한 기운의 날"]
+
+
 def _zodiac_seo_title(z_kr, today_dot, total, money, health, love):
     """지수 기반 CTR 최적화 제목 생성"""
     scores = {"money": money, "love": love, "total": total, "health": health}
