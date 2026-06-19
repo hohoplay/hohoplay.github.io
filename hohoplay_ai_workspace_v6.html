@@ -131,13 +131,23 @@
                 <button onclick="switchLeftMobileTab('map')" id="left-mobile-tab-map" class="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-800 text-indigo-400 transition-all">🗺️ 오피스</button>
                 <button onclick="switchLeftMobileTab('log')" id="left-mobile-tab-log" class="text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 transition-all">📋 로그</button>
             </div>
-            <div class="hidden md:flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg p-0.5 shrink-0" title="업무 진행 방식 선택">
-                <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">⚡ 토론 기본</button>
-                <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🎬 토론 심화</button>
-                <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🔗 토론 풀버전</button>
-                <span id="map-error-tag" class="items-center gap-1 hidden ml-1">
+            <div class="hidden md:flex items-center gap-3 shrink-0">
+                <!-- 상태 점 범례 -->
+                <div class="flex items-center gap-2 text-[9px] text-slate-500">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm" style="box-shadow:0 0 4px #34d399"></span>활동</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400 shadow-sm" style="box-shadow:0 0 4px #fbbf24"></span>회의</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400 shadow-sm" style="box-shadow:0 0 4px #60a5fa"></span>집중</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shadow-sm"></span>오류</span>
+                </div>
+                <!-- 모드 선택 -->
+                <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5" title="업무 진행 방식 선택">
+                    <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">⚡ 기본</button>
+                    <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🎬 심화</button>
+                    <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🔗 풀버전</button>
+                </div>
+                <span id="map-error-tag" class="items-center gap-1 hidden">
                     <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block"></span>
-                    <span class="text-rose-400">버그 발생</span>
+                    <span class="text-rose-400 text-[10px]">버그</span>
                 </span>
             </div>
         </div>
@@ -151,30 +161,46 @@
         </div>
 
         <!-- 오피스 맵 -->
-        <div id="office-map" class="flex-1 md:basis-1/2 relative grid-dot-bg overflow-hidden select-none min-h-0">
-            <!-- 구역들 -->
-            <div class="absolute" style="left:44%;top:38%;transform:translate(-50%,-50%);">
-                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32">
-                    <span class="text-2xl block">🖥️</span>
-                    <span class="text-[10px] font-bold text-slate-400 block mt-1">업무 기획 데스크</span>
+        <div id="office-map" class="flex-1 md:basis-1/2 relative overflow-hidden select-none min-h-0" style="background:#0a0f1a;">
+
+            <!-- 배경 그리드 -->
+            <div class="absolute inset-0" style="background-image:radial-gradient(#1e293b 1px,transparent 1px);background-size:20px 20px;opacity:0.5;"></div>
+
+            <!-- 팀별 구역 (점선 테두리) -->
+            <!-- 전략 기획 구역 -->
+            <div class="absolute rounded-xl border border-dashed border-indigo-500/30 bg-indigo-950/10" style="left:2%;top:5%;width:30%;height:38%;">
+                <span class="absolute top-1.5 left-2 text-[9px] font-bold text-indigo-400/70 tracking-wider">📋 기획 구역</span>
+            </div>
+            <!-- 콘텐츠 제작 구역 -->
+            <div class="absolute rounded-xl border border-dashed border-amber-500/30 bg-amber-950/10" style="left:35%;top:5%;width:30%;height:38%;">
+                <span class="absolute top-1.5 left-2 text-[9px] font-bold text-amber-400/70 tracking-wider">✍️ 제작 구역</span>
+            </div>
+            <!-- 분석 구역 -->
+            <div class="absolute rounded-xl border border-dashed border-pink-500/30 bg-pink-950/10" style="left:68%;top:5%;width:30%;height:38%;">
+                <span class="absolute top-1.5 left-2 text-[9px] font-bold text-pink-400/70 tracking-wider">📡 분석 구역</span>
+            </div>
+            <!-- 대형 회의실 -->
+            <div class="absolute rounded-xl border border-dashed border-emerald-500/40 bg-emerald-950/10" style="left:20%;top:56%;width:60%;height:38%;">
+                <span class="absolute top-1.5 left-2 text-[9px] font-bold text-emerald-400/70 tracking-wider">🤝 대형 회의실</span>
+            </div>
+
+            <!-- 구역 아이콘 -->
+            <div class="absolute flex items-center justify-center" style="left:13%;top:14%;transform:translate(-50%,-50%);">
+                <div class="bg-slate-900/80 border border-slate-700/60 rounded-lg px-2.5 py-2 text-center backdrop-blur-sm">
+                    <span class="text-xl block">☕</span>
+                    <span class="text-[9px] font-bold text-slate-500 block mt-0.5">탕비실</span>
                 </div>
             </div>
-            <div class="absolute" style="left:44%;top:80%;transform:translate(-50%,-50%);">
-                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32" id="meeting-zone">
-                    <span class="text-2xl block">🤝</span>
-                    <span class="text-[10px] font-bold text-slate-400 block mt-1">대형 회의실</span>
+            <div class="absolute flex items-center justify-center" style="left:82%;top:14%;transform:translate(-50%,-50%);">
+                <div class="bg-slate-900/80 border border-slate-700/60 rounded-lg px-2.5 py-2 text-center backdrop-blur-sm">
+                    <span class="text-xl block">💾</span>
+                    <span class="text-[9px] font-bold text-slate-500 block mt-0.5">서버실</span>
                 </div>
             </div>
-            <div class="absolute" style="left:13%;top:14%;transform:translate(-50%,-50%);">
-                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32">
-                    <span class="text-2xl block">☕</span>
-                    <span class="text-[10px] font-bold text-slate-400 block mt-1">탕비실</span>
-                </div>
-            </div>
-            <div class="absolute" style="left:80%;top:14%;transform:translate(-50%,-50%);">
-                <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-3 text-center w-32">
-                    <span class="text-2xl block">💾</span>
-                    <span class="text-[10px] font-bold text-slate-400 block mt-1">서버 & 데이터</span>
+            <div class="absolute flex items-center justify-center" style="left:50%;top:48%;transform:translate(-50%,-50%);">
+                <div class="bg-slate-900/80 border border-slate-700/60 rounded-lg px-2.5 py-2 text-center backdrop-blur-sm">
+                    <span class="text-xl block">🖥️</span>
+                    <span class="text-[9px] font-bold text-slate-500 block mt-0.5">공유 데스크</span>
                 </div>
             </div>
 
@@ -670,12 +696,12 @@
 // 데이터 정의
 // ═══════════════════════════════════════════════
 const DEFAULT_STAFF = {
-    collector:   { id:'collector',   name:'자료 수집가',  role:'인터넷/시장 자료 분석',         status:'정직원', level:1, xp:0, color:'bg-blue-500',    emoji:'🔍', initialPos:{x:15,y:30} },
-    writer:      { id:'writer',      name:'글초안 작성기', role:'콘텐츠/블로그/기획안 작성',      status:'정직원', level:1, xp:0, color:'bg-amber-500',   emoji:'✍️', initialPos:{x:45,y:30} },
-    sns:         { id:'sns',         name:'고객질문 수집기',role:'SNS 질문 및 피드백 수집',       status:'정직원', level:1, xp:0, color:'bg-pink-500',    emoji:'💬', initialPos:{x:75,y:30} },
-    coordinator: { id:'coordinator', name:'또다른 나',    role:'업무 종합 및 최종 조율(대표)',    status:'정직원', level:1, xp:0, color:'bg-emerald-500', emoji:'👑', initialPos:{x:45,y:65} },
-    presenter:   { id:'presenter',   name:'비서',         role:'요약 브리핑 및 일정/잡무 보조',  status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:15,y:65} },
-    intern:      { id:'intern',      name:'인턴 사원',    role:'잡무 처리 및 피드백 서포트',     status:'인턴',   level:1, xp:0, color:'bg-slate-500',   emoji:'☕', initialPos:{x:75,y:65} }
+    collector:   { id:'collector',   name:'자료 수집가',  role:'인터넷/시장 자료 분석',         status:'정직원', level:1, xp:0, color:'bg-blue-500',    emoji:'🔍', initialPos:{x:17,y:28} },
+    writer:      { id:'writer',      name:'글초안 작성기', role:'콘텐츠/블로그/기획안 작성',      status:'정직원', level:1, xp:0, color:'bg-amber-500',   emoji:'✍️', initialPos:{x:50,y:28} },
+    sns:         { id:'sns',         name:'고객질문 수집기',role:'SNS 질문 및 피드백 수집',       status:'정직원', level:1, xp:0, color:'bg-pink-500',    emoji:'💬', initialPos:{x:82,y:28} },
+    coordinator: { id:'coordinator', name:'또다른 나',    role:'업무 종합 및 최종 조율(대표)',    status:'정직원', level:1, xp:0, color:'bg-emerald-500', emoji:'👑', initialPos:{x:50,y:72} },
+    presenter:   { id:'presenter',   name:'비서',         role:'요약 브리핑 및 일정/잡무 보조',  status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:33,y:72} },
+    intern:      { id:'intern',      name:'인턴 사원',    role:'잡무 처리 및 피드백 서포트',     status:'인턴',   level:1, xp:0, color:'bg-slate-500',   emoji:'☕', initialPos:{x:67,y:72} }
 };
 
 const STAFF_SPEECHES = {
@@ -706,6 +732,18 @@ let chatHistory = [];
 let stats = { totalTasks:0, gameProjectCount:8, tarotProjectCount:6, marketingCount:7, unmannedRoomCount:3 };
 let lastMode = null; // "이어서" 요청 시 직전 모드 재사용
 let workMode = 'basic'; // 'basic' | 'paced' | 'multistep' - 업무 진행 방식
+
+// 직원별 현재 작업 내용 & 타이머
+const STAFF_TASKS = {
+    collector:   ['시장 자료 수집 중','경쟁사 분석 중','트렌드 리서치 중','데이터 정리 중'],
+    writer:      ['콘텐츠 초안 작성 중','블로그 포스팅 중','기획안 작성 중','문서 다듬는 중'],
+    sns:         ['SNS 모니터링 중','고객 피드백 분석 중','DM 응답 정리 중','댓글 분석 중'],
+    coordinator: ['업무 조율 중','전략 수립 중','팀 협업 가동 중','대표 지시 검토 중'],
+    presenter:   ['일정 정리 중','브리핑 준비 중','보고서 작성 중','메모 작성 중'],
+    intern:      ['자료 정리 중','잡무 처리 중','업무 지원 중','커피 심부름 중']
+};
+let staffWorkSeconds = {}; // { staffId: elapsedSeconds }
+let staffCurrentTask = {}; // { staffId: taskString }
 
 // lucide CDN이 차단/로드 실패해도 전체 스크립트가 멈추지 않도록 안전 래퍼
 // ═══════════════════════════════════════════════
@@ -766,7 +804,8 @@ window.onload = function() {
     startRandomBubbles();
     addLog('🟢 hohoplay 가상 오피스 v6.0 정상 시동.');
     addLog('🔑 Claude API Key를 입력하여 AI 채팅을 활성화하세요.');
-    loadSiteCache(); // 사이트 분석 캐시 복원
+    loadSiteCache();
+    startWorkTimers(); // 직원 작업 타이머 시작
     safeCreateIcons();
 
     const inp = document.getElementById('chat-input');
@@ -1118,6 +1157,9 @@ async function runDebateWorkflow(msg, mode, wMode) {
 
             // 캐릭터 이동 & 타이핑 표시
             moveChar(staffId, isLast ? '최종 결론 정리 중... 👑' : '발언 준비 중... 💬');
+            // 현재 작업 내용 업데이트
+            staffCurrentTask[staffId] = isLast ? '최종 결론 정리 중' : '토론 발언 중';
+            staffWorkSeconds[staffId] = 0; // 새 작업 시작 시 타이머 리셋
             showTyping(true);
             document.getElementById('typing-name').textContent = `${staff.name}이 발언 중...`;
             addLog(`[${i+1}/${totalSteps}] ${staff.name} 발언 중...`);
@@ -1812,12 +1854,30 @@ function renderCharacters() {
         if(!pos) return;
 
         const el = document.createElement('div');
-        el.className = 'absolute z-20 flex flex-col items-center';
+        el.className = 'absolute z-20';
         el.style.left = pos.x + '%';
         el.style.top  = pos.y + '%';
+        el.style.transform = 'translate(-50%, -50%)';
         el.id = 'char-' + id;
 
         const animClass = pos.anim==='bug' ? 'char-bug' : pos.anim==='meeting' ? 'char-meeting' : pos.anim==='work' ? 'char-work' : 'char-float';
+
+        // 현재 작업 내용
+        const taskText = staffCurrentTask[id] || (STAFF_TASKS[id]?.[0]) || '대기 중';
+        // 작업 시간
+        const secs = staffWorkSeconds[id] || 0;
+        const hh = String(Math.floor(secs/3600)).padStart(2,'0');
+        const mm = String(Math.floor((secs%3600)/60)).padStart(2,'0');
+        const ss = String(secs%60).padStart(2,'0');
+        const timeStr = secs >= 3600 ? `${hh}:${mm}:${ss}` : `${mm}:${ss}`;
+
+        // 상태 색상 점 (텍스트 라벨 없이 점 색상만으로 구분)
+        // 🟢 활동중 / 🟡 회의중·발언중 / 🔵 작업중(집중) / 🔴 오류
+        const dotColor = pos.anim==='bug'     ? 'bg-rose-500 shadow-rose-500/80'
+                       : pos.anim==='meeting' ? 'bg-amber-400 shadow-amber-400/80'
+                       : pos.anim==='work'    ? 'bg-blue-400 shadow-blue-400/80'
+                       :                        'bg-emerald-400 shadow-emerald-400/80';
+
         const bubbleHTML = pos.bubble
             ? `<div class="bubble-speech">${pos.bubble}</div>`
             : '';
@@ -1825,16 +1885,55 @@ function renderCharacters() {
         el.innerHTML = `
             <div class="relative flex flex-col items-center ${animClass}" style="animation-delay:${Math.random()*2}s">
                 ${bubbleHTML}
-                <div onclick="openStaffDetail('${id}')" class="w-9 h-9 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform ${staff.color} border-2 border-slate-950" title="${staff.name} 상세보기">
-                    <span class="text-base">${staff.emoji}</span>
-                </div>
-                <span class="absolute -top-1 -right-1 bg-slate-900 text-[9px] border border-indigo-500 text-white font-bold w-4 h-4 rounded-full flex items-center justify-center mono pointer-events-none">L${staff.level}</span>
-                <div class="mt-0.5 text-center whitespace-nowrap pointer-events-none">
-                    <span class="text-[9px] font-bold text-white drop-shadow">${staff.name}</span>
+                <div onclick="openStaffDetail('${id}')"
+                    class="cursor-pointer bg-slate-900/90 backdrop-blur-sm border border-slate-700/80 rounded-xl p-2 shadow-xl hover:border-indigo-500/60 hover:scale-105 transition-all duration-200 min-w-[110px]"
+                    style="box-shadow:0 4px 16px rgba(0,0,0,0.5);">
+                    <div class="flex items-center gap-2">
+                        <!-- 아바타 -->
+                        <div class="relative shrink-0">
+                            <div class="w-8 h-8 rounded-full ${staff.color} flex items-center justify-center text-sm border-2 border-slate-950 shadow-md">
+                                ${staff.emoji}
+                            </div>
+                            <!-- 상태 점 (우하단 고정) -->
+                            <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-slate-900 ${dotColor} shadow-sm" style="box-shadow:0 0 5px 1px currentColor;"></span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-[10px] font-bold text-white truncate">${staff.name}</div>
+                            <div class="text-[8px] text-slate-500 mono">Lv.${staff.level}</div>
+                        </div>
+                    </div>
+                    <!-- 구분선 + 작업 내용 + 타이머 -->
+                    <div class="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between gap-1">
+                        <span class="text-[9px] text-slate-400 truncate flex-1">${taskText}</span>
+                        <span class="text-[8px] text-slate-600 mono shrink-0">⏱${timeStr}</span>
+                    </div>
                 </div>
             </div>`;
         container.appendChild(el);
     });
+}
+
+// 작업 시간 타이머 시작
+function startWorkTimers() {
+    // 각 직원 초기 작업 배정
+    Object.keys(staffState).forEach(id => {
+        staffWorkSeconds[id] = Math.floor(Math.random() * 300); // 0~5분 랜덤 시작
+        const tasks = STAFF_TASKS[id] || ['대기 중'];
+        staffCurrentTask[id] = tasks[Math.floor(Math.random() * tasks.length)];
+    });
+
+    // 1초마다 타이머 증가 + 10초마다 랜덤 작업 변경
+    setInterval(() => {
+        Object.keys(staffState).forEach(id => {
+            staffWorkSeconds[id] = (staffWorkSeconds[id] || 0) + 1;
+            // 120~300초마다 작업 내용 변경
+            if(staffWorkSeconds[id] % (Math.floor(Math.random()*180) + 120) === 0) {
+                const tasks = STAFF_TASKS[id] || ['대기 중'];
+                staffCurrentTask[id] = tasks[Math.floor(Math.random() * tasks.length)];
+            }
+        });
+        renderCharacters(); // 1초마다 리렌더
+    }, 1000);
 }
 
 function startAutonomousMovement() {
@@ -2229,6 +2328,8 @@ function confirmHireIntern() {
         emoji, initialPos:{ x:20+Math.random()*60, y:30+Math.random()*50 }
     };
     staffPositions[id] = { x:staffState[id].initialPos.x, y:staffState[id].initialPos.y, bubble:'신규 입사!🎉', anim:'float' };
+    staffWorkSeconds[id] = 0;
+    staffCurrentTask[id] = '첫 출근 중 🌱';
     staffMemories[id] = generateDefaultAICores()[Object.keys(DEFAULT_STAFF)[0]];
 
     document.getElementById('intern-name-input').value = '';
