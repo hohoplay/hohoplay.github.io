@@ -1114,15 +1114,22 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
 
     # 시작 — 별자리 핵심 운세
     if z_core:
-        parts.append(f"{z_kr}는 오늘 {z_core}")
+        _z_core = z_core.lstrip()
+        _z_core = re.sub(r'^오늘\s*', '', _z_core)
+        parts.append(f"{z_kr}는 오늘 {_z_core}")
 
     # 연결 — 띠 핵심 운세
     if c_core:
-        parts.append(f"한편 {c_kr}에게는 {c_core}")
+        _c_core = c_core.lstrip()
+        _c_core = re.sub(r'^오늘\s*', '', _c_core)
+        parts.append(f"한편 {c_kr}에게는 {_c_core}")
 
     # 테마 기반 한 줄 정리
     if theme:
-        parts.append(f"오늘은 '{theme}'이 두 사람을 이어주는 키워드입니다.")
+        _th_last = theme[-1]
+        _th_code = ord(_th_last) - 0xAC00
+        _th_josa = "이" if _th_code % 28 != 0 else "가"
+        parts.append(f"오늘은 \'{theme}\'{_th_josa} 두 사람을 이어주는 키워드입니다.")
 
     # 추가 정보 — 주어 중복 방지 처리
     if idx % 2 == 0:
@@ -1820,7 +1827,7 @@ def build_quote_post(today_str):
     cat = _cat_map.get(cat, cat)
     if cat not in ('인생','성장','도전','인내','관계'):
         cat = '인생'
-    library_txt = pick_human_bridge(kst_day, "zodiac", cat)
+    library_txt = pick_human_bridge(kst_day, "quote", cat)
 
     # ── 배웅 ──
     farewell_txt = pick_farewell_bridge(kst_day, "daily")
@@ -1901,7 +1908,7 @@ def build_quote_post(today_str):
     <!-- 헤더 -->
     <div class="qc-date">{today_str} · {category}</div>
     <h1 class="qc-title">📖 오늘의 명언</h1>
-    <p class="qc-sub">{author_ko}이 오늘 당신에게 건네는 한 줄</p>
+    <p class="qc-sub">{author_ko}{("이" if (ord(author_ko[-1]) - 0xAC00) % 28 != 0 else "가")} 오늘 당신에게 건네는 한 줄</p>
     <div class="qc-rule">&middot; &middot; &middot;</div>
 
     <!-- 💭 공감 -->
@@ -3064,15 +3071,16 @@ def build_chinese_post(c, today_str):
               margin:0 0 1.4rem;word-break:keep-all">{_cq["apply"]}</p>
     <p style="font-size:13px;line-height:1.9;color:#78350f;
               margin:0 0 1.4rem;word-break:keep-all">{_cq["meaning"]}</p>
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;
-              word-break:keep-all">{_ce[1]}</p>
 
     <h2 style="margin:1.4rem 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b">{tyb}</h2>
     <div style="margin:0 0 1.4em 0">
       {year_section_html}
     </div>
+
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
+              margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;
+              word-break:keep-all">{_ce[1]}</p>
 
     <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
               word-break:keep-all">{pick_farewell_bridge(kst_day, "daily")}</p>
