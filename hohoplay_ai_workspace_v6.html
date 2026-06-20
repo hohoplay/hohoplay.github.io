@@ -90,28 +90,24 @@
 <body class="bg-slate-950 text-slate-100 overflow-hidden flex flex-col" id="app-body">
 
 <!-- ══════════════ HEADER ══════════════ -->
-<header class="flex items-center justify-between px-3 md:px-5 py-2 md:py-3 bg-slate-900 border-b border-slate-800 shrink-0 flex-wrap gap-y-1">
-    <div class="flex items-center gap-2 md:gap-3 min-w-0">
-        <div class="p-1.5 md:p-2 bg-indigo-600 rounded-lg animate-pulse shrink-0">
-            <i data-lucide="briefcase" class="w-4 h-4 md:w-5 md:h-5 text-white"></i>
+<header class="flex items-center justify-between px-3 md:px-5 py-2.5 bg-slate-900 border-b border-slate-800 shrink-0">
+    <!-- 로고 -->
+    <div class="flex items-center gap-2.5 min-w-0">
+        <div class="p-1.5 bg-indigo-600 rounded-lg shrink-0">
+            <i data-lucide="briefcase" class="w-4 h-4 text-white"></i>
         </div>
         <div class="min-w-0">
-            <h1 class="text-sm md:text-lg font-black text-white flex items-center gap-2 flex-wrap">
+            <h1 class="text-sm font-black text-white flex items-center gap-2">
                 hohoplay
-                <span class="text-indigo-400 font-bold text-[10px] md:text-[11px] px-2 py-0.5 bg-indigo-950 border border-indigo-800 rounded-full whitespace-nowrap">AI 가상오피스 v6.0</span>
+                <span class="text-[10px] text-indigo-400/70 font-normal hidden md:inline">AI 가상오피스</span>
             </h1>
-            <p class="text-[10px] text-slate-500 mono hidden md:block">AI 비서 실시간 협업 · 레벨업 육성 · 기획 관리 · PC 이관 백업</p>
         </div>
     </div>
-    <div class="flex items-center gap-2 md:gap-3 text-xs shrink-0">
-        <div class="flex items-center gap-2 bg-slate-800 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-700">
-            <span id="sys-indicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
-            <span id="sys-text" class="text-slate-300 mono text-[10px] md:text-[11px] hidden md:inline">Claude API 연결 대기 중</span>
-            <span id="sys-text-mobile" class="text-slate-300 mono text-[10px] md:hidden">대기중</span>
-        </div>
-        <div class="bg-indigo-900/40 text-indigo-300 border border-indigo-800/60 px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-bold text-[11px] whitespace-nowrap">
-            대표: hohoplay
-        </div>
+    <!-- API 상태 (단일 정보) -->
+    <div class="flex items-center gap-2 bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/60">
+        <span id="sys-indicator" class="w-2 h-2 rounded-full bg-slate-500 shrink-0"></span>
+        <span id="sys-text" class="text-slate-300 mono text-[10px] hidden md:inline">Claude API 연결 대기 중</span>
+        <span id="sys-text-mobile" class="text-slate-300 mono text-[10px] md:hidden">대기중</span>
     </div>
 </header>
 
@@ -119,49 +115,46 @@
 <main class="flex flex-col md:flex-row flex-1 overflow-hidden">
 
     <!-- ═══ LEFT: 오피스 맵 ═══ -->
-    <section class="w-full md:w-1/2 h-[36dvh] md:h-auto flex flex-col border-r-0 md:border-r border-b md:border-b-0 border-slate-800 bg-slate-900/60 overflow-hidden shrink-0" id="left-workspace">
-        <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 z-10">
+    <section class="w-full md:w-1/2 md:h-auto flex flex-col border-r-0 md:border-r border-b md:border-b-0 border-slate-800 bg-slate-900/60 overflow-hidden shrink-0" id="left-workspace">
+        <!-- 헤더 (데스크탑만) -->
+        <div class="hidden md:flex px-4 py-2.5 bg-slate-900 border-b border-slate-800 items-center justify-between shrink-0 z-10">
             <h2 class="text-xs font-bold text-slate-300 flex items-center gap-2">
                 <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
-                <span class="hidden md:inline">hohoplay 가상 HQ 실시간 활동 모니터링</span>
-                <span class="md:hidden">hohoplay HQ</span>
+                hohoplay 가상 HQ 실시간 활동 모니터링
             </h2>
-            <!-- 모바일 전용: 오피스맵 / 로그 탭 전환 -->
-            <div class="flex md:hidden items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800">
-                <button onclick="switchLeftMobileTab('map')" id="left-mobile-tab-map" class="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-800 text-indigo-400 transition-all">🗺️ 오피스</button>
-                <button onclick="switchLeftMobileTab('log')" id="left-mobile-tab-log" class="text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 transition-all">📋 로그</button>
-            </div>
-            <div class="hidden md:flex items-center gap-3 shrink-0">
-                <!-- 상태 점 범례 -->
-                <div class="flex items-center gap-2 text-[9px] text-slate-500">
-                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm" style="box-shadow:0 0 4px #34d399"></span>활동</span>
-                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400 shadow-sm" style="box-shadow:0 0 4px #fbbf24"></span>회의</span>
-                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400 shadow-sm" style="box-shadow:0 0 4px #60a5fa"></span>집중</span>
-                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shadow-sm"></span>오류</span>
-                </div>
-                <!-- 모드 선택 -->
-                <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5" title="업무 진행 방식 선택">
-                    <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">⚡ 기본</button>
-                    <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🎬 심화</button>
-                    <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all">🔗 풀버전</button>
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="flex items-center gap-0.5 bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+                    <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="3명 순차 토론 (빠름)">⚡ 기본</button>
+                    <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="4명 반론 포함 (중간)">🎬 심화</button>
+                    <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="전 직원 2라운드 (깊음)">🔗 풀버전</button>
                 </div>
                 <span id="map-error-tag" class="items-center gap-1 hidden">
                     <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block"></span>
-                    <span class="text-rose-400 text-[10px]">버그</span>
+                    <span class="text-rose-400 text-[10px]">오류</span>
                 </span>
             </div>
         </div>
 
-        <!-- 모바일 전용: 업무 진행 모드 선택 (채팅 입력창 공간 확보용) -->
-        <div class="flex md:hidden items-center justify-center gap-1 bg-slate-950 border-b border-slate-800 px-2 py-1.5 shrink-0">
-            <span class="text-[9px] text-slate-500 mr-1 shrink-0">진행방식</span>
-            <button onclick="setWorkMode('basic')" id="workmode-basic-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">⚡ 토론 기본</button>
-            <button onclick="setWorkMode('paced')" id="workmode-paced-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">🎬 토론 심화</button>
-            <button onclick="setWorkMode('multistep')" id="workmode-multistep-m" class="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-1">🔗 토론 풀버전</button>
+        <!-- 모바일 전용: 직원 상태 한 줄 바 -->
+        <div class="flex md:hidden items-center gap-0 bg-slate-950 border-b border-slate-800 px-2 py-1.5 shrink-0 overflow-x-auto">
+            <!-- 토론 모드 미니 버튼 -->
+            <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-md p-0.5 mr-2 shrink-0">
+                <button onclick="setWorkMode('basic')" id="workmode-basic-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">⚡</button>
+                <button onclick="setWorkMode('paced')" id="workmode-paced-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">🎬</button>
+                <button onclick="setWorkMode('multistep')" id="workmode-multistep-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">🔗</button>
+            </div>
+            <!-- 직원 상태 칩 + 좌우 버튼 -->
+            <div class="flex items-center gap-1 flex-1 min-w-0">
+                <button onclick="scrollStaffBar(-80)" class="text-slate-500 hover:text-slate-200 text-[14px] shrink-0 px-0.5 transition-colors">‹</button>
+                <div id="mobile-staff-bar" class="flex items-center gap-1.5 overflow-x-auto scroll-smooth flex-1" style="scrollbar-width:none;-ms-overflow-style:none;"></div>
+                <button onclick="scrollStaffBar(80)" class="text-slate-500 hover:text-slate-200 text-[14px] shrink-0 px-0.5 transition-colors">›</button>
+            </div>
         </div>
 
-        <!-- 오피스 맵 -->
-        <div id="office-map" class="flex-1 md:basis-1/2 relative overflow-hidden select-none min-h-0" style="background:linear-gradient(135deg,#060d1a 0%,#0a0f1a 50%,#060d18 100%);">
+        <!-- 모바일 전용: 업무 진행 모드 줄 제거 (위로 통합) -->
+
+        <!-- 오피스 맵 (데스크탑만) -->
+        <div id="office-map" class="hidden md:flex flex-1 md:basis-1/2 relative overflow-hidden select-none min-h-0 flex-col" style="background:linear-gradient(135deg,#060d1a 0%,#0a0f1a 50%,#060d18 100%);">
 
             <!-- 배경 그리드 -->
             <div class="absolute inset-0 pointer-events-none" style="background-image:radial-gradient(circle,#1e293b 1px,transparent 1px);background-size:22px 22px;opacity:0.35;"></div>
@@ -270,27 +263,60 @@
     <!-- ═══ RIGHT: 탭 패널 ═══ -->
     <section class="w-full md:w-1/2 flex-1 flex flex-col bg-slate-900 overflow-hidden min-h-0">
         <!-- 탭 버튼 -->
-        <div class="flex bg-slate-950 px-2 border-b border-slate-800 shrink-0 overflow-x-auto">
+        <div class="flex items-stretch bg-slate-950 px-2 border-b border-slate-800 shrink-0">
+            <!-- 주요 탭: 채팅/기억/직원 + 모바일 전용 피드 탭 -->
             <button onclick="switchTab('control')" id="tab-btn-control" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-active shrink-0 whitespace-nowrap">
-                <i data-lucide="message-square" class="w-3.5 h-3.5"></i>[1] AI 채팅
+                💬 채팅
+            </button>
+            <!-- 모바일 전용: 피드 탭 -->
+            <button onclick="switchTab('mobilefeed')" id="tab-btn-mobilefeed" class="md:hidden flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap relative">
+                📋 피드
+                <span id="feed-badge" class="absolute top-1 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping hidden"></span>
             </button>
             <button onclick="switchTab('memory')" id="tab-btn-memory" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive relative shrink-0 whitespace-nowrap">
-                <i data-lucide="database" class="w-3.5 h-3.5"></i>[2] 기억 저장소
+                🗂️ 기억
                 <span id="memory-count-badge" class="absolute top-1 right-0.5 px-1 py-0.5 bg-indigo-600 text-white text-[9px] rounded-full mono">0</span>
             </button>
             <button onclick="switchTab('hr'); closeStaffDetail();" id="tab-btn-hr" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap">
-                <i data-lucide="users" class="w-3.5 h-3.5"></i>[3] AI 인사관리
+                👥 직원
             </button>
-            <button onclick="switchTab('stats')" id="tab-btn-stats" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap">
-                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>[4] 포트폴리오
-            </button>
-            <button onclick="switchTab('site')" id="tab-btn-site" class="flex items-center gap-1.5 px-3 py-3 text-[11px] font-bold border-b-2 transition-all tab-inactive shrink-0 whitespace-nowrap">
-                <i data-lucide="globe" class="w-3.5 h-3.5"></i>[5] 사이트 분석
-                <span id="site-badge" class="ml-1 px-1 py-0.5 bg-emerald-700 text-white text-[9px] rounded-full mono hidden">●</span>
-            </button>
+
+            <!-- 더보기 드롭다운 -->
+            <div class="relative ml-auto flex items-center" id="more-tabs-wrapper">
+                <button onclick="toggleMoreTabs()" id="more-tabs-btn"
+                    class="flex items-center gap-1 px-3 py-2 text-[11px] font-bold text-slate-400 hover:text-slate-200 transition-colors border-b-2 border-transparent h-full">
+                    더보기 ▾
+                </button>
+                <div id="more-tabs-dropdown"
+                    class="hidden absolute right-0 top-full mt-0.5 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden min-w-[140px]">
+                    <button onclick="switchTab('stats'); closeMoreTabs();" id="tab-btn-stats"
+                        class="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left border-b-2 border-transparent">
+                        📊 포트폴리오
+                    </button>
+                    <button onclick="switchTab('site'); closeMoreTabs();" id="tab-btn-site"
+                        class="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left border-b-2 border-transparent relative">
+                        🌐 사이트 분석
+                        <span id="site-badge" class="ml-auto px-1 py-0.5 bg-emerald-700 text-white text-[9px] rounded-full mono hidden">●</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- ── 모바일 피드 탭 ── -->
+            <div id="tab-content-mobilefeed" class="flex-1 flex flex-col overflow-hidden hidden">
+                <!-- 피드 헤더 -->
+                <div class="px-4 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
+                    <span class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        실시간 활동 피드
+                    </span>
+                    <button onclick="clearLogs()" class="text-[10px] text-slate-600 hover:text-slate-300 transition-colors">비우기</button>
+                </div>
+                <!-- 피드 미러: 데스크탑 log-container와 동기화 -->
+                <div id="mobile-feed-container" class="flex-1 overflow-y-auto p-2 space-y-1.5"></div>
+            </div>
 
             <!-- ── 탭1: AI 채팅 ── -->
             <div id="tab-content-control" class="flex-1 flex flex-col overflow-hidden relative">
@@ -381,13 +407,49 @@
 
                 <!-- 입력창 -->
                 <div class="p-3 bg-slate-950 border-t border-slate-800 shrink-0 space-y-2">
-                    <div class="flex items-center text-[11px] text-slate-400 px-1 flex-wrap gap-y-1">
-                        <div id="staff-call-toggles" class="flex items-center gap-2 flex-wrap"></div>
+                    <!-- 상단 옵션 바: 직원 선택 + 백업 버튼 -->
+                    <div class="flex items-center justify-between gap-2 px-1">
+                        <!-- 담당 직원 드롭다운 -->
+                        <div class="flex items-center gap-2">
+                            <div class="relative" id="staff-dropdown-wrapper">
+                                <button onclick="toggleStaffDropdown()"
+                                    class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-300 hover:border-indigo-500 transition-colors"
+                                    id="staff-dropdown-btn">
+                                    <span id="staff-dropdown-label">👥 전체 직원</span>
+                                    <span class="text-slate-500 text-[10px]">▾</span>
+                                </button>
+                                <div id="staff-dropdown-menu"
+                                    class="hidden absolute bottom-full mb-1 left-0 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden min-w-[160px]">
+                                    <div id="staff-dropdown-items"></div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-slate-600">에게 지시</span>
+                        </div>
+                        <!-- 백업 버튼 -->
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="exportWorkspaceData()"
+                                title="데이터 백업 다운로드"
+                                class="flex items-center gap-1 px-2 py-1.5 bg-slate-900 border border-slate-700 hover:border-indigo-500 hover:text-indigo-300 text-slate-400 rounded-lg text-[10px] font-bold transition-colors">
+                                📦 백업
+                            </button>
+                            <button onclick="document.getElementById('backup-file-input-inline').click()"
+                                title="백업 파일 불러오기"
+                                class="flex items-center gap-1 px-2 py-1.5 bg-slate-900 border border-slate-700 hover:border-emerald-500 hover:text-emerald-300 text-slate-400 rounded-lg text-[10px] font-bold transition-colors">
+                                📥 불러오기
+                            </button>
+                            <input type="file" id="backup-file-input-inline" class="hidden" accept=".json" onchange="importWorkspaceData(event)" />
+                        </div>
                     </div>
                     <div class="flex items-end gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-indigo-500 transition-colors">
                         <textarea id="chat-input" rows="1"
-                            placeholder="대표님, 업무 지시나 질문을 입력하세요... (Enter 전송 / Shift+Enter 줄바꿈)"
+                            placeholder="업무 지시나 질문을 입력하세요... (Enter 전송 / Shift+Enter 줄바꿈)"
                             class="flex-1 bg-transparent border-none text-xs text-white placeholder-slate-600 focus:outline-none resize-none max-h-32 overflow-y-auto leading-relaxed py-1"></textarea>
+                        <!-- TTS 토글 버튼 -->
+                        <button onclick="toggleTTS()" id="tts-btn"
+                            title="음성 읽기 ON/OFF"
+                            class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-500 rounded-lg transition-all shrink-0 text-sm">
+                            🔇
+                        </button>
                         <button onclick="sendChatMessage()" id="send-btn"
                             class="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md shrink-0">
                             <i data-lucide="send" class="w-3.5 h-3.5"></i>
@@ -425,9 +487,14 @@
                                 <span id="detail-category" class="text-[10px] text-indigo-400 mono font-bold uppercase">CATEGORY</span>
                                 <h3 id="detail-title" class="text-sm font-bold text-white mt-0.5">Title</h3>
                             </div>
-                            <button id="detail-download-btn" class="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-lg transition-colors">
-                                <i data-lucide="download" class="w-3 h-3"></i>저장
-                            </button>
+                            <div class="flex items-center gap-1.5">
+                                <button id="detail-download-btn" class="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-lg transition-colors">
+                                    <i data-lucide="download" class="w-3 h-3"></i>저장
+                                </button>
+                                <button id="detail-share-btn" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-colors text-white" style="background:#FEE500;color:#3C1E1E;">
+                                    💬 카카오 공유
+                                </button>
+                            </div>
                         </div>
                         <div id="detail-content" class="text-xs text-slate-300 whitespace-pre-line leading-relaxed mono max-h-72 overflow-y-auto p-3 bg-slate-900 rounded-lg border border-slate-800"></div>
                         <div class="flex items-center justify-between text-[10px] text-slate-500">
@@ -798,6 +865,121 @@ function showToast(message, type, duration) {
         toast.classList.add('toast-out');
         setTimeout(() => toast.remove(), 320);
     }, duration);
+}
+
+// ═══════════════════════════════════════════════
+// TTS (브라우저 내장 음성 읽기)
+// ═══════════════════════════════════════════════
+let ttsEnabled = false;
+let ttsVoices = [];
+let ttsQueue = [];
+let ttsSpeaking = false;
+
+// 직원별 음성 파라미터 (피치/속도로 개성 구분)
+const TTS_PARAMS = {
+    collector:   { rate: 1.0, pitch: 1.0 },  // 차분한 기본
+    writer:      { rate: 0.95, pitch: 1.1 }, // 약간 높고 부드럽게
+    sns:         { rate: 1.1, pitch: 1.2 },  // 밝고 빠르게
+    coordinator: { rate: 0.9, pitch: 0.9 },  // 낮고 무게감
+    presenter:   { rate: 1.0, pitch: 1.05 }, // 단정하게
+    intern:      { rate: 1.05, pitch: 1.15 },// 가볍고 활발하게
+    default:     { rate: 1.0, pitch: 1.0 }
+};
+
+window.addEventListener('load', () => {
+    // 보이스 목록 로드 (비동기)
+    const loadVoices = () => {
+        ttsVoices = speechSynthesis.getVoices();
+    };
+    loadVoices();
+    if(speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    // 저장된 TTS 설정 복원
+    if(localStorage.getItem('hohoplay_tts_enabled') === 'true') {
+        ttsEnabled = true;
+        updateTTSBtn();
+    }
+});
+
+function toggleTTS() {
+    ttsEnabled = !ttsEnabled;
+    localStorage.setItem('hohoplay_tts_enabled', ttsEnabled);
+    updateTTSBtn();
+    if(!ttsEnabled) {
+        speechSynthesis.cancel();
+        ttsQueue = [];
+        ttsSpeaking = false;
+    }
+    addLog(ttsEnabled ? '🔊 음성 읽기 ON' : '🔇 음성 읽기 OFF');
+    showToast(ttsEnabled ? '🔊 음성 읽기 켜짐' : '🔇 음성 읽기 꺼짐', 'info', 1500);
+}
+
+function updateTTSBtn() {
+    const btn = document.getElementById('tts-btn');
+    if(!btn) return;
+    if(ttsEnabled) {
+        btn.textContent = '🔊';
+        btn.className = 'p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shrink-0 text-sm';
+        btn.title = '음성 읽기 ON (클릭하면 OFF)';
+    } else {
+        btn.textContent = '🔇';
+        btn.className = 'p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-500 rounded-lg transition-all shrink-0 text-sm';
+        btn.title = '음성 읽기 OFF (클릭하면 ON)';
+    }
+}
+
+// 한국어 보이스 찾기
+function getKoreanVoice() {
+    if(!ttsVoices.length) ttsVoices = speechSynthesis.getVoices();
+    return ttsVoices.find(v => v.lang.startsWith('ko')) ||
+           ttsVoices.find(v => v.lang.startsWith('ko-KR')) ||
+           null;
+}
+
+// HTML 태그 제거 + 특수문자 정리
+function cleanTextForTTS(html) {
+    return html
+        .replace(/<[^>]+>/g, '')           // HTML 태그 제거
+        .replace(/\[최종 결론\]/g, '')
+        .replace(/\[첫 발언\]/g, '')
+        .replace(/\[발언 \d+\/\d+\]/g, '')
+        .replace(/⏱[\d:]+/g, '')           // 타이머 제거
+        .replace(/📂|📄|✍️|🔍|💬|👑|📢|☕/g, '') // 이모지 제거 (TTS가 읽으면 어색)
+        .replace(/\s+/g, ' ')
+        .trim()
+        .substring(0, 200);               // 너무 길면 앞 200자만
+}
+
+// 큐에 추가 후 순차 재생
+function speakText(text, staffId) {
+    if(!ttsEnabled) return;
+    const clean = cleanTextForTTS(text);
+    if(!clean) return;
+    ttsQueue.push({ text: clean, staffId });
+    if(!ttsSpeaking) processQueue();
+}
+
+function processQueue() {
+    if(!ttsQueue.length) { ttsSpeaking = false; return; }
+    ttsSpeaking = true;
+    const { text, staffId } = ttsQueue.shift();
+    const params = TTS_PARAMS[staffId] || TTS_PARAMS.default;
+
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'ko-KR';
+    utt.rate = params.rate;
+    utt.pitch = params.pitch;
+    utt.volume = 1.0;
+
+    const voice = getKoreanVoice();
+    if(voice) utt.voice = voice;
+
+    utt.onend = () => processQueue();
+    utt.onerror = () => { ttsSpeaking = false; processQueue(); };
+
+    speechSynthesis.speak(utt);
 }
 
 function safeCreateIcons() {
@@ -1492,62 +1674,120 @@ function detectChatMode(msg) {
 }
 
 // ═══════════════════════════════════════════════
-// 직원 호출 체크박스
+// 더보기 탭 드롭다운
 // ═══════════════════════════════════════════════
-function renderStaffCallToggles() {
-    const container = document.getElementById('staff-call-toggles');
-    if(!container) return;
-    container.innerHTML = '<span class="text-[10px] text-slate-500 mr-1">담당 호출:</span>';
+function toggleMoreTabs() {
+    const dd = document.getElementById('more-tabs-dropdown');
+    dd.classList.toggle('hidden');
+}
+function closeMoreTabs() {
+    document.getElementById('more-tabs-dropdown')?.classList.add('hidden');
+}
+// 바깥 클릭 시 닫기
+document.addEventListener('click', e => {
+    if(!document.getElementById('more-tabs-wrapper')?.contains(e.target)) closeMoreTabs();
+    if(!document.getElementById('staff-dropdown-wrapper')?.contains(e.target)) closeStaffDropdown();
+});
 
-    // 전체 직원 토글
-    const allLabel = document.createElement('label');
-    allLabel.className = 'flex items-center gap-1 cursor-pointer bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-800/60 rounded-full px-2 py-0.5 transition-colors';
-    allLabel.innerHTML = `
-        <input type="checkbox" id="staff-call-all" class="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0 w-3 h-3" onchange="onAllToggleChange()" />
-        <span class="text-[10px] text-indigo-300 font-bold">👥 전체 직원</span>`;
-    container.appendChild(allLabel);
+// ═══════════════════════════════════════════════
+// 직원 선택 드롭다운 (다중 선택 체크박스 방식)
+// ═══════════════════════════════════════════════
+let selectedStaffIds = new Set(); // 빈 Set = 전체 직원
+let isAllSelected = true;
 
+function renderStaffDropdown() {
+    const menu = document.getElementById('staff-dropdown-items');
+    if(!menu) return;
+    menu.innerHTML = '';
+
+    // 전체 직원 옵션
+    const allItem = document.createElement('label');
+    allItem.className = 'flex items-center gap-2.5 px-4 py-2.5 text-[11px] hover:bg-slate-800 transition-colors cursor-pointer border-b border-slate-800';
+    allItem.innerHTML = `
+        <input type="checkbox" id="dd-all" class="rounded w-3.5 h-3.5 text-indigo-600 bg-slate-800 border-slate-600 focus:ring-0" ${isAllSelected?'checked':''} />
+        <span class="text-base">👥</span>
+        <span class="text-slate-200 font-bold flex-1">전체 직원</span>`;
+    allItem.querySelector('input').onchange = (e) => {
+        isAllSelected = e.target.checked;
+        if(isAllSelected) {
+            selectedStaffIds.clear();
+            menu.querySelectorAll('.dd-staff-cb').forEach(cb => cb.checked = false);
+        }
+        updateDropdownLabel();
+    };
+    menu.appendChild(allItem);
+
+    // 개별 직원
     Object.values(staffState).forEach(staff => {
-        const label = document.createElement('label');
-        label.className = 'flex items-center gap-1 cursor-pointer bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-full px-2 py-0.5 transition-colors';
-        label.innerHTML = `
-            <input type="checkbox" class="staff-call-checkbox rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0 w-3 h-3" data-staff-id="${staff.id}" onchange="onStaffToggleChange()" />
-            <span class="text-[10px] text-slate-300">${staff.emoji} ${staff.name}</span>`;
-        container.appendChild(label);
+        const item = document.createElement('label');
+        item.className = 'flex items-center gap-2.5 px-4 py-2 text-[11px] hover:bg-slate-800 transition-colors cursor-pointer';
+        const checked = selectedStaffIds.has(staff.id);
+        item.innerHTML = `
+            <input type="checkbox" class="dd-staff-cb rounded w-3.5 h-3.5 text-indigo-600 bg-slate-800 border-slate-600 focus:ring-0" data-id="${staff.id}" ${checked?'checked':''} />
+            <span class="w-5 h-5 rounded-full ${staff.color} flex items-center justify-center text-[10px] shrink-0">${staff.emoji}</span>
+            <span class="text-slate-300 flex-1">${staff.name}</span>
+            <span class="text-[9px] text-slate-600 mono">Lv.${staff.level}</span>`;
+        item.querySelector('input').onchange = (e) => {
+            const id = e.target.dataset.id;
+            if(e.target.checked) {
+                selectedStaffIds.add(id);
+                isAllSelected = false;
+                menu.querySelector('#dd-all').checked = false;
+            } else {
+                selectedStaffIds.delete(id);
+                if(selectedStaffIds.size === 0) {
+                    isAllSelected = true;
+                    menu.querySelector('#dd-all').checked = true;
+                }
+            }
+            updateDropdownLabel();
+        };
+        menu.appendChild(item);
     });
+
+    // 확인 버튼
+    const footer = document.createElement('div');
+    footer.className = 'px-3 py-2 border-t border-slate-800';
+    footer.innerHTML = `<button onclick="closeStaffDropdown()" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-lg transition-colors">확인</button>`;
+    menu.appendChild(footer);
 }
 
-function getCheckedStaffIds() {
-    return Array.from(document.querySelectorAll('.staff-call-checkbox:checked')).map(el=>el.dataset.staffId);
-}
-
-function isAllStaffChecked() {
-    const el = document.getElementById('staff-call-all');
-    return el ? el.checked : false;
-}
-
-function onAllToggleChange() {
-    const allChecked = isAllStaffChecked();
-    if(allChecked) {
-        // 개별 체크박스 모두 해제
-        document.querySelectorAll('.staff-call-checkbox').forEach(el=>el.checked=false);
-        addLog('📌 전체 직원 회의 모드 선택됨.');
-    }
-}
-
-function onStaffToggleChange() {
-    const ids = getCheckedStaffIds();
-    if(ids.length === 0) return;
-    // 개별 직원 선택 시 "전체 직원" 해제
-    const allEl = document.getElementById('staff-call-all');
-    if(allEl) allEl.checked = false;
-
-    if(ids.length === 1) {
-        addLog(`📌 "${staffState[ids[0]].name}" 담당 호출 모드 선택됨.`);
+function updateDropdownLabel() {
+    const label = document.getElementById('staff-dropdown-label');
+    if(!label) return;
+    if(isAllSelected || selectedStaffIds.size === 0) {
+        label.textContent = '👥 전체 직원';
+    } else if(selectedStaffIds.size === 1) {
+        const id = [...selectedStaffIds][0];
+        const s = staffState[id];
+        label.textContent = s ? `${s.emoji} ${s.name}` : '👥 전체 직원';
     } else {
-        addLog(`📌 ${ids.map(id=>staffState[id].name).join(', ')} 담당 회의 모드 선택됨.`);
+        const names = [...selectedStaffIds].map(id => staffState[id]?.emoji || '').join('');
+        label.textContent = `${names} ${selectedStaffIds.size}명 선택`;
     }
 }
+
+function selectStaffTarget(id) { /* 구버전 호환 */ }
+
+function toggleStaffDropdown() {
+    renderStaffDropdown();
+    const dd = document.getElementById('staff-dropdown-menu');
+    dd.classList.toggle('hidden');
+}
+function closeStaffDropdown() {
+    document.getElementById('staff-dropdown-menu')?.classList.add('hidden');
+    const ids = [...selectedStaffIds];
+    if(isAllSelected || ids.length === 0) addLog('📌 대화 상대: 전체 직원');
+    else addLog(`📌 대화 상대: ${ids.map(id=>staffState[id]?.name).filter(Boolean).join(', ')}`);
+}
+
+// detectChatMode가 참조하는 함수들 - 다중 선택 지원
+function isAllStaffChecked() { return isAllSelected || selectedStaffIds.size === 0; }
+function getCheckedStaffIds() { return [...selectedStaffIds]; }
+function renderStaffCallToggles() { updateDropdownLabel(); }
+
+
+
 
 // ═══════════════════════════════════════════════
 // 업무 진행 모드 (기본 / 페이싱 / 멀티스텝)
@@ -1830,6 +2070,12 @@ function appendMessage(role, name, emoji, html) {
         d.innerHTML = `<div class="text-right"><span class="text-[10px] font-bold text-indigo-400">${name}</span><div class="mt-1 bg-indigo-700 text-xs px-3 py-2 rounded-xl rounded-tr-none max-w-sm text-white leading-relaxed">${html}</div></div><div class="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center text-sm shrink-0">${emoji}</div>`;
     } else {
         d.innerHTML = `<div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-sm shrink-0">${emoji}</div><div class="min-w-0"><span class="text-[10px] font-bold text-slate-400">${name}</span><div class="mt-1 bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl rounded-tl-none max-w-sm text-slate-200 leading-relaxed ai-msg-stream">${html}</div></div>`;
+        // AI 발언 시 TTS 읽기
+        if(ttsEnabled) {
+            // 직원 이름으로 staffId 역방향 탐색
+            const staffId = Object.keys(staffState).find(id => staffState[id].name === name) || 'default';
+            speakText(html, staffId);
+        }
     }
     c.appendChild(d);
     c.scrollTop = c.scrollHeight;
@@ -1909,7 +2155,37 @@ function secsToTimeStr(secs) {
 
 function renderCharacters() {
     const container = document.getElementById('characters-layer');
-    container.innerHTML = '';
+    if(container) {
+        container.innerHTML = '';
+        Object.keys(staffState).forEach(id => renderOneChar(id, container));
+    }
+    renderMobileStaffBar();
+}
+
+function renderMobileStaffBar() {
+    const bar = document.getElementById('mobile-staff-bar');
+    if(!bar) return;
+    bar.innerHTML = '';
+    Object.keys(staffState).forEach(id => {
+        const staff = staffState[id];
+        const pos = staffPositions[id] || {};
+        const dot = getStatusDot(pos.anim || 'float');
+        const chip = document.createElement('button');
+        chip.onclick = () => openStaffDetail(id);
+        chip.className = 'flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-800 bg-slate-900 shrink-0 hover:border-indigo-500 transition-colors';
+        chip.style.minWidth = '0';
+        chip.innerHTML = `
+            <div class="relative shrink-0">
+                <span class="text-sm">${staff.emoji}</span>
+                <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-slate-900 ${dot.cls}"
+                      style="box-shadow:0 0 4px ${dot.glow};"></span>
+            </div>
+            <span class="text-[10px] font-bold text-slate-300 whitespace-nowrap">${staff.name}</span>`;
+        bar.appendChild(chip);
+    });
+}
+
+function renderOneChar(id, container) {
 
     Object.keys(staffState).forEach(id => {
         const staff = staffState[id];
@@ -2484,9 +2760,14 @@ function renderMemoryList() {
                         <span class="text-[10px] text-slate-500">${mem.author} · ${mem.date}</span>
                     </div>
                 </div>
-                <button onclick="deleteMemory('${mem.id}')" class="text-slate-600 hover:text-rose-400 transition-colors shrink-0">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button onclick="shareMemory(${JSON.stringify(mem).replace(/'/g,'&#39;')})" class="text-[9px] font-bold px-1.5 py-1 rounded-md transition-colors" style="background:#FEE500;color:#3C1E1E;" title="카카오 공유">
+                        💬
+                    </button>
+                    <button onclick="deleteMemory('${mem.id}')" class="text-slate-600 hover:text-rose-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
             </div>`;
         card.addEventListener('click', e => { if(!e.target.closest('button')) openMemoryDetail(mem); });
         list.appendChild(card);
@@ -2506,6 +2787,7 @@ function openMemoryDetail(mem) {
     document.getElementById('detail-author').textContent = `작성: ${mem.author}`;
     document.getElementById('detail-date').textContent = `날짜: ${mem.date}`;
     document.getElementById('detail-download-btn').onclick = () => downloadMemory(mem);
+    document.getElementById('detail-share-btn').onclick = () => shareMemory(mem);
     document.getElementById('selected-memory-view').scrollIntoView({behavior:'smooth'});
 }
 
@@ -2515,6 +2797,39 @@ function deleteMemory(id) {
     renderMemoryList();
     document.getElementById('selected-memory-view').classList.add('hidden');
     addLog(`🗑️ 기억 삭제 완료.`);
+}
+
+function shareMemory(mem) {
+    const text = `[hohoplay AI 오피스 기억]\n\n📌 ${mem.title}\n🏷️ ${mem.category} · ${mem.date}\n✍️ ${mem.author}\n\n${mem.content.substring(0, 300)}${mem.content.length > 300 ? '...' : ''}`;
+
+    // 1) 모바일: 네이티브 공유 (카카오톡 선택 가능)
+    if(navigator.share) {
+        navigator.share({
+            title: mem.title,
+            text: text
+        }).then(() => {
+            addLog('📤 공유 완료!');
+        }).catch(() => {
+            // 취소 시 클립보드로 폴백
+            fallbackCopy(text, mem);
+        });
+        return;
+    }
+
+    // 2) PC: 클립보드 복사 + txt 다운로드 + 안내
+    fallbackCopy(text, mem);
+}
+
+function fallbackCopy(text, mem) {
+    // 클립보드 복사
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 내용이 복사됐습니다! 카카오톡에 붙여넣기 하세요.', 'success', 4000);
+        addLog('📋 기억 내용 클립보드 복사 완료 → 카카오톡에 붙여넣기 하세요.');
+    }).catch(() => {
+        showToast('📋 복사 실패 — 직접 내용을 선택해서 복사해 주세요.', 'warning', 3000);
+    });
+    // txt 파일도 함께 다운로드
+    downloadMemory(mem);
 }
 
 function downloadMemory(mem) {
@@ -2569,7 +2884,7 @@ function switchMemorySubTab(tab) {
 // 탭 전환
 // ═══════════════════════════════════════════════
 function switchTab(tabId) {
-    const tabs = ['control','memory','hr','stats','site'];
+    const tabs = ['control','mobilefeed','memory','hr','stats','site'];
     tabs.forEach(t => {
         const btn  = document.getElementById('tab-btn-'+t);
         const cont = document.getElementById('tab-content-'+t);
@@ -2642,26 +2957,45 @@ function addLog(text) {
     const container = document.getElementById('log-container');
     const now = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
-    // 텍스트에서 직원 정보 + 타입 감지
     const typeInfo = detectLogType(text);
 
-    const item = document.createElement('div');
-    item.className = `flex items-start gap-2.5 px-2.5 py-2 rounded-lg border transition-all duration-300 ${typeInfo.cardClass} fade-in`;
-
-    item.innerHTML = `
-        <div class="w-7 h-7 rounded-full ${typeInfo.avatarBg} flex items-center justify-center text-sm shrink-0 shadow-sm">
-            ${typeInfo.avatar}
-        </div>
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-1 mb-0.5">
-                <span class="text-[10px] font-bold ${typeInfo.nameColor} truncate">${typeInfo.name}</span>
-                <span class="text-[9px] text-slate-600 mono shrink-0">${now}</span>
+    const makeCard = () => {
+        const item = document.createElement('div');
+        item.className = `flex items-start gap-2.5 px-2.5 py-2 rounded-lg border transition-all duration-300 ${typeInfo.cardClass} fade-in`;
+        item.innerHTML = `
+            <div class="w-7 h-7 rounded-full ${typeInfo.avatarBg} flex items-center justify-center text-sm shrink-0 shadow-sm">
+                ${typeInfo.avatar}
             </div>
-            <p class="text-[10px] text-slate-300 leading-relaxed">${typeInfo.message}</p>
-        </div>`;
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-1 mb-0.5">
+                    <span class="text-[10px] font-bold ${typeInfo.nameColor} truncate">${typeInfo.name}</span>
+                    <span class="text-[9px] text-slate-600 mono shrink-0">${now}</span>
+                </div>
+                <p class="text-[10px] text-slate-300 leading-relaxed">${typeInfo.message}</p>
+            </div>`;
+        return item;
+    };
 
-    container.insertBefore(item, container.firstChild);
-    if(container.children.length > 60) container.removeChild(container.lastChild);
+    // 데스크탑 로그
+    if(container) {
+        container.insertBefore(makeCard(), container.firstChild);
+        if(container.children.length > 60) container.removeChild(container.lastChild);
+    }
+
+    // 모바일 피드 동기화
+    const mobileContainer = document.getElementById('mobile-feed-container');
+    if(mobileContainer) {
+        mobileContainer.insertBefore(makeCard(), mobileContainer.firstChild);
+        if(mobileContainer.children.length > 40) mobileContainer.removeChild(mobileContainer.lastChild);
+    }
+
+    // 피드 탭이 활성화 안 된 경우 뱃지 표시
+    const feedTab = document.getElementById('tab-btn-mobilefeed');
+    const feedBadge = document.getElementById('feed-badge');
+    if(feedTab && !feedTab.classList.contains('tab-active') && feedBadge) {
+        feedBadge.classList.remove('hidden');
+        setTimeout(() => feedBadge?.classList.add('hidden'), 3000);
+    }
 }
 
 // 로그 텍스트 분석 → 카드 스타일/아바타/이름 결정
@@ -2714,8 +3048,16 @@ function detectLogType(text) {
     return { avatar, avatarBg, name, nameColor, cardClass, message };
 }
 
+function scrollStaffBar(delta) {
+    const bar = document.getElementById('mobile-staff-bar');
+    if(bar) bar.scrollLeft += delta;
+}
+
 function clearLogs() {
-    document.getElementById('log-container').innerHTML = '';
+    const c = document.getElementById('log-container');
+    const m = document.getElementById('mobile-feed-container');
+    if(c) c.innerHTML = '';
+    if(m) m.innerHTML = '';
 }
 
 // ═══════════════════════════════════════════════
