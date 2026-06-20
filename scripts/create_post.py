@@ -2703,6 +2703,9 @@ def build_zodiac_post(z, today_str):
     💭 {empathy}
   </p>
 
+  <!-- fortune.html 파서 연동용 히든 마커: 오늘의 흐름 이후 <p>를 수집하는 파서와 호환 -->
+  <div style="display:none" aria-hidden="true">오늘의 흐름</div>
+
   <div style="font-size:15px;line-height:2.1;color:#374151;
                word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
@@ -3030,6 +3033,13 @@ def build_chinese_post(c, today_str):
     # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+
+  <!-- fortune.html 파서 연동용 히든 마커 (사용자에게 보이지 않음) -->
+  <div style="display:none" aria-hidden="true">
+    <div class="fc-text">{fortune}</div>
+    <div style="font-size:11px;font-weight:700">📅 출생연도별 오늘 운세</div>
+    {year_rows_in_card}
+  </div>
 
   <p style="font-size:15px;line-height:2.1;color:#374151;
             margin:0 0 1.4em 0;word-break:keep-all">
