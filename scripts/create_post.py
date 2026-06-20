@@ -4153,6 +4153,102 @@ REFRESH_TOKEN = os.environ.get("BLOGGER_REFRESH_TOKEN","")
 CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID","")
 CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET","")
 
+# ─────────────────────────────────────────
+# 🔍 fortune.html 파서 연동 검증
+#    create_post.py가 생성하는 HTML에
+#    fortune.html 파서가 찾는 마커가 모두 존재하는지 확인
+#    포스팅 전에 자동 호출됨 — 마커 누락 시 업로드 중단
+# ─────────────────────────────────────────
+
+# 포스트 타입별 필수 마커 정의
+#   key   : 포스트 타입 식별 문자열 (title에서 판별)
+#   markers: fortune.html 파서가 반드시 찾아야 하는 HTML 마커 목록
+_PARSER_CONTRACT = {
+    "zodiac_daily": {
+        "desc": "별자리 오늘운세",
+        "title_hint": "오늘의 운세",          # 별자리 타입 판별
+        "markers": [
+            "오늘의 흐름",                    # parseFortune_Zodiac 신구조
+            "fc-text",                        # parseFortune_Zodiac 구구조 폴백
+            "오늘의 운세 지수",               # parseFortune_Score
+        ],
+        "require_any": [["오늘의 흐름", "fc-text"]],  # 둘 중 하나만 있어도 OK
+    },
+    "chinese_daily": {
+        "desc": "띠 오늘운세",
+        "title_hint": "오늘의 띠운세",
+        "markers": [
+            "출생연도별 오늘 운세",            # parseFortune_Chinese 신구조
+            "오늘의 운세 지수",               # parseFortune_Score
+        ],
+        "require_any": [],
+    },
+    "zodiac_weekly": {
+        "desc": "별자리 주간운세",
+        "title_hint": "주간 운세",
+        "markers": [
+            "fc-text",                        # parseFortune_Weekly
+        ],
+        "require_any": [],
+    },
+    "chinese_monthly": {
+        "desc": "띠 월간운세",
+        "title_hint": "월간 운세",
+        "markers": [
+            "fc-text",                        # parseFortune_Monthly
+        ],
+        "require_any": [],
+    },
+}
+
+def _detect_post_type(title: str) -> str | None:
+    """제목으로 포스트 타입 판별"""
+    if "주간 운세" in title or "주간운세" in title:
+        return "zodiac_weekly"
+    if "월간 운세" in title or "월간운세" in title:
+        return "chinese_monthly"
+    if "오늘의 띠운세" in title or "띠운세" in title:
+        return "chinese_daily"
+    if "오늘의 운세" in title:
+        return "zodiac_daily"
+    return None
+
+def validate_post_markers(title: str, content: str) -> bool:
+    """
+    fortune.html 파서 연동 마커 검증.
+    반환값: True(통과) / False(마커 누락 — 업로드 금지)
+    """
+    post_type = _detect_post_type(title)
+    if post_type is None:
+        # 명언 등 파서 비대상 포스트는 검증 생략
+        return True
+
+    contract = _PARSER_CONTRACT[post_type]
+    errors = []
+
+    for marker in contract["markers"]:
+        # require_any 에 속한 마커는 개별 필수 검사 건너뜀
+        in_any_group = any(marker in grp for grp in contract["require_any"])
+        if in_any_group:
+            continue
+        if marker not in content:
+            errors.append(f"  ✗ 필수 마커 누락: '{marker}'")
+
+    # require_any 그룹: 그룹 내 최소 1개 이상 존재해야 함
+    for grp in contract["require_any"]:
+        if not any(m in content for m in grp):
+            errors.append(f"  ✗ 다음 중 하나 이상 필요: {grp}")
+
+    if errors:
+        print(f"\n🚨 [마커 검증 실패] {contract['desc']} — '{title[:40]}'")
+        for e in errors:
+            print(e)
+        print("  → fortune.html 파서 연동 불가. 업로드를 건너뜁니다.\n")
+        return False
+
+    return True
+
+
 def get_access_token():
     resp = requests.post("https://oauth2.googleapis.com/token", data={
         "grant_type":    "refresh_token",
@@ -4170,6 +4266,10 @@ def get_access_token():
 ACCESS_TOKEN = get_access_token() if REFRESH_TOKEN else os.environ.get("BLOGGER_TOKEN","")
 
 def post_blogger(title, content, labels, idx, total):
+    # ── fortune.html 파서 연동 마커 검증 ──
+    if not validate_post_markers(title, content):
+        return False  # 마커 누락 포스트는 업로드 자체를 막음
+
     if not BLOG_ID or not ACCESS_TOKEN:
         print(f"[{idx:02d}/{total}] (테스트) {title[:50]}")
         return True
