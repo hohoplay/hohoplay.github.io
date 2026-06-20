@@ -5246,7 +5246,16 @@ ${info.usage}`;
             function cardNarr(card) {
                 if (CARD_EMPATHY_NARR[card.nameKo])
                     return CARD_EMPATHY_NARR[card.nameKo][card.isRev ? 1 : 0];
-                // upright_meaning 우선 (부정 키워드 노출 방지 + 명사구 정확도 향상)
+                // ① readings CSV 우선 — 카테고리·방향 맞춤 문장 첫 문장 추출
+                var dir = card.isRev ? '역방향' : '정방향';
+                var rdTxt = TAROT_READINGS_MAP[card.nameKo + '|' + cat + '|' + dir]
+                         || TAROT_READINGS_MAP[card.nameKo + '|일반|' + dir] || '';
+                if (rdTxt) {
+                    // 첫 문장(~요. 또는 ~죠?) 추출
+                    var firstSent = rdTxt.split(/(?<=[요죠])[.!?]?\s+/)[0] || rdTxt;
+                    if (firstSent.length > 5 && firstSent.length < 80) return firstSent;
+                }
+                // ② upright_meaning 기반 가공 (CSV 없을 때 폴백)
                 var uprightM = card.upright_meaning || '';
                 var reversedM = card.reversed_meaning || '';
                 return tCardMeaningSentence({
@@ -5268,23 +5277,25 @@ ${info.usage}`;
 
             // ── MBTI 스타일 힌트 ──
             var mbtiHint = '';
+            // work_style/love_style 끝 조사(는/은/로는 등) 제거 후 스타일이에요 연결
+            function _cleanStyle(s) {
+                return s.replace(/[은는로]*\s*$/, '').trim();
+            }
             if (cat === '연애' && mbtiD.love_style)
-                mbtiHint = mbti + '는 ' + mbtiD.love_style + ' 스타일이에요. 이 흐름을 그 방식대로 바라보면 더 선명하게 보여요.';
+                mbtiHint = mbti + '는 ' + _cleanStyle(mbtiD.love_style) + ' 스타일이에요. 이 흐름을 그 방식대로 바라보면 더 선명하게 보여요.';
             else if (cat === '직장' && mbtiD.work_style)
-                mbtiHint = mbti + '는 ' + mbtiD.work_style + ' 스타일이에요. 지금 이 에너지가 그 강점과 맞닿아있어요.';
+                mbtiHint = mbti + '는 ' + _cleanStyle(mbtiD.work_style) + ' 스타일이에요. 지금 이 에너지가 그 강점과 맞닿아있어요.';
             else if (mbtiD.decision_style)
-                mbtiHint = mbti + '는 ' + mbtiD.decision_style + '. 지금 이 흐름에서도 그 방식이 자연스럽게 작동하고 있어요.';
+                mbtiHint = mbti + '는 ' + _cleanStyle(mbtiD.decision_style) + ' 스타일이에요. 지금 이 흐름에서도 그 방식이 자연스럽게 작동하고 있어요.';
 
             // ── 패턴 경고 ──
             var uniqueSuitsM = new Set(suits3m);
             var patternWarnM = '';
             if (uniqueSuitsM.size === 1) {
-                var isMajorAllM = suits3m.every(function(s){ return s === 'major'; });
-                patternWarnM = isMajorAllM
-                    ? '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">세 장 모두 메이저 아르카나가 나왔어요. 삶의 큰 흐름과 깊은 전환이 동시에 작용하고 있다는 신호예요. 하나하나가 모두 의미 있는 에너지이니, 서두르지 말고 각 카드의 메시지를 천천히 받아들여보세요.</p>'
-                    : '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, 세 장 모두 같은 성격의 에너지가 쏠릴 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
+                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, 세 장 모두 같은 성격의 에너지가 쏠릴 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
             } else if (uniqueSuitsM.size === 3) {
-                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, ' + kP + '에서 ' + kC + ', 그리고 ' + kF + '으로 흐르는 에너지가 매 단계 급격하게 바뀌고 있어요. 이 모든 흐름을 혼자 감당하려다 보면 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>';
+                var kFJosa = (function(s){ var ch=s[s.length-1],c=ch.charCodeAt(0); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28!==0)?'으로':'로'; })(kF);
+                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, ' + kP + '에서 ' + kC + ', 그리고 ' + kF + kFJosa + ' 흐르는 에너지가 매 단계 급격하게 바뀌고 있어요. 이 모든 흐름을 혼자 감당하려다 보면 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>';
             }
 
             // ── MBTI 결론 — synthesis_text 격식체→구어체 + 첫 MBTI 중복 제거 ──
@@ -6591,11 +6602,7 @@ ${info.usage}`;
       const uniqueSuits = new Set(suits3);
       let patternWarning = '';
       if (uniqueSuits.size === 1) {
-        // major 3장 = 각각 독립 원형(전환·의지·직관 등)이라 "같은 성격" 문구 대신 별도 메시지
-        const isMajorAll = suits3.every(s => s === 'major');
-        patternWarning = isMajorAll
-          ? `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">세 장 모두 메이저 아르카나가 나왔어요. 삶의 큰 흐름과 깊은 전환이 동시에 작용하고 있다는 신호예요. 하나하나가 모두 의미 있는 에너지이니, 서두르지 말고 각 카드의 메시지를 천천히 받아들여보세요.</p>`
-          : `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. 한 가지 방향으로만 에너지가 흐를 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
+        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. 한 가지 방향으로만 에너지가 흐를 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
       } else if (uniqueSuits.size === 3) {
         patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 흐르는 에너지가 매 단계 급격하게 바뀌고 있어요. 이 모든 흐름을 혼자 완벽하게 감당하려다 보면 마음이 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>`;
       }
