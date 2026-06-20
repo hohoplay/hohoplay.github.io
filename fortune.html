@@ -5251,11 +5251,10 @@ ${info.usage}`;
                 var rdTxt = TAROT_READINGS_MAP[card.nameKo + '|' + cat + '|' + dir]
                          || TAROT_READINGS_MAP[card.nameKo + '|일반|' + dir] || '';
                 if (rdTxt) {
-                    // 첫 문장(~요. 또는 ~죠?) 추출
                     var firstSent = rdTxt.split(/(?<=[요죠])[.!?]?\s+/)[0] || rdTxt;
                     if (firstSent.length > 5 && firstSent.length < 80) return firstSent;
                 }
-                // ② upright_meaning 기반 가공 (CSV 없을 때 폴백)
+                // ② upright_meaning 기반 가공 폴백
                 var uprightM = card.upright_meaning || '';
                 var reversedM = card.reversed_meaning || '';
                 return tCardMeaningSentence({
@@ -5277,7 +5276,6 @@ ${info.usage}`;
 
             // ── MBTI 스타일 힌트 ──
             var mbtiHint = '';
-            // work_style/love_style 끝 조사(는/은/로는 등) 제거 후 스타일이에요 연결
             function _cleanStyle(s) {
                 return s.replace(/[은는로]*\s*$/, '').trim();
             }
@@ -5292,7 +5290,10 @@ ${info.usage}`;
             var uniqueSuitsM = new Set(suits3m);
             var patternWarnM = '';
             if (uniqueSuitsM.size === 1) {
-                patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, 세 장 모두 같은 성격의 에너지가 쏠릴 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
+                var isMajorAllM = suits3m.every(function(s){ return s === 'major'; });
+                patternWarnM = isMajorAllM
+                    ? '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">세 장 모두 메이저 아르카나가 나왔어요. 삶의 큰 흐름과 깊은 전환이 동시에 작용하고 있다는 신호예요. 하나하나가 모두 의미 있는 에너지이니, 서두르지 말고 각 카드의 메시지를 천천히 받아들여보세요.</p>'
+                    : '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, 세 장 모두 같은 성격의 에너지가 쏠릴 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체를 바라보셨으면 해요.</p>';
             } else if (uniqueSuitsM.size === 3) {
                 var kFJosa = (function(s){ var ch=s[s.length-1],c=ch.charCodeAt(0); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28!==0)?'으로':'로'; })(kF);
                 patternWarnM = '<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 성향상 한 번 몰입하면 끝을 보는 당신이기에, ' + kP + '에서 ' + kC + ', 그리고 ' + kF + kFJosa + ' 흐르는 에너지가 매 단계 급격하게 바뀌고 있어요. 이 모든 흐름을 혼자 감당하려다 보면 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>';
@@ -5876,11 +5877,13 @@ ${info.usage}`;
             // ── 행동 처방 ──
             var actionDream = stages.action || '';
 
+            // 버그1 수정: headDream(D단계 공감문) 산문에 출력
+            // 버그2 수정: bodyDeep prefix 제거 — CSV 문장 자체가 완결형이므로 prefix 불필요
             dreamProse = `
               <div style="font-size:.9rem;line-height:2.1;color:#e0d5f0;padding:.2rem 0">
 
                 <p style="font-size:.93rem;font-weight:700;color:#c4b5fd;line-height:1.8;margin-bottom:1.2rem">
-                  당신의 무의식이 보내온 비밀스러운 신호, 마음에 가만히 귀를 기울여 보세요
+                  ${headDream}
                 </p>
 
                 ${symbolLine ? `<p style="margin-bottom:1rem">
@@ -5888,12 +5891,11 @@ ${info.usage}`;
                 </p>` : ''}
 
                 ${bodyDeep ? `<p style="margin-bottom:1rem">
-                  당신의 현재 심리 상태와 맞물려 보면, ${bodyDeep}
+                  ${bodyDeep}
                 </p>` : ''}
 
                 ${bodyMbtiLink ? `<p style="margin-bottom:1rem">
-                  <strong style="color:#a78bfa">${_mbtiDreamMbti}</strong>인 당신에게 이 꿈은 더욱 특별한 의미로 다가와요.
-                  ${bodyMbtiLink.replace(new RegExp(_mbtiDreamMbti + '인\\s*당신은?\\s*'), '당신은 ').replace(new RegExp('^' + _mbtiDreamMbti + '[은는]\\s*'), '')}
+                  ${bodyMbtiLink}
                 </p>` : ''}
 
                 ${alertDream ? `<p style="margin:1rem 0;line-height:2;color:#fca5a5">
@@ -6602,7 +6604,10 @@ ${info.usage}`;
       const uniqueSuits = new Set(suits3);
       let patternWarning = '';
       if (uniqueSuits.size === 1) {
-        patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. 한 가지 방향으로만 에너지가 흐를 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
+        const isMajorAll = suits3.every(s => s === 'major');
+        patternWarning = isMajorAll
+          ? `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">세 장 모두 메이저 아르카나가 나왔어요. 삶의 큰 흐름과 깊은 전환이 동시에 작용하고 있다는 신호예요. 하나하나가 모두 의미 있는 에너지이니, 서두르지 말고 각 카드의 메시지를 천천히 받아들여보세요.</p>`
+          : `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 세 장 모두 같은 성격의 에너지예요. 한 가지 방향으로만 에너지가 흐를 때는 시야가 좁아지기 쉬워요. 가끔은 한 발짝 물러서서 전체 그림을 바라보셨으면 해요.</p>`;
       } else if (uniqueSuits.size === 3) {
         patternWarning = `<p style="margin:1.1rem 0;line-height:2;color:#fed7aa">다만 ${kPast}에서 ${kPres}, 그리고 ${kFuture}${_hasJongseong(kFuture)?"으로":"로"} 흐르는 에너지가 매 단계 급격하게 바뀌고 있어요. 이 모든 흐름을 혼자 완벽하게 감당하려다 보면 마음이 쉽게 지칠 수 있으니, 조금은 숨을 고를 필요가 있어요.</p>`;
       }
