@@ -267,6 +267,13 @@ ${info.usage}`;
         if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
 
         // ═══════════════════════════════
+        //  Blogger API 설정 — window.BLOG_ID 우선, 없으면 자체 정의
+        // ═══════════════════════════════
+        if (typeof BLOG_ID  === 'undefined') var BLOG_ID  = window.BLOG_ID  || '5608603268556826697';
+        if (typeof API_KEY  === 'undefined') var API_KEY  = window.API_KEY  || 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
+        if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
+
+        // ═══════════════════════════════
         //  Blogger API
         // ═══════════════════════════════
         async function fetchPosts(label, maxResults=6){
