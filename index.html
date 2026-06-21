@@ -134,7 +134,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260620232742_ec69c446">
+  <meta name="build-version" content="20260621120018_60f16a41">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -995,9 +995,14 @@
                 el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
             }
         }
-        const BLOG_ID  = '5608603268556826697';
-        const API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
-        const BASE_URL = 'https://www.googleapis.com/blogger/v3';
+        // window에 노출 — fortune.html 스크립트가 나중에 삽입돼도 참조 가능
+        window.BLOG_ID  = '5608603268556826697';
+        window.API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
+        window.BASE_URL = 'https://www.googleapis.com/blogger/v3';
+        // 하위 호환: const 별칭도 유지
+        const BLOG_ID  = window.BLOG_ID;
+        const API_KEY  = window.API_KEY;
+        const BASE_URL = window.BASE_URL;
     </script>
 
     <!-- 운세·타로·MBTI 모듈 동적 로드 -->
