@@ -134,7 +134,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260621135339_894a2383">
+  <meta name="build-version" content="20260621140321_8e2a1031">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -454,7 +454,7 @@
                         <button onclick="showFortune('mbti-tarot')"  id="tab-mbti-tarot"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+타로</button>
                         <button onclick="showFortune('mbti-dream')"  id="tab-mbti-dream"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+꿈해몽</button>
                     </div>
-                    <div id="fortune-content"><div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세를 불러오는 중...</div></div>
+                    <div id="fortune-content"></div>
                 </div>
             `,
                         guide: `
@@ -807,8 +807,19 @@
                 if(window.fortuneReady) {
                     showFortune('today');
                 } else {
-                    // fortune.html 아직 로드 중 — 완료 후 실행 예약
+                    // fortune.html 아직 로드 중 — fortune-content에 대기 메시지 표시
+                    var _fc = document.getElementById('fortune-content');
+                    if (_fc) _fc.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세 모듈 로딩 중...</div>';
+                    // 완료 후 실행 예약
                     window._pendingFortune = function(){ showFortune('today'); };
+                    // 5초 타임아웃 — 로드 실패 시 안내 메시지
+                    setTimeout(function(){
+                        if(!window.fortuneReady){
+                            var fc2 = document.getElementById('fortune-content');
+                            if(fc2 && fc2.innerHTML.includes('로딩 중'))
+                                fc2.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa">⚠️ 운세 모듈을 불러오지 못했습니다. 페이지를 새로고침해 주세요.</div>';
+                        }
+                    }, 5000);
                 }
             }
             if (page === 'blog') bbsInit();
@@ -995,11 +1006,9 @@
                 el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
             }
         }
-        // window에 노출 — fortune.html 스크립트가 나중에 삽입돼도 참조 가능
         window.BLOG_ID  = '5608603268556826697';
         window.API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
         window.BASE_URL = 'https://www.googleapis.com/blogger/v3';
-        // 하위 호환: const 별칭도 유지
         const BLOG_ID  = window.BLOG_ID;
         const API_KEY  = window.API_KEY;
         const BASE_URL = window.BASE_URL;
