@@ -1463,6 +1463,24 @@ async function sendChatMessage() {
     const isContinue = /^(이어서|계속|이어말해|이어서 말해|계속해|계속 말해)/.test(msg.trim());
     let mode = isContinue && lastMode ? lastMode : detectChatMode(msg);
 
+    // 사이트 분석 파일명 언급 시 해당 파일 자동 로드
+    if(siteAnalysisData.files.length > 0) {
+        const mentioned = siteAnalysisData.files.find(f =>
+            msg.toLowerCase().includes(f.name.toLowerCase()) ||
+            msg.toLowerCase().includes(f.path.toLowerCase())
+        );
+        if(mentioned && mentioned.content) {
+            const alreadyLoaded = localFilesData.find(f => f.name === mentioned.name && f._siteFile);
+            if(!alreadyLoaded) {
+                localFilesData = localFilesData.filter(f => !f._siteFile); // 이전 파일 교체
+                localFilesData.push({ name: mentioned.name, content: mentioned.content, _siteFile: true });
+                addLog(`📄 "${mentioned.name}" 자동 로드 — 전체 내용 참조 중`);
+                appendMessage('assistant','시스템','📄',
+                    `<span class="text-emerald-400">📄 ${mentioned.name}</span> 파일을 자동으로 불러왔습니다. 전체 내용을 참조하여 답변합니다.`);
+            }
+        }
+    }
+
     // 전체 직원 대상(normal/meeting)이고 드롭다운 미선택이면
     // 주제 키워드로 관련 직원 자동 배정
     if(!isContinue && (mode.type === 'normal' || mode.type === 'meeting') && !mode.focusIds) {
@@ -1571,10 +1589,39 @@ async function runDebateWorkflow(msg, mode, wMode) {
         }
     }
 
-    // 파일 컨텍스트 요약
-    const fileCtx = localFilesData.length > 0
-        ? `\n\n[참고 파일]\n${localFilesData.map(f=>`${f.name}:\n${f.content.substring(0,500)}`).join('\n---\n')}`
-        : '';
+    // ── 파일 컨텍스트 스마트 구성 ──
+    // 사이트 분석 요약은 항상 포함 (요약만, content 제외)
+    // 일반 파일은 질문과 관련된 파일만 선택적으로 포함
+    let fileCtx = '';
+    if(localFilesData.length > 0) {
+        const siteAnalysisFile = localFilesData.find(f => f._siteAnalysis);
+        const regularFiles = localFilesData.filter(f => !f._siteAnalysis);
+
+        const parts = [];
+
+        // 사이트 분석 요약 (항상 포함)
+        if(siteAnalysisFile) {
+            parts.push(`[hohoplay 사이트 분석 요약]\n${siteAnalysisFile.content.substring(0, 2000)}`);
+        }
+
+        // 일반 파일 - 질문에 파일명 포함된 것 우선, 없으면 최근 2개만
+        if(regularFiles.length > 0) {
+            const msgLower = msg.toLowerCase();
+            const relevant = regularFiles.filter(f =>
+                msgLower.includes(f.name.toLowerCase().replace(/\.[^.]+$/, ''))
+            );
+            const toInclude = relevant.length > 0 ? relevant.slice(0, 2) : regularFiles.slice(-2);
+            toInclude.forEach(f => {
+                const preview = f.content.substring(0, 1500);
+                parts.push(`[파일: ${f.name}]\n${preview}${f.content.length > 1500 ? '\n...(이하 생략)' : ''}`);
+            });
+            if(regularFiles.length > toInclude.length) {
+                parts.push(`[기타 연동 파일 ${regularFiles.length - toInclude.length}개 — 파일명을 언급하면 내용을 참조합니다]`);
+            }
+        }
+
+        if(parts.length > 0) fileCtx = `\n\n${parts.join('\n---\n')}`;
+    }
 
     const totalSteps = roundStaffs.length;
 
@@ -2578,7 +2625,21 @@ ${getSeniorityGuide(staff.level)}
     }
 
     if(localFilesData.length > 0) {
-        sys += `\n\n[연동된 로컬/GitHub 파일]\n${localFilesData.map(f=>`파일명: ${f.name}\n내용(앞부분):\n${f.content.substring(0,800)}`).join('\n---\n')}`;
+        const siteFile = localFilesData.find(f => f._siteAnalysis);
+        const regularFiles = localFilesData.filter(f => !f._siteAnalysis);
+
+        if(siteFile) {
+            sys += `\n\n[hohoplay 사이트 분석 요약]\n${siteFile.content.substring(0, 2000)}`;
+        }
+        if(regularFiles.length > 0) {
+            // 최근 2개 파일만 포함 (토큰 절약)
+            regularFiles.slice(-2).forEach(f => {
+                sys += `\n\n[파일: ${f.name}]\n${f.content.substring(0, 1500)}${f.content.length > 1500 ? '\n...(이하 생략)' : ''}`;
+            });
+            if(regularFiles.length > 2) {
+                sys += `\n\n[기타 파일 ${regularFiles.length - 2}개 연동됨 — 파일명 언급 시 참조 가능]`;
+            }
+        }
     }
     return sys;
 }
@@ -4096,16 +4157,20 @@ async function startSiteAnalysis() {
 주어진 파일의 내용을 3~5줄로 핵심만 요약하세요:
 - 이 파일이 무엇인지 (역할/기능)
 - 주요 구성 요소 (핵심 함수, 컴포넌트, 설정 등)
-- 특이사항이나 개선이 필요한 부분 (있다면)
-한국어로, 간결하게 작성하세요.`;
+- 개선이 필요한 부분 (있다면)
+한국어로, 간결하게.`;
                     summary = await callClaudeAPI(sysPrompt,
                         [{ role:'user', content: `파일명: ${f.path}\n\n내용(앞 3000자):\n${content.substring(0, 3000)}` }], 300);
                 } catch(e) { summary = '(요약 실패)'; }
             }
 
             siteAnalysisData.files.push({
-                path: f.path, name: f.path.split('/').pop(),
-                size: f.size, content, summary,
+                path: f.path,
+                name: f.path.split('/').pop(),
+                size: f.size,
+                // content는 전체 보관 (채팅에는 요약만 들어감 — 토큰 절약)
+                content,
+                summary,
                 summarizedAt: new Date().toISOString()
             });
 
