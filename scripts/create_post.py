@@ -2244,38 +2244,6 @@ def _zodiac_score_bar(label, emoji, pct):
 
 
 
-def _zodiac_score_badge(pct):
-    """점수 → 색상·레벨 반환"""
-    if pct >= 80: return "#16a34a", "상승 ↑"
-    if pct >= 65: return "#d97706", "보통 →"
-    return "#dc2626", "주의 ⚠"
-
-def _zodiac_score_bar(label, emoji, pct):
-    color, level = _zodiac_score_badge(pct)
-    filled = round(pct / 10)
-    bar = '█' * filled + '░' * (10 - filled)
-    return (f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
-            f'<span style="min-width:62px;font-size:12px">{emoji} {label}</span>'
-            f'<span style="font-family:monospace;color:{color};font-size:13px;flex:1">{bar}</span>'
-            f'<span style="font-size:12px;font-weight:700;color:{color};min-width:30px">{pct}%</span>'
-            f'<span style="font-size:11px;color:{color}">{level}</span>'
-            f'</div>')
-
-
-
-def _zodiac_score_bar(label, emoji, pct):
-    color, level = _zodiac_score_badge(pct)
-    filled = round(pct / 10)
-    bar = '█' * filled + '░' * (10 - filled)
-    return (f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
-            f'<span style="min-width:62px;font-size:12px">{emoji} {label}</span>'
-            f'<span style="font-family:monospace;color:{color};font-size:13px;flex:1">{bar}</span>'
-            f'<span style="font-size:12px;font-weight:700;color:{color};min-width:30px">{pct}%</span>'
-            f'<span style="font-size:11px;color:{color}">{level}</span>'
-            f'</div>')
-
-
-
 
 _Z_SIGNAL_MONEY_UP   = ["금전운 상승 타이밍", "재물운 급상승", "수입 기회 포착", "금전 흐름 반전"]
 _Z_SIGNAL_LOVE_UP    = ["연애운 급변", "인연 접촉 신호", "애정운 상승 중", "관계 반전 예고"]
