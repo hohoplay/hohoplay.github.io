@@ -1115,13 +1115,17 @@ def _omnibus_bridge(z_kr, z_core, c_kr, c_core, theme, idx,
     # 시작 — 별자리 핵심 운세
     if z_core:
         _z_core = z_core.lstrip()
-        _z_core = re.sub(r'^오늘\s*', '', _z_core)
+        _z_core = re.sub(r'^오늘도?\s*', '', _z_core)
+        if not _z_core:
+            _z_core = z_core.lstrip()
         parts.append(f"{z_kr}는 오늘 {_z_core}")
 
     # 연결 — 띠 핵심 운세
     if c_core:
         _c_core = c_core.lstrip()
-        _c_core = re.sub(r'^오늘\s*', '', _c_core)
+        _c_core = re.sub(r'^오늘도?\s*', '', _c_core)
+        if not _c_core:
+            _c_core = c_core.lstrip()
         parts.append(f"한편 {c_kr}에게는 {_c_core}")
 
     # 테마 기반 한 줄 정리
@@ -1937,10 +1941,7 @@ def build_quote_post(today_str):
                 line-height:1.9;margin:0 0 8px">
         ❝ {quote} ❞
       </p>
-      <p style="font-size:12px;color:#9ca3af;line-height:1.6;margin:0 0 8px">{quote_en}</p>
-      <p style="font-size:13px;font-weight:700;color:#7c3aed;margin:0">
-        — {author_ko} ({birth})
-      </p>
+      <p style="font-size:12px;color:#9ca3af;line-height:1.6;margin:0">{quote_en}</p>
     </div>
 
     <div class="qc-rule">&middot; &middot; &middot;</div>
@@ -2316,7 +2317,7 @@ _Z_TOTAL_INTRO_UP = [
     "방향에 대한 의심이 있었을 수 있습니다. 오늘 그 답이 조금씩 보이기 시작합니다. 중반 이후 자신감이 흔들리는 순간이 올 수 있습니다. 그 순간에 멈추지 말고 한 발 더 나아가시기 바랍니다. 생각보다 빨리 방향이 잡힙니다.",
     "오래 미루어두었던 연락이나 말을 꺼내기 좋은 날입니다. 보내지 못했던 메시지 중 하나만 오늘 실행해보시기 바랍니다. 지금의 타이밍이 충분합니다.",
     "주변에 사람이 많아도 고립감을 느꼈을 수 있습니다. 오늘 그 감각을 채워줄 신호가 들어올 수 있습니다. 저녁까지는 감정보다 행동을 먼저 하는 것이 좋습니다. 먼저 움직이면 생각보다 가까운 곳에 답이 있습니다.",
-    "최근 열심히 했는데 티가 안 나는 것 같아서 지쳤을 수 있어요.\n\n오늘 오전, 누군가의 반응이나 작은 결과 하나가 그 피로를 가볍게 만들어줄 수 있습니다.\n\n보이지 않았던 것이 보이기 시작하는 날입니다.",
+    "최근 열심히 했는데 티가 안 나는 것 같아서 지쳤을 수 있습니다.\n\n오늘 오전, 누군가의 반응이나 작은 결과 하나가 그 피로를 가볍게 만들어줄 수 있습니다.\n\n보이지 않았던 것이 보이기 시작하는 날입니다.",
     "오늘은 흐름이 좋은 날입니다.\n\n대단한 사건이 아니라 작은 것들이 맞아 떨어지는 날입니다.\n\n결정이 필요한 일이 있다면 오늘 안에 마무리하시기 바랍니다. 내일보다 오늘이 훨씬 유리합니다.",
 ]
 _Z_TOTAL_INTRO_WARN = [
@@ -2362,36 +2363,36 @@ _Z_LOVE_INTRO_WARN = [
 
 # ── 연애운 상세 조언 풀 ──
 _Z_LOVE_DETAIL_UP = [
-    "오늘 오후 2시~5시 사이에 예상 못한 연락이 올 수 있어요. 그 연락이 가볍게 느껴지더라도 흘려보내지 마세요. 짧게라도 성의 있게 답하는 것이 오늘 인연의 실을 잇는 방법입니다.",
-    "오래 연락이 끊겼던 사람이 갑자기 생각난다면, 먼저 짧은 안부를 넣어 보세요. '요즘 어때요?' 한 줄이 관계를 다시 이어주는 오늘이 될 수 있습니다.",
-    "저녁 약속이나 가벼운 만남이 생긴다면 핑계 찾지 말고 나가 보세요. 오늘은 예상치 못한 자리에서 좋은 인연이 시작될 수 있는 날입니다.",
+    "오늘 오후 2시~5시 사이에 예상 못한 연락이 올 수 있습니다. 그 연락이 가볍게 느껴지더라도 흘려보내지 마시기 바랍니다. 짧게라도 성의 있게 답하는 것이 오늘 인연의 실을 잇는 방법입니다.",
+    "오래 연락이 끊겼던 사람이 갑자기 생각난다면, 먼저 짧은 안부를 넣어 보시기 바랍니다. '요즘 어때요?' 한 줄이 관계를 다시 이어주는 오늘이 될 수 있습니다.",
+    "저녁 약속이나 가벼운 만남이 생긴다면 핑계 찾지 말고 나가 보시기 바랍니다. 오늘은 예상치 못한 자리에서 좋은 인연이 시작될 수 있는 날입니다.",
     "오늘 이유 없이 안부를 묻고 싶은 사람이 있다면,\n\n먼저 연락해보시기 바랍니다.\n\n핑계가 필요 없는 날입니다.",
     "오늘 직감이 좋은 날입니다. 예상하지 못한 쪽에서 연락이 올 수 있습니다.\n\n연락이 오면 바로 확인하시기 바랍니다.",
-    "전에 하려다 멈췄던 고백이나 표현이 있다면, 오늘 가장 가벼운 방식으로 꺼내보세요. 거창하지 않아도 됩니다. 짧은 말 한마디가 오늘은 생각보다 잘 닿습니다.",
+    "전에 하려다 멈췄던 고백이나 표현이 있다면, 오늘 가장 가벼운 방식으로 꺼내보시기 바랍니다. 거창하지 않아도 됩니다. 짧은 말 한마디가 오늘은 생각보다 잘 닿습니다.",
 ]
 _Z_LOVE_DETAIL_WARN = [
-    "오늘 상대에게 서운한 게 생기더라도, 그 자리에서 바로 꺼내지 마세요. 감정이 가라앉은 저녁 이후에 '그때 그 말이 조금 걸렸어'라고 차분하게 전하는 게 훨씬 효과적입니다.",
-    "오늘 문자나 메시지를 보내기 전에 한 번 더 읽어보세요. 내 의도와 다르게 읽힐 수 있는 표현이 있는지 확인한 다음 보내는 게 오늘만큼은 중요합니다.",
-    "혼자 있는 시간을 강제로 채우려 하지 마세요. 오늘 억지로 연락하거나 만남을 만들어내는 것보다 잠깐 거리 두는 게 관계에 더 좋은 날입니다.",
-    "오늘 상대방이 이상하게 느껴진다면, 상대가 이상한 게 아니라 내 상태가 예민한 것일 수도 있어요.\n\n먼저 내 감정을 확인해 보세요.",
-    "상대 말투가 평소보다 조금 차갑게 느껴지는 순간이 올 수 있어요. 그 말투가 진짜 의도인지 지금 그 사람 상태인지 먼저 확인하고 반응하세요. 오해로 번지기 전에 잡는 게 훨씬 쉽습니다.",
-    "눈치 보면서 하지 못했던 말이 있다면 오늘 저녁에 짧게라도 꺼내보세요. 타이밍이 지나면 더 꺼내기 어려워지는 말들이 있어요.",
+    "오늘 상대에게 서운한 게 생기더라도, 그 자리에서 바로 꺼내지 마시기 바랍니다. 감정이 가라앉은 저녁 이후에 '그때 그 말이 조금 걸렸어'라고 차분하게 전하는 게 훨씬 효과적입니다.",
+    "오늘 문자나 메시지를 보내기 전에 한 번 더 읽어보시기 바랍니다. 내 의도와 다르게 읽힐 수 있는 표현이 있는지 확인한 다음 보내는 게 오늘만큼은 중요합니다.",
+    "혼자 있는 시간을 강제로 채우려 하지 마시기 바랍니다. 오늘 억지로 연락하거나 만남을 만들어내는 것보다 잠깐 거리 두는 게 관계에 더 좋은 날입니다.",
+    "오늘 상대방이 이상하게 느껴진다면, 상대가 이상한 게 아니라 내 상태가 예민한 것일 수도 있습니다.\n\n먼저 내 감정을 확인해 보시기 바랍니다.",
+    "상대 말투가 평소보다 조금 차갑게 느껴지는 순간이 올 수 있습니다. 그 말투가 진짜 의도인지 지금 그 사람 상태인지 먼저 확인하고 반응하시기 바랍니다. 오해로 번지기 전에 잡는 게 훨씬 쉽습니다.",
+    "눈치 보면서 하지 못했던 말이 있다면 오늘 저녁에 짧게라도 꺼내보시기 바랍니다. 타이밍이 지나면 더 꺼내기 어려워지는 말들이 있습니다.",
 ]
 
 # ── 연애운 시간대 가이드 풀 ──
 _Z_LOVE_TIME_UP = [
-    "💬 오늘의 최적 대화 시간대: 오후 3시~6시 사이가 감수성이 열리는 시간입니다. 이 시간 안에 전하고 싶은 마음을 표현해 보세요.",
-    "💬 오늘 저녁 7시 이후에는 편안한 대화 에너지가 흐릅니다. 무거운 주제보다 가벼운 공감 대화부터 시작해 보세요.",
+    "💬 오늘의 최적 대화 시간대: 오후 3시~6시 사이가 감수성이 열리는 시간입니다. 이 시간 안에 전하고 싶은 마음을 표현해 보시기 바랍니다.",
+    "💬 오늘 저녁 7시 이후에는 편안한 대화 에너지가 흐릅니다. 무거운 주제보다 가벼운 공감 대화부터 시작해 보시기 바랍니다.",
     "💬 오전 중에 연락을 주고받는다면 오늘 하루 관계 에너지가 더 길게 지속됩니다. 짧은 안부 메시지 하나가 하루를 바꿀 수 있습니다.",
 ]
 _Z_LOVE_TIME_WARN = [
     "💬 오후 12시~3시 사이에는 감정 기복이 생기기 쉽습니다. 이 시간대에는 중요한 감정 대화를 피하고 저녁 이후로 미루는 것이 현명합니다.",
-    "💬 오늘은 저녁 이후에 오히려 마음이 안정됩니다. 하루 중 가장 솔직한 대화를 나눌 수 있는 시간대이니 참고하세요.",
+    "💬 오늘은 저녁 이후에 오히려 마음이 안정됩니다. 하루 중 가장 솔직한 대화를 나눌 수 있는 시간대이니 참고하시기 바랍니다.",
 ]
 
 # ── 연애운 마무리 풀 ──
 _Z_LOVE_CLOSE_UP = [
-    "생각보다 당신 편은 가까이에 있을 수 있습니다. 오늘 작은 용기 하나가 내일의 관계를 바꿔놓을 수 있어요. 💕",
+    "생각보다 당신 편은 가까이에 있을 수 있습니다. 오늘 작은 용기 하나가 내일의 관계를 바꿔놓을 수 있습니다. 💕",
     "표현하지 않은 마음은 상대에게 닿지 않습니다. 오늘 그 마음을 가장 가벼운 방식으로 한 번 꺼내보시기 바랍니다. 🌸",
     "먼저 연락한 사람이 늘 더 많이 얻습니다. 오늘 그 사람이 당신이어도 괜찮습니다. 💞",
 ]
@@ -2413,19 +2414,19 @@ _Z_MONEY_INTRO_WARN = [
 
 # ── 금전운 상세 조언 풀 ──
 _Z_MONEY_DETAIL_UP = [
-    "미뤄두었던 환급금이나 포인트 전환, 캐시백 신청을 오늘 처리하세요. 귀찮아서 미뤘던 것들이 오늘 손에 잡히는 날입니다. 10분만 투자해도 꽤 챙겨집니다.",
-    "오후에 수입 관련 메시지나 연락이 올 수 있어요. 조건을 꼼꼼히 읽고 결정하세요. 서두르지 않아도 됩니다. 오늘 안에 판단하면 기회는 놓치지 않습니다.",
-    "부업이나 외부 수입에 대해 막연하게만 생각해 왔다면, 오늘 정보를 찾아보는 것만이라도 시작해 보세요. 오늘의 검색 하나가 다음 달 수입의 시작이 될 수 있습니다.",
+    "미뤄두었던 환급금이나 포인트 전환, 캐시백 신청을 오늘 처리하시기 바랍니다. 귀찮아서 미뤘던 것들이 오늘 손에 잡히는 날입니다. 10분만 투자해도 꽤 챙겨집니다.",
+    "오후에 수입 관련 메시지나 연락이 올 수 있습니다. 조건을 꼼꼼히 읽고 결정하시기 바랍니다. 서두르지 않아도 됩니다. 오늘 안에 판단하면 기회는 놓치지 않습니다.",
+    "부업이나 외부 수입에 대해 막연하게만 생각해 왔다면, 오늘 정보를 찾아보는 것만이라도 시작해 보시기 바랍니다. 오늘의 검색 하나가 다음 달 수입의 시작이 될 수 있습니다.",
 ]
 _Z_MONEY_DETAIL_WARN = [
     "오늘 오후 3시 이후에 쇼핑 앱을 열고 싶어진다면 알림을 끄세요. 지금 사고 싶은 게 내일도 사고 싶으면 그때 사세요. 오늘 충동구매는 내일 아침 후회가 됩니다.",
-    "오늘 카드 내역을 한 번 훑어보세요. 자동 결제 중에 쓰지 않는 구독 서비스가 있을 수 있어요. 월 몇 천 원이라도 지금 끊어두면 연간으로는 상당히 됩니다.",
+    "오늘 카드 내역을 한 번 훑어보시기 바랍니다. 자동 결제 중에 쓰지 않는 구독 서비스가 있을 수 있습니다. 월 몇 천 원이라도 지금 끊어두면 연간으로는 상당히 됩니다.",
     "투자나 새로운 금전 계약은 이틀 뒤로 미루시기 바랍니다. 급해 보이는 제안일수록 천천히 보는 것이 맞습니다. 조금 더 생각한 뒤 결정해도 늦지 않습니다.",
 ]
 
 # ── 금전운 시간대 가이드 풀 ──
 _Z_MONEY_TIME_UP = [
-    "💰 오늘의 황금 시간대: 오전 10시~오후 1시 사이에 금전 관련 연락이나 결정을 마무리하세요. 이 시간대에 이루어진 금전 계획은 실행력이 높습니다.",
+    "💰 오늘의 황금 시간대: 오전 10시~오후 1시 사이에 금전 관련 연락이나 결정을 마무리하시기 바랍니다. 이 시간대에 이루어진 금전 계획은 실행력이 높습니다.",
     "💰 오늘 오후 2시~4시 사이가 수익 관련 아이디어가 가장 활발히 떠오르는 시간입니다. 생각이 떠오르면 바로 메모해 두세요.",
 ]
 _Z_MONEY_TIME_WARN = [
@@ -2445,8 +2446,8 @@ _Z_MONEY_CLOSE_WARN = [
 
 # ── 직장운 서론 풀 ──
 _Z_WORK_INTRO_UP = [
-    "오랫동안 보이지 않는 곳에서 해온 것들이 오늘 조금씩 드러나는 날입니다. 누군가의 반응이 평소와 다르게 느껴진다면 그것이 신호입니다. 오늘 한 가지 중요한 일에 집중해 보세요.",
-    "오늘 머릿속에서 맴돌던 아이디어가 갑자기 구체화될 수 있어요. 그 순간 메모부터 하세요. 회의나 미팅이 있다면 평소보다 조금 더 적극적으로 발언해 보세요. 오늘 당신 말에 무게가 있는 날입니다.",
+    "오랫동안 보이지 않는 곳에서 해온 것들이 오늘 조금씩 드러나는 날입니다. 누군가의 반응이 평소와 다르게 느껴진다면 그것이 신호입니다. 오늘 한 가지 중요한 일에 집중해 보시기 바랍니다.",
+    "오늘 머릿속에서 맴돌던 아이디어가 갑자기 구체화될 수 있습니다. 그 순간 메모부터 하시기 바랍니다. 회의나 미팅이 있다면 평소보다 조금 더 적극적으로 발언해 보시기 바랍니다. 오늘 당신 말에 무게가 있는 날입니다.",
     "업무 흐름이 잘 타는 날입니다. 어렵게 느껴지던 일도 오늘은 생각보다 수월하게 풀릴 수 있습니다. 미루어두었던 중요한 과제가 있다면 오늘 시작하는 것이 맞습니다.",
 ]
 _Z_WORK_INTRO_WARN = [
@@ -2467,27 +2468,27 @@ _Z_WORK_SCORE_WARN = [
 
 # ── 직장운 상세 조언 풀 ──
 _Z_WORK_DETAIL_UP = [
-    "오늘 동료나 상사로부터 예상 못한 긍정적인 반응이 올 수 있어요. 그 순간 겸손하게 받되, 다음 목표도 함께 언급해 보세요. 인상이 훨씬 깊어집니다.",
-    "오늘 회의에서 말하려다 멈췄던 아이디어가 있다면 꺼내 보세요. 타이밍을 놓치지 않는 것 자체가 오늘 당신의 가장 큰 강점입니다.",
-    "오늘 작은 성과가 생기면 팀과 공유하세요. 혼자 안고 가는 것보다 나눌 때 신뢰가 더 쌓이는 날입니다.",
+    "오늘 동료나 상사로부터 예상 못한 긍정적인 반응이 올 수 있습니다. 그 순간 겸손하게 받되, 다음 목표도 함께 언급해 보시기 바랍니다. 인상이 훨씬 깊어집니다.",
+    "오늘 회의에서 말하려다 멈췄던 아이디어가 있다면 꺼내 보시기 바랍니다. 타이밍을 놓치지 않는 것 자체가 오늘 당신의 가장 큰 강점입니다.",
+    "오늘 작은 성과가 생기면 팀과 공유하시기 바랍니다. 혼자 안고 가는 것보다 나눌 때 신뢰가 더 쌓이는 날입니다.",
 ]
 _Z_WORK_DETAIL_WARN = [
     "이메일이나 보고서 발송 전에 한 번 더 확인하시기 바랍니다. 오늘은 작은 오타나 누락이 생기기 쉬운 날입니다. 2분 확인이 나중의 수습 30분을 아껴줍니다.",
-    "동료와 의견이 엇갈리는 순간이 오면, 내 주장을 밀어붙이기 전에 '그 방식은 어떤 이유에서인가요?'를 먼저 물어보세요. 오늘 그 한 마디가 갈등을 만들지 않는 열쇠입니다.",
-    "중요한 발표나 보고가 오늘로 잡혀 있다면 준비가 조금 더 필요하다고 느껴질 수 있어요. 그 느낌이 맞습니다. 오늘 오전 안에 한 번 더 점검해 두세요.",
-    "오늘 상사나 동료 말투가 유독 날카롭게 느껴지는 순간이 있을 수 있어요. 그 말투가 나를 향한 건지, 그 사람 상태가 안 좋은 건지 구분하고 반응하세요. 불필요한 감정 소모를 줄여줍니다.",
+    "동료와 의견이 엇갈리는 순간이 오면, 내 주장을 밀어붙이기 전에 '그 방식은 어떤 이유에서입니까?'를 먼저 물어보시기 바랍니다. 오늘 그 한 마디가 갈등을 만들지 않는 열쇠입니다.",
+    "중요한 발표나 보고가 오늘로 잡혀 있다면 준비가 조금 더 필요하다고 느껴질 수 있습니다. 그 느낌이 맞습니다. 오늘 오전 안에 한 번 더 점검해 두세요.",
+    "오늘 상사나 동료 말투가 유독 날카롭게 느껴지는 순간이 있을 수 있습니다. 그 말투가 나를 향한 건지, 그 사람 상태가 안 좋은 건지 구분하고 반응하시기 바랍니다. 불필요한 감정 소모를 줄여줍니다.",
     "눈치 보느라 못 했던 의견이 있다면 오늘은 메일로 짧게라도 남겨두세요. 말로 꺼내기 어려우면 문서가 대신해줍니다.",
 ]
 
 # ── 직장운 시간대 가이드 풀 ──
 _Z_WORK_TIME_UP = [
-    "💼 오늘의 골든타임: 오전 9시~11시 사이가 집중력이 가장 높은 시간대입니다. 중요한 업무와 핵심 판단을 이 시간 안에 마무리하세요.",
-    "💼 오후 2시~4시 사이에는 창의적인 아이디어가 활발히 떠오릅니다. 브레인스토밍이나 기획 작업은 이 시간대를 활용해 보세요.",
+    "💼 오늘의 골든타임: 오전 9시~11시 사이가 집중력이 가장 높은 시간대입니다. 중요한 업무와 핵심 판단을 이 시간 안에 마무리하시기 바랍니다.",
+    "💼 오후 2시~4시 사이에는 창의적인 아이디어가 활발히 떠오릅니다. 브레인스토밍이나 기획 작업은 이 시간대를 활용해 보시기 바랍니다.",
     "💼 오전 집중 업무, 오후 협업·소통으로 나누면 오늘 하루 생산성이 극대화됩니다. 오늘은 그 패턴이 특히 잘 맞는 날입니다.",
 ]
 _Z_WORK_TIME_WARN = [
-    "💼 오후 1시~3시 사이는 집중력이 가장 떨어지는 시간대입니다. 이 시간에는 단순 반복 업무나 정리 작업 위주로 배치하세요.",
-    "💼 오늘 오전 업무 리스트를 미리 작성해 두면 흐트러지는 집중력을 잡을 수 있습니다. 3개 이내로 핵심 과제만 뽑아서 하루를 시작하세요.",
+    "💼 오후 1시~3시 사이는 집중력이 가장 떨어지는 시간대입니다. 이 시간에는 단순 반복 업무나 정리 작업 위주로 배치하시기 바랍니다.",
+    "💼 오늘 오전 업무 리스트를 미리 작성해 두면 흐트러지는 집중력을 잡을 수 있습니다. 3개 이내로 핵심 과제만 뽑아서 하루를 시작하시기 바랍니다.",
 ]
 
 # ── 직장운 마무리 풀 ──
@@ -2496,8 +2497,8 @@ _Z_WORK_CLOSE_UP = [
     "남들 눈에 안 보이는 데서 해온 것들이 오늘 조금씩 보이기 시작합니다. 그게 쌓인 거예요. 💼",
 ]
 _Z_WORK_CLOSE_WARN = [
-    "쉽지 않은 날이었을 거예요. 그래도 오늘 하루 버텨낸 것, 정말 잘하셨습니다. 내일은 다를 거예요. 🌿",
-    "모든 날이 빛날 수는 없어요. 오늘 같은 날이 있어야 좋은 날의 가치가 더 크게 느껴집니다. 오늘은 충분히 쉬어가세요. 💙",
+    "쉽지 않은 날이었을 것입니다. 그래도 오늘 하루 버텨낸 것, 정말 잘하셨습니다. 내일은 다를 것입니다. 🌿",
+    "모든 날이 빛날 수는 없습니다. 오늘 같은 날이 있어야 좋은 날의 가치가 더 크게 느껴집니다. 오늘은 충분히 쉬어가세요. 💙",
 ]
 _Z_AVOID_ACTIONS = [
     ["멀티태스킹 강행", "피곤한 상태의 중요 대화", "감정 올라올 때 즉각 반응"],
@@ -2512,9 +2513,9 @@ _Z_AVOID_ACTIONS = [
 _Z_CHEER = [
     "오늘 쉽지 않다는 것을 압니다. 그래도 이미 충분히 잘 해내고 있습니다. 조금씩, 천천히 나아가시기 바랍니다. ✨",
     "완벽하지 않아도 됩니다. 지금 하고 있는 것들이 쌓여서 자신만의 길이 됩니다. 그 과정을 믿으시기 바랍니다. 🌟",
-    "힘든 날일수록 자신에게 너그러워져도 돼요. 당신이 생각하는 것보다 훨씬 잘 버티고 있습니다. 오늘도 응원합니다. 💫",
-    "작은 걸음이 결국 큰 변화를 만듭니다. 조급해하지 말고 지금 이 순간에 집중해 보세요. 🌙",
-    "당신 곁에 좋은 기운이 흐르고 있어요. 눈에 보이지 않아도 분명히 쌓이고 있으니, 오늘도 힘내세요. ⭐",
+    "힘든 날일수록 자신에게 너그러워져도 됩니다. 당신이 생각하는 것보다 훨씬 잘 버티고 있습니다. 오늘도 응원합니다. 💫",
+    "작은 걸음이 결국 큰 변화를 만듭니다. 조급해하지 말고 지금 이 순간에 집중해 보시기 바랍니다. 🌙",
+    "당신 곁에 좋은 기운이 흐르고 있습니다. 눈에 보이지 않아도 분명히 쌓이고 있으니, 오늘도 힘내시기 바랍니다. ⭐",
 ]
 
 
@@ -2577,30 +2578,6 @@ def build_zodiac_post(z, today_str):
         f'<span style="color:#dc2626;font-weight:700;flex-shrink:0">✕</span>{item}</div>'
         for item in avoid_list
     )
-
-    # ── 이미지 저장 카드 ──
-    avoid_short = "".join(
-        f'<div style="display:flex;align-items:center;gap:6px;font-size:12px;' +
-        f'color:rgba(255,255,255,0.85);padding:4px 0">' +
-        f'<span style="color:#fca5a5;font-weight:700">✕</span>{item}</div>'
-        for item in avoid_list
-    )
-    image_card_html = f'''
-<div id="{card_id}" class="fortune-card">
-  <div class="fc-emoji">{z['emoji']}</div>
-  <div class="fc-title">{z['kr']}</div>
-  <div class="fc-sub">{today_str} · {z['date']}</div>
-  <div class="fc-stars">{rating}</div>
-  <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;margin-bottom:8px">
-    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">🌟 오늘의 흐름</div>
-    <div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.95)">{_para(0)}</div>
-  </div>
-  <div style="background:rgba(220,38,38,0.2);border-radius:10px;padding:12px;margin-bottom:12px">
-    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px">⚠️ 오늘 피해야 할 행동</div>
-    {avoid_short}
-  </div>
-  <div class="fc-watermark">todayhoroscopelaboratory.blogspot.com · {today_str}</div>
-</div>'''
 
     # ── 별과띠가만나는시간 방식 — 하나의 흐르는 스토리 ──
     # 재료 준비
@@ -2703,7 +2680,7 @@ def build_zodiac_post(z, today_str):
     💭 {empathy}
   </p>
 
-  <!-- fortune.html 파서 연동용 히든 마커: 오늘의 흐름 이후 <p>를 수집하는 파서와 호환 -->
+  <!-- fortune.html 파서 연동용 히든 마커 -->
   <div style="display:none" aria-hidden="true">오늘의 흐름</div>
 
   <div style="font-size:15px;line-height:2.1;color:#374151;
@@ -2924,20 +2901,14 @@ def build_chinese_post(c, today_str):
                      "오늘 주변의 소중함을 다시 한번 느끼는 날입니다."],
     }
 
-    year_sentences = []
-    year_rows_in_card = ""
     action_pool = _YEAR_ACTION_TIPS.get(c['en'], ["오늘 하루를 차분히 정리하시기 바랍니다."] * 7)
-    for idx, yr in enumerate(c['years']):
-        yf   = birth_year_fortune(c['en'], yr)
-        tip  = action_pool[(kst_day + idx) % len(action_pool)]
-        year_sentences.append(f'<strong>{yr}년생</strong>은 {yf} {tip}')
-        year_rows_in_card += (
-            f'<div style="display:flex;gap:8px;font-size:11px;'
-            f'color:rgba(255,255,255,0.9);padding:3px 0">'
-            f'<b>{yr}년생</b><div>{yf}</div></div>'
-        )
-
-    year_section_html = " ".join(year_sentences)
+    year_section_html = "".join(
+        f'<div style="display:flex;gap:8px;font-size:13px;color:#374151;padding:4px 0">'
+        f'<b style="flex-shrink:0">{yr}년생</b>'
+        f'<div>{birth_year_fortune(c["en"], yr)} {action_pool[(kst_day + idx) % len(action_pool)]}</div>'
+        f'</div>'
+        for idx, yr in enumerate(c['years'])
+    )
 
     # 궁합
     compat = get_compat(c['en'])
@@ -2954,21 +2925,6 @@ def build_chinese_post(c, today_str):
     {_zodiac_score_bar("애정운","❤️",love)}
   </div>
 </div></div>'''
-
-    # 이미지 저장 카드
-    image_card_html = f'''
-<div id="{card_id}" class="fortune-card" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
-  <div class="fc-emoji">{c['emoji']}</div>
-  <div class="fc-title">{c['kr']}</div>
-  <div class="fc-sub">{today_str}</div>
-  <div class="fc-stars">{rating}</div>
-  <div class="fc-text">{fortune}</div>
-  <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.3);padding-top:12px">
-    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:8px">📅 출생연도별 오늘 운세</div>
-    {year_rows_in_card}
-  </div>
-  <div class="fc-watermark" style="margin-top:14px">todayhoroscopelaboratory.blogspot.com · {today_str}</div>
-</div>'''
 
     # ── 별과띠가만나는시간 방식 — 하나의 흐르는 스토리 ──
 
@@ -3034,17 +2990,17 @@ def build_chinese_post(c, today_str):
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <!-- fortune.html 파서 연동용 히든 마커 (사용자에게 보이지 않음) -->
+  <p style="font-size:15px;line-height:2.1;color:#374151;
+            margin:0 0 1.4em 0;word-break:keep-all">
+    💭 {empathy}
+  </p>
+
+  <!-- fortune.html 파서 연동용 히든 마커 -->
   <div style="display:none" aria-hidden="true">
     <div class="fc-text">{fortune}</div>
     <div style="font-size:11px;font-weight:700">📅 출생연도별 오늘 운세</div>
     {year_rows_in_card}
   </div>
-
-  <p style="font-size:15px;line-height:2.1;color:#374151;
-            margin:0 0 1.4em 0;word-break:keep-all">
-    💭 {empathy}
-  </p>
 
   <div style="font-size:15px;line-height:2.1;color:#374151;
                word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
@@ -3123,8 +3079,6 @@ def build_chinese_post(c, today_str):
 
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
-
-  <!-- 이미지 저장 카드 -->
 
   <!-- score_html (fortune.html 연동) -->
   {score_html}
@@ -3381,15 +3335,6 @@ def build_zodiac_weekly_post(today_str):
 
   {story_html}
 
-  <div id="{card_id}" class="fortune-card">
-    <div class="fc-emoji">{z['emoji']}</div>
-    <div class="fc-title">{z['kr']} 주간운세</div>
-    <div class="fc-sub">{week_range} · {z['date']}</div>
-    <div class="fc-stars">{rating}</div>
-    <div class="fc-text">{fortune}</div>
-    <div class="fc-watermark">todayhoroscopelaboratory.blogspot.com · {week_range}</div>
-  </div>
-
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
@@ -3454,7 +3399,10 @@ def build_chinese_monthly_post(today_str):
         upper     = str(v2['upper'])     if v2 is not None and 'upper'     in v2.index else ""
         mid       = str(v2['mid'])       if v2 is not None and 'mid'       in v2.index else ""
         lower     = str(v2['lower'])     if v2 is not None and 'lower'     in v2.index else ""
-        lucky_kw  = str(v2['lucky'])     if v2 is not None and 'lucky'     in v2.index else ""
+        lucky_kw  = (
+            f"{v2['lucky_color']} · {v2['lucky_number']} · {v2['lucky_place']}"
+            if v2 is not None and 'lucky_color' in v2.index else ""
+        )
         avoid_kw  = str(v2['avoid'])     if v2 is not None and 'avoid'     in v2.index else ""
         sympathy  = str(v2['sympathy'])  if v2 is not None and 'sympathy'  in v2.index else ""
 
@@ -3531,7 +3479,10 @@ def build_chinese_monthly_post(today_str):
         )
 
         # lucky / avoid HTML
-        lucky_html = f'<p style="margin:0 0 0.6em 0">이달의 행운 키워드는 {lucky_kw}입니다.</p>' if lucky_kw else ''
+        lucky_html = (
+            f'<div style="margin:0 0 0.6em 0;font-size:13px;color:#6b7280">이달의 행운 키워드</div>'
+            f'<div style="font-size:14px;font-weight:700;color:#7c3aed;margin:0 0 1.4em 0">{lucky_kw}</div>'
+        ) if lucky_kw else ''
         avoid_html_m = f'<p style="margin:0 0 1.4em 0">반대로 이달 조심해야 할 것은 {avoid_kw}입니다.</p>' if avoid_kw else ''
 
         # 이달 엔딩
@@ -3562,17 +3513,6 @@ def build_chinese_monthly_post(today_str):
 
         title = f"{c['kr']} {month_str} 월간운세 | {headline[:20]}"
 
-        # 이미지 저장 카드
-        image_card_html = f'''
-<div id="{card_id}" class="fortune-card" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
-  <div class="fc-emoji">{c['emoji']}</div>
-  <div class="fc-title">{c['kr']} 월간운세</div>
-  <div class="fc-sub">{month_str}</div>
-  <div class="fc-text">{headline}</div>
-  <div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.8)">{sympathy[:60] + "…" if len(sympathy) > 60 else sympathy}</div>
-  <div class="fc-watermark" style="margin-top:14px">todayhoroscopelaboratory.blogspot.com</div>
-</div>'''
-
         # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
@@ -3584,7 +3524,7 @@ def build_chinese_monthly_post(today_str):
                word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
     <p style="margin:0 0 1.4em 0">{headline}<br>
-    {sympathy}</p>
+    <span style="font-size:13px;color:#6b7280">지금 이런 느낌이라면: {sympathy}</span></p>
 
     <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed">{tpb}</h2>
 
