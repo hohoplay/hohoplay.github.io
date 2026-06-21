@@ -103,11 +103,22 @@
             </h1>
         </div>
     </div>
-    <!-- API 상태 (단일 정보) -->
-    <div class="flex items-center gap-2 bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/60">
-        <span id="sys-indicator" class="w-2 h-2 rounded-full bg-slate-500 shrink-0"></span>
-        <span id="sys-text" class="text-slate-300 mono text-[10px] hidden md:inline">Claude API 연결 대기 중</span>
-        <span id="sys-text-mobile" class="text-slate-300 mono text-[10px] md:hidden">대기중</span>
+    <!-- API 상태 + 토큰 사용량 -->
+    <div class="flex items-center gap-2">
+        <!-- 토큰 사용량 (API 연결 후 표시) -->
+        <div id="token-usage-bar" class="hidden items-center gap-1.5 bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-700/60">
+            <span class="text-[9px] text-slate-500 mono hidden md:inline">토큰</span>
+            <div class="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                <div id="token-bar-fill" class="h-full rounded-full transition-all duration-500 bg-emerald-500" style="width:0%"></div>
+            </div>
+            <span id="token-bar-pct" class="text-[10px] mono text-slate-400">0%</span>
+            <span id="token-reset-time" class="text-[9px] text-slate-600 hidden md:inline"></span>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/60">
+            <span id="sys-indicator" class="w-2 h-2 rounded-full bg-slate-500 shrink-0"></span>
+            <span id="sys-text" class="text-slate-300 mono text-[10px] hidden md:inline">Claude API 연결 대기 중</span>
+            <span id="sys-text-mobile" class="text-slate-300 mono text-[10px] md:hidden">대기중</span>
+        </div>
     </div>
 </header>
 
@@ -123,10 +134,16 @@
                 hohoplay 가상 HQ 실시간 활동 모니터링
             </h2>
             <div class="flex items-center gap-2 shrink-0">
+                <!-- API ON/OFF 토글 -->
+                <button onclick="toggleApiMode()" id="api-mode-btn"
+                    class="text-[10px] font-bold px-2.5 py-1.5 rounded-lg border transition-all"
+                    title="API 사용 여부 선택">
+                    🟢 AI ON
+                </button>
                 <div class="flex items-center gap-0.5 bg-slate-950 border border-slate-800 rounded-lg p-0.5">
-                    <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="3명 순차 토론 (빠름)">⚡ 기본</button>
-                    <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="4명 반론 포함 (중간)">🎬 심화</button>
-                    <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="전 직원 2라운드 (깊음)">🔗 풀버전</button>
+                    <button onclick="setWorkMode('basic')" id="workmode-basic" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="전 직원 1라운드 (API 6회)">⚡ 기본</button>
+                    <button onclick="setWorkMode('paced')" id="workmode-paced" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="전 직원 + 반론 (API 8회)">🎬 심화</button>
+                    <button onclick="setWorkMode('multistep')" id="workmode-multistep" class="text-[10px] font-bold px-2.5 py-1 rounded-md transition-all" title="전 직원 2라운드 (API 13회)">🔗 풀버전</button>
                 </div>
                 <span id="map-error-tag" class="items-center gap-1 hidden">
                     <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block"></span>
@@ -137,11 +154,17 @@
 
         <!-- 모바일 전용: 직원 상태 한 줄 바 -->
         <div class="flex md:hidden items-center gap-0 bg-slate-950 border-b border-slate-800 px-2 py-1.5 shrink-0 overflow-x-auto">
-            <!-- 토론 모드 미니 버튼 -->
-            <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-md p-0.5 mr-2 shrink-0">
-                <button onclick="setWorkMode('basic')" id="workmode-basic-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">⚡</button>
-                <button onclick="setWorkMode('paced')" id="workmode-paced-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">🎬</button>
-                <button onclick="setWorkMode('multistep')" id="workmode-multistep-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">🔗</button>
+            <!-- 토론 모드 미니 버튼 + API 토글 -->
+            <div class="flex items-center gap-1 mr-2 shrink-0">
+                <button onclick="toggleApiMode()" id="api-mode-btn-m"
+                    class="text-[9px] font-bold px-1.5 py-0.5 rounded-md border transition-all">
+                    🟢
+                </button>
+                <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-md p-0.5">
+                    <button onclick="setWorkMode('basic')" id="workmode-basic-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">⚡</button>
+                    <button onclick="setWorkMode('paced')" id="workmode-paced-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">🎬</button>
+                    <button onclick="setWorkMode('multistep')" id="workmode-multistep-m" class="text-[9px] font-bold px-1.5 py-0.5 rounded transition-all">🔗</button>
+                </div>
             </div>
             <!-- 직원 상태 칩 + 좌우 버튼 -->
             <div class="flex items-center gap-1 flex-1 min-w-0">
@@ -449,6 +472,12 @@
                             title="음성 읽기 ON/OFF"
                             class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-500 rounded-lg transition-all shrink-0 text-sm">
                             🔇
+                        </button>
+                        <!-- AI vs AI 자동토론 버튼 -->
+                        <button onclick="startAIvsAI()" id="aivai-btn"
+                            title="입력한 주제로 직원들이 자동으로 서로 토론"
+                            class="p-1.5 bg-slate-800 hover:bg-violet-700 text-slate-400 hover:text-white rounded-lg transition-all shrink-0 text-sm">
+                            🤖
                         </button>
                         <button onclick="sendChatMessage()" id="send-btn"
                             class="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md shrink-0">
@@ -822,6 +851,57 @@ let chatHistory = [];
 let stats = { totalTasks:0, gameProjectCount:8, tarotProjectCount:6, marketingCount:7, unmannedRoomCount:3 };
 let lastMode = null; // "이어서" 요청 시 직전 모드 재사용
 let workMode = 'basic'; // 'basic' | 'paced' | 'multistep' - 업무 진행 방식
+let apiModeOn = true; // true=AI 응답 / false=로컬 응답만
+
+// ═══════════════════════════════════════════════
+// 주제별 전문 직원 자동 배정 시스템
+// ═══════════════════════════════════════════════
+const TOPIC_STAFF_MAP = [
+    {
+        keywords: /마케팅|sns|블로그|인스타|유튜브|콘텐츠|광고|홍보|바이럴|반응|팔로워|쓰레드|thread|릴스|숏폼/i,
+        staffIds: ['sns','writer','coordinator'], label:'마케팅/콘텐츠'
+    },
+    {
+        keywords: /게임|game|html|canvas|코드|개발|버그|오류|error|스크립트|js|css|기능|구현|수정/i,
+        staffIds: ['collector','writer','coordinator'], label:'게임/개발'
+    },
+    {
+        keywords: /운세|타로|별자리|mbti|점|사주|힐링|fortune|horoscope/i,
+        staffIds: ['writer','sns','coordinator'], label:'운세/타로'
+    },
+    {
+        keywords: /분석|전략|경영|사업|비즈니스|시장|수익|매출|성장|투자|경쟁|호호플레이|hohoplay/i,
+        staffIds: ['collector','coordinator','presenter'], label:'경영/전략'
+    },
+    {
+        keywords: /고객|문의|피드백|불만|cs|서비스|응대|리뷰|댓글|만족|불편/i,
+        staffIds: ['sns','presenter','coordinator'], label:'고객/CS'
+    },
+    {
+        keywords: /연습실|임대|공간|무인|예약|대여|시설|인테리어|매장/i,
+        staffIds: ['collector','presenter','coordinator'], label:'무인연습실'
+    },
+    {
+        keywords: /기획|아이디어|신규|새로운|제안|프로젝트|방향|로드맵|계획/i,
+        staffIds: ['writer','collector','coordinator'], label:'기획/아이디어'
+    },
+    {
+        keywords: /정리|일정|스케줄|보고|요약|회의록|메모|파일|문서/i,
+        staffIds: ['presenter','intern','coordinator'], label:'업무/정리'
+    },
+];
+
+function detectRelevantStaff(msg) {
+    // 드롭다운에서 직접 선택한 경우 → 자동 배정 사용 안 함
+    if(!isAllStaffChecked()) return null;
+    for(const topic of TOPIC_STAFF_MAP) {
+        if(topic.keywords.test(msg)) {
+            const validIds = topic.staffIds.filter(id => staffState[id]);
+            if(validIds.length > 0) return { staffIds: validIds, label: topic.label };
+        }
+    }
+    return null;
+}
 
 // 직원별 현재 작업 내용 & 타이머
 const STAFF_TASKS = {
@@ -836,6 +916,114 @@ const STAFF_TASKS = {
 let staffWorkSeconds = {};   // { staffId: elapsedSeconds }
 let staffCurrentTask = {};   // { staffId: taskString }
 let staffTaskChangeAt = {};  // { staffId: nextChangeSeconds } - 다음 작업 변경 시점
+
+// ═══════════════════════════════════════════════
+// API ON/OFF 토글
+// ═══════════════════════════════════════════════
+function toggleApiMode() {
+    apiModeOn = !apiModeOn;
+    localStorage.setItem('hohoplay_apimode_v6', apiModeOn);
+    updateApiModeBtn();
+    addLog(apiModeOn ? '🟢 AI 응답 모드 ON' : '🔵 로컬 모드 ON (API 미사용)');
+    showToast(
+        apiModeOn ? '🟢 AI ON — 직원들이 AI로 답변합니다' : '🔵 로컬 모드 — API 없이 저장된 내용으로 응답',
+        apiModeOn ? 'success' : 'info', 2500
+    );
+}
+
+function updateApiModeBtn() {
+    [document.getElementById('api-mode-btn'), document.getElementById('api-mode-btn-m')].forEach(btn => {
+        if(!btn) return;
+        const isMini = btn.id === 'api-mode-btn-m';
+        if(apiModeOn) {
+            btn.textContent = isMini ? '🟢' : '🟢 AI ON';
+            btn.style.cssText = 'background:rgba(22,101,52,0.8);color:#86efac;border:1px solid #15803d;';
+        } else {
+            btn.textContent = isMini ? '🔵' : '🔵 로컬';
+            btn.style.cssText = 'background:rgba(30,58,95,0.8);color:#93c5fd;border:1px solid #1d4ed8;';
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════
+// 로컬 응답 (API 없이 저장된 데이터로 응답)
+// ═══════════════════════════════════════════════
+async function runLocalResponse(msg, mode) {
+    activeWorkflow = msg;
+    triggerWorkflowAnim(msg, 800);
+    const lower = msg.trim();
+
+    if(/기억|저장|보고|발표|정리|요약|지난|이전|내용/.test(lower)) {
+        await localMemoryReport();
+    } else if(/직원|현황|상태|누구|몇명|팀/.test(lower)) {
+        await localStaffReport();
+    } else {
+        await localAllStaffSpeak(msg);
+    }
+    finishWorkflowAnim();
+}
+
+async function localMemoryReport() {
+    const recents = memories.slice(0, 3);
+    if(recents.length === 0) {
+        appendMessage('assistant','비서','📢','아직 저장된 기억이 없습니다. AI 모드로 업무를 처리하면 자동으로 기억에 쌓입니다.');
+        return;
+    }
+    appendMessage('assistant','비서','📢',`📋 최근 기억 <strong class="text-white">${recents.length}건</strong>을 보고드립니다.`);
+    for(const mem of recents) {
+        await sleep(600);
+        const staff = Object.values(staffState).find(s=>s.name===mem.author) || staffState.coordinator;
+        appendMessage('assistant', mem.author, staff?.emoji||'📋',
+            `<span class="text-indigo-300 text-[10px] font-bold">[${mem.category}]</span> <strong class="text-white">${mem.title}</strong><br><span class="text-slate-400 text-[10px]">${mem.date}</span><br>${mem.content.substring(0,120)}${mem.content.length>120?'...':''}`);
+        if(ttsEnabled) speakText(`${mem.title}. ${mem.content.substring(0,80)}`, staff?.id||'coordinator');
+    }
+    await sleep(600);
+    appendMessage('assistant','또다른 나','👑',`총 <strong class="text-white">${memories.length}건</strong> 보존 중. 🟢 AI ON으로 전환하면 심층 분석이 가능합니다.`);
+    addLog(`📋 로컬 기억 보고 완료 (${recents.length}건)`);
+}
+
+async function localStaffReport() {
+    appendMessage('assistant','비서','📢',`현재 <strong class="text-white">${Object.keys(staffState).length}명</strong> 근무 중입니다.`);
+    for(const [id, staff] of Object.entries(staffState)) {
+        await sleep(450);
+        const task = staffCurrentTask[id]||'대기 중';
+        const time = secsToTimeStr(staffWorkSeconds[id]||0);
+        appendMessage('assistant', staff.name, staff.emoji,
+            `Lv.<strong class="text-indigo-400">${staff.level}</strong> · ${staff.role}<br><span class="text-slate-400 text-[10px]">현재: ${task} ⏱${time}</span>`);
+    }
+    addLog(`👥 로컬 직원 현황 보고 완료`);
+}
+
+const LOCAL_STAFF_LINES = {
+    collector:   ['시장 조사 결과 트렌드를 주목해야 합니다.','최신 데이터 기준으로 몇 가지 주목할 포인트가 있습니다.','경쟁사 분석 결과 차별화 전략이 필요합니다.'],
+    writer:      ['콘텐츠 관점에서 메시지 전달력이 핵심입니다.','글의 방향은 대상 독자부터 명확히 해야 합니다.','문구를 다듬으면 임팩트가 훨씬 강해질 것 같습니다.'],
+    sns:         ['SNS 반응을 보면 짧고 임팩트 있는 내용이 효과적입니다.','최근 피드백에서 실용성 강조 콘텐츠 반응이 좋습니다.','해시태그 분석 결과 타겟 키워드를 더 활용해야 합니다.'],
+    coordinator: ['전체 흐름은 맞습니다. 실행이 중요합니다.','팀 의견을 종합하면 단계적 접근이 필요합니다.','우선순위를 정리하고 바로 착수하겠습니다.'],
+    presenter:   ['일정 고려하면 핵심부터 처리하는 게 좋겠습니다.','보고 사항을 정리하면 주요 포인트는 세 가지입니다.','회의 자료로 준비해 두겠습니다.'],
+    intern:      ['조사해본 바로는 비슷한 사례들이 있었습니다!','선배님들 의견 들으면서 배우고 있습니다. 저도 한 마디 드리자면...','열심히 서포트하겠습니다! 🌱']
+};
+
+async function localAllStaffSpeak(msg) {
+    appendMessage('assistant','또다른 나','👑',
+        `"<strong class="text-white">${msg.substring(0,40)}${msg.length>40?'...':''}</strong>"에 대한 팀 의견입니다. <span class="text-blue-400 text-[10px]">(로컬 모드 · API 미사용)</span>`);
+    for(const id of Object.keys(staffState)) {
+        await sleep(650);
+        const staff = staffState[id];
+        const lines = LOCAL_STAFF_LINES[id]||['검토 중입니다.'];
+        const line = lines[Math.floor(Math.random()*lines.length)];
+        appendMessage('assistant', staff.name, staff.emoji, line);
+        if(ttsEnabled) speakText(line, id);
+        if(staffPositions[id]) {
+            staffPositions[id].bubble = line.substring(0,16)+'...';
+            renderCharacters();
+            setTimeout(()=>{ if(staffPositions[id]) staffPositions[id].bubble=''; renderCharacters(); }, 3000);
+        }
+    }
+    await sleep(800);
+    appendMessage('assistant','또다른 나','👑',
+        `팀 의견 수렴 완료. 🟢 <strong class="text-indigo-400">AI ON</strong>으로 전환하면 실제 AI 분석을 받을 수 있습니다.`);
+    addLog(`🔵 로컬 응답 완료 (API 미사용)`);
+}
 
 // lucide CDN이 차단/로드 실패해도 전체 스크립트가 멈추지 않도록 안전 래퍼
 // ═══════════════════════════════════════════════
@@ -1032,6 +1220,11 @@ window.onload = function() {
     // 업무 진행 모드 복원
     const savedWorkMode = localStorage.getItem('hohoplay_workmode_v6');
     setWorkMode(savedWorkMode || 'basic');
+
+    // API 모드 복원
+    const savedApiMode = localStorage.getItem('hohoplay_apimode_v6');
+    if(savedApiMode === 'false') { apiModeOn = false; }
+    updateApiModeBtn();
 
     const ghInp = document.getElementById('github-url-input');
     ghInp.addEventListener('keydown', e => { if(e.key==='Enter') fetchGithubFile(); });
@@ -1268,7 +1461,18 @@ async function sendChatMessage() {
 
     // "이어서 말해줘" 류는 직전 모드를 유지
     const isContinue = /^(이어서|계속|이어말해|이어서 말해|계속해|계속 말해)/.test(msg.trim());
-    const mode = isContinue && lastMode ? lastMode : detectChatMode(msg);
+    let mode = isContinue && lastMode ? lastMode : detectChatMode(msg);
+
+    // 전체 직원 대상(normal/meeting)이고 드롭다운 미선택이면
+    // 주제 키워드로 관련 직원 자동 배정
+    if(!isContinue && (mode.type === 'normal' || mode.type === 'meeting') && !mode.focusIds) {
+        const autoStaff = detectRelevantStaff(msg);
+        if(autoStaff) {
+            mode = { type:'meeting', focusIds: autoStaff.staffIds, autoLabel: autoStaff.label };
+            addLog(`🎯 주제 감지: [${autoStaff.label}] → ${autoStaff.staffIds.map(id=>staffState[id]?.name).join(', ')} 자동 배정`);
+        }
+    }
+
     lastMode = mode;
 
     if(!apiKey) {
@@ -1288,8 +1492,15 @@ async function sendChatMessage() {
         return;
     }
 
-    // 모든 모드에서 AI 토론 방식 사용 (깊이만 다름)
     showTyping(false);
+
+    // API 모드 OFF → 로컬 응답
+    if(!apiModeOn) {
+        await runLocalResponse(msg, mode);
+        return;
+    }
+
+    // 모든 모드에서 AI 토론 방식 사용 (깊이만 다름)
     await runDebateWorkflow(msg, mode, workMode);
 }
 
@@ -1307,22 +1518,57 @@ async function runDebateWorkflow(msg, mode, wMode) {
     activeWorkflow = msg;
     triggerWorkflowAnim(msg, wMode==='paced' ? 1200 : 500);
 
-    // 모드별 참여 직원 순서 정의
-    // direct 모드면 호출된 직원이 마지막 최종 결론 담당
-    const directStaffId = mode.type === 'direct' ? mode.staffId : null;
+    // 자동 배정된 경우 채팅에 안내
+    if(mode.autoLabel) {
+        appendMessage('assistant','시스템','🎯',
+            `<span class="text-indigo-300 text-[10px]">[${mode.autoLabel}] 주제 감지</span> — <strong class="text-white">${mode.focusIds.map(id=>staffState[id]?.emoji+staffState[id]?.name).join(' · ')}</strong> 자동 배정됩니다.`);
+    }
 
-    const ROUNDS = {
-        basic:     ['collector', 'writer', 'coordinator'],
-        paced:     ['collector', 'writer', 'sns', 'coordinator'],
-        multistep: ['collector', 'writer', 'sns', 'intern', 'coordinator', 'collector', 'coordinator']
-    };
+    // ── 참여 직원 결정 (선택한 직원만) ──
+    let roundStaffs = [];
 
-    // 개인 호출이면: 중간에 그 직원 발언 추가하고, 마지막을 그 직원으로
-    let roundStaffs = ROUNDS[wMode] || ROUNDS.basic;
-    if(directStaffId && directStaffId !== 'coordinator') {
-        roundStaffs = ['collector', directStaffId, 'coordinator'];
-        if(wMode === 'paced')     roundStaffs = ['collector', 'writer', directStaffId, 'coordinator'];
-        if(wMode === 'multistep') roundStaffs = ['collector', 'writer', directStaffId, 'sns', directStaffId, 'coordinator'];
+    if(mode.type === 'direct') {
+        // 1명 직접 호출 → 그 직원만 1인칭 답변 + 조정자 최종 정리
+        const id = mode.staffId;
+        if(id === 'coordinator') {
+            roundStaffs = ['coordinator'];
+        } else {
+            roundStaffs = wMode === 'multistep'
+                ? [id, id, 'coordinator']      // 풀버전: 해당 직원 심층 2회 + 결론
+                : wMode === 'paced'
+                    ? [id, 'coordinator']      // 심화: 직원 + 결론
+                    : [id];                    // 기본: 직원 단독 답변
+        }
+
+    } else if(mode.type === 'meeting' && mode.focusIds?.length > 0) {
+        // 다중 선택 → 선택한 직원들만 대화
+        const ids = mode.focusIds;
+        const hasCoordinator = ids.includes('coordinator');
+
+        if(wMode === 'multistep') {
+            // 풀버전: 선택 직원 × 2라운드 + 조정자 결론 (이미 있으면 중복 제거)
+            const finale = hasCoordinator ? [] : ['coordinator'];
+            roundStaffs = [...ids, ...ids, ...finale];
+        } else if(wMode === 'paced') {
+            // 심화: 선택 직원 + 첫 번째 반론 + 조정자 결론
+            const finale = hasCoordinator ? [] : ['coordinator'];
+            roundStaffs = [...ids, ids[0], ...finale];
+        } else {
+            // 기본: 선택 직원 순서대로 + 조정자 결론 (이미 있으면 생략)
+            const finale = hasCoordinator ? [] : ['coordinator'];
+            roundStaffs = [...ids, ...finale];
+        }
+
+    } else {
+        // 전체 직원 (isAll = true 또는 normal)
+        const ALL = ['collector','writer','sns','presenter','intern','coordinator'];
+        if(wMode === 'multistep') {
+            roundStaffs = [...ALL, 'collector', 'sns', 'coordinator'];
+        } else if(wMode === 'paced') {
+            roundStaffs = [...ALL, 'writer'];
+        } else {
+            roundStaffs = ALL;
+        }
     }
 
     // 파일 컨텍스트 요약
@@ -1457,6 +1703,53 @@ ${roleGuide}
 }
 
 
+// ═══════════════════════════════════════════════
+// 토큰 사용량 상태
+// ═══════════════════════════════════════════════
+let tokenUsageState = { used: 0, limit: 0, resetAt: null };
+
+function updateTokenUsageUI(headers) {
+    try {
+        // anthropic-ratelimit-tokens-remaining / limit / reset
+        const remaining  = parseInt(headers.get('anthropic-ratelimit-tokens-remaining') || '0');
+        const limit      = parseInt(headers.get('anthropic-ratelimit-tokens-limit') || '0');
+        const resetAt    = headers.get('anthropic-ratelimit-tokens-reset');
+
+        if(!limit) return;
+
+        const used = limit - remaining;
+        const pct  = Math.min(100, Math.round((used / limit) * 100));
+        tokenUsageState = { used, limit, resetAt };
+
+        const bar    = document.getElementById('token-usage-bar');
+        const fill   = document.getElementById('token-bar-fill');
+        const pctEl  = document.getElementById('token-bar-pct');
+        const resetEl= document.getElementById('token-reset-time');
+
+        if(!bar) return;
+        bar.classList.remove('hidden');
+        bar.classList.add('flex');
+
+        fill.style.width = pct + '%';
+        fill.className = 'h-full rounded-full transition-all duration-500 ' +
+            (pct >= 90 ? 'bg-rose-500' : pct >= 70 ? 'bg-amber-400' : 'bg-emerald-500');
+        pctEl.textContent = pct + '%';
+        pctEl.className = 'text-[10px] mono ' +
+            (pct >= 90 ? 'text-rose-400' : pct >= 70 ? 'text-amber-400' : 'text-slate-400');
+
+        if(resetAt) {
+            const resetDate = new Date(resetAt);
+            const now = new Date();
+            const diffMin = Math.ceil((resetDate - now) / 60000);
+            resetEl.textContent = diffMin > 0 ? `초기화 ${diffMin}분 후` : '곧 초기화';
+        }
+
+        if(pct >= 80) {
+            addLog(`⚠️ 토큰 사용량 ${pct}% — 한도에 근접하고 있습니다.`);
+        }
+    } catch(e) {}
+}
+
 async function callClaudeAPI(systemPrompt, messages, maxTokens) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -1473,16 +1766,259 @@ async function callClaudeAPI(systemPrompt, messages, maxTokens) {
             messages: messages
         })
     });
+
+    // 응답 헤더에서 토큰 사용량 파싱
+    updateTokenUsageUI(res.headers);
+
     if(!res.ok) {
         const err = await res.json().catch(()=>({}));
-        throw new Error(err.error?.message || `HTTP ${res.status}`);
+        const errMsg = err.error?.message || `HTTP ${res.status}`;
+
+        // 429: 한도 초과
+        if(res.status === 429) {
+            const resetHeader = res.headers.get('anthropic-ratelimit-tokens-reset') ||
+                                res.headers.get('retry-after');
+            const resetMsg = resetHeader
+                ? `초기화 시간: ${new Date(resetHeader).toLocaleTimeString('ko-KR')}`
+                : '약 5시간 후 초기화됩니다';
+
+            showToast(`⏳ 토큰 한도 초과 — ${resetMsg}`, 'warning', 8000);
+            addLog(`⚠️ Rate Limit 도달: ${resetMsg}`);
+
+            // 토큰바 100%로 표시
+            const fill = document.getElementById('token-bar-fill');
+            const pctEl = document.getElementById('token-bar-pct');
+            const resetEl = document.getElementById('token-reset-time');
+            if(fill) fill.className = 'h-full rounded-full bg-rose-500';
+            if(fill) fill.style.width = '100%';
+            if(pctEl) { pctEl.textContent = '한도초과'; pctEl.className = 'text-[10px] mono text-rose-400'; }
+            if(resetEl) resetEl.textContent = resetMsg;
+
+            // 히스토리 자동 압축
+            await compressChatHistory();
+            throw new Error('RATE_LIMIT:' + resetMsg);
+        }
+        throw new Error(errMsg);
     }
+
     const data = await res.json();
     return data.content?.[0]?.text || '(응답 없음)';
 }
 
 // ═══════════════════════════════════════════════
-// 멀티스텝 워크플로우: 실제 직원들이 순차적으로 작업 후 종합
+// 히스토리 자동 압축 (토큰 한도 초과 시)
+// ═══════════════════════════════════════════════
+async function compressChatHistory() {
+    if(chatHistory.length < 6) return; // 짧으면 압축 불필요
+
+    addLog('🗜️ 대화 히스토리 자동 압축 시작...');
+    appendMessage('assistant','시스템','🗜️',
+        `⚠️ 토큰 한도에 도달했습니다. 대화 내용을 압축해서 계속 대화할 수 있게 정리합니다...`);
+
+    try {
+        // 현재 히스토리를 텍스트로 변환
+        const historyText = chatHistory.slice(0, -2) // 마지막 2개 제외
+            .map(h => `${h.role === 'user' ? '대표님' : 'AI'}: ${h.content.substring(0, 300)}`)
+            .join('\n');
+
+        // Claude API로 압축 요약
+        const summaryRes = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-6',
+                max_tokens: 500,
+                messages: [{
+                    role: 'user',
+                    content: `아래 대화 내용을 3~5줄로 핵심만 요약해줘. 주요 결정사항과 맥락을 포함해서:\n\n${historyText}`
+                }]
+            })
+        });
+
+        if(summaryRes.ok) {
+            const summaryData = await summaryRes.json();
+            const summary = summaryData.content?.[0]?.text || '';
+
+            // 히스토리를 압축 요약으로 교체
+            const lastTwo = chatHistory.slice(-2);
+            chatHistory = [
+                { role:'user', content:`[이전 대화 요약]\n${summary}` },
+                { role:'assistant', content:'이전 대화 내용을 요약했습니다. 계속 진행하겠습니다.' },
+                ...lastTwo
+            ];
+
+            // 기억 저장소에도 자동 저장
+            const mem = {
+                id: 'mem_compress_' + Date.now(),
+                title: `대화 압축 요약 (${new Date().toLocaleDateString('ko-KR')})`,
+                content: summary,
+                category: '업무요약',
+                author: '시스템',
+                date: new Date().toLocaleDateString('ko-KR'),
+                autoSaved: true
+            };
+            memories.unshift(mem);
+            saveAll();
+            renderMemoryList();
+
+            addLog('✅ 대화 히스토리 압축 완료 — 기억 저장소에 저장됨');
+            appendMessage('assistant','시스템','✅',
+                `🗜️ 대화 압축 완료! 요약 내용이 기억 저장소에 저장됐습니다.<br>
+                <span class="text-slate-400 text-[10px]">${summary.substring(0,100)}...</span><br>
+                <strong class="text-emerald-400">토큰이 초기화되면 이어서 대화할 수 있습니다.</strong> (약 5시간 후)`);
+        }
+    } catch(e) {
+        addLog('❌ 히스토리 압축 실패: ' + e.message);
+    }
+}
+
+// ═══════════════════════════════════════════════
+// AI vs AI 자동 토론
+// 직원들이 주제를 놓고 서로 질문·반박하며 자율 대화
+// 대표님 개입 없이 직원들끼리 결론을 도출
+// ═══════════════════════════════════════════════
+let aivsaiRunning = false;
+
+async function startAIvsAI() {
+    const input = document.getElementById('chat-input');
+    const topic = input.value.trim();
+
+    if(!topic) {
+        showToast('주제를 먼저 입력해 주세요!', 'warning', 2000);
+        return;
+    }
+    if(!apiKey) {
+        showToast('Claude API 연결이 필요합니다.', 'warning', 2000);
+        return;
+    }
+    if(aivsaiRunning) {
+        showToast('이미 AI 토론이 진행 중입니다.', 'info', 2000);
+        return;
+    }
+
+    input.value = '';
+    aivsaiRunning = true;
+
+    const btn = document.getElementById('aivai-btn');
+    if(btn) { btn.textContent = '⏹'; btn.title = '토론 중지'; btn.onclick = stopAIvsAI; }
+
+    addLog(`🤖 AI vs AI 자동 토론 시작: "${topic.substring(0,30)}..."`);
+    appendMessage('assistant','시스템','🤖',
+        `🤖 <strong class="text-violet-300">AI vs AI 자동 토론 시작</strong><br>
+        주제: <strong class="text-white">${topic}</strong><br>
+        <span class="text-slate-400 text-[10px]">직원들이 서로 자율적으로 대화하며 결론을 도출합니다. 개입 없이 지켜봐 주세요.</span>`);
+
+    // 주제별 참여 직원 자동 선정
+    const autoStaff = detectRelevantStaff(topic);
+    const debaters = autoStaff
+        ? autoStaff.staffIds
+        : ['collector','writer','sns','coordinator'];
+
+    const debateLog = []; // { name, emoji, text }
+    const MAX_ROUNDS = 4; // 최대 라운드 수 (API 비용 조절)
+
+    try {
+        for(let round = 0; round < MAX_ROUNDS && aivsaiRunning; round++) {
+            const staffId = debaters[round % debaters.length];
+            const staff = staffState[staffId];
+            if(!staff) continue;
+
+            const isFirst = round === 0;
+            const isLast  = round === MAX_ROUNDS - 1;
+
+            // 이전 토론 내용 요약
+            const prevText = debateLog.length > 0
+                ? `\n\n[지금까지 토론 내용]\n${debateLog.map(d=>`${d.name}: ${d.text}`).join('\n\n')}`
+                : '';
+
+            let roleGuide;
+            if(isFirst) {
+                roleGuide = `당신이 먼저 주제에 대한 첫 의견을 제시합니다. 본인 역할 관점에서 핵심 분석과 의견을 3~4문장으로 말하고, 마지막에 다른 직원에게 한 가지 질문을 던지세요.`;
+            } else if(isLast) {
+                roleGuide = `지금까지의 토론을 모두 읽고 최종 결론을 정리해 주세요. "[최종 결론]"으로 시작하여 핵심 액션 플랜 3가지를 제시하세요.`;
+            } else {
+                const prevSpeaker = debateLog[debateLog.length-1]?.name || '동료';
+                roleGuide = `${prevSpeaker}의 의견을 읽고 동의하거나 반박하거나 새로운 관점을 추가하세요. 3~4문장으로 발언하고 마지막에 다른 직원에게 질문을 던지세요.`;
+            }
+
+            const sysPrompt = `당신은 hohoplay 가상 오피스의 "${staff.name}" (${staff.emoji}, ${staff.role}, Lv.${staff.level})입니다.
+지금 팀이 "${topic}" 주제로 자율 토론 중입니다.
+${roleGuide}
+한국어로, 1인칭으로, 실제 회의처럼 자연스럽게 말하세요.${prevText}`;
+
+            showTyping(true);
+            if(staffPositions[staffId]) {
+                staffPositions[staffId].bubble = '발언 중... 💬';
+                renderCharacters();
+            }
+
+            const reply = await callClaudeAPI(sysPrompt, [{role:'user', content:`주제: ${topic}`}],
+                isLast ? 600 : 350);
+
+            debateLog.push({ name: staff.name, emoji: staff.emoji, text: reply });
+            showTyping(false);
+
+            if(staffPositions[staffId]) {
+                staffPositions[staffId].bubble = '';
+                renderCharacters();
+            }
+
+            // 발언 태그
+            const tag = isFirst ? `<span class="text-violet-400 text-[10px] font-bold">[첫 발언]</span> `
+                      : isLast  ? `<span class="text-emerald-400 text-[10px] font-bold">[최종 결론]</span> `
+                      : `<span class="text-slate-500 text-[10px]">[${round+1}/${MAX_ROUNDS}라운드]</span> `;
+
+            appendMessage('assistant', staff.name, staff.emoji, tag + formatMarkdown(reply));
+            addLog(`🤖 ${staff.name} 발언 완료 (${round+1}/${MAX_ROUNDS})`);
+
+            // 발언 사이 딜레이 (자연스럽게)
+            if(!isLast && aivsaiRunning) await sleep(800);
+        }
+
+        // 토론 결과 기억 저장소에 자동 저장
+        const finalContent = debateLog.map(d=>`[${d.name}]\n${d.text}`).join('\n\n---\n\n');
+        const mem = {
+            id: 'mem_aivai_' + Date.now(),
+            title: `AI토론: ${topic.substring(0,30)}`,
+            content: finalContent,
+            category: '토론결과',
+            author: 'AI자동토론',
+            date: new Date().toLocaleDateString('ko-KR'),
+            autoSaved: true
+        };
+        memories.unshift(mem);
+        saveAll();
+        renderMemoryList();
+
+        appendMessage('assistant','시스템','✅',
+            `🤖 AI 자동 토론 완료! 결과가 <strong class="text-emerald-400">기억 저장소</strong>에 저장됐습니다.`);
+        addLog(`✅ AI vs AI 토론 완료 (${debateLog.length}회 발언) → 기억 저장소 저장`);
+
+    } catch(e) {
+        showTyping(false);
+        if(!e.message.startsWith('RATE_LIMIT:')) {
+            appendMessage('assistant','시스템','⚠️', `⚠️ 토론 중 오류: ${e.message}`);
+        }
+    }
+
+    aivsaiRunning = false;
+    if(btn) { btn.textContent = '🤖'; btn.title = '입력한 주제로 직원들이 자동으로 서로 토론'; btn.onclick = startAIvsAI; }
+}
+
+function stopAIvsAI() {
+    aivsaiRunning = false;
+    showToast('AI 토론을 중지했습니다.', 'info', 2000);
+    addLog('⏹ AI vs AI 토론 중지');
+    const btn = document.getElementById('aivai-btn');
+    if(btn) { btn.textContent = '🤖'; btn.title = '입력한 주제로 직원들이 자동으로 서로 토론'; btn.onclick = startAIvsAI; }
+}
+
+
 // 1) 자료 수집가 - 관련 정보/배경 정리
 // 2) 글초안 작성기 (또는 호출된 직원) - 1번 결과를 바탕으로 초안 작성
 // 3) 조정자(또는 호출된 직원) - 1,2번을 종합해 최종 답변
@@ -1634,9 +2170,9 @@ ${draftResult}`;
 function detectChatMode(msg) {
     const lower = msg.trim();
 
-    // 0) 체크박스로 특정 직원이 선택되어 있으면 최우선으로 개인 호출/회의
+    // 0) 드롭다운에서 선택된 직원 최우선
     if(isAllStaffChecked()) {
-        return { type:'meeting' }; // 전원 대상 (focusIds 없음)
+        return { type:'meeting' };
     }
     const checkedStaff = getCheckedStaffIds();
     if(checkedStaff.length === 1) {
@@ -1651,17 +2187,19 @@ function detectChatMode(msg) {
         return { type:'greeting' };
     }
 
-    // 2) 개인 호출 감지: "OOO야", "OOO씨", "OOO 불러", "OOO한테", 직원 이름 포함 + 짧은 멘트
+    // 2) 메시지에서 직원 이름 감지 (여러 명 동시 감지)
+    const mentionedIds = [];
     for(const id of Object.keys(staffState)) {
-        const name = staffState[id].name;
-        // 이름 일부만 써도 매칭 (2글자 이상)
-        const shortName = name.replace(/\s/g,'');
-        if(lower.includes(shortName) || lower.includes(name)) {
-            // "회의", "전체", "다같이" 같은 단어 없으면 개인 호출로 판단
-            if(!/회의|전체|다같이|모두|미팅|브리핑/.test(lower)) {
-                return { type:'direct', staffId:id };
-            }
+        const name = staffState[id].name.replace(/\s/g,'');
+        if(lower.includes(name) || lower.includes(staffState[id].name)) {
+            mentionedIds.push(id);
         }
+    }
+    if(mentionedIds.length === 1 && !/회의|전체|다같이|모두/.test(lower)) {
+        return { type:'direct', staffId: mentionedIds[0] };
+    }
+    if(mentionedIds.length > 1) {
+        return { type:'meeting', focusIds: mentionedIds };
     }
 
     // 3) 회의/전체 의견 요청 감지
@@ -1669,7 +2207,6 @@ function detectChatMode(msg) {
         return { type:'meeting' };
     }
 
-    // 기본: 일반 업무 지시 (조정자 단독 응답)
     return { type:'normal' };
 }
 
