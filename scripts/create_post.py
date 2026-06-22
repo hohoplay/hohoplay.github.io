@@ -3236,6 +3236,11 @@ def build_zodiac_weekly_post(today_str):
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
+  <!-- fortune.html 파서 연동용 히든 마커 (별자리 주간) -->
+  <div style="display:none" aria-hidden="true">
+    <div class="fc-text">{fortune}</div>
+  </div>
+
   <div style="font-size:15px;line-height:2.1;color:#374151;
               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
 
@@ -3484,6 +3489,17 @@ def build_chinese_monthly_post(today_str):
         # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+
+  <!-- fortune.html 파서 연동용 히든 마커 (띠 월간) -->
+  <div style="display:none" aria-hidden="true">
+    <div style="border-left:5px solid #f59e0b;padding:8px">
+      <p style="font-size:17px">{headline}</p>
+      {'<p>상순 → ' + upper + '</p>' if upper else ''}
+      {'<p>중순 → ' + mid + '</p>' if mid else ''}
+      {'<p>하순 → ' + lower + '</p>' if lower else ''}
+    </div>
+    <div class="fc-text">{headline}</div>
+  </div>
 
   <p style="font-size:15px;line-height:2.1;color:#374151;
             margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
