@@ -2967,7 +2967,7 @@ def build_chinese_post(c, today_str):
   <div style="display:none" aria-hidden="true">
     <div class="fc-text">{fortune}</div>
     <div style="font-size:11px;font-weight:700">📅 출생연도별 오늘 운세</div>
-    {year_rows_in_card}
+    {year_section_html}
   </div>
 
   <div style="font-size:15px;line-height:2.1;color:#374151;
