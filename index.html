@@ -806,12 +806,9 @@
                 if(window.fortuneReady) {
                     showFortune('today');
                 } else {
-                    // fortune.html 아직 로드 중 — fortune-content에 대기 메시지 표시
                     var _fc = document.getElementById('fortune-content');
                     if (_fc) _fc.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세 모듈 로딩 중...</div>';
-                    // 완료 후 실행 예약
                     window._pendingFortune = function(){ showFortune('today'); };
-                    // 5초 타임아웃 — 로드 실패 시 안내 메시지
                     setTimeout(function(){
                         if(!window.fortuneReady){
                             var fc2 = document.getElementById('fortune-content');
