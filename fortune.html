@@ -267,13 +267,6 @@ ${info.usage}`;
         if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
 
         // ═══════════════════════════════
-        //  Blogger API 설정 — window.BLOG_ID 우선
-        // ═══════════════════════════════
-        if (typeof BLOG_ID  === 'undefined') var BLOG_ID  = window.BLOG_ID  || '5608603268556826697';
-        if (typeof API_KEY  === 'undefined') var API_KEY  = window.API_KEY  || 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
-        if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
-
-        // ═══════════════════════════════
         //  Blogger API
         // ═══════════════════════════════
         async function fetchPosts(label, maxResults=6){
@@ -352,11 +345,24 @@ ${info.usage}`;
             // ── 신 구조 1: 스토리텔링형 — "오늘의 흐름" 섹션 ──
             const flowIdx = raw.indexOf('오늘의 흐름');
             if (flowIdx !== -1) {
-                const chunk = raw.slice(flowIdx, flowIdx + 3000);
-                const parts = [...chunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
-                    .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
-                    .filter(t => t.length > 10);
-                if (parts.length > 0) return parts.slice(0, 3).join('\n\n');
+                // 마커 이후 6000자 안에서 <h2>(섹션 헤더)와 <p>(본문) 모두 수집
+                const chunk = raw.slice(flowIdx, flowIdx + 6000);
+                const tokens = [];
+                // h2와 p를 순서대로 추출
+                const tagRe = /<(h2|p)[^>]*>([\s\S]*?)<\/\1>/g;
+                let m;
+                while ((m = tagRe.exec(chunk)) !== null) {
+                    const tag  = m[1];
+                    const text = m[2].replace(/<br\s*\/?>/gi, '\n')
+                                     .replace(/<[^>]+>/g, '')
+                                     .replace(/&nbsp;/g, ' ')
+                                     .replace(/&amp;/g, '&').trim();
+                    if (!text || text.length < 5) continue;
+                    // h2는 섹션 헤더로 마킹
+                    if (tag === 'h2') tokens.push('▸ ' + text);
+                    else tokens.push(text);
+                }
+                if (tokens.length > 0) return { type: 'story', tokens };
             }
             // ── 신 구조 2: badge "🌟 오늘 총운" 포함 card 에서 <p> 태그 수집 ──
             const badgeIdx = raw.indexOf('🌟 오늘 총운') !== -1
@@ -367,15 +373,13 @@ ${info.usage}`;
                 const parts = [...chunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
                     .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
                     .filter(Boolean);
-                if (parts.length > 0) return parts.join('\n\n');
+                if (parts.length > 0) return { type: 'story', tokens: parts };
             }
             // ── 구 구조: fc-text 클래스 div ──
             const m = raw.match(/<div[^>]*class="fc-text"[^>]*>([\s\S]*?)<\/div>/);
             if (!m) return null;
-            return m[1]
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<[^>]+>/g, '')
-                .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+            const legacyText = m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+            return { type: 'story', tokens: legacyText.split('\n').filter(t => t.trim().length > 5) };
         }
 
         // ── 타입 2: 띠 오늘운세 ──
@@ -502,10 +506,12 @@ ${info.usage}`;
             const t    = post.title || '';
 
             if (t.includes('오늘의 운세') && !t.includes('띠운세')) {
-                const text = parseFortune_Zodiac(raw);
-                if (!text) return null;
+                const parsed = parseFortune_Zodiac(raw);
+                if (!parsed) return null;
+                const tokens = parsed.tokens || (typeof parsed === 'string' ? parsed.split('\n\n') : [parsed]);
+                const text = tokens.join('\n\n');
                 const score = parseFortune_Score(raw);
-                return { ...meta, type: 'zodiac', text, score };
+                return { ...meta, type: 'zodiac', text, tokens, score };
             }
             if (t.includes('띠운세') && t.includes('월') && t.includes('일')) {
                 const html = parseFortune_Chinese(raw);
@@ -856,8 +862,15 @@ ${info.usage}`;
                 </div>`;
             }
 
-            // 타입 1: 별자리 오늘 — 운세 본문 + 운세 지수 카드
-            const preview = (info.text||'').replace(/\n/g,'<br>');
+            // 타입 1: 별자리 오늘 — 섹션 헤더(▸) + 본문 구조적 렌더링
+            const tokens = info.tokens || (info.text ? info.text.split('\n\n') : []);
+            const storyHTML = tokens.map(t => {
+                if (t.startsWith('▸ ')) {
+                    // h2 섹션 헤더
+                    return `<div style="font-size:12px;font-weight:700;color:#c4b5fd;margin:14px 0 6px;letter-spacing:.5px">${t.slice(2)}</div>`;
+                }
+                return `<div style="font-size:14px;line-height:1.9;margin-bottom:8px;color:#fff">${t.replace(/\n/g,'<br>')}</div>`;
+            }).join('');
             return `
                 <div id="${cardId}" style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px;padding:24px;color:#fff">
                     <div style="text-align:center;margin-bottom:14px">
@@ -865,7 +878,7 @@ ${info.usage}`;
                         <div style="font-size:21px;font-weight:900;margin:6px 0">${name}</div>
                         <div style="opacity:.8;font-size:13px">${dateSub}</div>
                     </div>
-                    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:16px;font-size:14px;line-height:1.85;margin-bottom:12px">${preview}</div>
+                    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:16px;margin-bottom:12px">${storyHTML}</div>
                     ${renderScoreCard(info.score||null)}
                 </div>
                 <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;flex-wrap:wrap">
