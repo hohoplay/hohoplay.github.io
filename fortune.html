@@ -346,7 +346,7 @@ ${info.usage}`;
             const flowIdx = raw.indexOf('오늘의 흐름');
             if (flowIdx !== -1) {
                 // 마커 이후 6000자 안에서 <h2>(섹션 헤더)와 <p>(본문) 모두 수집
-                const chunk = raw.slice(flowIdx, flowIdx + 6000);
+                const chunk = raw.slice(flowIdx, flowIdx + 40000);
                 const tokens = [];
                 // h2와 p를 순서대로 추출
                 const tagRe = /<(h2|p)[^>]*>([\s\S]*?)<\/\1>/g;
@@ -357,7 +357,9 @@ ${info.usage}`;
                                      .replace(/<[^>]+>/g, '')
                                      .replace(/&nbsp;/g, ' ')
                                      .replace(/&amp;/g, '&').trim();
-                    if (!text || text.length < 5) continue;
+                    if (!text || text.length < 15) continue;
+                    // 공감문(💭)은 카드에서 제외 — 섹션 본문이 아님
+                    if (tag === 'p' && text.startsWith('💭')) continue;
                     // h2는 섹션 헤더로 마킹
                     if (tag === 'h2') tokens.push('▸ ' + text);
                     else tokens.push(text);
