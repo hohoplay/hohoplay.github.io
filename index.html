@@ -134,7 +134,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260623042308_f953cf15">
+  <meta name="build-version" content="20260623042911_2f0cfc88">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -224,7 +224,7 @@
             .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
     </script>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
         // 모바일 감지
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
@@ -1003,10 +1003,12 @@
                 el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
             }
         }
-        // window에만 할당 — const 선언 금지 (fortune.html var와 충돌 방지)
         window.BLOG_ID  = '5608603268556826697';
         window.API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
         window.BASE_URL = 'https://www.googleapis.com/blogger/v3';
+        const BLOG_ID  = window.BLOG_ID;
+        const API_KEY  = window.API_KEY;
+        const BASE_URL = window.BASE_URL;
     </script>
 
     <!-- 운세·타로·MBTI 모듈 동적 로드 -->
