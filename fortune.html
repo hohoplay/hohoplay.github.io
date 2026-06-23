@@ -1412,6 +1412,35 @@ ${info.usage}`;
             result.scrollIntoView({behavior:'smooth',block:'start'});
         }
 
+
+        // ── 날짜 입력 초기화 공통 함수 ──
+        function initDateInputs(yId, mId, dId) {
+            var t = new Date();
+            var y = document.getElementById(yId);
+            var m = document.getElementById(mId);
+            var d = document.getElementById(dId);
+            if (!y || !m || !d) return;
+            // 오늘 날짜 기본값
+            if (!y.value) y.value = t.getFullYear();
+            if (!m.value) m.value = t.getMonth() + 1;
+            if (!d.value) d.value = t.getDate();
+            // Tab 이동 + 포커스 효과
+            [y, m, d].forEach(function(el, i, arr) {
+                el.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab' && !e.shiftKey) {
+                        var next = arr[i + 1];
+                        if (next) { e.preventDefault(); next.focus(); }
+                    }
+                });
+                el.addEventListener('focus', function() {
+                    this.style.borderColor = '#7c3aed';
+                    this.select();
+                });
+                el.addEventListener('blur', function() {
+                    this.style.borderColor = '#e2e8f0';
+                });
+            });
+        }
         function showFortuneTab(tab, data){
             // ── 탭 전환 로딩 ──
             const _tabContentEl = document.getElementById('fortune-tab-content');
@@ -4529,9 +4558,21 @@ ${info.usage}`;
                                 <button onclick="setCalType('음력')" id="cal-lunar" style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">🌙 음력</button>
                             </div>
                             <div style="display:flex;gap:8px">
-                                <input id="inp-year" type="number" placeholder="년(4자리)" min="1900" max="2010" style="flex:2;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                                <input id="inp-month" type="number" placeholder="월" min="1" max="12" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                                <input id="inp-day" type="number" placeholder="일" min="1" max="31" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
+                                <div style="flex:2;display:flex;flex-direction:column;gap:4px">
+                                    <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">년</label>
+                                    <input id="inp-year" type="number" min="1900" max="2030"
+                                        style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
+                                </div>
+                                <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                    <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">월</label>
+                                    <input id="inp-month" type="number" min="1" max="12"
+                                        style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
+                                </div>
+                                <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                    <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">일</label>
+                                    <input id="inp-day" type="number" min="1" max="31"
+                                        style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
+                                </div>
                             </div>
                             <div id="inp-lunar-info" style="font-size:11px;color:#7c3aed;margin-top:6px;display:none">🌙 음력 날짜는 자동으로 양력으로 변환되어 운세에 반영됩니다</div>
                         </div>
@@ -4560,6 +4601,7 @@ ${info.usage}`;
                     <div id="today-result"></div>`;
                 if(_gender) setGender(_gender);
                 setCalType(_calType);
+                initDateInputs('inp-year','inp-month','inp-day');
             }
 
             else if(type==='zodiac'){
@@ -4675,13 +4717,23 @@ ${info.usage}`;
                                 style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">🌙 음력</button>
                         </div>
                         <div id="sj-lunar-info" style="font-size:11px;color:#7c3aed;margin-bottom:6px;display:none">🌙 음력 날짜는 자동으로 양력으로 변환되어 사주에 반영됩니다</div>
-                        <div style="display:flex;gap:8px">
-                            <input id="sj-year"  type="number" placeholder="년(4자리)" min="1900" max="2010"
-                                style="flex:2;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                            <input id="sj-month" type="number" placeholder="월" min="1" max="12"
-                                style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                            <input id="sj-day"   type="number" placeholder="일" min="1" max="31"
-                                style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
+                                                <div style="display:flex;gap:8px">
+                            <div style="flex:2;display:flex;flex-direction:column;gap:4px">
+                                <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">년</label>
+                                <input id="sj-year" type="number" min="1900" max="2030"
+                                    style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">월</label>
+                                <input id="sj-month" type="number" min="1" max="12"
+                                    style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">일</label>
+                                <input id="sj-day" type="number" min="1" max="31"
+                                    style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
+                            </div>
+                        </div>
                         </div>
                     </div>
                     <div style="margin-bottom:14px">
@@ -4722,6 +4774,7 @@ ${info.usage}`;
                     </button>
                 </div>
                 <div id="saju-result"></div>`;
+                initDateInputs('sj-year','sj-month','sj-day');
             }
 
             else if(type==='mbti-tarot'){
