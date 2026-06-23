@@ -267,6 +267,13 @@ ${info.usage}`;
         if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
 
         // ═══════════════════════════════
+        //  Blogger API 설정 — window.BLOG_ID 우선
+        // ═══════════════════════════════
+        if (typeof BLOG_ID  === 'undefined') var BLOG_ID  = window.BLOG_ID  || '5608603268556826697';
+        if (typeof API_KEY  === 'undefined') var API_KEY  = window.API_KEY  || 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
+        if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
+
+        // ═══════════════════════════════
         //  Blogger API
         // ═══════════════════════════════
         async function fetchPosts(label, maxResults=6){
@@ -345,11 +352,23 @@ ${info.usage}`;
             // ── 신 구조 1: 스토리텔링형 — "오늘의 흐름" 섹션 ──
             const flowIdx = raw.indexOf('오늘의 흐름');
             if (flowIdx !== -1) {
-                const chunk = raw.slice(flowIdx, flowIdx + 3000);
-                const parts = [...chunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
-                    .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
-                    .filter(t => t.length > 10);
-                if (parts.length > 0) return parts.slice(0, 3).join('\n\n');
+                // 슬라이싱 40000 — story_html 전체 커버
+                const chunk = raw.slice(flowIdx, flowIdx + 40000);
+                const tokens = [];
+                const tagRe = /<(h2|p)[^>]*>([\s\S]*?)<\/\1>/g;
+                let m;
+                while ((m = tagRe.exec(chunk)) !== null) {
+                    const tag  = m[1];
+                    const text = m[2].replace(/<br\s*\/?>/gi, '\n')
+                                     .replace(/<[^>]+>/g, '')
+                                     .replace(/&nbsp;/g, ' ')
+                                     .replace(/&amp;/g, '&').trim();
+                    if (!text || text.length < 15) continue;
+                    if (tag === 'p' && text.startsWith('💭')) continue;
+                    if (tag === 'h2') tokens.push('▸ ' + text);
+                    else tokens.push(text);
+                }
+                if (tokens.length > 0) return { type: 'story', tokens };
             }
             // ── 신 구조 2: badge "🌟 오늘 총운" 포함 card 에서 <p> 태그 수집 ──
             const badgeIdx = raw.indexOf('🌟 오늘 총운') !== -1
@@ -360,15 +379,13 @@ ${info.usage}`;
                 const parts = [...chunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
                     .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
                     .filter(Boolean);
-                if (parts.length > 0) return parts.join('\n\n');
+                if (parts.length > 0) return { type: 'story', tokens: parts };
             }
             // ── 구 구조: fc-text 클래스 div ──
             const m = raw.match(/<div[^>]*class="fc-text"[^>]*>([\s\S]*?)<\/div>/);
             if (!m) return null;
-            return m[1]
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<[^>]+>/g, '')
-                .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+            const legacyText = m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+            return { type: 'story', tokens: legacyText.split('\n').filter(t => t.trim().length > 5) };
         }
 
         // ── 타입 2: 띠 오늘운세 ──
@@ -495,16 +512,21 @@ ${info.usage}`;
             const t    = post.title || '';
 
             if (t.includes('오늘의 운세') && !t.includes('띠운세')) {
-                const text = parseFortune_Zodiac(raw);
-                if (!text) return null;
+                const parsed = parseFortune_Zodiac(raw);
+                if (!parsed) return null;
+                const tokens = parsed.tokens || (typeof parsed === 'string' ? parsed.split('\n\n') : [parsed]);
+                const text = tokens.join('\n\n');
                 const score = parseFortune_Score(raw);
-                return { ...meta, type: 'zodiac', text, score };
+                return { ...meta, type: 'zodiac', text, tokens, score };
             }
             if (t.includes('띠운세') && t.includes('월') && t.includes('일')) {
                 const html = parseFortune_Chinese(raw);
                 if (!html) return null;
                 const score = parseFortune_Score(raw);
-                return { ...meta, type: 'chinese', yearRowsHTML: html, score };
+                // fc-text에서 본문 운세 텍스트 추출
+                const fcM = raw.match(/<div[^>]*class="fc-text"[^>]*>([\s\S]*?)<\/div>/);
+                const fortuneText = fcM ? fcM[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim() : '';
+                return { ...meta, type: 'chinese', yearRowsHTML: html, text: fortuneText, score };
             }
             if (t.includes('주간운세')) {
                 const text = parseFortune_Weekly(raw);
@@ -528,6 +550,7 @@ ${info.usage}`;
 
             // 타입 2: 띠 오늘 — 출생연도별 HTML 그대로
             if (info.type === 'chinese') {
+                const chFortuneHTML = info.text ? `<div style="background:rgba(255,255,255,.12);border-radius:12px;padding:14px;font-size:14px;line-height:1.9;color:rgba(255,255,255,.92);margin-bottom:12px">${info.text.replace(/\n/g,'<br>')}</div>` : '';
                 return `
                 <div style="text-align:center;margin-bottom:16px">
                     <div style="font-size:40px">${emoji}</div>
@@ -535,6 +558,7 @@ ${info.usage}`;
                     <div style="font-size:13px;color:#888">${sub}</div>
                 </div>
                 <div id="${cardId}" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;padding:20px;color:#fff">
+                    ${chFortuneHTML}
                     ${info.yearRowsHTML}
                 </div>
                 ${renderScoreCard(info.score||null)}
@@ -849,8 +873,14 @@ ${info.usage}`;
                 </div>`;
             }
 
-            // 타입 1: 별자리 오늘 — 운세 본문 + 운세 지수 카드
-            const preview = (info.text||'').replace(/\n/g,'<br>');
+            // 타입 1: 별자리 오늘 — 섹션 헤더(▸) + 본문 구조적 렌더링
+            const tokens = info.tokens || (info.text ? info.text.split('\n\n') : []);
+            const storyHTML = tokens.map(t => {
+                if (t.startsWith('▸ ')) {
+                    return `<div style="font-size:13px;font-weight:500;color:#a78bfa;margin:16px 0 6px;padding-top:12px;border-top:1px solid rgba(167,139,250,.25)">${t.slice(2)}</div>`;
+                }
+                return `<div style="font-size:14px;line-height:1.9;margin-bottom:6px;color:rgba(255,255,255,.92)">${t.replace(/\n/g,'<br>')}</div>`;
+            }).join('');
             return `
                 <div id="${cardId}" style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px;padding:24px;color:#fff">
                     <div style="text-align:center;margin-bottom:14px">
@@ -858,7 +888,7 @@ ${info.usage}`;
                         <div style="font-size:21px;font-weight:900;margin:6px 0">${name}</div>
                         <div style="opacity:.8;font-size:13px">${dateSub}</div>
                     </div>
-                    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:16px;font-size:14px;line-height:1.85;margin-bottom:12px">${preview}</div>
+                    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:16px;margin-bottom:12px">${storyHTML}</div>
                     ${renderScoreCard(info.score||null)}
                 </div>
                 <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;flex-wrap:wrap">
@@ -2392,8 +2422,6 @@ ${info.usage}`;
                 '金':{'총운':4,'애정':3,'금전':5,'직업':5,'학업':4,'건강':4},
                 '水':{'총운':4,'애정':4,'금전':4,'직업':4,'학업':5,'건강':3},
             };
-            // ilOhaeng 미리 정의 — adviceTitle 출력 이전에 필요
-            var ilOhaeng = OHAENG_CG[ilgan];
             var baseBonus = OHG[ilOhaeng] || OHG['土'];
 
             // 오행 균형도 (분포 고를수록 보너스)
@@ -2410,11 +2438,10 @@ ${info.usage}`;
             ][pwIdx];
 
             function calcScore(key) {
-                // base 범위: 52 + (3~5)*3 + (2~5)*2 + 0~5 = 61~88
-                // jitter ±8 → 최종 53~96 → 실용적 분산
-                var base = 52 + (baseBonus[key]||4)*3 + (pwBonus[key]||3)*2 + Math.round(balanceScore/2);
+                var base = 60 + (baseBonus[key]||4)*4 + (pwBonus[key]||3)*3 + balanceScore;
+                // 시드 기반 ±5 편차 (같은 사주 → 항상 같은 결과)
                 var seed6 = _fortuneSeed(year, month, day, 'saju_'+key);
-                var jitter = Math.floor(_seededHash(seed6) * 17) - 8;
+                var jitter = Math.floor(_seededHash(seed6) * 11) - 5;
                 return Math.min(99, Math.max(40, base + jitter));
             }
 
@@ -2562,6 +2589,7 @@ ${info.usage}`;
                 + '</div>';
 
             // ── 종합 풀이 ──
+            var ilOhaeng = OHAENG_CG[ilgan];
             var charMap = {'木':'성장과 도전을 즐기는 진취적인 성향입니다.','火':'열정적이고 표현력이 강하며 사람을 이끄는 힘이 있습니다.','土':'안정을 추구하고 신뢰가 두터우며 중심을 잡는 역할을 합니다.','金':'원칙과 의지가 강하고 결단력이 뛰어납니다.','水':'직관과 지혜가 뛰어나고 유연하게 상황에 적응합니다.'};
             var summaryPool = [
                 [CHEONGAN_KR[ilgan]+'('+CHEONGAN[ilgan]+') 일간 — '+charMap[ilOhaeng], '편관이 없어 안정적인 삶의 흐름입니다. 꾸준함이 최고의 무기입니다.', '주변 인연을 소중히 여기세요. 좋은 관계가 미래를 풍요롭게 합니다.', '오늘의 평화로운 기운을 내일의 도약을 위한 발판으로 삼으세요. 💛'],
