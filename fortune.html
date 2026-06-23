@@ -38,31 +38,7 @@
             const maSign = ma >= 0 ? '▲' : '▼';
             const daSign = da.total >= 0 ? '▲' : '▼';
 
-            const calcHtml = `
-<div style="background:#f8faff;border:1px solid #c7d2fe;border-radius:14px;padding:16px;margin:14px 0">
-  <div style="font-size:13px;font-weight:700;color:#3730a3;margin-bottom:10px">📐 오늘의 운세 지수 계산 방식</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e0e7ff;font-size:12px">
-      <div style="color:#6b7280;margin-bottom:3px">📅 요일 보정 (${DOW_KR[dow]})</div>
-      <div style="font-weight:700;color:#4f46e5">${daSign} 총운 ${da.total>0?'+':''}${da.total} · 금전 ${da.money>0?'+':''}${da.money} · 건강 ${da.health>0?'+':''}${da.health} · 연애 ${da.love>0?'+':''}${da.love}</div>
-    </div>
-    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ede9fe;font-size:12px">
-      <div style="color:#6b7280;margin-bottom:3px">🗓 월별 분위기 (${MON_KR[mon]})</div>
-      <div style="font-weight:700;color:#7c3aed">${maSign} 전체 지수 ${ma>0?'+':''}${ma}점 조정</div>
-    </div>
-  </div>
-  <div style="background:#eff6ff;border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
-    <div style="color:#1e40af;font-weight:700;margin-bottom:6px">🔢 최종 보정 지수</div>
-    <div style="display:flex;gap:14px;flex-wrap:wrap">
-      <span>🌟 종합 <b>${adj.total}점</b></span>
-      <span>💰 금전 <b>${adj.money}점</b></span>
-      <span>💪 건강 <b>${adj.health}점</b></span>
-      <span>❤️ 연애 <b>${adj.love}점</b></span>
-    </div>
-  </div>
-  <div style="font-size:12px;color:#374151">⏰ <b>오늘의 골든 타임:</b> ${da.golden}</div>
-</div>`;
-            return { ...adj, calcHtml };
+            const calcHtml = '';            return adj;
         }
 
         // ════════════════════════════════════════════════════════
@@ -133,58 +109,7 @@
               usage:'오늘 방향을 잃었다고 느껴질 때 이 아이템을 바라보며 본인이 가야 할 길을 떠올려 보세요.' },
         ];
 
-        function getColorGuide(colorName) {
-            const info = COLOR_EFFECT[colorName];
-            if (!info) return `오늘의 행운 색상 <b>'${colorName}'</b>을 소품이나 의류에 활용해 보세요. 긍정적인 에너지를 끌어당깁니다.`;
-            return `오늘의 행운 색상 <b>'${colorName}'</b>은 <b>${info.area}</b>을 높여주는 컬러입니다.
-${info.items}을 착용하거나 곁에 두면 ${info.type} 지수가 최대 <b>${info.boost}% 상승</b>하는 효과를 기대할 수 있습니다.
-${info.usage}`;
-        }
-
-        function getItemGuide(itemName) {
-            for (const entry of ITEM_USAGE) {
-                if (entry.keys.some(k => itemName.includes(k))) return entry.usage;
-            }
-            return `오늘 '${itemName}'을 가까이 두거나 몸에 지니세요. 긍정적인 기운이 하루 전체에 흐릅니다.`;
-        }
-
-        function luckyGuideCard(color, item, number) {
-            return `
-<div style="background:linear-gradient(135deg,#fffbeb,#fdf4ff);border:1px solid #fde68a;border-radius:14px;padding:16px;margin:14px 0">
-  <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:12px">🍀 오늘의 행운 아이템 & 색상 활용 가이드</div>
-  <div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #fde68a;margin-bottom:8px;font-size:13px;line-height:1.85;color:#374151">
-    <div style="font-weight:700;color:#b45309;margin-bottom:5px">🎨 행운 색상: ${color}</div>
-    ${getColorGuide(color)}
-  </div>
-  <div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #d1fae5;margin-bottom:8px;font-size:13px;line-height:1.85;color:#374151">
-    <div style="font-weight:700;color:#065f46;margin-bottom:5px">✨ 행운 아이템: ${item}</div>
-    ${getItemGuide(item)}
-  </div>
-  <div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #e0e7ff;font-size:13px;color:#374151">
-    <div style="font-weight:700;color:#4338ca;margin-bottom:4px">🔢 행운 숫자: ${number}</div>
-    오늘 중요한 선택의 순간에 이 숫자를 떠올려 보세요. 비밀번호 힌트, 약속 시간, 좌석 번호 등 작은 선택에서도 의미를 찾을 수 있습니다.
-  </div>
-</div>`;
-        }
-
-        // ════════════════════════════════════════════════════════
-        // ③ 별자리 배경 지식 데이터 & 카드 생성
-        // ════════════════════════════════════════════════════════
-        const ZODIAC_INFO = {
-            '양자리':    { element:'불 (Fire)',   ruling:'화성 (Mars)',       trait:'행동력과 추진력이 넘치는 리더형 별자리입니다.', strength:'결단력·열정·리더십·개척 정신', weakness:'성급함·지속력 부족·충동적 결정', compatible:'사자자리, 사수자리, 쌍둥이자리', stone:'다이아몬드, 루비',  color:'빨간색, 오렌지', number:'1, 9',  tip:'중요한 결정을 내리기 전에 3초만 멈추는 습관을 만들어 보세요. 당신의 직관은 훌륭하지만 한 박자 여유가 더 좋은 결과를 만듭니다.' },
-            '황소자리':  { element:'흙 (Earth)',  ruling:'금성 (Venus)',       trait:'안정과 신뢰를 중시하는 현실주의자입니다.', strength:'인내심·신뢰성·현실 감각·심미안', weakness:'고집스러움·변화 거부·소유욕', compatible:'처녀자리, 염소자리, 게자리', stone:'에메랄드, 로즈쿼츠', color:'초록색, 베이지', number:'2, 6',  tip:'오늘 새로운 방식을 한 가지만 시도해 보세요. 변화가 두렵더라도 작은 실험이 더 큰 안정을 만들어 줍니다.' },
-            '쌍둥이자리':{ element:'공기 (Air)', ruling:'수성 (Mercury)',      trait:'지적 호기심과 소통 능력이 뛰어난 다재다능한 별자리입니다.', strength:'적응력·커뮤니케이션·창의성·유머', weakness:'변덕·집중력 부족·우유부단함', compatible:'천칭자리, 물병자리, 양자리', stone:'아게이트, 시트린',   color:'노란색, 하늘색', number:'3, 5',  tip:'여러 가지에 손대기보다 딱 두 가지에만 집중해 보세요. 에너지를 모으면 훨씬 강력한 결과를 만들 수 있습니다.' },
-            '게자리':    { element:'물 (Water)',  ruling:'달 (Moon)',          trait:'감수성과 공감 능력이 풍부한 보살핌의 별자리입니다.', strength:'공감력·직관력·보살핌·기억력', weakness:'감정 기복·소극성·과도한 집착', compatible:'전갈자리, 물고기자리, 황소자리', stone:'문스톤, 진주',    color:'은색, 흰색',    number:'2, 7',  tip:'오늘 자신을 돌보는 시간을 꼭 만들어 보세요. 남을 챙기는 것만큼 자신을 챙기는 것도 중요합니다.' },
-            '사자자리':  { element:'불 (Fire)',   ruling:'태양 (Sun)',         trait:'카리스마와 자신감이 넘치는 무대의 주인공 별자리입니다.', strength:'카리스마·관대함·창의력·자신감', weakness:'자존심·인정 욕구·고집', compatible:'양자리, 사수자리, 쌍둥이자리', stone:'루비, 호박',     color:'금색, 주황색',  number:'1, 4',  tip:'다른 사람의 의견도 주인공처럼 들어주세요. 경청하는 리더가 더 오래, 더 멀리 갑니다.' },
-            '처녀자리':  { element:'흙 (Earth)',  ruling:'수성 (Mercury)',     trait:'분석력과 완벽주의적 성향을 지닌 세심한 별자리입니다.', strength:'분석력·성실함·실용성·정확성', weakness:'완벽주의·지나친 비판·걱정', compatible:'황소자리, 염소자리, 게자리', stone:'사파이어, 카넬리안', color:'네이비, 회색',  number:'5, 6',  tip:'오늘 80%면 충분하다는 마음을 가져보세요. 완벽함을 추구하다 정작 중요한 것을 놓치지 않도록 균형이 필요합니다.' },
-            '천칭자리':  { element:'공기 (Air)', ruling:'금성 (Venus)',        trait:'균형과 조화를 중시하는 외교적 별자리입니다.', strength:'균형 감각·외교력·심미안·협력', weakness:'우유부단함·갈등 회피·의존성', compatible:'쌍둥이자리, 물병자리, 사수자리', stone:'오팔, 로즈쿼츠',  color:'파스텔 핑크, 라벤더', number:'6, 9', tip:'결정을 미루고 싶어지는 순간 이것이 내가 원하는 것인가를 먼저 물어보세요. 당신의 직관은 생각보다 정확합니다.' },
-            '전갈자리':  { element:'물 (Water)',  ruling:'명왕성 (Pluto)',     trait:'깊이 있는 통찰력과 강인한 의지를 지닌 신비의 별자리입니다.', strength:'통찰력·집중력·강인함·변화 적응력', weakness:'집착·의심·복수심·비밀주의', compatible:'게자리, 물고기자리, 염소자리', stone:'토파즈, 옵시디언', color:'검정, 진홍색',  number:'8, 11', tip:'신뢰하는 사람에게 마음을 조금 열어보세요. 강인함 뒤에 숨겨진 따뜻함이 관계를 더 깊게 만들어 줍니다.' },
-            '사수자리':  { element:'불 (Fire)',   ruling:'목성 (Jupiter)',     trait:'자유와 모험을 사랑하는 낙관주의 별자리입니다.', strength:'낙관성·철학적 사고·모험심·솔직함', weakness:'무책임함·성급한 약속·무신경함', compatible:'양자리, 사자자리, 물병자리', stone:'터키석, 라피스라줄리', color:'보라색, 파란색', number:'3, 9', tip:'오늘 약속은 지킬 수 있는 것만 하세요. 솔직한 거절 한마디가 신뢰를 더 오래 지킵니다.' },
-            '염소자리':  { element:'흙 (Earth)',  ruling:'토성 (Saturn)',      trait:'책임감과 인내로 목표를 향해 묵묵히 나아가는 별자리입니다.', strength:'책임감·인내심·실용성·야망', weakness:'고집·지나친 실용주의·감정 억제', compatible:'황소자리, 처녀자리, 전갈자리', stone:'가넷, 호안석',   color:'갈색, 카키',    number:'8, 10', tip:'일에서 잠시 손을 떼고 쉬어가는 것도 전략입니다. 꾸준히 달리기 위해서는 페이스를 조절하는 지혜가 필요합니다.' },
-            '물병자리':  { element:'공기 (Air)', ruling:'천왕성 (Uranus)',     trait:'독창성과 혁신적 사고를 지닌 미래 지향적 별자리입니다.', strength:'독창성·인도주의·미래 지향·개방성', weakness:'감정 표현 어려움·고집·거리감', compatible:'쌍둥이자리, 천칭자리, 사수자리', stone:'아메시스트, 아쿠아마린', color:'일렉트릭 블루, 청록색', number:'4, 7', tip:'아이디어가 너무 앞서간다 싶으면 주변이 이해할 수 있게 설명하는 연습을 해보세요. 탁월한 생각도 전달되어야 빛납니다.' },
-            '물고기자리':{ element:'물 (Water)',  ruling:'해왕성 (Neptune)',   trait:'공감 능력이 탁월하고 예술적 감수성이 풍부한 별자리입니다.', strength:'직관력·창의성·공감력·헌신', weakness:'우유부단함·현실 도피·감정 기복', compatible:'게자리, 전갈자리, 황소자리', stone:'아쿠아마린, 문스톤', color:'바다색, 연보라', number:'7, 12', tip:'감정에 치우치지 않도록 하루 한 번 지금 내 감정이 사실인가를 점검하세요. 직관은 훌륭하지만 현실 확인이 함께할 때 더 빛납니다.' },
-        };
-
+        function getColorGuide(){ return ''; }
         function zodiacInfoCard(name, emoji) {
             const info = ZODIAC_INFO[name];
             if (!info) return '';
@@ -987,117 +912,7 @@ ${info.usage}`;
                 </div>`;
             }).join('');
         }
-        function luckyRow(color, item, number){
-            color  = color  || rnd(COLORS);
-            item   = item   || rnd(LUCKY_ITEMS);
-            number = number || rndN();
-            return `<div class="lucky-row">
-                <div class="lucky-item"><div class="lucky-label">🎨 행운의 색</div><div class="lucky-val">${color}</div></div>
-                <div class="lucky-item"><div class="lucky-label">✨ 행운 아이템</div><div class="lucky-val" style="font-size:16px">${item}</div></div>
-                <div class="lucky-item"><div class="lucky-label">🔢 행운의 숫자</div><div class="lucky-val">${number}</div></div>
-            </div>${luckyGuideCard(color, item, number)}`;
-        }
-
-        // ═══════════════════════════════
-        //  운세 CSS (동적 삽입)
-        // ═══════════════════════════════
-        (function(){
-            const s = document.createElement('style');
-            s.textContent = `
-                .ftab{background:#f1f5f9;color:#64748b}
-                .active-ftab{background:#7c3aed;color:#fff}
-                /* 타로 전용 스타일 */
-                :root{--tarot-gold:#c9a84c;--tarot-gold2:#e8c96a;--tarot-purple:#2d1b4e;--tarot-purple2:#4a2880;--tarot-bg:#1a0e2e;--tarot-bg2:#120a20;--tarot-text:#e8dcc8;--tarot-text-dim:#9b8fb0;--tarot-card-bg:#1e1235;--tarot-card-border:rgba(201,168,76,0.2);--tarot-glow:0 0 30px rgba(120,80,200,0.3);--tarot-glow2:0 0 20px rgba(201,168,76,0.15)}
-                .tarot-wrap{background:linear-gradient(160deg,#1a0e2e 0%,#0d0818 100%);border-radius:1.5rem;padding:1.5rem;color:#e8dcc8;min-height:400px}
-                .tarot-title{text-align:center;margin-bottom:1.2rem}
-                .tarot-title h2{font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.05em}
-                .tarot-title p{color:#9b8fb0;font-size:.85rem;margin-top:.3rem}
-                .tarot-q-grid{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1rem}
-                .tarot-q-btn{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);color:#c9a84c;padding:.45rem 1rem;border-radius:20px;cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s}
-                .tarot-q-btn:hover,.tarot-q-btn.tq-active{background:rgba(201,168,76,.15);border-color:#c9a84c;color:#e8c96a}
-                .tarot-custom-wrap{display:flex;gap:.5rem;margin-bottom:1.2rem}
-                .tarot-custom-wrap input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(201,168,76,.2);color:#e8dcc8;padding:.6rem 1rem;border-radius:12px;font-size:.88rem;outline:none}
-                .tarot-custom-wrap input::placeholder{color:#6b5f7a}
-                .tarot-custom-wrap button{background:rgba(201,168,76,.2);border:1px solid #c9a84c;color:#c9a84c;padding:.6rem 1.1rem;border-radius:12px;cursor:pointer;font-weight:700;font-size:.85rem;white-space:nowrap}
-                .tarot-draw-btn{display:block;width:100%;padding:.9rem;background:linear-gradient(135deg,#4a2880,#7c3aed);color:#fff;border:none;border-radius:14px;font-size:1rem;font-weight:900;cursor:pointer;letter-spacing:.08em;margin-bottom:1.4rem;transition:all .25s;box-shadow:0 4px 20px rgba(120,60,200,.3)}
-                .tarot-draw-btn:disabled{opacity:.4;cursor:not-allowed}
-                .tarot-draw-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(120,60,200,.5)}
-                .tarot-cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.2rem}
-                @media(max-width:500px){.tarot-cards-row{grid-template-columns:1fr;max-width:200px;margin:0 auto 1rem}}
-                .tarot-slot{}
-                .tarot-pos-label{text-align:center;font-size:.68rem;color:#9b8fb0;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem}
-                .tarot-card{background:linear-gradient(160deg,#1e1235,#150d28);border:1px solid rgba(201,168,76,.2);border-radius:14px;padding:1rem .7rem;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;position:relative;text-align:center}
-                .tarot-card:hover{border-color:rgba(201,168,76,.5);box-shadow:0 0 20px rgba(120,80,200,.3)}
-                .tarot-card.t-revealed{cursor:default;border-color:rgba(201,168,76,.4)}
-                .tarot-back-sym{font-size:2rem;color:#4a2880;animation:tpulse 3s ease-in-out infinite}
-                @keyframes tpulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
-                .tarot-hint{font-size:.65rem;color:#6b5f7a;letter-spacing:.1em;margin-top:.5rem}
-                .tarot-card-face{display:none;flex-direction:column;align-items:center;width:100%}
-                .tarot-card.t-revealed .tarot-card-face{display:flex}
-                .tarot-card.t-revealed .tarot-back-sym,.tarot-card.t-revealed .tarot-hint{display:none}
-                .tarot-img-wrap{transition:transform .4s ease}
-                .tarot-card.t-reversed.t-revealed .tarot-img-wrap{transform:rotate(180deg)}
-                .tarot-emoji-wrap{transition:transform .4s ease}
-                .tarot-emoji{font-size:2rem;margin-bottom:.3rem}
-                .tarot-name{font-family:serif;font-size:.65rem;color:#c9a84c;letter-spacing:.05em;margin-bottom:.15rem}
-                .tarot-name-ko{font-size:.78rem;color:#e8c96a;font-weight:600;margin-bottom:.3rem}
-                .tarot-dir{font-size:.62rem;padding:.12rem .5rem;border-radius:10px}
-                .tarot-dir.t-up{background:rgba(201,168,76,.15);color:#c9a84c}
-                .tarot-dir.t-rev{background:rgba(100,80,180,.25);color:#a090dd}
-                .tarot-text-wrap{display:flex;flex-direction:column;align-items:center;width:100%;margin-top:.3rem}
-                .tarot-keywords{font-size:.62rem;color:#9b8fb0;margin-top:.25rem;line-height:1.4}
-                .tarot-reveal-all-btn{display:block;width:100%;padding:.7rem;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:#c9a84c;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:1rem;transition:all .2s}
-                .tarot-reveal-all-btn:hover{background:rgba(201,168,76,.2)}
-                .tarot-section-title{font-size:.85rem;font-weight:800;color:#c9a84c;letter-spacing:.1em;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid rgba(201,168,76,.2)}
-                .tarot-interp-box{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.12);border-left:3px solid rgba(201,168,76,.4);border-radius:0 12px 12px 0;padding:.9rem 1rem;margin-bottom:.8rem}
-                .tcib-pos-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.2rem}
-                .tcib-pos-label{font-size:.65rem;color:#9b8fb0;letter-spacing:.1em;text-transform:uppercase}
-                .tcib-pos-desc{font-size:.75rem;color:#6b5f7a;margin-bottom:.6rem;font-style:italic}
-                .tcib-card-title{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.35rem}
-                .tcib-card-name{color:#e8c96a;font-weight:700;font-size:.9rem}
-                .tcib-card-name-en{font-size:.72rem;color:#9b8fb0}
-                .tcib-dir-badge{font-size:.65rem;padding:.1rem .45rem;border-radius:20px}
-                .tcib-dir-badge.up{background:rgba(201,168,76,.15);color:#c9a84c}
-                .tcib-dir-badge.rev{background:rgba(100,80,180,.2);color:#a090dd}
-                .tcib-intro{font-size:.82rem;color:#e8dcc8;line-height:1.6;margin-bottom:.6rem}
-                .tcib-msg-header{font-size:.65rem;color:#9b8fb0;letter-spacing:.12em;margin-bottom:.4rem}
-                .tcib-msg-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.3rem}
-                .tcib-msg-list li{display:flex;align-items:baseline;gap:.35rem;font-size:.82rem;color:#e8dcc8;line-height:1.5}
-                .tcib-msg-icon{font-size:.8rem;flex-shrink:0}
-                .tcib-msg-label{font-size:.65rem;color:#9b8fb0;font-weight:700;white-space:nowrap;flex-shrink:0}
-                .tarot-integrated{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.15);border-radius:14px;padding:1.2rem;margin-top:.5rem;font-size:.88rem;color:#e8dcc8;line-height:1.9}
-                .tarot-integrated p{margin-bottom:.7rem}
-                .tarot-reset-btn{display:block;width:100%;padding:.8rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#9b8fb0;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:1rem;transition:all .2s}
-                .tarot-reset-btn:hover{background:rgba(255,255,255,.1);color:#e8dcc8}
-                .tarot-guide-box{background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.12);border-radius:14px;padding:1.2rem 1.4rem;margin-top:1rem}
-                .tarot-guide-title{font-size:.78rem;color:#c9a84c;letter-spacing:.2em;text-align:center;margin-bottom:.9rem;font-weight:700}
-                .tarot-guide-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.7rem}
-                .tarot-guide-list li{display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#9b8fb0;line-height:1.65}
-                .tg-icon{font-size:.9rem;flex-shrink:0;margin-top:.05rem;color:#c9a84c}
-                .tarot-loading{text-align:center;padding:2rem;color:#9b8fb0;font-size:.88rem}
-                .tarot-spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(201,168,76,.3);border-top-color:#c9a84c;border-radius:50%;animation:tspin 1s linear infinite;margin-right:.5rem;vertical-align:middle}
-                @keyframes tspin{to{transform:rotate(360deg)}}
-                .fhero{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:1.5rem;padding:2.5rem;text-align:center;margin-bottom:1.2rem}
-                .fcard{background:#fff;border-radius:1.4rem;padding:1.6rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(0,0,0,.07)}
-                .lucky-row{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
-                .lucky-item{flex:1;min-width:120px;background:#f5f3ff;border-radius:1rem;padding:1rem;text-align:center}
-                .lucky-label{font-size:11px;color:#888;margin-bottom:4px}
-                .lucky-val{font-size:22px;font-weight:900;color:#7c3aed}
-                .blog-btn{display:inline-block;background:#4f46e5;color:#fff;padding:10px 22px;border-radius:12px;font-weight:bold;text-decoration:none;font-size:14px;margin-top:8px}
-                .blog-btn:hover{background:#4338ca}
-                .post-item{border-bottom:1px solid #f1f5f9;padding:16px 0;cursor:pointer}
-                .post-item:hover .post-title{color:#7c3aed}
-                .post-title{font-size:15px;font-weight:700;color:#333;margin-bottom:6px;line-height:1.5}
-                .post-date{font-size:12px;color:#aaa}
-                .post-snippet{font-size:13px;color:#666;margin-top:6px;line-height:1.6}
-            `;
-            document.head.appendChild(s);
-        })();
-
-        // ═══════════════════════════════
-        //  이미지 저장
-        // ═══════════════════════════════
-        // 개별 부적 저장
+        function luckyRow(){ return ''; }
         function saveOneBujeok(elId, label) {
             // svg- prefix 로 SVG 래퍼만 캡처 (버튼/라벨 제외)
             const svgEl = document.getElementById('svg-' + elId);
@@ -1670,7 +1485,7 @@ ${info.usage}`;
             };
             const adj = (tab==='today' || tab==='tomorrow')
                 ? applyAdjustments(rawScores.total, rawScores.money, rawScores.health, rawScores.love)
-                : { ...rawScores, calcHtml: '' };
+                : { ...rawScores, };
 
             let headerLabel = '';
             if(tab==='today')         headerLabel = '🌟 오늘의 운세';
@@ -1712,17 +1527,6 @@ ${info.usage}`;
                         </button>
 
                     </div>
-                    ${adj.calcHtml}
-                    ${getTimeFlowCard(adj.total)}
-                    ${getCheckpointCard(adj.total, adj.money, adj.health, adj.love, color)}
-                    ${getCompatCard(chinese.name)}
-                    ${(function(){
-                        const chEntry = CHINESE_LIST.find(x=>x.kr===chinese.name);
-                        const chYears = chEntry ? chEntry.year.split(',').map(Number) : [];
-                        return getYearDetailCard(chYears, chinese.name);
-                    })()}
-                    ${luckyRow(color, luckyItem, num)}
-                    ${zodiacInfoCard(zodiac.name, zodiac.emoji)}
                 </div>`;
         }
 
@@ -1802,227 +1606,10 @@ ${info.usage}`;
             { am: 2, pm: -5, ev: 8  },  // 일
         ];
 
-        function getTimeFlowCard(baseScore) {
-            const kst  = kstNow();
-            const dow  = (kst.getUTCDay() + 6) % 7;
-            const mod  = TIME_MOD[dow];
-            const clamp = v => Math.max(1, Math.min(100, v));
-            const am = clamp(baseScore + mod.am);
-            const pm = clamp(baseScore + mod.pm);
-            const ev = clamp(baseScore + mod.ev);
-
-            function timeLbl(s) {
-                if (s >= 80) return { color:'#16a34a', lv:'최적 ★', tip:'핵심 업무·중요 결정에 적극 활용하세요' };
-                if (s >= 65) return { color:'#d97706', lv:'보통 ◐', tip:'무난하게 진행 가능, 신중함 유지' };
-                return { color:'#dc2626', lv:'주의 ▼', tip:'중요한 일은 피하고 휴식을 권장합니다' };
-            }
-            const AL = timeLbl(am), PL = timeLbl(pm), EL = timeLbl(ev);
-
-            return `
-<div style="background:#f8faff;border:1px solid #c7d2fe;border-radius:14px;padding:16px;margin:14px 0">
-  <div style="font-size:13px;font-weight:700;color:#1e40af;margin-bottom:12px">⏰ 시간대별 운세 흐름</div>
-  <table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead><tr style="background:#eff6ff">
-      <th style="padding:8px;text-align:left;color:#1e40af">시간대</th>
-      <th style="padding:8px;text-align:center;color:#1e40af">지수</th>
-      <th style="padding:8px;text-align:center;color:#1e40af">평가</th>
-      <th style="padding:8px;text-align:left;color:#1e40af">추천</th>
-    </tr></thead>
-    <tbody>
-      <tr style="border-bottom:1px solid #e0e7ff">
-        <td style="padding:8px;font-weight:700">🌅 오전<br><span style="font-size:10px;color:#6b7280;font-weight:400">06~12시</span></td>
-        <td style="padding:8px;text-align:center;font-weight:900;color:${AL.color};font-size:15px">${am}점</td>
-        <td style="padding:8px;text-align:center;color:${AL.color};font-weight:700">${AL.lv}</td>
-        <td style="padding:8px;color:#374151;line-height:1.6;font-size:11px">${AL.tip}</td>
-      </tr>
-      <tr style="border-bottom:1px solid #e0e7ff">
-        <td style="padding:8px;font-weight:700">☀️ 오후<br><span style="font-size:10px;color:#6b7280;font-weight:400">12~18시</span></td>
-        <td style="padding:8px;text-align:center;font-weight:900;color:${PL.color};font-size:15px">${pm}점</td>
-        <td style="padding:8px;text-align:center;color:${PL.color};font-weight:700">${PL.lv}</td>
-        <td style="padding:8px;color:#374151;line-height:1.6;font-size:11px">${PL.tip}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px;font-weight:700">🌙 저녁<br><span style="font-size:10px;color:#6b7280;font-weight:400">18~24시</span></td>
-        <td style="padding:8px;text-align:center;font-weight:900;color:${EL.color};font-size:15px">${ev}점</td>
-        <td style="padding:8px;text-align:center;color:${EL.color};font-weight:700">${EL.lv}</td>
-        <td style="padding:8px;color:#374151;line-height:1.6;font-size:11px">${EL.tip}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>`;
-        }
-
-        // ════════════════════════════════════════════════════════
-        // ③ 실전 체크포인트 IF 조건 자동 분기
-        // ════════════════════════════════════════════════════════
-        function getCheckpointCard(total, money, health, love, luckyColor) {
-            const rows = [];
-
-            // 금전운
-            if (money < 60) {
-                rows.push({ icon:'💰', color:'#dc2626', title:`금전 경보 (지수 ${money}점)`,
-                    main:'오늘은 충동구매 위험이 큽니다. 장바구니에 담아둔 물건은 내일 결제하세요.',
-                    detail:'카드·현금 지출을 오전 중에 마무리하고, 오후 3시 이후 쇼핑 앱은 잠시 꺼두세요.' });
-            } else if (money >= 85) {
-                rows.push({ icon:'💰', color:'#16a34a', title:`금전 기회 포착 (지수 ${money}점)`,
-                    main:'재정 관련 결정에 유리한 흐름입니다. 놓쳤던 환급금·정산을 확인하세요.',
-                    detail:'오전 10시~오후 1시가 금전 처리 최적 타임. 적금·투자 계획 검토도 추천합니다.' });
-            } else {
-                rows.push({ icon:'💰', color:'#d97706', title:`금전 안정 관리 (지수 ${money}점)`,
-                    main:'평이한 흐름입니다. 지출 내역을 점검하고 불필요한 자동결제를 정리해 보세요.',
-                    detail:'오늘 하루 지출 목표를 아침에 미리 정해두면 충동 소비를 효과적으로 막을 수 있습니다.' });
-            }
-
-            // 건강운
-            if (health >= 90) {
-                rows.push({ icon:'💪', color:'#16a34a', title:`신체 에너지 최상 (지수 ${health}점)`,
-                    main:'미뤄둔 고강도 운동이나 등산을 추천합니다. 에너지를 받아들이기 최적인 날입니다.',
-                    detail:'운동 전 충분한 준비운동과 수분 보충을 잊지 마세요. 새로운 스포츠 도전도 오늘이 적기입니다.' });
-            } else if (health < 60) {
-                rows.push({ icon:'💪', color:'#dc2626', title:`건강 주의 신호 (지수 ${health}점)`,
-                    main:'무리한 야근·과음·자극적인 식사를 피하세요. 몸이 보내는 신호를 무시하지 마세요.',
-                    detail:'점심 식사 후 10분 낮잠 또는 가벼운 스트레칭으로 오후 체력을 보충하세요.' });
-            } else {
-                rows.push({ icon:'💪', color:'#d97706', title:`건강 관리 권장 (지수 ${health}점)`,
-                    main:'평소보다 체력 소모가 빠를 수 있습니다. 수분을 충분히 섭취하고 규칙적인 식사를 지켜주세요.',
-                    detail:'오후 3시경 비타민 C가 풍부한 과일이나 견과류를 간식으로 챙기면 집중력 유지에 도움이 됩니다.' });
-            }
-
-            // 연애운
-            if (love >= 80) {
-                rows.push({ icon:'❤️', color:'#e11d48', title:`연애 에너지 상승 (지수 ${love}점)`,
-                    main:'소중한 사람에게 먼저 연락해보세요. 오늘 당신의 진심은 분명히 전달됩니다.',
-                    detail:`오후 3시~6시 사이가 감성 대화 최적 타임. 오늘 ${luckyColor} 컬러 소품이 연애 에너지를 높여줍니다.` });
-            } else if (love < 55) {
-                rows.push({ icon:'❤️', color:'#6b7280', title:`감정 정비 필요 (지수 ${love}점)`,
-                    main:'오늘은 중요한 감정 대화를 피하고 서로 여유를 주는 것이 좋습니다.',
-                    detail:'혼자만의 시간이 오히려 관계에 활력을 줄 수 있습니다. 독서·취미 활동으로 내면을 채워보세요.' });
-            }
-
-            // 종합
-            if (total >= 85) {
-                rows.push({ icon:'🌟', color:'#7c3aed', title:`종합 지수 ${total}점 — 행동 적기`,
-                    main:'오늘은 미루던 중요한 결정을 내리기에 최적입니다. 긍정적인 에너지를 최대한 활용하세요.',
-                    detail:'오전 시간대를 핵심 과제에 집중 배치하면 최상의 결과를 기대할 수 있습니다.' });
-            } else if (total < 55) {
-                rows.push({ icon:'🌟', color:'#6b7280', title:`종합 지수 ${total}점 — 신중 모드`,
-                    main:'오늘은 새로운 시작보다 기존 일을 점검하고 마무리하는 데 집중하세요.',
-                    detail:'결과에 집착하기보다 과정에 충실한 하루로 삼으면, 2~3일 후 좋은 흐름으로 반전됩니다.' });
-            }
-
-            const rowsHtml = rows.map(r => `
-<tr style="border-bottom:1px solid #f3f0ff">
-  <td style="padding:10px 6px;vertical-align:top;font-size:18px">${r.icon}</td>
-  <td style="padding:10px 6px">
-    <div style="font-size:12px;font-weight:700;color:${r.color};margin-bottom:4px">${r.title}</div>
-    <div style="font-size:12px;color:#374151;line-height:1.75;margin-bottom:5px">${r.main}</div>
-    <div style="font-size:11px;color:#6b7280;background:#f9fafb;border-radius:6px;padding:7px;
-                line-height:1.65;border-left:3px solid ${r.color}">💡 ${r.detail}</div>
-  </td>
-</tr>`).join('');
-
-            return `
-<div style="background:#fff;border:1px solid #e9d5ff;border-radius:14px;padding:16px;margin:14px 0">
-  <div style="font-size:13px;font-weight:700;color:#6d28d9;margin-bottom:12px">✅ 실전 체크포인트 (지수 연동 자동 분석)</div>
-  <table style="width:100%;border-collapse:collapse">${rowsHtml}</table>
-</div>`;
-        }
-
-        // ════════════════════════════════════════════════════════
-        // ④ 띠별 궁합 데이터 & 카드 생성
-        // ════════════════════════════════════════════════════════
-        const CHINESE_COMPAT = {
-            '쥐띠':     { best:['용띠','🐲','창의력과 행동력이 만나 시너지가 폭발합니다'],    avoid:['말띠','🐴','서로 방향이 달라 오해가 생기기 쉽습니다'] },
-            '소띠':     { best:['닭띠','🐓','꼼꼼함과 책임감이 공명해 신뢰가 쌓입니다'],     avoid:['양띠','🐑','속도와 방식이 달라 갈등이 생길 수 있습니다'] },
-            '호랑이띠': { best:['말띠','🐴','두 에너지가 합쳐져 무한한 추진력이 됩니다'],   avoid:['원숭이띠','🐵','주도권 다툼으로 긴장감이 높아집니다'] },
-            '토끼띠':   { best:['양띠','🐑','감성과 공감이 통해 편안한 관계가 됩니다'],      avoid:['닭띠','🐓','논리와 감성이 충돌하기 쉬운 조합입니다'] },
-            '용띠':     { best:['쥐띠','🐭','쥐띠의 지혜가 용띠의 힘을 빛나게 합니다'],     avoid:['개띠','🐶','원칙과 자유로움이 부딪히는 조합입니다'] },
-            '뱀띠':     { best:['닭띠','🐓','지성과 직관이 만나 완벽한 조화를 이룹니다'],   avoid:['돼지띠','🐷','서로 다른 가치관이 충돌하기 쉽습니다'] },
-            '말띠':     { best:['호랑이띠','🐯','열정과 용기가 서로를 끌어올립니다'],         avoid:['쥐띠','🐭','세밀함과 큰 그림이 엇갈리기 쉽습니다'] },
-            '양띠':     { best:['토끼띠','🐰','따뜻한 감성으로 서로를 위로합니다'],           avoid:['소띠','🐮','원칙과 유연함이 마찰을 일으킵니다'] },
-            '원숭이띠': { best:['쥐띠','🐭','재치와 지략이 만나 최강의 팀이 됩니다'],        avoid:['호랑이띠','🐯','리더십 충돌로 긴장감이 생깁니다'] },
-            '닭띠':     { best:['소띠','🐮','성실함과 책임감이 공명합니다'],                  avoid:['토끼띠','🐰','속도와 방식의 차이가 스트레스를 줍니다'] },
-            '개띠':     { best:['호랑이띠','🐯','의리와 용기가 함께해 든든합니다'],            avoid:['용띠','🐲','자존심 충돌이 관계를 어렵게 합니다'] },
-            '돼지띠':   { best:['토끼띠','🐰','넉넉함과 온화함이 서로를 행복하게 합니다'],   avoid:['뱀띠','🐍','사소한 의심이 오해로 커질 수 있습니다'] },
-        };
-
-        function getCompatCard(krName) {
-            const comp = CHINESE_COMPAT[krName];
-            if (!comp) return '';
-            const [bestName, bestEmoji, bestDesc] = comp.best;
-            const [avoidName, avoidEmoji, avoidDesc] = comp.avoid;
-            return `
-<div style="background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1px solid #fde68a;
-            border-radius:14px;padding:16px;margin:14px 0">
-  <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:12px">💑 오늘의 띠별 궁합</div>
-  <div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #d1fae5;margin-bottom:8px;font-size:12px">
-    <div style="font-weight:700;color:#065f46;margin-bottom:5px">🟢 오늘의 찰떡궁합: ${bestEmoji} ${bestName}</div>
-    <div style="color:#374151;line-height:1.8;margin-bottom:6px">${bestDesc}</div>
-    <div style="color:#6b7280;font-size:11px">오늘 ${bestName}와 함께하는 시간이 있다면 적극적으로 협력해 보세요. 혼자일 때보다 훨씬 좋은 결과를 만들어 낼 수 있습니다.</div>
-  </div>
-  <div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #fee2e2;font-size:12px">
-    <div style="font-weight:700;color:#991b1b;margin-bottom:5px">🔴 오늘의 거리두기: ${avoidEmoji} ${avoidName}</div>
-    <div style="color:#374151;line-height:1.8;margin-bottom:6px">${avoidDesc}</div>
-    <div style="color:#6b7280;font-size:11px">오늘은 ${avoidName}와의 중요한 결정이나 논쟁을 피하고, 감정이 차분해진 내일 이후로 미루는 것이 현명합니다.</div>
-  </div>
-</div>`;
-        }
-
-        // ════════════════════════════════════════════════════════
-        // ① 출생연도별 맞춤 운세 카드 (본문용)
-        // ════════════════════════════════════════════════════════
-        function getYearDetailCard(chYears, krName) {
-            if (!chYears || !chYears.length) return '';
-            const currentYear = kstNow().getUTCFullYear();
-            const validYears  = chYears.filter(y => y <= currentYear);
-
-            const rows = validYears.map(y => {
-                const p = getYearProfile(y);
-                const fortuneTexts = [
-                    `오늘 하루, ${y}년생 ${krName}에게는 특별한 기운이 흐르고 있습니다. ${p.advice}`,
-                    `${y}년생 ${krName}의 오늘은 변화의 씨앗이 심어지는 날입니다. ${p.advice}`,
-                    `${y}년생 ${krName}에게 오늘 주어진 에너지를 어떻게 활용하느냐가 중요합니다. ${p.advice}`,
-                ];
-                const fortuneText = fortuneTexts[y % fortuneTexts.length];
-                return `
-<tr style="border-bottom:1px solid #fef3c7">
-  <td style="padding:10px 8px;vertical-align:top;min-width:68px">
-    <div style="background:#f59e0b;color:#fff;border-radius:8px;padding:4px 7px;
-                text-align:center;font-size:11px;font-weight:700">${y}년생</div>
-  </td>
-  <td style="padding:10px 8px">
-    <div style="font-size:12px;color:#374151;line-height:1.8;margin-bottom:7px">${fortuneText}</div>
-    <div style="font-size:11px;background:#fff7ed;border-radius:7px;padding:8px;
-                border-left:3px solid #f59e0b;color:#78350f;line-height:1.7">
-      🍽 추천 음식: <b>${p.food}</b><br>
-      🔢 행운의 숫자: <b>${p.lucky}</b> &nbsp;·&nbsp;
-      🚫 조심할 장소: ${p.avoid}
-    </div>
-  </td>
-</tr>`;
-            }).join('');
-
-            return `
-<div style="background:linear-gradient(135deg,#fffbeb,#fff7ed);border:1px solid #fde68a;
-            border-radius:14px;padding:16px;margin:14px 0">
-  <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px">📅 출생연도별 오늘 맞춤 운세</div>
-  <p style="font-size:12px;color:#78350f;margin:0 0 12px;line-height:1.7">
-    같은 ${krName}라도 출생연도에 따라 오늘의 기운과 에너지가 미묘하게 다르게 나타납니다.
-    본인의 출생연도를 찾아 맞춤 운세를 확인해 보세요.
-  </p>
-  <table style="width:100%;border-collapse:collapse">${rows}</table>
-</div>`;
-        }
-
-        const LUCKY_ITEMS=[
-            '수정 팔찌','흰색 손수건','은반지','작은 거울','네잎클로버',
-            '파란 볼펜','노란 메모지','향초','초록 식물','나무 빗',
-            '실크 스카프','가죽 지갑','금색 열쇠고리','책갈피','작은 수첩',
-            '라벤더 향주머니','흰 조약돌','나침반','유리구슬','빨간 실',
-            '청금석','자수정','로즈쿼츠','흑요석','호안석',
-            '나비 모양 핀','달 모양 귀걸이','별자리 카드','조개껍데기','나무 연필',
-        ];
-
+        function getTimeFlowCard(){ return ''; }
+        function getCheckpointCard(){ return ''; }
+        function getCompatCard(){ return ''; }
+        function getYearDetailCard(){ return ''; }
         function rndScore(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
         function scoreBar(label, emoji, pct, color){
@@ -4457,12 +4044,6 @@ ${info.usage}`;
 
                 area.innerHTML=`<div class="fcard">
                     ${blogFallbackCard(ch.emoji, ch.kr, todayStr(), 'ccard-full', '띠운세_'+kr, '띠운세')}
-                    ${adjScores.calcHtml}
-                    ${getTimeFlowCard(adjScores.total)}
-                    ${getYearDetailCard(chYears, ch.kr)}
-                    ${getCheckpointCard(adjScores.total, adjScores.money, adjScores.health, adjScores.love, luckyClr)}
-                    ${getCompatCard(ch.kr)}
-                    ${luckyGuideCard(luckyClr, luckyItm, luckyNum)}
                 </div>`;
             }
         }
