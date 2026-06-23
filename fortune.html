@@ -2689,13 +2689,31 @@ ${info.usage}`;
 
             // ── 종합 풀이 ──
             var charMap = {'木':'성장과 도전을 즐기는 진취적인 성향입니다.','火':'열정적이고 표현력이 강하며 사람을 이끄는 힘이 있습니다.','土':'안정을 추구하고 신뢰가 두터우며 중심을 잡는 역할을 합니다.','金':'원칙과 의지가 강하고 결단력이 뛰어납니다.','水':'직관과 지혜가 뛰어나고 유연하게 상황에 적응합니다.'};
-            var summaryPool = [
-                [CHEONGAN_KR[ilgan]+'('+CHEONGAN[ilgan]+') 일간 — '+charMap[ilOhaeng], '편관이 없어 안정적인 삶의 흐름입니다. 꾸준함이 최고의 무기입니다.', '주변 인연을 소중히 여기세요. 좋은 관계가 미래를 풍요롭게 합니다.', '오늘의 평화로운 기운을 내일의 도약을 위한 발판으로 삼으세요. 💛'],
-                [CHEONGAN_KR[ilgan]+'('+CHEONGAN[ilgan]+') 일간 — '+charMap[ilOhaeng], '편관 1개의 기운이 당신을 단련시키고 있습니다. 지금의 도전은 성장의 밑거름입니다.', '책임감과 도전정신이 당신의 가장 큰 무기입니다. 용기를 내어 한 걸음 더. 🔥', '압박이 느껴질 때일수록 자신의 중심을 잡으세요. 이 시련이 지나면 더 단단한 당신이 기다립니다.'],
-                [CHEONGAN_KR[ilgan]+'('+CHEONGAN[ilgan]+') 일간 — '+charMap[ilOhaeng], '편관 2개의 강한 에너지가 감싸고 있습니다. 이 기운을 리더십과 카리스마로 승화시키세요.', '인성(印)의 도움, 즉 배움과 지혜를 가까이 하면 편관의 압박이 부드러워집니다.', '당신 안의 강인함을 믿으세요. 가장 어두운 밤이 지나야 가장 밝은 아침이 옵니다. ⭐'],
-                [CHEONGAN_KR[ilgan]+'('+CHEONGAN[ilgan]+') 일간 — '+charMap[ilOhaeng], '편관이 매우 강한 사주입니다. 외부의 압박이 끊이지 않지만 그만큼 강인함도 있습니다.', '식신·상관의 에너지(창의성과 자기 표현)가 편관을 다스리는 열쇠입니다.', '당신의 강인함은 특별한 선물입니다. 이 에너지를 세상을 위해 쓸 때 진정한 빛이 납니다. 🌟'],
+            // 종합 사주풀이 동적 생성
+            var ohCharMap2 = {
+                '木':'성장과 도전을 즐기는 진취적인 성향입니다. 새로운 것에 대한 호기심과 추진력이 강점입니다.',
+                '火':'열정적이고 표현력이 강하며 사람을 이끄는 힘이 있습니다. 창의성과 리더십이 핵심 강점입니다.',
+                '土':'안정을 추구하고 신뢰가 두터우며 중심을 잡는 역할을 합니다. 꾸준함과 성실함이 최고의 무기입니다.',
+                '金':'원칙과 의지가 강하고 결단력이 뛰어납니다. 논리적 사고와 전문성으로 승부하는 타입입니다.',
+                '水':'직관과 지혜가 뛰어나고 유연하게 상황에 적응합니다. 통찰력과 전략적 사고가 강점입니다.'
+            };
+            var ohMinKey2 = Object.keys(ohCount).reduce(function(a,b){ return ohCount[a]<=ohCount[b]?a:b; });
+            var ohKrMap2  = {'木':'목(木)','火':'화(火)','土':'토(土)','金':'금(金)','水':'수(水)'};
+            var ohBalanceTip = ohCount[ohMinKey2] === 0
+                ? (ohKrMap2[ohMinKey2]||ohMinKey2)+'('+ohMinKey2+') 기운이 없는 사주입니다. 실생활에서 해당 오행 색상·아이템을 가까이 하면 균형에 도움이 됩니다.'
+                : '오행이 비교적 고르게 분포된 사주입니다. 현재 흐름을 유지하며 꾸준히 나아가면 좋은 결실을 맺을 수 있습니다.';
+            var pwAdvice2 = [
+                '편관이 없어 외부 압박이 적고 안정적인 삶의 흐름입니다. 스스로 목표와 규율을 만들어가는 것이 성장의 열쇠입니다.',
+                '편관 1개의 기운이 당신을 단련시키고 있습니다. 적당한 긴장감이 오히려 성장의 밑거름이 됩니다.',
+                '편관 2개의 강한 에너지가 감싸고 있습니다. 이 기운을 리더십과 추진력으로 승화시키면 큰 성과를 낼 수 있습니다.',
+                '편관이 매우 강한 사주입니다. 외부 압박을 창의성(식신·상관)으로 다스리는 것이 핵심 전략입니다.'
+            ][pwIdx];
+            var summary = [
+                CHEONGAN_KR[ilgan]+'('+CHEONGAN[ilgan]+') 일간 — '+(ohCharMap2[ilOhaeng]||charMap[ilOhaeng]),
+                pwAdvice2,
+                ohBalanceTip,
+                '주변 인연을 소중히 여기세요. 좋은 관계망이 사주의 부족한 부분을 채워줍니다. 오늘의 노력이 내일의 도약이 됩니다. 💛'
             ];
-            var summary = summaryPool[pwIdx];
 
             // ── 최종 HTML 조립 ──
             result.innerHTML =
@@ -3054,8 +3072,7 @@ ${info.usage}`;
                     + '<div style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);border-radius:16px;padding:18px;margin-bottom:12px;color:#fff">'
                     +   '<div style="font-size:12px;color:#a5b4fc;margin-bottom:6px;font-weight:700">📅 ' + targetYear + '년 연간 총운 · ' + (name||'') + (name?' · ':'') + '만 ' + age + '세</div>'
                     +   '<div style="font-size:14px;line-height:1.9;color:#e0e7ff">' + annualText + '</div>'
-                    +   '<div style="margin-top:12px;font-size:12px;color:#818cf8">일간(日干): ' + ilgan + ' · ' + (OHAENG_KR[OHAENG_CG[cgIdx]] || '토') + '(' + (YANG_CG[cgIdx] ? '양' : '음') + ') 기반 풀이</div>'
-                    + '</div>'
+                    +   '<div style="margin-top:12px;font-size:12px;color:#818cf8">일간(日干): ' + CHEONGAN[ilgan] + CHEONGAN_KR[ilgan] + ' · ' + (OHAENG_KR[OHAENG_CG[ilgan]] || '토') + '(' + (YANG_CG[ilgan] ? '양' : '음') + ') 기반 풀이</div>'                    + '</div>'
                     // 월별 카드들
                     + '<div style="font-weight:900;font-size:14px;color:#4c1d95;margin-bottom:10px">📆 월별 운세</div>'
                     + monthCardsHTML
@@ -3098,7 +3115,7 @@ ${info.usage}`;
             }).join('');
             // 보강 오행 문자 (우측 작게)
             var boostColor = {'木':'#166534','火':'#7f1d1d','土':'#78350f','金':'#1e3a5f','水':'#0c4a6e'}[bd2.hanja||'土'] || '#78350f';
-            return '<svg viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.3)) blur(0.6px) brightness(0.92)">'
+            return '<svg viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.3))">'
                 + '<rect width="100" height="220" rx="6" fill="#f5c518"/>'
                 + '<rect x="4" y="4" width="92" height="212" rx="4" fill="none" stroke="#8B0000" stroke-width="2"/>'
                 + '<rect x="8" y="8" width="84" height="204" rx="3" fill="none" stroke="#8B0000" stroke-width="1" stroke-dasharray="4,3"/>'
