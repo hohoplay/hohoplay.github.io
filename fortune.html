@@ -851,8 +851,7 @@ ${info.usage}`;
             const tokens = info.tokens || (info.text ? info.text.split('\n\n') : []);
             const storyHTML = tokens.map(t => {
                 if (t.startsWith('▸ ')) return `<div style="font-size:13px;font-weight:500;color:#a78bfa;margin:16px 0 6px;padding-top:12px;border-top:1px solid rgba(167,139,250,.25)">${t.slice(2)}</div>`;
-                return `<div style="font-size:14px;line-height:1.9;margin-bottom:6px;color:rgba(255,255,255,.92)">${t.replace(/
-/g,'<br>')}</div>`;
+                return `<div style="font-size:14px;line-height:1.9;margin-bottom:6px;color:rgba(255,255,255,.92)">${t.replace(/\n/g,'<br>')}</div>`;
             }).join('');
             return `
                 <div id="${cardId}" style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px;padding:24px;color:#fff">
