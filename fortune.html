@@ -267,13 +267,6 @@ ${info.usage}`;
         if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
 
         // ═══════════════════════════════
-        //  Blogger API 설정 — window.BLOG_ID 우선
-        // ═══════════════════════════════
-        if (typeof BLOG_ID  === 'undefined') var BLOG_ID  = window.BLOG_ID  || '5608603268556826697';
-        if (typeof API_KEY  === 'undefined') var API_KEY  = window.API_KEY  || 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
-        if (typeof BASE_URL === 'undefined') var BASE_URL = window.BASE_URL || 'https://www.googleapis.com/blogger/v3';
-
-        // ═══════════════════════════════
         //  Blogger API
         // ═══════════════════════════════
         async function fetchPosts(label, maxResults=6){
@@ -352,23 +345,11 @@ ${info.usage}`;
             // ── 신 구조 1: 스토리텔링형 — "오늘의 흐름" 섹션 ──
             const flowIdx = raw.indexOf('오늘의 흐름');
             if (flowIdx !== -1) {
-                // 슬라이싱 40000 — story_html 전체 커버
-                const chunk = raw.slice(flowIdx, flowIdx + 40000);
-                const tokens = [];
-                const tagRe = /<(h2|p)[^>]*>([\s\S]*?)<\/\1>/g;
-                let m;
-                while ((m = tagRe.exec(chunk)) !== null) {
-                    const tag  = m[1];
-                    const text = m[2].replace(/<br\s*\/?>/gi, '\n')
-                                     .replace(/<[^>]+>/g, '')
-                                     .replace(/&nbsp;/g, ' ')
-                                     .replace(/&amp;/g, '&').trim();
-                    if (!text || text.length < 15) continue;
-                    if (tag === 'p' && text.startsWith('💭')) continue;
-                    if (tag === 'h2') tokens.push('▸ ' + text);
-                    else tokens.push(text);
-                }
-                if (tokens.length > 0) return { type: 'story', tokens };
+                const chunk = raw.slice(flowIdx, flowIdx + 3000);
+                const parts = [...chunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
+                    .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
+                    .filter(t => t.length > 10);
+                if (parts.length > 0) return parts.slice(0, 3).join('\n\n');
             }
             // ── 신 구조 2: badge "🌟 오늘 총운" 포함 card 에서 <p> 태그 수집 ──
             const badgeIdx = raw.indexOf('🌟 오늘 총운') !== -1
@@ -379,13 +360,15 @@ ${info.usage}`;
                 const parts = [...chunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
                     .map(m => m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
                     .filter(Boolean);
-                if (parts.length > 0) return { type: 'story', tokens: parts };
+                if (parts.length > 0) return parts.join('\n\n');
             }
             // ── 구 구조: fc-text 클래스 div ──
             const m = raw.match(/<div[^>]*class="fc-text"[^>]*>([\s\S]*?)<\/div>/);
             if (!m) return null;
-            const legacyText = m[1].replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
-            return { type: 'story', tokens: legacyText.split('\n').filter(t => t.trim().length > 5) };
+            return m[1]
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<[^>]+>/g, '')
+                .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
         }
 
         // ── 타입 2: 띠 오늘운세 ──
@@ -512,21 +495,16 @@ ${info.usage}`;
             const t    = post.title || '';
 
             if (t.includes('오늘의 운세') && !t.includes('띠운세')) {
-                const parsed = parseFortune_Zodiac(raw);
-                if (!parsed) return null;
-                const tokens = parsed.tokens || (typeof parsed === 'string' ? parsed.split('\n\n') : [parsed]);
-                const text = tokens.join('\n\n');
+                const text = parseFortune_Zodiac(raw);
+                if (!text) return null;
                 const score = parseFortune_Score(raw);
-                return { ...meta, type: 'zodiac', text, tokens, score };
+                return { ...meta, type: 'zodiac', text, score };
             }
             if (t.includes('띠운세') && t.includes('월') && t.includes('일')) {
                 const html = parseFortune_Chinese(raw);
                 if (!html) return null;
                 const score = parseFortune_Score(raw);
-                // fc-text에서 본문 운세 텍스트 추출
-                const fcM = raw.match(/<div[^>]*class="fc-text"[^>]*>([\s\S]*?)<\/div>/);
-                const fortuneText = fcM ? fcM[1].replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim() : '';
-                return { ...meta, type: 'chinese', yearRowsHTML: html, text: fortuneText, score };
+                return { ...meta, type: 'chinese', yearRowsHTML: html, score };
             }
             if (t.includes('주간운세')) {
                 const text = parseFortune_Weekly(raw);
@@ -550,7 +528,6 @@ ${info.usage}`;
 
             // 타입 2: 띠 오늘 — 출생연도별 HTML 그대로
             if (info.type === 'chinese') {
-                const chFortuneHTML = info.text ? `<div style="background:rgba(255,255,255,.12);border-radius:12px;padding:14px;font-size:14px;line-height:1.9;color:rgba(255,255,255,.92);margin-bottom:12px">${info.text.replace(/\n/g,'<br>')}</div>` : '';
                 return `
                 <div style="text-align:center;margin-bottom:16px">
                     <div style="font-size:40px">${emoji}</div>
@@ -558,7 +535,6 @@ ${info.usage}`;
                     <div style="font-size:13px;color:#888">${sub}</div>
                 </div>
                 <div id="${cardId}" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;padding:20px;color:#fff">
-                    ${chFortuneHTML}
                     ${info.yearRowsHTML}
                 </div>
                 ${renderScoreCard(info.score||null)}
@@ -873,14 +849,8 @@ ${info.usage}`;
                 </div>`;
             }
 
-            // 타입 1: 별자리 오늘 — 섹션 헤더(▸) + 본문 구조적 렌더링
-            const tokens = info.tokens || (info.text ? info.text.split('\n\n') : []);
-            const storyHTML = tokens.map(t => {
-                if (t.startsWith('▸ ')) {
-                    return `<div style="font-size:13px;font-weight:500;color:#a78bfa;margin:16px 0 6px;padding-top:12px;border-top:1px solid rgba(167,139,250,.25)">${t.slice(2)}</div>`;
-                }
-                return `<div style="font-size:14px;line-height:1.9;margin-bottom:6px;color:rgba(255,255,255,.92)">${t.replace(/\n/g,'<br>')}</div>`;
-            }).join('');
+            // 타입 1: 별자리 오늘 — 운세 본문 + 운세 지수 카드
+            const preview = (info.text||'').replace(/\n/g,'<br>');
             return `
                 <div id="${cardId}" style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px;padding:24px;color:#fff">
                     <div style="text-align:center;margin-bottom:14px">
@@ -888,7 +858,7 @@ ${info.usage}`;
                         <div style="font-size:21px;font-weight:900;margin:6px 0">${name}</div>
                         <div style="opacity:.8;font-size:13px">${dateSub}</div>
                     </div>
-                    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:16px;margin-bottom:12px">${storyHTML}</div>
+                    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:16px;font-size:14px;line-height:1.85;margin-bottom:12px">${preview}</div>
                     ${renderScoreCard(info.score||null)}
                 </div>
                 <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;flex-wrap:wrap">
@@ -2796,18 +2766,18 @@ ${info.usage}`;
                 '한 해 결산을 미리 준비하세요. 정리가 잘 되면 내년이 풍요롭습니다.',
             ],
             건강: [
-                '체력이 넘칩니다. 하지만 무리한 운동은 부상으로 이어질 수 있습니다.',
-                '피로가 쌓이기 쉬운 달입니다. 충분한 수면을 챙기세요.',
-                '환절기 기운 조심. 따뜻하게 입고 체온 관리에 신경 쓰세요.',
-                '건강 운이 안정적입니다. 규칙적인 생활 리듬을 유지하세요.',
-                '소화기 건강에 주의할 달입니다. 자극적인 음식은 자제하세요.',
-                '열과 피로에 주의하세요. 시원한 곳에서 충분한 휴식을 취하세요.',
-                '마음의 스트레스가 몸으로 나타날 수 있습니다. 가벼운 산책이 도움됩니다.',
-                '호흡기 건강을 챙기세요. 공기 좋은 곳에서 자주 심호흡을.',
-                '관절과 근육 관리에 신경 쓰는 달입니다. 스트레칭을 일상화하세요.',
-                '건강 검진을 고려해보기 좋은 달입니다.',
-                '체온 조절에 유의하세요. 독감 등 호흡기 질환 예방에 신경 쓰세요.',
-                '연말 과식·과음 주의. 가벼운 운동과 따뜻한 음식이 도움됩니다.',
+                '체력이 넘칩니다. 하지만 무리한 운동은 부상으로 이어질 수 있습니다.',        // 1월 활력
+                '피로가 쌓이기 쉬운 달입니다. 충분한 수면을 챙기세요.',                      // 2월 피로
+                '환절기 기운 조심. 따뜻하게 입고 체온 관리에 신경 쓰세요.',                  // 3월 환절기
+                '건강 운이 안정적입니다. 규칙적인 생활 리듬을 유지하세요.',                   // 4월 안정
+                '소화기 건강에 주의할 달입니다. 자극적인 음식은 자제하세요.',                 // 5월 소화기
+                '열과 피로에 주의하세요. 시원한 곳에서 충분한 휴식을 취하세요.',              // 6월 더위
+                '수분 보충이 중요한 달입니다. 하루 물 2L 이상 마시는 습관을 들이세요.',       // 7월 수분
+                '면역력 관리에 신경 쓸 달입니다. 균형 잡힌 식단과 규칙적 수면이 핵심입니다.', // 8월 면역
+                '관절과 근육 관리에 신경 쓰는 달입니다. 스트레칭을 일상화하세요.',            // 9월 관절
+                '건강 검진을 고려해보기 좋은 달입니다.',                                      // 10월 검진
+                '체온 조절에 유의하세요. 독감 등 호흡기 질환 예방에 신경 쓰세요.',            // 11월 독감
+                '연말 과식·과음 주의. 가벼운 운동과 따뜻한 음식이 도움됩니다.',               // 12월 연말
             ],
             인간관계: [
                 '새로운 인연이 찾아올 수 있습니다. 웃는 얼굴로 맞이하세요.',
@@ -2820,8 +2790,12 @@ ${info.usage}`;
                 '진심이 통하는 달입니다. 솔직하게 표현하면 관계가 깊어집니다.',
                 '넓은 인연보다 소수 깊은 관계에 집중할 때입니다.',
                 '고마운 사람에게 감사의 마음을 전하세요.',
-                '연말 모임이 즐거운 기억이 됩니다. 적극적으로 참여하세요.',
+                '소중한 인연에게 먼저 연락해보세요. 기다리는 것보다 먼저 다가가는 것이 관계를 깊게 합니다.',
                 '한 해를 함께한 사람들을 소중히 여기세요.',
+                '서로 다름을 인정하는 대화가 관계를 성숙하게 만듭니다.',
+                '가까운 사람에게 먼저 안부를 건네는 것이 최고의 인간관계 투자입니다.',
+                '상대방의 입장에서 한 번 더 생각해보세요. 오해가 이해로 바뀝니다.',
+                '좋은 에너지는 전염됩니다. 긍정적인 말 한 마디가 관계를 밝힙니다.',
             ],
         };
         var TJ_MONTH_ICON = ['🌱','🌸','🌞','🌿','🍀','☀️','🍉','🌾','🍂','🍁','❄️','🎍'];
@@ -2882,8 +2856,12 @@ ${info.usage}`;
                 { tag:'🟢 진심 통함', action:'평소 표현 못한 고마움을 문자 한 줄로라도 전해보세요. 관계가 깊어집니다.' },
                 { tag:'🟡 소수 집중', action:'지금 가장 소중한 사람 세 명을 떠올리고 그 관계에 더 집중해보세요.' },
                 { tag:'🟢 감사 표현', action:'고마운 사람에게 커피 한 잔이나 짧은 메시지로 마음을 전해보세요.' },
-                { tag:'🟢 모임 활발', action:'가기 망설여지는 모임이 있다면 일단 나가보세요. 예상 밖의 좋은 만남이 있습니다.' },
+                { tag:'🟢 먼저 연락', action:'연락이 뜸했던 소중한 사람에게 먼저 메시지를 보내보세요. 기다리지 말고 먼저 다가가세요.' },
                 { tag:'🟢 인연 돌봄', action:'올 한 해 함께한 사람들에게 한마디씩 감사를 전하는 시간을 만들어보세요.' },
+                { tag:'🟡 이해와 존중', action:'오늘 대화에서 상대 말이 끝날 때까지 끊지 말고 끝까지 들어보세요.' },
+                { tag:'🟢 안부 인사', action:'오랫동안 연락 못 한 사람에게 짧은 안부 메시지를 보내보세요.' },
+                { tag:'🟡 역지사지', action:'오해가 생겼을 때 상대 입장을 먼저 적어보면 해결책이 보입니다.' },
+                { tag:'🟢 긍정 에너지', action:'오늘 만나는 사람에게 진심 어린 칭찬 한 마디를 건네보세요.' },
             ],
         };
 
@@ -2895,8 +2873,7 @@ ${info.usage}`;
         function buildTojeongHTML(birthYear, birthMonth, birthDay, ilgan, age, gender, name) {
             var targetYear = kstNow().getUTCFullYear();
             var curMonth   = kstNow().getUTCMonth(); // 0-based
-            var cgIdx      = CHEONGAN.indexOf(ilgan);
-            if (cgIdx < 0) cgIdx = 4; // 기본값: 戊(토)
+            var cgIdx = (ilgan >= 0 && ilgan < 10) ? ilgan : 4; // 일간 인덱스 직접 사용
 
             // 연간 총운 (시드 기반)
             var annualSeed = _tjSeed(birthYear, birthMonth, birthDay, targetYear, 'annual');
@@ -2957,7 +2934,7 @@ ${info.usage}`;
                     + '<div style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);border-radius:16px;padding:18px;margin-bottom:12px;color:#fff">'
                     +   '<div style="font-size:12px;color:#a5b4fc;margin-bottom:6px;font-weight:700">📅 ' + targetYear + '년 연간 총운 · ' + (name||'') + (name?' · ':'') + '만 ' + age + '세</div>'
                     +   '<div style="font-size:14px;line-height:1.9;color:#e0e7ff">' + annualText + '</div>'
-                    +   '<div style="margin-top:12px;font-size:12px;color:#818cf8">일간(日干): ' + ilgan + ' · ' + (OHAENG_KR[OHAENG_CG[cgIdx]] || '토') + '(' + (YANG_CG[cgIdx] ? '양' : '음') + ') 기반 풀이</div>'
+                    +   '<div style="margin-top:12px;font-size:12px;color:#818cf8">일간(日干): ' + CHEONGAN[ilgan] + CHEONGAN_KR[ilgan] + ' · ' + (OHAENG_KR[OHAENG_CG[ilgan]] || '토') + '(' + (YANG_CG[ilgan] ? '양' : '음') + ') 기반 풀이</div>'
                     + '</div>'
                     // 월별 카드들
                     + '<div style="font-weight:900;font-size:14px;color:#4c1d95;margin-bottom:10px">📆 월별 운세</div>'
@@ -3252,7 +3229,7 @@ ${info.usage}`;
             var prompt = '사주 기반 토정비결 ' + monthName + ' AI 보조 해석을 작성해주세요.\n\n'
                 + '[ 입력 정보 ]\n'
                 + '- 생년월일: ' + bYear + '년 ' + bMonth + '월 ' + bDay + '일\n'
-                + '- 일간(日干): ' + ilgan + ' (' + ohaengKr + ' 오행)\n'
+                + '- 일간(日干): ' + CHEONGAN[ilgan] + CHEONGAN_KR[ilgan] + ' (' + ohaengKr + ' 오행)\n'
                 + '- 나이: 만 ' + age + '세 / 성별: ' + gender + '\n'
                 + '- 대상 월: ' + monthName + '\n\n'
                 + '아래 세 항목을 각각 한 문장(30자 내외)으로 간결하고 따뜻하게 작성하세요. '
