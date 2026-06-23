@@ -1414,7 +1414,7 @@ ${info.usage}`;
 
 
 
-        // ── 드럼롤 날짜 선택기 ──
+        // ── 드럼롤 날짜 선택기 (직접입력 + 스크롤 병행) ──
         function createDrumRoll(containerId, yId, mId, dId) {
             var con = document.getElementById(containerId);
             if (!con) return;
@@ -1423,80 +1423,128 @@ ${info.usage}`;
             var curM = parseInt(document.getElementById(mId).value) || (t.getMonth()+1);
             var curD = parseInt(document.getElementById(dId).value) || t.getDate();
 
-            // 년 목록: 1930~현재년
-            var years = [];
-            for (var y = t.getFullYear(); y >= 1930; y--) years.push(y);
-            var months = [1,2,3,4,5,6,7,8,9,10,11,12];
-            var days = [];
-            for (var d = 1; d <= 31; d++) days.push(d);
+            // 스크롤바 숨기기 + 스타일
+            if (!document.getElementById('dr-style')) {
+                var st = document.createElement('style');
+                st.id = 'dr-style';
+                st.textContent = [
+                    '[id^="drm-"]::-webkit-scrollbar{display:none}',
+                    '.dr-item{height:44px;line-height:44px;text-align:center;font-size:15px;',
+                    'cursor:pointer;border-radius:8px;transition:all .12s;flex-shrink:0;color:#aaa;',
+                    'scroll-snap-align:center;user-select:none}',
+                    '.dr-item.sel{font-weight:900;color:#7c3aed;font-size:18px}',
+                    '.dr-item:hover{background:#f5f3ff;color:#6d28d9}',
+                    '.dr-col-wrap{position:relative;flex:1}',
+                    '.dr-col-wrap.wide{flex:2}',
+                    '.dr-label{font-size:11px;font-weight:700;color:#7c3aed;text-align:center;margin-bottom:4px}',
+                    '.dr-scroll{height:176px;overflow-y:scroll;overflow-x:hidden;',
+                    'scroll-snap-type:y mandatory;scrollbar-width:none;',
+                    '-ms-overflow-style:none;padding:66px 0;box-sizing:border-box;position:relative;z-index:2}',
+                    '.dr-highlight{position:absolute;top:50%;left:4px;right:4px;height:44px;',
+                    'transform:translateY(-50%);background:linear-gradient(135deg,#f5f3ff,#ede9fe);',
+                    'border-radius:10px;border:2px solid #7c3aed;pointer-events:none;z-index:1}',
+                    '.dr-direct{width:100%;border:none;background:transparent;text-align:center;',
+                    'font-size:13px;font-weight:700;color:#7c3aed;padding:4px 0;outline:none;',
+                    'border-bottom:2px solid #c4b5fd;margin-top:4px;border-radius:0}',
+                    '.dr-direct:focus{border-bottom-color:#7c3aed;background:#f5f3ff;border-radius:6px}'
+                ].join('');
+                document.head.appendChild(st);
+            }
 
-            function makeCol(items, curVal, unit, id, flex) {
-                var rows = items.map(function(v) {
-                    return '<div class="dr-item' + (v===curVal?' dr-sel':'') + '" data-val="'+v+'" style="height:44px;line-height:44px;text-align:center;font-size:16px;cursor:pointer;border-radius:8px;transition:all .15s;flex-shrink:0;'+(v===curVal?'font-weight:900;color:#7c3aed;font-size:18px;':'color:#888;')+'">'+v+'</div>';
+            // 데이터
+            var years=[]; for(var y=t.getFullYear();y>=1930;y--) years.push(y);
+            var months=[1,2,3,4,5,6,7,8,9,10,11,12];
+            var days=[]; for(var d=1;d<=31;d++) days.push(d);
+
+            // 컬럼 HTML 생성
+            function makeCol(items, curVal, unit, drumId, wide) {
+                var rows = items.map(function(v){
+                    return '<div class="dr-item'+(v===curVal?' sel':'')+'" data-val="'+v+'">'+v+'</div>';
                 }).join('');
-                return '<div style="flex:'+flex+';display:flex;flex-direction:column;align-items:center;gap:2px">'+
-                    '<div style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:4px">'+unit+'</div>'+
-                    '<div style="position:relative;width:100%">'+
-                    '<div style="position:absolute;top:50%;left:0;right:0;height:44px;transform:translateY(-50%);background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:10px;border:2px solid #7c3aed;pointer-events:none;z-index:1"></div>'+
-                    '<div id="'+id+'" style="height:176px;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;position:relative;z-index:2;scrollbar-width:none;-ms-overflow-style:none;padding:66px 0;box-sizing:border-box">'+
-                    rows+'</div></div></div>';
+                return '<div class="dr-col-wrap'+(wide?' wide':'')+'">' +
+                    '<div class="dr-label">'+unit+'</div>' +
+                    '<div style="position:relative">' +
+                    '<div class="dr-highlight"></div>' +
+                    '<div class="dr-scroll" id="'+drumId+'">'+rows+'</div>' +
+                    '</div>' +
+                    '<input class="dr-direct" type="number" placeholder="직접입력" ' +
+                    'min="'+(unit==='년'?1930:1)+'" max="'+(unit==='년'?t.getFullYear():unit==='월'?12:31)+'" ' +
+                    'id="di-'+drumId+'" value="'+curVal+'">' +
+                    '</div>';
             }
 
             con.innerHTML =
-                '<div style="display:flex;gap:10px;padding:12px;background:#fafafa;border-radius:14px;border:2px solid #e2e8f0">'+
-                makeCol(years, curY, '년', 'dr-'+yId, 2)+
-                makeCol(months, curM, '월', 'dr-'+mId, 1)+
-                makeCol(days, curD, '일', 'dr-'+dId, 1)+
+                '<div style="display:flex;gap:8px;padding:10px;background:#fafafa;border-radius:14px;border:2px solid #e2e8f0">' +
+                makeCol(years, curY, '년', 'drm-'+yId, true) +
+                makeCol(months, curM, '월', 'drm-'+mId, false) +
+                makeCol(days, curD, '일', 'drm-'+dId, false) +
                 '</div>';
 
-            // 스크롤바 숨기기 CSS
-            var style = document.getElementById('dr-style');
-            if (!style) {
-                style = document.createElement('style');
-                style.id = 'dr-style';
-                style.textContent = '[id^="dr-"]::-webkit-scrollbar{display:none}.dr-item:hover{background:#f5f3ff;color:#7c3aed!important}';
-                document.head.appendChild(style);
-            }
-
-            // 초기 스크롤 위치 + snap 설정
-            function initScroll(id, items, curVal) {
-                var el = document.getElementById(id);
-                if (!el) return;
-                var idx = items.indexOf(curVal);
-                if (idx < 0) idx = 0;
-                // 각 아이템 snap
-                el.querySelectorAll('.dr-item').forEach(function(item) {
-                    item.style.scrollSnapAlign = 'center';
-                });
-                // 초기 스크롤
-                el.scrollTop = idx * 44;
-            }
-            initScroll('dr-'+yId, years, curY);
-            initScroll('dr-'+mId, months, curM);
-            initScroll('dr-'+dId, days, curD);
-
-            // 스크롤 이벤트로 hidden input 업데이트
-            function bindScroll(drumId, items, inputId) {
+            // 스크롤 → 선택 + hidden input 업데이트
+            function bindCol(drumId, items, inputId) {
                 var el = document.getElementById(drumId);
-                if (!el) return;
                 var inp = document.getElementById(inputId);
-                el.addEventListener('scroll', function() {
-                    var idx = Math.round(el.scrollTop / 44);
+                var di = document.getElementById('di-'+drumId);
+                if (!el) return;
+
+                // 초기 스크롤 위치
+                var initIdx = items.indexOf(parseInt(di.value));
+                if (initIdx < 0) initIdx = 0;
+                el.scrollTop = initIdx * 44;
+
+                function updateSel(idx) {
                     idx = Math.max(0, Math.min(idx, items.length-1));
                     var val = items[idx];
-                    if (inp) inp.value = val;
-                    // 선택된 아이템 강조
-                    el.querySelectorAll('.dr-item').forEach(function(item, i) {
-                        var sel = i === idx;
-                        item.style.fontWeight = sel ? '900' : 'normal';
-                        item.style.color = sel ? '#7c3aed' : '#888';
-                        item.style.fontSize = sel ? '18px' : '16px';
+                    el.querySelectorAll('.dr-item').forEach(function(item,i){
+                        if(i===idx) item.classList.add('sel'); else item.classList.remove('sel');
                     });
+                    if(inp) inp.value = val;
+                    if(di) di.value = val;
+                }
+
+                var scrollTimer;
+                el.addEventListener('scroll', function(){
+                    clearTimeout(scrollTimer);
+                    scrollTimer = setTimeout(function(){
+                        var idx = Math.round(el.scrollTop / 44);
+                        updateSel(idx);
+                        // snap 보정
+                        el.scrollTo({top: idx*44, behavior:'smooth'});
+                    }, 80);
+                });
+
+                // 직접입력 → 드럼롤 이동
+                di.addEventListener('change', function(){
+                    var v = parseInt(this.value);
+                    if (isNaN(v)) return;
+                    // 범위 보정
+                    v = Math.max(parseInt(this.min), Math.min(parseInt(this.max), v));
+                    this.value = v;
+                    if(inp) inp.value = v;
+                    var idx = items.indexOf(v);
+                    if (idx >= 0) {
+                        el.scrollTo({top: idx*44, behavior:'smooth'});
+                        updateSel(idx);
+                    }
+                });
+                di.addEventListener('keydown', function(e){
+                    if(e.key==='ArrowUp'){
+                        e.preventDefault();
+                        var v=parseInt(this.value)||0;
+                        this.value=v+1; this.dispatchEvent(new Event('change'));
+                    } else if(e.key==='ArrowDown'){
+                        e.preventDefault();
+                        var v=parseInt(this.value)||0;
+                        this.value=v-1; this.dispatchEvent(new Event('change'));
+                    } else if(e.key==='Enter'){
+                        this.dispatchEvent(new Event('change'));
+                    }
                 });
             }
-            bindScroll('dr-'+yId, years, yId);
-            bindScroll('dr-'+mId, months, mId);
-            bindScroll('dr-'+dId, days, dId);
+
+            bindCol('drm-'+yId, years, yId);
+            bindCol('drm-'+mId, months, mId);
+            bindCol('drm-'+dId, days, dId);
         }
 
         // ── 날짜 입력 초기화 공통 함수 ──
