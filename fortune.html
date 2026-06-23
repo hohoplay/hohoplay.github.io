@@ -1140,12 +1140,51 @@ ${info.usage}`;
                 right  = Math.min(canvas.width - 1, right + pad);
                 const cropW = right - left + 1;
                 const cropH = bottom - top + 1;
+                // 1080×1920 캔버스에 부적 중앙 배치 (고품질 저장용)
+                const FW = 1080, FH = 1920;
                 const out = document.createElement('canvas');
-                out.width  = cropW;
-                out.height = cropH;
-                out.getContext('2d').drawImage(canvas, left, top, cropW, cropH, 0, 0, cropW, cropH);
+                out.width  = FW;
+                out.height = FH;
+                const octx = out.getContext('2d');
+                // 배경: 황금/암갈색 그라데이션
+                const grad = octx.createLinearGradient(0, 0, 0, FH);
+                grad.addColorStop(0,   '#3b1a08');
+                grad.addColorStop(0.5, '#78350f');
+                grad.addColorStop(1,   '#1c0a02');
+                octx.fillStyle = grad;
+                octx.fillRect(0, 0, FW, FH);
+                // 테두리 장식
+                octx.strokeStyle = '#d97706';
+                octx.lineWidth = 12;
+                octx.strokeRect(24, 24, FW-48, FH-48);
+                octx.strokeStyle = '#fbbf24';
+                octx.lineWidth = 3;
+                octx.strokeRect(36, 36, FW-72, FH-72);
+                // 상단 텍스트
+                octx.fillStyle = '#fef3c7';
+                octx.font = 'bold 42px serif';
+                octx.textAlign = 'center';
+                octx.fillText('🔯 사주 맞춤 부적 (符籍)', FW/2, 120);
+                octx.font = '32px serif';
+                octx.fillStyle = '#fbbf24';
+                octx.fillText('hohoplay.github.io', FW/2, 180);
+                // 부적 이미지 중앙 배치 (비율 유지, 최대 600px)
+                const maxSz = 640;
+                const scale = Math.min(maxSz / cropW, maxSz / cropH);
+                const dw = Math.round(cropW * scale);
+                const dh = Math.round(cropH * scale);
+                const dx = Math.round((FW - dw) / 2);
+                const dy = Math.round((FH - dh) / 2) - 40;
+                octx.drawImage(canvas, left, top, cropW, cropH, dx, dy, dw, dh);
+                // 하단 안내 텍스트
+                octx.fillStyle = '#fef3c7';
+                octx.font = '28px serif';
+                octx.fillText('오늘 하루 부적의 기운이 함께합니다', FW/2, FH - 160);
+                octx.fillStyle = '#d97706';
+                octx.font = '24px serif';
+                octx.fillText('hohoplay.github.io · HOHO PLAY', FW/2, FH - 100);
                 const a = document.createElement('a');
-                a.download = label + '.png';
+                a.download = label + '_1080x1920.png';
                 a.href = out.toDataURL('image/png');
                 a.click();
             });
@@ -2971,7 +3010,7 @@ ${info.usage}`;
             }).join('');
             // 보강 오행 문자 (우측 작게)
             var boostColor = {'木':'#166534','火':'#7f1d1d','土':'#78350f','金':'#1e3a5f','水':'#0c4a6e'}[bd2.hanja||'土'] || '#78350f';
-            return '<svg viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:120px;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.3))">'
+            return '<svg viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.3)) blur(0.6px) brightness(0.92)">'
                 + '<rect width="100" height="220" rx="6" fill="#f5c518"/>'
                 + '<rect x="4" y="4" width="92" height="212" rx="4" fill="none" stroke="#8B0000" stroke-width="2"/>'
                 + '<rect x="8" y="8" width="84" height="204" rx="3" fill="none" stroke="#8B0000" stroke-width="1" stroke-dasharray="4,3"/>'
@@ -2990,7 +3029,51 @@ ${info.usage}`;
                 + '</svg>';
         }
 
+        function _bujeokSVG_cute(bd, bd2, name, year, scoreGrade, totalScore) {
+            var emoji1 = {'木':'🌱','火':'🔥','土':'🌍','金':'⭐','水':'💧'}[bd.hanja]  || '✨';
+            var emoji2 = {'木':'🌿','火':'☀️','土':'🏅','金':'💫','水':'🌊'}[bd2.hanja] || '🌟';
+            // 점수 기반 별 개수
+            var stars  = totalScore>=80?'★★★★★':totalScore>=65?'★★★★☆':totalScore>=50?'★★★☆☆':'★★☆☆☆';
+            var starColor = totalScore>=80?'#16a34a':totalScore>=65?'#2563eb':totalScore>=50?'#d97706':'#dc2626';
+            return '<svg viewBox="0 0 140 185" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:140px;filter:drop-shadow(2px 4px 10px rgba(0,0,0,.25))">'
+                + '<rect width="140" height="185" rx="20" fill="#FFD700"/>'
+                + '<rect x="6" y="6" width="128" height="173" rx="16" fill="none" stroke="#FF6B35" stroke-width="2.5"/>'
+                + '<text x="20" y="28" font-size="14">' + emoji1 + '</text>'
+                + '<text x="108" y="28" font-size="14">' + emoji2 + '</text>'
+                + '<text x="70" y="45" text-anchor="middle" fill="#FF6B35" font-size="11" font-weight="900" font-family="sans-serif">행운 부적 · ' + scoreGrade + '</text>'
+                // 점수 별
+                + '<text x="70" y="60" text-anchor="middle" fill="' + starColor + '" font-size="11" font-family="sans-serif">' + stars + '</text>'
+                // 메인 이모지
+                + '<rect x="38" y="66" width="64" height="64" rx="32" fill="rgba(255,255,255,.55)"/>'
+                + '<text x="70" y="107" text-anchor="middle" font-size="34">' + emoji1 + '</text>'
+                // 오행 한자
+                + '<text x="70" y="146" text-anchor="middle" fill="#8B0000" font-size="20" font-family="serif" font-weight="900">' + bd.chars[0] + bd2.chars[0] + '</text>'
+                // 소원
+                + '<text x="70" y="162" text-anchor="middle" fill="#FF6B35" font-size="9" font-weight="700" font-family="sans-serif">' + bd.wish.slice(0,9) + '</text>'
+                + '<text x="70" y="177" text-anchor="middle" fill="#92400e" font-size="8" font-family="sans-serif">' + (name?name.slice(0,4):'소원') + ' 성취</text>'
+                + '</svg>';
+        }
 
+        function _bujeokSVG_qr(bd, name, year, scoreGrade, qrUrl) {
+            var url = qrUrl || 'https://hoholog.github.io';
+            var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=80x80&bgcolor=f5c518&color=8B0000&data=' + encodeURIComponent(url);
+            // SVG는 프레임만, QR은 <img>로 절대위치 오버레이 (SVG <image>는 CORS 차단됨)
+            return '<div style="position:relative;width:100%;max-width:140px;display:inline-block">'
+                + '<svg viewBox="0 0 140 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;filter:drop-shadow(2px 4px 10px rgba(0,0,0,.25))">'
+                + '<rect width="140" height="200" rx="10" fill="#f5c518"/>'
+                + '<rect x="5" y="5" width="130" height="190" rx="7" fill="none" stroke="#8B0000" stroke-width="2"/>'
+                + '<text x="70" y="24" text-anchor="middle" fill="#8B0000" font-size="11" font-weight="900" font-family="serif">行運符籍 · ' + scoreGrade + '</text>'
+                + '<text x="70" y="40" text-anchor="middle" fill="#8B0000" font-size="9" font-family="serif">' + bd.wish.slice(0,12) + '</text>'
+                + '<rect x="25" y="48" width="90" height="90" rx="8" fill="white"/>'
+                + '<text x="70" y="158" text-anchor="middle" fill="#8B0000" font-size="16" font-family="serif" font-weight="900">' + bd.chars[0] + '</text>'
+                + '<text x="70" y="174" text-anchor="middle" fill="#8B0000" font-size="9" font-family="serif">' + (name||'소원') + ' 성취 기원</text>'
+                + '<text x="70" y="190" text-anchor="middle" fill="#8B0000" font-size="7" font-family="serif">QR 스캔으로 행운을 나누세요</text>'
+                + '</svg>'
+                + '<img src="' + qrApiUrl + '" style="position:absolute;left:50%;top:48px;transform:translateX(-50%);width:64%;border-radius:6px" crossorigin="anonymous" />'
+                + '</div>';
+        }
+
+        var _BUJEOK_QR_URL = 'https://hoholog.github.io';  // ← QR URL 수정 가능
 
         function buildBujeokHTML(birthYear, birthMonth, birthDay, ilgan, ohCount, name, age, gender, sajuExtra) {
             var ex         = sajuExtra || {};
@@ -3074,8 +3157,12 @@ ${info.usage}`;
                 var bd   = _makeCatBD(cat);
                 var bd2  = BUJEOK_DATA[oh] || bd;
                 var trad = _bujeokSVG_traditional(bd, bd2, name, year, scoreGrade, extraChars);
+                var cute = _bujeokSVG_cute(bd, bd2, name, year, scoreGrade, totalScore);
+                var qr   = _bujeokSVG_qr(bd, name, year, scoreGrade, _BUJEOK_QR_URL);
                 var base  = 'bj-' + cat.key + '-' + year;
                 var lTrad = cat.label.replace(/[^\w가-힣]/g,'_') + '_전통';
+                var lCute = cat.label.replace(/[^\w가-힣]/g,'_') + '_행운';
+                var lQr   = cat.label.replace(/[^\w가-힣]/g,'_') + '_QR';
 
                 // 버튼 행 — SVG 래퍼 바깥에 위치 → 저장 시 캡처 안 됨
                 function btnRow(svgId, label) {
@@ -3091,7 +3178,27 @@ ${info.usage}`;
                     + '<div style="font-size:13px;font-weight:900;color:#92400e;margin-bottom:8px;padding:8px 12px;background:linear-gradient(90deg,#fef3c7,#fffbeb);border-radius:10px;border-left:4px solid #d97706">'
                     +   cat.label + ' — ' + cat.desc
                     + '</div>'
-                    + '<div id="svg-' + base + '-trad" style="text-align:center">' + trad + '</div>'                    + btnRow(base + '-trad', lTrad)                    + '</div>';
+                    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'
+                        // 전통 — id는 SVG 래퍼에만, 버튼은 바깥
+                        + '<div style="text-align:center">'
+                        +   '<div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px">📜 전통</div>'
+                        +   '<div id="svg-' + base + '-trad">' + trad + '</div>'
+                        +   btnRow(base + '-trad', lTrad)
+                        + '</div>'
+                        // 귀여운
+                        + '<div style="text-align:center">'
+                        +   '<div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px">🌟 행운</div>'
+                        +   '<div id="svg-' + base + '-cute">' + cute + '</div>'
+                        +   btnRow(base + '-cute', lCute)
+                        + '</div>'
+                        // QR
+                        + '<div style="text-align:center">'
+                        +   '<div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px">📱 QR</div>'
+                        +   '<div id="svg-' + base + '-qr">' + qr + '</div>'
+                        +   btnRow(base + '-qr', lQr)
+                        + '</div>'
+                    + '</div>'
+                    + '</div>';
             }).join('');
 
             return '<div id="bujeok-section" style="margin-top:12px">'
