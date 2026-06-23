@@ -1413,6 +1413,92 @@ ${info.usage}`;
         }
 
 
+
+        // ── 드럼롤 날짜 선택기 ──
+        function createDrumRoll(containerId, yId, mId, dId) {
+            var con = document.getElementById(containerId);
+            if (!con) return;
+            var t = new Date();
+            var curY = parseInt(document.getElementById(yId).value) || t.getFullYear();
+            var curM = parseInt(document.getElementById(mId).value) || (t.getMonth()+1);
+            var curD = parseInt(document.getElementById(dId).value) || t.getDate();
+
+            // 년 목록: 1930~현재년
+            var years = [];
+            for (var y = t.getFullYear(); y >= 1930; y--) years.push(y);
+            var months = [1,2,3,4,5,6,7,8,9,10,11,12];
+            var days = [];
+            for (var d = 1; d <= 31; d++) days.push(d);
+
+            function makeCol(items, curVal, unit, id, flex) {
+                var rows = items.map(function(v) {
+                    return '<div class="dr-item' + (v===curVal?' dr-sel':'') + '" data-val="'+v+'" style="height:44px;line-height:44px;text-align:center;font-size:16px;cursor:pointer;border-radius:8px;transition:all .15s;flex-shrink:0;'+(v===curVal?'font-weight:900;color:#7c3aed;font-size:18px;':'color:#888;')+'">'+v+'</div>';
+                }).join('');
+                return '<div style="flex:'+flex+';display:flex;flex-direction:column;align-items:center;gap:2px">'+
+                    '<div style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:4px">'+unit+'</div>'+
+                    '<div style="position:relative;width:100%">'+
+                    '<div style="position:absolute;top:50%;left:0;right:0;height:44px;transform:translateY(-50%);background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:10px;border:2px solid #7c3aed;pointer-events:none;z-index:1"></div>'+
+                    '<div id="'+id+'" style="height:176px;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;position:relative;z-index:2;scrollbar-width:none;-ms-overflow-style:none;padding:66px 0;box-sizing:border-box">'+
+                    rows+'</div></div></div>';
+            }
+
+            con.innerHTML =
+                '<div style="display:flex;gap:10px;padding:12px;background:#fafafa;border-radius:14px;border:2px solid #e2e8f0">'+
+                makeCol(years, curY, '년', 'dr-'+yId, 2)+
+                makeCol(months, curM, '월', 'dr-'+mId, 1)+
+                makeCol(days, curD, '일', 'dr-'+dId, 1)+
+                '</div>';
+
+            // 스크롤바 숨기기 CSS
+            var style = document.getElementById('dr-style');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'dr-style';
+                style.textContent = '[id^="dr-"]::-webkit-scrollbar{display:none}.dr-item:hover{background:#f5f3ff;color:#7c3aed!important}';
+                document.head.appendChild(style);
+            }
+
+            // 초기 스크롤 위치 + snap 설정
+            function initScroll(id, items, curVal) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var idx = items.indexOf(curVal);
+                if (idx < 0) idx = 0;
+                // 각 아이템 snap
+                el.querySelectorAll('.dr-item').forEach(function(item) {
+                    item.style.scrollSnapAlign = 'center';
+                });
+                // 초기 스크롤
+                el.scrollTop = idx * 44;
+            }
+            initScroll('dr-'+yId, years, curY);
+            initScroll('dr-'+mId, months, curM);
+            initScroll('dr-'+dId, days, curD);
+
+            // 스크롤 이벤트로 hidden input 업데이트
+            function bindScroll(drumId, items, inputId) {
+                var el = document.getElementById(drumId);
+                if (!el) return;
+                var inp = document.getElementById(inputId);
+                el.addEventListener('scroll', function() {
+                    var idx = Math.round(el.scrollTop / 44);
+                    idx = Math.max(0, Math.min(idx, items.length-1));
+                    var val = items[idx];
+                    if (inp) inp.value = val;
+                    // 선택된 아이템 강조
+                    el.querySelectorAll('.dr-item').forEach(function(item, i) {
+                        var sel = i === idx;
+                        item.style.fontWeight = sel ? '900' : 'normal';
+                        item.style.color = sel ? '#7c3aed' : '#888';
+                        item.style.fontSize = sel ? '18px' : '16px';
+                    });
+                });
+            }
+            bindScroll('dr-'+yId, years, yId);
+            bindScroll('dr-'+mId, months, mId);
+            bindScroll('dr-'+dId, days, dId);
+        }
+
         // ── 날짜 입력 초기화 공통 함수 ──
         function initDateInputs(yId, mId, dId) {
             var t = new Date();
@@ -4557,22 +4643,8 @@ ${info.usage}`;
                                 <button onclick="setCalType('양력')" id="cal-solar" style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">☀️ 양력</button>
                                 <button onclick="setCalType('음력')" id="cal-lunar" style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">🌙 음력</button>
                             </div>
-                            <div style="display:flex;gap:8px">
-                                <div style="flex:2;display:flex;flex-direction:column;gap:4px">
-                                    <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">년</label>
-                                    <input id="inp-year" type="number" min="1900" max="2030"
-                                        style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
-                                </div>
-                                <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-                                    <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">월</label>
-                                    <input id="inp-month" type="number" min="1" max="12"
-                                        style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
-                                </div>
-                                <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-                                    <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">일</label>
-                                    <input id="inp-day" type="number" min="1" max="31"
-                                        style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
-                                </div>
+                            <input type="hidden" id="inp-year"><input type="hidden" id="inp-month"><input type="hidden" id="inp-day">
+                                <div id="drum-today"><!-- 드럼롤 here --></div>
                             </div>
                             <div id="inp-lunar-info" style="font-size:11px;color:#7c3aed;margin-top:6px;display:none">🌙 음력 날짜는 자동으로 양력으로 변환되어 운세에 반영됩니다</div>
                         </div>
@@ -4601,7 +4673,7 @@ ${info.usage}`;
                     <div id="today-result"></div>`;
                 if(_gender) setGender(_gender);
                 setCalType(_calType);
-                initDateInputs('inp-year','inp-month','inp-day');
+                createDrumRoll('drum-today','inp-year','inp-month','inp-day');
             }
 
             else if(type==='zodiac'){
@@ -4717,22 +4789,8 @@ ${info.usage}`;
                                 style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">🌙 음력</button>
                         </div>
                         <div id="sj-lunar-info" style="font-size:11px;color:#7c3aed;margin-bottom:6px;display:none">🌙 음력 날짜는 자동으로 양력으로 변환되어 사주에 반영됩니다</div>
-                                                <div style="display:flex;gap:8px">
-                            <div style="flex:2;display:flex;flex-direction:column;gap:4px">
-                                <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">년</label>
-                                <input id="sj-year" type="number" min="1900" max="2030"
-                                    style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
-                            </div>
-                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-                                <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">월</label>
-                                <input id="sj-month" type="number" min="1" max="12"
-                                    style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
-                            </div>
-                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-                                <label style="font-size:11px;font-weight:700;color:#7c3aed;text-align:center">일</label>
-                                <input id="sj-day" type="number" min="1" max="31"
-                                    style="width:100%;padding:12px 6px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center;font-weight:700;box-sizing:border-box">
-                            </div>
+                                                <input type="hidden" id="sj-year"><input type="hidden" id="sj-month"><input type="hidden" id="sj-day">
+                            <div id="drum-saju"><!-- 드럼롤 here --></div>
                         </div>
                         </div>
                     </div>
@@ -4774,7 +4832,7 @@ ${info.usage}`;
                     </button>
                 </div>
                 <div id="saju-result"></div>`;
-                initDateInputs('sj-year','sj-month','sj-day');
+                createDrumRoll('drum-saju','sj-year','sj-month','sj-day');
             }
 
             else if(type==='mbti-tarot'){
