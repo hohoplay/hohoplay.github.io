@@ -3023,6 +3023,8 @@ ${info.usage}`;
 
             // 2) 부족한 오행 → 보강 방향
             var boostOH  = minOH;
+            var _OHK={'木':'목(木)','火':'화(火)','土':'토(土)','金':'금(金)','水':'수(水)'};
+            var boostName = _OHK[boostOH] || boostOH || '수(水)';
 
             // 3) 총운 점수 → 부적 메시지 강도
             var scoreGrade = totalScore >= 80 ? '대길(大吉)' : totalScore >= 65 ? '길(吉)' : totalScore >= 50 ? '평길(平吉)' : '화해(和解)';
@@ -3074,9 +3076,6 @@ ${info.usage}`;
                 return '<div style="display:flex;gap:6px;justify-content:center;margin-top:8px">'
                     + '<button onclick="saveOneBujeok(\'' + elId + '\',\'' + filename + '\')" '
                     +   'style="background:#92400e;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">📥 저장</button>'
-                    + '<button onclick="saveBujeokWallpaper(\'' + elId + '\',\'' + filename + '\')" '
-                    +   'style="background:#1e3a5f;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">📱 폰배경</button>'
-                    + '</div>';
             }
 
             var catSections = CAT.map(function(cat, ci) {
@@ -3091,8 +3090,7 @@ ${info.usage}`;
                     return '<div style="display:flex;gap:5px;justify-content:center;margin-top:6px">'
                         + '<button onclick="saveOneBujeok(\'' + svgId + '\',\'' + label + '\')" '
                         +   'style="background:#92400e;color:#fff;border:none;padding:5px 9px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer">📥 저장</button>'
-                        + '<button onclick="saveBujeokWallpaper(\'' + svgId + '\',\'' + label + '\')" '
-                        +   'style="background:#1e3a5f;color:#fff;border:none;padding:5px 9px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer">📱 폰배경</button>'
+
                         + '</div>';
                 }
 
@@ -3122,7 +3120,7 @@ ${info.usage}`;
                     // 9종 부적
                     + catSections
                     + '<div style="font-size:10px;color:#94a3b8;text-align:center;padding:8px;margin-top:4px;background:#f8fafc;border-radius:10px">'
-                    +   '⚠️ 전통 민속 문화를 현대적으로 재해석한 콘텐츠입니다. 각 부적을 📥저장 또는 📱폰배경으로 저장하세요.'
+                    +   '⚠️ 전통 민속 문화를 현대적으로 재해석한 콘텐츠입니다. 📥저장 버튼으로 1080×1920 고품질 이미지를 저장하세요.'
                     + '</div>'
                 + '</div>'
             + '</div>';
