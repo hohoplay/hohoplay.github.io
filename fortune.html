@@ -1417,6 +1417,120 @@ ${info.usage}`;
             result.scrollIntoView({behavior:'smooth',block:'start'});
         }
 
+
+        // ── 드럼롤 날짜 선택기 v3 (클릭/터치 선택 + 스크롤) ──
+        function createDrumRoll(containerId, yId, mId, dId) {
+            var con = document.getElementById(containerId);
+            if (!con) return;
+            var t = new Date();
+            var curY = parseInt(document.getElementById(yId).value) || t.getFullYear();
+            var curM = parseInt(document.getElementById(mId).value) || (t.getMonth()+1);
+            var curD = parseInt(document.getElementById(dId).value) || t.getDate();
+
+            if (!document.getElementById('dr-style-v3')) {
+                var st = document.createElement('style');
+                st.id = 'dr-style-v3';
+                st.textContent =
+                    '.drc-wrap{display:flex;gap:8px;padding:8px;background:#fafafa;border-radius:14px;border:2px solid #e2e8f0}' +
+                    '.drc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}' +
+                    '.drc-col.wide{flex:2}' +
+                    '.drc-label{font-size:11px;font-weight:700;color:#7c3aed}' +
+                    '.drc-outer{position:relative;width:100%;height:176px}' +
+                    '.drc-hl{position:absolute;top:50%;left:0;right:0;height:44px;transform:translateY(-50%);' +
+                    'background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:10px;' +
+                    'border:2px solid #7c3aed;pointer-events:none;z-index:2}' +
+                    '.drc-list{height:176px;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;' +
+                    'scrollbar-width:none;-ms-overflow-style:none;padding:66px 0;box-sizing:border-box;position:relative;z-index:3}' +
+                    '.drc-list::-webkit-scrollbar{display:none}' +
+                    '.drc-item{height:44px;line-height:44px;text-align:center;font-size:15px;color:#aaa;' +
+                    'scroll-snap-align:center;cursor:pointer;border-radius:8px;transition:all .12s;user-select:none;-webkit-user-select:none}' +
+                    '.drc-item:hover{background:#f5f3ff;color:#6d28d9}' +
+                    '.drc-item.drc-sel{font-weight:900;color:#7c3aed;font-size:18px}';
+                document.head.appendChild(st);
+            }
+
+            var years = []; for (var y = t.getFullYear(); y >= 1930; y--) years.push(y);
+            var months = [1,2,3,4,5,6,7,8,9,10,11,12];
+            var days = []; for (var d = 1; d <= 31; d++) days.push(d);
+
+            function makeColHTML(items, curVal, unit, drumId, wide) {
+                var rows = items.map(function(v) {
+                    return '<div class="drc-item' + (v===curVal?' drc-sel':'') + '" data-val="'+v+'">'+v+'</div>';
+                }).join('');
+                return '<div class="drc-col'+(wide?' wide':'')+'">' +
+                    '<div class="drc-label">'+unit+'</div>' +
+                    '<div class="drc-outer">' +
+                    '<div class="drc-hl"></div>' +
+                    '<div class="drc-list" id="'+drumId+'">'+rows+'</div>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            con.innerHTML = '<div class="drc-wrap">' +
+                makeColHTML(years,  curY, '년', 'drv3-'+yId, true)  +
+                makeColHTML(months, curM, '월', 'drv3-'+mId, false) +
+                makeColHTML(days,   curD, '일', 'drv3-'+dId, false) +
+                '</div>';
+
+            function bindCol(drumId, items, inputId) {
+                var el  = document.getElementById(drumId);
+                var inp = document.getElementById(inputId);
+                if (!el) return;
+
+                // 초기 스크롤
+                var initIdx = items.indexOf(parseInt(inp ? inp.value : '0'));
+                if (initIdx < 0) initIdx = 0;
+                el.scrollTop = initIdx * 44;
+
+                function setSelected(idx) {
+                    idx = Math.max(0, Math.min(idx, items.length-1));
+                    el.querySelectorAll('.drc-item').forEach(function(item, i) {
+                        if (i === idx) item.classList.add('drc-sel');
+                        else item.classList.remove('drc-sel');
+                    });
+                    if (inp) inp.value = items[idx];
+                }
+
+                // 스크롤 이벤트 (스크롤 후 snap)
+                var scrollTimer;
+                el.addEventListener('scroll', function() {
+                    clearTimeout(scrollTimer);
+                    scrollTimer = setTimeout(function() {
+                        var idx = Math.round(el.scrollTop / 44);
+                        setSelected(idx);
+                        el.scrollTo({top: idx * 44, behavior: 'smooth'});
+                    }, 80);
+                }, {passive: true});
+
+                // 클릭/터치로 항목 선택
+                el.addEventListener('click', function(e) {
+                    var item = e.target.closest('.drc-item');
+                    if (!item) return;
+                    var val = parseInt(item.getAttribute('data-val'));
+                    var idx = items.indexOf(val);
+                    if (idx >= 0) {
+                        el.scrollTo({top: idx * 44, behavior: 'smooth'});
+                        setSelected(idx);
+                    }
+                });
+            }
+
+            bindCol('drv3-'+yId, years,  yId);
+            bindCol('drv3-'+mId, months, mId);
+            bindCol('drv3-'+dId, days,   dId);
+        }
+
+        function initDateInputs(yId, mId, dId) {
+            var t = new Date();
+            var y = document.getElementById(yId);
+            var m = document.getElementById(mId);
+            var d = document.getElementById(dId);
+            if (!y || !m || !d) return;
+            if (!y.value) y.value = t.getFullYear();
+            if (!m.value) m.value = t.getMonth() + 1;
+            if (!d.value) d.value = t.getDate();
+        }
+
         function showFortuneTab(tab, data){
             // ── 탭 전환 로딩 ──
             const _tabContentEl = document.getElementById('fortune-tab-content');
@@ -4524,11 +4638,8 @@ ${info.usage}`;
                                 <button onclick="setCalType('양력')" id="cal-solar" style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">☀️ 양력</button>
                                 <button onclick="setCalType('음력')" id="cal-lunar" style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">🌙 음력</button>
                             </div>
-                            <div style="display:flex;gap:8px">
-                                <input id="inp-year" type="number" placeholder="년(4자리)" min="1900" max="2010" style="flex:2;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                                <input id="inp-month" type="number" placeholder="월" min="1" max="12" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                                <input id="inp-day" type="number" placeholder="일" min="1" max="31" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                            </div>
+                            <input type="hidden" id="inp-year"><input type="hidden" id="inp-month"><input type="hidden" id="inp-day">
+                            <div id="drum-today"></div>
                             <div id="inp-lunar-info" style="font-size:11px;color:#7c3aed;margin-top:6px;display:none">🌙 음력 날짜는 자동으로 양력으로 변환되어 운세에 반영됩니다</div>
                         </div>
                         <div style="margin-bottom:20px">
@@ -4556,6 +4667,7 @@ ${info.usage}`;
                     <div id="today-result"></div>`;
                 if(_gender) setGender(_gender);
                 setCalType(_calType);
+                createDrumRoll('drum-today','inp-year','inp-month','inp-day');
             }
 
             else if(type==='zodiac'){
@@ -4671,13 +4783,8 @@ ${info.usage}`;
                                 style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:14px">🌙 음력</button>
                         </div>
                         <div id="sj-lunar-info" style="font-size:11px;color:#7c3aed;margin-bottom:6px;display:none">🌙 음력 날짜는 자동으로 양력으로 변환되어 사주에 반영됩니다</div>
-                        <div style="display:flex;gap:8px">
-                            <input id="sj-year"  type="number" placeholder="년(4자리)" min="1900" max="2010"
-                                style="flex:2;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                            <input id="sj-month" type="number" placeholder="월" min="1" max="12"
-                                style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
-                            <input id="sj-day"   type="number" placeholder="일" min="1" max="31"
-                                style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px;outline:none;text-align:center">
+                        <input type="hidden" id="sj-year"><input type="hidden" id="sj-month"><input type="hidden" id="sj-day">
+                        <div id="drum-saju"></div>
                         </div>
                     </div>
                     <div style="margin-bottom:14px">
@@ -4718,6 +4825,7 @@ ${info.usage}`;
                     </button>
                 </div>
                 <div id="saju-result"></div>`;
+                createDrumRoll('drum-saju','sj-year','sj-month','sj-day');
             }
 
             else if(type==='mbti-tarot'){
