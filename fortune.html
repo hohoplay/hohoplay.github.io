@@ -1162,28 +1162,12 @@ ${info.usage}`;
                 left   = Math.max(0, left - pad);
                 right  = Math.min(canvas.width - 1, right + pad);
                 const cropW=right-left+1,cropH=bottom-top+1;
-                const FW=1080,FH=1920,out=document.createElement('canvas');
-                out.width=FW; out.height=FH;
-                const octx=out.getContext('2d');
-                const grad=octx.createLinearGradient(0,0,0,FH);
-                grad.addColorStop(0,'#3b1a08'); grad.addColorStop(0.5,'#78350f'); grad.addColorStop(1,'#1c0a02');
-                octx.fillStyle=grad; octx.fillRect(0,0,FW,FH);
-                octx.strokeStyle='#d97706'; octx.lineWidth=12; octx.strokeRect(24,24,FW-48,FH-48);
-                octx.strokeStyle='#fbbf24'; octx.lineWidth=3; octx.strokeRect(36,36,FW-72,FH-72);
-                octx.fillStyle='#fef3c7'; octx.font='bold 42px serif'; octx.textAlign='center';
-                octx.fillText('🔯 사주 맞춤 부적 (符籍)',FW/2,120);
-                octx.font='32px serif'; octx.fillStyle='#fbbf24';
-                octx.fillText('hohoplay.github.io',FW/2,180);
-                const maxSz=640,sc=Math.min(maxSz/cropW,maxSz/cropH);
-                const dw=Math.round(cropW*sc),dh=Math.round(cropH*sc);
-                const dx=Math.round((FW-dw)/2),dy=Math.round((FH-dh)/2)-40;
-                octx.drawImage(canvas,left,top,cropW,cropH,dx,dy,dw,dh);
-                octx.fillStyle='#fef3c7'; octx.font='28px serif';
-                octx.fillText('오늘 하루 부적의 기운이 함께합니다',FW/2,FH-160);
-                octx.fillStyle='#d97706'; octx.font='24px serif';
-                octx.fillText('hohoplay.github.io · HOHO PLAY',FW/2,FH-100);
+                // SVG 원본 크기 그대로 고화질 저장 (scale:4 적용됨)
+                const out=document.createElement('canvas');
+                out.width=cropW; out.height=cropH;
+                out.getContext('2d').drawImage(canvas,left,top,cropW,cropH,0,0,cropW,cropH);
                 const a=document.createElement('a');
-                a.download=label+'_1080x1920.png'; a.href=out.toDataURL('image/png'); a.click();
+                a.download=label+'.png'; a.href=out.toDataURL('image/png'); a.click();
             });
         }
 
@@ -3261,9 +3245,6 @@ ${info.usage}`;
                 return '<div style="display:flex;gap:6px;justify-content:center;margin-top:8px">'
                     + '<button onclick="saveOneBujeok(\'' + elId + '\',\'' + filename + '\')" '
                     +   'style="background:#92400e;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">📥 저장</button>'
-                    + '<button onclick="saveBujeokWallpaper(\'' + elId + '\',\'' + filename + '\')" '
-                    +   'style="background:#1e3a5f;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">📱 폰배경</button>'
-                    + '</div>';
             }
 
             var catSections = CAT.map(function(cat, ci) {
@@ -3278,8 +3259,6 @@ ${info.usage}`;
                     return '<div style="display:flex;gap:5px;justify-content:center;margin-top:6px">'
                         + '<button onclick="saveOneBujeok(\'' + svgId + '\',\'' + label + '\')" '
                         +   'style="background:#92400e;color:#fff;border:none;padding:5px 9px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer">📥 저장</button>'
-                        + '<button onclick="saveBujeokWallpaper(\'' + svgId + '\',\'' + label + '\')" '
-                        +   'style="background:#1e3a5f;color:#fff;border:none;padding:5px 9px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer">📱 폰배경</button>'
                         + '</div>';
                 }
 
@@ -3309,7 +3288,7 @@ ${info.usage}`;
                     // 9종 부적
                     + catSections
                     + '<div style="font-size:10px;color:#94a3b8;text-align:center;padding:8px;margin-top:4px;background:#f8fafc;border-radius:10px">'
-                    +   '⚠️ 전통 민속 문화를 현대적으로 재해석한 콘텐츠입니다. 각 부적을 📥저장 또는 📱폰배경으로 저장하세요.'
+                    +   '⚠️ 전통 민속 문화를 현대적으로 재해석한 콘텐츠입니다. 📥저장 버튼으로 고화질 이미지를 저장하세요.'
                     + '</div>'
                 + '</div>'
             + '</div>';
