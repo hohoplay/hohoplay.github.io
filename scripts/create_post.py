@@ -4231,8 +4231,35 @@ def main():
     posts = []
 
     # 수동 실행 시 강제 포함 옵션
-    force_weekly  = os.environ.get("FORCE_WEEKLY",  "false").lower() == "true"
-    force_monthly = os.environ.get("FORCE_MONTHLY", "false").lower() == "true"
+    force_weekly       = os.environ.get("FORCE_WEEKLY",       "false").lower() == "true"
+    force_monthly      = os.environ.get("FORCE_MONTHLY",      "false").lower() == "true"
+    force_chinese_only = os.environ.get("FORCE_CHINESE_ONLY", "false").lower() == "true"
+    force_date         = os.environ.get("FORCE_DATE", "").strip()  # 예: "2026-06-24"
+
+    # FORCE_DATE 지정 시 해당 날짜 문자열로 덮어씀
+    if force_date:
+        try:
+            from datetime import datetime as _dt
+            _fd = _dt.strptime(force_date, "%Y-%m-%d")
+            today_str = _fd.strftime("%Y년 %m월 %d일")
+            print(f"📅 FORCE_DATE 적용: {today_str}")
+        except ValueError:
+            print(f"⚠️  FORCE_DATE 형식 오류 (YYYY-MM-DD 필요): {force_date}")
+
+    # FORCE_CHINESE_ONLY=true → 띠 운세 12개만 발행
+    if force_chinese_only:
+        print(f"🐉 FORCE_CHINESE_ONLY 모드: 띠 운세 12개만 발행 ({today_str})")
+        for c in CHINESE:
+            posts.append(build_chinese_post(c, today_str))
+        total = len(posts)
+        print(f"\n🌟 {today_str} 띠 운세 단독 발행 — 총 {total}개\n")
+        success = 0
+        for i, (title, content, labels) in enumerate(posts, 1):
+            if post_blogger(title, content, labels, i, total):
+                success += 1
+        print(f"\n✅ 완료: {success}/{total}개 게시 성공")
+        return
+
     # ① 오늘의 명언 1개
     posts.append(build_quote_post(today_str))
 
