@@ -3057,20 +3057,37 @@ ${info.usage}`;
             var annualText = TJ_ANNUAL[_seededInt(annualSeed, TJ_ANNUAL.length)];
 
             // 12개월 데이터 생성
+            // 섹션별 12개월 인덱스 셔플 (중복 방지)
+            function _tjShuffle(pool, baseSeed) {
+                var n = Math.min(12, pool.length);
+                var arr = []; for(var k=0;k<n;k++) arr.push(k);
+                // seeded Fisher-Yates
+                for(var k=n-1;k>0;k--) {
+                    var seed2 = _tjSeed(birthYear,birthMonth,birthDay,targetYear,baseSeed+'|sh'+k);
+                    var j = _seededInt(seed2, k+1);
+                    var tmp=arr[k]; arr[k]=arr[j]; arr[j]=tmp;
+                }
+                return arr;
+            }
+            var _tjIdx = {
+                총운: _tjShuffle(TJ_MONTHLY.총운, '총운'),
+                재물: _tjShuffle(TJ_MONTHLY.재물, '재물'),
+                건강: _tjShuffle(TJ_MONTHLY.건강, '건강'),
+                인관: _tjShuffle(TJ_MONTHLY.인간관계, '인관'),
+            };
             var months = TJ_MONTH_NAME.map(function(mn, i) {
-                var s = function(cat) { return _tjSeed(birthYear, birthMonth, birthDay, targetYear, i + '|' + cat); };
                 return {
                     label: mn,
                     icon:  TJ_MONTH_ICON[i],
                     isCur: i === curMonth,
-                    총운:  TJ_MONTHLY.총운[_seededInt(s('총운'), TJ_MONTHLY.총운.length)],
-                    재물:  TJ_MONTHLY.재물[_seededInt(s('재물'), TJ_MONTHLY.재물.length)],
-                    건강:  TJ_MONTHLY.건강[_seededInt(s('건강'), TJ_MONTHLY.건강.length)],
-                    인관:  TJ_MONTHLY.인간관계[_seededInt(s('인관'), TJ_MONTHLY.인간관계.length)],
-                    총운_m:  TJ_META.총운[_seededInt(s('총운'), TJ_META.총운.length)],
-                    재물_m:  TJ_META.재물[_seededInt(s('재물'), TJ_META.재물.length)],
-                    건강_m:  TJ_META.건강[_seededInt(s('건강'), TJ_META.건강.length)],
-                    인관_m:  TJ_META.인간관계[_seededInt(s('인관'), TJ_META.인간관계.length)],
+                    총운:  TJ_MONTHLY.총운[_tjIdx.총운[i]],
+                    재물:  TJ_MONTHLY.재물[_tjIdx.재물[i]],
+                    건강:  TJ_MONTHLY.건강[_tjIdx.건강[i]],
+                    인관:  TJ_MONTHLY.인간관계[_tjIdx.인관[i]],
+                    총운_m:  TJ_META.총운[_tjIdx.총운[i]],
+                    재물_m:  TJ_META.재물[_tjIdx.재물[i]],
+                    건강_m:  TJ_META.건강[_tjIdx.건강[i]],
+                    인관_m:  TJ_META.인간관계[_tjIdx.인관[i]],
                 };
             });
 
