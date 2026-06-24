@@ -5553,8 +5553,7 @@ ${info.usage}`;
 
                 <p style="margin-top:1rem;font-size:.88rem;color:#c4b0e0;line-height:2">
                   오늘 이 리딩이 당신의 성향과 카드의 흐름을 가장 정교하게 엮어준 시간이 되었기를 바라요.
-                  살아가다 마음이 무거워지거나 눈앞의 안개가 답답하게 느껴질 때는 언제든 다시 찾아와 주세요.
-                  이 공간은 언제나 당신을 기다리고 있을 거예요. 🌿
+                  오늘의 해석이 당신 안에 이미 있던 답을 조금 더 선명하게 해주었으면 합니다. 🌿
                 </p>
               </div>
             `;
@@ -5807,7 +5806,7 @@ ${info.usage}`;
     // ── 재방문 인사 공통 HTML ──
     function getRetentionHTML(serviceName) {
         return '<p style="margin-top:.4rem;font-size:.88rem;color:#c4b0e0;line-height:2">'
-            + '살아가다 마음이 무거워지거나 눈앞의 안개가 답답하게 느껴질 때는 언제든 다시 찾아와 주세요. 이 공간은 언제나 당신을 기다리고 있을 거예요. 🌿'
+            + '오늘의 해석이 당신 안에 이미 있던 답을 조금 더 선명하게 해주었으면 합니다. 🌿'
             + '</p>';
     }
 
@@ -6067,8 +6066,7 @@ ${info.usage}`;
 
                 <p style="margin-top:1rem;font-size:.88rem;color:#c4b0e0;line-height:2">
                   이 특별한 무의식의 신호가 오늘 하루 당신의 나침반이 되어주기를 바라요.
-                  살아가다 마음이 무거워지거나 눈앞의 안개가 답답하게 느껴질 때는 언제든 다시 찾아와 주세요.
-                  이 공간은 언제나 당신을 기다리고 있을 거예요. 🌿
+                  오늘의 해석이 당신 안에 이미 있던 답을 조금 더 선명하게 해주었으면 합니다. 🌿
                 </p>
 
               </div>
@@ -6352,8 +6350,13 @@ ${info.usage}`;
         headers.forEach((h,i) => obj[h.trim()] = (cols[i]||'').trim());
         // 키워드를 keywords_ko 컬럼에서 가져오고 이모지 추가
         const nameKo = obj.card_name_ko || '';
-        obj.emoji = getTarotEmoji(nameKo, obj.arcana, obj.suit || '');
+        obj.nameKo   = nameKo;
+        obj.emoji    = getTarotEmoji(nameKo, obj.arcana, obj.suit || '');
         obj.keywords = obj.keywords_ko || '';
+        obj.keyword  = obj.keywords_ko || '';
+        obj.isRev    = false;  // 셔플 시 동적 설정
+        obj.meaning  = obj.upright_meaning || '';
+        obj.meaning_rev = obj.reversed_meaning || '';
         return obj;
       });
     }
@@ -6857,8 +6860,7 @@ ${info.usage}`;
 
           <p style="margin-top:1rem;font-size:.88rem;color:#c4b0e0;line-height:2">
             오늘의 리딩이 당신 안에 이미 있던 답을 선명하게 확인해주는 계기가 되었기를 바라요.
-            살아가다 마음이 무거워지거나 눈앞의 안개가 답답하게 느껴질 때는 언제든 다시 찾아와 주세요.
-            이 공간은 언제나 당신을 기다리고 있을 거예요. 🌿
+            오늘의 해석이 당신 안에 이미 있던 답을 조금 더 선명하게 해주었으면 합니다. 🌿
           </p>
         </div>
       `;
