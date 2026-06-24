@@ -2886,6 +2886,7 @@ def build_chinese_post(c, today_str):
     # score_html (fortune.html 연동)
     score_html = f'''<div style="display:none" aria-hidden="true">
 <div class="card" style="background:#fff8ee">
+  <span class="badge">📊 오늘의 운세 지수</span>
   <div style="margin-top:12px">
     {_zodiac_score_bar("종합운","🌟",total)}
     {_zodiac_score_bar("금전운","💰",money)}
