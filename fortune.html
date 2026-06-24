@@ -499,10 +499,22 @@ ${info.usage}`;
                 return { ...meta, type:'zodiac', text, tokens, score };
             }
             if (t.includes('띠운세') && t.includes('월') && t.includes('일')) {
-                const html = parseFortune_Chinese(raw);
-                if (!html) return null;
+                const yearRowsHTML = parseFortune_Chinese(raw);
+                if (!yearRowsHTML) return null;
                 const score = parseFortune_Score(raw);
-                return { ...meta, type: 'chinese', yearRowsHTML: html, score };
+                // 본문 텍스트 추출: <p> 태그 + 히든마커 전까지
+                const hiddenPos = raw.indexOf('display:none');
+                const bodyChunk = hiddenPos !== -1 ? raw.slice(0, hiddenPos) : raw.slice(0, 8000);
+                const bodyParas = [...bodyChunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
+                    .map(m => m[1]
+                        .replace(/<br\s*\/?>/gi,'\n')
+                        .replace(/<[^>]+>/g,'')
+                        .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim())
+                    .filter(t => t.length > 10 && !t.startsWith('※'));
+                const bodyHTML = bodyParas.map(p =>
+                    `<p style="font-size:14px;line-height:1.9;color:#374151;margin:0 0 10px;word-break:keep-all">${p.replace(/\n/g,'<br>')}</p>`
+                ).join('');
+                return { ...meta, type: 'chinese', yearRowsHTML, bodyHTML, score };
             }
             if (t.includes('주간운세')) {
                 const text = parseFortune_Weekly(raw);
@@ -526,13 +538,18 @@ ${info.usage}`;
 
             // 타입 2: 띠 오늘 — 출생연도별 HTML 그대로
             if (info.type === 'chinese') {
+                const _bodySection = (info.bodyHTML||'').trim()
+                    ? `<div style="background:#fff;border-radius:16px;padding:18px 20px;margin-bottom:12px;border:1px solid #fde68a">${info.bodyHTML}</div>`
+                    : '';
                 return `
                 <div style="text-align:center;margin-bottom:16px">
                     <div style="font-size:40px">${emoji}</div>
-                    <div style="font-size:20px;font-weight:900;margin:6px 0;color:#7c3aed">${name} 출생연도별 오늘 운세</div>
+                    <div style="font-size:20px;font-weight:900;margin:6px 0;color:#7c3aed">${name} 오늘의 운세</div>
                     <div style="font-size:13px;color:#888">${sub}</div>
                 </div>
+                ${_bodySection}
                 <div id="${cardId}" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;padding:20px;color:#fff">
+                    <div style="font-size:13px;font-weight:700;color:#fffbeb;margin-bottom:10px">📅 출생연도별 오늘 운세</div>
                     ${info.yearRowsHTML}
                 </div>
                 ${renderScoreCard(info.score||null)}
