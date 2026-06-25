@@ -506,15 +506,27 @@ ${info.usage}`;
                 const yearRowsHTML = parseFortune_Chinese(raw);
                 if (!yearRowsHTML) return null;
                 const score = parseFortune_Score(raw);
-                // 본문 텍스트 추출: <p> 태그 + 히든마커 전까지
-                const hiddenPos = raw.indexOf('display:none');
-                const bodyChunk = hiddenPos !== -1 ? raw.slice(0, hiddenPos) : raw.slice(0, 8000);
-                const bodyParas = [...bodyChunk.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
+                // 본문 텍스트 추출: 히든마커(<div style="display:none">) 건너뛰고 모든 <p> 수집
+                // 히든마커 div의 끝 위치 찾기
+                var _bodyRaw = raw;
+                var _hnStart = raw.indexOf('<div style="display:none"');
+                if (_hnStart === -1) _hnStart = raw.indexOf("<div style='display:none'");
+                if (_hnStart !== -1) {
+                    // 히든마커 div 닫힘 위치 찾기
+                    var _depth = 0, _hnEnd = _hnStart;
+                    for (var _i = _hnStart; _i < raw.length - 5; _i++) {
+                        if (raw.slice(_i, _i+4) === '<div') _depth++;
+                        else if (raw.slice(_i, _i+6) === '</div>') { _depth--; if (_depth === 0) { _hnEnd = _i + 6; break; } }
+                    }
+                    // 히든마커 이전 + 이후 합치기
+                    _bodyRaw = raw.slice(0, _hnStart) + raw.slice(_hnEnd);
+                }
+                const bodyParas = [..._bodyRaw.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
                     .map(m => m[1]
                         .replace(/<br\s*\/?>/gi,'\n')
                         .replace(/<[^>]+>/g,'')
                         .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim())
-                    .filter(t => t.length > 10 && !t.startsWith('※'));
+                    .filter(t => t.length > 10 && !t.startsWith('※') && !t.startsWith('재미로'));
                 const bodyHTML = bodyParas.map(p =>
                     `<p style="font-size:14px;line-height:1.9;color:#374151;margin:0 0 10px;word-break:keep-all">${p.replace(/\n/g,'<br>')}</p>`
                 ).join('');
@@ -975,10 +987,10 @@ ${info.usage}`;
                 [name, kstYear()+'년', kstMonth()+'월', kstDay()+'일', '띠운세']);
         }
         async function fetchWeeklyPost(label, name) {
-            // 주간운세 포스트는 월요일에 발행됨 → 제목의 연/월은 "이번 주 월요일" 기준
-            // 예: 오늘이 4월 3일(목)이어도 포스트 제목은 "2026년 03월 주간운세 03/30~04/05"
+            // 주간운세 포스트 제목: "물고기자리 06월 4주차 주간운세 06/22 ~ 06/28"
+            // 연도가 제목에 없으므로 연도 조건 제외
             return fetchByLabelAndTitle(label,
-                [name, kstWeekMondayYear()+'년', kstWeekMondayMonth()+'월', '주간운세']);
+                [name, kstWeekMondayMonth()+'월', '주간운세']);
         }
         async function fetchMonthlyPost(label, name) {
             // 1차: 현재 달로 검색
