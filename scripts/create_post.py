@@ -4324,12 +4324,24 @@ def main():
     posts = []
 
     # 수동 실행 시 강제 포함 옵션
-    force_weekly       = os.environ.get("FORCE_WEEKLY",       "false").lower() == "true"
-    force_monthly      = os.environ.get("FORCE_MONTHLY",      "false").lower() == "true"
-    force_chinese_only = os.environ.get("FORCE_CHINESE_ONLY", "false").lower() == "true"
-    force_date         = os.environ.get("FORCE_DATE", "").strip()  # 예: "2026-06-24"
+    force_weekly        = os.environ.get("FORCE_WEEKLY",        "false").lower() == "true"
+    force_monthly       = os.environ.get("FORCE_MONTHLY",       "false").lower() == "true"
+    force_monthly_test  = os.environ.get("FORCE_MONTHLY_TEST",  "false").lower() == "true"
+    force_chinese_only  = os.environ.get("FORCE_CHINESE_ONLY",  "false").lower() == "true"
+    force_date          = os.environ.get("FORCE_DATE", "").strip()  # 예: "2026-06-24"
 
-    # FORCE_DATE 지정 시 해당 날짜 문자열로 덮어씀
+    # FORCE_MONTHLY_TEST=true → 쥐띠 월간운세 1개만 발행 (테스트용)
+    if force_monthly_test:
+        _test_c = next(c for c in CHINESE if c['en'] == 'rat')
+        _test_posts = build_chinese_monthly_post(today_str)
+        _test_post  = next((p for p in _test_posts if '쥐띠' in p[0]), _test_posts[0])
+        print(f"🧪 FORCE_MONTHLY_TEST 모드: 쥐띠 월간운세 1개만 발행 ({today_str})")
+        title, content, labels = _test_post
+        post_blogger(title, content, labels, 1, 1)
+        print("✅ 완료: 1/1개 게시 성공")
+        return
+
+
     if force_date:
         try:
             from datetime import datetime as _dt
