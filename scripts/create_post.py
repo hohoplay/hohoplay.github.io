@@ -3317,6 +3317,31 @@ def build_zodiac_weekly_post(today_str):
     return results
 
 
+
+def _build_monthly_card(card_id, month_str, emoji, kr, headline, upper, mid, lower, proverb):
+    u  = upper[:40] + ("..." if len(upper)  > 40 else "")
+    m  = mid[:40]   + ("..." if len(mid)    > 40 else "")
+    lo = lower[:40] + ("..." if len(lower)  > 40 else "")
+    hl = headline.replace("\n", " ").strip()
+    wrap  = 'style="max-width:660px;margin:0 auto;padding:28px 24px;border-radius:20px;'
+    wrap += "background:linear-gradient(160deg,#f5f0ff 0%,#ede9fe 100%);"
+    wrap += "font-family:'Noto Serif KR',Georgia,serif\""
+    html  = '<div id="' + card_id + '" ' + wrap + '>'
+    html += '<div style="font-size:11px;letter-spacing:.16em;color:#9d8bc7;text-align:center;margin-bottom:12px">' + month_str + ' · 달빛서재</div>'
+    html += '<div style="text-align:center;font-size:32px;margin-bottom:4px">' + emoji + '</div>'
+    html += '<div style="text-align:center;font-size:18px;font-weight:700;color:#4c1d95;margin-bottom:16px">' + kr + ' 월간운세</div>'
+    html += '<div style="font-size:13px;line-height:2.0;color:#374151;word-break:keep-all;margin-bottom:14px">' + hl + '</div>'
+    html += '<div style="border-top:1px solid #ddd6fe;padding-top:14px;margin-bottom:14px;font-size:12px;line-height:1.95;color:#6b7280;word-break:keep-all">'
+    html += '<div style="margin-bottom:5px"><strong style="color:#7c3aed">상순</strong> ' + u  + '</div>'
+    html += '<div style="margin-bottom:5px"><strong style="color:#7c3aed">중순</strong> ' + m  + '</div>'
+    html += '<div><strong style="color:#7c3aed">하순</strong> '                              + lo + '</div></div>'
+    html += '<div style="background:rgba(124,58,237,.08);border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:#4c1d95;text-align:center;word-break:keep-all">❝ ' + proverb + ' ❞</div>'
+    html += '<div style="font-size:11px;color:#9ca3af;text-align:center;letter-spacing:.1em">todayhoroscopelaboratory.blogspot.com</div>'
+    html += '</div>'
+    fname = kr + '_' + month_str.replace(' ', '') + '월간운세'
+    btn   = '<button id="savebtn-' + card_id + '" class="save-btn" onclick="saveFortuneCard(\'' + card_id + '\', \'' + fname + '\')">📥 이미지로 저장</button>'
+    return html, btn
+
 def build_chinese_monthly_post(today_str):
     """띠별 월간운세 12개 — 별과띠가만나는시간 방식 스토리텔링"""
     month_str = get_next_month_str()
@@ -3365,10 +3390,19 @@ def build_chinese_monthly_post(today_str):
         kst_day   = kst_now.day
 
         # v2 데이터 추출
+        def _strip_emoji(t):
+            """텍스트 앞 이모지·특수기호 제거"""
+            import re as _re3
+            return _re3.sub(
+                r'^[\U00010000-\U0010ffff\U00002600-\U000027BF\U0001F300-\U0001FAFF'
+                r'\u2000-\u206F\u2E00-\u2E7F\s#*0-9\u20E3\uFE0F\u200D]+',
+                '', str(t)
+            ).strip()
+
         headline  = str(v2['headline'])  if v2 is not None and 'headline'  in v2.index else f"이달 {c['kr']}에게 중요한 변화가 시작됩니다."
-        upper     = str(v2['upper'])     if v2 is not None and 'upper'     in v2.index else ""
-        mid       = str(v2['mid'])       if v2 is not None and 'mid'       in v2.index else ""
-        lower     = str(v2['lower'])     if v2 is not None and 'lower'     in v2.index else ""
+        upper     = _strip_emoji(v2['upper'])    if v2 is not None and 'upper'     in v2.index else ""
+        mid       = _strip_emoji(v2['mid'])      if v2 is not None and 'mid'       in v2.index else ""
+        lower     = _strip_emoji(v2['lower'])    if v2 is not None and 'lower'     in v2.index else ""
         lucky_kw  = (
             f"{v2['lucky_color']} · {v2['lucky_number']} · {v2['lucky_place']}"
             if v2 is not None and 'lucky_color' in v2.index else ""
@@ -3458,11 +3492,8 @@ def build_chinese_monthly_post(today_str):
             for label, txt, col in period_items
         )
 
-        # lucky / avoid HTML
-        lucky_html = (
-            f'<div style="margin:0 0 0.6em 0;font-size:13px;color:#6b7280">이달의 행운 키워드</div>'
-            f'<div style="font-size:14px;font-weight:700;color:#7c3aed;margin:0 0 1.4em 0">{lucky_kw}</div>'
-        ) if lucky_kw else ''
+        # lucky / avoid — 인라인 텍스트 (박스 없이)
+        lucky_html   = f'<p style="margin:0 0 1.4em 0">이달의 행운 키워드는 <strong>{lucky_kw}</strong>입니다.</p>' if lucky_kw else ''
         avoid_html_m = f'<p style="margin:0 0 1.4em 0">반대로 이달 조심해야 할 것은 {avoid_kw}입니다.</p>' if avoid_kw else ''
 
         # 이달 엔딩
@@ -3491,69 +3522,68 @@ def build_chinese_monthly_post(today_str):
         kw_list += pick_seo_keywords(c['kr'], kst_day)
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
-        title = f"{c['kr']} {month_str} 월간운세 | {headline[:20]}"
+        # 제목용 headline 정리 — 이모지·따옴표 제거
+        import re as _re2
+        _title_headline = _re2.sub(r'[^\w\s가-힣·]', '', headline).strip()
+        _title_headline = _re2.sub(r'\s+', ' ', _title_headline)[:20]
+        title = f"{c['kr']} {month_str} 월간운세 | {_title_headline}"
 
-        # 하나의 흐르는 스토리 (별과띠가만나는시간 방식)
+        # 하나의 흐르는 스토리 — 달빛서재 스토리텔링
         story_html = f'''
-<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto;
+            font-size:15px;line-height:2.2;color:#374151;word-break:keep-all">
 
-  <p style="font-size:15px;line-height:2.1;color:#374151;
-            margin:0 0 1.4em 0;word-break:keep-all">📚 {empathy}</p>
+  <p style="margin:0 0 1.6em 0">{entrance_html}</p>
 
-  <p style="font-size:15px;line-height:2.1;color:#374151;
-            margin:0 0 1.4em 0;word-break:keep-all">{book_found_html}</p>
+  <p style="margin:0 0 1.6em 0">{book_found_html}</p>
 
-  <div style="font-size:15px;line-height:2.1;color:#374151;
-               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <p style="margin:0 0 1.6em 0">{headline.replace(chr(10),' ').strip()}</p>
 
-    <p style="margin:0 0 1.4em 0">{headline}<br>
-    <span style="font-size:13px;color:#6b7280">지금 이런 느낌이라면: {sympathy}</span></p>
+  <p style="margin:0 0 1.6em 0;font-size:14px;color:#6b7280">{sympathy.replace(chr(10),' ').strip()}</p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed">{tpb}</h2>
+  <p style="margin:0 0 0.5em 0;font-size:13px;color:#7c3aed">{tpb}</p>
 
-    <p style="margin:0 0 1.4em 0">{period_html}</p>
+  <p style="margin:0 0 1.6em 0">{period_html}</p>
 
-    <h2 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#7c3aed">{tmb}</h2>
+  <p style="margin:0 0 0.5em 0;font-size:13px;color:#7c3aed">{tmb}</p>
 
-    <p style="margin:0 0 1.4em 0">{trait}</p>
+  <p style="margin:0 0 1.6em 0">{c['kr']}{"는" if (ord(c["kr"][-1])-0xAC00)%28==0 else "은"} 본래 {trait}입니다. 이달은 그 성향이 가장 자연스럽게 빛나는 시기입니다.</p>
 
-    {f'<p style="margin:0 0 1.4em 0">{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
+  {f'<p style="margin:0 0 1.6em 0">{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
 
-    <p style="margin:0 0 1.4em 0">{_m_peak_tip}</p>
+  <p style="margin:0 0 1.6em 0">{_m_peak_tip}</p>
 
-    {lucky_html}
-    {avoid_html_m}
+  {avoid_html_m}
 
-    <p style="margin:0 0 1.4em 0;font-size:14px;color:#6b7280">{_m_low_tip}</p>
+  <p style="margin:0 0 1.6em 0;font-size:14px;color:#6b7280">{_m_low_tip}</p>
 
-    <p style="margin:1.4em 0 0 0">{pick_insight_bridge(kst_day+3, mode='weekly')}</p>
+  <p style="margin:0 0 2.0em 0;font-size:13px;color:#9d8bc7">{pick_human_bridge(_month_seed, "monthly", _mq.get("category","인생"))}</p>
 
-  </div>
+  <p style="margin:0 0 0.4em 0;font-size:13px;color:#9d8bc7">이 흐름에 어울리는 속담이 있습니다.</p>
 
-  <div style="background:none;padding:0;margin:0">
-    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
-              word-break:keep-all">{pick_human_bridge(_month_seed, "monthly", _mq.get("category","인생"))}</p>
-    <p style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all">이 흐름에 어울리는 속담</p>
-    <p style="font-size:17px;line-height:1.9;color:#1f2937;
-              font-weight:500;margin:0 0 6px;word-break:keep-all;
-              ">"{_mq["proverb"]}"</p>
-    <p style="font-size:13px;line-height:1.9;color:#6d28d9;
-              margin:0 0 0.8rem;word-break:keep-all">{_mq["meaning"]}</p>
-    <p style="font-size:13px;line-height:1.9;color:#78350f;
-              margin:0 0 1.6rem;word-break:keep-all">{info.get("monthly_tip","")}</p>
+  <p style="margin:0 0 0.3em 0;font-size:16px;font-weight:500;color:#1f2937">❝ {_mq["proverb"]} ❞</p>
 
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem;word-break:keep-all">{_me[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
-              word-break:keep-all">{_me[1]}</p>
-    <p style="font-size:14px;line-height:2.0;color:#78350f;margin:0 0 1.2rem;
-              word-break:keep-all">{checkout_html}</p>
-    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all">{pick_farewell_bridge(_month_seed, "monthly")}</p>
-  </div>
+  <p style="margin:0 0 1.6em 0;font-size:13px;color:#6d28d9">{_mq["풀이"] if "풀이" in _mq.index else _mq.get("meaning","")}</p>
+
+  <p style="margin:0 0 2.0em 0;font-size:13px;color:#78350f">{info.get("monthly_tip","")}</p>
+
+  <p style="margin:0 0 0.6em 0;font-size:15px;font-weight:500;color:#374151">❝ {_me[0]} ❞</p>
+
+  <p style="margin:0 0 1.6em 0;font-size:14px;color:#6d28d9">{_me[1]}</p>
+
+  <p style="margin:0 0 1.6em 0;font-size:14px;color:#78350f">{checkout_html}</p>
+
+  <p style="margin:2.0em 0 0;font-size:13px;color:#9ca3af">{pick_farewell_bridge(_month_seed, "monthly")}</p>
 
 </div>'''
 
+
+        # ── 이미지 저장 카드 (띠별 월간 전용) ──
+        _proverb_card = str(_mq.get('proverb', _mq.get('속담', '')))
+        image_card_m, save_btn_m = _build_monthly_card(
+            card_id, month_str, c['emoji'], c['kr'],
+            headline, upper, mid, lower, _proverb_card
+        )
         content_html = f"""{style()}
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
@@ -3565,6 +3595,10 @@ def build_chinese_monthly_post(today_str):
 
   {story_html}
 
+
+  {image_card_m}
+
+  {save_btn_m}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
