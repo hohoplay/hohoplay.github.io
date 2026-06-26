@@ -371,18 +371,37 @@ ${info.usage}`;
             return { type:'story', tokens: legacyText.split('\n').filter(t=>t.trim().length>5) };
         }
         function parseFortune_Chinese(raw) {
-            // ── 신 구조 우선 시도 ──
+            // ── 신 구조 우선 시도: display:none 히든마커 안에서만 추출 ──
+            const hiddenStart = raw.indexOf('<div style="display:none"');
+            if (hiddenStart !== -1) {
+                // 히든마커 div 닫힘 위치 찾기
+                let _d = 0, _he = hiddenStart;
+                for (let _i = hiddenStart; _i < raw.length - 5; _i++) {
+                    if (raw.slice(_i,_i+4) === '<div') _d++;
+                    else if (raw.slice(_i,_i+6) === '</div>') { _d--; if (_d===0){_he=_i+6;break;} }
+                }
+                const hiddenChunk = raw.slice(hiddenStart, _he);
+                const marker = '출생연도별 오늘 운세';
+                const mPos = hiddenChunk.indexOf(marker);
+                if (mPos !== -1) {
+                    const chunk = hiddenChunk.slice(mPos);
+                    const rowMatches = [...chunk.matchAll(/<div style="display:flex[\s\S]*?<\/div>\s*<\/div>/g)];
+                    if (rowMatches.length > 0) {
+                        const yearRows = rowMatches
+                            .map(m => m[0])
+                            .filter(h => /\d{4}년생/.test(h))
+                            .join('');
+                        if (yearRows) return yearRows;
+                    }
+                }
+            }
+            // ── 히든마커 없을 때: marker 이후 첫 번째 구간만 수집 ──
             const marker = '출생연도별 오늘 운세';
             const mPos = raw.indexOf(marker);
             if (mPos !== -1) {
-                // marker 이후 첫 <div...> ~ fc-watermark 전까지 수집
-                const watermarkPos = raw.indexOf('fc-watermark', mPos);
-                const searchEnd = watermarkPos !== -1 ? watermarkPos : mPos + 8000;
-                const chunk = raw.slice(mPos, searchEnd);
-                // 출생연도 행: display:flex 포함 div들 추출
+                const chunk = raw.slice(mPos, mPos + 4000);
                 const rowMatches = [...chunk.matchAll(/<div style="display:flex[\s\S]*?<\/div>\s*<\/div>/g)];
                 if (rowMatches.length > 0) {
-                    // 연도 레이블(Nxx년생) 포함 행만
                     const yearRows = rowMatches
                         .map(m => m[0])
                         .filter(h => /\d{4}년생/.test(h))
@@ -1002,8 +1021,9 @@ ${info.usage}`;
         }
         async function fetchWeeklyPost(label, name) {
             // 주간운세 포스트 제목: "물고기자리 06월 4주차 주간운세 06/22 ~ 06/28"
-            // 연도가 제목에 없으므로 연도 조건 제외
-            return fetchByLabelAndTitle(label,
+            // 라벨을 별자리명으로 조회 → 해당 별자리 포스트만 반환
+            // '별자리주간' 라벨 전체 조회 시 연간 300개 초과 → maxResults=100 초과로 검색 실패
+            return fetchByLabelAndTitle(name,
                 [name, kstWeekMondayMonth()+'월', '주간운세']);
         }
         async function fetchMonthlyPost(label, name) {
