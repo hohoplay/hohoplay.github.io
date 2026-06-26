@@ -3605,7 +3605,7 @@ def build_chinese_monthly_post(today_str):
 
   <p style="margin:0 0 0.3em 0;font-size:16px;font-weight:500;color:#1f2937">❝ {_mq["proverb"]} ❞</p>
 
-  <p style="margin:0 0 1.6em 0;font-size:13px;color:#6d28d9">{_mq["풀이"] if "풀이" in _mq.index else _mq.get("meaning","")}</p>
+  <p style="margin:0 0 1.6em 0;font-size:13px;color:#6d28d9">{_mq.get("풀이", _mq.get("meaning", ""))}</p>
 
   <p style="margin:0 0 2.0em 0;font-size:13px;color:#78350f">{info.get("monthly_tip","")}</p>
 
@@ -4337,6 +4337,17 @@ def main():
         _test_post  = next((p for p in _test_posts if '쥐띠' in p[0]), _test_posts[0])
         print(f"🧪 FORCE_MONTHLY_TEST 모드: 쥐띠 월간운세 1개만 발행 ({today_str})")
         title, content, labels = _test_post
+        post_blogger(title, content, labels, 1, 1)
+        print("✅ 완료: 1/1개 게시 성공")
+        return
+
+    # FORCE_WEEKLY_TEST=true → 물고기자리 주간운세 1개만 발행 (테스트용)
+    force_weekly_test = os.environ.get("FORCE_WEEKLY_TEST", "false").lower() == "true"
+    if force_weekly_test:
+        _w_posts = build_zodiac_weekly_post(today_str)
+        _w_post  = next((p for p in _w_posts if '물고기자리' in p[0]), _w_posts[-1])
+        print(f"🧪 FORCE_WEEKLY_TEST 모드: 물고기자리 주간운세 1개만 발행 ({today_str})")
+        title, content, labels = _w_post
         post_blogger(title, content, labels, 1, 1)
         print("✅ 완료: 1/1개 게시 성공")
         return
