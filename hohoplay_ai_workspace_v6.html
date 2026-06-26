@@ -924,7 +924,7 @@ let dashData = {
 
 let lastMode = null; // "이어서" 요청 시 직전 모드 재사용
 let workMode = 'basic'; // 'basic' | 'paced' | 'multistep' - 업무 진행 방식
-let apiModeOn = true; // true=AI 응답 / false=로컬 응답만
+let apiModeOn = false; // 기본: 로컬 모드 (접속 시 API 미사용)
 
 // ═══════════════════════════════════════════════
 // 주제별 전문 직원 자동 배정 시스템
@@ -1329,7 +1329,8 @@ window.onload = function() {
 
     // API 모드 복원
     const savedApiMode = localStorage.getItem('hohoplay_apimode_v6');
-    if(savedApiMode === 'false') { apiModeOn = false; }
+    if(savedApiMode === 'true') { apiModeOn = true; }
+    // 저장값 없거나 'false'면 기본 로컬 모드 유지
     updateApiModeBtn();
 
     const ghInp = document.getElementById('github-url-input');
