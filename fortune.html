@@ -688,19 +688,106 @@ ${info.usage}`;
 
             if (isWeekly) {
                 // ── 주간운세 전용 풍부한 렌더링 ──
-                const fullText = (info.text||'').replace(/\n/g,'<br>');
+                const rawText = (info.text||'').trim();
 
-                // 블로그 본문이 있으면 우선 표시
-                if (fullText && fullText.trim().length > 30) {
+                // 블로그 본문이 있으면 섹션별 구조화 렌더링
+                if (rawText && rawText.length > 30) {
+                    const paras = rawText.split('\n\n').map(s=>s.trim()).filter(Boolean);
+
+                    // 섹션 분류
+                    const DOW_KW = ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'];
+                    const DOW_COLORS = ['#818cf8','#f97316','#22d3ee','#a78bfa','#4ade80','#fb7185','#c084fc'];
+
+                    let empathy='', summary=[], dowRows=[], areaRows=[], traitRows=[], closing=[];
+
+                    paras.forEach(p => {
+                        const isDow = DOW_KW.some(d => p.startsWith(d));
+                        const isArea4 = p.startsWith('이번 주') && (p.includes('공감') || p.includes('창의') || p.includes('타인을 위한 지출') || p.includes('감정이 신체'));
+                        const isTrait = p.startsWith('이번 주 잘 맞는') || p.startsWith('공감 능력') || p.startsWith('타인의 감정을') || p.startsWith('🌿');
+                        const isClosing = p.includes('"') || p.includes('\u201c') || p === '이 흐름에 어울리는 속담'
+                            || p.includes('서가') || p.includes('운세는 방향') || p.includes('감사했습니다')
+                            || p.includes('한 주의 방향을 정리') || p.includes('힘을 합치면') || p.includes('합치면')
+                            || p.startsWith('이번 주 별자리가 전달');
+
+                        if (!empathy && p.startsWith('💭')) {
+                            empathy = p.replace(/^💭\s*/,'');
+                        } else if (isDow) {
+                            const di = DOW_KW.findIndex(d => p.startsWith(d));
+                            dowRows.push({ label: DOW_KW[di], color: DOW_COLORS[di], text: p.replace(/^.+?—\s*/,'') });
+                        } else if (isArea4) {
+                            const icon = p.includes('공감') ? '❤️'
+                                       : p.includes('창의') || p.includes('직관') ? '💼'
+                                       : p.includes('지출') || p.includes('소비') ? '💰' : '💪';
+                            const colors = icon==='❤️' ? ['#fce7f3','#be185d']
+                                         : icon==='💼' ? ['#eff6ff','#1d4ed8']
+                                         : icon==='💰' ? ['#fffbeb','#b45309']
+                                         : ['#f0fdf4','#15803d'];
+                            areaRows.push({ icon, bg: colors[0], color: colors[1], text: p });
+                        } else if (isTrait) {
+                            traitRows.push(p);
+                        } else if (isClosing) {
+                            closing.push(p);
+                        } else {
+                            summary.push(p);
+                        }
+                    });
+
+                    // 요일 카드
+                    const dowHTML = dowRows.length ? `
+                    <div style="background:#f8f6ff;border-radius:14px;padding:16px;margin-bottom:12px">
+                        <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:10px;letter-spacing:.05em">📅 요일별 흐름</div>
+                        ${dowRows.map(r=>`
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(124,58,237,.08)">
+                            <span style="min-width:48px;font-size:12px;font-weight:700;color:${r.color};flex-shrink:0">${r.label}</span>
+                            <span style="font-size:13px;line-height:1.7;color:#374151">${r.text}</span>
+                        </div>`).join('')}
+                    </div>` : '';
+
+                    // 4영역 카드
+                    const areaHTML = areaRows.length ? `
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+                        ${areaRows.map(r=>`
+                        <div style="background:${r.bg};border-radius:10px;padding:12px">
+                            <div style="font-size:15px;margin-bottom:4px">${r.icon}</div>
+                            <div style="font-size:12px;line-height:1.6;color:${r.color}">${r.text}</div>
+                        </div>`).join('')}
+                    </div>` : '';
+
+                    // 공감/총평
+                    const empathyHTML = empathy ? `
+                    <div style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);border-radius:12px;padding:14px 16px;margin-bottom:12px;border-left:3px solid #7c3aed">
+                        <p style="font-size:14px;line-height:1.8;color:#5b21b6;margin:0;word-break:keep-all;font-style:italic">💭 ${empathy}</p>
+                    </div>` : '';
+
+                    const summaryHTML = summary.length ? `
+                    <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid #e0e7ff">
+                        ${summary.map(p=>`<p style="font-size:14px;line-height:1.9;color:#374151;margin:0 0 8px;word-break:keep-all;last-child:margin:0">${p}</p>`).join('')}
+                    </div>` : '';
+
+                    const closingHTML = closing.length ? `
+                    <div style="background:#fafafa;border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid #f3f4f6">
+                        ${closing.map(p=>`<p style="font-size:13px;line-height:1.8;color:#6b7280;margin:0 0 6px;word-break:keep-all">${p}</p>`).join('')}
+                    </div>` : '';
+
+                    // 별자리 특징 카드
+                    const traitHTML = traitRows.length ? `
+                    <div style="background:#faf5ff;border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid #ede9fe">
+                        <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:8px">✨ 물고기자리 특징</div>
+                        ${traitRows.map(p=>`<p style="font-size:13px;line-height:1.7;color:#5b21b6;margin:0 0 4px;word-break:keep-all">${p}</p>`).join('')}
+                    </div>` : '';
+
                     return `
                 <div style="text-align:center;margin-bottom:16px">
                     <div style="font-size:44px">${emoji}</div>
                     <div style="font-size:20px;font-weight:900;margin:6px 0;color:#7c3aed">${name} 주간운세</div>
                     <div style="font-size:13px;color:#888">${sub}</div>
                 </div>
-                <div style="background:#fff;border-radius:16px;padding:18px 20px;margin-bottom:12px;border:1px solid #e0e7ff">
-                    <p style="font-size:14px;line-height:1.9;color:#374151;margin:0;word-break:keep-all">${fullText}</p>
-                </div>
+                ${empathyHTML}
+                ${summaryHTML}
+                ${dowHTML}
+                ${areaHTML}
+                ${traitHTML}
+                ${closingHTML}
                 <div style="display:flex;gap:10px;margin-top:12px;justify-content:center">
                     <button onclick="saveCard('${cardId}','${saveLabel}')"
                         style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">📸 이미지 저장</button>
