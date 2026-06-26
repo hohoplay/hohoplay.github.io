@@ -444,9 +444,13 @@ ${info.usage}`;
                 if (text && text.length > 20) return text;
             }
             // 전체 <p> 태그 수집 (story_html 구조 대응)
-            // display:none 히든 마커 제외
-            const hiddenPos = raw.indexOf('display:none');
-            const searchRange = hiddenPos > 0 ? raw.slice(0, hiddenPos) : raw;
+            // CSS/script 블록 제거 후 display:none 히든마커 탐색
+            // → style() 함수 CSS 안의 "display:none" 오탐 방지
+            const stripped = raw
+                .replace(/<style[\s\S]*?<\/style>/gi, '')
+                .replace(/<script[\s\S]*?<\/script>/gi, '');
+            const hiddenPos = stripped.indexOf('display:none');
+            const searchRange = hiddenPos > 0 ? stripped.slice(0, hiddenPos) : stripped;
             const parts = [...searchRange.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
                 .map(m => m[1]
                     .replace(/<br\s*\/?>/gi, '\n')
