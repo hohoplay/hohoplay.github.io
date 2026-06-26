@@ -4362,6 +4362,18 @@ def main():
         except ValueError:
             print(f"⚠️  FORCE_DATE 형식 오류 (YYYY-MM-DD 필요): {force_date}")
 
+    # FORCE_WEEKLY=true → 별자리 주간운세 12개만 단독 발행
+    if force_weekly:
+        _w_posts = build_zodiac_weekly_post(today_str)
+        total = len(_w_posts)
+        print(f"📅 FORCE_WEEKLY 모드: 별자리 주간운세 12개만 발행 ({today_str})")
+        success = 0
+        for i, (title, content, labels) in enumerate(_w_posts, 1):
+            if post_blogger(title, content, labels, i, total):
+                success += 1
+        print(f"\n✅ 완료: {success}/{total}개 게시 성공")
+        return
+
     # FORCE_CHINESE_ONLY=true → 띠 운세 12개만 발행
     if force_chinese_only:
         print(f"🐉 FORCE_CHINESE_ONLY 모드: 띠 운세 12개만 발행 ({today_str})")
@@ -4404,11 +4416,10 @@ def main():
     )
     is_last_monday = (kst_now.day == _last_monday)
 
-    # ④ 별자리 주간운세 — 매주 월요일 or 강제 실행
-    if kst_now.weekday() == 0 or force_weekly:
+    # ④ 별자리 주간운세 — 매주 월요일만 (force_weekly는 위에서 단독 처리됨)
+    if kst_now.weekday() == 0:
         posts.extend(build_zodiac_weekly_post(today_str))
-        label = "강제 포함" if force_weekly and kst_now.weekday() != 0 else "월요일"
-        print(f"📅 별자리 주간운세 12개 포함 ({label})")
+        print(f"📅 별자리 주간운세 12개 포함 (월요일)")
     else:
         print("📅 주간운세 스킵 (월요일 아님)")
 
