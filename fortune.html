@@ -685,6 +685,24 @@ ${info.usage}`;
             if (isWeekly) {
                 // ── 주간운세 전용 풍부한 렌더링 ──
                 const fullText = (info.text||'').replace(/\n/g,'<br>');
+
+                // 블로그 본문이 있으면 우선 표시
+                if (fullText && fullText.trim().length > 30) {
+                    return `
+                <div style="text-align:center;margin-bottom:16px">
+                    <div style="font-size:44px">${emoji}</div>
+                    <div style="font-size:20px;font-weight:900;margin:6px 0;color:#7c3aed">${name} 주간운세</div>
+                    <div style="font-size:13px;color:#888">${sub}</div>
+                </div>
+                <div style="background:#fff;border-radius:16px;padding:18px 20px;margin-bottom:12px;border:1px solid #e0e7ff">
+                    <p style="font-size:14px;line-height:1.9;color:#374151;margin:0;word-break:keep-all">${fullText}</p>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:12px;justify-content:center">
+                    <button onclick="saveCard('${cardId}','${saveLabel}')"
+                        style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">📸 이미지 저장</button>
+                </div>`;
+                }
+
                 const wseed = name + weekRange();
 
                 // 요일별 한줄 감성 텍스트
