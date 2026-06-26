@@ -3289,16 +3289,16 @@ def build_zodiac_weekly_post(today_str):
     <h2 style="margin:0 0 0.5em 0;font-size:13px;font-weight:500;color:#a78bfa">{tfb}</h2>
     <p style="margin:0 0 1.6em 0">{fortune}</p>
 
-    <p style="margin:1.4em 0 0.4em;font-size:14px;font-weight:700;color:#e11d48">❤️ 관계</p>
+    <h3 style="margin:1.4em 0 0.4em;font-size:14px;font-weight:700;color:#e11d48">❤️ 관계</h3>
     <p style="margin:0 0 1.2em 0">{area_rel}</p>
 
-    <p style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#3b82f6">💼 일</p>
+    <h3 style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#3b82f6">💼 일</h3>
     <p style="margin:0 0 1.2em 0">{area_work}</p>
 
-    <p style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#d97706">💰 돈</p>
+    <h3 style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#d97706">💰 돈</h3>
     <p style="margin:0 0 1.2em 0">{area_money}</p>
 
-    <p style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#16a34a">💪 건강</p>
+    <h3 style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#16a34a">💪 건강</h3>
     <p style="margin:0 0 1.6em 0">{area_health}</p>
 
     <p style="margin:0 0 0.5em 0;font-size:13px;color:#a78bfa">이번 주 {z['kr']}이 집중해야 할 것입니다.</p>
@@ -3951,9 +3951,9 @@ def build_omnibus_post(today_str: str) -> tuple:
         if special:
             reason, action = special
             special_html = (
-                f'<p style="font-size:13px;font-weight:700;color:#7c3aed;'
+                f'<h3 style="font-size:13px;font-weight:700;color:#7c3aed;'
                 f'margin:0.8em 0 0.3em;word-break:keep-all">'
-                f'✦ {z_kr} × {c_kr} 오늘의 조합</p>'
+                f'✦ {z_kr} × {c_kr} 오늘의 조합</h3>'
                 f'<p style="font-size:13px;line-height:1.9;color:#374151;'
                 f'margin:0 0 1.2em;word-break:keep-all">'
                 f'{reason} {action}</p>'
