@@ -452,7 +452,7 @@ ${info.usage}`;
                     .replace(/<br\s*\/?>/gi, '\n')
                     .replace(/<[^>]+>/g, '')
                     .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
-                .filter(t => t.length > 5 && !t.startsWith('※'));
+                .filter(t => t.length > 5 && !t.startsWith('※') && !t.includes('댓글') && !t.includes('살펴보겠습니다'));
             if (!parts.length) return null;
             return parts.join('\n\n');
         }
@@ -465,7 +465,7 @@ ${info.usage}`;
             // ── 신 구조: <p> 태그 전체 수집 (달빛서재 스토리텔링 방식) ──
             const allParas = [...raw.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)]
                 .map(m => strip(m[1]))
-                .filter(t => t.length > 5 && !t.startsWith('※'));
+                .filter(t => t.length > 5 && !t.startsWith('※') && !t.includes('댓글') && !t.includes('살펴보겠습니다'));
 
             if (allParas.length >= 3) {
                 // 신 구조: bodyHTML 방식으로 전체 본문 반환
@@ -542,7 +542,7 @@ ${info.usage}`;
                         .replace(/<br\s*\/?>/gi,'\n')
                         .replace(/<[^>]+>/g,'')
                         .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim())
-                    .filter(t => t.length > 10 && !t.startsWith('※') && !t.startsWith('재미로'));
+                    .filter(t => t.length > 10 && !t.startsWith('※') && !t.startsWith('재미로') && !t.includes('댓글') && !t.includes('살펴보겠습니다'));
                 const bodyHTML = bodyParas.map(p =>
                     `<p style="font-size:14px;line-height:1.9;color:#374151;margin:0 0 10px;word-break:keep-all">${p.replace(/\n/g,'<br>')}</p>`
                 ).join('');
@@ -992,10 +992,10 @@ ${info.usage}`;
         // orderBy=updated → 최신 글부터 반환
         async function fetchByLabelAndTitle(label, keywords) {
             // 라벨별 별자리명으로 조회하면 결과가 적어 pageToken 불필요
-            // maxResults=100 으로 월요일(주간운세 12개 추가) 등 대량 발행일도 커버
+            // maxResults=500 으로 별자리 오늘운세(연 176개)+주간운세(연 300개) 초과 문제 해결
             const url = BASE_URL + '/blogs/' + BLOG_ID + '/posts?key=' + API_KEY
                 + '&labels=' + encodeURIComponent(label)
-                + '&maxResults=100&orderBy=updated'
+                + '&maxResults=500&orderBy=updated'
                 + '&fields=items(title,url,published,content)';
             try {
                 // 8초 timeout — API 키 오류·네트워크 지연으로 인한 무한 pending 방지
