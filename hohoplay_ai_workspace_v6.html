@@ -185,7 +185,7 @@
             <!-- ── 팀별 구역 점선 박스 ── -->
 
             <!-- 📋 기획 구역 (좌상단) -->
-            <div class="absolute rounded-xl pointer-events-none" style="left:0.5%;top:4%;width:32%;height:42%;border:1.5px dashed rgba(99,102,241,0.35);background:rgba(49,46,129,0.07);">
+            <div class="absolute rounded-xl pointer-events-none" style="left:2%;top:4%;width:30%;height:42%;border:1.5px dashed rgba(99,102,241,0.35);background:rgba(49,46,129,0.07);">
                 <div class="absolute top-1.5 left-2 flex items-center gap-1">
                     <span class="text-[8px] font-bold tracking-widest" style="color:rgba(129,140,248,0.7)">📋 기획 구역</span>
                 </div>
@@ -201,7 +201,7 @@
             </div>
 
             <!-- 📡 분석 구역 (우상단) -->
-            <div class="absolute rounded-xl pointer-events-none" style="left:67.5%;top:4%;width:32%;height:42%;border:1.5px dashed rgba(236,72,153,0.35);background:rgba(131,24,67,0.07);">
+            <div class="absolute rounded-xl pointer-events-none" style="left:66%;top:4%;width:33%;height:42%;border:1.5px dashed rgba(236,72,153,0.35);background:rgba(131,24,67,0.07);">
                 <div class="absolute top-1.5 left-2 flex items-center gap-1">
                     <span class="text-[8px] font-bold tracking-widest" style="color:rgba(244,114,182,0.7)">📡 분석 구역</span>
                 </div>
@@ -209,7 +209,7 @@
             </div>
 
             <!-- 🤝 협업·회의실 (하단 전체) -->
-            <div class="absolute rounded-xl pointer-events-none" style="left:0.5%;top:50%;width:99%;height:44%;border:1.5px dashed rgba(16,185,129,0.35);background:rgba(6,78,59,0.07);">
+            <div class="absolute rounded-xl pointer-events-none" style="left:2%;top:50%;width:96%;height:44%;border:1.5px dashed rgba(16,185,129,0.35);background:rgba(6,78,59,0.07);">
                 <div class="absolute top-1.5 left-2 flex items-center gap-1">
                     <span class="text-[8px] font-bold tracking-widest" style="color:rgba(52,211,153,0.7)">🤝 협업 &amp; 회의실</span>
                 </div>
@@ -318,6 +318,10 @@
                         class="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left border-b-2 border-transparent relative">
                         🌐 사이트 분석
                         <span id="site-badge" class="ml-auto px-1 py-0.5 bg-emerald-700 text-white text-[9px] rounded-full mono hidden">●</span>
+                    </button>
+                    <button onclick="fetchExternalTrends(); closeMoreTabs();"
+                        class="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left border-b-2 border-transparent">
+                        📡 트렌드 수집
                     </button>
                 </div>
             </div>
@@ -591,7 +595,69 @@
             </div>
 
             <!-- ── 탭4: 포트폴리오 & 이관 ── -->
-            <div id="tab-content-stats" class="flex-1 overflow-y-auto p-5 space-y-5 hidden">
+            <div id="tab-content-stats" class="flex-1 overflow-y-auto p-4 space-y-4 hidden">
+
+                <!-- ▶ 대시보드 섹션 -->
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-white flex items-center gap-1.5">📊 오늘 업무 대시보드</h3>
+                        <button onclick="clearDashboard()" class="text-[10px] text-slate-600 hover:text-slate-300 transition-colors">초기화</button>
+                    </div>
+                    <!-- 요약 카드 4개 -->
+                    <div class="grid grid-cols-4 divide-x divide-slate-800 border-b border-slate-800">
+                        <div class="p-3 text-center">
+                            <div id="dash-total-tasks" class="text-xl font-black text-white mono">0</div>
+                            <div class="text-[9px] text-slate-500 mt-0.5">총 업무</div>
+                        </div>
+                        <div class="p-3 text-center">
+                            <div id="dash-api-calls" class="text-xl font-black text-indigo-400 mono">0</div>
+                            <div class="text-[9px] text-slate-500 mt-0.5">API 호출</div>
+                        </div>
+                        <div class="p-3 text-center">
+                            <div id="dash-total-cost" class="text-xl font-black text-emerald-400 mono">$0.000</div>
+                            <div class="text-[9px] text-slate-500 mt-0.5">누적 비용</div>
+                        </div>
+                        <div class="p-3 text-center">
+                            <div id="dash-local-count" class="text-xl font-black text-blue-400 mono">0</div>
+                            <div class="text-[9px] text-slate-500 mt-0.5">로컬(무료)</div>
+                        </div>
+                    </div>
+                    <!-- 비용 절감 안내 -->
+                    <div class="px-4 py-2 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                            <span>💡 절약 모드 효율:</span>
+                            <div class="w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="dash-save-bar" class="h-full bg-emerald-500 rounded-full transition-all" style="width:0%"></div>
+                            </div>
+                            <span id="dash-save-pct" class="text-emerald-400 font-bold">0%</span>
+                        </div>
+                        <span class="text-[9px] text-slate-600">로컬 모드 비율</span>
+                    </div>
+                    <!-- 업무 흐름 테이블 -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-[10px]">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-500">
+                                    <th class="px-3 py-2 text-left font-bold">시간</th>
+                                    <th class="px-3 py-2 text-left font-bold">업무 주제</th>
+                                    <th class="px-3 py-2 text-center font-bold">모드</th>
+                                    <th class="px-3 py-2 text-center font-bold">참여 직원</th>
+                                    <th class="px-3 py-2 text-right font-bold">API</th>
+                                    <th class="px-3 py-2 text-right font-bold">비용</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-task-rows">
+                                <tr>
+                                    <td colspan="6" class="px-3 py-6 text-center text-slate-600">
+                                        아직 업무 기록이 없습니다. AI 채팅으로 업무를 시작하면 자동으로 기록됩니다.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ▶ 기존 포트폴리오 & 이관 -->
                 <div class="bg-gradient-to-br from-indigo-950/30 to-slate-950 p-4 rounded-2xl border border-indigo-500/30 space-y-3 shadow-xl">
                     <div>
                         <h3 class="text-sm font-bold text-indigo-400 flex items-center gap-1.5">
@@ -813,12 +879,12 @@
 // 데이터 정의
 // ═══════════════════════════════════════════════
 const DEFAULT_STAFF = {
-    collector:   { id:'collector',   name:'자료 수집가',   role:'인터넷/시장 자료 분석',        status:'정직원', level:1, xp:0, color:'bg-blue-500',    emoji:'🔍', initialPos:{x:16, y:26} },
+    collector:   { id:'collector',   name:'자료 수집가',   role:'인터넷/시장 자료 분석',        status:'정직원', level:1, xp:0, color:'bg-blue-500',    emoji:'🔍', initialPos:{x:20, y:26} },
     writer:      { id:'writer',      name:'글초안 작성기', role:'콘텐츠/블로그/기획안 작성',     status:'정직원', level:1, xp:0, color:'bg-amber-500',   emoji:'✍️', initialPos:{x:50, y:26} },
-    sns:         { id:'sns',         name:'고객질문 수집기',role:'SNS 질문 및 피드백 수집',      status:'정직원', level:1, xp:0, color:'bg-pink-500',    emoji:'💬', initialPos:{x:83, y:26} },
+    sns:         { id:'sns',         name:'고객질문 수집기',role:'SNS 질문 및 피드백 수집',      status:'정직원', level:1, xp:0, color:'bg-pink-500',    emoji:'💬', initialPos:{x:78, y:26} },
     coordinator: { id:'coordinator', name:'또다른 나',     role:'업무 종합 및 최종 조율(대표)',   status:'정직원', level:1, xp:0, color:'bg-emerald-500', emoji:'👑', initialPos:{x:50, y:70} },
-    presenter:   { id:'presenter',   name:'비서',          role:'요약 브리핑 및 일정/잡무 보조', status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:22, y:70} },
-    intern:      { id:'intern',      name:'인턴 사원',     role:'잡무 처리 및 피드백 서포트',    status:'인턴',   level:1, xp:0, color:'bg-slate-500',   emoji:'☕', initialPos:{x:78, y:70} }
+    presenter:   { id:'presenter',   name:'비서',          role:'요약 브리핑 및 일정/잡무 보조', status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:26, y:70} },
+    intern:      { id:'intern',      name:'인턴 사원',     role:'잡무 처리 및 피드백 서포트',    status:'인턴',   level:1, xp:0, color:'bg-slate-500',   emoji:'☕', initialPos:{x:76, y:70} }
 };
 
 const STAFF_SPEECHES = {
@@ -847,6 +913,15 @@ let activeMemorySubTab = 'reports';
 let apiKey = '';
 let chatHistory = [];
 let stats = { totalTasks:0, gameProjectCount:8, tarotProjectCount:6, marketingCount:7, unmannedRoomCount:3 };
+
+// ─── 대시보드 누적 데이터 ───
+let dashData = {
+    tasks: [],        // { time, topic, mode, staffIds, apiCalls, cost, isLocal }
+    totalApiCalls: 0,
+    totalCost: 0.0,
+    localCount: 0,
+};
+
 let lastMode = null; // "이어서" 요청 시 직전 모드 재사용
 let workMode = 'basic'; // 'basic' | 'paced' | 'multistep' - 업무 진행 방식
 let apiModeOn = true; // true=AI 응답 / false=로컬 응답만
@@ -883,19 +958,50 @@ const TOPIC_STAFF_MAP = [
         keywords: /기획|아이디어|신규|새로운|제안|프로젝트|방향|로드맵|계획/i,
         staffIds: ['writer','collector','coordinator'], label:'기획/아이디어'
     },
+    // ① 인턴 참여 키워드 확장
     {
-        keywords: /정리|일정|스케줄|보고|요약|회의록|메모|파일|문서/i,
+        keywords: /정리|일정|스케줄|보고|요약|회의록|메모|파일|문서|업무/i,
         staffIds: ['presenter','intern','coordinator'], label:'업무/정리'
+    },
+    {
+        keywords: /조사|수집|찾아|검색|알아봐|리서치|자료|참고|사례|벤치마크/i,
+        staffIds: ['collector','intern','coordinator'], label:'자료조사'
+    },
+    {
+        keywords: /번역|정리해줘|요약해줘|간단히|짧게|핵심만|빠르게|간략|축약/i,
+        staffIds: ['intern','presenter','coordinator'], label:'빠른정리'
+    },
+    {
+        keywords: /브레인스토밍|생각나는|떠오르는|뭐가좋을지|어떤게좋|어떻게하면/i,
+        staffIds: ['intern','writer','sns'], label:'브레인스토밍'
+    },
+    {
+        keywords: /트렌드|요즘|최신|핫한|인기|뜨는|유행|흐름/i,
+        staffIds: ['collector','intern','sns'], label:'트렌드'
     },
 ];
 
 function detectRelevantStaff(msg) {
-    // 드롭다운에서 직접 선택한 경우 → 자동 배정 사용 안 함
     if(!isAllStaffChecked()) return null;
+
     for(const topic of TOPIC_STAFF_MAP) {
         if(topic.keywords.test(msg)) {
             const validIds = topic.staffIds.filter(id => staffState[id]);
-            if(validIds.length > 0) return { staffIds: validIds, label: topic.label };
+            if(validIds.length === 0) continue;
+
+            // ② coordinator 과부하 해소: 짧은 질문이나 간단 주제는 전문직원 2명만
+            const isSimple = msg.trim().length < 20
+                || topic.label === '빠른정리'
+                || topic.label === '브레인스토밍'
+                || topic.label === '트렌드';
+
+            let finalIds = validIds;
+            if(isSimple && validIds.includes('coordinator') && validIds.length >= 3) {
+                const withoutCoord = validIds.filter(id => id !== 'coordinator');
+                if(withoutCoord.length >= 2) finalIds = withoutCoord;
+            }
+
+            return { staffIds: finalIds, label: topic.label };
         }
     }
     return null;
@@ -1021,6 +1127,7 @@ async function localAllStaffSpeak(msg) {
     appendMessage('assistant','또다른 나','👑',
         `팀 의견 수렴 완료. 🟢 <strong class="text-indigo-400">AI ON</strong>으로 전환하면 실제 AI 분석을 받을 수 있습니다.`);
     addLog(`🔵 로컬 응답 완료 (API 미사용)`);
+    recordDashTask(msg, 'local', Object.keys(staffState), true);
 }
 
 // lucide CDN이 차단/로드 실패해도 전체 스크립트가 멈추지 않도록 안전 래퍼
@@ -1198,6 +1305,7 @@ window.onload = function() {
     addLog('🟢 hohoplay 가상 오피스 v6.0 정상 시동.');
     addLog('🔑 Claude API Key를 입력하여 AI 채팅을 활성화하세요.');
     loadSiteCache();
+    loadDashCache(); // 대시보드 캐시 복원
     startWorkTimers(); // 직원 작업 타이머 시작
     safeCreateIcons();
 
@@ -1728,6 +1836,9 @@ ${roleGuide}
         saveAll();
         updateStatsUI();
         autoSaveMemory(msg, debateLog.map(d=>`${d.name}: ${d.text}`).join('\n\n'));
+
+        // 대시보드 기록
+        recordDashTask(msg, wMode, Array.from(participants), false);
 
         addLog(`✅ AI 토론 완료 - ${participants.size}명 참여, ${debateLog.length}회 발언`);
 
@@ -2806,9 +2917,11 @@ function renderOneChar(id, container) {
         const el = document.createElement('div');
         el.id = 'char-' + id;
         el.className = 'absolute z-20';
-        // 카드가 맵 경계를 벗어나지 않도록 clamp (카드 너비 약 110px = ~8%, 높이 약 80px = ~15%)
-        const clampedX = Math.max(8, Math.min(92, pos.x));
-        const clampedY = Math.max(10, Math.min(90, pos.y));
+        // 카드 너비 ~110px, 높이 ~80px 고려
+        // x: 10%~82% (왼쪽 카드 반쪽 + 오른쪽 카드 반쪽 여백)
+        // y: 12%~85%
+        const clampedX = Math.max(16, Math.min(82, pos.x));
+        const clampedY = Math.max(12, Math.min(85, pos.y));
         el.style.cssText = `left:${clampedX}%;top:${clampedY}%;transform:translate(-50%,-50%);`;
 
         el.innerHTML = `
@@ -2920,12 +3033,12 @@ function updateTimerDisplays() {
 // 구역별 이동 경계 (초기 위치 기준 좌우 ±8%, 상하 ±8% 범위 내)
 // ZONE_BOUNDS는 회의 집결 시에만 참조 (자율 이동 제거됨)
 const ZONE_BOUNDS = {
-    collector:   { xMin:8,  xMax:30, yMin:10, yMax:44 },
-    writer:      { xMin:36, xMax:64, yMin:10, yMax:44 },
-    sns:         { xMin:68, xMax:96, yMin:10, yMax:44 },
-    coordinator: { xMin:30, xMax:70, yMin:55, yMax:90 },
-    presenter:   { xMin:5,  xMax:45, yMin:55, yMax:90 },
-    intern:      { xMin:55, xMax:95, yMin:55, yMax:90 },
+    collector:   { xMin:16, xMax:30, yMin:14, yMax:40 },
+    writer:      { xMin:36, xMax:62, yMin:14, yMax:40 },
+    sns:         { xMin:66, xMax:80, yMin:14, yMax:40 },
+    coordinator: { xMin:32, xMax:68, yMin:56, yMax:82 },
+    presenter:   { xMin:16, xMax:38, yMin:56, yMax:82 },
+    intern:      { xMin:58, xMax:80, yMin:56, yMax:82 },
 };
 
 // 자율 이동 없음 - 직원은 자신의 구역 초기 위치에 고정
@@ -2974,8 +3087,8 @@ function triggerWorkflowAnim(command, stepInterval) {
     Object.keys(staffState).forEach((id,i) => {
         setTimeout(()=>{
             if(staffPositions[id]) {
-                staffPositions[id].x = 20 + (i%4) * 20;
-                staffPositions[id].y = 62 + (Math.floor(i/4) * 16);
+                staffPositions[id].x = 18 + (i%4) * 18;  // 18~72% 범위
+                staffPositions[id].y = 60 + (Math.floor(i/4) * 14); // 60~74% 범위
                 staffPositions[id].anim = 'meeting';
                 staffPositions[id].bubble = BUBBLE_MESSAGES.meeting[Math.floor(Math.random()*3)];
             }
@@ -3647,6 +3760,114 @@ function detectLogType(text) {
     return { avatar, avatarBg, name, nameColor, cardClass, message };
 }
 
+// ═══════════════════════════════════════════════
+// 외부 트렌드 수집 (③ 개선: 외부 데이터 연동)
+// Google Trends RSS + 자료수집가·인턴이 분석
+// ═══════════════════════════════════════════════
+async function fetchExternalTrends() {
+    if(!apiKey) {
+        showToast('Claude API 연결 후 사용 가능합니다.', 'warning', 2000);
+        return;
+    }
+
+    addLog('📡 자료수집가 + 인턴: 외부 트렌드 수집 시작...');
+    appendMessage('assistant', '자료 수집가', '🔍',
+        `📡 <strong class="text-white">트렌드 수집 시작</strong> — 자료수집가와 인턴이 최신 트렌드를 가져옵니다.`);
+
+    // CORS 우회를 위해 RSS2JSON 공개 프록시 활용
+    const FEEDS = [
+        {
+            name: '구글 트렌드 (한국)',
+            url: 'https://api.rss2json.com/v1/api.json?rss_url=https://trends.google.co.kr/trending/rss?geo=KR',
+        },
+        {
+            name: '네이버 뉴스 IT',
+            url: 'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/naverRssNewsIt',
+        }
+    ];
+
+    const trendItems = [];
+    let fetchedSource = '';
+
+    // 인턴이 데이터 수집
+    if(staffPositions.intern) {
+        staffPositions.intern.bubble = '트렌드 수집 중! 🌐';
+        renderCharacters();
+    }
+
+    for(const feed of FEEDS) {
+        try {
+            const res = await fetch(feed.url);
+            if(!res.ok) continue;
+            const data = await res.json();
+            if(data.status === 'ok' && data.items?.length > 0) {
+                const items = data.items.slice(0, 8).map(item => item.title);
+                trendItems.push(...items);
+                fetchedSource = feed.name;
+                break; // 첫 번째 성공한 피드 사용
+            }
+        } catch(e) {}
+    }
+
+    if(staffPositions.intern) {
+        staffPositions.intern.bubble = '';
+        renderCharacters();
+    }
+
+    if(trendItems.length === 0) {
+        // 외부 수집 실패 시 → AI에게 현재 트렌드 추정 요청
+        addLog('⚠️ 외부 RSS 수집 실패 → AI 트렌드 추정 모드로 전환');
+        appendMessage('assistant', '인턴 사원', '☕',
+            `RSS 피드 접근이 안 됐어요 😅 대신 AI가 알고 있는 최신 트렌드를 정리해 드리겠습니다!`);
+
+        const reply = await callClaudeAPI(
+            `당신은 hohoplay 가상오피스의 "자료 수집가"입니다.
+hohoplay가 운영 중인 분야(모바일 게임, 운세/타로, SNS 마케팅, 무인연습실)와 관련된
+현재 시장 트렌드 Top 5를 간결하게 정리해 주세요. 각 트렌드마다 hohoplay에 미치는 영향도 한 줄씩 추가하세요.`,
+            [{ role:'user', content:'현재 hohoplay 관련 트렌드 Top 5 정리해줘' }], 600
+        );
+
+        appendMessage('assistant', '자료 수집가', '🔍',
+            `📊 <strong class="text-indigo-300">[AI 트렌드 분석]</strong><br>${reply}`);
+
+    } else {
+        // 수집 성공 → 인턴이 목록 정리, 수집가가 분석
+        appendMessage('assistant', '인턴 사원', '☕',
+            `✅ <strong class="text-white">${fetchedSource}</strong>에서 트렌드 ${trendItems.length}건 수집 완료!<br>
+            <span class="text-slate-400 text-[10px]">${trendItems.slice(0,5).map(t=>`· ${t}`).join('<br>')}</span>`);
+
+        // 수집가가 hohoplay 관점으로 분석
+        const analysisPrompt = `당신은 hohoplay 가상오피스의 "자료 수집가"입니다.
+아래 트렌드 목록 중 hohoplay(모바일 게임, 운세/타로, SNS 마케팅, 무인연습실)와 관련 있는 트렌드를 골라
+비즈니스 관점에서 3~4줄로 분석해 주세요.
+
+[수집된 트렌드]
+${trendItems.join('\n')}`;
+
+        const analysis = await callClaudeAPI(
+            analysisPrompt,
+            [{ role:'user', content: '위 트렌드를 hohoplay 관점에서 분석해줘' }], 500
+        );
+
+        appendMessage('assistant', '자료 수집가', '🔍',
+            `📊 <strong class="text-emerald-300">[hohoplay 관점 트렌드 분석]</strong><br>${analysis}`);
+
+        // 기억 저장소에 자동 저장
+        memories.unshift({
+            id: 'trend_' + Date.now(),
+            title: `트렌드 수집: ${new Date().toLocaleDateString('ko-KR')}`,
+            content: `[출처: ${fetchedSource}]\n${trendItems.join('\n')}\n\n[분석]\n${analysis}`,
+            category: '트렌드',
+            author: '자료 수집가',
+            date: new Date().toLocaleDateString('ko-KR'),
+            autoSaved: true
+        });
+        saveAll();
+        renderMemoryList();
+        addLog(`✅ 트렌드 ${trendItems.length}건 수집 → 기억 저장소 저장`);
+    }
+}
+
 function scrollStaffBar(delta) {
     const bar = document.getElementById('mobile-staff-bar');
     if(bar) bar.scrollLeft += delta;
@@ -4303,6 +4524,88 @@ function sendSiteContextToChat() {
     addLog('💬 사이트 분석 컨텍스트를 채팅 입력창에 로드했습니다. 전송 버튼을 눌러주세요.');
 }
 
+
+// ═══════════════════════════════════════════════
+// 업무 대시보드
+// ═══════════════════════════════════════════════
+const API_COST_PER_CALL = 0.00085; // claude-sonnet-4-6 기준 평균
+const MODE_API_CALLS = { basic:6, paced:7, multistep:9, local:0 };
+
+function recordDashTask(topic, mode, staffIds, isLocal) {
+    const apiCalls = isLocal ? 0 : (MODE_API_CALLS[mode] || 6);
+    const cost = apiCalls * API_COST_PER_CALL;
+    const now = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+
+    const task = { time:now, topic: topic.substring(0,25), mode, staffIds:[...staffIds], apiCalls, cost, isLocal };
+    dashData.tasks.unshift(task); // 최신이 위에
+    if(dashData.tasks.length > 30) dashData.tasks.pop();
+
+    dashData.totalApiCalls += apiCalls;
+    dashData.totalCost += cost;
+    if(isLocal) dashData.localCount++;
+
+    // localStorage 저장
+    try { localStorage.setItem('hohoplay_dash_v6', JSON.stringify(dashData)); } catch(e) {}
+
+    renderDashboard();
+}
+
+function renderDashboard() {
+    const total = dashData.tasks.length;
+    const localPct = total > 0 ? Math.round((dashData.localCount / total) * 100) : 0;
+
+    // 요약 카드 업데이트
+    const el = id => document.getElementById(id);
+    if(el('dash-total-tasks')) el('dash-total-tasks').textContent = total;
+    if(el('dash-api-calls'))   el('dash-api-calls').textContent = dashData.totalApiCalls;
+    if(el('dash-total-cost'))  el('dash-total-cost').textContent = '$' + dashData.totalCost.toFixed(3);
+    if(el('dash-local-count')) el('dash-local-count').textContent = dashData.localCount;
+    if(el('dash-save-bar'))    el('dash-save-bar').style.width = localPct + '%';
+    if(el('dash-save-pct'))    el('dash-save-pct').textContent = localPct + '%';
+
+    // 테이블 렌더
+    const tbody = el('dash-task-rows');
+    if(!tbody) return;
+
+    if(dashData.tasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-3 py-6 text-center text-slate-600">아직 업무 기록이 없습니다.</td></tr>`;
+        return;
+    }
+
+    const modeLabel = { basic:'⚡기본', paced:'🎬심화', multistep:'🔗풀버전', local:'🔵로컬' };
+    tbody.innerHTML = dashData.tasks.map(t => {
+        const staffEmojis = t.staffIds.map(id => {
+            const s = staffState[id] || DEFAULT_STAFF[id];
+            return s ? s.emoji : '';
+        }).join('');
+        const costColor = t.isLocal ? 'text-blue-400' : t.cost > 0.008 ? 'text-amber-400' : 'text-slate-400';
+        return `<tr class="border-b border-slate-900 hover:bg-slate-900/40 transition-colors">
+            <td class="px-3 py-2 text-slate-500 mono shrink-0">${t.time}</td>
+            <td class="px-3 py-2 text-slate-300 max-w-[120px] truncate">${t.topic}</td>
+            <td class="px-3 py-2 text-center">${modeLabel[t.mode]||t.mode}</td>
+            <td class="px-3 py-2 text-center tracking-wider">${staffEmojis}</td>
+            <td class="px-3 py-2 text-right text-slate-500 mono">${t.apiCalls}회</td>
+            <td class="px-3 py-2 text-right mono font-bold ${costColor}">${t.isLocal ? '무료' : '$'+t.cost.toFixed(3)}</td>
+        </tr>`;
+    }).join('');
+}
+
+function clearDashboard() {
+    dashData = { tasks:[], totalApiCalls:0, totalCost:0.0, localCount:0 };
+    localStorage.removeItem('hohoplay_dash_v6');
+    renderDashboard();
+    showToast('대시보드 초기화 완료', 'info', 1500);
+}
+
+function loadDashCache() {
+    try {
+        const saved = localStorage.getItem('hohoplay_dash_v6');
+        if(saved) {
+            dashData = JSON.parse(saved);
+            renderDashboard();
+        }
+    } catch(e) {}
+}
 
 function exportWorkspaceData() {
     const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
