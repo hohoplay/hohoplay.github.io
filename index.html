@@ -134,7 +134,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260626115401_4fd336d8">
+  <meta name="build-version" content="20260627131005_63393ad7">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -237,7 +237,7 @@
             { id: 'g6',  name: 'HOHO RUN', genre: '러닝 액션', version: 'v1.0.0', file: 'game6.html', img: 'data/game6.png' },
             { id: 'g7',  name: '호호사천성', genre: '퍼즐', version: 'v1.0.0', file: 'game7.html', img: 'data/game7.png' },
             { id: 'g8',  name: 'JELLY POP 7', genre: '퍼즐', version: 'v1.0.0', file: 'game8.html', img: 'data/game8.png' },
-            { id: 'g9',  name: '준비중', genre: '-', version: '준비중', file: null, img: '' },
+            { id: 'g9',  name: 'HOHO DASH', genre: '러닝 액션', version: 'v1.0.0', file: 'game9.html', img: 'data/game9.png' },
             { id: 'g10', name: '준비중', genre: '-', version: '준비중', file: null, img: '' }
         ];
         // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
@@ -268,9 +268,15 @@
                     badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
                 } else if (game.id === 'g6') {
                     badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                } else if (game.id === 'g7') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                } else if (game.id === 'g8') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                } else if (game.id === 'g9') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
                 }
                 var hasImg = game.img && game.img.trim() !== '';
-                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3' || game.id === 'g4' || game.id === 'g5' || game.id === 'g6');
+                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3' || game.id === 'g4' || game.id === 'g5' || game.id === 'g6' || game.id === 'g7' || game.id === 'g8' || game.id === 'g9');
                 var thumbBg = isReal ? '#eef2ff' : '#f8fafc';
                 var thumbColor = isReal ? '#4f46e5' : '#94a3b8';
                 var icon = isReal ? '\uD83C\uDFAE' : '\u23F3';
