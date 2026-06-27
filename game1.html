@@ -976,6 +976,7 @@
             box-shadow: 0 0 5px #2e7d32;
             opacity: 0.9;
         }
+        .radar-dot.monster-dot {
             width: 4px; height: 4px; 
             background: #ffffff; 
             border-radius: 50%; 
@@ -1039,8 +1040,20 @@
         #input-box {
             padding: 14px 30px; font-size: 24px; border-radius: 8px; border: 3px solid var(--primary-yellow);
             outline: none; text-align: center; background: var(--ui-white); box-shadow: 0 5px 25px rgba(0,0,0,0.4);
-            width: 340px; font-family: inherit; font-weight: 700; transition: border-color 0.2s, background-color 0.2s;
+            width: 340px; font-family: inherit; font-weight: 700; transition: border-color 0.15s, background-color 0.15s;
             color: #1a1a1a;
+        }
+        #input-box.miss-flash {
+            border-color: #ff3d00 !important;
+            background: #fff3f3 !important;
+            animation: miss-shake 0.22s ease-out;
+        }
+        @keyframes miss-shake {
+            0%   { transform: translateX(0); }
+            20%  { transform: translateX(-5px); }
+            45%  { transform: translateX(5px); }
+            70%  { transform: translateX(-3px); }
+            100% { transform: translateX(0); }
         }
         
         #lang-indicator {
@@ -1067,12 +1080,12 @@
         #xp-bar { width: 0%; height: 100%; background: linear-gradient(to right, #3b82f6, #60a5fa); box-shadow: 0 0 8px rgba(59, 130, 246, 0.8); transition: width 0.3s; border-radius: 7px; }
         #xp-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; color: #fff; font-weight: 900; text-shadow: 0 1px 3px rgba(0,0,0,1), 0 0 6px rgba(0,0,0,0.9); white-space: nowrap; z-index: 1; pointer-events: none; }
 
-        .overlay-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; text-align: center; }
+        .overlay-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; text-align: center; padding: 10px 0; overflow: hidden; }
         .hidden { display: none !important; }
-        .title { font-size: 3rem; font-weight: 800; color: var(--primary-yellow); margin-bottom: 20px; letter-spacing: -1px; }
-        .btn-start { background: var(--primary-yellow); padding: 18px 70px; border-radius: 8px; font-size: 1.4rem; font-weight: 700; cursor: pointer; border: none; font-family: inherit; margin-top: 30px; color: #000; }
-        .job-select { display: flex; gap: 20px; margin: 20px 0; }
-        .job-btn { background: rgba(255,255,255,0.05); padding: 20px 35px; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; border: 2px solid rgba(255,255,255,0.2); transition: all 0.2s; }
+        .title { font-size: 2.6rem; font-weight: 800; color: var(--primary-yellow); margin-bottom: 8px; letter-spacing: -1px; }
+        .btn-start { background: var(--primary-yellow); padding: 12px 60px; border-radius: 8px; font-size: 1.2rem; font-weight: 700; cursor: pointer; border: none; font-family: inherit; margin-top: 10px; color: #000; }
+        .job-select { display: flex; gap: 14px; margin: 10px 0; }
+        .job-btn { background: rgba(255,255,255,0.05); padding: 12px 28px; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; border: 2px solid rgba(255,255,255,0.2); transition: all 0.2s; }
         .job-btn.active { background: rgba(255, 215, 0, 0.15); border-color: var(--primary-yellow); }
 
         .upgrade-card-container { display: flex; gap: 15px; margin-top: 30px; }
@@ -1232,15 +1245,16 @@
         
         <div id="start-screen" class="overlay-screen">
             <h1 class="title">🍄 꼬마 영웅 호야 타자 RPG</h1>
-            <p style="margin-bottom: 10px; color: #4fc3f7; font-weight: 800;">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
+            <p style="margin-bottom: 6px; font-size: 1.05rem; color: #ffd700; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 0 12px rgba(255,215,0,0.5);">🌿 단어로 숲을 지켜라 — 속담 타자 RPG 대모험</p>
+            <p style="margin-bottom: 10px; color: #4fc3f7; font-weight: 700; font-size: 0.8rem;">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
             <p style="font-size: 0.9rem; color: #ffffff;">캐릭터 선택</p>
             <div class="job-select">
                 <div class="job-btn active" id="btn-archer" onclick="selectJob('archer')"><span style="font-size:2.5rem;">🏹</span><span>궁수 호야</span></div>
                 <div class="job-btn" id="btn-wizard" onclick="selectJob('wizard')"><span style="font-size:2.5rem;">🧙</span><span>마법사 호야</span></div>
             </div>
             <button class="btn-start" onclick="initGame()">⚔️ 새로 시작</button>
-            <button class="btn-start" id="btn-load" style="margin-top:8px; background:rgba(74,144,226,0.25); border:2px solid #4a90e2; font-size:1rem; padding:12px 40px; color:#7ec8ff;" onclick="loadGame()">📂 이어하기</button>
-            <button class="btn-start" style="margin-top:8px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); font-size:0.88rem; padding:10px 28px; color:#ffffff;" onclick="showTutorial()">📖 게임 방법 보기</button>
+            <button class="btn-start" id="btn-load" style="margin-top:6px; background:rgba(74,144,226,0.25); border:2px solid #4a90e2; font-size:0.95rem; padding:10px 40px; color:#7ec8ff;" onclick="loadGame()">📂 이어하기</button>
+            <button class="btn-start" style="margin-top:6px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); font-size:0.85rem; padding:8px 28px; color:#ffffff;" onclick="showTutorial()">📖 게임 방법 보기</button>
         </div>
 
         <!-- 튜토리얼 슬라이드 -->
@@ -1509,10 +1523,11 @@
         </div>
 
         <div id="game-over-screen" class="overlay-screen hidden">
-            <h1 class="title" style="color:#ff5252">💔 모험 실패... 💔</h1>
-            <p id="game-over-info" style="color:#aaa; font-size:0.95rem; margin-top:-10px; margin-bottom:10px;"></p>
+            <h1 class="title" style="color:#ff5252">🍄 숲이 어둠에 잠겼습니다... 🍄</h1>
+            <p style="color:#ff8a80; font-size: 0.95rem; font-weight: 700; margin-bottom: 4px;">단어의 힘이 다하고 몬스터가 숲을 뒤덮었습니다.</p>
+            <p id="game-over-info" style="color:#aaa; font-size:0.9rem; margin-top:4px; margin-bottom:10px;"></p>
             <button class="btn-start" id="btn-gameover-load" style="margin-top:10px; background:rgba(74,144,226,0.25); border:2px solid #4a90e2; font-size:1rem; padding:12px 40px; color:#7ec8ff;" onclick="loadGame()">📂 이어하기</button>
-            <button class="btn-start" style="margin-top:8px; padding:12px 40px; font-size:1rem;" onclick="restartGame()">🔄 새로 시작</button>
+            <button class="btn-start" style="margin-top:8px; padding:12px 40px; font-size:1rem;" onclick="restartGame()">🔄 다시 도전</button>
             <button class="btn-start" style="margin-top:8px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); color:#fff; padding:12px 40px; font-size:1rem;" onclick="goToTitle()">🏠 캐릭터 선택</button>
         </div>
 
@@ -2472,6 +2487,22 @@
             });
         }
 
+        // 오타 감지: 어떤 단어와도 매칭 안 되고, 어떤 단어의 시작부분도 아닐 때
+        if (!target && val.length > 0) {
+            const allWords = [
+                ...state.monsters.filter(m => !m.dying).map(m => m.word),
+                ...state.nature.filter(n => !n.cleared && (n.type === 'chest' || n.type === 'stone')).map(n => n.word)
+            ];
+            const isPartialMatch = allWords.some(w => w && w.startsWith(val));
+            if (!isPartialMatch) {
+                inputBox.classList.remove('miss-flash');
+                void inputBox.offsetWidth;
+                inputBox.classList.add('miss-flash');
+                inputBox.addEventListener('animationend', () => inputBox.classList.remove('miss-flash'), { once: true });
+                sfxMiss();
+            }
+        }
+
         if (target) {
             spawnTypingEffect(target.obj, val);
             sfxHit();
@@ -3067,7 +3098,11 @@
         state.caterpillarSpawnTimer++;
         if (state.caterpillarSpawnTimer >= 1800) { spawnCaterpillar(); state.caterpillarSpawnTimer = 0; } // 30초마다
 
-        radarDotsContainer.innerHTML = '';
+        // 레이더: 3프레임마다 갱신 (매 프레임 DOM 재생성 → 성능 개선)
+        if (!state._radarFrame) state._radarFrame = 0;
+        state._radarFrame++;
+        const doRadar = (state._radarFrame % 3 === 0);
+        if (doRadar) radarDotsContainer.innerHTML = '';
         let nearestStone = null;
         let minStoneDist = Infinity;
         
@@ -3145,6 +3180,7 @@
             if (n.type !== 'stone' && n.type !== 'chest') return;
             const dx = n.x - state.worldPos.x; const dy = n.y - state.worldPos.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
+            if (!doRadar) return;
             if (dist < RADAR_SCAN_RANGE) {
                 if (n.type === 'stone' && !n.cleared) {
                     const dot = document.createElement('div');
@@ -3182,7 +3218,7 @@
             const dx = state.worldPos.x - m.x; 
             const dy = state.worldPos.y - m.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < RADAR_SCAN_RANGE) {
+            if (doRadar && dist < RADAR_SCAN_RANGE) {
                 const dot = document.createElement('div');
                 dot.className = `radar-dot ${m.isBoss ? 'boss-dot' : m.isFire ? 'fire-dot' : m.isCaterpillar ? 'caterpillar-dot' : 'monster-dot'}`;
                 dot.style.left = 70 + (-dx / RADAR_SCAN_RANGE) * 70 + 'px';
@@ -3515,6 +3551,7 @@
     }
 
     function sfxType()     { tone(1047, 0.04,  'square',   0.038); }
+    function sfxMiss()     { tone(180, 0.08, 'square', 0.055); tone(140, 0.10, 'square', 0.04, 0.06); }
     function sfxHit()      { tone(659,  0.07,  'triangle', 0.065); tone(784, 0.09, 'triangle', 0.055, 0.07); }
     function sfxKill()     { [523,659,880].forEach((f,i) => tone(f, 0.10, 'triangle', 0.065, i*0.07)); }
     function sfxFireKill() { [523,659,784,1047,1319].forEach((f,i) => tone(f, 0.12, 'triangle', 0.07, i*0.08)); }
@@ -3600,15 +3637,42 @@
     }
 
 
-    // ── SPA 이탈 감지 ──
+    // ── 페이지 이탈 / 링크 클릭 시 오디오 완전 정지 ──
+    function fullStop() {
+        if (state.gameLoopId) { cancelAnimationFrame(state.gameLoopId); state.gameLoopId = null; }
+        state.playing = false;
+        stopAllAudio();
+    }
+
+    // beforeunload: 탭 닫기, 주소창 이동, 새로고침
+    window.addEventListener('beforeunload', fullStop);
+
+    // pagehide: 모바일/일부 브라우저 추가 보장
+    window.addEventListener('pagehide', fullStop);
+
+    // visibilitychange: 탭 전환 시 BGM 일시정지 (선택)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            if (_actx && _actx.state === 'running') _actx.suspend();
+        } else {
+            if (_actx && _actx.state === 'suspended' && bgmRunning) _actx.resume();
+        }
+    });
+
+    // nav 내 모든 <a> 링크 클릭 시 오디오 정지
+    document.querySelectorAll('nav a, a[href="index.html"]').forEach(function(a) {
+        a.addEventListener('click', fullStop);
+    });
+
+    // SPA 이탈 감지 (MutationObserver 보조)
     (function() {
         var _obs = new MutationObserver(function() {
-            if (!document.getElementById('ts-main-canvas')) {
-                state.gameActive=false; if(state.gameLoopId){cancelAnimationFrame(state.gameLoopId);state.gameLoopId=null;} stopAllAudio();
+            if (!document.getElementById('game-wrapper')) {
+                fullStop();
                 _obs.disconnect();
             }
         });
-        _obs.observe(document.body, { childList: true, subtree: true });
+        _obs.observe(document.body, { childList: true, subtree: false });
     })();
 
     function stopAllAudio() {
