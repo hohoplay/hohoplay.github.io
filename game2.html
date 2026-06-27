@@ -87,16 +87,7 @@
             <section>
                 <div class="overflow-hidden w-full flex justify-center">
                     <!-- ↓↓↓ 이 주석을 지우고 게임 소스를 여기에 삽입하세요 ↓↓↓ -->
-  <!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>속담 타자왕 - 200제</title>
-    <!-- 애니메이션 라이브러리 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <style>
-        /* 폰트 및 기본 초기화 */
+  <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
 
         .proverb-game-wrapper {
@@ -108,7 +99,6 @@
             background-color: transparent;
         }
 
-        /* 게임 메인 컨테이너: 가로 px 800으로 고정 */
         #game-container {
             width: 800px;
             background-color: #1e293b;
@@ -120,9 +110,33 @@
             box-sizing: border-box;
             margin: 0 auto;
             min-height: 600px;
+            overflow: hidden;
         }
 
-        /* 유틸리티 클래스 */
+        /* 파티클 캔버스 */
+        #particle-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 볼륨 버튼 */
+        #vol-btn {
+            position: absolute;
+            top: 16px; right: 16px;
+            background: rgba(255,255,255,0.08);
+            border: none;
+            border-radius: 50%;
+            width: 36px; height: 36px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            z-index: 20;
+            transition: background 0.2s;
+        }
+        #vol-btn:hover { background: rgba(255,255,255,0.18); }
+
         .hidden { display: none !important; }
         .text-center { text-align: center; }
 
@@ -135,9 +149,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .desc { color: #94a3b8; margin-bottom: 30px; font-size: 1.1rem; }
-
         .btn-start {
             background-color: #2563eb;
             color: white;
@@ -151,53 +163,68 @@
         }
         .btn-start:hover { background-color: #3b82f6; transform: scale(1.05); }
 
-        /* 게임 상단 정보바 */
+        /* HUD 정보바 — 5칸으로 확장 */
         .info-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 18px;
         }
-        .info-item { text-align: center; }
-        .info-label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-        .info-value { font-size: 1.8rem; font-weight: 700; }
-        .round-badge { background: #334155; padding: 7px 20px; border-radius: 20px; font-size: 0.95rem; }
-        .combo-value { color: #fbbf24; }
+        .info-item { text-align: center; min-width: 60px; }
+        .info-label { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .info-value { font-size: 1.6rem; font-weight: 700; transition: color 0.3s; }
+        .round-badge { background: #334155; padding: 7px 20px; border-radius: 20px; font-size: 0.9rem; white-space: nowrap; }
+
+        /* 콤보 색상 단계 */
+        .combo-c0 { color: #ffffff; }
+        .combo-c1 { color: #fbbf24; }
+        .combo-c2 { color: #f97316; }
+        .combo-c3 { color: #ef4444; text-shadow: 0 0 10px rgba(239,68,68,0.6); }
+
+        /* 정확도 */
+        #display-acc { color: #34d399; }
 
         /* 타이머 바 */
         .timer-container {
-            width: 100%;
-            height: 8px;
+            width: 100%; height: 8px;
             background: #334155;
             border-radius: 10px;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
             overflow: hidden;
         }
         #timer-progress {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             background: #3b82f6;
-            transition: width 0.1s linear;
+            transition: width 0.1s linear, background 0.4s;
         }
 
         /* 문제 영역 */
         .question-area {
-            height: 160px;
-            margin-bottom: 20px;
+            min-height: 140px;
+            margin-bottom: 16px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
-        #target-proverb { 
+
+        /* 글자별 하이라이트 컨테이너 */
+        #target-proverb {
             font-size: 2.2rem;
-            font-weight: 700; 
-            margin-bottom: 12px; 
-            line-height: 1.4; 
-            word-break: keep-all; 
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            word-break: keep-all;
             max-width: 95%;
+            text-align: center;
         }
-        #target-hint { color: #64748b; font-style: italic; font-size: 1.2rem; }
+        #target-proverb .ch { display: inline; transition: color 0.08s; }
+        #target-proverb .ch.hit  { color: #34d399; }
+        #target-proverb .ch.miss { color: #f87171; }
+        #target-proverb .ch.cur  { color: #ffffff; border-bottom: 2px solid #3b82f6; }
+        #target-proverb .ch.pend { color: #64748b; }
+
+        #target-hint { color: #64748b; font-style: italic; font-size: 1.1rem; }
 
         /* 입력창 */
         .input-container { position: relative; margin-top: 15px; }
@@ -212,22 +239,39 @@
             text-align: center;
             box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'Noto Sans KR', sans-serif;
         }
         #input-box:focus { border-color: #3b82f6; }
-        #input-box.correct { border-color: #22c55e; }
-        #input-box.wrong { border-color: #ef4444; }
+        #input-box.correct { border-color: #22c55e; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
+        #input-box.wrong   { border-color: #ef4444; box-shadow: 0 0 12px rgba(239,68,68,0.4); }
+
+        /* 화면 플래시 */
+        #screen-flash {
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 5;
+            transition: opacity 0.05s;
+        }
+        #screen-flash.flash-red  { background: rgba(239,68,68,0.18); opacity: 1; }
+        #screen-flash.flash-green { background: rgba(34,197,94,0.12); opacity: 1; }
 
         #feedback {
             position: absolute;
-            bottom: -35px;
-            left: 0;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: 700;
+            bottom: -38px;
+            left: 0; width: 100%;
+            font-size: 1rem; font-weight: 700;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.15s, transform 0.15s;
         }
+        #feedback.show { opacity: 1; transform: translateY(0); }
         .text-green { color: #4ade80; }
-        .text-red { color: #f87171; }
+        .text-red   { color: #f87171; }
 
         /* 결과 화면 */
         .result-grid {
@@ -239,49 +283,56 @@
         }
         .result-card {
             background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: 15px;
+            padding: 20px; border-radius: 15px;
             border: 1px solid rgba(255,255,255,0.1);
         }
         .result-label { font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px; }
         .result-value { font-size: 1.6rem; font-weight: 700; }
 
         .btn-restart {
-            background: #ffffff;
-            color: #0f172a;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1.1rem;
+            background: #ffffff; color: #0f172a;
+            border: none; padding: 15px 40px;
+            border-radius: 12px; font-weight: 700;
+            cursor: pointer; font-size: 1.1rem;
+            font-family: 'Noto Sans KR', sans-serif;
         }
 
         /* 애니메이션 */
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-7px); }
+            40%      { transform: translateX(7px); }
+            60%      { transform: translateX(-5px); }
+            80%      { transform: translateX(5px); }
         }
-        .shake { animation: shake 0.2s ease-in-out 2; }
+        .shake { animation: shake 0.35s ease-in-out; }
 
-        /* 모바일 대응 */
+        @keyframes comboPop {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+        .combo-pop { animation: comboPop 0.25s ease-out; }
+
+        /* 모바일 */
         @media (max-width: 840px) {
-            #game-container { width: 95%; padding: 30px 20px; min-height: 520px; }
-            #target-proverb { font-size: 1.6rem; }
-            .info-value { font-size: 1.4rem; }
-            .question-area { height: 130px; }
+            #game-container { width: 95%; padding: 28px 16px; min-height: 520px; }
+            #target-proverb { font-size: 1.5rem; }
+            .info-value { font-size: 1.3rem; }
+            .question-area { min-height: 110px; }
+            .info-label { font-size: 0.65rem; }
         }
     </style>
-</head>
-<body>
 
 <div class="proverb-game-wrapper">
     <div id="game-container">
-        
+        <canvas id="particle-canvas"></canvas>
+        <div id="screen-flash"></div>
+        <button id="vol-btn" title="소리 켜기/끄기">🔊</button>
+
         <!-- 시작 화면 -->
-        <div id="screen-start" class="text-center">
-            <h1 class="title animate__animated animate__fadeInDown">속담 타자왕</h1>
+        <div id="screen-start" class="text-center" style="padding-top:60px;">
+            <h1 class="title">속담 타자왕</h1>
             <p class="desc">200개의 속담 중 무작위 10문제가 출제됩니다!</p>
             <button onclick="startGame()" class="btn-start">게임 시작</button>
         </div>
@@ -293,10 +344,18 @@
                     <div class="info-label">Score</div>
                     <div id="display-score" class="info-value">0</div>
                 </div>
+                <div class="info-item">
+                    <div class="info-label">Acc</div>
+                    <div id="display-acc" class="info-value">-</div>
+                </div>
                 <div id="display-round" class="round-badge">ROUND 1 / 10</div>
                 <div class="info-item">
+                    <div class="info-label">Best</div>
+                    <div id="display-best" class="info-value" style="color:#a78bfa;">0</div>
+                </div>
+                <div class="info-item">
                     <div class="info-label">Combo</div>
-                    <div id="display-combo" class="info-value combo-value">0</div>
+                    <div id="display-combo" class="info-value combo-c0">0</div>
                 </div>
             </div>
 
@@ -310,7 +369,7 @@
             </div>
 
             <div class="input-container">
-                <input type="text" id="input-box" autocomplete="off" placeholder="문장을 입력하고 엔터를 누르세요">
+                <input type="text" id="input-box" autocomplete="off" spellcheck="false" placeholder="문장을 입력하고 엔터를 누르세요">
                 <div id="feedback" class="text-center"></div>
             </div>
         </div>
@@ -318,8 +377,7 @@
         <!-- 결과 화면 -->
         <div id="screen-result" class="hidden text-center">
             <h2 style="font-size: 2rem; margin-bottom: 10px;">게임 종료!</h2>
-            <div id="rank-emoji" style="font-size: 5rem; margin: 25px 0;" class="animate__animated animate__bounceIn">🏆</div>
-            
+            <div id="rank-emoji" style="font-size: 5rem; margin: 25px 0;">🏆</div>
             <div class="result-grid">
                 <div class="result-card">
                     <div class="result-label">최종 점수</div>
@@ -331,21 +389,140 @@
                 </div>
                 <div class="result-card">
                     <div class="result-label">최대 콤보</div>
-                    <div id="final-combo" class="result-value combo-value">0</div>
+                    <div id="final-combo" class="result-value">0</div>
                 </div>
                 <div class="result-card">
                     <div class="result-label">평균 속도</div>
                     <div id="final-speed" class="result-value">0.0s</div>
                 </div>
             </div>
-
             <button onclick="restartGame()" class="btn-restart">다시 도전</button>
         </div>
     </div>
 </div>
 
 <script>
-    // CSV 데이터 기반 200개 속담 목록 (주요 항목 위주로 구성 및 무작위 추출 로직 적용)
+    // ── Web Audio API 사운드 시스템 ──────────────────────────────
+    let audioCtx = null;
+    let volMuted = false;
+
+    function getCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+    }
+
+    function playTone({ freq = 440, type = 'sine', gain = 0.3, duration = 0.15, attack = 0.01, decay = 0.08 } = {}) {
+        if (volMuted) return;
+        try {
+            const ctx = getCtx();
+            const osc = ctx.createOscillator();
+            const env = ctx.createGain();
+            osc.connect(env); env.connect(ctx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            env.gain.setValueAtTime(0, ctx.currentTime);
+            env.gain.linearRampToValueAtTime(gain, ctx.currentTime + attack);
+            env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + duration + decay);
+        } catch(e) {}
+    }
+
+    function playCorrect() {
+        // 밝은 두 음 연속
+        playTone({ freq: 520, type: 'triangle', gain: 0.28, duration: 0.12 });
+        setTimeout(() => playTone({ freq: 780, type: 'triangle', gain: 0.22, duration: 0.18 }), 90);
+    }
+
+    function playWrong() {
+        playTone({ freq: 180, type: 'sawtooth', gain: 0.25, duration: 0.18, decay: 0.1 });
+    }
+
+    function playCombo(combo) {
+        // 콤보 단계에 따라 피치 상승
+        const base = 440;
+        const step = Math.min(combo - 1, 8);
+        playTone({ freq: base + step * 40, type: 'sine', gain: 0.28, duration: 0.2 });
+        if (combo >= 5) setTimeout(() => playTone({ freq: base + step * 40 + 80, type: 'sine', gain: 0.18, duration: 0.15 }), 110);
+    }
+
+    function playGameOver() {
+        [220, 185, 155].forEach((f, i) =>
+            setTimeout(() => playTone({ freq: f, type: 'triangle', gain: 0.22, duration: 0.3, decay: 0.2 }), i * 180)
+        );
+    }
+
+    document.getElementById('vol-btn').addEventListener('click', () => {
+        volMuted = !volMuted;
+        document.getElementById('vol-btn').textContent = volMuted ? '🔇' : '🔊';
+    });
+
+    // ── 파티클 시스템 ─────────────────────────────────────────────
+    const pCanvas = document.getElementById('particle-canvas');
+    const pCtx = pCanvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        const gc = document.getElementById('game-container');
+        pCanvas.width  = gc.offsetWidth;
+        pCanvas.height = gc.offsetHeight;
+    }
+    resizeCanvas();
+    new ResizeObserver(resizeCanvas).observe(document.getElementById('game-container'));
+
+    function spawnParticles(x, y, color, count = 18) {
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 4;
+            particles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 2,
+                alpha: 1,
+                size: 4 + Math.random() * 5,
+                color,
+                life: 0.85 + Math.random() * 0.3
+            });
+        }
+    }
+
+    function spawnFromInput(color) {
+        const box = document.getElementById('input-box').getBoundingClientRect();
+        const gc  = document.getElementById('game-container').getBoundingClientRect();
+        const x = box.left - gc.left + box.width / 2;
+        const y = box.top  - gc.top  + box.height / 2;
+        spawnParticles(x, y, color, 22);
+    }
+
+    let animFrame;
+    function animParticles() {
+        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+        particles = particles.filter(p => p.alpha > 0.02);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            p.vy += 0.18;
+            p.alpha -= 0.022 / p.life;
+            pCtx.globalAlpha = Math.max(0, p.alpha);
+            pCtx.fillStyle = p.color;
+            pCtx.beginPath();
+            pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            pCtx.fill();
+        });
+        pCtx.globalAlpha = 1;
+        animFrame = requestAnimationFrame(animParticles);
+    }
+    animParticles();
+
+    // ── 화면 플래시 ───────────────────────────────────────────────
+    function flashScreen(type) {
+        const el = document.getElementById('screen-flash');
+        el.className = 'flash-' + type;
+        setTimeout(() => el.className = '', 200);
+    }
+
+    // ── 속담 데이터 (길이별 분류로 난이도 곡선 적용) ─────────────
+    // short: 10자 이하, mid: 11~20자, long: 21자 이상
     const proverbsData = [
         { text: "가는 말이 고와야 오는 말이 곱다", hint: "내가 좋게 말해야 상대도 좋게 말한다" },
         { text: "고생 끝에 낙이 온다", hint: "힘든 뒤에는 좋은 일이 온다" },
@@ -549,103 +726,142 @@
         { text: "힘에 부친다", hint: "감당하기 어렵다" }
     ];
 
-    let gameProverbs = []; // 이번 판에 사용될 속담들
+    // ── 게임 상태 ─────────────────────────────────────────────────
+    let gameProverbs = [];
     let state = {
         isPlaying: false,
-        round: 0,
-        score: 0,
-        combo: 0,
-        maxCombo: 0,
-        correctCount: 0,
-        totalRounds: 10,
-        currentProverb: null,
-        timer: null,
-        startTime: null,
-        solveTimes: []
+        round: 0, score: 0, combo: 0, maxCombo: 0,
+        correctCount: 0, totalRounds: 10,
+        currentProverb: null, timer: null,
+        startTime: null, solveTimes: [],
+        timerMs: 0, timerBase: 0,
+        bestScore: parseInt(localStorage.getItem('provTypeBest') || '0')
     };
 
     const dom = {
         screens: {
-            start: document.getElementById('screen-start'),
-            play: document.getElementById('screen-play'),
+            start:  document.getElementById('screen-start'),
+            play:   document.getElementById('screen-play'),
             result: document.getElementById('screen-result')
         },
-        input: document.getElementById('input-box'),
-        target: document.getElementById('target-proverb'),
-        hint: document.getElementById('target-hint'),
-        score: document.getElementById('display-score'),
-        round: document.getElementById('display-round'),
-        combo: document.getElementById('display-combo'),
+        input:    document.getElementById('input-box'),
+        target:   document.getElementById('target-proverb'),
+        hint:     document.getElementById('target-hint'),
+        score:    document.getElementById('display-score'),
+        round:    document.getElementById('display-round'),
+        combo:    document.getElementById('display-combo'),
+        acc:      document.getElementById('display-acc'),
+        best:     document.getElementById('display-best'),
         progress: document.getElementById('timer-progress'),
         feedback: document.getElementById('feedback')
     };
 
     function showScreen(key) {
-        Object.keys(dom.screens).forEach(k => {
-            dom.screens[k].classList.toggle('hidden', k !== key);
-        });
+        Object.keys(dom.screens).forEach(k =>
+            dom.screens[k].classList.toggle('hidden', k !== key)
+        );
     }
 
-    // 배열 섞기 로직 (Fisher-Yates Shuffle)
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        return array;
+        return arr;
+    }
+
+    // ── 난이도 곡선: 초반 짧은 속담, 후반 긴 속담 ───────────────
+    function buildRoundSet() {
+        const short = proverbsData.filter(p => p.text.length <= 10);
+        const mid   = proverbsData.filter(p => p.text.length > 10 && p.text.length <= 20);
+        const long  = proverbsData.filter(p => p.text.length > 20);
+        // 라운드 구성: 1~3 짧음, 4~7 중간, 8~10 긴것
+        const s = shuffle([...short]).slice(0, 3);
+        const m = shuffle([...mid]).slice(0, 4);
+        const l = shuffle([...long]).slice(0, 3);
+        return [...s, ...m, ...l];
+    }
+
+    // ── 글자별 하이라이트 렌더링 ─────────────────────────────────
+    function renderChars(target, input) {
+        const el = dom.target;
+        const chars = [...target];
+        const inp   = [...input];
+        let html = '';
+        chars.forEach((ch, i) => {
+            let cls = 'pend';
+            if (i < inp.length) {
+                cls = (inp[i] === ch) ? 'hit' : 'miss';
+            } else if (i === inp.length) {
+                cls = 'cur';
+            }
+            // 공백은 그대로 표시
+            const disp = ch === ' ' ? '&nbsp;' : ch;
+            html += `<span class="ch ${cls}">${disp}</span>`;
+        });
+        el.innerHTML = html;
+    }
+
+    // ── 콤보 색상 단계 ────────────────────────────────────────────
+    function comboClass(n) {
+        if (n >= 7) return 'combo-c3';
+        if (n >= 4) return 'combo-c2';
+        if (n >= 2) return 'combo-c1';
+        return 'combo-c0';
     }
 
     function startGame() {
-        // 전체 속담에서 10개를 무작위로 추출
-        gameProverbs = shuffle([...proverbsData]).slice(0, state.totalRounds);
-        
-        state = { 
-            isPlaying: true, 
-            round: 0, 
-            score: 0, 
-            combo: 0, 
-            maxCombo: 0, 
-            correctCount: 0, 
-            totalRounds: 10, 
-            solveTimes: [] 
+        getCtx(); // 오디오 컨텍스트 초기화 (모바일 정책)
+        gameProverbs = buildRoundSet();
+        state = {
+            isPlaying: true,
+            round: 0, score: 0, combo: 0, maxCombo: 0,
+            correctCount: 0, totalRounds: 10,
+            currentProverb: null, timer: null,
+            startTime: null, solveTimes: [],
+            timerMs: 0, timerBase: 0,
+            bestScore: parseInt(localStorage.getItem('provTypeBest') || '0')
         };
-        
-        updateUI();
+        dom.best.textContent = state.bestScore.toLocaleString();
         showScreen('play');
+        updateUI();
         nextRound();
         dom.input.focus();
     }
 
     function nextRound() {
-        if (state.round >= state.totalRounds) {
-            endGame();
-            return;
-        }
-        
+        if (state.round >= state.totalRounds) { endGame(); return; }
         state.currentProverb = gameProverbs[state.round];
         state.round++;
-        
-        dom.target.textContent = state.currentProverb.text;
-        dom.hint.textContent = state.currentProverb.hint;
+
         dom.input.value = '';
-        dom.input.className = ''; 
-        dom.feedback.textContent = '';
-        
+        dom.input.className = '';
+        hideFeedback();
+        renderChars(state.currentProverb.text, '');
+        dom.hint.textContent = '💡 ' + state.currentProverb.hint;
+
         updateUI();
         startTimer();
         state.startTime = Date.now();
+        dom.input.focus();
     }
 
     function startTimer() {
         clearInterval(state.timer);
-        // 문장 길이에 따라 시간 차등 부여 (기본 5초 + 한 글자당 0.45초)
         const baseTime = 5000 + (state.currentProverb.text.length * 450);
-        let currentMs = baseTime;
+        state.timerBase = baseTime;
+        state.timerMs   = baseTime;
 
         state.timer = setInterval(() => {
-            currentMs -= 100;
-            dom.progress.style.width = (currentMs / baseTime * 100) + '%';
-            if (currentMs <= 0) handleWrong("시간 초과!");
+            state.timerMs -= 100;
+            const pct = state.timerMs / state.timerBase;
+            dom.progress.style.width = (pct * 100) + '%';
+            // 색상: 70%이상 파랑 → 40%이상 노랑 → 빨강
+            if (pct > 0.7)       dom.progress.style.background = '#3b82f6';
+            else if (pct > 0.4)  dom.progress.style.background = '#fbbf24';
+            else                 dom.progress.style.background = '#ef4444';
+
+            if (state.timerMs <= 0) handleWrong('시간 초과!');
         }, 100);
     }
 
@@ -656,58 +872,124 @@
         state.correctCount++;
         state.combo++;
         state.maxCombo = Math.max(state.maxCombo, state.combo);
-        
+
         const bonus = Math.max(0, Math.floor(100 - timeTaken * 10));
         const addedScore = 100 + (state.combo * 10) + bonus;
         state.score += addedScore;
 
+        // 사운드
+        playCorrect();
+        if (state.combo >= 2) playCombo(state.combo);
+
+        // 파티클
+        spawnFromInput('#34d399');
+        flashScreen('green');
+
         dom.input.classList.add('correct');
-        showFeedback(`정답! +${addedScore}`, "text-green");
-        setTimeout(nextRound, 800);
+        showFeedback(`✓ 정답! +${addedScore}`, 'text-green');
+
+        // 콤보 팝 애니메이션
+        dom.combo.classList.remove('combo-pop');
+        void dom.combo.offsetWidth;
+        dom.combo.classList.add('combo-pop');
+
+        updateUI();
+        setTimeout(nextRound, 750);
     }
 
     function handleWrong(msg) {
         clearInterval(state.timer);
         state.combo = 0;
         dom.input.classList.add('wrong');
+
+        // 사운드
+        playWrong();
+
+        // 파티클 + 플래시
+        spawnFromInput('#f87171');
+        flashScreen('red');
+
+        dom.input.parentElement.classList.remove('shake');
+        void dom.input.parentElement.offsetWidth;
         dom.input.parentElement.classList.add('shake');
         setTimeout(() => dom.input.parentElement.classList.remove('shake'), 400);
-        showFeedback(msg || "오타가 있어요!", "text-red");
-        setTimeout(nextRound, 1200);
+
+        showFeedback(msg || '✗ 오타!', 'text-red');
+        updateUI();
+        setTimeout(nextRound, 1100);
     }
 
     function showFeedback(text, colorClass) {
         dom.feedback.textContent = text;
-        dom.feedback.className = `text-center font-bold animate__animated animate__fadeInUp ${colorClass}`;
+        dom.feedback.className = colorClass;
+        void dom.feedback.offsetWidth;
+        dom.feedback.classList.add('show');
+    }
+    function hideFeedback() {
+        dom.feedback.classList.remove('show');
     }
 
     function updateUI() {
         dom.score.textContent = state.score.toLocaleString();
         dom.round.textContent = `ROUND ${state.round} / ${state.totalRounds}`;
+
+        // 콤보 색상
+        const cc = comboClass(state.combo);
+        dom.combo.className = 'info-value ' + cc;
         dom.combo.textContent = state.combo;
+
+        // 정확도 실시간
+        if (state.round > 0) {
+            const tried = state.round - 1; // 현재 라운드 시작 전 완료 수
+            const acc = tried > 0 ? Math.round((state.correctCount / tried) * 100) : 100;
+            dom.acc.textContent = tried > 0 ? acc + '%' : '-';
+        }
+
+        // Best Score
+        if (state.score > state.bestScore) {
+            state.bestScore = state.score;
+            localStorage.setItem('provTypeBest', state.bestScore);
+            dom.best.textContent = state.bestScore.toLocaleString();
+        }
     }
 
     function endGame() {
         state.isPlaying = false;
-        showScreen('result');
-        const avgSpeed = state.solveTimes.length > 0 ? (state.solveTimes.reduce((a,b)=>a+b)/state.solveTimes.length).toFixed(1) : "0.0";
+        clearInterval(state.timer);
+        playGameOver();
+
+        const avgSpeed = state.solveTimes.length > 0
+            ? (state.solveTimes.reduce((a,b)=>a+b,0) / state.solveTimes.length).toFixed(1)
+            : '0.0';
         const accuracy = Math.round((state.correctCount / state.totalRounds) * 100);
 
-        document.getElementById('final-score').textContent = state.score.toLocaleString();
-        document.getElementById('final-accuracy').textContent = accuracy + "%";
-        document.getElementById('final-combo').textContent = state.maxCombo;
-        document.getElementById('final-speed').textContent = avgSpeed + "s";
+        if (state.score > parseInt(localStorage.getItem('provTypeBest') || '0')) {
+            localStorage.setItem('provTypeBest', state.score);
+        }
 
-        let emoji = "🥉";
-        if (accuracy >= 90) emoji = "🏆";
-        else if (accuracy >= 70) emoji = "🥇";
-        else if (accuracy >= 40) emoji = "🥈";
+        document.getElementById('final-score').textContent    = state.score.toLocaleString();
+        document.getElementById('final-accuracy').textContent = accuracy + '%';
+        document.getElementById('final-combo').textContent    = state.maxCombo;
+        document.getElementById('final-speed').textContent    = avgSpeed + 's';
+
+        let emoji = '🥉';
+        if (accuracy >= 90) emoji = '🏆';
+        else if (accuracy >= 70) emoji = '🥇';
+        else if (accuracy >= 40) emoji = '🥈';
         document.getElementById('rank-emoji').textContent = emoji;
+
+        showScreen('result');
     }
 
     function restartGame() { showScreen('start'); }
 
-    dom.input.addEventListener('keypress', (e) => {
+    // ── 입력 이벤트 ───────────────────────────────────────────────
+    dom.input.addEventListener('input', () => {
+        if (!state.isPlaying || !state.currentProverb) return;
+        renderChars(state.currentProverb.text, dom.input.value);
+    });
+
+    dom.input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && state.isPlaying) {
             if (dom.input.value.trim() === state.currentProverb.text) handleCorrect();
             else handleWrong();
@@ -718,9 +1000,6 @@
         if (state.isPlaying && e.target.id !== 'input-box') dom.input.focus();
     });
 </script>
-
-</body>
-</html>
                     <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->
 </div><!-- /game-wrapper-outer -->
                 </div>
