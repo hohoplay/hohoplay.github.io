@@ -63,7 +63,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-indigo-100">타이핑</span>
-                    <span class="bg-slate-200 text-slate-600 px-5 py-2 rounded-full font-bold text-sm">v1.0.0</span>
+                    <span class="bg-slate-200 text-slate-600 px-5 py-2 rounded-full font-bold text-sm">v2.0.0</span>
                     <span class="bg-slate-100 text-slate-500 px-5 py-2 rounded-full font-bold text-sm flex items-center gap-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         <span id="view-count-display">-</span>
@@ -414,6 +414,49 @@
         .ui-label { font-size: 11px; font-weight: 800; color: #ffb3c1; letter-spacing: 1px; }
         .ui-value { font-size: 28px; font-weight: 900; display: block; }
 
+        /* ── 상단 HUD 바 ── */
+        #top-hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #ffcad4;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 450;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .hud-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+        .hud-label {
+            font-size: 8px;
+            font-weight: 900;
+            color: #ffb3c1;
+            letter-spacing: 1.5px;
+        }
+        .hud-val {
+            font-size: 16px;
+            font-weight: 900;
+            color: #ff4d6d;
+            line-height: 1.1;
+        }
+        .hud-sep {
+            width: 1px;
+            height: 28px;
+            background: #ffcad4;
+        }
+        #accuracy-val { font-size: 15px; }
+        #chain-val { font-size: 15px; transition: color 0.2s; }
+
         #score-panel { position: absolute; left: 40px; bottom: 30px; }
         #life-panel { position: absolute; right: 40px; bottom: 30px; }
         
@@ -529,6 +572,10 @@
         }
 
         @media (max-width: 600px) {
+            #top-hud { height: 36px; }
+            .hud-label { font-size: 6px; letter-spacing: 0.5px; }
+            .hud-val { font-size: 12px; }
+            .hud-cell { min-width: 48px; }
             #game-frame {
                 width: 100%;
                 max-width: 100%;
@@ -625,13 +672,58 @@
             }
 
         }
-        #over-speed-buttons {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            justify-content: center;
+        /* ── 입력 피드백 ── */
+        @keyframes error-flash {
+            0%   { background: rgba(255,50,80,0.18); }
+            50%  { background: rgba(255,50,80,0.10); }
+            100% { background: transparent; }
         }
+        #game-field.error-flash { animation: error-flash 0.28s ease-out; }
+
+        /* 정타 파티클 */
+        .hit-particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 500;
+            animation: particle-burst 0.5s ease-out forwards;
+        }
+        @keyframes particle-burst {
+            0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+            100% { transform: translate(var(--px), var(--py)) scale(0); opacity: 0; }
+        }
+
+        /* 단어 완성 폭발 */
+        .word-explosion {
+            position: absolute;
+            pointer-events: none;
+            font-size: 18px;
+            z-index: 500;
+            animation: explosion-pop 0.55s ease-out forwards;
+        }
+        @keyframes explosion-pop {
+            0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 1; }
+            60%  { transform: translate(var(--ex), var(--ey)) scale(1.4); opacity: 1; }
+            100% { transform: translate(var(--ex), var(--ey)) scale(0); opacity: 0; }
+        }
+
+        /* 진동 효과 */
+        @keyframes shake-frame {
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-5px); }
+            40%      { transform: translateX(5px); }
+            60%      { transform: translateX(-3px); }
+            80%      { transform: translateX(3px); }
+        }
+        #game-frame.shake { animation: shake-frame 0.25s ease-out; }
+
+        /* 콤보 색상 단계 */
+        .chain-white  { color: #ff4d6d !important; }
+        .chain-yellow { color: #ffc107 !important; text-shadow: 0 0 8px #ffc10788; }
+        .chain-orange { color: #ff7043 !important; text-shadow: 0 0 12px #ff704388; }
+        .chain-red    { color: #e53935 !important; text-shadow: 0 0 16px #e5393588; }
+
+
 
         .boss-projectile {
             position: absolute;
@@ -716,6 +808,15 @@
             align-items: center;
             z-index: 1100;
             gap: 0;
+        }
+
+        #title-slogan {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #ffb3c1;
+            text-transform: uppercase;
+            margin-bottom: 8px;
         }
 
         #title-petals {
@@ -897,6 +998,8 @@
 <div id="damage-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:9999;overflow:visible;"></div>
 <div id="game-frame">
         <div id="title-screen">
+                <div id="title-petals"></div>
+                <div id="title-slogan">✦ TYPE TO BLOOM ✦</div>
                 <div id="title-logo">호호<span>벚꽃</span>타자 🌸</div>
                 <div id="title-sub">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</div>
                 <div id="speed-select-label">⚡ 속도 선택</div>
@@ -941,7 +1044,7 @@
             <div id="judgment-line"></div>
             
             <div id="boss-container">
-                <div class="boss-type-label">🌸 중간보스</div>
+                <div class="boss-type-label">🌸 MID BOSS</div>
                 <div class="boss-visual-wrapper">
                     <div id="boss-glow"></div>
                                         <!-- Gray blossom boss -->
@@ -1008,12 +1111,12 @@
                     </div>
                 </div>
                 <div id="boss-hp-bar"><div id="boss-hp-fill"></div></div>
-                <div id="boss-word-display">보스 등장!</div>
+                <div id="boss-word-display">INTRUDER DETECTED!</div>
             </div>
 
             <!-- 대형 보스 -->
             <div id="large-boss-container">
-                <div id="large-boss-label">💀 대형보스</div>
+                <div id="large-boss-label">💀 CORE BOSS</div>
                 <div class="boss-visual-wrapper" id="large-boss-wrapper">
                     <div id="large-boss-glow"></div>
                     <!-- Gray large blossom -->
@@ -1130,12 +1233,39 @@
                     </div>
                 </div>
                 <div id="large-boss-hp-bar"><div id="large-boss-hp-fill"></div></div>
-                <div id="large-boss-word-display">대형보스 등장!</div>
+                <div id="large-boss-word-display">CORE BREACH!</div>
             </div>
 
-            <div id="ui-layer">
+            <div id="top-hud">
+            <div class="hud-cell">
+                <span class="hud-label">DATA PROCESSED</span>
+                <span class="hud-val" id="hud-score">0</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-cell">
+                <span class="hud-label">BEST</span>
+                <span class="hud-val" id="hud-best">0</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-cell">
+                <span class="hud-label">CHAIN</span>
+                <span class="hud-val chain-white" id="chain-val">0</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-cell">
+                <span class="hud-label">ACCURACY</span>
+                <span class="hud-val" id="accuracy-val">100%</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-cell">
+                <span class="hud-label">SHIELD</span>
+                <span class="hud-val" id="hud-life">🌸🌸🌸</span>
+            </div>
+        </div>
+
+        <div id="ui-layer">
             <div id="score-panel" class="ui-panel">
-                <span class="ui-label">SCORE</span>
+                <span class="ui-label">DATA</span>
                 <span id="score-display" class="ui-value">0</span>
             </div>
 
@@ -1150,21 +1280,21 @@
                         <div id="fever-text">FEVER TIME</div>
                         <div id="fever-bar"></div>
                     </div>
-                    <span class="ui-label">COMBO</span>
+                    <span class="ui-label">CHAIN</span>
                     <span id="combo-display" class="ui-value">0</span>
                     <div id="combo-timer-bar"></div>
                 </div>
             </div>
 
             <div id="life-panel" class="ui-panel">
-                <span class="ui-label">LIFE</span>
+                <span class="ui-label">SHIELD</span>
                 <span id="life-display" class="ui-value">🌸🌸🌸</span>
             </div>
         </div>
 
         <div id="game-over">
-            <h1 id="over-title" style="font-size: 60px; color: #ff4d6d; margin-bottom: 20px;">GARDEN OVER</h1>
-            <p style="font-size: 24px; color: #ffb3c1; margin-bottom: 20px;">최종 점수: <span id="final-score" style="color: #ff4d6d; font-weight: 900;">0</span></p>
+            <h1 id="over-title" style="font-size: 60px; color: #ff4d6d; margin-bottom: 20px;">SYSTEM CRASH</h1>
+            <p style="font-size: 24px; color: #ffb3c1; margin-bottom: 20px;">최종 데이터: <span id="final-score" style="color: #ff4d6d; font-weight: 900;">0</span></p>
             <div id="speed-select-label" style="font-size:13px;font-weight:700;color:#ff4d6d;letter-spacing:2px;margin-bottom:12px;">⚡ 속도 선택</div>
             <div id="over-speed-buttons">
                 <button class="speed-btn selected" data-mult="1.0" onclick="selectSpeed(this)">
@@ -1225,7 +1355,7 @@
             ctx: null,
             masterGain: null,
             bgmNode: null,
-            isMuted: false, // BGM이 제거되었으므로 주로 효과음 제어용
+            isMuted: false,
 
             init() {
                 this.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1240,7 +1370,7 @@
                 }
             },
 
-            // Synthesize Marimba-like Sound for Typing
+            // 키별 피치가 다른 마림바 타이핑음
             playType(freq = 440) {
                 if (this.isMuted || !this.ctx) return;
                 const osc = this.ctx.createOscillator();
@@ -1260,7 +1390,42 @@
                 osc.stop(this.ctx.currentTime + 0.2);
             },
 
-            // Play Success Bell
+            // 오타음 (불쾌한 저음 버즈)
+            playError() {
+                if (this.isMuted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.18);
+            },
+
+            // 콤보 달성음 (콤보가 높을수록 피치 상승)
+            playCombo(comboCount) {
+                if (this.isMuted || !this.ctx) return;
+                const baseFreq = 440;
+                const semitones = Math.min(comboCount * 2, 24);
+                const freq = baseFreq * Math.pow(2, semitones / 12);
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.2, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            },
+
+            // 단어 완성 성공음
             playSuccess() {
                 if (this.isMuted || !this.ctx) return;
                 [523.25, 659.25, 783.99].forEach((f, i) => {
@@ -1277,8 +1442,26 @@
                         osc.stop(this.ctx.currentTime + 0.5);
                     }, i * 100);
                 });
+            },
+
+            // 게임오버 효과음 (하강하는 불쾌한 3단 음)
+            playGameOver() {
+                if (this.isMuted || !this.ctx) return;
+                [400, 300, 200].forEach((f, i) => {
+                    setTimeout(() => {
+                        const osc = this.ctx.createOscillator();
+                        const g = this.ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.value = f;
+                        g.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                        g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+                        osc.connect(g);
+                        g.connect(this.masterGain);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 0.4);
+                    }, i * 250);
+                });
             }
-            // BGM start/loop functions removed per request
         };
 
         // Device Detection
@@ -1322,6 +1505,13 @@
         let comboTimeRemaining = 0;
         const FEVER_DURATION = 10000, COMBO_TIME_LIMIT = 8000;
         const MAX_INPUT_LENGTH = 15;
+
+        // 정확도 추적
+        let totalKeystrokes = 0;
+        let correctKeystrokes = 0;
+
+        // 최고기록
+        let bestScore = parseInt(localStorage.getItem('hoho_blossom_best') || '0');
 
         // ── 중간보스 ──
         let isBossEvent = false;
@@ -1424,13 +1614,29 @@
                 let val = e.target.value;
                 if (val.length > MAX_INPUT_LENGTH) { clearInput(); return; }
                 
-                // Sound Effect for Typing remains
-                if (val !== "") SoundEngine.playType(300 + (val.length * 50));
+                // 키 입력 시 타이핑음 (피치 다양화)
+                if (val !== "") {
+                    const pitches = [280, 310, 340, 370, 400, 430, 460, 490];
+                    SoundEngine.playType(pitches[(val.length - 1) % pitches.length]);
+                }
 
-                if (/[a-zA-Z]/.test(val)) { val = val.replace(/[a-zA-Z]/g, ''); inputField.value = val; updateLangIndicator('en'); } 
-                else if (val !== "") updateLangIndicator('ko');
+                if (/[a-zA-Z]/.test(val)) { 
+                    updateLangIndicator('en');
+                    triggerErrorFeedback();
+                    totalKeystrokes++;
+                    clearInput();          // 영문 입력 시 입력창 완전 초기화
+                    updateHUD();
+                    return;               // 이후 처리 중단
+                } else if (val !== "") updateLangIndicator('ko');
 
                 const isDeletion = e.inputType && e.inputType.includes("delete");
+
+                // 총 키 입력 카운트 (삭제 제외)
+                if (!isDeletion && !isDeleting && val.length > lastInputLength) {
+                    totalKeystrokes++;
+                    updateHUD();
+                }
+
                 if (val !== "" && checkWord(val)) { if (resetTimer) clearTimeout(resetTimer); return; }
 
                 if (isDeletion || isDeleting || val.length < lastInputLength) {
@@ -1450,6 +1656,23 @@
             // 타이틀 화면 표시 (게임은 startFromTitle() 버튼 클릭 시 시작)
             const titleScreen = document.getElementById('title-screen');
             if (titleScreen) titleScreen.style.display = 'flex';
+
+            // 타이틀 꽃잎 파티클 생성
+            const titlePetals = document.getElementById('title-petals');
+            if (titlePetals) {
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        const p = document.createElement('div');
+                        p.className = 'title-petal';
+                        p.innerText = ['🌸','🌺','✿','❀'][Math.floor(Math.random()*4)];
+                        p.style.left = Math.random() * 100 + '%';
+                        p.style.animationDuration = (4 + Math.random() * 4) + 's';
+                        p.style.animationDelay = (Math.random() * 4) + 's';
+                        p.style.fontSize = (16 + Math.random() * 14) + 'px';
+                        titlePetals.appendChild(p);
+                    }, i * 200);
+                }
+            }
         }
 
         function isCompleteHangul(char) {
@@ -1660,14 +1883,14 @@
         }
 
         function clearBoss() {
-            isBossEvent = false; // 발사체 루프 중단용
-            // 남은 발사체 즉시 제거
+            isBossEvent = false;
             clearAllProjectiles();
-            bossWordDisplay.innerText = "벚꽃 정화 완료! 🌸";
+            bossWordDisplay.innerText = "데이터 정화 완료! 🌸";
             SoundEngine.playSuccess();
             score += 200 + (maxBossHP * 50);
             scoreDisplay.innerText = score;
             nextMidBossScore += 1000;
+            updateHUD();
             setTimeout(() => {
                 bossContainer.style.display = 'none';
                 bossContainer.style.top = '30px';
@@ -1743,14 +1966,14 @@
         }
 
         function clearLargeBoss() {
-            isLargeBossEvent = false; // 발사체 루프 중단용
-            // 남은 발사체 즉시 제거
+            isLargeBossEvent = false;
             clearAllProjectiles();
-            largeBossWordDisplay.innerText = "💀 대형보스 격파! 🌸";
+            largeBossWordDisplay.innerText = "💀 코어 파괴 완료! 🌸";
             SoundEngine.playSuccess(); SoundEngine.playSuccess();
             score += 500 + (maxLargeBossHP * 100);
             scoreDisplay.innerText = score;
             nextLargeBossScore += 1000;
+            updateHUD();
             setTimeout(() => {
                 largeBossContainer.style.display = 'none';
                 largeBossContainer.style.top = '10px';
@@ -1928,15 +2151,21 @@
             if (isLargeBossEvent) {
                 if (trimmedVal === currentLargeBossWord) {
                     triggerCharDamage(gameField.offsetWidth / 2, 200, trimmedVal.slice(-1));
+                    spawnHitParticles(gameField.offsetWidth / 2, gameField.offsetHeight * 0.5);
+                    correctKeystrokes += trimmedVal.length;
                     hitLargeBoss();
                     clearInput();
+                    updateHUD();
                     return true;
                 }
             } else if (isBossEvent) {
                 if (trimmedVal === currentBossWord) {
                     triggerCharDamage(gameField.offsetWidth / 2, 150, trimmedVal.slice(-1));
+                    spawnHitParticles(gameField.offsetWidth / 2, gameField.offsetHeight * 0.5);
+                    correctKeystrokes += trimmedVal.length;
                     hitBoss();
                     clearInput();
+                    updateHUD();
                     return true;
                 }
             } else {
@@ -1944,7 +2173,9 @@
                 if (idx !== -1) {
                     const m = activeWords[idx];
                     triggerCharDamage(m.x, m.y, trimmedVal.slice(-1));
+                    spawnWordExplosion(m.x, m.y);
                     SoundEngine.playSuccess();
+                    correctKeystrokes += trimmedVal.length;
                     let gain = (m.word.length * 20);
                     if (isFever) gain *= 2;
                     m.el.remove();
@@ -1952,14 +2183,90 @@
                     if (!isFever) {
                         combo++;
                         comboTimeRemaining = COMBO_TIME_LIMIT;
+                        SoundEngine.playCombo(combo);
                         if (combo >= 10) startFever();
                     }
                     score += gain; scoreDisplay.innerText = score;
                     fallSpeed += 0.0002; clearInput(); updateComboUI();
+                    updateHUD();
                     return true;
                 }
             }
             return false;
+        }
+
+        function updateHUD() {
+            const hudScore = document.getElementById('hud-score');
+            const hudBest  = document.getElementById('hud-best');
+            const accEl    = document.getElementById('accuracy-val');
+            if (hudScore) hudScore.innerText = score;
+            if (hudBest)  hudBest.innerText  = Math.max(bestScore, score);
+            if (accEl) {
+                const acc = totalKeystrokes > 0 ? Math.round((correctKeystrokes / totalKeystrokes) * 100) : 100;
+                accEl.innerText = acc + '%';
+                accEl.style.color = acc >= 90 ? '#00c853' : acc >= 70 ? '#ff9100' : '#e53935';
+            }
+        }
+
+        // 정타 초록 파티클 (8개)
+        function spawnHitParticles(x, y) {
+            const colors = ['#00e676','#69f0ae','#b9f6ca','#76ff03'];
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'hit-particle';
+                const angle = (i / 8) * Math.PI * 2;
+                const dist = 30 + Math.random() * 30;
+                const px = Math.cos(angle) * dist;
+                const py = Math.sin(angle) * dist;
+                p.style.cssText = `
+                    left:${x}px; top:${y}px;
+                    width:${6+Math.random()*6}px;
+                    height:${6+Math.random()*6}px;
+                    background:${colors[i%colors.length]};
+                    --px:${px}px; --py:${py}px;
+                    animation-duration:${0.4+Math.random()*0.2}s;
+                `;
+                gameField.appendChild(p);
+                setTimeout(() => p.remove(), 700);
+            }
+        }
+
+        // 단어 완성 폭발 파티클 (꽃잎 5개)
+        function spawnWordExplosion(x, y) {
+            const emojis = ['🌸','✨','💖','🌟','🌺'];
+            for (let i = 0; i < 5; i++) {
+                const p = document.createElement('div');
+                p.className = 'word-explosion';
+                const angle = (i / 5) * Math.PI * 2 - Math.PI/2;
+                const dist = 40 + Math.random() * 30;
+                const ex = Math.cos(angle) * dist + 'px';
+                const ey = Math.sin(angle) * dist + 'px';
+                p.innerText = emojis[i];
+                p.style.cssText = `
+                    left:${x}px; top:${y}px;
+                    --ex:${ex}; --ey:${ey};
+                    animation-duration:${0.5+Math.random()*0.15}s;
+                `;
+                gameField.appendChild(p);
+                setTimeout(() => p.remove(), 750);
+            }
+        }
+
+        // 오타 피드백 (빨간 플래시 + 진동 + 오타음)
+        function triggerErrorFeedback() {
+            SoundEngine.playError();
+            const field = document.getElementById('game-field');
+            const frame = document.getElementById('game-frame');
+            field.classList.remove('error-flash');
+            frame.classList.remove('shake');
+            void field.offsetWidth;
+            void frame.offsetWidth;
+            field.classList.add('error-flash');
+            frame.classList.add('shake');
+            setTimeout(() => {
+                field.classList.remove('error-flash');
+                frame.classList.remove('shake');
+            }, 300);
         }
 
         function startFever() {
@@ -1994,8 +2301,22 @@
         }
 
         function updateComboUI() {
-            if (combo > 0) { comboPanel.classList.add('active'); comboDisplay.innerText = combo; } 
-            else comboPanel.classList.remove('active');
+            if (combo > 0) { 
+                comboPanel.classList.add('active'); 
+                comboDisplay.innerText = combo; 
+            } else {
+                comboPanel.classList.remove('active');
+            }
+            // HUD CHAIN 색상 단계
+            const chainEl = document.getElementById('chain-val');
+            if (chainEl) {
+                chainEl.className = 'hud-val';
+                if (combo >= 20)       chainEl.classList.add('chain-red');
+                else if (combo >= 15)  chainEl.classList.add('chain-orange');
+                else if (combo >= 8)   chainEl.classList.add('chain-yellow');
+                else                   chainEl.classList.add('chain-white');
+                chainEl.innerText = combo;
+            }
         }
 
         function updateHighlight(val) {
@@ -2011,6 +2332,8 @@
             const safeLives = Math.max(0, lives);
             const lostLives = Math.max(0, 3 - safeLives);
             lifeDisplay.innerText = '🌸'.repeat(safeLives) + '🥀'.repeat(lostLives);
+            const hudLife = document.getElementById('hud-life');
+            if (hudLife) hudLife.innerText = '🌸'.repeat(safeLives) + '🥀'.repeat(lostLives);
             if (lives < 3 && lives > 0) SoundEngine.playType(150); 
         }
 
@@ -2030,11 +2353,15 @@
             titleScreen.style.opacity = '0';
             titleScreen.style.transition = 'opacity 0.5s ease';
             setTimeout(() => { titleScreen.style.display = 'none'; }, 500);
+            // HUD 최고기록 표시
+            const hudBest = document.getElementById('hud-best');
+            if (hudBest) hudBest.innerText = bestScore;
             startGame();
         }
 
         window.startGame = function() {
             score = 0; lives = 3; combo = 0;
+            totalKeystrokes = 0; correctKeystrokes = 0;
             const baseSpeed = isMobile ? 0.045 : 0.054;
             fallSpeed = baseSpeed * selectedSpeedMult;
             gameActive = true; activeWords = []; activeProjectiles = []; isBossEvent = false; isLargeBossEvent = false;
@@ -2043,6 +2370,7 @@
             clearInterval(bossProjectileInterval);
             clearInterval(largeBossProjectileInterval);
             scoreDisplay.innerText = "0"; updateLivesUI(); updateComboUI();
+            updateHUD();
             gameOverScreen.style.display = 'none';
             bossContainer.style.display = 'none';
             largeBossContainer.style.display = 'none';
@@ -2069,15 +2397,21 @@
             inputField.focus({ preventScroll: true });
         }
 
-        window.endGame = function(msg = "GARDEN OVER") {
-            if (!gameActive) return; // 타이틀 화면 중엔 무시
+        window.endGame = function(msg = "SYSTEM CRASH") {
+            if (!gameActive) return;
             gameActive = false;
             document.getElementById('over-title').innerText = msg;
             document.getElementById('final-score').innerText = score;
             gameOverScreen.style.display = 'flex';
             if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
             if (resetTimer) clearTimeout(resetTimer);
-            SoundEngine.playType(100); 
+            SoundEngine.playGameOver();
+            // 최고기록 갱신
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('hoho_blossom_best', bestScore);
+                updateHUD();
+            }
         }
 
 
@@ -2111,10 +2445,10 @@
                 <!-- 탭 내용: 게임 설명 -->
                 <div id="panel-desc" class="tab-panel p-10">
                     <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        하늘에서 내려오는 글씨를 타이핑합니다.<br><br>
-                        10콤보 달성 시 피버타임 돌입.<br>
-                        500점에 🌸 중간보스, 1000점에 💀 대형보스 등장.<br>
-                        이후 1000점 간격으로 보스가 반복 등장합니다.
+                        하늘에서 낙하하는 데이터를 타이핑으로 처리합니다.<br><br>
+                        10 CHAIN 달성 시 FEVER TIME 돌입.<br>
+                        500pts에 🌸 중간보스, 1000pts에 💀 대형보스 등장.<br>
+                        이후 1000pts 간격으로 보스가 반복 등장합니다.
                     </p>
                 </div>
 
@@ -2136,6 +2470,10 @@
                             <span class="font-black text-xl text-slate-800">게임 일시정지</span>
                             <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">Esc</kbd>
                         </div>
+                        <div class="flex justify-between items-center p-5 bg-red-50 rounded-2xl border border-red-100">
+                            <span class="font-black text-xl text-slate-800">단어 낙하 시</span>
+                            <span class="text-red-500 font-bold text-sm">ERROR 발생 → SHIELD 감소</span>
+                        </div>
                     </div>
                 </div>
 
@@ -2144,7 +2482,7 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                         <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
                         <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 / 자바스크립트</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">2.0.0</p></div>
                         <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
                     </div>
                 </div>
