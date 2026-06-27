@@ -236,29 +236,19 @@
     display: none;
 }
 
-#hoho-score-display {
-    position: absolute;
-    top: 25px;
-    width: 100%;
-    text-align: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
-    color: #00ffcc;
-    text-shadow: 0 0 10px rgba(0,255,204,0.5);
-    margin: 0;
-}
+#hoho-score-display { display: none; }
 
 #hoho-hp-display {
     position: absolute;
-    top: 75px;
-    left: 25px;
-    font-size: 1.5rem;
+    top: 62px;
+    left: 14px;
+    font-size: 1.3rem;
     -webkit-filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
     filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
 }
 
-#hoho-hp-display.ui-right { left: auto; right: 25px; }
-#hoho-hp-display.ui-center { left: 25px; }
+#hoho-hp-display.ui-right { left: auto; right: 14px; }
+#hoho-hp-display.ui-center { left: 14px; }
 
 /* ── 입력창 ── */
 #hoho-input-area {
@@ -679,29 +669,82 @@
     display: none;
 }
 
-#hoho-score-display {
+/* ── 통합 HUD 상단 바 ── */
+#hoho-hud-bar {
     position: absolute;
-    top: 25px;
-    width: 100%;
-    text-align: center;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    background: rgba(5,5,8,0.88);
+    border-bottom: 1px solid rgba(0,255,204,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-sizing: border-box;
+    z-index: 20;
+}
+
+.hud-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    min-width: 90px;
+}
+
+.hud-center-cell { align-items: center; }
+.hud-right-cell  { align-items: flex-end; }
+
+.hud-label {
     font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
+    font-size: 0.52rem;
+    color: rgba(0,255,204,0.55);
+    letter-spacing: 0.08em;
+}
+
+.hud-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 900;
     color: #00ffcc;
     text-shadow: 0 0 10px rgba(0,255,204,0.5);
-    margin: 0;
+    line-height: 1;
+    transition: color 0.15s;
 }
+
+#hud-combo-display { font-size: 1.3rem; }
+
+/* 오타 플래시 */
+#hoho-error-flash {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,0,51,0);
+    pointer-events: none;
+    z-index: 90;
+}
+
+#hoho-error-flash.active {
+    animation: hoho-flash-anim 0.18s ease-out forwards;
+}
+
+@keyframes hoho-flash-anim {
+    0%   { background: rgba(255,0,51,0.30); }
+    100% { background: rgba(255,0,51,0); }
+}
+
+#hoho-score-display { display: none; }
 
 #hoho-hp-display {
     position: absolute;
-    top: 75px;
-    left: 25px;
-    font-size: 1.5rem;
+    top: 62px;
+    left: 14px;
+    font-size: 1.3rem;
     -webkit-filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
     filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
 }
 
-#hoho-hp-display.ui-right { left: auto; right: 25px; }
-#hoho-hp-display.ui-center { left: 25px; }
+#hoho-hp-display.ui-right { left: auto; right: 14px; }
+#hoho-hp-display.ui-center { left: 14px; }
 
 /* ── 입력창 ── */
 #hoho-input-area {
@@ -732,6 +775,22 @@
     -webkit-appearance: none;
     appearance: none;
     margin: 0;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+#hoho-game-input.combo-warm {
+    border-color: #ffcc00;
+    box-shadow: 0 0 14px rgba(255,204,0,0.4);
+}
+
+#hoho-game-input.combo-hot {
+    border-color: #ff6600;
+    box-shadow: 0 0 18px rgba(255,102,0,0.5);
+}
+
+#hoho-game-input.combo-max {
+    border-color: #ff2200;
+    box-shadow: 0 0 22px rgba(255,34,0,0.6);
 }
 
 /* ── 무기 스프라이트 ── */
@@ -828,7 +887,7 @@
     <!-- 타이틀/게임오버 화면 -->
     <div id="hoho-overlay-screen">
       <p id="hoho-main-title">호호타자FPS</p>
-      <p id="hoho-desc-text">이 게임은 호호로그 기획 및 프로그램으로 제작함</p>
+      <p id="hoho-desc-text">바이러스를 코드로 격파하라 — TYPE TO SURVIVE</p>
 
       <div id="hoho-mode-selection">
         <button class="hoho-mode-btn" onclick="hohoSetMode('left',event)">
@@ -855,8 +914,28 @@
 
     <!-- 게임 HUD -->
     <div id="hoho-ui-overlay">
-      <p id="hoho-score-display">000000</p>
+
+      <!-- 통합 상단 HUD 바 -->
+      <div id="hoho-hud-bar">
+        <div class="hud-cell" id="hud-score-cell">
+          <span class="hud-label">DATA PROCESSED</span>
+          <span class="hud-value" id="hoho-score-display">000000</span>
+        </div>
+        <div class="hud-cell hud-center-cell" id="hud-combo-cell">
+          <span class="hud-label">CHAIN</span>
+          <span class="hud-value" id="hud-combo-display">0</span>
+        </div>
+        <div class="hud-cell hud-right-cell">
+          <span class="hud-label">ACC</span>
+          <span class="hud-value" id="hud-acc-display">--%</span>
+        </div>
+      </div>
+
+      <!-- HP 표시 -->
       <div id="hoho-hp-display">❤️❤️❤️</div>
+
+      <!-- 오타 플래시 오버레이 -->
+      <div id="hoho-error-flash"></div>
 
       <div id="hoho-weapon-sprite" class="weapon-right">
         <div class="hoho-weapon-body">
@@ -867,7 +946,7 @@
 
       <div id="hoho-input-area">
         <input type="text" id="hoho-game-input"
-               placeholder="단어 입력..."
+               placeholder="코드 입력..."
                autocomplete="off" autocorrect="off"
                autocapitalize="off" spellcheck="false">
       </div>
@@ -933,11 +1012,53 @@
             o.stop(ac.currentTime + (delay||0) + duration);
         } catch(e) {}
     }
+
+    // 타이핑음: 키별 약간씩 다른 피치
+    var _typingPitchBase = 440;
+    function sfxTyping(charCode) {
+        try {
+            var ac = getAudioCtx();
+            // 문자 코드를 피치 오프셋으로 변환 (±60Hz 범위)
+            var offset = ((charCode || 0) % 12) * 10 - 60;
+            var freq = _typingPitchBase + offset;
+            var o = ac.createOscillator();
+            var g = ac.createGain();
+            o.connect(g); g.connect(ac.destination);
+            o.type = 'square';
+            o.frequency.setValueAtTime(freq, ac.currentTime);
+            o.frequency.exponentialRampToValueAtTime(freq * 0.85, ac.currentTime + 0.04);
+            g.gain.setValueAtTime(0.06, ac.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.07);
+            o.start(ac.currentTime);
+            o.stop(ac.currentTime + 0.07);
+        } catch(e) {}
+    }
+
+    // 오타음: 짧은 저음 버즈
+    function sfxError() {
+        playTone(120, 'sawtooth', 0.12, 0.18);
+        playTone(90,  'sawtooth', 0.10, 0.12, 0.07);
+    }
+
     function sfxKill() {
         // 격파음: 짧고 경쾌한 상승 톤
         playTone(440, 'square', 0.06, 0.12);
         playTone(660, 'square', 0.08, 0.10, 0.05);
     }
+
+    // 콤보 달성음: 콤보 단계별 음 상승
+    function sfxCombo(comboCount) {
+        try {
+            var ac = getAudioCtx();
+            var baseFreqs = [523, 659, 784, 1047, 1319]; // C5 E5 G5 C6 E6
+            var tier = Math.min(Math.floor((comboCount - 2) / 3), 4);
+            var freq = baseFreqs[tier];
+            // 화음 2개
+            playTone(freq,       'sine', 0.18, 0.14);
+            playTone(freq * 1.5, 'sine', 0.14, 0.08, 0.04);
+        } catch(e) {}
+    }
+
     function sfxUrgent() {
         // 긴급 경고음: 두 번 삐빅
         playTone(880, 'sawtooth', 0.08, 0.13);
@@ -952,6 +1073,18 @@
         // 피해 수신음: 불쾌한 노이즈
         playTone(200, 'sawtooth', 0.15, 0.20);
         playTone(150, 'sawtooth', 0.12, 0.15, 0.08);
+    }
+    // 게임오버 음
+    function sfxGameOver() {
+        playTone(220, 'sawtooth', 0.4, 0.18);
+        playTone(180, 'sawtooth', 0.4, 0.14, 0.15);
+        playTone(120, 'sawtooth', 0.6, 0.12, 0.35);
+    }
+    // 단어 완성 폭발 보너스음
+    function sfxWordComplete() {
+        playTone(880, 'square', 0.05, 0.10);
+        playTone(1320,'square', 0.07, 0.08, 0.04);
+        playTone(1760,'sine',   0.09, 0.06, 0.08);
     }
 
     var SPAWN_INTERVAL  = 3000;
@@ -1030,12 +1163,14 @@
         screenShake = 0; targetedEnemy = null;
         lastKillTime = 0; paceLabel = ''; paceAlpha = 0;
         isComposing = false; composedChar = '';
+        // 정확도 통계 리셋
+        totalKeystrokes = 0; correctKeystrokes = 0;
 
         // ── 타이틀 UI 복원 ──
         document.getElementById('hoho-main-title').innerText = '호호타자FPS';
         document.getElementById('hoho-main-title').style.color = '#00ffcc';
         document.getElementById('hoho-mode-selection').style.display = 'flex';
-        document.getElementById('hoho-start-btn').innerText = 'MISSION START';
+        document.getElementById('hoho-start-btn').innerText = 'BOOT SEQUENCE';
         document.getElementById('hoho-save-btn').style.display = 'none';
 
         // 이전 게임루프 완전 취소
@@ -1050,9 +1185,55 @@
         window._hohoSpawnTimer = setInterval(function(){ if (isPlaying && !isBossMode) spawnEnemy(); }, SPAWN_INTERVAL);
     };
 
+    // 정확도 카운터
+    var totalKeystrokes = 0, correctKeystrokes = 0;
+
+    // 콤보별 색상 반환
+    function getComboColor(c) {
+        if (c >= 15) return '#ff2200';
+        if (c >= 10) return '#ff6600';
+        if (c >= 5)  return '#ffcc00';
+        if (c >= 2)  return '#ffffff';
+        return '#00ffcc';
+    }
+
     function updateUI() {
-        scoreDisplay.innerText = String(score).padStart(6,'0');
+        // DATA PROCESSED 점수
+        var scoreEl = document.getElementById('hoho-score-display');
+        if (scoreEl) scoreEl.innerText = String(score).padStart(6,'0');
+        var hudScore = document.getElementById('hud-combo-display');
+        if (hudScore) hudScore.parentElement && hudScore.parentElement.querySelector('.hud-value:first-of-type');
+
+        var hudScoreVal = document.querySelector('#hud-score-cell .hud-value');
+        if (hudScoreVal) hudScoreVal.innerText = String(score).padStart(6,'0');
+
+        // CHAIN 콤보
+        var hudCombo = document.getElementById('hud-combo-display');
+        if (hudCombo) {
+            hudCombo.innerText = combo;
+            hudCombo.style.color = getComboColor(combo);
+            hudCombo.style.textShadow = combo >= 5 ? '0 0 16px ' + getComboColor(combo) : '0 0 8px rgba(0,255,204,0.4)';
+        }
+
+        // ACC 정확도
+        var hudAcc = document.getElementById('hud-acc-display');
+        if (hudAcc) {
+            if (totalKeystrokes === 0) {
+                hudAcc.innerText = '--%';
+            } else {
+                var acc = Math.round(correctKeystrokes / totalKeystrokes * 100);
+                hudAcc.innerText = acc + '%';
+                hudAcc.style.color = acc >= 90 ? '#00ffcc' : acc >= 70 ? '#ffcc00' : '#ff4444';
+            }
+        }
+
         hpDisplay.innerText = '❤️'.repeat(Math.max(0, lives));
+
+        // 입력창 콤보 색 변화
+        gameInput.classList.remove('combo-warm','combo-hot','combo-max');
+        if      (combo >= 15) gameInput.classList.add('combo-max');
+        else if (combo >= 10) gameInput.classList.add('combo-hot');
+        else if (combo >= 5)  gameInput.classList.add('combo-warm');
     }
 
     /* ── 파티클 ── */
@@ -1256,12 +1437,15 @@
             lastKillTime = now;
 
             sfxKill();
+            sfxWordComplete();
 
-            // 콤보 텍스트
+            // 콤보 텍스트 (CHAIN 세계관 문구)
             if (combo >= 2) {
+                sfxCombo(combo);
+                var comboColor = getComboColor(combo);
                 createDamageText(targetedEnemy.x, targetedEnemy.y - 55,
-                    combo + ' COMBO! x' + multiplier.toFixed(1),
-                    combo >= 10 ? '#ff6600' : combo >= 5 ? '#ffcc00' : '#00ffcc');
+                    combo + ' CHAIN  x' + multiplier.toFixed(1),
+                    comboColor);
             }
             createDamageText(targetedEnemy.x, targetedEnemy.y-30, '+'+pts, '#00ffcc');
 
@@ -1334,9 +1518,24 @@
                     || enemies.some(function(en){ return en.word.startsWith(currentVal); })
                     || bossProjectiles.some(function(bp){ return bp.word.startsWith(currentVal); });
 
+        // 정확도 카운팅
+        totalKeystrokes++;
+
         if (!anyMatch && currentVal.length > 0 && !isComposing) {
+            // ── 오타 처리 ──
+            sfxError();
+            // 빨간 플래시
+            var flashEl = document.getElementById('hoho-error-flash');
+            if (flashEl) {
+                flashEl.classList.remove('active');
+                void flashEl.offsetWidth; // reflow
+                flashEl.classList.add('active');
+                setTimeout(function(){ flashEl.classList.remove('active'); }, 200);
+            }
             spawnHangeulParticle(muzzleX, muzzleY, currentVal.slice(-1)||'✕', '#ff3333');
             resetInput(); return;
+        } else {
+            correctKeystrokes++;
         }
 
         // 한글 여부 체크 (영문·숫자·특수문자면 이펙트 없이 리셋)
@@ -1347,15 +1546,21 @@
             resetInput(); return;
         }
 
+        // 타이핑 사운드 (정타 시)
+        var charCode = lastChar ? lastChar.charCodeAt(0) : 65;
+        sfxTyping(charCode);
+
         screenShake = 4;
         var recoilClass = uiMode === 'center' ? 'recoil-center' : 'recoil';
         weaponSprite.classList.remove('recoil','recoil-center');
         void weaponSprite.offsetWidth;
         weaponSprite.classList.add(recoilClass);
 
+        // 콤보 기반 파티클 색상
+        var particleColor = getComboColor(combo);
         var charForParticle = isComposing ? (composedChar || currentVal.slice(-1)) : currentVal.slice(-1);
         if (charForParticle) {
-            if (targetedEnemy) spawnHangeulParticle(targetedEnemy.x, targetedEnemy.y, charForParticle, '#00ffcc');
+            if (targetedEnemy) spawnHangeulParticle(targetedEnemy.x, targetedEnemy.y, charForParticle, particleColor);
             else spawnHangeulParticle(muzzleX, muzzleY, charForParticle, '#888');
             spawnMuzzleParticle(muzzleX, muzzleY, charForParticle);
         }
@@ -2169,21 +2374,8 @@
         reticle.x += (targetX-reticle.x)*0.18;
         reticle.y += (targetY-reticle.y)*0.18;
 
-        // ── 콤보 HUD ── 보스 등장 시 하단 좌측, 평상시 우측 상단
-        if (combo >= 2) {
-            var cMult = combo >= 10 ? 3.0 : combo >= 5 ? 2.0 : 1.5;
-            var cColor = combo >= 10 ? '#ff6600' : combo >= 5 ? '#ffcc00' : '#00ffcc';
-            ctx.save();
-            ctx.font = 'bold 16px Orbitron';
-            ctx.shadowColor = cColor; ctx.shadowBlur = 10;
-            ctx.fillStyle = cColor;
-            if (true) {
-                // 항상 우측 상단 고정
-                ctx.textAlign = 'right';
-                ctx.fillText(combo + ' COMBO  x' + cMult.toFixed(1), canvasW - 16, 75);
-            }
-            ctx.restore();
-        }
+        // ── 콤보 HUD (캔버스) — HUD 바로 이동했으므로 캔버스에선 숨김 ──
+        // updateUI()가 #hud-combo-display 를 처리함
 
         // ── 격파 페이스 HUD ──
         if (paceAlpha > 0 && paceLabel) {
@@ -2195,29 +2387,29 @@
             ctx.textAlign = 'center';
             ctx.fillStyle = paceColor;
             ctx.shadowColor = paceColor; ctx.shadowBlur = 14;
-            ctx.fillText(paceLabel, canvasW / 2, 105);
+            ctx.fillText(paceLabel, canvasW / 2, 130);
             ctx.restore();
         }
 
-        // ── 실드 HUD ──
+        // ── 실드 HUD ── (BARRIER 세계관)
         if (shield > 0) {
             ctx.save();
-            ctx.font = 'bold 14px Orbitron';
+            ctx.font = 'bold 13px Orbitron';
             ctx.textAlign = 'left';
             ctx.fillStyle = '#00ccff';
             ctx.shadowColor = '#00ccff'; ctx.shadowBlur = 8;
-            ctx.fillText('🛡 ' + shield, 20, 110);
+            ctx.fillText('🛡 BARRIER x' + shield, 14, 130);
             ctx.restore();
         }
 
-        // ── 슬로우 HUD ──
+        // ── 슬로우 HUD ── (STASIS 세계관)
         if (slowActive) {
             ctx.save();
             ctx.font = 'bold 13px Orbitron';
             ctx.textAlign = 'center';
             ctx.fillStyle = '#cc88ff';
             ctx.shadowColor = '#cc88ff'; ctx.shadowBlur = 8;
-            ctx.fillText('⏱ SLOW', canvasW/2, 75);
+            ctx.fillText('⏱ STASIS ACTIVE', canvasW/2, 145);
             ctx.restore();
         }
 
@@ -2265,11 +2457,12 @@
         // 모드 선택 숨기기 (다시하기엔 불필요)
         document.getElementById('hoho-mode-selection').style.display = 'flex';
 
-        document.getElementById('hoho-main-title').innerText = 'GAME OVER';
+        document.getElementById('hoho-main-title').innerText = 'SYSTEM CRASH';
         document.getElementById('hoho-main-title').style.color = '#ff3300';
-        document.getElementById('hoho-desc-text').innerText = '최종 점수: ' + score;
-        document.getElementById('hoho-start-btn').innerText = '다시하기';
+        document.getElementById('hoho-desc-text').innerText = 'DATA PROCESSED: ' + score + '  |  ACC: ' + (totalKeystrokes > 0 ? Math.round(correctKeystrokes / totalKeystrokes * 100) : '--') + '%';
+        document.getElementById('hoho-start-btn').innerText = 'REBOOT';
         document.getElementById('hoho-save-btn').style.display = 'inline-block';
+        sfxGameOver();
     }
 
     window.hohoSaveImage = function() {
@@ -2278,14 +2471,16 @@
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.textAlign = 'center';
-        ctx.shadowColor = '#ff3300'; ctx.shadowBlur = 28;
         ctx.fillStyle = '#ff3300';
-        ctx.font = 'bold ' + Math.floor(canvas.width * 0.09) + 'px Orbitron';
-        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height * 0.42);
+        ctx.font = 'bold ' + Math.floor(canvas.width * 0.085) + 'px Orbitron';
+        ctx.fillText('SYSTEM CRASH', canvas.width / 2, canvas.height * 0.40);
         ctx.shadowColor = '#00ffcc'; ctx.shadowBlur = 18;
         ctx.fillStyle = '#00ffcc';
-        ctx.font = 'bold ' + Math.floor(canvas.width * 0.055) + 'px Orbitron';
-        ctx.fillText('SCORE  ' + score, canvas.width / 2, canvas.height * 0.54);
+        ctx.font = 'bold ' + Math.floor(canvas.width * 0.05) + 'px Orbitron';
+        ctx.fillText('DATA: ' + score, canvas.width / 2, canvas.height * 0.52);
+        ctx.font = 'bold ' + Math.floor(canvas.width * 0.038) + 'px Orbitron';
+        var accStr = totalKeystrokes > 0 ? Math.round(correctKeystrokes / totalKeystrokes * 100) + '%' : '--';
+        ctx.fillText('ACC  ' + accStr, canvas.width / 2, canvas.height * 0.60);
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'rgba(180,180,180,0.85)';
         ctx.font = Math.floor(canvas.width * 0.03) + 'px Noto Sans KR';
@@ -2330,29 +2525,29 @@
 
                 <div id="panel-desc" class="tab-panel p-10">
                     <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        단어를 타이핑해 적을 격파하는 1인칭 슈터 타이핑 게임입니다.<br><br>
-                        빠른 타이핑으로 콤보를 연속 달성하고, 300점마다 등장하는 보스를 처치해 최고 점수에 도전합니다.
-                        왼손잡이·오른손잡이 모드를 지원합니다.
+                        바이러스를 코드로 격파하는 1인칭 타이핑 슈터입니다.<br><br>
+                        데이터를 처리(타이핑)해 적을 제거하고 CHAIN을 쌓아 점수 배율을 극대화하세요.
+                        300점마다 보스가 출현하며, 왼손잡이·오른손잡이 모드를 지원합니다.
                     </p>
                 </div>
 
                 <div id="panel-guide" class="tab-panel p-10 hidden">
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">단어 입력</span>
-                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">단어 타이핑</kbd>
+                            <span class="font-black text-xl text-slate-800">코드 입력</span>
+                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">한글 단어 타이핑</kbd>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">모드 선택</span>
-                            <span class="font-bold text-slate-600">왼손잡이 / 오른손잡이 배치 선택</span>
+                            <span class="font-black text-xl text-slate-800">CHAIN</span>
+                            <span class="font-bold text-slate-600">연속 처리 시 배율 ×1.5→×2→×3 상승</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">보스</span>
-                            <span class="font-bold text-slate-600">300점마다 등장 — 8회 격파로 처치</span>
+                            <span class="font-bold text-slate-600">500·750·1000점마다 등장 — 다회 타격으로 격파</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">라이프</span>
-                            <span class="font-bold text-slate-600">적이 바닥에 닿으면 -1 (3개 소진 시 종료)</span>
+                            <span class="font-black text-xl text-slate-800">BARRIER</span>
+                            <span class="font-bold text-slate-600">방어막 아이템 — 적 1회 통과 시 피해 무효</span>
                         </div>
                     </div>
                 </div>
