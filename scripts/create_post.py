@@ -2017,6 +2017,14 @@ def build_quote_post(today_str):
     <div class="tag-cloud">{tag_html}</div>
   </div>
 
+  <!-- 관련 콘텐츠 링크 -->
+  <div class="card" style="text-align:center;padding:16px">
+    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EA%B3%BC%EB%9D%A0%EA%B0%80%EB%A7%8C%EB%82%98%EB%8A%94%EC%8B%9C%EA%B0%84"
+       style="display:inline-block;background:linear-gradient(135deg,#4c1d95,#7c3aed);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
+      ✨ 별과 띠가 만나는 시간 보러가기
+    </a>
+  </div>
+
   {comment_prompt("quote")}
   {site_link()}
   <div class="meta">※ 매일 업데이트 · 실존 인물의 명언과 오늘의 이야기</div>
@@ -2784,6 +2792,14 @@ def build_zodiac_post(z, today_str):
     <div class="tag-cloud">{tag_html}</div>
   </div>
 
+  <!-- 관련 콘텐츠 링크 -->
+  <div class="card" style="text-align:center;padding:16px">
+    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%A3%BC%EA%B0%84"
+       style="display:inline-block;background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
+      📅 별자리 주간운세 보러가기
+    </a>
+  </div>
+
   {site_link()}
   {comment_prompt("zodiac")}
   <div class="meta"><p>{z['kr']} ({z['date']})</p><p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
@@ -3095,6 +3111,15 @@ def build_chinese_post(c, today_str):
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
+
+  <!-- 관련 콘텐츠 링크 -->
+  <div class="card" style="text-align:center;padding:16px">
+    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9B%94%EA%B0%84%EC%9A%B4%EC%84%B8"
+       style="display:inline-block;background:linear-gradient(135deg,#7c2d12,#ea580c);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
+      🌙 띠별 월간운세 보러가기
+    </a>
+  </div>
+
   {comment_prompt("chinese")}
   <div class="meta"><p>{c['kr']} 출생연도: {', '.join(map(str, c['years']))}</p>
     <p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
@@ -3344,6 +3369,15 @@ def build_zodiac_weekly_post(today_str):
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
+
+  <!-- 관련 콘텐츠 링크 -->
+  <div class="card" style="text-align:center;padding:16px">
+    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9B%94%EA%B0%84%EC%9A%B4%EC%84%B8"
+       style="display:inline-block;background:linear-gradient(135deg,#7c2d12,#ea580c);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
+      🌙 띠별 월간운세 보러가기
+    </a>
+  </div>
+
   {site_link()}
   {comment_prompt("weekly")}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매주 업데이트</div>
@@ -3639,6 +3673,15 @@ def build_chinese_monthly_post(today_str):
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
+
+  <!-- 관련 콘텐츠 링크 -->
+  <div class="card" style="text-align:center;padding:16px">
+    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%A3%BC%EA%B0%84"
+       style="display:inline-block;background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
+      📅 별자리 주간운세 보러가기
+    </a>
+  </div>
+
   {site_link()}
   {comment_prompt("monthly")}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매월 업데이트</div>
