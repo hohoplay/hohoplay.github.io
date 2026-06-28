@@ -1583,6 +1583,7 @@ let animationId = null;
   _game5Observer.observe(document.body, { childList: true, subtree: true });
 })();
 let activeTruckCount = 0;
+let _lastSpawnLane = -1;      // 직전 스폰 차선 (같은 차선 연속 방지)
 let wallHitCooldown = 0;
 
 // ===== 파티클 / 플래시 / 알림 시스템 =====
@@ -1794,20 +1795,24 @@ function pushNotif(text, color, scale) {
 
 // ===== 파티클 / 플래시 / 알림 업데이트+드로우 =====
 function drawParticles() {
+  if (particles.length === 0) return;
+  // 색상별로 묶어서 path 한 번에 처리 — ctx.save/restore 제거
+  var prevAlpha = -1, prevColor = '';
+  // alpha 근사값으로 정렬 없이 순서대로 처리하되 상태 변경 최소화
   for (var i = particles.length - 1; i >= 0; i--) {
     var p = particles[i];
     p.x += p.vx; p.y += p.vy;
     p.vy += 0.3;
     p.alpha -= p.decay;
     if (p.alpha <= 0) { particles.splice(i, 1); continue; }
-    ctx.save();
-    ctx.globalAlpha = p.alpha;
-    ctx.fillStyle = p.color;
+    var a = Math.round(p.alpha * 10) / 10; // 소수 1자리로 근사 → 상태 변경 횟수 감소
+    if (a !== prevAlpha) { ctx.globalAlpha = a; prevAlpha = a; }
+    if (p.color !== prevColor) { ctx.fillStyle = p.color; prevColor = p.color; }
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
   }
+  ctx.globalAlpha = 1; // 복원 (save/restore 없이 명시적 복원)
 }
 
 function drawScreenFlash() {
@@ -1846,17 +1851,33 @@ function drawNotif() {
 
 function spawn() {
   const lw = cW() / currentLanes;
-  let spawnRate = Math.max(20, 75 - Math.floor(score/1500));
-  if (boostTimer > 0) spawnRate = 18;
+
+  // ── 오브젝트 최대 개수 제한 (차선 수 × 3대) ──
+  const maxObjs = currentLanes * 3;
+  const vehicleCount = objects.filter(function(o){ return o.type === 'car' || o.type === 'bus' || o.type === 'truck'; }).length;
+  if (vehicleCount >= maxObjs) return; // 꽉 찼으면 스폰 스킵
+
+  // ── spawnRate: 차선 수에 따라 하한 조정 (4차선+ 여유 확보) ──
+  const minRate = currentLanes >= 5 ? 38 : currentLanes >= 4 ? 30 : 20;
+  let spawnRate = Math.max(minRate, 75 - Math.floor(score/1500));
+  if (boostTimer > 0) spawnRate = Math.max(minRate, 28);
 
   if (frameCount % spawnRate === 0) {
-    const lane = Math.floor(Math.random() * currentLanes);
+    // ── 같은 차선 연속 스폰 방지 ──
+    let lane = Math.floor(Math.random() * currentLanes);
+    if (currentLanes > 1 && lane === _lastSpawnLane) {
+      lane = (lane + 1 + Math.floor(Math.random() * (currentLanes - 1))) % currentLanes;
+    }
+    _lastSpawnLane = lane;
+
     const roll = Math.random();
     if (currentLanes >= 5 && activeTruckCount === 0 && roll > 0.93 && warnings.length === 0) {
       warnings.push({ lane: lane, timer: 70, x: lane * lw + lw/2 });
       sounds.truckWarn();
     } else {
-      if (currentLanes >= 4 && roll > 0.75) {
+      // ── 버스 비율: 4차선=15%, 5차선+=10% (기존 25%) ──
+      const busThreshold = currentLanes >= 5 ? 0.90 : currentLanes >= 4 ? 0.85 : 1.0;
+      if (currentLanes >= 4 && roll > busThreshold) {
         objects.push(new GameObject(lane * lw + (lw/2 - CAR_WIDTH/2), -350, CAR_WIDTH, BUS_HEIGHT, 'bus', colors.bus));
       } else {
         objects.push(new GameObject(lane * lw + (lw/2 - CAR_WIDTH/2), -350, CAR_WIDTH, CAR_HEIGHT, 'car', colors.car));
@@ -2371,7 +2392,7 @@ function initGame() {
       score=0; hp=3; hasShield=false; boostTimer=0;
       frameCount=0; currentLanes=3; feverBarFill.style.width='0%';
       particles=[]; screenFlash=null; notifQueue=[]; currentNotif=null;
-      _prevLanes=3; _prevRoadMode=ROAD_MODES.STRAIGHT; isNewRecord=false; _lastScore=-1; _lastScoreStr='';
+      _prevLanes=3; _prevRoadMode=ROAD_MODES.STRAIGHT; isNewRecord=false; _lastSpawnLane=-1; _lastScore=-1; _lastScoreStr='';
       gameOverScreen.classList.add('hidden');
       loadingScreen.classList.remove('hidden');
       setTimeout(function(){ loadingScreen.classList.add('hidden'); startGame(); }, 800);
@@ -2442,7 +2463,9 @@ function startGame() {
   _prevLanes = 3;
   _prevRoadMode = ROAD_MODES.STRAIGHT;
   isNewRecord = false;
+  _lastSpawnLane = -1;
   _lastScore = -1; _lastScoreStr = '';
+  _lastSpawnLane = -1;
 
   player = new GameObject(
     (cW() - CAR_WIDTH) / 2,
