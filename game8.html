@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JELLY POP 7 - HOHO PLAY</title>
+    <title>JELLY POP 7 — MAGIC COMBINE — HOHO PLAY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* HOHO PLAY 공통 */
@@ -504,6 +504,7 @@
                         <span class="text-xl">←</span> 전체 리스트로 이동
                     </a>
                     <h1 class="text-5xl font-black text-slate-900 tracking-tight">JELLY POP 7</h1>
+                    <p class="text-slate-400 font-semibold mt-1 text-sm">✨ MAGIC COMBINE — 마법 젤리 조합</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="bg-pink-500 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-pink-100">퍼즐 팝</span>
@@ -795,7 +796,125 @@
 }
 .grid-info{font-size:.5rem;color:rgba(255,255,255,.26);}
 
-/* ══ 가로/세로 orientation 전환 ══ */
+/* ══ 콤보 카운터 팝업 ══ */
+#combo-popup {
+  position:absolute;
+  top:38%;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  z-index:35;
+  pointer-events:none;
+  text-align:center;
+  transition:transform .18s cubic-bezier(.175,.885,.32,1.275), opacity .3s;
+  opacity:0;
+}
+#combo-popup .combo-num {
+  font-family:'Fredoka One',cursive;
+  font-size:3.2rem;
+  color:#fde047;
+  text-shadow:0 0 30px #facc15, 0 0 60px #eab308;
+  line-height:1;
+  letter-spacing:.04em;
+}
+#combo-popup .combo-label {
+  font-family:'Fredoka One',cursive;
+  font-size:.9rem;
+  color:#fbbf24;
+  letter-spacing:.18em;
+  margin-top:.1rem;
+  text-shadow:0 0 12px rgba(251,191,36,.6);
+}
+#combo-popup.show {
+  transform:translate(-50%,-50%) scale(1);
+  opacity:1;
+}
+
+/* ══ 레벨업 / 보너스 타임 플래시 ══ */
+#flash-overlay {
+  position:absolute;inset:0;
+  pointer-events:none;
+  z-index:40;
+  opacity:0;
+  transition:opacity .08s;
+}
+#flash-overlay.active { opacity:1; }
+
+/* ══ 화면 흔들림 ══ */
+@keyframes screenShake {
+  0%,100%{transform:translate(0,0);}
+  15%{transform:translate(-5px,3px);}
+  30%{transform:translate(5px,-4px);}
+  45%{transform:translate(-4px,5px);}
+  60%{transform:translate(4px,-3px);}
+  75%{transform:translate(-3px,2px);}
+}
+#game-card.shake { animation:screenShake .35s ease-out; }
+
+/* ══ 마법 파티클 링 ══ */
+@keyframes magicRing {
+  0%  {opacity:.9;transform:scale(.5);}
+  100%{opacity:0; transform:scale(2.2);}
+}
+.magic-ring {
+  position:absolute;
+  border-radius:50%;
+  border:3px solid;
+  pointer-events:none;
+  animation:magicRing .55s ease-out forwards;
+}
+
+/* ══ MAGIC POINT 뱃지 글로우 ══ */
+#score-display-wrap .score-label { color:#c4b5fd; }
+#score-display { color:#a78bfa !important; text-shadow:0 0 10px rgba(167,139,250,.5); }
+
+/* ══ 합 뱃지: 7일 때 마법 글로우 ══ */
+#sum-badge.magic {
+  background:rgba(234,179,8,.6) !important;
+  box-shadow:0 0 18px rgba(251,191,36,.7);
+  transform:scale(1.12) !important;
+  animation:sumMagic .4s ease-in-out infinite alternate;
+}
+@keyframes sumMagic {
+  from{box-shadow:0 0 10px rgba(251,191,36,.5);}
+  to  {box-shadow:0 0 28px rgba(251,191,36,.95);}
+}
+
+/* ══ CHAIN CAST 연속팝 스트릭 뱃지 ══ */
+#chain-badge {
+  display:none;align-items:center;gap:.3rem;
+  background:rgba(251,191,36,.2);
+  padding:.18rem .5rem;
+  border-radius:9px;border:1px solid rgba(251,191,36,.4);
+  animation:chainPulse .6s ease-in-out infinite alternate;
+}
+@keyframes chainPulse {
+  from{border-color:rgba(251,191,36,.3);}
+  to  {border-color:rgba(251,191,36,.9);box-shadow:0 0 12px rgba(251,191,36,.5);}
+}
+.chain-label{font-size:.5rem;color:#fcd34d;}
+#chain-val  {font-size:.85rem;color:#fde047;}
+
+/* ══ BONUS TIME 배너 업그레이드 ══ */
+#bonus-time-banner {
+  position:absolute;
+  top:0;left:0;right:0;
+  background:linear-gradient(90deg,#7c3aed,#ec4899,#7c3aed);
+  background-size:200% 100%;
+  animation:bonusGrad 2s linear infinite;
+  text-align:center;
+  padding:.3rem 0;
+  font-family:'Fredoka One',cursive;
+  font-size:.85rem;
+  color:#fff;
+  letter-spacing:.12em;
+  z-index:36;
+  display:none;
+  text-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+@keyframes bonusGrad {
+  0%{background-position:0% 50%}
+  100%{background-position:200% 50%}
+}
+
 /* 세로모드: 타이틀 레이아웃 조정 */
 @media (orientation:portrait){
   .title-glow{font-size:2.4rem;}
@@ -828,18 +947,18 @@
     <div id="title-screen">
       <div class="title-top">
         <div class="title-glow">JELLY POP 7</div>
-        <div class="subtitle">합이 7이 되는 젤리들을 연결해서 팝!</div>
+        <div class="subtitle">✨ MAGIC COMBINE — 마법 젤리 결정을 조합해 마법진을 완성!</div>
       </div>
       <div class="mode-grid">
         <div id="mode-single-btn" class="mode-card selected" onclick="selectMode('SINGLE')">
           <div class="mode-icon">🧁</div>
-          <div class="mode-title" style="color:#f472b6;">1인용 싱글</div>
-          <div class="mode-desc">10분 동안 혼자서 최고 점수 도전! 콤보 보너스!</div>
+          <div class="mode-title" style="color:#f472b6;">솔로 마법사</div>
+          <div class="mode-desc">10분 동안 혼자서 마법 점수 도전! 체인 캐스트로 보너스!</div>
         </div>
         <div id="mode-two-btn" class="mode-card" onclick="selectMode('TWO_PLAYER')">
           <div class="mode-icon">🍬</div>
-          <div class="mode-title" style="color:#2dd4bf;">2인용 대결</div>
-          <div class="mode-desc">번갈아가며 젤리 팝! 높은 점수가 승자!</div>
+          <div class="mode-title" style="color:#2dd4bf;">2인 대결</div>
+          <div class="mode-desc">번갈아 마법 팝! 더 많은 마법 포인트가 승자!</div>
         </div>
       </div>
 
@@ -861,13 +980,13 @@
           <div class="diff-desc">작은 숫자 가득<br>긴 체인 필수</div>
         </div>
       </div>
-      <button class="start-btn" onclick="startGame()">🍬 젤리 스타트!</button>
+      <button class="start-btn" onclick="startGame()">✨ 마법진 발동!</button>
       <p class="game-credit">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
     </div>
 
     <!-- 헤더 -->
     <header id="game-header">
-      <div class="header-title">JELLY POP 7</div>
+      <div class="header-title">✨ JELLY POP 7</div>
       <div id="turn-indicator">
         <div id="turn-dot" class="turn-dot" style="background:#f472b6;"></div>
         <span id="turn-text" style="color:#f472b6;">PLAYER 1</span>
@@ -878,8 +997,12 @@
           <span id="current-sum">0</span>
         </div>
         <div id="score-display-wrap">
-          <div class="score-label">Score</div>
+          <div class="score-label">MAGIC POINT</div>
           <div id="score-display">0000</div>
+        </div>
+        <div id="chain-badge">
+          <span class="chain-label">CHAIN</span>
+          <span id="chain-val">×1</span>
         </div>
         <div id="double-score-board">
           <div class="player-score" style="border-color:#f472b6;background:rgba(244,114,182,.15);">
@@ -898,6 +1021,12 @@
     <!-- 캔버스 -->
     <main id="main-game">
       <canvas id="game-canvas"></canvas>
+      <div id="flash-overlay"></div>
+      <div id="bonus-time-banner">⚡ BONUS TIME — 2배 점수!</div>
+      <div id="combo-popup">
+        <div class="combo-num" id="combo-num-txt">×3</div>
+        <div class="combo-label">CHAIN CAST</div>
+      </div>
       <div id="toast-message">🌀 움직일 수 있는 조합이 없어<br>판을 자동으로 섞어줄게요!</div>
       <div id="turn-banner">PLAYER 1 TURN</div>
       <div id="overlay">
@@ -951,24 +1080,96 @@ const TYPES = {
   6:{c:'#a855f7',d:'#4c1d95',t:'#f3e8ff'}
 };
 
-// ── 사운드 ──
+// ── 사운드 (강화판) ──
 class Sound{
   constructor(){this.ac=null;}
-  init(){if(!this.ac)this.ac=new(window.AudioContext||window.webkitAudioContext)();}
-  tone(f,type='sine',dur=.1,vol=.1){
-    this.init();if(!this.ac)return;
+  init(){
+    if(!this.ac){
+      this.ac=new(window.AudioContext||window.webkitAudioContext)();
+    }
+    // iOS unlock
+    if(this.ac.state==='suspended'){this.ac.resume();}
+  }
+  _osc(f,type,dur,vol,startRamp,stopRamp){
+    if(!this.ac)return;
     const o=this.ac.createOscillator(),g=this.ac.createGain();
-    o.type=type;o.frequency.setValueAtTime(f,this.ac.currentTime);
+    o.type=type; o.frequency.setValueAtTime(f,this.ac.currentTime);
+    g.gain.setValueAtTime(startRamp||vol,this.ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(stopRamp||.001,this.ac.currentTime+dur);
+    o.connect(g); g.connect(this.ac.destination);
+    o.start(); o.stop(this.ac.currentTime+dur);
+  }
+  _sweep(f0,f1,type,dur,vol){
+    if(!this.ac)return;
+    const o=this.ac.createOscillator(),g=this.ac.createGain();
+    o.type=type;
+    o.frequency.setValueAtTime(f0,this.ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(f1,this.ac.currentTime+dur);
     g.gain.setValueAtTime(vol,this.ac.currentTime);
     g.gain.exponentialRampToValueAtTime(.001,this.ac.currentTime+dur);
-    o.connect(g);g.connect(this.ac.destination);
-    o.start();o.stop(this.ac.currentTime+dur);
+    o.connect(g); g.connect(this.ac.destination);
+    o.start(); o.stop(this.ac.currentTime+dur);
   }
-  bloop(n)    {this.tone(220*Math.pow(1.15,n),'triangle',.15,.12);}
-  pop()       {this.tone(440,'sine',.2,.2);setTimeout(()=>this.tone(880,'triangle',.3,.12),50);}
-  error()     {this.tone(150,'sawtooth',.2,.1);}
-  shuffle()   {[300,400,500].forEach((f,i)=>setTimeout(()=>this.tone(f,'sine',.15,.1),i*80));}
-  switchTurn(){[600,750].forEach((f,i)=>setTimeout(()=>this.tone(f,'triangle',.1,.1),i*60));}
+  // 젤리 선택 (bloop)
+  bloop(n){
+    this.init();
+    this._osc(180*Math.pow(1.18,Math.min(n,8)),'triangle',.1,.09);
+  }
+  // 팝 성공 (기본)
+  pop(){
+    this.init();
+    this._osc(523,'sine',.08,.18);
+    setTimeout(()=>this._osc(659,'triangle',.12,.14),55);
+    setTimeout(()=>this._osc(784,'sine',.18,.10),110);
+  }
+  // 콤보 팝 (n=콤보수 2~)
+  comboPop(n){
+    this.init();
+    const base=440;
+    const notes=[base,base*1.25,base*1.5,base*1.75,base*2,base*2.5];
+    notes.slice(0,Math.min(n,6)).forEach((f,i)=>{
+      setTimeout(()=>{
+        this._osc(f,'sine',.1,.2);
+        this._osc(f*2,'triangle',.08,.08);
+      },i*45);
+    });
+  }
+  // 오류
+  error(){this.init();this._sweep(280,120,'sawtooth',.22,.09);}
+  // 셔플
+  shuffle(){
+    this.init();
+    [300,400,530,400,300].forEach((f,i)=>setTimeout(()=>this._osc(f,'sine',.12,.08),i*65));
+  }
+  // 턴 전환
+  switchTurn(){
+    this.init();
+    [550,700].forEach((f,i)=>setTimeout(()=>this._osc(f,'triangle',.12,.1),i*65));
+  }
+  // 레벨업 팡파르
+  levelUp(){
+    this.init();
+    const melody=[523,659,784,1047];
+    melody.forEach((f,i)=>setTimeout(()=>{
+      this._osc(f,'sine',.18,.2);
+      this._osc(f*1.5,'triangle',.12,.08);
+    },i*90));
+  }
+  // 보너스 타임 시작 징글
+  bonusStart(){
+    this.init();
+    const m=[659,784,988,1319];
+    m.forEach((f,i)=>setTimeout(()=>this._osc(f,'triangle',.14,.15),i*70));
+  }
+  // 게임오버 (내림 멜로디)
+  gameOver(){
+    this.init();
+    [523,440,349,294,220].forEach((f,i)=>setTimeout(()=>this._sweep(f,f*.85,'sawtooth',.3,.12),i*110));
+  }
+  // 이동음 (블록 sliding)
+  slide(){this.init();this._sweep(180,120,'sine',.07,.06);}
+  // 자동 셔플 알림
+  autoShuffle(){this.init();this.shuffle();}
 }
 const sfx=new Sound();
 
@@ -985,9 +1186,13 @@ class Jelly{
     const dy=this.r-this.vy,dx=this.c-this.vx;
     if(Math.abs(dy)>.001)this.vy+=dy*12*dt;else this.vy=this.r;
     if(Math.abs(dx)>.001)this.vx+=dx*12*dt;else this.vx=this.c;
-    const k=180,d=8;
-    this.bvx+=(-k*(this.sx-1))*dt;this.bvx*=Math.exp(-d*dt);this.sx+=this.bvx*dt;
-    this.bvy+=(-k*(this.sy-1))*dt;this.bvy*=Math.exp(-d*dt);this.sy+=this.bvy*dt;
+    // Math.exp(-d*dt) → 근사 (1-d*dt) 로 교체 (d=8, dt≤0.05 → 최대 오차 ~1.6%)
+    const k=180,damp=1-8*dt;
+    this.bvx+=(-k*(this.sx-1))*dt;this.bvx*=damp;this.sx+=this.bvx*dt;
+    this.bvy+=(-k*(this.sy-1))*dt;this.bvy*=damp;this.sy+=this.bvy*dt;
+    // 스케일이 거의 1이면 고정 (불필요한 미세 진동 차단)
+    if(Math.abs(this.sx-1)<.002&&Math.abs(this.bvx)<.01){this.sx=1;this.bvx=0;}
+    if(Math.abs(this.sy-1)<.002&&Math.abs(this.bvy)<.01){this.sy=1;this.bvy=0;}
   }
   squish(sx,sy){this.sx=sx;this.sy=sy;}
 }
@@ -1002,14 +1207,7 @@ class Particle{
     this.decay=Math.random()*1.5+1;
   }
   update(dt){this.x+=this.vx*dt;this.y+=this.vy*dt;this.vy+=180*dt;this.alpha-=this.decay*dt;}
-  draw(ctx){
-    ctx.save();ctx.globalAlpha=Math.max(0,this.alpha);
-    ctx.fillStyle=this.color;
-    ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(this.x-this.size*.3,this.y-this.size*.3,this.size*.22,0,Math.PI*2);ctx.fill();
-    ctx.restore();
-  }
+  // draw는 루프에서 배치(batch) 처리 — 개별 호출 안 함
 }
 
 
@@ -1027,16 +1225,13 @@ class Ripple{
   }
   draw(ctx){
     if(this.alpha<=0)return;
-    ctx.save();
     ctx.globalAlpha=Math.max(0,this.alpha);
     ctx.strokeStyle=this.color;
     ctx.lineWidth=3;
-    ctx.shadowColor=this.color;
-    ctx.shadowBlur=10;
     ctx.beginPath();
     ctx.arc(this.x,this.y,Math.min(this.radius,this.maxRadius),0,Math.PI*2);
     ctx.stroke();
-    ctx.restore();
+    ctx.globalAlpha=1;
   }
   get dead(){ return this.alpha<=0; }
 }
@@ -1054,7 +1249,13 @@ let idleTimer=null;  // 2인용: 5초 무입력 시 자동 턴 전환
 let gameDiff='NORMAL'; // EASY | NORMAL | HARD
 let score=0,scores={1:0,2:0};
 let timeLeft=600,timerID=null,gameOver=false;
-let shuffleLeft={1:1,2:1}; // 플레이어별 판 섞기 1회 제한
+let shuffleLeft={1:1,2:1};
+// ── 콤보 & 체인 ──
+let comboStreak=0;      // 연속 팝 횟수
+let comboTimer=null;    // 콤보 리셋 타이머
+let isBonusTime=false;  // 보너스 타임 플래그
+let bonusTimer=null;    // 보너스 타임 타이머
+let popAnimFrame=null;  // 콤보 팝업 타이머
 
     // ── SPA 이탈 감지 ──
     (function() {
@@ -1204,7 +1405,11 @@ function startGame(){
     scores={1:0,2:0};turn=1;updateTurnUI();
   if(gameMode==='TWO_PLAYER') resetIdleTimer();
   }
-  gameOver=false;shuffleLeft={1:1,2:1};initGrid();startTimer();sfx.shuffle();
+  gameOver=false;shuffleLeft={1:1,2:1};
+  comboStreak=0;isBonusTime=false;
+  clearTimeout(comboTimer);clearTimeout(bonusTimer);
+  hideBonusTime();hideChainBadge();
+  initGrid();startTimer();sfx.shuffle();
   updateShuffleBtn();
   setTimeout(checkAutoShuffle,1000);
 }
@@ -1278,8 +1483,8 @@ function cellAt(p){
 }
 function activeCell(p){
   const cell=cellAt(p);if(!cell)return null;
-  const cx=gridOffsetX+(cell.c+.5)*cellW,cy=gridOffsetY+(cell.r+.5)*cellH;
-  return Math.hypot(p.x-cx,p.y-cy)<Math.min(cellW,cellH)*.44?cell:null;
+  // 원형 판정 대신 사각형 판정 — 가장자리 셀도 정상 선택됨
+  return cell;
 }
 function adj(a,b){return Math.abs(a.r-b.r)<=1&&Math.abs(a.c-b.c)<=1&&!(a.r===b.r&&a.c===b.c);}
 
@@ -1296,8 +1501,8 @@ canvas.addEventListener('pointerdown',e=>{
 canvas.addEventListener('pointermove',e=>{
   if(!dragging||gameOver)return;
   ptr=ptrPos(e);
-  if(ptr.x<gridOffsetX||ptr.x>gridOffsetX+cellW*COLS||
-     ptr.y<gridOffsetY||ptr.y>gridOffsetY+cellH*ROWS){cancelDrag();return;}
+  if(ptr.x<gridOffsetX-2||ptr.x>gridOffsetX+cellW*COLS+2||
+     ptr.y<gridOffsetY-2||ptr.y>gridOffsetY+cellH*ROWS+2){cancelDrag();return;}
   const cell=activeCell(ptr);if(!cell||path.length===0)return;
   const last=path[path.length-1];
   if(path.length>1&&cell.r===path[path.length-2].r&&cell.c===path[path.length-2].c){
@@ -1318,19 +1523,19 @@ function onUp(e){
     const sum=path.reduce((s,p)=>s+grid[p.r][p.c].value,0);
     if(sum===7){
       const n=path.length,pts=n*100+(n>3?150:0);
-      if(gameMode==='SINGLE'){score+=pts;document.getElementById('score-display').textContent=String(score).padStart(4,'0');}
-      else{scores[turn]+=pts;updateTurnUI();}
-      sfx.pop();
+      onPopSuccess(n,pts);
       path.forEach(p=>{
         const j=grid[p.r][p.c];
         if(j){const x=gridOffsetX+(p.c+.5)*cellW,y=gridOffsetY+(p.r+.5)*cellH;
-          for(let i=0;i<12;i++)particles.push(new Particle(x,y,TYPES[j.value].c));}
+          for(let i=0;i<Math.max(12,n*3);i++)particles.push(new Particle(x,y,TYPES[j.value].c));}
         grid[p.r][p.c]=null;
       });
       applyGravity();
-      if(gameMode==='TWO_PLAYER') resetIdleTimer(); // 팝 성공 시 턴 유지, 5초 타이머만 리셋
+      if(gameMode==='TWO_PLAYER') resetIdleTimer();
     }else{
       path.forEach(p=>{const j=grid[p.r][p.c];if(j)j.squish(1.4,.6);}); sfx.error();
+      // 오답 시 콤보 리셋
+      comboStreak=0;hideChainBadge();clearTimeout(comboTimer);
       if(gameMode==='TWO_PLAYER'){turn=turn===1?2:1;updateTurnUI();showTurnBanner();resetIdleTimer();}
     }
   }else if(path.length===1){
@@ -1349,12 +1554,18 @@ window.addEventListener('blur',()=>{if(dragging)cancelDrag();});
 function updateSum(){
   const badge=document.getElementById('sum-badge');
   const txt  =document.getElementById('current-sum');
-  if(path.length===0){txt.textContent='0';badge.style.background='rgba(236,72,153,.2)';badge.style.transform='scale(1)';return;}
+  if(path.length===0){
+    txt.textContent='0';
+    badge.style.background='rgba(236,72,153,.2)';
+    badge.style.transform='scale(1)';
+    badge.classList.remove('magic');
+    return;
+  }
   const sum=path.reduce((s,p)=>s+grid[p.r][p.c].value,0);
   txt.textContent=sum;
-  if(sum===7)    {badge.style.background='rgba(234,179,8,.55)'; badge.style.transform='scale(1.1)';}
-  else if(sum>7) {badge.style.background='rgba(239,68,68,.45)'; badge.style.transform='scale(1)';}
-  else           {badge.style.background='rgba(59,130,246,.35)';badge.style.transform='scale(1)';}
+  if(sum===7)    {badge.classList.add('magic');badge.style.background='rgba(234,179,8,.55)';}
+  else if(sum>7) {badge.classList.remove('magic');badge.style.background='rgba(239,68,68,.45)'; badge.style.transform='scale(1)';}
+  else           {badge.classList.remove('magic');badge.style.background='rgba(59,130,246,.35)';badge.style.transform='scale(1)';}
 }
 
 // ── 중력 ──
@@ -1453,6 +1664,112 @@ function updateShuffleBtn(){
   }
 }
 
+// ── 화면 흔들림 ──
+function shakeScreen(intensity){
+  const c=document.getElementById('game-card');
+  c.classList.remove('shake');
+  void c.offsetWidth; // reflow 강제
+  c.classList.add('shake');
+  c.addEventListener('animationend',()=>c.classList.remove('shake'),{once:true});
+}
+
+// ── 컬러 플래시 ──
+function flashScreen(color,dur){
+  const fl=document.getElementById('flash-overlay');
+  fl.style.background=color||'rgba(255,255,255,.18)';
+  fl.classList.add('active');
+  setTimeout(()=>fl.classList.remove('active'),dur||120);
+}
+
+// ── 콤보 팝업 표시 ──
+function showComboPop(n){
+  const el=document.getElementById('combo-popup');
+  const num=document.getElementById('combo-num-txt');
+  num.textContent='×'+n;
+  clearTimeout(popAnimFrame);
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  popAnimFrame=setTimeout(()=>el.classList.remove('show'),1100);
+}
+
+// ── CHAIN CAST 뱃지 ──
+function showChainBadge(n){
+  const b=document.getElementById('chain-badge');
+  const v=document.getElementById('chain-val');
+  v.textContent='×'+n;
+  b.style.display='flex';
+}
+function hideChainBadge(){
+  const b=document.getElementById('chain-badge');
+  if(b)b.style.display='none';
+}
+
+// ── 보너스 타임 ──
+function triggerBonusTime(){
+  if(isBonusTime||gameOver)return;
+  isBonusTime=true;
+  sfx.bonusStart();
+  flashScreen('rgba(139,92,246,.3)',250);
+  const banner=document.getElementById('bonus-time-banner');
+  if(banner)banner.style.display='block';
+  clearTimeout(bonusTimer);
+  bonusTimer=setTimeout(()=>{
+    isBonusTime=false;
+    hideBonusTime();
+    comboStreak=0;
+    hideChainBadge();
+  },8000);
+}
+function hideBonusTime(){
+  const banner=document.getElementById('bonus-time-banner');
+  if(banner)banner.style.display='none';
+}
+
+// ── 팝 성공 처리 (콤보 포함) ──
+function onPopSuccess(n,pts){
+  comboStreak++;
+  clearTimeout(comboTimer);
+  // 3연속 팝 → 보너스 타임
+  if(comboStreak===3&&!isBonusTime) triggerBonusTime();
+  // 콤보 배율
+  let multiplier=1;
+  if(isBonusTime)multiplier=2;
+  else if(comboStreak>=2)multiplier=comboStreak>=4?2:1.5;
+  const finalPts=Math.round(pts*multiplier);
+
+  if(gameMode==='SINGLE'){
+    score+=finalPts;
+    document.getElementById('score-display').textContent=String(score).padStart(4,'0');
+  }else{
+    scores[turn]+=finalPts;updateTurnUI();
+  }
+
+  // 사운드
+  if(comboStreak>=2) sfx.comboPop(comboStreak);
+  else sfx.pop();
+
+  // 콤보 팝업 (2연속 이상)
+  if(comboStreak>=2) showComboPop(comboStreak);
+  showChainBadge(comboStreak);
+
+  // 화면 연출
+  if(n>=4){
+    shakeScreen();
+    flashScreen('rgba(253,224,71,.14)',100);
+  }
+  if(comboStreak>=3){
+    flashScreen('rgba(167,139,250,.2)',150);
+  }
+
+  // 콤보 리셋 타이머 (3초 무팝 시 리셋)
+  comboTimer=setTimeout(()=>{
+    comboStreak=0;
+    hideChainBadge();
+    if(!isBonusTime){}
+  },3000);
+}
+
 // ── 타이머 ──
 function startTimer(){
   if(timerID)clearInterval(timerID);
@@ -1469,19 +1786,31 @@ function updateTimer(){
 function endGame(){
   gameOver=true;
   clearIdleTimer();if(dragging)cancelDrag();clearInterval(timerID);
+  clearTimeout(comboTimer);clearTimeout(bonusTimer);
+  hideBonusTime();hideChainBadge();
+  sfx.gameOver();
   const ov=document.getElementById('overlay');
   const tl=document.getElementById('overlay-title');
   const dc=document.getElementById('overlay-desc');
   if(gameMode==='SINGLE'){
-    tl.textContent='⏰ 시간 종료!';
-    dc.innerHTML=`최종 점수<br><span style="font-size:2rem;color:#5eead4;">${score}</span> 점`;
+    // 최고 점수 저장
+    const bestKey='jelly7_best_'+gameDiff;
+    const prev=parseInt(localStorage.getItem(bestKey)||'0',10);
+    const isNew=score>prev;
+    if(isNew) localStorage.setItem(bestKey,score);
+    tl.textContent='✨ SPELL FAILED';
+    dc.innerHTML=`
+      <span style="font-size:.75rem;color:#c084fc;letter-spacing:.12em;">MAGIC POINT</span><br>
+      <span style="font-size:2.2rem;color:#5eead4;font-weight:900;">${score.toLocaleString()}</span><br>
+      ${isNew?'<span style="color:#fde047;font-size:.82rem;">🌟 NEW RECORD!</span>':'<span style="color:#9ca3af;font-size:.82rem;">BEST: '+prev.toLocaleString()+'</span>'}
+    `;
   }else{
-    tl.textContent='🏁 경기 종료!';
+    tl.textContent='🏁 SPELL ENDED!';
     let msg='';
     if(scores[1]>scores[2])     msg='<span style="color:#f472b6;">PLAYER 1</span> 승리!';
     else if(scores[2]>scores[1])msg='<span style="color:#2dd4bf;">PLAYER 2</span> 승리!';
     else                        msg='🤝 무승부!';
-    dc.innerHTML=`${msg}<br><br>1P: <strong style="color:#f472b6;">${scores[1]}</strong>점 · 2P: <strong style="color:#2dd4bf;">${scores[2]}</strong>점`;
+    dc.innerHTML=`${msg}<br><br>1P: <strong style="color:#f472b6;">${scores[1].toLocaleString()}</strong>pt · 2P: <strong style="color:#2dd4bf;">${scores[2].toLocaleString()}</strong>pt`;
   }
   ov.style.opacity='1';ov.style.pointerEvents='auto';
 }
@@ -1491,7 +1820,11 @@ document.getElementById('restart-btn').addEventListener('click',()=>{
   ov.style.opacity='0';ov.style.pointerEvents='none';
   if(gameMode==='SINGLE'){score=0;document.getElementById('score-display').textContent='0000';}
   else{scores={1:0,2:0};turn=1;updateTurnUI();}
-  gameOver=false;shuffleLeft={1:1,2:1};initGrid();startTimer();sfx.shuffle();
+  gameOver=false;shuffleLeft={1:1,2:1};
+  comboStreak=0;isBonusTime=false;
+  clearTimeout(comboTimer);clearTimeout(bonusTimer);
+  hideBonusTime();hideChainBadge();
+  initGrid();startTimer();sfx.shuffle();
   updateShuffleBtn();
   setTimeout(checkAutoShuffle,1000);
 });
@@ -1526,10 +1859,10 @@ function drawLine(){
 }
 
 // ── 렌더: 젤리 ──
-function drawJelly(j,t){
+function drawJelly(j,t,selSet){
   const x=gridOffsetX+(j.vx+.5)*cellW,y=gridOffsetY+(j.vy+.5)*cellH;
   const pulse=1+Math.sin(t+j.phase)*.012;
-  const sel=path.some(p=>p.r===j.r&&p.c===j.c);
+  const sel=selSet&&selSet.has(j.r*100+j.c);
   const sc=sel?1:pulse;
   const theme=TYPES[j.value];
   const r=Math.min(cellW,cellH)*.48;
@@ -1537,15 +1870,16 @@ function drawJelly(j,t){
 
   ctx.save();ctx.translate(x,y);ctx.scale(j.sx*sc,j.sy*sc);
 
-  ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
+  // 본체 shadow는 선택된 젤리만 (108개 중 드래그 중인 것만)
+  if(sel){ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=6;ctx.shadowOffsetY=3;}
   ctx.fillStyle=theme.c;ctx.beginPath();
   ctx.roundRect(-r,-r,r*2,r*2,corner);ctx.fill();
   ctx.shadowBlur=0;ctx.shadowOffsetY=0;
 
-  // 테두리: 선택 시 흰색 glow, 평상시 기본색
+  // 테두리
   if(sel){
     ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=5;
-    ctx.shadowColor='#fff';ctx.shadowBlur=14;
+    ctx.shadowColor='#fff';ctx.shadowBlur=12;
   }else{
     ctx.strokeStyle=theme.d;ctx.lineWidth=3;
   }
@@ -1553,9 +1887,9 @@ function drawJelly(j,t){
   ctx.beginPath();ctx.roundRect(-r,-r,r*2,r*2,corner);ctx.stroke();
   ctx.shadowBlur=0;
 
-  const gl=ctx.createLinearGradient(0,-r,0,r*.1);
-  gl.addColorStop(0,'rgba(255,255,255,.5)');gl.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=gl;ctx.beginPath();ctx.ellipse(0,-r*.38,r*.62,r*.28,0,0,Math.PI*2);ctx.fill();
+  // 하이라이트 (linear gradient 매번 생성 → fillStyle 고정색으로 대체)
+  ctx.fillStyle='rgba(255,255,255,.28)';
+  ctx.beginPath();ctx.ellipse(0,-r*.38,r*.62,r*.28,0,0,Math.PI*2);ctx.fill();
 
   const ey=-r*.1,es=r*.3;
   ctx.fillStyle='#1e1b4b';
@@ -1578,7 +1912,7 @@ function drawJelly(j,t){
   ctx.strokeStyle='#1e1b4b';ctx.lineWidth=2;
   ctx.beginPath();ctx.arc(0,ey+r*.28,r*.1,0,Math.PI,false);ctx.stroke();
 
-  ctx.shadowBlur=3;ctx.shadowColor='rgba(0,0,0,.35)';
+  // 숫자 shadow 제거
   ctx.fillStyle=theme.t;
   ctx.font=`bold ${Math.floor(r*.72)}px 'Fredoka One',sans-serif`;
   ctx.textAlign='center';ctx.textBaseline='middle';
@@ -1595,16 +1929,31 @@ function loop(ts){
   ctx.clearRect(0,0,cw,ch);
   ctx.fillStyle='#0d0820';
   ctx.fillRect(0,0,cw,ch);
-  // 1) 파티클
-  particles=particles.filter(p=>p.alpha>0);
-  particles.forEach(p=>{p.update(dt);p.draw(ctx);});
-  // 2) 젤리 (가장 아래)
+  // 1) 젤리 (바닥) — 선택셀 Set을 미리 만들어 O(1) 조회
   const t=ts*.005;
+  const selSet=new Set(path.map(p=>p.r*100+p.c));
   for(let r=0;r<ROWS;r++){
     if(!grid[r])continue;
-    for(let c=0;c<COLS;c++){const j=grid[r][c];if(j){j.update(dt);drawJelly(j,t);}}
+    for(let c=0;c<COLS;c++){const j=grid[r][c];if(j){j.update(dt);drawJelly(j,t,selSet);}}
   }
-  // 3) 파동 (젤리 위)
+  // 2) 파티클 배치 렌더 (색상별로 묶어서 그리기)
+  particles=particles.filter(p=>p.alpha>0);
+  particles.forEach(p=>p.update(dt));
+  if(particles.length){
+    // 색상별 그룹핑
+    const byColor={};
+    particles.forEach(p=>{(byColor[p.color]||(byColor[p.color]=[])).push(p);});
+    Object.entries(byColor).forEach(([col,ps])=>{
+      ctx.fillStyle=col;
+      ctx.beginPath();
+      ps.forEach(p=>{ctx.moveTo(p.x+p.size,p.y);ctx.arc(p.x,p.y,p.size,0,Math.PI*2);});
+      // 알파는 평균값으로 근사 (개별 globalAlpha 변경 생략)
+      ctx.globalAlpha=Math.max(0,ps.reduce((s,p)=>s+p.alpha,0)/ps.length);
+      ctx.fill();
+    });
+    ctx.globalAlpha=1;
+  }
+  // 3) 파동 (파티클 위)
   ripples=ripples.filter(rp=>!rp.dead);
   ripples.forEach(rp=>{rp.update(dt);rp.draw(ctx);});
   // 4) 연결선 (최상단)
@@ -1637,32 +1986,37 @@ requestAnimationFrame(loop);
 
                 <div id="panel-desc" class="tab-panel p-10">
                     <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        합이 7이 되는 젤리들을 드래그로 연결해서 팝! 하는 퍼즐 게임입니다.<br><br>
-                        10분 동안 혼자서 점수를 쌓거나 친구와 번갈아 대결합니다.
-                        시간이 지날수록 난이도가 올라가니 콤보 체인을 노려봅니다.
+                        마법 결정을 드래그로 연결해 합이 7인 마법진을 완성하면 팝! 하고 터집니다.<br><br>
+                        10분 동안 혼자서 MAGIC POINT를 쌓거나 친구와 번갈아 대결합니다.
+                        연속 팝으로 <strong>CHAIN CAST</strong>를 발동하면 점수 배율이 올라갑니다.
+                        3연속 팝에는 <strong>BONUS TIME</strong>이 발동되어 8초간 점수 2배!
                     </p>
                 </div>
 
                 <div id="panel-guide" class="tab-panel p-10 hidden">
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">젤리 연결</span>
+                            <span class="font-black text-xl text-slate-800">마법 결정 연결</span>
                             <span class="font-bold text-slate-600">드래그로 인접한 젤리 이어서 선택</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">팝 조건</span>
+                            <span class="font-black text-xl text-slate-800">마법진 완성</span>
                             <span class="font-bold text-slate-600">선택한 젤리 숫자 합이 정확히 7</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">콤보 보너스</span>
-                            <span class="font-bold text-slate-600">4개 이상 연결 시 +150점 추가</span>
+                            <span class="font-black text-xl text-slate-800">CHAIN CAST</span>
+                            <span class="font-bold text-slate-600">연속 팝 시 ×1.5~×2 배율, 4개 이상 +150pt</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">BONUS TIME</span>
+                            <span class="font-bold text-slate-600">3연속 팝 달성 시 8초간 점수 2배!</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">판 섞기</span>
-                            <span class="font-bold text-slate-600">🔄 버튼 또는 유효 조합 없을 시 자동</span>
+                            <span class="font-bold text-slate-600">🔄 버튼(1회) 또는 유효 조합 없을 시 자동</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">2인용</span>
+                            <span class="font-black text-xl text-slate-800">2인 대결</span>
                             <span class="font-bold text-slate-600">번갈아 연결, 10분 후 높은 점수 승리</span>
                         </div>
                     </div>
@@ -1672,7 +2026,7 @@ requestAnimationFrame(loop);
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                         <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
                         <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.1.0</p></div>
                         <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
                     </div>
                 </div>
