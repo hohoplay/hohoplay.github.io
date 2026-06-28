@@ -562,7 +562,7 @@
             position: relative;
             width: 100%;
             max-width: 500px;
-            height: 500px;
+            /* [FIX] height 고정값 제거 → aspect-ratio만으로 높이 결정 (모바일 정상화) */
             aspect-ratio: 1 / 1;
             margin: 0 auto;
             background: linear-gradient(180deg, #0d0618 0%, #1a0a2e 60%, #2a1044 100%);
@@ -1022,6 +1022,67 @@
 <div style="max-width:520px;margin:0 auto;">
 <section style="margin:0;">
 
+<!-- ── PiP / 미니창 컨트롤 바 ── -->
+<div id="pip-bar" style="
+    display:flex; align-items:center; justify-content:flex-end;
+    gap:6px; padding:4px 6px 4px 10px;
+    background:#0d0618; border-radius:8px 8px 0 0;
+    border:1px solid #3d2a5c; border-bottom:none;
+    max-width:500px; margin:0 auto;
+    font-family:'Press Start 2P',monospace;
+">
+    <span style="flex:1; font-size:6px; color:#554466; letter-spacing:0;">HOHO PLAY</span>
+    <button id="pip-mini-btn" title="스크롤해도 화면 고정" onclick="toggleMiniMode()" style="
+        font-size:9px; background:#1a0a2e; color:#cc88ff;
+        border:1px solid #6644aa; border-radius:4px;
+        padding:3px 7px; cursor:pointer; line-height:1.4;
+        font-family:'Press Start 2P',monospace;
+    ">📌 고정</button>
+    <button id="pip-native-btn" title="브라우저 PiP 미니창" onclick="startCanvasPiP()" style="
+        font-size:9px; background:#1a0a2e; color:#44ffaa;
+        border:1px solid #3d8a5c; border-radius:4px;
+        padding:3px 7px; cursor:pointer; line-height:1.4;
+        font-family:'Press Start 2P',monospace;
+    ">⧉ PiP</button>
+    <!-- 인게임 스타일 토스트 메시지 -->
+    <div id="pip-toast" style="
+        display:none; position:fixed; bottom:260px; right:16px;
+        z-index:10000; background:#0d0618;
+        border:1px solid #6644aa; border-radius:6px;
+        padding:8px 14px; max-width:200px;
+        font-family:'Press Start 2P',monospace; font-size:7px;
+        color:#cc88ff; line-height:1.8;
+        box-shadow:0 0 12px rgba(102,68,170,0.6), 2px 2px 0 #000;
+        pointer-events:none;
+    "></div>
+</div>
+
+<!-- ── 스크롤 고정 미니창 (기본 hidden) ── -->
+<div id="pip-float" style="
+    display:none;
+    position:fixed; bottom:16px; right:16px;
+    width:220px; height:220px;
+    z-index:9999;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 0 0 3px #6644aa, 0 8px 32px rgba(0,0,0,0.8);
+    cursor:move;
+    touch-action:none;
+">
+    <canvas id="pipCanvas" style="width:100%;height:100%;display:block;background:#0d0618;"></canvas>
+    <div id="pip-close" onclick="closeMiniMode()" style="
+        position:absolute; top:4px; right:6px;
+        font-size:14px; color:#fff; cursor:pointer;
+        text-shadow:0 0 4px #000; line-height:1;
+        font-family:sans-serif; opacity:0.85;
+    ">✕</div>
+    <div style="
+        position:absolute; bottom:4px; left:6px;
+        font-size:6px; color:#cc88ff; opacity:0.6;
+        font-family:'Press Start 2P',monospace; pointer-events:none;
+    ">hohoDash</div>
+</div>
+
 <div id="game-wrapper">
     <canvas id="gameCanvas"></canvas>
     
@@ -1231,6 +1292,7 @@
 <!-- 초기화 로그는 canvas에 직접 렌더링 -->
 
 <script>
+(function() { // [FIX] IIFE: index.html 동적 로드 시 const 중복 선언 에러 방지
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const scoreText = document.getElementById('scoreText');
@@ -1759,8 +1821,8 @@
         canvas.style.width  = cssW + 'px';
         canvas.style.height = cssH + 'px';
 
-        // 이후 모든 드로우 콜은 CSS 픽셀 단위로 작성 가능
-        ctx.scale(dpr, dpr);
+        // [FIX] ctx.scale() 누적 방지 → setTransform으로 초기화 후 설정
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     // resize 후 논리(CSS) 크기를 반환하는 헬퍼
@@ -3603,6 +3665,7 @@
         }
 
         if (e.type === 'touchstart') {
+            e.preventDefault(); // [FIX] 모바일 스크롤/줌 방지
             const now = Date.now();
             if (now - _lastActionTime < 30) return; // 이중 터치 방지 (30ms)
             _lastActionTime = now;
@@ -3625,7 +3688,8 @@
     };
 
     window.addEventListener('contextmenu', (e) => e.preventDefault());
-    window.addEventListener('touchstart', startAction, { passive: true });
+    // [FIX] passive:true → canvas에 passive:false로 직접 등록 (모바일 스크롤 가로채기 방지)
+    canvas.addEventListener('touchstart', startAction, { passive: false });
     window.addEventListener('mousedown', startAction);
     window.addEventListener('keydown', startAction);
 
@@ -3637,12 +3701,212 @@
         }
     });
 
-    window.onload = () => {
+    window.addEventListener('load', () => {
         resize();
         ctx.fillStyle = '#050505';
         ctx.fillRect(0, 0, logicalW(), logicalH());
         drawBackground();
+    });
+})(); // IIFE 끝
+</script>
+
+<!-- ══════════════════════════════════════
+     PiP / 미니창 로직
+     1) 📌 고정 버튼: 스크롤 시 우하단 미니창으로 게임 미러링
+     2) ⧉ PiP 버튼: 브라우저 네이티브 Canvas PiP (Chrome 116+)
+     3) 미니창 드래그 이동 지원
+══════════════════════════════════════ -->
+<script>
+(function() {
+    'use strict';
+
+    const gameWrapper  = document.getElementById('game-wrapper');
+    const mainCanvas   = document.getElementById('gameCanvas');
+    const pipFloat     = document.getElementById('pip-float');
+    const pipCanvas    = document.getElementById('pipCanvas');
+    const pipMiniBtn   = document.getElementById('pip-mini-btn');
+    const pipNativeBtn = document.getElementById('pip-native-btn');
+
+    let miniMode      = false;   // 📌 고정 미니창 ON/OFF
+    let mirrorRaf     = null;    // 미러링 루프 핸들
+    let autoTriggered = false;   // 스크롤 자동 발동 여부
+    let pipWindow     = null;    // 브라우저 PiP 창 핸들
+
+    // ── 1. 미니창 미러링 루프 ──────────────────────
+    function startMirror() {
+        const pCtx = pipCanvas.getContext('2d');
+
+        function draw() {
+            // mainCanvas 실제 픽셀 크기를 매 프레임 읽어 정확히 복사
+            const sw = mainCanvas.width;   // DPR 반영 실제 픽셀 너비
+            const sh = mainCanvas.height;  // DPR 반영 실제 픽셀 높이
+            if (sw === 0 || sh === 0) { mirrorRaf = requestAnimationFrame(draw); return; }
+
+            // pipCanvas 크기를 mainCanvas와 동일 비율로 맞춤 (매 프레임 재계산)
+            const D = 440;
+            if (pipCanvas.width !== D || pipCanvas.height !== D) {
+                pipCanvas.width  = D;
+                pipCanvas.height = D;
+            }
+
+            pCtx.clearRect(0, 0, D, D);
+            try {
+                // 소스: raw 픽셀 전체, 대상: pipCanvas 전체
+                // → DPR·setTransform 왜곡 없이 게임 화면 그대로 복사
+                pCtx.drawImage(mainCanvas,
+                    0, 0, sw, sh,
+                    0, 0, D, D
+                );
+            } catch(e) {}
+            mirrorRaf = requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    function stopMirror() {
+        if (mirrorRaf) { cancelAnimationFrame(mirrorRaf); mirrorRaf = null; }
+    }
+
+    // ── 2. 📌 수동 고정 모드 토글 ──────────────────
+    window.toggleMiniMode = function() {
+        if (miniMode) {
+            closeMiniMode();
+        } else {
+            openMiniMode(false);
+        }
     };
+
+    window.closeMiniMode = function() {
+        miniMode = false;
+        autoTriggered = false;
+        pipFloat.style.display = 'none';
+        stopMirror();
+        pipMiniBtn.textContent = '📌 고정';
+        pipMiniBtn.style.color = '#cc88ff';
+    };
+
+    function openMiniMode(isAuto) {
+        if (miniMode) return;
+        miniMode = true;
+        autoTriggered = isAuto;
+        pipFloat.style.display = 'block';
+        startMirror();
+        pipMiniBtn.textContent = '📌 해제';
+        pipMiniBtn.style.color = '#ff6688';
+    }
+
+    // ── 3. 스크롤 자동 감지 ────────────────────────
+    function isOutOfView() {
+        const rect = gameWrapper.getBoundingClientRect();
+        // 게임 wrapper 하단이 뷰포트 위로 올라갔을 때
+        return rect.bottom < 60;
+    }
+
+    window.addEventListener('scroll', function() {
+        if (!miniMode && isOutOfView()) {
+            openMiniMode(true);  // 자동 발동
+        } else if (miniMode && autoTriggered && !isOutOfView()) {
+            closeMiniMode();     // 다시 보이면 자동 해제
+        }
+    }, { passive: true });
+
+    // ── 인게임 스타일 토스트 ─────────────────────
+    const pipToast = document.getElementById('pip-toast');
+    let toastTimer = null;
+    function showPipToast(msg, duration) {
+        duration = duration || 2800;
+        if (toastTimer) clearTimeout(toastTimer);
+        pipToast.innerHTML = msg;
+        pipToast.style.display = 'block';
+        // 미니창이 떠 있으면 토스트 위치 조정
+        const floatVisible = pipFloat.style.display !== 'none';
+        pipToast.style.bottom = floatVisible ? '260px' : '80px';
+        toastTimer = setTimeout(function() {
+            pipToast.style.display = 'none';
+        }, duration);
+    }
+
+    // ── 4. 브라우저 네이티브 Canvas PiP (Chrome 116+) ──
+    window.startCanvasPiP = async function() {
+        // 이미 PiP 중이면 종료
+        if (pipWindow) {
+            try { await pipWindow.close(); } catch(e) {}
+            pipWindow = null;
+            pipNativeBtn.textContent = '⧉ PiP';
+            pipNativeBtn.style.color = '#44ffaa';
+            showPipToast('⧉ PiP 종료');
+            return;
+        }
+
+        // 지원 여부 체크 → 미지원 시 📌 고정 모드로 자동 전환
+        if (!('requestPictureInPicture' in mainCanvas)) {
+            showPipToast('⧉ PiP 미지원 브라우저\n📌 고정 모드로 전환합니다', 3000);
+            setTimeout(function() { if (!miniMode) openMiniMode(false); }, 400);
+            return;
+        }
+
+        try {
+            pipWindow = await mainCanvas.requestPictureInPicture();
+            pipNativeBtn.textContent = '⧉ PiP 종료';
+            pipNativeBtn.style.color = '#ff6688';
+            showPipToast('⧉ PiP 시작!');
+
+            pipWindow.addEventListener('leavepictureinpicture', () => {
+                pipWindow = null;
+                pipNativeBtn.textContent = '⧉ PiP';
+                pipNativeBtn.style.color = '#44ffaa';
+            });
+        } catch(err) {
+            console.warn('Canvas PiP 실패:', err.message);
+            showPipToast('⧉ PiP 실패\n📌 고정 모드로 전환합니다', 3000);
+            setTimeout(function() { if (!miniMode) openMiniMode(false); }, 400);
+        }
+    };
+
+    // ── 5. 미니창 드래그 이동 ──────────────────────
+    (function initDrag() {
+        let dragging = false, ox = 0, oy = 0;
+
+        function onDown(e) {
+            if (e.target.id === 'pip-close') return;
+            dragging = true;
+            const touch = e.touches ? e.touches[0] : e;
+            ox = touch.clientX - pipFloat.getBoundingClientRect().left;
+            oy = touch.clientY - pipFloat.getBoundingClientRect().top;
+            pipFloat.style.right = 'auto';
+            pipFloat.style.bottom = 'auto';
+            e.preventDefault();
+        }
+        function onMove(e) {
+            if (!dragging) return;
+            const touch = e.touches ? e.touches[0] : e;
+            const x = Math.max(0, Math.min(window.innerWidth  - pipFloat.offsetWidth,  touch.clientX - ox));
+            const y = Math.max(0, Math.min(window.innerHeight - pipFloat.offsetHeight, touch.clientY - oy));
+            pipFloat.style.left = x + 'px';
+            pipFloat.style.top  = y + 'px';
+            e.preventDefault();
+        }
+        function onUp() { dragging = false; }
+
+        pipFloat.addEventListener('mousedown',  onDown, { passive: false });
+        pipFloat.addEventListener('touchstart', onDown, { passive: false });
+        window.addEventListener('mousemove',    onMove, { passive: false });
+        window.addEventListener('touchmove',    onMove, { passive: false });
+        window.addEventListener('mouseup',      onUp);
+        window.addEventListener('touchend',     onUp);
+    })();
+
+    // ── 6. 미니창 클릭 → 점프 연결 ────────────────
+    // pipCanvas 탭/클릭 시 원본 canvas에 이벤트 전달
+    pipCanvas.addEventListener('click', function() {
+        mainCanvas.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    pipCanvas.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        mainCanvas.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    }, { passive: false });
+
+})();
 </script>
 
 </section>
