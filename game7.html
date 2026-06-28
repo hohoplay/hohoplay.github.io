@@ -503,7 +503,7 @@
                     <h1 class="text-5xl font-black text-slate-900 tracking-tight">호호사천성</h1>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-indigo-100">두뇌 배틀</span>
+                    <span class="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg shadow-indigo-100">봉인 배틀</span>
                     <span class="bg-slate-200 text-slate-600 px-5 py-2 rounded-full font-bold text-sm">v1.0.0</span>
                     <span class="bg-slate-100 text-slate-500 px-5 py-2 rounded-full font-bold text-sm flex items-center gap-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -539,10 +539,10 @@
             --ts-tile-bg: #f8fafc;
             --ts-fever-gradient: linear-gradient(90deg, #ff4d4d, #f43f5e, #ec4899, #d946ef, #a855f7);
             --ts-master-color: #fbbf24;
-            --tile-w: 30px;
-            --tile-h: 39px;
-            --tile-font: 1.1rem;
-            --grid-gap: 1.2px;
+            --tile-w: 24px;
+            --tile-h: 30px;
+            --tile-font: 0.88rem;
+            --grid-gap: 1px;
         }
         /* ── 바깥 body: 배경색 완전 제거, 여백 없음 ── */
         .ts-game-body {
@@ -557,7 +557,7 @@
         /* ── 게임 컨테이너: 오버레이 기준점 ── */
         #tistory-game-app {
             position: relative;
-            max-width: 1200px;
+            max-width: 100%;
             width: 100%;
             margin: 0 auto;
             background-color: var(--ts-bg-main);
@@ -567,18 +567,22 @@
             border: 2px solid rgba(99, 102, 241, 0.35);
             box-sizing: border-box;
             color: var(--ts-text-main);
-            /* 오버레이가 이 컨테이너 안에서만 펼쳐지도록 */
             min-height: 600px;
         }
         .ts-game-header {
             height: 48px;
             background: rgba(19, 26, 42, 0.95);
-            display: grid;
+            display: none; /* 768px 이하 기본 숨김, 1100px+ 에서 grid */
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
             padding: 0 24px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             box-sizing: border-box;
+        }
+        @media (min-width: 1101px) {
+            .ts-game-header { display: grid !important; }
+            .ts-mid-panel   { display: none !important; }
+            :root { --tile-w: 22px; --tile-h: 28px; --tile-font: 0.8rem; --grid-gap: 1px; }
         }
         .ts-stage-label {
             font-weight: 800;
@@ -601,7 +605,7 @@
             color: var(--ts-secondary);
             justify-self: end;
         }
-        /* AI보드 ↔ PLAYER보드 사이 중앙 정보 패널 (모바일 전용) */
+        /* AI보드 ↔ PLAYER보드 사이 중앙 정보 패널 (1100px 이하) */
         .ts-mid-panel {
             display: none;
             flex-direction: row;
@@ -679,14 +683,19 @@
         }
         .ts-battle-container {
             display: flex;
-            padding: 20px;
-            gap: 20px;
+            flex-direction: row;
+            padding: 16px;
+            gap: 16px;
             justify-content: center;
             align-items: stretch;
             box-sizing: border-box;
+            overflow: hidden;
+            min-width: 0;
+            width: 100%;
         }
         .ts-side-section {
             flex: 1;
+            min-width: 0;
             background: var(--ts-bg-card);
             border-radius: 12px;
             display: flex;
@@ -733,15 +742,18 @@
         .ts-board-wrapper {
             position: relative;
             background: var(--ts-bg-main);
-            margin: 8px;
+            margin: 6px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            padding: 42px;
+            padding: 12px 8px;
             box-sizing: border-box;
             min-height: 480px;
+            min-width: 0;
+            max-width: 100%;
+            width: 100%;
         }
         .ts-grid {
             display: grid;
@@ -749,6 +761,9 @@
             z-index: 10;
             justify-content: center;
             align-content: center;
+            max-width: 100%;
+            overflow: visible;
+            flex-shrink: 1;
         }
         .ts-tile {
             width: var(--tile-w);
@@ -766,6 +781,7 @@
             user-select: none;
             position: relative;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
         @media (hover: hover) {
             .ts-tile:not(.empty):not(.frozen):hover {
@@ -926,6 +942,8 @@
             gap: 16px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             box-sizing: border-box;
+            overflow: hidden;
+            flex-wrap: wrap;
         }
         .ts-btn {
             background: #1e293b;
@@ -973,24 +991,39 @@
         .ts-main-logo {
             font-size: 3.2rem;
             font-weight: 900;
-            margin-bottom: 16px;
-            background: linear-gradient(to bottom, #ffffff, var(--ts-primary));
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff, #818cf8, #fbbf24, #f472b6, #ffffff);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4));
+            filter: drop-shadow(0 0 24px rgba(99, 102, 241, 0.6));
             line-height: 1.1;
+            animation: ts-logo-shimmer 4s ease infinite;
+        }
+        @keyframes ts-logo-shimmer {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         .ts-btn-start {
             padding: 13px 52px;
             font-size: 1.25rem;
             font-weight: 800;
             background: var(--ts-fever-gradient);
+            background-size: 200% 200%;
             color: white;
             border: none;
             border-radius: 35px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+            animation: ts-btn-pulse 2.5s ease infinite;
+            letter-spacing: 1px;
+        }
+        @keyframes ts-btn-pulse {
+            0%   { box-shadow: 0 8px 25px rgba(236,72,153,0.4); transform: scale(1); }
+            50%  { box-shadow: 0 12px 35px rgba(251,191,36,0.6); transform: scale(1.02); }
+            100% { box-shadow: 0 8px 25px rgba(236,72,153,0.4); transform: scale(1); }
         }
         .ts-btn-start:hover {
             transform: translateY(-3px);
@@ -1183,14 +1216,21 @@
             100% { transform: translate(-50%, 0); opacity: 1; }
         }
         @media (max-width: 1100px) {
-            .ts-battle-container { flex-direction: column; align-items: center; padding: 10px; gap: 12px; }
             .ts-game-header { display: none !important; }
             .ts-mid-panel { display: flex !important; }
             .ts-side-header { display: none !important; }
-            :root { --tile-w: 30px; --tile-h: 38px; --tile-font: 1.05rem; --grid-gap: 1px; }
-            .ts-board-wrapper { min-height: 320px; padding: 16px; }
-            /* 타이틀/스테이지 오버레이: 모바일 세로 세울 때 게임 크기에 맞춤 */
+            :root { --tile-w: 22px; --tile-h: 28px; --tile-font: 0.8rem; --grid-gap: 1px; }
+            .ts-board-wrapper { min-height: 280px; padding: 10px; }
             #tistory-game-app { min-height: 500px; }
+            .ts-side-section { max-width: 100%; min-width: 0; }
+            .ts-battle-container { flex-direction: column; align-items: center; padding: 10px; gap: 10px; }
+        }
+        /* ── 세로 레이아웃: 1100px 미만 전 구간 ── */
+        @media (max-width: 768px) {
+            /* 768px 이하: 세로 레이아웃 + 작은 타일 */
+            .ts-battle-container { flex-direction: column !important; align-items: center !important; padding: 8px !important; gap: 8px !important; }
+            :root { --tile-w: 21px; --tile-h: 27px; --tile-font: 0.76rem; --grid-gap: 1px; }
+            .ts-board-wrapper { min-height: 240px !important; padding: 8px !important; }
         }
         /* 모바일 세로 (600px 이하) */
         @media (max-width: 600px) {
@@ -1202,7 +1242,7 @@
             #tistory-game-app { min-height: 480px; }
         }
         @media (max-width: 480px) {
-            :root { --tile-w: 26px; --tile-h: 32px; --tile-font: 0.9rem; --grid-gap: 1px; }
+            :root { --tile-w: 20px; --tile-h: 26px; --tile-font: 0.72rem; --grid-gap: 1px; }
             .ts-board-wrapper { min-height: 260px; padding: 10px; }
             .ts-btn { padding: 8px 14px; font-size: 0.85rem; }
             .ts-mid-timer { font-size: 2.1rem; letter-spacing: 2px; }
@@ -1254,26 +1294,142 @@
             .ts-stage-util-row { gap: 8px; margin-top: 12px; }
             .ts-util-btn { font-size: 0.78rem; padding: 9px 0; }
         }
+
+        /* ── 콤보 팝업 ── */
+        #ts-combo-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 500;
+            text-align: center;
+            pointer-events: none;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #ts-combo-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        #ts-combo-popup.hide {
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.25s ease-in;
+        }
+        .ts-combo-number {
+            font-size: 4rem;
+            font-weight: 900;
+            font-style: italic;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(251,191,36,0.8));
+            line-height: 1;
+        }
+        .ts-combo-label {
+            font-size: 0.85rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: #fbbf24;
+            text-shadow: 0 0 12px rgba(251,191,36,0.6);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        /* ── 화면 플래시 오버레이 ── */
+        #ts-screen-flash {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 450;
+            background: transparent;
+            border-radius: 12px;
+        }
+        /* ── 파티클 캔버스 ── */
+        #ts-particle-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 200;
+            width: 100%;
+            height: 100%;
+        }
+        /* ── 피버 발동 배너 ── */
+        #ts-fever-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 550;
+            text-align: center;
+            pointer-events: none;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        #ts-fever-banner.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .ts-fever-text {
+            font-size: 3rem;
+            font-weight: 900;
+            font-style: italic;
+            background: var(--ts-fever-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 24px rgba(236,72,153,0.9));
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: ts-fever-pulse 0.3s ease infinite alternate;
+        }
+        @keyframes ts-fever-pulse {
+            from { filter: drop-shadow(0 0 18px rgba(236,72,153,0.7)); }
+            to   { filter: drop-shadow(0 0 32px rgba(251,191,36,1.0)); }
+        }
+        /* ── 봉인 해제 클리어 레이아웃 ── */
+        .ts-modal-content {
+            animation: ts-modal-enter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes ts-modal-enter {
+            from { transform: scale(0.7); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        /* ── 피버 바 그로우 애니메이션 ── */
+        .ts-fever-fill {
+            transition: width 0.4s ease, box-shadow 0.3s ease !important;
+        }
+        .ts-fever-fill.full {
+            box-shadow: 0 0 16px rgba(236,72,153,0.8), 0 0 32px rgba(251,191,36,0.5);
+        }
 </style>
-<section style="margin:0;">
+<section style="margin:0; box-sizing:border-box; overflow:hidden; width:100%;">
 <div id="tistory-game-app">
-    <div id="ts-toast">ATTACK!</div>
+    <div id="ts-toast">SEAL BREAK!</div>
+    <!-- 콤보 팝업 -->
+    <div id="ts-combo-popup">
+        <div class="ts-combo-number" id="ts-combo-num">3</div>
+        <div class="ts-combo-label">🔥 CHAIN CAST 🔥</div>
+    </div>
+    <!-- 피버 발동 배너 -->
+    <div id="ts-fever-banner">
+        <div class="ts-fever-text">⚡ FEVER BREAK! ⚡</div>
+    </div>
+    <!-- 화면 플래시 오버레이 -->
+    <div id="ts-screen-flash"></div>
+    <!-- 전역 파티클 캔버스 -->
+    <canvas id="ts-particle-canvas"></canvas>
     <div id="ts-start-overlay" class="ts-overlay">
         <div class="ts-main-logo">호호사천성</div>
-        <button class="ts-btn-start" onclick="openStageSelect()">BATTLE START</button>
-        <p style="margin-top: 14px; color: var(--ts-text-muted); font-size: 0.88rem; line-height: 1.5;">AI와의 숨막히는 두뇌 배틀!<br>최고 랭킹에 도전합니다.</p>
+        <div style="font-size:0.8rem;color:var(--ts-master-color);letter-spacing:3px;font-weight:800;margin-bottom:20px;text-transform:uppercase;text-shadow:0 0 12px rgba(251,191,36,0.5);">⚔️ SEAL BREAK ARENA ⚔️</div>
+        <button class="ts-btn-start" onclick="openStageSelect()">SEAL BREAK START</button>
+        <p style="margin-top: 14px; color: var(--ts-text-muted); font-size: 0.88rem; line-height: 1.5;">봉인된 결계를 깨는 두뇌 대결!<br>AI 봉인사와의 숨막히는 정면 승부에 도전합니다.</p>
     </div>
     <div id="ts-stage-select-overlay" class="ts-overlay">
-        <h1 style="font-size: 1.8rem; margin: 0 0 4px 0; font-weight: 900;">STAGE SELECT</h1>
-        <p style="color: var(--ts-text-muted); font-size: 0.82rem; margin-bottom: 16px;">마스터 스테이지에서 실력을 검증합니다.</p>
+        <h1 style="font-size: 1.8rem; margin: 0 0 4px 0; font-weight: 900;">🔮 SEAL SELECT</h1>
+        <p style="color: var(--ts-text-muted); font-size: 0.82rem; margin-bottom: 16px;">봉인 등급을 선택하여 결계에 도전하십시오.</p>
         <div id="ts-grid-master" class="ts-stage-grid"></div>
         <!-- 하단 유틸리티 버튼 -->
         <div class="ts-stage-util-row">
             <button class="ts-util-btn ts-util-reset" onclick="resetStageProgress()">
-                <span>🔄</span> 처음부터
+                <span>🔄</span> 봉인 초기화
             </button>
             <button class="ts-util-btn ts-util-unlock" onclick="unlockOneStage()">
-                <span>🔓</span> 난이도업 +1
+                <span>🔓</span> 봉인 해방 +1
             </button>
         </div>
     </div>
@@ -1282,12 +1438,12 @@
             <h2 id="ts-result-title" style="font-size: 2.2rem; margin: 0;">CLEAR!</h2>
             <p id="ts-result-desc" style="color: var(--ts-text-muted); font-size: 1rem; margin: 10px 0;">승리했습니다!</p>
             <div id="ts-ranking-input-section">
-                <input type="text" id="ts-nickname-input" placeholder="랭킹용 닉네임 입력" maxlength="8">
-                <button class="ts-modal-btn" style="width: 100%; margin-top: 0; margin-bottom: 12px;" onclick="submitRanking()">기록 등록하기</button>
+                <input type="text" id="ts-nickname-input" placeholder="봉인사 호칭 입력" maxlength="8">
+                <button class="ts-modal-btn" style="width: 100%; margin-top: 0; margin-bottom: 12px;" onclick="submitRanking()">⚔️ 봉인사 이름 새기기</button>
             </div>
             <div id="ts-ranking-list-section">
                 <div style="font-weight: 800; color: var(--ts-text-muted); font-size: 0.8rem; margin-bottom: 5px; text-align: left; display: flex; justify-content: space-between;">
-                    <span>🏆 TOP 10 RANKING</span>
+                    <span>🏆 봉인사 명예의 전당</span>
                     <span id="ts-ranking-type-badge" style="color:var(--ts-master-color)">로컬 기록</span>
                 </div>
                 <div class="ts-ranking-box" id="ts-ranking-list">
@@ -1295,21 +1451,21 @@
                 </div>
             </div>
             <div style="display: flex; gap: 8px; margin-top: 18px;">
-                <button id="ts-next-btn" class="ts-modal-btn" style="flex: 1; margin: 0;" onclick="continueNextMaster()">다음 마스터</button>
-                <button class="ts-modal-btn" style="flex: 1; background:#334155; margin: 0;" onclick="backToSelect()">나가기</button>
+                <button id="ts-next-btn" class="ts-modal-btn" style="flex: 1; margin: 0;" onclick="continueNextMaster()">다음 봉인 ⚔️</button>
+                <button class="ts-modal-btn" style="flex: 1; background:#334155; margin: 0;" onclick="backToSelect()">결계 이탈</button>
             </div>
         </div>
     </div>
     <div class="ts-game-header">
-        <div class="ts-stage-label" id="ts-stage-label">마스터 - M-1</div>
+        <div class="ts-stage-label" id="ts-stage-label">봉인 - M-1</div>
         <div class="ts-main-timer" id="ts-timer-display">10:00</div>
-        <div class="ts-sub-label">BATTLE MODE</div>
+        <div class="ts-sub-label">SEAL BREAK</div>
     </div>
     <div class="ts-battle-container">
         <div class="ts-side-section ai-side" id="ts-ai-side">
             <div class="ts-side-header">
-                <div class="ts-user-info">🤖 AI BOT <span class="ts-count-badge" id="ts-ai-count">0</span></div>
-                <div id="ts-ai-status" style="color: var(--ts-ai-color); font-size: 0.8rem; font-weight:700;">LV.1 BOT (THINKING)</div>
+                <div class="ts-user-info">🤖 AI 봉인사 <span class="ts-count-badge" id="ts-ai-count">0</span></div>
+                <div id="ts-ai-status" style="color: var(--ts-ai-color); font-size: 0.8rem; font-weight:700;">RANK 1 봉인사 (분석중)</div>
             </div>
             <div class="ts-board-wrapper" id="ts-ai-wrapper">
                 <div id="ts-ai-stun-overlay" class="ts-stun-overlay" style="display: none;">
@@ -1334,15 +1490,15 @@
             <!-- AI 이름 (좌측) -->
             <div class="ts-mid-name" style="color:var(--ts-ai-color);">
                 <div class="ts-mid-name-icon">🤖</div>
-                <div class="ts-mid-name-text" id="ts-mid-ai-name">AI BOT</div>
+                <div class="ts-mid-name-text" id="ts-mid-ai-name">AI 봉인사</div>
                 <div class="ts-mid-name-score" id="ts-mid-ai-score">0</div>
             </div>
             <!-- 중앙: 타이머 + VS + 스테이지 -->
             <div class="ts-mid-center">
                 <div class="ts-mid-vs">VS</div>
                 <div class="ts-mid-timer" id="ts-timer-display-mobile">10:00</div>
-                <div class="ts-mid-stage" id="ts-stage-label-mobile">마스터 - M-1</div>
-                <div class="ts-mid-mode">BATTLE MODE</div>
+                <div class="ts-mid-stage" id="ts-stage-label-mobile">봉인 - M-1</div>
+                <div class="ts-mid-mode">SEAL BREAK</div>
             </div>
             <!-- PLAYER 이름 (우측) -->
             <div class="ts-mid-name" style="color:var(--ts-secondary);">
@@ -1355,7 +1511,7 @@
         <div class="ts-side-section active-side" id="ts-p1-side">
             <div class="ts-side-header">
                 <div class="ts-user-info">👤 PLAYER <span class="ts-count-badge" id="ts-p1-count">0</span></div>
-                <div id="ts-p1-status" style="color: var(--ts-secondary); font-size: 0.8rem; font-weight:700;">PLAYING</div>
+                <div id="ts-p1-status" style="color: var(--ts-secondary); font-size: 0.8rem; font-weight:700;">SEALING</div>
             </div>
             <div class="ts-board-wrapper" id="ts-p1-wrapper">
                 <div id="ts-p1-stun-overlay" class="ts-stun-overlay" style="display: none;">
@@ -1377,15 +1533,15 @@
     </div>
     <div class="ts-controls">
         <button class="ts-btn" onclick="useHint()">
-            <span>🔍 힌트</span>
-            <span id="ts-hint-count" class="ts-hotkey-guide">10</span>
+            <span>🔍 통찰</span>
+            <span id="ts-hint-count" class="ts-hotkey-guide" title="남은 통찰">10</span>
         </button>
         <button class="ts-btn" onclick="shufflePlayer()">
-            <span>🎲 셔플</span>
+            <span>🌀 결계재편</span>
             <span id="ts-shuffle-count" class="ts-hotkey-guide">10</span>
         </button>
         <button class="ts-btn" onclick="backToSelect()" style="background: #334155;">
-            <span>🏠 나가기</span>
+            <span>🏠 퇴진</span>
         </button>
     </div>
 </div>
@@ -1398,6 +1554,14 @@
     let aiData = { board: [], selection: null, lines: [], fever: 0, stunRemaining: 0, frozen: {} };
     let currentStageInfo = null;
     let gameActive = false;
+
+    // ── 콤보 시스템 ──
+    let p1Combo = 0, comboTimer = null;
+    const COMBO_TIMEOUT = 2200;
+
+    // ── 파티클 시스템 ──
+    let particles = [];
+    let screenFlash = null;
 
     // ── SPA 이탈 감지: 게임 DOM이 사라지면 모든 타이머/오디오 정리 ──
     (function() {
@@ -1433,27 +1597,88 @@
     }
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(type) {
+    function playSound(type, comboCount) {
         try {
             if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            // ── 콤보 매칭음: 콤보 수에 따라 음 상승 ──
+            if (type === 'match') {
+                const baseFreq = 523.25;
+                const comboMult = comboCount ? Math.min(1 + (comboCount - 1) * 0.18, 2.8) : 1;
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(baseFreq * comboMult, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * comboMult * 1.68, audioCtx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.28);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.28);
+                // 콤보 4+ 이상 시 화음 추가
+                if (comboCount >= 4) {
+                    const osc2 = audioCtx.createOscillator();
+                    const g2 = audioCtx.createGain();
+                    osc2.connect(g2); g2.connect(audioCtx.destination);
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(baseFreq * comboMult * 1.26, audioCtx.currentTime);
+                    osc2.frequency.exponentialRampToValueAtTime(baseFreq * comboMult * 2.0, audioCtx.currentTime + 0.18);
+                    g2.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    g2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    osc2.start(); osc2.stop(audioCtx.currentTime + 0.3);
+                }
+                return;
+            }
+
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            if (type === 'match') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-            } else if (type === 'fever') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.5);
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+
+            if (type === 'fever') {
+                // 피버: 8비트 팡파르
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.type = 'square';
+                    o.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.09);
+                    g.gain.setValueAtTime(0.08, audioCtx.currentTime + i * 0.09);
+                    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.09 + 0.16);
+                    o.start(audioCtx.currentTime + i * 0.09);
+                    o.stop(audioCtx.currentTime + i * 0.09 + 0.18);
+                });
+                return;
+            } else if (type === 'clear') {
+                // 클리어 팡파르: 8비트 승리음
+                const fanfare = [523.25, 659.25, 783.99, 659.25, 1046.50, 783.99, 1046.50];
+                const timing =  [0,      0.12,   0.24,   0.36,   0.52,    0.64,   0.8];
+                fanfare.forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.type = i === fanfare.length-1 ? 'square' : 'triangle';
+                    o.frequency.setValueAtTime(freq, audioCtx.currentTime + timing[i]);
+                    g.gain.setValueAtTime(0.12, audioCtx.currentTime + timing[i]);
+                    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + timing[i] + 0.22);
+                    o.start(audioCtx.currentTime + timing[i]);
+                    o.stop(audioCtx.currentTime + timing[i] + 0.25);
+                });
+                return;
+            } else if (type === 'gameover') {
+                // 게임오버: 하강 음
+                const downer = [392, 349.23, 311.13, 261.63];
+                downer.forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.type = 'sawtooth';
+                    o.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.14);
+                    g.gain.setValueAtTime(0.1, audioCtx.currentTime + i * 0.14);
+                    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.14 + 0.25);
+                    o.start(audioCtx.currentTime + i * 0.14);
+                    o.stop(audioCtx.currentTime + i * 0.14 + 0.28);
+                });
+                return;
             } else if (type === 'fail') {
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(150, audioCtx.currentTime);
@@ -1497,7 +1722,8 @@
                 gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.6);
-            }
+            } else { return; }
+            osc.start(); osc.stop(audioCtx.currentTime + 0.7);
         } catch (e) { console.warn("Audio error:", e); }
     }
 
@@ -1535,11 +1761,11 @@
     }
 
     window.resetStageProgress = function() {
-        if (!confirm('진행 상황을 초기화하고 M-1부터 다시 시작하시겠습니까?')) return;
+        if (!confirm('봉인 진행을 초기화하고 M-1부터 다시 도전하시겠습니까?')) return;
         MAX_UNLOCKED = 1;                   // 변수 직접 리셋
         renderStageGrid();
         var t = document.getElementById('ts-toast');
-        t.textContent = '🔄 M-1만 오픈! 처음부터 시작합니다.';
+        t.textContent = '🔄 M-1 봉인만 개방! 처음부터 시작합니다.';
         t.style.display = 'block';
         setTimeout(function(){ t.style.display = 'none'; }, 2200);
     };
@@ -1577,19 +1803,20 @@
         document.getElementById('ts-result-modal').style.display = 'none';
         currentStageInfo = { id, cat, idx };
         const stageLabel = document.getElementById('ts-stage-label');
-        if (stageLabel) stageLabel.textContent = `마스터 - ${id}`;
+        if (stageLabel) stageLabel.textContent = `봉인 - ${id}`;
         const stageLabelMobile = document.getElementById('ts-stage-label-mobile');
-        if (stageLabelMobile) stageLabelMobile.textContent = `마스터 - ${id}`;
+        if (stageLabelMobile) stageLabelMobile.textContent = `봉인 - ${id}`;
         document.getElementById('ts-p1-side').classList.add('master-mode');
         document.getElementById('ts-ai-side').classList.add('master-mode');
         const aiStatusEl = document.getElementById('ts-ai-status');
-        if (aiStatusEl) aiStatusEl.textContent = `LV.${masterStageNum} BOT (THINKING)`;
+        if (aiStatusEl) aiStatusEl.textContent = `RANK ${masterStageNum} 봉인사 (분석중)`;
         // mid-panel 이름 갱신
         const midPName = document.getElementById('ts-mid-player-name');
         const midAiName = document.getElementById('ts-mid-ai-name');
         if(midPName) midPName.textContent = savedNickname || 'PLAYER';
         if(midAiName) midAiName.textContent = `M-${masterStageNum} BOT`;
         p1HintCount = 10; p1ShuffleCount = 10;
+        p1Combo = 0; if(comboTimer) clearTimeout(comboTimer); particles = [];
         updateButtonLabels();
         initSide('p1'); initSide('ai');
         gameActive = true;
@@ -1677,7 +1904,25 @@
             const p1 = p1Data.selection, p2 = {r, c};
             if(p1Data.board[p1.r][p1.c] === p1Data.board[p2.r][p2.c]) {
                 const path = findPath(p1Data.board, p1, p2);
-                if(path) { removeTiles('p1', p1, p2, path); playSound('match'); p1Data.selection = null; return; }
+                if(path) {
+                    // 콤보 카운터
+                    p1Combo++;
+                    if (comboTimer) clearTimeout(comboTimer);
+                    comboTimer = setTimeout(() => { p1Combo = 0; }, COMBO_TIMEOUT);
+                    removeTiles('p1', p1, p2, path);
+                    playSound('match', p1Combo);
+                    // 콤보 3+ 팝업 + 흔들림
+                    if (p1Combo >= 3) {
+                        showComboPopup(p1Combo);
+                        triggerShake(p1Combo >= 6 ? 7 : 4);
+                        triggerScreenFlash('rgba(251,191,36,0.25)');
+                    }
+                    // 파티클
+                    const e1_ = document.getElementById(`ts-p1-tile-${p1.r}-${p1.c}`);
+                    const e2_ = document.getElementById(`ts-p1-tile-${p2.r}-${p2.c}`);
+                    spawnParticles('p1', e1_, e2_, p1Combo);
+                    p1Data.selection = null; return;
+                }
             }
             playSound('fail');
             const prevEl = document.getElementById(`ts-p1-tile-${p1Data.selection.r}-${p1Data.selection.c}`);
@@ -1811,6 +2056,8 @@
         const e2 = document.getElementById(`ts-${side}-tile-${p2.r}-${p2.c}`);
         if(e1) e1.classList.add('pop');
         if(e2) e2.classList.add('pop');
+        // AI 매칭 파티클
+        if (side === 'ai') spawnParticles('ai', e1, e2, 1);
         setTimeout(() => {
             if(e1) e1.className = 'ts-tile empty';
             if(e2) e2.className = 'ts-tile empty';
@@ -1819,7 +2066,11 @@
         }, 220);
         data.fever = Math.min(data.fever + 12, 100);
         const feverBar = document.getElementById(`ts-${side}-fever-fill`);
-        if (feverBar) feverBar.style.width = data.fever + '%';
+        if (feverBar) {
+            feverBar.style.width = data.fever + '%';
+            if (data.fever >= 80) feverBar.classList.add('full');
+            else feverBar.classList.remove('full');
+        }
         if(data.fever >= 100) triggerFeverAttack(side);
     }
 
@@ -1829,7 +2080,12 @@
         const defenderData = defender === 'p1' ? p1Data : aiData;
         attackerData.fever = 0;
         const fb = document.getElementById(`ts-${attacker}-fever-fill`);
-        if(fb) fb.style.width = '0%';
+        if(fb) { fb.style.width = '0%'; fb.classList.remove('full'); }
+        // 피버 배너 + 플래시 + 흔들림
+        showFeverBanner();
+        triggerScreenFlash(attacker === 'p1' ? 'rgba(99,102,241,0.4)' : 'rgba(239,68,68,0.4)');
+        triggerShake(6);
+        playSound('fever');
         const items = ['STUN', 'FREEZE', 'RESET'];
         const randomItem = items[Math.floor(Math.random() * items.length)];
         if (randomItem === 'STUN') {
@@ -1837,7 +2093,7 @@
             playSound('stun');
             document.getElementById(`ts-${defender}-stun-overlay`).style.display = 'flex';
             document.getElementById(`ts-${defender}-stun-timer`).textContent = `3.5s`;
-            showToast(attacker === 'p1' ? "⚡ PLAYER: 기절 번개 공격!" : "⚡ AI BOT: 기절 번개 공격!");
+            showToast(attacker === 'p1' ? "⚡ 봉인사: 번개 결계 발동!" : "⚡ AI 봉인사: 번개 결계 발동!");
             if (defenderData.selection) {
                 const selEl = document.getElementById(`ts-${defender}-tile-${defenderData.selection.r}-${defenderData.selection.c}`);
                 if(selEl) selEl.classList.remove('selected', 'ai-selected');
@@ -1856,13 +2112,13 @@
                 defenderData.frozen[`${target.r},${target.c}`] = 3;
             }
             renderBoard(defender);
-            showToast(attacker === 'p1' ? "❄️ PLAYER: 빙결 쇠사슬 공격!" : "❄️ AI BOT: 빙결 쇠사슬 공격!");
+            showToast(attacker === 'p1' ? "❄️ 봉인사: 빙결 결계 발동!" : "❄️ AI 봉인사: 빙결 결계 발동!");
         } else if (randomItem === 'RESET') {
             playSound('reset');
             defenderData.fever = 0;
             const dfb = document.getElementById(`ts-${defender}-fever-fill`);
             if (dfb) dfb.style.width = '0%';
-            showToast(attacker === 'p1' ? "💥 PLAYER: 피버 초기화 공격!" : "💥 AI BOT: 피버 초기화 공격!");
+            showToast(attacker === 'p1' ? "💥 봉인사: 피버 결계 파괴!" : "💥 AI 봉인사: 피버 결계 파괴!");
         }
     }
 
@@ -1896,30 +2152,38 @@
                 const nextStageNum = masterStageNum + 1;
                 if (nextStageNum <= 20) setMaxUnlocked(nextStageNum);
 
-                title.textContent = "STAGE CLEAR!";
+                title.textContent = "SEAL BREAK!";
                 title.style.color = "var(--ts-master-color)";
                 const unlockedMsg = nextStageNum <= 20 ? ` 🔓 M-${nextStageNum} 해금!` : ' 🏆 최고 스테이지!';
-                desc.textContent = `마스터 M-${masterStageNum} 정복! (${finalClearTime}초)${unlockedMsg}`;
+                desc.textContent = `봉인 M-${masterStageNum} 해제! (${finalClearTime}초)${unlockedMsg}`;
+
+                // 클리어 연출: 팡파르 + 플래시
+                playSound('clear');
+                triggerScreenFlash('rgba(251,191,36,0.5)');
+                setTimeout(() => triggerScreenFlash('rgba(251,191,36,0.3)'), 350);
+                setTimeout(() => triggerScreenFlash('rgba(251,191,36,0.2)'), 700);
 
                 // 다음 스테이지가 있으면 버튼 표시, 없으면 숨김
                 if (nextStageNum <= 20) {
-                    nextBtn.textContent = `▶ M-${nextStageNum} 도전`;
+                    nextBtn.textContent = `⚔️ M-${nextStageNum} 봉인 도전`;
                     nextBtn.style.display = "inline-block";
                 } else {
                     nextBtn.style.display = "none";
                 }
                 rankingInput.style.display = "block";
                 if(savedNickname) document.getElementById('ts-nickname-input').value = savedNickname;
-                modal.style.display = 'flex';
-                fetchRankings();
+                setTimeout(() => { modal.style.display = 'flex'; fetchRankings(); }, 600);
             } else {
-                title.textContent = "GAME OVER";
+                title.textContent = "SEAL LOST";
                 title.style.color = "var(--ts-ai-color)";
-                desc.textContent = "AI 봇이 먼저 모든 카드를 격파했습니다. 🤖";
+                desc.textContent = "AI 봉인사가 결계를 먼저 격파했습니다. 🤖";
+                // 게임오버 연출
+                playSound('gameover');
+                triggerScreenFlash('rgba(239,68,68,0.45)');
+                triggerShake(8);
                 nextBtn.style.display = "none";
                 rankingInput.style.display = "none";
-                modal.style.display = 'flex';
-                fetchRankings();
+                setTimeout(() => { modal.style.display = 'flex'; fetchRankings(); }, 400);
             }
         }
     }
@@ -1968,7 +2232,7 @@
 
     window.continueNextMaster = function() {
         const next = masterStageNum + 1;
-        if (next > 20) { showToast("모든 스테이지를 클리어했습니다! 🏆"); return; }
+        if (next > 20) { showToast("🏆 모든 봉인을 해제했습니다! 전설의 봉인사!"); return; }
         if (next > getMaxUnlocked()) { showToast(`M-${next}는 아직 잠겨 있습니다.`); return; }
         masterStageNum = next;
         startBattle(`M-${masterStageNum}`, 'master', masterStageNum - 1);
@@ -2011,7 +2275,7 @@
 
     window.useHint = function() {
         if (p1Data.stunRemaining > 0) return;
-        if (p1HintCount <= 0) { showToast("남은 힌트 아이템이 없습니다!"); return; }
+        if (p1HintCount <= 0) { showToast("남은 통찰 아이템이 없습니다!"); return; }
         const moves = getPossibleMoves(p1Data.board);
         const freeMoves = moves.filter(m => {
             const k1 = `${m.p1.r},${m.p1.c}`;
@@ -2030,12 +2294,12 @@
                 if (e1) e1.classList.remove('hint-glow');
                 if (e2) e2.classList.remove('hint-glow');
             }, 1800);
-        } else { showToast("매치 가능한 패가 없습니다! 🎲셔플 사용."); }
+        } else { showToast("연결 가능한 패가 없습니다! 🌀결계재편 사용."); }
     };
 
     window.shufflePlayer = function() {
         if (p1Data.stunRemaining > 0) return;
-        if (p1ShuffleCount <= 0) { showToast("남은 셔플 아이템이 없습니다!"); return; }
+        if (p1ShuffleCount <= 0) { showToast("남은 결계재편 아이템이 없습니다!"); return; }
         p1ShuffleCount--;
         updateButtonLabels();
         shuffleSide('p1');
@@ -2050,6 +2314,128 @@
         points.forEach((p, i) => data.board[p.r][p.c] = tiles[i]);
         renderBoard(side);
         showToast(side === 'p1' ? "PLAYER SHUFFLED!" : "AI SHUFFLED!");
+    }
+
+    // ═══════════════════════════════════════════════
+    // ── 파티클 시스템 ──
+    // ═══════════════════════════════════════════════
+    function spawnParticles(side, p1Tile, p2Tile, comboCount) {
+        const canvas = document.getElementById('ts-particle-canvas');
+        if (!canvas) return;
+        const app = document.getElementById('tistory-game-app');
+        if (!app) return;
+        const appRect = app.getBoundingClientRect();
+
+        function getTileCenter(tileEl) {
+            if (!tileEl) return null;
+            const r = tileEl.getBoundingClientRect();
+            return {
+                x: r.left - appRect.left + r.width / 2,
+                y: r.top - appRect.top + r.height / 2
+            };
+        }
+        const positions = [p1Tile, p2Tile].map(el => getTileCenter(el)).filter(Boolean);
+        const colors = side === 'p1'
+            ? ['#818cf8','#a5b4fc','#60a5fa','#fbbf24','#f472b6']
+            : ['#f87171','#fca5a5','#fb923c','#fbbf24','#ef4444'];
+        const count = 14 + (comboCount || 1) * 4;
+        positions.forEach(pos => {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+                const speed = 2.5 + Math.random() * 4.5 + (comboCount || 1) * 0.8;
+                particles.push({
+                    x: pos.x, y: pos.y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 1.5,
+                    life: 1.0,
+                    maxLife: 1.0,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: 3 + Math.random() * 4 + (comboCount || 1) * 0.5,
+                    gravity: 0.12
+                });
+            }
+        });
+    }
+
+    function renderParticles() {
+        const canvas = document.getElementById('ts-particle-canvas');
+        if (!canvas) return;
+        const app = document.getElementById('tistory-game-app');
+        if (app) { canvas.width = app.clientWidth; canvas.height = app.clientHeight; }
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles = particles.filter(p => p.life > 0);
+        particles.forEach(p => {
+            ctx.globalAlpha = p.life * 0.9;
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.fill();
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.vx *= 0.95;
+            p.life -= 0.032;
+        });
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+    }
+
+    // ── 화면 플래시 ──
+    function triggerScreenFlash(color) {
+        const flash = document.getElementById('ts-screen-flash');
+        if (!flash) return;
+        flash.style.background = color;
+        flash.style.opacity = '0.35';
+        flash.style.transition = 'opacity 0.05s ease';
+        setTimeout(() => {
+            flash.style.transition = 'opacity 0.4s ease';
+            flash.style.opacity = '0';
+        }, 60);
+    }
+
+    // ── 화면 흔들림 ──
+    function triggerShake(intensity) {
+        const app = document.getElementById('tistory-game-app');
+        if (!app) return;
+        const strength = intensity || 4;
+        let frame = 0;
+        const maxFrames = 8;
+        function shake() {
+            if (frame >= maxFrames) { app.style.transform = ''; return; }
+            const dx = (Math.random() - 0.5) * strength * (1 - frame / maxFrames);
+            const dy = (Math.random() - 0.5) * strength * (1 - frame / maxFrames);
+            app.style.transform = `translate(${dx}px, ${dy}px)`;
+            frame++;
+            requestAnimationFrame(shake);
+        }
+        shake();
+    }
+
+    // ── 콤보 팝업 표시 ──
+    function showComboPopup(count) {
+        if (count < 3) return;
+        const popup = document.getElementById('ts-combo-popup');
+        const numEl = document.getElementById('ts-combo-num');
+        if (!popup || !numEl) return;
+        numEl.textContent = count;
+        popup.classList.remove('hide');
+        popup.classList.add('show');
+        clearTimeout(popup._hideTimer);
+        popup._hideTimer = setTimeout(() => {
+            popup.classList.remove('show');
+            popup.classList.add('hide');
+        }, 900);
+    }
+
+    // ── 피버 발동 배너 ──
+    function showFeverBanner() {
+        const banner = document.getElementById('ts-fever-banner');
+        if (!banner) return;
+        banner.classList.add('show');
+        setTimeout(() => { banner.classList.remove('show'); }, 1200);
     }
 
     function showToast(txt) {
@@ -2069,9 +2455,8 @@
         const w = refRect.width, h = refRect.height;
         const x11 = refRect.left - wrapRect.left;
         const y11 = refRect.top - wrapRect.top;
-        let gap = 1.2;
-        if (window.innerWidth <= 1100) gap = 0.8;
-        if (window.innerWidth <= 480) gap = 0.8;
+        // gap은 CSS --grid-gap과 동일하게 맞춤
+        let gap = 1.0;
         const x = x11 + (c - 1) * (w + gap) + w / 2;
         const y = y11 + (r - 1) * (h + gap) + h / 2;
         return { x, y };
@@ -2083,6 +2468,10 @@
             const canvas = document.getElementById(`ts-${side}-canvas`);
             if (wrapper && canvas) { canvas.width = wrapper.clientWidth; canvas.height = wrapper.clientHeight; }
         });
+        // 파티클 캔버스
+        const pc = document.getElementById('ts-particle-canvas');
+        const app = document.getElementById('tistory-game-app');
+        if (pc && app) { pc.width = app.clientWidth; pc.height = app.clientHeight; }
     }
     window.addEventListener('resize', handleResize);
 
@@ -2158,7 +2547,9 @@
             ctx.globalAlpha = 1;
             data.lines = data.lines.filter(l => l.life > 0);
         });
-        if(gameActive || p1Data.lines.length || aiData.lines.length) requestAnimationFrame(renderLoop);
+        // 파티클 렌더링
+        renderParticles();
+        if(gameActive || p1Data.lines.length || aiData.lines.length || particles.length) requestAnimationFrame(renderLoop);
     }
 </script>
 </section>
@@ -2185,33 +2576,33 @@
 
                 <div id="panel-desc" class="tab-panel p-10">
                     <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        AI와의 숨막히는 두뇌 배틀 사천성 게임입니다.<br><br>
-                        20단계 마스터 스테이지에서 AI와 실시간으로 타일을 매칭합니다.
-                        힌트와 셔플 아이템을 활용하고, 피버 모드로 역전을 노려봅니다.
+                        AI 봉인사와의 숨막히는 두뇌 대결, 봉인 해제 사천성입니다.<br><br>
+                        20단계 봉인 스테이지에서 AI와 실시간으로 타일을 연결합니다.
+                        통찰과 결계재편 아이템을 활용하고, 피버 결계로 역전을 노려봅니다.
                     </p>
                 </div>
 
                 <div id="panel-guide" class="tab-panel p-10 hidden">
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">타일 선택</span>
+                            <span class="font-black text-xl text-slate-800">봉인 연결</span>
                             <span class="font-bold text-slate-600">같은 타일 두 개 클릭</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">매칭 조건</span>
+                            <span class="font-black text-xl text-slate-800">연결 조건</span>
                             <span class="font-bold text-slate-600">직선 또는 2번 꺾어서 연결 가능</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">힌트</span>
-                            <span class="font-bold text-slate-600">🔍 버튼 — 연결 가능한 쌍 표시</span>
+                            <span class="font-black text-xl text-slate-800">통찰</span>
+                            <span class="font-bold text-slate-600">🔍 통찰 — 연결 가능한 쌍 표시</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">셔플</span>
-                            <span class="font-bold text-slate-600">🎲 버튼 — 남은 타일 위치 재배치</span>
+                            <span class="font-black text-xl text-slate-800">결계재편</span>
+                            <span class="font-bold text-slate-600">🌀 결계재편 — 남은 타일 위치 재배치</span>
                         </div>
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">피버 모드</span>
-                            <span class="font-bold text-slate-600">연속 매칭 시 자동 발동, 공격력 증가</span>
+                            <span class="font-black text-xl text-slate-800">🔥 피버 결계</span>
+                            <span class="font-bold text-slate-600">연속 연결 시 자동 발동, 결계 파괴력 증가</span>
                         </div>
                     </div>
                 </div>
