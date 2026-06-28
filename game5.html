@@ -345,15 +345,17 @@ canvas {
 
 #fever-bar-container {
   position: absolute;
-  bottom: 30px;
+  bottom: 26px;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
-  height: 15px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
+  width: 220px;
+  height: 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
   overflow: hidden;
   display: none;
+  border: 2px solid rgba(255,255,255,0.4);
+  box-shadow: 0 0 12px rgba(255,200,0,0.4);
 }
 
 .fever-active #fever-bar-container { 
@@ -363,9 +365,21 @@ canvas {
 #fever-bar-fill {
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #ff0, #f0f, #0ff);
+  background: linear-gradient(90deg, #ff0, #f80, #f0f, #0ff, #ff0);
+  background-size: 200% 100%;
+  animation: feverShift 0.5s linear infinite;
   transition: width 0.1s linear;
 }
+
+@keyframes feverShift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+@keyframes goldPulse {
+  from { color: #D4AF37; text-shadow: 0 0 8px #FFD700; }
+  to   { color: #FFB700; text-shadow: 0 0 18px #FFD700; }
+}
+
 
 .loading-dots:after {
   content: '.';
@@ -798,6 +812,15 @@ canvas {
   letter-spacing: -0.5px;
 }
 
+#title-slogan {
+  font-size: 1.15rem;
+  color: #3a6ea8;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
 #title-sub {
   font-size: 1rem;
   color: #5a7fa0;
@@ -992,15 +1015,17 @@ canvas {
 
 #fever-bar-container {
   position: absolute;
-  bottom: 30px;
+  bottom: 26px;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
-  height: 15px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
+  width: 220px;
+  height: 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
   overflow: hidden;
   display: none;
+  border: 2px solid rgba(255,255,255,0.4);
+  box-shadow: 0 0 12px rgba(255,200,0,0.4);
 }
 
 .fever-active #fever-bar-container { 
@@ -1010,8 +1035,15 @@ canvas {
 #fever-bar-fill {
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #ff0, #f0f, #0ff);
+  background: linear-gradient(90deg, #ff0, #f80, #f0f, #0ff, #ff0);
+  background-size: 200% 100%;
+  animation: feverShift 0.5s linear infinite;
   transition: width 0.1s linear;
+}
+
+@keyframes feverShift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
 }
 
 .loading-dots:after {
@@ -1134,9 +1166,10 @@ canvas {
       <div id="title-content">
         <div id="title-emoji">🏎️</div>
         <h1 id="title-main">호호레이싱</h1>
-        <p id="title-sub">좌우를 터치해서 차선을 변경하십시오.</p>
+        <p id="title-slogan">도심을 가르는 질주 본능!</p>
+        <p id="title-sub">화면 좌우를 터치해 차선을 변경하십시오.</p>
         <button id="start-button">질주 시작!</button>
-        <p id="title-credit">이 게임은 호호플레이 기획 및<br>AI프로그램으로 제작함</p>
+        <p id="title-credit">HOHO PLAY 기획 · AI 엔진 탑재</p>
       </div>
     </div>
 
@@ -1150,7 +1183,8 @@ canvas {
 
     <!-- 게임오버 팝업 -->
     <div id="game-over" class="hidden">
-      <h1 class="game-over-title">GAME OVER</h1>
+      <h1 class="game-over-title">레이스 종료!</h1>
+      <div id="new-record-badge" class="hidden" style="font-size:1.2rem;font-weight:800;color:#D4AF37;margin-bottom:8px;font-family:'Gamja Flower',sans-serif;animation:goldPulse 0.6s ease-in-out infinite alternate;">🏆 NEW RECORD!</div>
       
       <div id="popup-step1">
         <div id="input-section">
@@ -1250,9 +1284,34 @@ const sounds = {
     playRetroSound(80, 'sawtooth', 0.3, 0.2);
     playRetroSound(120, 'square', 0.2, 0.15);
   },
+  // HP 감소 전용 경보음 (더 날카롭고 긴장감 있음)
+  damage: function() {
+    playRetroSound(200, 'sawtooth', 0.15, 0.25);
+    setTimeout(function() { playRetroSound(130, 'sawtooth', 0.25, 0.3); }, 80);
+    setTimeout(function() { playRetroSound(90, 'sawtooth', 0.35, 0.25); }, 180);
+  },
+  // 트럭 경고 등장 시 긴장감 있는 알림음
+  truckWarn: function() {
+    playRetroSound(300, 'square', 0.08, 0.18);
+    setTimeout(function() { playRetroSound(300, 'square', 0.08, 0.18); }, 120);
+    setTimeout(function() { playRetroSound(400, 'square', 0.12, 0.2); }, 240);
+  },
+  // 차선 확장 상승음
+  laneUp: function() {
+    [300, 400, 500, 650].forEach(function(f, i) {
+      setTimeout(function() { playRetroSound(f, 'triangle', 0.12, 0.09); }, i * 60);
+    });
+  },
   fever: function() {
     [523, 659, 783, 1046, 1318].forEach(function(f, i) {
       setTimeout(function() { playRetroSound(f, 'square', 0.1, 0.1); }, i * 50);
+    });
+  },
+  // 최고기록 갱신 팡파르
+  fanfare: function() {
+    const notes = [523, 659, 783, 1046, 783, 1046, 1318];
+    notes.forEach(function(f, i) {
+      setTimeout(function() { playRetroSound(f, 'square', 0.18, 0.12); }, i * 80);
     });
   },
   over: function() {
@@ -1526,6 +1585,15 @@ let animationId = null;
 let activeTruckCount = 0;
 let wallHitCooldown = 0;
 
+// ===== 파티클 / 플래시 / 알림 시스템 =====
+let particles = [];          // 아이템 획득 파티클
+let screenFlash = null;      // { color, alpha, decay } 화면 플래시
+let notifQueue = [];         // 화면 중앙 알림 텍스트 큐
+let currentNotif = null;     // { text, color, alpha, scale, decay }
+let _prevLanes = 3;          // 차선 수 변경 감지용
+let _prevRoadMode = 0;       // 커브 전환 감지용
+let isNewRecord = false;     // 최고기록 갱신 여부
+
 const ROAD_MODES = { STRAIGHT: 0, CURVE: 1 };
 let currentRoadMode = ROAD_MODES.STRAIGHT;
 let roadModeTimer = 1800;
@@ -1696,6 +1764,86 @@ function getRainbowColor(tick, opacity) {
   return 'hsla(' + ((tick * 10) % 360) + ', 100%, 70%, ' + opacity + ')';
 }
 
+// ===== 파티클 생성 =====
+function spawnParticles(x, y, color, count) {
+  if (count === undefined) count = 10;
+  for (var i = 0; i < count; i++) {
+    var angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+    var speed = 3 + Math.random() * 5;
+    particles.push({
+      x: x, y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      alpha: 1,
+      size: 5 + Math.random() * 6,
+      color: color || '#FFD700',
+      decay: 0.04 + Math.random() * 0.03
+    });
+  }
+}
+
+// ===== 화면 플래시 트리거 =====
+function triggerFlash(color, alpha) {
+  screenFlash = { color: color || 'rgba(255,255,255,1)', alpha: alpha || 0.6, decay: 0.06 };
+}
+
+// ===== 알림 텍스트 큐에 추가 =====
+function pushNotif(text, color, scale) {
+  notifQueue.push({ text: text, color: color || '#FFD700', alpha: 1, scale: scale || 1.4, decay: 0.025 });
+}
+
+// ===== 파티클 / 플래시 / 알림 업데이트+드로우 =====
+function drawParticles() {
+  for (var i = particles.length - 1; i >= 0; i--) {
+    var p = particles[i];
+    p.x += p.vx; p.y += p.vy;
+    p.vy += 0.3;
+    p.alpha -= p.decay;
+    if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+    ctx.save();
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawScreenFlash() {
+  if (!screenFlash) return;
+  ctx.save();
+  ctx.globalAlpha = screenFlash.alpha;
+  ctx.fillStyle = screenFlash.color;
+  ctx.fillRect(0, 0, cW(), cH());
+  ctx.restore();
+  screenFlash.alpha -= screenFlash.decay;
+  if (screenFlash.alpha <= 0) screenFlash = null;
+}
+
+function drawNotif() {
+  if (!currentNotif && notifQueue.length > 0) {
+    currentNotif = notifQueue.shift();
+  }
+  if (!currentNotif) return;
+  ctx.save();
+  ctx.globalAlpha = currentNotif.alpha;
+  var fontSize = Math.round(52 * currentNotif.scale);
+  ctx.font = 'bold ' + fontSize + 'px "Gamja Flower", Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // 외곽선
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+  ctx.lineWidth = 6;
+  ctx.strokeText(currentNotif.text, cW() / 2, cH() / 2 - 40);
+  ctx.fillStyle = currentNotif.color;
+  ctx.fillText(currentNotif.text, cW() / 2, cH() / 2 - 40);
+  ctx.restore();
+  currentNotif.scale += (1.0 - currentNotif.scale) * 0.15;
+  currentNotif.alpha -= currentNotif.decay;
+  if (currentNotif.alpha <= 0) currentNotif = null;
+}
+
 function spawn() {
   const lw = cW() / currentLanes;
   let spawnRate = Math.max(20, 75 - Math.floor(score/1500));
@@ -1706,6 +1854,7 @@ function spawn() {
     const roll = Math.random();
     if (currentLanes >= 5 && activeTruckCount === 0 && roll > 0.93 && warnings.length === 0) {
       warnings.push({ lane: lane, timer: 70, x: lane * lw + lw/2 });
+      sounds.truckWarn();
     } else {
       if (currentLanes >= 4 && roll > 0.75) {
         objects.push(new GameObject(lane * lw + (lw/2 - CAR_WIDTH/2), -350, CAR_WIDTH, BUS_HEIGHT, 'bus', colors.bus));
@@ -1755,10 +1904,13 @@ function checkCollisions() {
       hasShield = false;
       shakeTimer = 20;
       player.vx = isHittingLeft ? 15 : -15;
+      triggerFlash('rgba(100,200,255,0.3)', 0.3);
     } else {
       hp--;
+      sounds.damage();
       shakeTimer = 35;
       player.vx = isHittingLeft ? 20 : -20;
+      triggerFlash('rgba(255,0,0,0.4)', 0.4);
       if (hp <= 0) endGame();
     }
     // targetX를 벽 안쪽으로 즉시 리셋 → 반대 방향 입력 즉시 반응
@@ -1781,9 +1933,25 @@ function checkCollisions() {
     if (obj.type === 'boost' || obj.type === 'heart' || obj.type === 'shield') {
       if (pBox.x < oBox.x + oBox.w && pBox.x + pBox.w > oBox.x && pBox.y < oBox.y + oBox.h && pBox.y + pBox.h > oBox.y) {
         sounds.item();
-        if (obj.type === 'heart') hp = Math.min(maxHp, hp + 1);
-        else if (obj.type === 'shield') hasShield = true;
-        else if (obj.type === 'boost') { boostTimer = MAX_BOOST_TIME; sounds.fever(); }
+        var itemCx = obj.x + obj.width / 2;
+        var itemCy = obj.y + obj.height / 2;
+        if (obj.type === 'heart') {
+          hp = Math.min(maxHp, hp + 1);
+          spawnParticles(itemCx, itemCy, '#FF6961', 12);
+          triggerFlash('rgba(255,105,97,0.25)', 0.25);
+          pushNotif('❤️ HP+1', '#FF6961', 1.3);
+        } else if (obj.type === 'shield') {
+          hasShield = true;
+          spawnParticles(itemCx, itemCy, '#64C8FF', 12);
+          triggerFlash('rgba(100,200,255,0.25)', 0.25);
+          pushNotif('🛡️ SHIELD!', '#64C8FF', 1.3);
+        } else if (obj.type === 'boost') {
+          boostTimer = MAX_BOOST_TIME;
+          sounds.fever();
+          spawnParticles(itemCx, itemCy, '#FFD700', 20);
+          triggerFlash('rgba(255,220,0,0.5)', 0.5);
+          pushNotif('⚡ TURBO!', '#FFD700', 1.6);
+        }
         objects.splice(i, 1);
       }
       continue;
@@ -1793,6 +1961,7 @@ function checkCollisions() {
       sounds.hit();
       if (boostTimer > 0) {
         obj.flyAway(player.x);
+        spawnParticles(obj.x + obj.width/2, obj.y + obj.height/2, '#FF8C00', 15);
         score += 2000;
         shakeTimer = 15;
       } else {
@@ -1802,12 +1971,18 @@ function checkCollisions() {
           if (obj.type === 'truck') activeTruckCount--;
           objects.splice(i, 1);
           player.vx = pBox.x < oBox.x ? -25 : 25;
+          spawnParticles(player.x + player.width/2, player.y + player.height/2, '#64C8FF', 10);
+          triggerFlash('rgba(100,200,255,0.35)', 0.35);
+          pushNotif('🛡️ BLOCKED!', '#64C8FF', 1.3);
         } else {
           hp--;
+          sounds.damage();
           shakeTimer = 45;
           if (obj.type === 'truck') activeTruckCount--;
           player.vx = pBox.x < oBox.x ? -40 : 40;
           objects.splice(i, 1);
+          triggerFlash('rgba(255,0,0,0.45)', 0.45);
+          if (hp > 0) pushNotif('💥 CRASH!', '#FF4444', 1.4);
           if (hp <= 0) endGame();
         }
       }
@@ -1930,7 +2105,23 @@ function update(timestamp) {
   else if (score >= 30000)  currentLanes = 4;
   else                       currentLanes = 3;
 
+  // 차선 수 변경 감지 → 알림
+  if (currentLanes !== _prevLanes) {
+    sounds.laneUp();
+    pushNotif('🚦 LANE ' + currentLanes + '!', '#FFD700', 1.5);
+    triggerFlash('rgba(255,220,0,0.3)', 0.3);
+    _prevLanes = currentLanes;
+  }
+
   updateRoadMode();
+
+  // 커브 모드 전환 감지 → CURVE! 알림
+  if (currentRoadMode !== _prevRoadMode) {
+    if (currentRoadMode === ROAD_MODES.CURVE) {
+      pushNotif('🌀 CURVE!', '#FF8C00', 1.5);
+    }
+    _prevRoadMode = currentRoadMode;
+  }
 
   // ── 쉐이크: 변경 시에만 DOM 조작 ──
   if (shakeTimer > 0) {
@@ -1975,28 +2166,46 @@ function update(timestamp) {
 
   spawn();
 
-  // ── 경고 삼각형 ──
+  // ── 경고 삼각형 강화 ──
   const lw = cW() / currentLanes;
   for (let w = 0; w < warnings.length; w++) {
     const warning = warnings[w];
-    const opW = (frameCount % 10 < 5) ? 1 : 0.3;
+    const blink = (frameCount % 10 < 5);
+    const opW = blink ? 1 : 0.3;
     ctx.save();
     ctx.translate(warning.x, cH() - 80);
-    ctx.fillStyle = 'rgba(255,0,0,' + (opW * 0.2) + ')';
+    // 전체 차선 강조 컬러
+    ctx.fillStyle = 'rgba(255,0,0,' + (opW * 0.25) + ')';
     ctx.fillRect(-lw/2 + 5, -cH(), lw - 10, cH());
+    // 삼각형
     ctx.beginPath();
-    ctx.moveTo(0, -40); ctx.lineTo(-30, 10); ctx.lineTo(30, 10);
+    ctx.moveTo(0, -46); ctx.lineTo(-34, 12); ctx.lineTo(34, 12);
     ctx.closePath();
     ctx.fillStyle = 'rgba(255,0,0,' + opW + ')';
     ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,0,' + opW + ')';
+    ctx.lineWidth = 3;
+    ctx.stroke();
     ctx.fillStyle = '#FFF';
-    if(ctx._lastFont!=='bold 24px Arial'){ctx.font='bold 24px Arial';ctx._lastFont='bold 24px Arial';}
+    if(ctx._lastFont!=='bold 26px Arial'){ctx.font='bold 26px Arial';ctx._lastFont='bold 26px Arial';}
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillText('!', 0, 3);
+    // TRUCK 텍스트
+    if (blink) {
+      ctx.font = 'bold 18px Arial';
+      ctx.fillStyle = '#FFD700';
+      ctx.fillText('TRUCK', 0, 30);
+    }
     ctx.restore();
   }
 
-  // ── HUD: 하트 문자열 캐시 (이모지 생성 최소화) ──
+  // ── 파티클 + 화면 플래시 + 알림 텍스트 ──
+  drawParticles();
+  drawNotif();
+  drawScreenFlash();
+
+  // ── HUD: 하트 + 점수 ──
   if (hp !== _lastHp) { _heartStr = '❤️'.repeat(hp); _lastHp = hp; }
   ctx.fillStyle = isFever ? '#fff' : '#333';
   if (ctx._lastFont !== '32px Gamja Flower') { ctx.font = '32px Gamja Flower'; ctx._lastFont = '32px Gamja Flower'; }
@@ -2079,6 +2288,11 @@ function initGame() {
     const name = (initialsInput.value || 'AAA').toUpperCase();
     const records = saveRecord(name, score);
 
+    // 최고기록 갱신 시 팡파르
+    if (isNewRecord) {
+      sounds.fanfare();
+    }
+
     const list = document.getElementById('leaderboard-list');
     list.innerHTML = '';
 
@@ -2152,6 +2366,8 @@ function initGame() {
       stopBGM(); objects=[]; warnings=[]; activeTruckCount=0;
       score=0; hp=3; hasShield=false; boostTimer=0;
       frameCount=0; currentLanes=3; feverBarFill.style.width='0%';
+      particles=[]; screenFlash=null; notifQueue=[]; currentNotif=null;
+      _prevLanes=3; _prevRoadMode=ROAD_MODES.STRAIGHT; isNewRecord=false;
       gameOverScreen.classList.add('hidden');
       loadingScreen.classList.remove('hidden');
       setTimeout(function(){ loadingScreen.classList.add('hidden'); startGame(); }, 800);
@@ -2214,6 +2430,14 @@ function startGame() {
   feverBarFill.style.width = '0%';
   objects = [];
   warnings = [];
+  // 파티클 / 플래시 / 알림 초기화
+  particles = [];
+  screenFlash = null;
+  notifQueue = [];
+  currentNotif = null;
+  _prevLanes = 3;
+  _prevRoadMode = ROAD_MODES.STRAIGHT;
+  isNewRecord = false;
 
   player = new GameObject(
     (cW() - CAR_WIDTH) / 2,
@@ -2386,6 +2610,10 @@ function endGame() {
   keys.left = false;
   keys.right = false;
 
+  // 최고기록 갱신 체크
+  const prevRecords = getRecords();
+  isNewRecord = (prevRecords.length === 0 || score > prevRecords[0].score);
+
   sounds.over();
   
   // 점수를 명예의 전당 아래 작게 표시
@@ -2394,6 +2622,13 @@ function endGame() {
   startScreen.classList.add('hidden');
   loadingScreen.classList.add('hidden');
   gameOverScreen.classList.remove('hidden');
+
+  // 최고기록 배지
+  var nrBadge = document.getElementById('new-record-badge');
+  if (nrBadge) {
+    if (isNewRecord) nrBadge.classList.remove('hidden');
+    else nrBadge.classList.add('hidden');
+  }
 
   document.getElementById('popup-step1').classList.remove('hidden');
   document.getElementById('popup-step2').classList.add('hidden');
