@@ -2093,6 +2093,8 @@ let _lastFeverState = false;
 let _lastShakeVal = '';
 let _lastFeverBarW = '';
 let _lastHp = -1;
+let _lastScore = -1;
+let _lastScoreStr = '';
 let _heartStr = '';
 
 function update(timestamp) {
@@ -2128,7 +2130,7 @@ function update(timestamp) {
     shakeTimer--;
     const i = Math.min(shakeTimer, 15);
     const sv = 'translate(' + ((Math.random()-0.5)*i).toFixed(1) + 'px,' + ((Math.random()-0.5)*i).toFixed(1) + 'px)';
-    canvasWrapper.style.transform = sv;
+    if (sv !== _lastShakeVal) { canvasWrapper.style.transform = sv; _lastShakeVal = sv; }
   } else if (_lastShakeVal !== '0') {
     canvasWrapper.style.transform = 'translate(0,0)';
     _lastShakeVal = '0';
@@ -2207,13 +2209,15 @@ function update(timestamp) {
 
   // ── HUD: 하트 + 점수 ──
   if (hp !== _lastHp) { _heartStr = '❤️'.repeat(hp); _lastHp = hp; }
+  const _scoreCur = Math.floor(score);
+  if (_scoreCur !== _lastScore) { _lastScoreStr = _scoreCur.toLocaleString() + '점'; _lastScore = _scoreCur; }
   ctx.fillStyle = isFever ? '#fff' : '#333';
   if (ctx._lastFont !== '32px Gamja Flower') { ctx.font = '32px Gamja Flower'; ctx._lastFont = '32px Gamja Flower'; }
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
   ctx.fillText(_heartStr, 20, 32);
   ctx.textAlign = 'right';
-  ctx.fillText(score.toLocaleString() + '점', cW() - 20, 32);
+  ctx.fillText(_lastScoreStr, cW() - 20, 32);
   ctx.textBaseline = 'alphabetic';
   drawStatusIcons();
 
@@ -2367,7 +2371,7 @@ function initGame() {
       score=0; hp=3; hasShield=false; boostTimer=0;
       frameCount=0; currentLanes=3; feverBarFill.style.width='0%';
       particles=[]; screenFlash=null; notifQueue=[]; currentNotif=null;
-      _prevLanes=3; _prevRoadMode=ROAD_MODES.STRAIGHT; isNewRecord=false;
+      _prevLanes=3; _prevRoadMode=ROAD_MODES.STRAIGHT; isNewRecord=false; _lastScore=-1; _lastScoreStr='';
       gameOverScreen.classList.add('hidden');
       loadingScreen.classList.remove('hidden');
       setTimeout(function(){ loadingScreen.classList.add('hidden'); startGame(); }, 800);
@@ -2438,6 +2442,7 @@ function startGame() {
   _prevLanes = 3;
   _prevRoadMode = ROAD_MODES.STRAIGHT;
   isNewRecord = false;
+  _lastScore = -1; _lastScoreStr = '';
 
   player = new GameObject(
     (cW() - CAR_WIDTH) / 2,

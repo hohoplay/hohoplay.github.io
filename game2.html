@@ -333,6 +333,7 @@
         <!-- 시작 화면 -->
         <div id="screen-start" class="text-center" style="padding-top:60px;">
             <h1 class="title">속담 타자왕</h1>
+            <p style="margin-bottom:6px;font-size:1.05rem;color:#a78bfa;font-weight:800;letter-spacing:0.5px;text-shadow:0 0 12px rgba(167,139,250,0.5);">✦ 속담을 완성하라 — 지혜의 타자 대결 ✦</p>
             <p class="desc">200개의 속담 중 무작위 10문제가 출제됩니다!</p>
             <button onclick="startGame()" class="btn-start">게임 시작</button>
         </div>
@@ -1098,6 +1099,27 @@
                 s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
                 document.body.appendChild(s);
             });
+    </script>
+
+    <script>
+    // ── SPA 이탈 감지: particle-canvas가 DOM에서 사라지면 오디오 정리 ──
+    (function() {
+        var _g2Obs = new MutationObserver(function() {
+            if (!document.getElementById('particle-canvas')) {
+                // 게임 상태 초기화
+                if (typeof state !== 'undefined') state.isPlaying = false;
+                if (typeof clearInterval === 'function' && typeof state !== 'undefined' && state.timer) {
+                    clearInterval(state.timer); state.timer = null;
+                }
+                // AudioContext 정리
+                if (typeof audioCtx !== 'undefined' && audioCtx && audioCtx.state !== 'closed') {
+                    try { audioCtx.close(); } catch(e) {}
+                }
+                _g2Obs.disconnect();
+            }
+        });
+        _g2Obs.observe(document.body, { childList: true, subtree: true });
+    })();
     </script>
 
     <script>

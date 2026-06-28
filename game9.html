@@ -1126,6 +1126,7 @@
 
         <div class="overlay-content">
             <h1 id="overlayTitle">hoho<br>Dash</h1>
+            <p id="hoho-dash-slogan" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#cc88ff;letter-spacing:2px;text-shadow:0 0 8px rgba(204,136,255,0.7),2px 2px 0 #000;margin:0 0 8px 0;line-height:1.8;">RUN. HACK. BREAK THE SYSTEM.</p>
             <div class="divider"></div>
             <p id="overlayMessage" class="msg">Run. Collect Data. Break the System.</p>
             <p style="font-family:'Noto Sans KR',sans-serif; font-size:8px; color:#554466; margin:4px 0 0;">이 게임은 호호플레이 기획 및 AI 프로그램으로 제작함</p>
@@ -1226,6 +1227,20 @@
             <div class="divider" id="divider2" style="display:none"></div>
             <div class="cta" id="ctaText">▶ PRESS START</div>
             <p class="hint">PC: SPACE / ENTER<br>MOBILE: TAP</p>
+            <button id="g9-share-btn" onclick="g9ShareResult()" style="
+                display:none;
+                margin-top:10px;
+                padding:7px 22px;
+                background:transparent;
+                color:#cc88ff;
+                border:1.5px solid #cc88ff;
+                border-radius:30px;
+                font-family:'Press Start 2P',monospace;
+                font-size:7px;
+                cursor:pointer;
+                letter-spacing:1px;
+                transition:all 0.2s;
+            ">📲 SHARE RESULT</button>
         </div>
     </div>
 </div>
@@ -3197,9 +3212,13 @@
         overlayTitle.style.textShadow = "2px 2px 0 #000";
         overlayMessage.innerText = `DISTANCE  ${score}\n💎 DATA COIN  ${Math.floor(savedCoins + totalCoins)}`;
         document.getElementById('ctaText').innerText = '▶ 다시하기';
+        var _sl = document.getElementById('hoho-dash-slogan');
+        if (_sl) _sl.style.display = 'none';
         overlay.classList.remove('hidden');
         overlay.classList.add('gameover');
         document.getElementById('reset-btn-wrap').style.display = 'block';
+        var _sb = document.getElementById('g9-share-btn');
+        if (_sb) _sb.style.display = 'inline-block';
         showUpgradePanel();
     }
 
@@ -3212,9 +3231,13 @@
         overlayTitle.style.color = '';
         overlayTitle.style.textShadow = '';
         document.getElementById('ctaText').innerText = '▶ PRESS START';
+        var _sl = document.getElementById('hoho-dash-slogan');
+        if (_sl) _sl.style.display = '';
         overlay.classList.add('hidden');
         overlay.classList.remove('gameover');
         document.getElementById('reset-btn-wrap').style.display = 'none';
+        var _sb = document.getElementById('g9-share-btn');
+        if (_sb) _sb.style.display = 'none';
         _lastActionTime = Date.now() + 300;
         // 애니메이션 먼저 시작 — BGM은 2프레임 후 시작 (첫 프레임 부하 분산)
         animationId = requestAnimationFrame(() => {
@@ -3752,6 +3775,42 @@
                 s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
                 document.body.appendChild(s);
             });
+    </script>
+
+    <script>
+    // ── game9 공유 함수 ──
+    function g9ShareResult() {
+        var scoreEl = document.getElementById('overlayMessage');
+        var scoreText = scoreEl ? scoreEl.innerText : '';
+        var stageNames = ['','LOCAL MEMORY','NETWORK','FIREWALL','CORE','OVERCLOCK'];
+        var stageInfo = '';
+        for (var i = stageNames.length - 1; i >= 1; i--) {
+            if (scoreText.indexOf(stageNames[i]) !== -1) { stageInfo = 'STAGE: ' + stageNames[i] + '\n'; break; }
+        }
+        var text = '🎮 hohoDash\n⚡ CONNECTION LOST\n' + stageInfo + scoreText.replace(/\n/g, ' | ') + '\n\nRUN. HACK. BREAK THE SYSTEM.\nhttps://hohoplay.github.io';
+        if (navigator.share) {
+            navigator.share({ title: 'hohoDash', text: text, url: location.href }).catch(function(){});
+        } else {
+            try { navigator.clipboard.writeText(text); alert('결과가 클립보드에 복사되었습니다!'); }
+            catch(e) { alert(text); }
+        }
+    }
+
+    // ── SPA 이탈 감지 ──
+    (function() {
+        var _g9Obs = new MutationObserver(function() {
+            if (!document.getElementById('hh-canvas')) {
+                if (typeof gameState !== 'undefined') gameState = 'START';
+                if (typeof animationId !== 'undefined' && animationId) { cancelAnimationFrame(animationId); animationId = null; }
+                if (typeof stopBGM === 'function') stopBGM();
+                if (typeof _audioCtx !== 'undefined' && _audioCtx && _audioCtx.state !== 'closed') {
+                    try { _audioCtx.close(); } catch(e) {}
+                }
+                _g9Obs.disconnect();
+            }
+        });
+        _g9Obs.observe(document.body, { childList: true, subtree: true });
+    })();
     </script>
 
     <script>
