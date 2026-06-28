@@ -56,7 +56,7 @@
     transform: translateX(-50%);
     text-align: center;
     pointer-events: none;
-    z-index: 30;
+    z-index: 5;
     width: 100%;
 }
 #hh-score {
@@ -82,7 +82,7 @@
     top: 18px;
     right: 18px;
     pointer-events: none;
-    z-index: 30;
+    z-index: 5;
 }
 #hh-coin-box {
     display: flex;
@@ -120,7 +120,7 @@
     font-weight: 900;
     font-size: 0.95rem;
     display: none;
-    z-index: 15;
+    z-index: 5;
     white-space: nowrap;
     box-shadow: 0 0 20px rgba(59,130,246,0.6);
     animation: hh-bounce 0.5s ease infinite alternate;
@@ -140,7 +140,7 @@
     font-weight: 800;
     color: #fbbf24;
     display: none;
-    z-index: 6;
+    z-index: 5;
     white-space: nowrap;
     text-shadow: 0 0 10px rgba(251,191,36,0.5);
 }
@@ -158,7 +158,7 @@
     border-radius: 7px;
     overflow: visible;
     display: none;
-    z-index: 15;
+    z-index: 5;
     border: 1px solid rgba(255,255,255,0.2);
 }
 #hh-magnet-bar {
@@ -187,7 +187,7 @@
     justify-content: center;
     align-items: center;
     color: #fff;
-    z-index: 20;
+    z-index: 6;
     padding: 24px 20px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -568,6 +568,10 @@
             box-sizing: border-box;
             color: var(--ts-text-main);
             min-height: 600px;
+            /* 오버레이가 이 컨테이너 밖으로 절대 나가지 못하도록 */
+            isolation: isolate;
+            contain: layout;
+            transform: translateZ(0);
         }
         .ts-game-header {
             height: 48px;
@@ -856,7 +860,7 @@
             position: absolute;
             inset: 0;
             background: rgba(239, 68, 68, 0.15);
-            z-index: 200;
+            z-index: 11;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -872,7 +876,7 @@
             padding: 16px 28px;
             border-radius: 12px;
             text-align: center;
-            z-index: 210;
+            z-index: 11;
             animation: ts-stun-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .ts-stun-countdown h3 {
@@ -893,7 +897,7 @@
             inset: 0;
             pointer-events: none;
             background-image: radial-gradient(circle, transparent 40%, rgba(239, 68, 68, 0.2) 100%);
-            z-index: 205;
+            z-index: 11;
         }
         @keyframes ts-stun-pulse {
             0% { background: rgba(239, 68, 68, 0.1); }
@@ -910,7 +914,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 100;
+            z-index: 6;
         }
         .ts-fever-area {
             padding: 0 16px 12px 16px;
@@ -977,7 +981,7 @@
         .ts-overlay {
             position: absolute;
             inset: 0;
-            z-index: 300;
+            z-index: 10;  /* nav(z-50)보다 낮게, 컨테이너 안에만 적용 */
             background: var(--ts-bg-main);
             display: flex;
             flex-direction: column;
@@ -1117,7 +1121,7 @@
             position: absolute;
             inset: 0;
             background: rgba(11, 15, 25, 0.97);
-            z-index: 600;
+            z-index: 12;
             display: none;
             flex-direction: column;
             align-items: center;
@@ -1198,7 +1202,7 @@
             border-radius: 20px;
             font-weight: 900;
             font-size: 1.1rem;
-            z-index: 500;
+            z-index: 13;
             display: none;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
             animation: ts-toast-bounce 0.3s ease-out;
@@ -1301,7 +1305,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            z-index: 500;
+            z-index: 9;
             text-align: center;
             pointer-events: none;
             transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1337,7 +1341,7 @@
             position: absolute;
             inset: 0;
             pointer-events: none;
-            z-index: 450;
+            z-index: 8;
             background: transparent;
             border-radius: 12px;
         }
@@ -1346,7 +1350,7 @@
             position: absolute;
             inset: 0;
             pointer-events: none;
-            z-index: 200;
+            z-index: 7;
             width: 100%;
             height: 100%;
         }
@@ -1356,7 +1360,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            z-index: 550;
+            z-index: 9;
             text-align: center;
             pointer-events: none;
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
