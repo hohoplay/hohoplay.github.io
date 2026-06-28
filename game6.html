@@ -732,8 +732,8 @@ canvas {
 }
 
 /* ── 시작화면 ── */
-#hh-start-screen { display: flex; }
-#hh-over-screen  { display: none; }
+#hh-start-screen { display: flex; z-index: 21; }
+#hh-over-screen  { display: none; z-index: 22; }
 
 .hh-game-title {
     font-size: 3rem;
@@ -828,6 +828,17 @@ canvas {
 
 .hh-btn-dark { background: #374151; box-shadow: none; }
 .hh-btn-dark:hover { background: #4b5563; }
+
+.hh-btn-reset {
+    background: transparent;
+    box-shadow: none;
+    border: 1px solid #4b5563;
+    color: #6b7280;
+    font-size: 0.78rem;
+    padding: 8px 16px;
+    margin-top: 6px;
+}
+.hh-btn-reset:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
 
 .hh-btn-revive {
     background: linear-gradient(135deg,#8b5cf6,#7c3aed);
@@ -1020,7 +1031,7 @@ canvas {
     <div id="hh-start-screen" class="hh-screen">
         <h1 class="hh-game-title">HOHO RUN</h1>
         <p class="hh-slogan">벽을 타고, 하늘을 달려라</p>
-        <p class="hh-sub">호호로그 기획 및 제작</p>
+        <p class="hh-sub">이 게임은 호호플레이 기획 및 AI프로그램으로 제작함</p>
         <div class="hh-char-lbl">캐릭터 선택 (스킬 변화)</div>
         <div class="hh-char-group">
             <div id="hh-opt-blue" class="hh-char-card active-blue" tabindex="0" role="button" aria-label="블루 캐릭터">
@@ -1099,6 +1110,7 @@ canvas {
         </div>
 
         <button id="hh-restart-btn" class="hh-btn hh-btn-dark">↺ 다시 시작</button>
+        <button id="hh-reset-btn" class="hh-btn hh-btn-reset">🗑 데이터 초기화</button>
     </div>
 
 </div><!-- #hh-wrap -->
@@ -1273,26 +1285,102 @@ var snd = (function() {
         bgmStart: function() {
             if (this._bgm) return;
             var melody = [261,329,392,523,392,329,261,196], step = 0;
+            var self = this;
+            var isFever = fever;
+            var tempo = isFever ? 110 : 220;
+            this._lastTempo = tempo;
             this._bgm = setInterval(function() {
                 if (!ok || !ac || !active || ac.state !== 'running') return;
+                /* 피버 상태 변화 감지 → BGM 재시작 */
+                if (fever !== isFever) {
+                    clearInterval(self._bgm); self._bgm = null;
+                    self.bgmStart();
+                    return;
+                }
                 try {
                     var o = ac.createOscillator(), g = ac.createGain();
-                    o.type = 'square';
-                    o.frequency.setValueAtTime(melody[step % melody.length], ac.currentTime);
-                    g.gain.setValueAtTime(0.025, ac.currentTime);
-                    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.18);
+                    o.type = isFever ? 'sawtooth' : 'square';
+                    var feverMelody = [523,659,784,1047,784,659,523,392];
+                    var m = isFever ? feverMelody : melody;
+                    o.frequency.setValueAtTime(m[step % m.length], ac.currentTime);
+                    g.gain.setValueAtTime(isFever ? 0.035 : 0.025, ac.currentTime);
+                    var dur = isFever ? 0.09 : 0.18;
+                    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
                     o.connect(g); g.connect(ac.destination);
-                    o.start(); o.stop(ac.currentTime + 0.18);
+                    o.start(); o.stop(ac.currentTime + dur);
                     step++;
                 } catch(e) {}
-            }, 220);
+            }, tempo);
         },
 
         bgmStop: function() {
             if (this._bgm) { clearInterval(this._bgm); this._bgm = null; }
+            this._lastTempo = 0;
         },
 
-        _bgm: null
+        /* NPC 등장 알림음 */
+        npcAngel: function() {
+            if (!ok || !ac || ac.state !== 'running') return;
+            try {
+                [523, 659, 784].forEach(function(f, i) {
+                    var o = ac.createOscillator(), g = ac.createGain();
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(f, ac.currentTime + i * 0.09);
+                    g.gain.setValueAtTime(0.08, ac.currentTime + i * 0.09);
+                    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.09 + 0.14);
+                    o.connect(g); g.connect(ac.destination);
+                    o.start(ac.currentTime + i * 0.09);
+                    o.stop(ac.currentTime + i * 0.09 + 0.14);
+                });
+            } catch(e) {}
+        },
+
+        npcDevil: function() {
+            if (!ok || !ac || ac.state !== 'running') return;
+            try {
+                [180, 140, 100].forEach(function(f, i) {
+                    var o = ac.createOscillator(), g = ac.createGain();
+                    o.type = 'sawtooth';
+                    o.frequency.setValueAtTime(f, ac.currentTime + i * 0.1);
+                    g.gain.setValueAtTime(0.15, ac.currentTime + i * 0.1);
+                    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.1 + 0.18);
+                    o.connect(g); g.connect(ac.destination);
+                    o.start(ac.currentTime + i * 0.1);
+                    o.stop(ac.currentTime + i * 0.1 + 0.18);
+                });
+            } catch(e) {}
+        },
+
+        shrink: function() {
+            if (!ok || !ac || ac.state !== 'running') return;
+            try {
+                var o = ac.createOscillator(), g = ac.createGain();
+                o.type = 'square';
+                o.frequency.setValueAtTime(440, ac.currentTime);
+                o.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.25);
+                g.gain.setValueAtTime(0.12, ac.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.28);
+                o.connect(g); g.connect(ac.destination);
+                o.start(); o.stop(ac.currentTime + 0.28);
+            } catch(e) {}
+        },
+
+        feverWarn: function() {
+            if (!ok || !ac || ac.state !== 'running') return;
+            try {
+                var o = ac.createOscillator(), g = ac.createGain();
+                o.type = 'square';
+                o.frequency.setValueAtTime(880, ac.currentTime);
+                o.frequency.setValueAtTime(660, ac.currentTime + 0.06);
+                g.gain.setValueAtTime(0.06, ac.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.12);
+                o.connect(g); g.connect(ac.destination);
+                o.start(); o.stop(ac.currentTime + 0.12);
+            } catch(e) {}
+        },
+
+        _bgm: null,
+        _lastTempo: 0
     };
 })();
 
@@ -1316,6 +1404,7 @@ var optRed   = document.getElementById('hh-opt-red');
 var btnStart   = document.getElementById('hh-start-btn');
 var btnRestart = document.getElementById('hh-restart-btn');
 var btnRevive  = document.getElementById('hh-revive-btn');
+var btnReset   = document.getElementById('hh-reset-btn');
 var btnCoin    = document.getElementById('hh-btn-coin');
 var btnSpeed   = document.getElementById('hh-btn-speed');
 var btnMagnet  = document.getElementById('hh-btn-magnet');
@@ -1335,8 +1424,8 @@ var PRICE_INC  = 50;
 var MAG_BASE   = 180;
 var DUR_7S     = 420;
 var MAX_MAG    = 1260;
-var COIN_PROB  = 0.4;
-var BIG_PROB   = 0.05;
+var COIN_PROB  = 0.2;
+var BIG_PROB   = 0.03;
 var SCORE_MOD  = 0.1;
 var MAX_PARTS  = 80;
 var MAX_FW     = 30;
@@ -1427,18 +1516,23 @@ function updateShop() {
     /* 스킬 타이틀 */
     if (selColor === '#60a5fa') {
         elSkillTitle.style.color   = '#93c5fd';
-        btnSpeed.style.background  = '#3b82f6';
         elSkillTitle.innerHTML     = '이동 속도 (Lv.<span id="hh-lv-speed">' + upgrades.speed.level + '</span>)';
     } else {
         elSkillTitle.style.color   = '#fca5a5';
-        btnSpeed.style.background  = '#ef4444';
         elSkillTitle.innerHTML     = '버섯 확률 (Lv.<span id="hh-lv-speed">' + upgrades.speed.level + '</span>)';
     }
 
     /* 버튼 상태 */
     var sp = price(100, upgrades.speed.level);
-    if (upgrades.speed.level >= MAX_LV) { btnSpeed.textContent='MAX'; btnSpeed.classList.add('maxed'); btnSpeed.disabled=true; }
-    else { btnSpeed.textContent=sp+'💰'; btnSpeed.classList.remove('maxed'); btnSpeed.disabled=totalCoins<sp; }
+    if (upgrades.speed.level >= MAX_LV) {
+        btnSpeed.textContent='MAX'; btnSpeed.classList.add('maxed'); btnSpeed.disabled=true;
+        btnSpeed.style.background = '';
+    } else {
+        btnSpeed.textContent=sp+'💰'; btnSpeed.classList.remove('maxed');
+        btnSpeed.disabled = totalCoins < sp;
+        /* 비활성화 시 인라인 배경 제거 → CSS disabled 스타일 적용 */
+        btnSpeed.style.background = btnSpeed.disabled ? '' : (selColor === '#60a5fa' ? '#3b82f6' : '#ef4444');
+    }
 
     var cp = price(100, upgrades.coin.level);
     if (upgrades.coin.level >= MAX_LV) { btnCoin.textContent='MAX'; btnCoin.classList.add('maxed'); btnCoin.disabled=true; }
@@ -1587,6 +1681,8 @@ function checkNPC() {
 function spawnNPC(type) {
     var cw=canvas.width;
     npcs.push({type:type,x:cw/2,y:camY+50,state:'action',t:0,done:0});
+    if (type==='angel') snd.npcAngel();
+    else if (type==='devil') snd.npcDevil();
 }
 function updateNPCs() {
     for (var i=npcs.length-1;i>=0;i--) {
@@ -1667,10 +1763,22 @@ function newRecord() {
 }
 
 /* ── 코인 추가 ── */
-function addCoin(n) {
+var _lastCoinFloatFrame = -30; /* 코인 floatText 쿨다운 (연속 흡수 시 도배 방지) */
+function addCoin(n, showFloat) {
     snd.coin();
-    totalCoins += (n + upgrades.coin.level);
+    var bonus = upgrades.coin.level;
+    var total = n + bonus;
+    totalCoins += total;
     SS.set('hohorun_coins', totalCoins);
+    /* floatText: big코인(10개↑) 또는 명시적 showFloat=true 일 때만,
+       일반 코인은 30프레임 쿨다운으로 도배 방지 */
+    if (n >= 10 || showFloat) {
+        addFloat('+' + total + ' 💰💰', '#fbbf24');
+        _lastCoinFloatFrame = frame;
+    } else if (frame - _lastCoinFloatFrame >= 30) {
+        addFloat('+' + total + ' 💰', '#facc15');
+        _lastCoinFloatFrame = frame;
+    }
     updateHUD();
 }
 
@@ -1729,8 +1837,10 @@ function hit(cause,force) {
     if (!force&&(fever||golden||iframes>0)) return false;
     if (!force&&isGiant) {
         snd.alarm();              /* HP 감소 경보음 */
+        snd.shrink();             /* 거대화 해제음 */
         hitFlash=10;              /* 빨간 플래시 */
-        mkParts(player.x+player.size/2,player.y+player.size/2,player.color,20);
+        mkParts(player.x+player.size/2,player.y+player.size/2,'#ff6b6b',25);
+        addFloat('💥 HIT!','#ff6b6b');
         isGiant=false; giantLv=1; player.size=P_SIZE; player.color=selColor; iframes=60;
         var cw=canvas.width;
         if (player.x+player.size/2<cw/2){player.wall='left';player.x=WALL_W;}
@@ -1826,7 +1936,7 @@ function update() {
     if (ty<camY) { score+=(camY-ty)*SCORE_MOD; camY=ty; }
     if (!newRec&&score>highScore&&highScore>100) newRecord();
     updateHUD();
-    if (player.y-camY>ch+150) gameOver('추락했습니다!');
+    if (player.y-camY>ch+150) gameOver('💀 끝까지 오르지 못했다!');
     frame++;
     if (genY>camY-1000) { genLevel(genY-400); genY-=400; }
 }
@@ -1841,16 +1951,16 @@ function updateEntities() {
         var p=projs[i]; p.x+=p.vx; p.y+=p.vy;
         var dx=px-p.x,dy=py-p.y,ds=dx*dx+dy*dy,cd=player.size/2+p.size;
         if (ds<cd*cd) {
-            if (p.type==='coin'){addCoin(1);projs.splice(i,1);}
-            else if (p.type==='bigcoin'){addCoin(10);projs.splice(i,1);}
-            else if (p.type==='fire'){hit('화염구 피격!',true);projs.splice(i,1);}
+            if (p.type==='coin'){addCoin(1,false);projs.splice(i,1);}
+            else if (p.type==='bigcoin'){addCoin(10,true);projs.splice(i,1);}
+            else if (p.type==='fire'){hit('🔥 화염구에 불탔다!',true);projs.splice(i,1);}
         } else if (Math.abs(p.y-camY)>ch+500) projs.splice(i,1);
     }
     for (var i=spikes.length-1;i>=0;i--) {
         var s=spikes[i];
         if (player.y+player.size<=s.y||player.y>=s.y+28){if(s.y-camY>ch+200)spikes.splice(i,1);continue;}
         var sh=s.side==='left'?player.x<WALL_W+s.w:player.x+player.size>cw-WALL_W-s.w;
-        if (sh){if(fever||golden){mkParts(player.x,player.y,'#fbbf24',15);addCoin(5);spikes.splice(i,1);}else hit('가시 함정!');}
+        if (sh){if(fever||golden){mkParts(player.x,player.y,'#fbbf24',15);addCoin(5,true);spikes.splice(i,1);}else{mkParts(player.x+player.size/2,player.y+player.size/2,'#94a3b8',14);hit('🩸 날카로운 가시에 찔렸다!');}}
         else if(s.y-camY>ch+200) spikes.splice(i,1);
     }
     for (var i=pillars.length-1;i>=0;i--) {
@@ -1859,28 +1969,28 @@ function updateEntities() {
         if (p.ext&&p.curW<p.maxW) p.curW+=7;
         if (player.y+player.size<=p.y||player.y>=p.y+p.h){if(p.y-camY>ch+200)pillars.splice(i,1);continue;}
         var ph=p.side==='left'?player.x<WALL_W+p.curW:player.x+player.size>cw-WALL_W-p.curW;
-        if (ph){if(fever||golden){mkParts(player.x,player.y,'#fbbf24',20);addCoin(7);pillars.splice(i,1);}else hit('기둥 함정!');}
+        if (ph){if(fever||golden){mkParts(player.x,player.y,'#fbbf24',20);addCoin(7,true);pillars.splice(i,1);}else{mkParts(player.x+player.size/2,player.y+player.size/2,'#f97316',14);hit('💥 벽 기둥에 으스러졌다!');}}
         else if(p.y-camY>ch+200) pillars.splice(i,1);
     }
     for (var i=bricks.length-1;i>=0;i--) {
         var b=bricks[i];
         b.x=b.bx+Math.sin(frame*b.ms+b.off)*b.mr;
         if (player.x<b.x+b.w&&player.x+player.size>b.x&&player.y<b.y+b.h&&player.y+player.size>b.y) {
-            if(fever||golden){mkParts(b.x+b.w/2,b.y+b.h/2,'#fbbf24',15);addCoin(5);bricks.splice(i,1);}else hit('이동 블록!');
+            if(fever||golden){mkParts(b.x+b.w/2,b.y+b.h/2,'#fbbf24',15);addCoin(5,true);bricks.splice(i,1);}else{mkParts(b.x+b.w/2,b.y+b.h/2,'#64748b',14);hit('🧱 이동 블록에 짓눌렸다!');}
         } else if(b.y-camY>ch+200) bricks.splice(i,1);
     }
     for (var i=hexes.length-1;i>=0;i--) {
         var h=hexes[i]; h.rot+=h.rs;
         var dx=px-h.x,dy=py-h.y,ds=dx*dx+dy*dy,cd=h.size+player.size/2;
-        if(ds<cd*cd){if(fever||golden){mkParts(h.x,h.y,'#fbbf24',20);addCoin(8);hexes.splice(i,1);}else hit('회전 함정!');}
+        if(ds<cd*cd){if(fever||golden){mkParts(h.x,h.y,'#fbbf24',20);addCoin(8,true);hexes.splice(i,1);}else{mkParts(h.x,h.y,'#ef4444',14);hit('⚙️ 회전 함정에 갈렸다!');}}
         else if(h.y-camY>ch+200) hexes.splice(i,1);
     }
     for (var i=rocks.length-1;i>=0;i--) {
         var r=rocks[i];
         var dx=px-r.x,dy=py-r.y,ds=dx*dx+dy*dy,cd=r.r+player.size/2;
         if(ds<cd*cd){
-            if(fever||golden){mkParts(r.x,r.y,'#fbbf24',25);addCoin(12);rocks.splice(i,1);}
-            else if(isGiant) hit('바위!',true); else hit('바위 충돌!');
+            if(fever||golden){mkParts(r.x,r.y,'#fbbf24',25);addCoin(12,true);rocks.splice(i,1);}
+            else if(isGiant){mkParts(r.x,r.y,'#475569',18);hit('🪨 바위에 부딪혔다!',true);}else{mkParts(r.x,r.y,'#475569',18);hit('🪨 거대 바위에 박살났다!');}
         } else if(r.y-camY>ch+400) rocks.splice(i,1);
     }
     for (var i=coins.length-1;i>=0;i--) {
@@ -1935,7 +2045,23 @@ function drawHex(h) {
 }
 function drawPower(pu) {
     ctx.save();
-    if (pu.fall){ctx.globalAlpha=0.3;ctx.fillStyle=pu.type==='fever'?'hsl('+(frame*5%360)+',100%,70%)':'#fbbf24';ctx.beginPath();ctx.moveTo(pu.x-15,pu.y);ctx.lineTo(pu.x,pu.y-45);ctx.lineTo(pu.x+15,pu.y);ctx.fill();ctx.globalAlpha=1;}
+    if (pu.fall) {
+        /* 낙하 아이템 빛줄기 + 회전 링 연출 */
+        var fc = pu.type==='fever' ? 'hsl('+(frame*5%360)+',100%,70%)' : '#fbbf24';
+        /* 위쪽 빛줄기 */
+        ctx.globalAlpha=0.18+Math.sin(frame*0.1)*0.08;
+        var lg=ctx.createLinearGradient(pu.x,pu.y-120,pu.x,pu.y);
+        lg.addColorStop(0,'transparent');lg.addColorStop(1,fc);
+        ctx.fillStyle=lg;
+        ctx.fillRect(pu.x-8,pu.y-120,16,120);
+        /* 회전 링 */
+        ctx.globalAlpha=0.4+Math.sin(frame*0.15)*0.2;
+        ctx.strokeStyle=fc;ctx.lineWidth=2;
+        ctx.setLineDash([5,4]);ctx.lineDashOffset=-frame*2;
+        ctx.beginPath();ctx.arc(pu.x,pu.y,30+Math.sin(frame*0.1)*4,0,Math.PI*2);ctx.stroke();
+        ctx.setLineDash([]);ctx.lineDashOffset=0;
+        ctx.globalAlpha=1;
+    }
     if(pu.type==='mushroom'){
         if(isGiant||fever||golden)ctx.globalAlpha=0.3;
         ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(pu.x,pu.y,20,Math.PI,0);ctx.fill();
@@ -1946,15 +2072,26 @@ function drawPower(pu) {
         ctx.fillStyle='#3b82f6';ctx.fillRect(pu.x-15,pu.y,8,10);ctx.fillRect(pu.x+7,pu.y,8,10);
     } else if(pu.type==='fever'){
         var h2=frame*5%360;
-        var g=ctx.createRadialGradient(pu.x,pu.y,5,pu.x,pu.y,20);
+        var pulse=22+Math.sin(frame*0.2)*4;
+        /* 외부 글로우 */
+        ctx.shadowBlur=30+Math.sin(frame*0.15)*10;ctx.shadowColor='hsl('+h2+',100%,70%)';
+        var g=ctx.createRadialGradient(pu.x,pu.y,3,pu.x,pu.y,pulse);
         g.addColorStop(0,'#fff');g.addColorStop(0.5,'hsl('+h2+',100%,60%)');g.addColorStop(1,'hsl('+(h2+60)%360+',100%,40%)');
-        ctx.fillStyle=g;ctx.beginPath();ctx.arc(pu.x,pu.y,22,0,Math.PI*2);ctx.fill();
-        ctx.shadowBlur=20;ctx.shadowColor='hsl('+h2+',100%,70%)';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+        ctx.fillStyle=g;ctx.beginPath();ctx.arc(pu.x,pu.y,pulse,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+        /* FEVER 텍스트 */
+        ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 9px Arial';
+        ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('FEVER',pu.x,pu.y);
     } else if(pu.type==='dragon'){
-        var g2=ctx.createRadialGradient(pu.x,pu.y,5,pu.x,pu.y,20);
+        var pulse2=22+Math.sin(frame*0.18)*4;
+        ctx.shadowBlur=30+Math.sin(frame*0.13)*10;ctx.shadowColor='#fbbf24';
+        var g2=ctx.createRadialGradient(pu.x,pu.y,3,pu.x,pu.y,pulse2);
         g2.addColorStop(0,'#fff7ed');g2.addColorStop(0.5,'#fbbf24');g2.addColorStop(1,'#d97706');
-        ctx.fillStyle=g2;ctx.beginPath();ctx.arc(pu.x,pu.y,22,0,Math.PI*2);ctx.fill();
-        ctx.shadowBlur=20;ctx.shadowColor='#fbbf24';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+        ctx.fillStyle=g2;ctx.beginPath();ctx.arc(pu.x,pu.y,pulse2,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+        /* GOLD 텍스트 */
+        ctx.shadowBlur=0;ctx.fillStyle='#7c3d00';ctx.font='bold 9px Arial';
+        ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('GOLD',pu.x,pu.y);
     }
     ctx.restore();
 }
@@ -1967,6 +2104,87 @@ function draw() {
     ctx.fillStyle=bg;
     ctx.fillRect(0,camY,WALL_W,ch);
     ctx.fillRect(cw-WALL_W,camY,WALL_W,ch);
+
+    /* ── 벽 텍스처 (벽돌 패턴 + 네온 엣지) ── */
+    (function drawWalls() {
+        var brickH = 28, brickW = WALL_W;
+        var startRow = Math.floor(camY / brickH);
+        var endRow   = startRow + Math.ceil(ch / brickH) + 2;
+
+        /* 벽돌 색상 결정 */
+        var brickBase, brickDark, brickLight, edgeColor, edgeAlpha;
+        if (fever) {
+            brickBase  = 'hsl('+(frame*4%360)+',60%,22%)';
+            brickDark  = 'hsl('+(frame*4%360)+',60%,14%)';
+            brickLight = 'hsl('+(frame*4%360)+',80%,40%)';
+            edgeColor  = 'hsl('+(frame*4%360)+',100%,60%)';
+            edgeAlpha  = 0.9;
+        } else if (golden) {
+            brickBase  = '#3d2a00';
+            brickDark  = '#251a00';
+            brickLight = '#7a5200';
+            edgeColor  = '#fbbf24';
+            edgeAlpha  = 0.85;
+        } else {
+            brickBase  = '#1e293b';
+            brickDark  = '#0f172a';
+            brickLight = '#334155';
+            edgeColor  = '#3b82f6';
+            edgeAlpha  = 0.6;
+        }
+
+        ctx.save();
+        for (var row = startRow; row < endRow; row++) {
+            var y0 = row * brickH;
+            /* 홀짝 줄마다 오프셋 */
+            var offset = (row % 2 === 0) ? 0 : brickW * 0.5;
+
+            /* ── 왼쪽 벽 ── */
+            ctx.fillStyle = (row % 2 === 0) ? brickBase : brickDark;
+            ctx.fillRect(0, y0, brickW, brickH);
+            /* 벽돌 줄 경계선 (상단 밝은 선) */
+            ctx.fillStyle = brickLight;
+            ctx.globalAlpha = 0.35;
+            ctx.fillRect(0, y0, brickW, 2);
+            /* 벽돌 세로 분할선 */
+            ctx.fillStyle = brickDark;
+            ctx.globalAlpha = 0.55;
+            ctx.fillRect(offset % brickW, y0 + 2, 2, brickH - 4);
+            ctx.globalAlpha = 1;
+
+            /* ── 오른쪽 벽 ── */
+            ctx.fillStyle = (row % 2 === 0) ? brickBase : brickDark;
+            ctx.fillRect(cw - brickW, y0, brickW, brickH);
+            ctx.fillStyle = brickLight;
+            ctx.globalAlpha = 0.35;
+            ctx.fillRect(cw - brickW, y0, brickW, 2);
+            ctx.fillStyle = brickDark;
+            ctx.globalAlpha = 0.55;
+            ctx.fillRect(cw - brickW + (offset % brickW), y0 + 2, 2, brickH - 4);
+            ctx.globalAlpha = 1;
+        }
+
+        /* 네온 엣지 (안쪽 경계선) */
+        var pulse = 0.55 + Math.sin(frame * 0.07) * 0.2;
+        ctx.globalAlpha = edgeAlpha * pulse;
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = edgeColor;
+        ctx.strokeStyle = edgeColor;
+        ctx.lineWidth = 3;
+        /* 왼쪽 벽 오른쪽 엣지 */
+        ctx.beginPath();
+        ctx.moveTo(WALL_W, camY);
+        ctx.lineTo(WALL_W, camY + ch);
+        ctx.stroke();
+        /* 오른쪽 벽 왼쪽 엣지 */
+        ctx.beginPath();
+        ctx.moveTo(cw - WALL_W, camY);
+        ctx.lineTo(cw - WALL_W, camY + ch);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    })();
 
     /* ── 피버 게이지 바 (상단, 카메라 변환 안) ── */
     if (fever && feverT>0) {
@@ -1986,11 +2204,22 @@ function draw() {
         ctx.globalAlpha=0.4+Math.sin(frame*0.3)*0.3;
         ctx.fillStyle='#fff';
         ctx.fillRect(barW-6,camY,6,7);
-        /* 피버 종료 임박: 1초 미만 깜빡임 경고 */
-        if (feverT<60&&frame%10<5) {
-            ctx.globalAlpha=0.2;
-            ctx.fillStyle='#fff';
-            ctx.fillRect(0,camY,cw,ch);
+        /* 피버 종료 임박: 2초 미만 경고 연출 */
+        if (feverT<120) {
+            /* 2~1초: 게이지 바 빨간색 전환 */
+            if (feverT>=60) {
+                ctx.globalAlpha = 0.7;
+                ctx.fillStyle='#ef4444';
+                ctx.fillRect(0,camY,barW,7);
+                if (frame%30===0) snd.feverWarn();
+            }
+            /* 1초 미만: 강한 흰색 깜빡임 */
+            if (feverT<60&&frame%8<4) {
+                ctx.globalAlpha=0.28;
+                ctx.fillStyle='#fff';
+                ctx.fillRect(0,camY,cw,ch);
+                if (frame%15===0) snd.feverWarn();
+            }
         }
         ctx.restore();
     }
@@ -2037,9 +2266,32 @@ function draw() {
     ctx.globalAlpha=1;
 
     if(magT>0){
-        ctx.save();ctx.strokeStyle=(golden||fever)?'#fff':'#60a5fa';ctx.lineWidth=2;ctx.setLineDash([5,5]);
-        ctx.beginPath();ctx.arc(player.x+player.size/2,player.y+player.size/2,85+Math.sin(frame*0.12)*12,0,Math.PI*2);
-        ctx.stroke();ctx.restore();
+        ctx.save();
+        var mx=player.x+player.size/2, my=player.y+player.size/2;
+        var mr2=85+Math.sin(frame*0.12)*12;
+        var magCol=(golden||fever)?'#fff':'#60a5fa';
+        var magPulse=0.5+Math.sin(frame*0.15)*0.3;
+        /* 외부 링 - 회전 점선 */
+        ctx.strokeStyle=magCol; ctx.lineWidth=2;
+        ctx.globalAlpha=magPulse;
+        ctx.setLineDash([8,6]);
+        ctx.lineDashOffset=-frame*1.5;
+        ctx.beginPath();ctx.arc(mx,my,mr2,0,Math.PI*2);ctx.stroke();
+        /* 내부 링 - 반대 방향 회전 */
+        ctx.setLineDash([4,10]);
+        ctx.lineDashOffset=frame*2;
+        ctx.lineWidth=1.5;
+        ctx.globalAlpha=magPulse*0.5;
+        ctx.beginPath();ctx.arc(mx,my,mr2*0.7,0,Math.PI*2);ctx.stroke();
+        /* 글로우 효과 */
+        ctx.setLineDash([]);
+        ctx.lineDashOffset=0;
+        ctx.globalAlpha=magPulse*0.15;
+        ctx.strokeStyle=magCol;ctx.lineWidth=18;
+        ctx.shadowBlur=20;ctx.shadowColor=magCol;
+        ctx.beginPath();ctx.arc(mx,my,mr2,0,Math.PI*2);ctx.stroke();
+        ctx.shadowBlur=0;ctx.globalAlpha=1;
+        ctx.restore();
     }
     if(iframes%4<2){
         ctx.save();
@@ -2191,6 +2443,31 @@ btnCoin.addEventListener('click',   function() { buyUpgrade('coin'); });
 btnSpeed.addEventListener('click',  function() { buyUpgrade('speed'); });
 btnMagnet.addEventListener('click', function() { buyUpgrade('magnet'); });
 btnRevBuy.addEventListener('click', function() { buyUpgrade('revive'); });
+
+/* 데이터 초기화 버튼 */
+btnReset.addEventListener('click', function() {
+    if (!confirm('코인, 업그레이드, 최고기록을 모두 초기화할까요?\n이 작업은 되돌릴 수 없습니다.')) return;
+    /* 데이터 초기화 */
+    SS.set('hohorun_upgrades', '');
+    SS.set('hohorun_coins', '0');
+    SS.set('hohorun_best', '0');
+    upgrades = { speed:{level:0,gauge:0}, coin:{level:0,gauge:0}, magnet:{level:0,gauge:0}, reviveCount:0 };
+    totalCoins = 0;
+    highScore  = 0;
+    /* 게임 상태 완전 정지 */
+    active = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    snd.bgmStop();
+    /* 화면 전환: 게임오버 → 시작화면 */
+    scrOver.style.display = 'none';
+    scrStart.style.display = 'flex';
+    /* UI 갱신 */
+    updateShop();
+    updateHUD();
+    /* 배경 루프만 재시작 (active=false 이므로 update 실행 안됨) */
+    resetGame(false);
+    rafId = requestAnimationFrame(loop);
+});
 
 /* 캔버스 입력 */
 canvas.addEventListener('mousedown', function(e) {
