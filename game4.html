@@ -80,8 +80,11 @@
 }
 
 #hoho-desc-text {
-    color: #aaa;
-    font-size: 0.95rem;
+    color: #00ffcc;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 10px rgba(0,255,204,0.5);
     margin: 0 0 20px 0;
 }
 
@@ -203,6 +206,26 @@
 }
 #hoho-save-btn:hover {
     background: rgba(0,255,204,0.12);
+    -webkit-transform: scale(1.04);
+    transform: scale(1.04);
+}
+#hoho-share-btn {
+    margin-top: 8px;
+    padding: 11px 36px;
+    background: transparent;
+    color: #ffdd66;
+    border: 1.5px solid #ffdd66;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    display: none;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+}
+#hoho-share-btn:hover {
+    background: rgba(255,221,102,0.12);
     -webkit-transform: scale(1.04);
     transform: scale(1.04);
 }
@@ -513,8 +536,11 @@
 }
 
 #hoho-desc-text {
-    color: #aaa;
-    font-size: 0.95rem;
+    color: #00ffcc;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 10px rgba(0,255,204,0.5);
     margin: 0 0 20px 0;
 }
 
@@ -636,6 +662,26 @@
 }
 #hoho-save-btn:hover {
     background: rgba(0,255,204,0.12);
+    -webkit-transform: scale(1.04);
+    transform: scale(1.04);
+}
+#hoho-share-btn {
+    margin-top: 8px;
+    padding: 11px 36px;
+    background: transparent;
+    color: #ffdd66;
+    border: 1.5px solid #ffdd66;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    display: none;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+}
+#hoho-share-btn:hover {
+    background: rgba(255,221,102,0.12);
     -webkit-transform: scale(1.04);
     transform: scale(1.04);
 }
@@ -904,6 +950,7 @@
 
       <button id="hoho-start-btn" onclick="hohoStartGame()">MISSION START</button>
       <button id="hoho-save-btn" onclick="hohoSaveImage()">📷 결과 저장</button>
+      <button id="hoho-share-btn" onclick="hohoShareResult()">📲 결과 공유</button>
     </div>
 
     <!-- WARNING -->
@@ -1172,6 +1219,7 @@
         document.getElementById('hoho-mode-selection').style.display = 'flex';
         document.getElementById('hoho-start-btn').innerText = 'BOOT SEQUENCE';
         document.getElementById('hoho-save-btn').style.display = 'none';
+        document.getElementById('hoho-share-btn').style.display = 'none';
 
         // 이전 게임루프 완전 취소
         if (_hohoRafId) { cancelAnimationFrame(_hohoRafId); _hohoRafId = null; }
@@ -2462,6 +2510,7 @@
         document.getElementById('hoho-desc-text').innerText = 'DATA PROCESSED: ' + score + '  |  ACC: ' + (totalKeystrokes > 0 ? Math.round(correctKeystrokes / totalKeystrokes * 100) : '--') + '%';
         document.getElementById('hoho-start-btn').innerText = 'REBOOT';
         document.getElementById('hoho-save-btn').style.display = 'inline-block';
+        document.getElementById('hoho-share-btn').style.display = 'inline-block';
         sfxGameOver();
     }
 
@@ -2493,6 +2542,34 @@
         a.download = '호호타자FPS_' + score + '점.png';
         a.click();
     };
+
+    window.hohoShareResult = function() {
+        var accStr = totalKeystrokes > 0 ? Math.round(correctKeystrokes / totalKeystrokes * 100) + '%' : '--';
+        var text = '🎮 호호타자FPS\n💥 SYSTEM CRASH\n📊 DATA: ' + score + ' | ACC: ' + accStr + '\n\n⚡ 코드로 적을 격추하라! HOHO PLAY에서 도전해보세요!';
+        if (navigator.share) {
+            navigator.share({ title: '호호타자FPS', text: text, url: location.href })
+                .catch(function() {});
+        } else {
+            try { navigator.clipboard.writeText(text); alert('결과가 클립보드에 복사되었습니다!'); }
+            catch(e) { alert(text); }
+        }
+    };
+
+    /* ── SPA 이탈 감지 ── */
+    (function() {
+        var _g4Obs = new MutationObserver(function() {
+            if (!document.getElementById('hoho-gameCanvas')) {
+                isPlaying = false;
+                if (typeof _hohoRafId !== 'undefined' && _hohoRafId) { cancelAnimationFrame(_hohoRafId); }
+                if (typeof _hohoSpawnTimer !== 'undefined' && _hohoSpawnTimer) { clearInterval(_hohoSpawnTimer); }
+                if (typeof _audioCtx !== 'undefined' && _audioCtx && _audioCtx.state !== 'closed') {
+                    try { _audioCtx.close(); } catch(e) {}
+                }
+                _g4Obs.disconnect();
+            }
+        });
+        _g4Obs.observe(document.body, { childList: true, subtree: true });
+    })();
 
     /* ── 초기화 ── */
     requestAnimationFrame(function(){ initCanvas(); });

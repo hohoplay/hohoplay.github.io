@@ -2625,6 +2625,29 @@ if (document.readyState === 'loading') {
     </script>
 
     <script>
+    // ── SPA 이탈 감지: hh-canvas가 DOM에서 사라지면 루프·BGM 완전 정리 ──
+    (function() {
+        var _g6Obs = new MutationObserver(function() {
+            if (!document.getElementById('hh-canvas')) {
+                active = false;
+                if (typeof rafId !== 'undefined' && rafId) { cancelAnimationFrame(rafId); rafId = null; }
+                if (typeof snd !== 'undefined') snd.bgmStop();
+                if (document.body.classList.contains('fever-active')) {
+                    document.body.classList.remove('fever-active');
+                }
+                var wrap = document.getElementById('hh-wrap');
+                if (wrap) wrap.style.transform = '';
+                if (typeof snd !== 'undefined' && snd._actx && snd._actx.state !== 'closed') {
+                    try { snd._actx.close(); } catch(e) {}
+                }
+                _g6Obs.disconnect();
+            }
+        });
+        _g6Obs.observe(document.body, { childList: true, subtree: true });
+    })();
+    </script>
+
+    <script>
     (function() {
         var gameEl = document.getElementById('hh-wrap');
         if (gameEl) {

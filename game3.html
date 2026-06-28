@@ -1329,6 +1329,7 @@
                 </button>
             </div>
             <button onclick="startGame()" style="background:#ff4d6d; color:white; border:none; padding:20px 40px; border-radius:20px; font-size:24px; font-weight:900; cursor:pointer;">다시 시작</button>
+            <button id="g3-share-btn" onclick="g3ShareResult()" style="display:none; margin-top:12px; background:transparent; color:#ffb3c1; border:2px solid #ff4d6d; padding:12px 32px; border-radius:20px; font-size:16px; font-weight:800; cursor:pointer; letter-spacing:0.05em;">📲 결과 공유</button>
         </div>
         </div><!-- /game-field -->
 
@@ -2372,6 +2373,8 @@
             scoreDisplay.innerText = "0"; updateLivesUI(); updateComboUI();
             updateHUD();
             gameOverScreen.style.display = 'none';
+            var _sb = document.getElementById('g3-share-btn');
+            if (_sb) _sb.style.display = 'none';
             bossContainer.style.display = 'none';
             largeBossContainer.style.display = 'none';
 
@@ -2403,6 +2406,8 @@
             document.getElementById('over-title').innerText = msg;
             document.getElementById('final-score').innerText = score;
             gameOverScreen.style.display = 'flex';
+            var _sb = document.getElementById('g3-share-btn');
+            if (_sb) _sb.style.display = 'inline-block';
             if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
             if (resetTimer) clearTimeout(resetTimer);
             SoundEngine.playGameOver();
@@ -2515,6 +2520,21 @@
                 s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
                 document.body.appendChild(s);
             });
+    </script>
+
+    <script>
+    // ── game3 공유 함수 ──
+    function g3ShareResult() {
+        var finalScore = document.getElementById('final-score') ? document.getElementById('final-score').innerText : '0';
+        var bestScore  = localStorage.getItem('hoho_blossom_best') || '0';
+        var text = '🌸 호호벚꽃타자\n⌨️ SYSTEM CRASH\n📊 최종 점수: ' + finalScore + '\n🏆 최고 기록: ' + bestScore + '\n\n✦ TYPE TO BLOOM ✦\nhttps://hohoplay.github.io';
+        if (navigator.share) {
+            navigator.share({ title: '호호벚꽃타자', text: text, url: location.href }).catch(function(){});
+        } else {
+            try { navigator.clipboard.writeText(text); alert('결과가 클립보드에 복사되었습니다!'); }
+            catch(e) { alert(text); }
+        }
+    }
     </script>
 
     <script>
