@@ -30,6 +30,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Partner tabs (가맹점 / 제휴 toggle)
+  const partnerTabs = document.querySelectorAll('.partner-tab');
+  const partnerPanels = document.querySelectorAll('.partner-tabpanel');
+  if (partnerTabs.length && partnerPanels.length) {
+    partnerTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        const target = tab.getAttribute('data-partnertab');
+        partnerTabs.forEach(function (t) { t.classList.toggle('active', t === tab); });
+        partnerPanels.forEach(function (panel) {
+          panel.classList.toggle('active', panel.getAttribute('data-partnerpanel') === target);
+        });
+      });
+    });
+  }
+
   // Subtab toggle (Program 1: male/female)
   document.querySelectorAll('.subtab-wrap').forEach(function (wrap) {
     const buttons = wrap.querySelectorAll('.subtab-btn');
@@ -92,6 +107,117 @@ document.addEventListener('DOMContentLoaded', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
+
+  // Gallery pagination (groups items by data-page; auto-hides if only 1 page)
+  const ITEMS_PER_PAGE = 4;
+  const galleryGrid = document.querySelector('.gallery-grid');
+  const galleryPagination = document.getElementById('galleryPagination');
+  const galleryPageNumbers = document.getElementById('galleryPageNumbers');
+  let currentGalleryPage = 1;
+
+  function initGalleryPagination() {
+    if (!galleryGrid) return;
+    const allItems = Array.from(galleryGrid.querySelectorAll('.gallery-item'));
+    if (!allItems.length) return;
+
+    // If items don't have explicit data-page, auto-assign based on position
+    allItems.forEach(function (item, i) {
+      if (!item.hasAttribute('data-page')) {
+        item.setAttribute('data-page', String(Math.floor(i / ITEMS_PER_PAGE) + 1));
+      }
+    });
+
+    const pageNumbers = Array.from(new Set(allItems.map(function (item) {
+      return parseInt(item.getAttribute('data-page'), 10);
+    }))).sort(function (a, b) { return a - b; });
+
+    const totalPages = pageNumbers.length;
+
+    if (totalPages <= 1) {
+      if (galleryPagination) galleryPagination.classList.remove('active');
+      return;
+    }
+
+    if (galleryPagination) galleryPagination.classList.add('active');
+
+    function renderPageNumbers() {
+      if (!galleryPageNumbers) return;
+      galleryPageNumbers.innerHTML = '';
+      pageNumbers.forEach(function (p) {
+        const btn = document.createElement('button');
+        btn.className = 'gallery-page-btn' + (p === currentGalleryPage ? ' active' : '');
+        btn.textContent = p;
+        btn.addEventListener('click', function () { goToGalleryPage(p); });
+        galleryPageNumbers.appendChild(btn);
+      });
+    }
+
+    function updateArrowStates() {
+      const prevBtn = galleryPagination.querySelector('[data-direction="prev"]');
+      const nextBtn = galleryPagination.querySelector('[data-direction="next"]');
+      if (prevBtn) prevBtn.disabled = currentGalleryPage === pageNumbers[0];
+      if (nextBtn) nextBtn.disabled = currentGalleryPage === pageNumbers[pageNumbers.length - 1];
+    }
+
+    function goToGalleryPage(p) {
+      currentGalleryPage = p;
+      allItems.forEach(function (item) {
+        const itemPage = parseInt(item.getAttribute('data-page'), 10);
+        item.style.display = itemPage === p ? '' : 'none';
+      });
+      renderPageNumbers();
+      updateArrowStates();
+    }
+
+    galleryPagination.querySelectorAll('.gallery-page-arrow').forEach(function (arrow) {
+      arrow.addEventListener('click', function () {
+        const dir = arrow.getAttribute('data-direction');
+        const idx = pageNumbers.indexOf(currentGalleryPage);
+        if (dir === 'prev' && idx > 0) goToGalleryPage(pageNumbers[idx - 1]);
+        if (dir === 'next' && idx < pageNumbers.length - 1) goToGalleryPage(pageNumbers[idx + 1]);
+      });
+    });
+
+    goToGalleryPage(pageNumbers[0]);
+  }
+  initGalleryPagination();
+
+  // Gallery lightbox (click to expand, X / outside click / ESC to close)
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxClose = document.querySelector('.lightbox-close');
+  const galleryItems = document.querySelectorAll('.gallery-item');
+
+  function openLightbox(src, pos) {
+    lightboxImg.src = src;
+    lightboxImg.style.objectPosition = pos || 'center';
+    lightbox.classList.add('open');
+    document.body.classList.add('lightbox-active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.classList.remove('lightbox-active');
+    document.body.style.overflow = '';
+  }
+
+  galleryItems.forEach(function (item) {
+    item.addEventListener('click', function () {
+      const src = item.getAttribute('data-lightbox-src');
+      const pos = item.getAttribute('data-lightbox-pos');
+      if (src) openLightbox(src, pos);
+    });
+  });
+
+  if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+  if (lightbox) {
+    lightbox.addEventListener('click', function (e) {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lightbox && lightbox.classList.contains('open')) closeLightbox();
+  });
 
   // Contact form submit (mailto fallback)
   const contactForm = document.querySelector('.contact-form');
