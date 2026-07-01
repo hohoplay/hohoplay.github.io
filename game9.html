@@ -794,6 +794,10 @@
             align-items: center;
             z-index: 10;
             transition: opacity 0.2s ease;
+            /* [FIX] 카카오톡 등 인앱 브라우저는 touch-action 상속을 제대로 안 지키는 경우가 있어
+               오버레이 자체에도 명시적으로 none을 지정 (시작 탭 시 확대되는 문제 방지) */
+            touch-action: none;
+            -webkit-touch-callout: none;
         }
 
         /* 게임오버 시 상단 정렬 */
@@ -1254,7 +1258,10 @@
 <script>
 (function() { // [FIX] IIFE: index.html 동적 로드 시 const 중복 선언 에러 방지
     const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    // [FIX] 글리치 이펙트에서 getImageData를 매 프레임 쓰기 때문에
+    //       willReadFrequently:true로 힌트를 줘서 브라우저가 소프트웨어
+    //       버퍼로 최적화하도록 함 (콘솔 경고 + 반복 readback 성능저하 해결)
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const scoreText = document.getElementById('scoreText');
     const bestScoreText = document.getElementById('bestScoreText');
     const coinText = document.getElementById('coinText');
@@ -3678,10 +3685,29 @@
     // [FIX] iOS Safari는 user-scalable=no를 무시하고 핀치줌을 허용하는 경우가 있어
     //       gesturestart(Safari 전용) 이벤트로 한 번 더 차단
     window.addEventListener('gesturestart', (e) => e.preventDefault());
-    // [FIX] passive:true → canvas에 passive:false로 직접 등록 (모바일 스크롤 가로채기 방지)
-    canvas.addEventListener('touchstart', startAction, { passive: false });
+
+    // [FIX] canvas가 아니라 game-wrapper(캔버스+오버레이 전체를 감싸는 컨테이너)에 부착.
+    //       "PRESS START" 오버레이는 canvas 위에 z-index로 덮여있는 별도 엘리먼트라
+    //       canvas에만 리스너를 걸면 시작 탭(오버레이 탭)은 preventDefault가 전혀
+    //       안 걸린 채로 브라우저/웹뷰에 그대로 전달됨 → 카카오톡 등 인앱 브라우저가
+    //       이를 확대 제스처로 오인해서 "시작하자마자 확대되는" 현상 발생.
+    const gameWrapperEl = document.getElementById('game-wrapper');
+    gameWrapperEl.addEventListener('touchstart', startAction, { passive: false });
     // [FIX] touchmove preventDefault — 게임 진행 중 핀치줌/스크롤 완전 차단
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+    gameWrapperEl.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+
+    // [FIX] 카카오톡/네이버 인앱 브라우저는 touch-action:none을 완전히 무시하고
+    //       더블탭 확대를 그대로 실행하는 경우가 있음. touchend 시각차를 직접 재서
+    //       300ms 안에 연속 탭이면 두 번째 탭의 기본 동작(더블탭 줌)을 강제로 차단.
+    let _lastTouchEndTime = 0;
+    gameWrapperEl.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - _lastTouchEndTime <= 300) {
+            e.preventDefault();
+        }
+        _lastTouchEndTime = now;
+    }, { passive: false });
+
     window.addEventListener('mousedown', startAction);
     window.addEventListener('keydown', startAction);
 
@@ -3803,14 +3829,19 @@
 
     <div id="footer-placeholder"></div>
     <script>
+        // [FIX] footer.html이 이 페이지와 같은 경로에 없으면 404가 뜨는데,
+        //       기존 코드는 404 응답 바디를 그대로 footer에 삽입해버려서
+        //       "404 Not Found" 같은 텍스트가 노출될 수 있었음.
+        //       r.ok 체크 + catch로 실패 시 조용히 무시.
         fetch('./footer.html')
-            .then(function(r){ return r.text(); })
+            .then(function(r){ if (!r.ok) throw new Error('footer not found'); return r.text(); })
             .then(function(html){
                 document.getElementById('footer-placeholder').outerHTML = html;
                 var s = document.createElement('script');
                 s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
                 document.body.appendChild(s);
-            });
+            })
+            .catch(function(){ /* footer.html 없으면 그냥 스킵 */ });
     </script>
 
     <script>
