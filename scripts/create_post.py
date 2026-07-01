@@ -1229,9 +1229,8 @@ def _season_backdrop(dt):
 
 def get_next_month_str():
     """
-    1일       → 이번달 운세 (당월 발행)
-    마지막주 월요일 or FORCE_MONTHLY → 다음달 운세 (미리 발행)
-    그 외      → 이번달
+    마지막주 월요일 or FORCE_MONTHLY → 다음달 운세 (미리 발행, 월 1회만)
+    그 외 → 이번달 (정상 흐름에서는 이 분기로 호출되지 않음)
     """
     import calendar as _c
     from datetime import date as _date
@@ -1240,10 +1239,7 @@ def get_next_month_str():
     _last_mon = max(d for d in range(1, _last+1)
                     if _date(t.year, t.month, d).weekday() == 0)
     force = os.environ.get("FORCE_MONTHLY","false").lower() == "true"
-    # 1일이면 당월 발행
-    if t.day == 1:
-        return t.strftime("%Y년 %m월")
-    # 마지막주 월요일 or 강제 → 다음달
+    # 마지막주 월요일 or 강제 → 다음달 (유일한 발행 트리거)
     if t.day == _last_mon or force:
         nm = t.month % 12 + 1
         ny = t.year + (1 if t.month == 12 else 0)
@@ -4461,18 +4457,11 @@ def main():
         print("📅 주간운세 스킵 (월요일 아님)")
 
     # ⑤ 띠별 월간운세
-    # - 매월 1일: 당월 운세 발행 (6월1일→6월 운세)
-    # - 매월 마지막주 월요일: 다음달 운세 미리 발행
+    # - 매월 마지막주 월요일: 다음달 운세 미리 발행 (월 1회만 — 1일 중복 발행 트리거 제거)
     # - FORCE_MONTHLY=true: 강제 발행
-    is_first_day = (kst_now.day == 1)
-    if is_first_day or is_last_monday or force_monthly:
+    if is_last_monday or force_monthly:
         posts.extend(build_chinese_monthly_post(today_str))
-        if force_monthly and not is_first_day and not is_last_monday:
-            label = "강제 포함"
-        elif is_first_day:
-            label = "1일 당월 발행"
-        else:
-            label = "마지막주 월요일 다음달 발행"
+        label = "마지막주 월요일 다음달 발행" if is_last_monday else "강제 포함"
         print(f"📅 띠별 월간운세 12개 포함 ({label})")
     else:
         print("📅 월간운세 스킵")
@@ -4480,7 +4469,7 @@ def main():
     total = len(posts)
     weekly  = " + 별자리주간 12" if kst_now.weekday() == 0 else ""
     monthly = " + 띠별월간 12"   if (is_last_monday or force_monthly) else ""
-    count   = 28 + (12 if kst_now.weekday() == 0 else 0) + (12 if kst_now.day == 1 else 0)
+    count   = 28 + (12 if kst_now.weekday() == 0 else 0) + (12 if (is_last_monday or force_monthly) else 0)
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
     print(f"구성: 오늘의명언 1 + 별자리 12 + 띠 12 + 별과띠가만나는시간 1{weekly}{monthly} = {count}개\n")
 
