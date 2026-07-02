@@ -3885,9 +3885,14 @@
     }
 
     // ── SPA 이탈 감지 ──
+    // [FIX] 감시 대상 id가 실제 canvas id('gameCanvas')와 다른 'hh-canvas'로
+    //       잘못 적혀있어서 document.getElementById()가 항상 null을 반환 →
+    //       조건이 페이지 로드 직후 첫 DOM 변화에서 바로 참이 되어 옵저버가
+    //       즉시 disconnect 되어버림. 그 결과 실제로 "HOHO PLAY" 로고를 눌러
+    //       게임 화면을 벗어나도 더 이상 감지가 안 되어 BGM이 안 멈추던 버그.
     (function() {
         var _g9Obs = new MutationObserver(function() {
-            if (!document.getElementById('hh-canvas')) {
+            if (!document.getElementById('gameCanvas')) {
                 if (typeof gameState !== 'undefined') gameState = 'START';
                 if (typeof animationId !== 'undefined' && animationId) { cancelAnimationFrame(animationId); animationId = null; }
                 if (typeof stopBGM === 'function') stopBGM();
