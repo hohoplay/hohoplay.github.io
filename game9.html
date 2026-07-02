@@ -1782,8 +1782,16 @@
         //       → 화면이 작을수록(주로 저사양 기기) 다시하기 시 버벅거리던 원인.
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+        // [FIX] CSS `aspect-ratio: 1/1`에만 의존하면 카카오톡 등 일부 인앱
+        //       브라우저(WebView)에서 이 속성을 제대로 지원/계산하지 않아
+        //       컨테이너 높이가 의도한 정사각형보다 작게/이상하게 잡히는 경우가
+        //       있었음. 그 결과 캔버스 위쪽(공중 코인·장애물 영역)이 화면
+        //       밖으로 밀려나 "위쪽이 잘려 안 보이는" 현상으로 나타남.
+        //       → 폭을 기준으로 높이를 JS에서 직접 강제해서 어떤 브라우저에서도
+        //       항상 정사각형이 되도록 보정.
         const cssW = container.clientWidth;
-        const cssH = container.clientHeight;
+        container.style.height = cssW + 'px';
+        const cssH = cssW; // 정사각형 강제 (container.clientHeight 대신 사용)
 
         // [FIX] 크기가 실제로 안 변했으면 canvas.width/height 재설정 스킵.
         //       모바일에서는 주소창이 스크롤로 나타나거나 사라질 때 컨테이너
@@ -3730,6 +3738,19 @@
     }
     window.addEventListener('resize', _onWindowResize);
     window.addEventListener('orientationchange', _onWindowResize);
+
+    // [FIX] window의 'resize' 이벤트는 모바일에서 실제 컨테이너 크기 변화와
+    //       타이밍이 어긋나는 경우가 많음 (예: 폰트/Tailwind CDN 늦게 적용,
+    //       카카오톡 등 인앱 브라우저의 초기 레이아웃 재계산 시점 등).
+    //       ResizeObserver는 game-wrapper 자신의 실제 렌더링 크기가 바뀔 때마다
+    //       브라우저가 직접 알려주므로 훨씬 신뢰도 높음. 초기 로드 시 컨테이너가
+    //       한 번 작게 잡혔다가 나중에 제 크기로 바뀌는 경우까지 자동으로 잡아줌.
+    if (window.ResizeObserver) {
+        const _ro = new ResizeObserver(() => {
+            _onWindowResize();
+        });
+        _ro.observe(gameWrapperEl);
+    }
 
     window.addEventListener('load', () => {
         resize();
