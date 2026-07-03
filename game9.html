@@ -3269,7 +3269,11 @@
         //       [FIX2] .overlay-content 자체에도 max-height:490px + overflow-y:auto가
         //       CSS로 별도로 걸려있어서, 바깥 박스만 늘려도 안쪽에서 다시 잘려
         //       스크롤이 남아있었음 → gameover일 때 그 캡을 해제.
-        requestAnimationFrame(() => {
+        //       [FIX3] 'Press Start 2P' 웹폰트가 이 시점엔 아직 로드 전이라
+        //       fallback 폰트 기준으로 낮은 높이가 측정되고, 폰트가 늦게
+        //       적용되면서 실제 내용이 더 커져 버튼이 잘리는 문제가 있었음.
+        //       → 폰트 로드 완료 시점과 약간의 지연 후에도 다시 재측정.
+        const _fitGameoverHeight = () => {
             const contentEl = overlay.querySelector('.overlay-content') || overlay;
             contentEl.style.maxHeight = 'none';
             contentEl.style.overflowY = 'visible';
@@ -3277,7 +3281,13 @@
             if (needed > gameWrapperEl.clientWidth) {
                 gameWrapperEl.style.height = needed + 'px';
             }
-        });
+        };
+        requestAnimationFrame(_fitGameoverHeight);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(_fitGameoverHeight).catch(function(){});
+        }
+        setTimeout(_fitGameoverHeight, 150);
+        setTimeout(_fitGameoverHeight, 500);
     }
 
     function startGame() {
