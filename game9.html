@@ -1794,8 +1794,13 @@
         //       → 폭을 기준으로 높이를 JS에서 직접 강제해서 어떤 브라우저에서도
         //       항상 정사각형이 되도록 보정.
         const cssW = container.clientWidth;
-        container.style.height = cssW + 'px';
-        const cssH = cssW; // 정사각형 강제 (container.clientHeight 대신 사용)
+        // [FIX] 게임오버 화면에서 업그레이드 패널 표시를 위해 늘려둔 높이를
+        //       ResizeObserver가 "크기 변화"로 감지하고 즉시 재정사각형화 시켜서
+        //       다시 잘리던 버그. 게임오버 상태에서는 정사각형 강제를 건너뜀.
+        if (typeof gameState === 'undefined' || gameState !== 'GAMEOVER') {
+            container.style.height = cssW + 'px';
+        }
+        const cssH = (typeof gameState !== 'undefined' && gameState === 'GAMEOVER') ? container.clientHeight : cssW;
 
         // [FIX] 크기가 실제로 안 변했으면 canvas.width/height 재설정 스킵.
         //       모바일에서는 주소창이 스크롤로 나타나거나 사라질 때 컨테이너
