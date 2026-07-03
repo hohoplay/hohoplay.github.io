@@ -815,8 +815,8 @@
 
         .overlay-content {
             text-align: center;
-            padding: 10px 12px;
-            width: 92%;
+            padding: 10px 8px;
+            width: 94%;
             max-width: 340px;
             max-height: 490px;
             overflow-y: auto;
@@ -1010,10 +1010,14 @@
         }
 
         .cta {
+            display: inline-block;
             color: var(--rpg-gold);
-            font-size: 12px;
+            font-size: 11px;
             animation: pulse 1s infinite;
             text-shadow: 2px 2px 0 #000;
+            padding: 7px 16px;
+            border: 1.5px solid var(--rpg-gold);
+            border-radius: 30px;
         }
 
         @keyframes pulse {
@@ -1233,22 +1237,22 @@
             </div>
 
             <div class="divider" id="divider2" style="display:none"></div>
-            <div class="cta" id="ctaText">▶ PRESS START</div>
-            <p class="hint">PC: SPACE / ENTER<br>MOBILE: TAP</p>
-            <button id="g9-share-btn" onclick="g9ShareResult()" style="
-                display:none;
-                margin-top:10px;
-                padding:7px 22px;
-                background:transparent;
-                color:#cc88ff;
-                border:1.5px solid #cc88ff;
-                border-radius:30px;
-                font-family:'Press Start 2P',monospace;
-                font-size:7px;
-                cursor:pointer;
-                letter-spacing:1px;
-                transition:all 0.2s;
-            ">📲 SHARE RESULT</button>
+            <div style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+                <div class="cta" id="ctaText">▶ PRESS START</div>
+                <button id="g9-share-btn" onclick="g9ShareResult()" style="
+                    display:none;
+                    padding:7px 16px;
+                    background:transparent;
+                    color:#cc88ff;
+                    border:1.5px solid #cc88ff;
+                    border-radius:30px;
+                    font-family:'Press Start 2P',monospace;
+                    font-size:7px;
+                    cursor:pointer;
+                    letter-spacing:1px;
+                    transition:all 0.2s;
+                ">📲 SHARE RESULT</button>
+            </div>
         </div>
     </div>
 </div>
@@ -3243,10 +3247,11 @@
             SFX.newBest();
             spawnFloatingText(logicalW() / 2, logicalH() / 2 - 20, '🏆 NEW RECORD!', '#ffdd66');
         }
-        overlayTitle.innerText = "CONNECTION\nLOST";
+        overlayTitle.innerText = "CONNECTION LOST";
         overlayTitle.style.color = "#ee3355";
         overlayTitle.style.textShadow = "2px 2px 0 #000";
-        overlayMessage.innerText = `DISTANCE  ${score}\n💎 DATA COIN  ${Math.floor(savedCoins + totalCoins)}`;
+        // [FIX] DISTANCE / DATA COIN을 줄바꿈 없이 한 줄로 표시
+        overlayMessage.innerText = `DISTANCE ${score}   💎 DATA COIN ${Math.floor(savedCoins + totalCoins)}`;
         document.getElementById('ctaText').innerText = '▶ 다시하기';
         var _sl = document.getElementById('hoho-dash-slogan');
         if (_sl) _sl.style.display = 'none';
@@ -3256,6 +3261,23 @@
         var _sb = document.getElementById('g9-share-btn');
         if (_sb) _sb.style.display = 'inline-block';
         showUpgradePanel();
+
+        // [FIX] 업그레이드 상점 목록이 길어서 정사각형 게임 영역보다 내용이
+        //       커지면 내부 스크롤바가 생기던 문제. 업그레이드 UI 자체는
+        //       그대로 두고, 게임오버 화면일 때만 game-wrapper 높이를
+        //       실제 콘텐츠 높이에 맞춰 늘려서 스크롤 없이 전체가 다 보이게 함.
+        //       [FIX2] .overlay-content 자체에도 max-height:490px + overflow-y:auto가
+        //       CSS로 별도로 걸려있어서, 바깥 박스만 늘려도 안쪽에서 다시 잘려
+        //       스크롤이 남아있었음 → gameover일 때 그 캡을 해제.
+        requestAnimationFrame(() => {
+            const contentEl = overlay.querySelector('.overlay-content') || overlay;
+            contentEl.style.maxHeight = 'none';
+            contentEl.style.overflowY = 'visible';
+            const needed = contentEl.scrollHeight;
+            if (needed > gameWrapperEl.clientWidth) {
+                gameWrapperEl.style.height = needed + 'px';
+            }
+        });
     }
 
     function startGame() {
@@ -3271,6 +3293,10 @@
         if (_sl) _sl.style.display = '';
         overlay.classList.add('hidden');
         overlay.classList.remove('gameover');
+        // [FIX] 게임오버 화면에서 늘렸던 높이를 원래 정사각형으로 되돌림
+        gameWrapperEl.style.height = gameWrapperEl.clientWidth + 'px';
+        const _contentEl = overlay.querySelector('.overlay-content');
+        if (_contentEl) { _contentEl.style.maxHeight = ''; _contentEl.style.overflowY = ''; }
         document.getElementById('reset-btn-wrap').style.display = 'none';
         var _sb = document.getElementById('g9-share-btn');
         if (_sb) _sb.style.display = 'none';
@@ -3683,7 +3709,8 @@
                 e.target.classList.contains('upg-btn') ||
                 e.target.id === 'resetBtn' ||
                 e.target.closest('#reset-popup') ||
-                e.target.closest('#reset-btn-wrap')
+                e.target.closest('#reset-btn-wrap') ||
+                e.target.closest('#g9-share-btn')
             )) return;
             startGame();
         }
