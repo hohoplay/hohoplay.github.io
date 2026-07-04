@@ -2461,6 +2461,7 @@
             this.passed = false;
 
             // 좌우 이동 — score 300 이상부터 일부 공중 장애물에 적용
+            // (고정형 3종 + 좌우로 움직이는 3종 다양성을 위한 의도된 기능)
             this.movingH = !this.falling && this.floating && score >= 300 && Math.random() < 0.7;
             // 지그재그 — score 500 이상, 좌우+위아래 동시 이동
             if (!this.falling && this.floating && score >= 500 && Math.random() < 0.5) {
@@ -3268,7 +3269,12 @@
                 const isGround  = !candidate.floating && !candidate.falling;
                 const minGap = player.width * (isGround ? 3.0 : 2.2) + (activeSpeed * 0.10);
                 const randomGapOffset = Math.random() * 140 + (isGround ? 150 : 80);
-                nextSpawnDistance = minGap + randomGapOffset;
+                // [FIX] 좌우로 흔들리는 장애물(movingH)은 다음 장애물과의 간격에
+                //       흔들림 폭(moveRangeH)만큼 여유를 더해서, 최대로 흔들려도
+                //       다음에 스폰되는 장애물과 겹치지 않도록 함. 고정형/움직이는형
+                //       다양성은 그대로 유지하면서 겹침만 원천 차단.
+                const wobbleBuffer = newObstacle.movingH ? newObstacle.moveRangeH * 2 : 0;
+                nextSpawnDistance = minGap + randomGapOffset + wobbleBuffer;
 
                 if (candidate.type === 'TRIANGLE') {
                     spawnAirCollectibles(logicalW() - 50, logicalH() - GROUND_Y_OFFSET, 'ARC');
