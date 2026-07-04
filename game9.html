@@ -1927,6 +1927,11 @@
     function triggerGlitch() { glitchTimer = 45; }
 
     // VFX 전체 업데이트/렌더
+    // [FIX] 파티클마다 ctx.save()/restore()를 개별 호출하던 것을 제거.
+    //       코인을 연속으로 먹거나 자석으로 여러 개 빨아들이면 파티클이
+    //       수십~백 개까지 쌓이는데, 그때마다 캔버스 상태 스택을 통째로
+    //       저장/복원하는 게 누적되어 버벅임의 원인이 되고 있었음.
+    //       → globalAlpha만 직접 설정하고, 루프 끝에서 한 번만 1로 복원.
     function updateVFX() {
         // 코인 파티클
         for (let i = vfxParticles.length - 1; i >= 0; i--) {
@@ -1934,12 +1939,11 @@
             p.x += p.dx; p.y += p.dy; p.dy += 0.12;
             p.opacity -= p.decay;
             if (p.opacity <= 0) { vfxParticles.splice(i, 1); continue; }
-            ctx.save();
             ctx.globalAlpha = p.opacity;
             ctx.fillStyle = p.color;
             ctx.fillRect(Math.floor(p.x), Math.floor(p.y), Math.ceil(p.size), Math.ceil(p.size));
-            ctx.restore();
         }
+        ctx.globalAlpha = 1;
 
         // 점프 먼지
         for (let i = jumpDusts.length - 1; i >= 0; i--) {
@@ -1948,47 +1952,44 @@
             d.opacity -= d.decay;
             d.size *= 0.92;
             if (d.opacity <= 0) { jumpDusts.splice(i, 1); continue; }
-            ctx.save();
             ctx.globalAlpha = d.opacity * 0.6;
             ctx.fillStyle = '#aa88cc';
             ctx.fillRect(Math.floor(d.x), Math.floor(d.y), Math.ceil(d.size), Math.ceil(d.size));
-            ctx.restore();
         }
+        ctx.globalAlpha = 1;
 
         // 속도선
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#88ccff';
         for (let i = speedLines.length - 1; i >= 0; i--) {
             const s = speedLines[i];
             s.x -= s.speed;
             s.life--;
             s.opacity -= 0.06;
             if (s.life <= 0 || s.opacity <= 0) { speedLines.splice(i, 1); continue; }
-            ctx.save();
             ctx.globalAlpha = s.opacity;
-            ctx.strokeStyle = '#88ccff';
-            ctx.lineWidth = 1.5;
             ctx.beginPath();
             ctx.moveTo(s.x, s.y);
             ctx.lineTo(s.x + s.len, s.y);
             ctx.stroke();
-            ctx.restore();
         }
+        ctx.globalAlpha = 1;
 
         // 거인 바닥 충격파
+        ctx.lineWidth = 2;
         for (let i = groundShocks.length - 1; i >= 0; i--) {
             const g = groundShocks[i];
             g.r += (g.maxR - g.r) * 0.25;
             g.life--;
             const alpha = (g.life / g.maxLife) * 0.7;
             if (g.life <= 0) { groundShocks.splice(i, 1); continue; }
-            ctx.save();
             ctx.globalAlpha = alpha;
             ctx.strokeStyle = g.color;
-            ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2);
             ctx.stroke();
-            ctx.restore();
         }
+        ctx.globalAlpha = 1;
 
         // 글리치 이펙트
         if (glitchTimer > 0) {
@@ -1997,7 +1998,6 @@
                 const sliceY = Math.random() * logicalH();
                 const sliceH = Math.random() * 12 + 2;
                 const offset = (Math.random() - 0.5) * 20;
-                ctx.save();
                 ctx.globalAlpha = 0.4 + Math.random() * 0.4;
                 const imgData = ctx.getImageData(0, sliceY, logicalW(), sliceH);
                 ctx.putImageData(imgData, offset, sliceY);
@@ -2007,7 +2007,7 @@
                 ctx.fillRect(offset - 2, sliceY, logicalW(), sliceH);
                 ctx.fillStyle = '#0044ff';
                 ctx.fillRect(offset + 2, sliceY, logicalW(), sliceH);
-                ctx.restore();
+                ctx.globalAlpha = 1;
             }
         }
     }
@@ -2533,42 +2533,51 @@
                     ctx.fillRect(0, 4*px, 5*px, px); // 그림자 도트
                 }
             } else if (this.type === 'RECT' && !this.floating) {
-                // 돌기둥 / 성벽 블록
+                // [FIX] 돌기둥/성벽 블록 — 매 프레임 픽셀 단위 재렌더링 대신
+                //       크기별로 한 번만 그려서 캐싱 (성능 병목 해결)
                 const px = 4;
-                const stoneC = '#8866cc';
-                const stoneDark = '#5544aa';
-                const stoneLight = '#aa88ee';
-                const rows = Math.ceil(this.height / px);
-                const cols = Math.ceil(this.width / px);
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        const isEdge = c === 0 || c === cols-1 || r === 0;
-                        const isMortar = (r % 3 === 0);
-                        ctx.fillStyle = isEdge ? stoneDark : (isMortar ? stoneDark : stoneC);
-                        ctx.fillRect(c*px, r*px, px, px);
+                const bw = this.width, bh = this.height;
+                const key = 'stone_' + bw + '_' + bh;
+                const sprite = getObstacleSprite(key, bw, bh, function(octx) {
+                    const stoneC = '#8866cc';
+                    const stoneDark = '#5544aa';
+                    const stoneLight = '#aa88ee';
+                    const rows = Math.ceil(bh / px);
+                    const cols = Math.ceil(bw / px);
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < cols; c++) {
+                            const isEdge = c === 0 || c === cols-1 || r === 0;
+                            const isMortar = (r % 3 === 0);
+                            octx.fillStyle = isEdge ? stoneDark : (isMortar ? stoneDark : stoneC);
+                            octx.fillRect(c*px, r*px, px, px);
+                        }
                     }
-                }
-                // 상단 하이라이트
-                ctx.fillStyle = stoneLight;
-                for (let c = 0; c < cols; c++) ctx.fillRect(c*px, 0, px, px/2);
+                    octx.fillStyle = stoneLight;
+                    for (let c = 0; c < cols; c++) octx.fillRect(c*px, 0, px, px/2);
+                });
+                ctx.drawImage(sprite, 0, 0);
             } else if (this.type === 'RECT' && this.floating) {
-                // 부유 마법 플랫폼
+                // [FIX] 부유 마법 플랫폼 — 동일하게 캐싱 (anim 프레임별로 2종 캐싱)
                 const px = 4;
-                const cols = Math.ceil(this.width / px);
-                const rows = Math.ceil(this.height / px);
-                const platC = '#3d2a5c';
-                const platTop = '#cc88ff';
-                const platGlow = anim === 0 ? '#9966dd' : '#7744bb';
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        ctx.fillStyle = r === 0 ? platTop : (r === 1 ? platGlow : platC);
-                        ctx.fillRect(c*px, r*px, px, px);
+                const bw = this.width, bh = this.height;
+                const key = 'platform_' + bw + '_' + bh + '_' + anim;
+                const sprite = getObstacleSprite(key, bw, bh, function(octx) {
+                    const cols = Math.ceil(bw / px);
+                    const rows = Math.ceil(bh / px);
+                    const platC = '#3d2a5c';
+                    const platTop = '#cc88ff';
+                    const platGlow = anim === 0 ? '#9966dd' : '#7744bb';
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < cols; c++) {
+                            octx.fillStyle = r === 0 ? platTop : (r === 1 ? platGlow : platC);
+                            octx.fillRect(c*px, r*px, px, px);
+                        }
                     }
-                }
-                // 룬 문자 느낌 (중앙 점)
-                ctx.fillStyle = platTop;
-                const mx = Math.floor(cols/2)*px;
-                ctx.fillRect(mx, px, px, px);
+                    octx.fillStyle = platTop;
+                    const mx = Math.floor(cols/2)*px;
+                    octx.fillRect(mx, px, px, px);
+                });
+                ctx.drawImage(sprite, 0, 0);
             } else if (this.type === 'HEXAGON') {
                 const sides = 6;
                 const rad = this.width / 2;
@@ -2624,8 +2633,8 @@
 
             this.x -= currentMoveSpeed;
 
-            // 좌우 진동 적용
-            if (this.movingH) {
+            // 좌우 진동 적용 — [FIX] 육각형은 절대 제외
+            if (this.movingH && this.type !== 'HEXAGON') {
                 this.x += this.currentDx - (this._prevDx || 0);
                 this._prevDx = this.currentDx;
             }
@@ -2649,9 +2658,14 @@
             }
 
             // 좌우 이동 (공중 장애물 일부)
-            if (this.movingH) {
+            // [FIX] 육각형은 절대 좌우로 움직이지 않도록 이중 안전장치.
+            //       생성자에서 movingH=false로 막아두지만, 혹시 모를 다른
+            //       경로로 movingH가 true가 되어도 여기서 최종적으로 차단.
+            if (this.movingH && this.type !== 'HEXAGON') {
                 this.phaseH += this.moveSpeedH;
                 this.currentDx = Math.cos(this.phaseH) * this.moveRangeH;
+            } else if (this.type === 'HEXAGON') {
+                this.currentDx = 0;
             }
         }
     }
@@ -2791,6 +2805,40 @@
         char: Math.random() < 0.5 ? '0' : '1',
     }));
 
+    // [FIX] 바닥 체크무늬를 매 프레임 다시 그리지 않고 1회 생성 후 재사용
+    let _groundPattern = null;
+    function getGroundPattern() {
+        if (_groundPattern) return _groundPattern;
+        const tileSize = 10;
+        const pc = document.createElement('canvas');
+        pc.width = tileSize * 2;
+        pc.height = tileSize * 2;
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#2a1a44';
+        pctx.fillRect(0, 0, tileSize, tileSize);
+        pctx.fillRect(tileSize, tileSize, tileSize, tileSize);
+        pctx.fillStyle = '#3d2a5c';
+        pctx.fillRect(tileSize, 0, tileSize, tileSize);
+        pctx.fillRect(0, tileSize, tileSize, tileSize);
+        _groundPattern = ctx.createPattern(pc, 'repeat');
+        return _groundPattern;
+    }
+
+    // [FIX] 돌기둥/부유플랫폼처럼 픽셀 단위로 그리던 장애물 스프라이트를
+    //       크기·상태별로 오프스크린 캔버스에 한 번만 렌더링 후 캐싱.
+    //       매 프레임 수백 번의 fillRect 대신 drawImage 1번으로 대체.
+    const _obsSpriteCache = {};
+    function getObstacleSprite(key, w, h, drawFn) {
+        let sprite = _obsSpriteCache[key];
+        if (sprite) return sprite;
+        sprite = document.createElement('canvas');
+        sprite.width = Math.max(1, Math.ceil(w));
+        sprite.height = Math.max(1, Math.ceil(h));
+        drawFn(sprite.getContext('2d'));
+        _obsSpriteCache[key] = sprite;
+        return sprite;
+    }
+
     function drawBackground() {
         const W = logicalW();
         const H = logicalH();
@@ -2811,19 +2859,21 @@
             ctx.fillRect(Math.floor(s.x * W), Math.floor(s.y * H), s.s, s.s);
         });
 
-        // 체크 타일 바닥 (GROUND_Y_OFFSET 영역)
+        // [FIX] 체크 타일 바닥 (GROUND_Y_OFFSET 영역)
+        //       기존: 프레임마다 10px 타일 단위로 개별 fillRect를 300~500회
+        //       반복 호출 → 저사양 모바일에서 확실한 프레임 저하 원인이었음.
+        //       수정: 체크무늬를 오프스크린 캔버스에 한 번만 그려 패턴으로
+        //       캐싱해두고, 매 프레임에는 fillRect 단 1번으로 스크롤 표현.
         ctx.shadowBlur = 0;
         ctx.shadowColor = 'transparent';
         const tileSize = 10;
         const groundY = H - GROUND_Y_OFFSET;
         const tileOffset = Math.floor((frameCount * activeSpeed * 0.5) % (tileSize * 2));
-        for (let ty = groundY; ty < H; ty += tileSize) {
-            for (let tx = -tileOffset; tx < W + tileSize; tx += tileSize) {
-                const isDark = (Math.floor(tx / tileSize) + Math.floor(ty / tileSize)) % 2 === 0;
-                ctx.fillStyle = isDark ? '#2a1a44' : '#3d2a5c';
-                ctx.fillRect(tx, ty, tileSize, tileSize);
-            }
-        }
+        ctx.save();
+        ctx.translate(-tileOffset, groundY);
+        ctx.fillStyle = getGroundPattern();
+        ctx.fillRect(tileOffset - tileSize, 0, W + tileSize * 2, H - groundY + tileSize);
+        ctx.restore();
 
         // 지면 경계선 (2px 픽셀)
         ctx.fillStyle = '#cc88ff';
@@ -3028,7 +3078,12 @@
                         let currentY = (logicalH() - GROUND_Y_OFFSET) - (110 + Math.random() * 20);
                         for (let i = 0; i < count; i++) {
                             const rf = FLOAT_TYPES[Math.floor(Math.random() * FLOAT_TYPES.length)];
-                            obstacles.push(new Obstacle(rf, currentX, currentY));
+                            const stepObs = new Obstacle(rf, currentX, currentY);
+                            // [FIX] 계단식으로 촘촘히 배치되는 발판은 흔들림을 꺼서
+                            //       서로 겹치지 않도록 고정
+                            stepObs.movingH = false; stepObs.moveRangeH = 0;
+                            stepObs.moving = false; stepObs.moveRangeV = 0;
+                            obstacles.push(stepObs);
                             airCollectibles.push(new AirCollectible('COIN', currentX + rf.width / 2, currentY - 25));
                             currentX += rf.width + player.width * 2.0;
                             currentY = Math.max(100, currentY - 25);
@@ -3053,7 +3108,10 @@
                         let currentY = (logicalH() - GROUND_Y_OFFSET) - (110 + Math.random() * 20);
                         for (let i = 0; i < count; i++) {
                             const rf = FLOAT_TYPES[Math.floor(Math.random() * FLOAT_TYPES.length)];
-                            obstacles.push(new Obstacle(rf, currentX, currentY));
+                            const stepObs = new Obstacle(rf, currentX, currentY);
+                            stepObs.movingH = false; stepObs.moveRangeH = 0;
+                            stepObs.moving = false; stepObs.moveRangeV = 0;
+                            obstacles.push(stepObs);
                             airCollectibles.push(new AirCollectible('COIN', currentX + rf.width / 2, currentY - 25));
                             currentX += rf.width + player.width * 1.8;
                             currentY = Math.max(80, currentY - 30);
@@ -3063,8 +3121,16 @@
                         const hex = OBSTACLE_TYPES.find(o => o.name === 'HEX_M');
                         const ver = OBSTACLE_TYPES.find(o => o.name === 'VER_L');
                         const gap = player.width * 2.0;
-                        if (hex) obstacles.push(new Obstacle(hex, logicalW()));
-                        if (ver) obstacles.push(new Obstacle(ver, logicalW() + (hex ? hex.width : 60) + gap));
+                        if (hex) {
+                            const hexObs = new Obstacle(hex, logicalW());
+                            hexObs.movingH = false; hexObs.moveRangeH = 0;
+                            obstacles.push(hexObs);
+                        }
+                        if (ver) {
+                            const verObs = new Obstacle(ver, logicalW() + (hex ? hex.width : 60) + gap);
+                            verObs.movingH = false; verObs.moveRangeH = 0;
+                            obstacles.push(verObs);
+                        }
                     }
 
                 } else {
@@ -3085,7 +3151,10 @@
                         let currentY = (logicalH() - GROUND_Y_OFFSET) - (110 + Math.random() * 20);
                         for (let i = 0; i < count; i++) {
                             const rf = FLOAT_TYPES[Math.floor(Math.random() * FLOAT_TYPES.length)];
-                            obstacles.push(new Obstacle(rf, currentX, currentY));
+                            const stepObs = new Obstacle(rf, currentX, currentY);
+                            stepObs.movingH = false; stepObs.moveRangeH = 0;
+                            stepObs.moving = false; stepObs.moveRangeV = 0;
+                            obstacles.push(stepObs);
                             airCollectibles.push(new AirCollectible('COIN', currentX + rf.width / 2, currentY - 25));
                             currentX += rf.width + player.width * 1.6;
                             currentY = Math.max(70, currentY - 35);
@@ -3097,23 +3166,32 @@
                         const flt = OBSTACLE_TYPES.find(o => o.name === 'FLOAT_M');
                         const gap = player.width * 2.5; // 충분한 간격
                         let cx = logicalW();
-                        if (hex) { obstacles.push(new Obstacle(hex, cx)); cx += hex.width + gap; }
-                        if (ver) { obstacles.push(new Obstacle(ver, cx)); cx += ver.width + gap * 1.5; } // 공중 장애물 앞에 여유 공간
-                        if (flt) { obstacles.push(new Obstacle(flt, cx, (logicalH() - GROUND_Y_OFFSET) - 100)); }
-
-                        // 반통로 패턴 추가 (score 600+, 60% 확률)
-                        if (score >= 600 && Math.random() < 0.6) {
-                            const groundTop2 = logicalH() - GROUND_Y_OFFSET;
-                            const wallH = 80 + Math.random() * 40;
-                            const topWall = { type: 'RECT', width: 30, height: wallH };
-                            const botFlt2 = OBSTACLE_TYPES.find(o => o.name === 'FLOAT_M');
-                            const gap2 = player.width * 3.0; // 통로 충분히 넓게
-                            let cx2 = logicalW() + 400;
-                            const topObs = new Obstacle(topWall, cx2);
-                            topObs.y = 0;
-                            obstacles.push(topObs);
-                            if (botFlt2) obstacles.push(new Obstacle(botFlt2, cx2 + topWall.width + gap2, groundTop2 - botFlt2.height - 60));
+                        // [FIX] 촘촘한 조합 안에서 좌우 흔들림(movingH)이 이웃
+                        //       장애물과의 간격을 침범해 서로 겹쳐 보이는 문제가
+                        //       있었음. 조합으로 배치되는 장애물은 흔들림을 꺼서
+                        //       항상 간격이 유지되도록 함.
+                        if (hex) {
+                            const hexObs = new Obstacle(hex, cx);
+                            hexObs.movingH = false; hexObs.moveRangeH = 0;
+                            obstacles.push(hexObs);
+                            cx += hex.width + gap;
                         }
+                        if (ver) {
+                            const verObs = new Obstacle(ver, cx);
+                            verObs.movingH = false; verObs.moveRangeH = 0;
+                            obstacles.push(verObs);
+                            cx += ver.width + gap * 1.5; // 공중 장애물 앞에 여유 공간
+                        }
+                        if (flt) {
+                            const fltObs = new Obstacle(flt, cx, (logicalH() - GROUND_Y_OFFSET) - 100);
+                            fltObs.movingH = false; fltObs.moveRangeH = 0;
+                            obstacles.push(fltObs);
+                        }
+
+                        // [FIX] 기존에 여기 있던 "반통로 패턴"(천장에 매달린 세로 벽을
+                        //       화면 맨 위 y=0에 강제 배치)을 제거함. 이 벽이 세로기둥과
+                        //       동일하게 렌더링되어 "세로기둥이 화면 위에서 나타나는"
+                        //       문제로 보였고, 헥사곤/수직벽과 겹칠 위험도 있었음.
                     }
 
                 }
@@ -3560,7 +3638,19 @@
                         floatingTexts   = [];
                         player._preFeverW = player.width;
                         player._preFeverH = player.height;
-                        // dy 보존 — 현재 물리 상태 그대로 유지 (튀김 방지)
+                        // [FIX] 거인 상태에서 피버를 먹으면 giantTimer만 0으로
+                        //       만들고 isGiant/크기는 그대로 방치되어, 피버가
+                        //       끝나도 거인 상태(크기·무적)가 영구히 남는 버그.
+                        //       거인 종료 시 원래 실행되는 정리 로직을 여기서도
+                        //       동일하게 실행해줘야 함.
+                        if (player.isGiant) {
+                            player.isGiant = false;
+                            player.width = 34;
+                            player.height = 34;
+                            giantUi.classList.remove('active');
+                            const giantEndFloor = logicalH() - GROUND_Y_OFFSET - player.height;
+                            if (player.y > giantEndFloor) player.y = giantEndFloor;
+                        }
                         player.giantTimer = 0;
                         player.attachedTo = null;
                         player._feverSpeedBoost = 2.0;
@@ -3696,8 +3786,27 @@
     let _lastActionTime = 0;
     const ACTION_DEBOUNCE_MS = 80;
 
+    // [FIX] 업그레이드/초기화/공유 버튼 등 실제 클릭 가능한 UI 위에서는
+    //       터치 이벤트를 가로채지 않고 브라우저 기본 동작(클릭)에 맡김.
+    //       game-wrapper 전체에 touchstart preventDefault를 걸다 보니
+    //       이 버튼들 위에서도 무조건 기본 동작이 막혀서 onclick이 아예
+    //       발동을 안 하던 버그였음.
+    function _isInteractiveTarget(t) {
+        if (!t || !t.closest) return false;
+        return !!(
+            t.closest('.upg-btn') ||
+            t.closest('#resetBtn') ||
+            t.closest('#reset-popup') ||
+            t.closest('#reset-btn-wrap') ||
+            t.closest('#g9-share-btn') ||
+            t.closest('button')
+        );
+    }
+
     const startAction = (e) => {
         if (e.button === 2) return;
+        // [FIX] 버튼류는 여기서 바로 브라우저 기본 클릭 동작에 맡기고 리턴
+        if (e.type === 'touchstart' && _isInteractiveTarget(e.target)) return;
 
         if (e.type === 'keydown') {
             if (e.code !== 'Space' && e.code !== 'Enter') return;
@@ -3720,13 +3829,7 @@
         if (gameState === 'PLAYING') {
             player.jump();
         } else if (gameState === 'START' || gameState === 'GAMEOVER') {
-            if (e.target && (
-                e.target.classList.contains('upg-btn') ||
-                e.target.id === 'resetBtn' ||
-                e.target.closest('#reset-popup') ||
-                e.target.closest('#reset-btn-wrap') ||
-                e.target.closest('#g9-share-btn')
-            )) return;
+            if (_isInteractiveTarget(e.target)) return;
             startGame();
         }
     };
@@ -3744,13 +3847,21 @@
     const gameWrapperEl = document.getElementById('game-wrapper');
     gameWrapperEl.addEventListener('touchstart', startAction, { passive: false });
     // [FIX] touchmove preventDefault — 게임 진행 중 핀치줌/스크롤 완전 차단
-    gameWrapperEl.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+    //       단, 버튼 위에서는 막지 않음 (스크롤 목록 등 정상 동작 위해)
+    gameWrapperEl.addEventListener('touchmove', (e) => {
+        if (_isInteractiveTarget(e.target)) return;
+        e.preventDefault();
+    }, { passive: false });
 
     // [FIX] 카카오톡/네이버 인앱 브라우저는 touch-action:none을 완전히 무시하고
     //       더블탭 확대를 그대로 실행하는 경우가 있음. touchend 시각차를 직접 재서
     //       300ms 안에 연속 탭이면 두 번째 탭의 기본 동작(더블탭 줌)을 강제로 차단.
+    //       단, 버튼 위에서는 절대 막지 않음 — 연속으로 다른 버튼을 빠르게 누르는
+    //       정상적인 조작(스킬 연속 업그레이드 등)까지 더블탭으로 오인해서
+    //       클릭이 씹히던 버그였음.
     let _lastTouchEndTime = 0;
     gameWrapperEl.addEventListener('touchend', (e) => {
+        if (_isInteractiveTarget(e.target)) return;
         const now = Date.now();
         if (now - _lastTouchEndTime <= 300) {
             e.preventDefault();
@@ -3909,20 +4020,185 @@
 
     <script>
     // ── game9 공유 함수 ──
-    function g9ShareResult() {
+    // [NEW] 텍스트만 공유하던 것에 더해, 결과 카드 이미지를 캔버스로 직접
+    //       그려서 함께 공유하도록 개선. 모바일에서 파일 공유(navigator.share
+    //       + files)가 지원되면 이미지+텍스트를 같이 보내고, 지원 안 하면
+    //       이미지를 자동 다운로드 + 텍스트는 클립보드 복사로 대체.
+    // [FIX] canvas.toBlob()은 비동기(콜백) 방식이라, 그 완료를 기다리는 동안
+    //       "방금 사용자가 버튼을 눌렀다"는 브라우저의 user gesture 인증이
+    //       만료됨. 특히 iOS Safari는 이게 엄격해서, await를 한 번이라도
+    //       거치고 나면 navigator.share() 호출이 조용히 실패함(버튼이
+    //       아예 반응 없는 것처럼 보이던 원인). → toDataURL()은 동기 함수라
+    //       user gesture를 그대로 유지한 채 이미지를 즉시 만들 수 있음.
+    function g9DataURLtoBlob(dataUrl) {
+        var parts = dataUrl.split(',');
+        var mimeMatch = parts[0].match(/:(.*?);/);
+        var mime = mimeMatch ? mimeMatch[1] : 'image/png';
+        var binary = atob(parts[1]);
+        var len = binary.length;
+        var u8 = new Uint8Array(len);
+        for (var i = 0; i < len; i++) u8[i] = binary.charCodeAt(i);
+        return new Blob([u8], { type: mime });
+    }
+
+    // [FIX] 등급/뱃지 프레이밍 — 사람들은 숫자보다 "칭호/자랑거리"를 더
+    //       공유하고 싶어함. score 구간별로 칭호를 부여하고 이걸 이미지에서
+    //       가장 크게 강조하도록 레이아웃을 재구성.
+    function g9GetRankInfo(s) {
+        if (s < 100)  return { title: 'ROOKIE HACKER',      emoji: '🔓', color: '#88ccff' };
+        if (s < 300)  return { title: 'NETWORK RUNNER',     emoji: '🌐', color: '#66ddaa' };
+        if (s < 600)  return { title: 'FIREWALL BREAKER',   emoji: '🔥', color: '#ffaa44' };
+        if (s < 1000) return { title: 'CORE INFILTRATOR',   emoji: '💠', color: '#cc88ff' };
+        if (s < 1500) return { title: 'OVERCLOCK MASTER',   emoji: '⚡', color: '#ff66aa' };
+        return             { title: 'SYSTEM OVERLORD',      emoji: '👑', color: '#ffdd66' };
+    }
+
+    function g9BuildResultImage() {
+        var W = 640, H = 800;
+        var c = document.createElement('canvas');
+        c.width = W; c.height = H;
+        var cx = c.getContext('2d');
+        var curScore = (typeof score !== 'undefined') ? score : 0;
+        var rank = g9GetRankInfo(curScore);
+
+        // 배경
+        cx.fillStyle = '#0d0618';
+        cx.fillRect(0, 0, W, H);
+        // 바깥 테두리 — 등급 색상으로
+        cx.strokeStyle = rank.color;
+        cx.lineWidth = 6;
+        cx.strokeRect(14, 14, W - 28, H - 28);
+        cx.strokeStyle = '#3d2a5c';
+        cx.lineWidth = 1;
+        cx.strokeRect(24, 24, W - 48, H - 48);
+
+        cx.textAlign = 'center';
+
+        // 작은 상단 라벨
+        cx.fillStyle = '#ee3355';
+        cx.font = 'bold 22px monospace';
+        cx.fillText('⚡ CONNECTION LOST', W / 2, 90);
+
+        // 등급 뱃지 — 육각형
+        var bx = W / 2, by = 240, br = 110;
+        cx.save();
+        cx.beginPath();
+        for (var k = 0; k < 6; k++) {
+            var ang = (Math.PI / 3) * k - Math.PI / 2;
+            var px = bx + br * Math.cos(ang);
+            var py = by + br * Math.sin(ang);
+            if (k === 0) cx.moveTo(px, py); else cx.lineTo(px, py);
+        }
+        cx.closePath();
+        cx.fillStyle = 'rgba(255,255,255,0.04)';
+        cx.fill();
+        cx.strokeStyle = rank.color;
+        cx.lineWidth = 5;
+        cx.stroke();
+        cx.restore();
+
+        // 뱃지 안 이모지 + 칭호 (가장 크게 강조)
+        cx.font = '64px monospace';
+        cx.fillText(rank.emoji, W / 2, by - 15);
+        cx.fillStyle = rank.color;
+        cx.font = 'bold 34px monospace';
+        // 칭호가 길면 자동 축소
+        var titleFontSize = 34;
+        do {
+            cx.font = 'bold ' + titleFontSize + 'px monospace';
+            titleFontSize -= 2;
+        } while (cx.measureText(rank.title).width > br * 2.2 && titleFontSize > 16);
+        cx.fillText(rank.title, W / 2, by + 55);
+
+        // 점선 구분선
+        cx.strokeStyle = '#6644aa';
+        cx.setLineDash([8, 8]);
+        cx.beginPath();
+        cx.moveTo(60, 400);
+        cx.lineTo(W - 60, 400);
+        cx.stroke();
+        cx.setLineDash([]);
+
+        // 스탯 (칭호보다 작게, 보조 정보로)
+        cx.fillStyle = '#c9b8ec';
+        cx.font = '26px monospace';
+        var coinVal = (typeof savedCoins !== 'undefined' && typeof totalCoins !== 'undefined')
+            ? Math.floor(savedCoins + totalCoins) : '0';
+        cx.fillText('DISTANCE ' + curScore, W / 2, 460);
+        cx.fillStyle = '#66ddff';
+        cx.fillText('💎 DATA COIN ' + coinVal, W / 2, 500);
+
+        // 브랜딩
+        cx.fillStyle = '#cc88ff';
+        cx.font = 'bold 34px monospace';
+        cx.fillText('hohoDash', W / 2, H - 160);
+        cx.fillStyle = '#8866bb';
+        cx.font = '18px monospace';
+        cx.fillText('RUN. HACK. BREAK THE SYSTEM.', W / 2, H - 110);
+        cx.fillStyle = '#aa99cc';
+        cx.font = '16px monospace';
+        cx.fillText('hohoplay.github.io', W / 2, H - 70);
+
+        return g9DataURLtoBlob(c.toDataURL('image/png'));
+    }
+
+    function g9DownloadBlob(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    }
+
+    async function g9ShareResult() {
         var scoreEl = document.getElementById('overlayMessage');
         var scoreText = scoreEl ? scoreEl.innerText : '';
-        var stageNames = ['','LOCAL MEMORY','NETWORK','FIREWALL','CORE','OVERCLOCK'];
-        var stageInfo = '';
-        for (var i = stageNames.length - 1; i >= 1; i--) {
-            if (scoreText.indexOf(stageNames[i]) !== -1) { stageInfo = 'STAGE: ' + stageNames[i] + '\n'; break; }
+        var curScore = (typeof score !== 'undefined') ? score : 0;
+        var rank = g9GetRankInfo(curScore);
+        var text = '🎮 hohoDash\n' + rank.emoji + ' ' + rank.title + ' 등급 달성!\n' + scoreText.replace(/\n/g, ' | ') + '\n\nRUN. HACK. BREAK THE SYSTEM.\nhttps://hohoplay.github.io';
+
+        // 1) 이미지 카드 생성 — 동기 함수라 user gesture를 소모하지 않음
+        var blob = null;
+        try { blob = g9BuildResultImage(); } catch (e) { blob = null; }
+
+        // 2) 이미지+텍스트를 파일 공유 지원하는 경우 (대부분의 모바일 브라우저)
+        if (blob && navigator.canShare) {
+            try {
+                var file = new File([blob], 'hohoDash-result.png', { type: 'image/png' });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'hohoDash', text: text });
+                    return;
+                }
+            } catch (e) {
+                // 사용자가 공유창을 스스로 취소한 경우엔 아무 것도 안 하고 종료
+                if (e && e.name === 'AbortError') return;
+                // 그 외(권한/미지원 등 실패)는 아래 폴백으로 이어짐
+            }
         }
-        var text = '🎮 hohoDash\n⚡ CONNECTION LOST\n' + stageInfo + scoreText.replace(/\n/g, ' | ') + '\n\nRUN. HACK. BREAK THE SYSTEM.\nhttps://hohoplay.github.io';
+
+        // 3) 파일 공유 미지원이지만 텍스트 공유는 되는 경우
         if (navigator.share) {
-            navigator.share({ title: 'hohoDash', text: text, url: location.href }).catch(function(){});
-        } else {
-            try { navigator.clipboard.writeText(text); alert('결과가 클립보드에 복사되었습니다!'); }
-            catch(e) { alert(text); }
+            try { await navigator.share({ title: 'hohoDash', text: text, url: location.href }); return; }
+            catch (e) {
+                if (e && e.name === 'AbortError') return; // 사용자가 취소함 — 조용히 종료
+                // 그 외는 아래 폴백으로 이어짐 (예: iOS에서 gesture 문제로 실패한 경우)
+            }
+        }
+
+        // 4) 공유 자체가 안 되거나 위에서 실패한 경우 — 이미지는 자동 다운로드,
+        //    텍스트는 클립보드 복사. [FIX] 이전엔 이 단계로 못 내려오고 그냥
+        //    조용히 끝나버려서 버튼이 완전히 무반응처럼 보였음.
+        if (blob) {
+            g9DownloadBlob(blob, 'hohoDash-result.png');
+        }
+        try {
+            await navigator.clipboard.writeText(text);
+            alert(blob ? '결과 이미지가 다운로드되고, 텍스트는 클립보드에 복사되었습니다!' : '결과가 클립보드에 복사되었습니다!');
+        } catch (e) {
+            alert(text);
         }
     }
 
