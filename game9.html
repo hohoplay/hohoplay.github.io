@@ -4159,6 +4159,17 @@
         setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
     }
 
+    // [FIX] 일부 데스크탑 브라우저(웨일 등)는 navigator.share가 있어도
+    //       응답 없이 멈춰버리거나(hang) 이상하게 동작할 수 있음. 그러면
+    //       await가 영원히 안 끝나서 폴백(다운로드/클립보드)까지 절대
+    //       도달 못 하고 버튼이 완전 무반응처럼 보임. 타임아웃으로 방어.
+    function g9WithTimeout(promise, ms) {
+        return Promise.race([
+            promise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('share timeout')), ms))
+        ]);
+    }
+
     async function g9ShareResult() {
         var scoreEl = document.getElementById('overlayMessage');
         var scoreText = scoreEl ? scoreEl.innerText : '';
@@ -4170,27 +4181,33 @@
         var blob = null;
         try { blob = g9BuildResultImage(); } catch (e) { blob = null; }
 
+        // [FIX] 데스크탑(터치 미지원 기기)은 navigator.share 구현이
+        //       브라우저마다 들쭉날쭉하고(웨일 등에서 응답 없이 멈추는 등)
+        //       불안정해서, 아예 시도하지 않고 바로 다운로드+클립보드로 감.
+        var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
         // 2) 이미지+텍스트를 파일 공유 지원하는 경우 (대부분의 모바일 브라우저)
-        if (blob && navigator.canShare) {
+        //    데스크탑은 navigator.canShare가 아예 없는 경우가 많아 자동으로 스킵됨
+        if (isTouchDevice && blob && navigator.canShare) {
             try {
                 var file = new File([blob], 'hohoDash-result.png', { type: 'image/png' });
                 if (navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'hohoDash', text: text });
+                    await g9WithTimeout(navigator.share({ files: [file], title: 'hohoDash', text: text }), 4000);
                     return;
                 }
             } catch (e) {
                 // 사용자가 공유창을 스스로 취소한 경우엔 아무 것도 안 하고 종료
                 if (e && e.name === 'AbortError') return;
-                // 그 외(권한/미지원 등 실패)는 아래 폴백으로 이어짐
+                // 그 외(권한/미지원/타임아웃 등)는 아래 폴백으로 이어짐
             }
         }
 
-        // 3) 파일 공유 미지원이지만 텍스트 공유는 되는 경우
-        if (navigator.share) {
-            try { await navigator.share({ title: 'hohoDash', text: text, url: location.href }); return; }
+        // 3) 파일 공유 미지원이지만 텍스트 공유는 되는 경우 (모바일 한정)
+        if (isTouchDevice && navigator.share) {
+            try { await g9WithTimeout(navigator.share({ title: 'hohoDash', text: text, url: location.href }), 4000); return; }
             catch (e) {
                 if (e && e.name === 'AbortError') return; // 사용자가 취소함 — 조용히 종료
-                // 그 외는 아래 폴백으로 이어짐 (예: iOS에서 gesture 문제로 실패한 경우)
+                // 그 외(타임아웃 포함)는 아래 폴백으로 이어짐
             }
         }
 
