@@ -4050,6 +4050,23 @@
     // [FIX] 등급/뱃지 프레이밍 — 사람들은 숫자보다 "칭호/자랑거리"를 더
     //       공유하고 싶어함. score 구간별로 칭호를 부여하고 이걸 이미지에서
     //       가장 크게 강조하도록 레이아웃을 재구성.
+    // [FIX] score/savedCoins/totalCoins는 메인 게임 IIFE 안에서만 유효한
+    //       변수라 이 공유 스크립트(별도 <script> 블록)에서는 직접 접근이
+    //       안 되어 항상 0으로 표시되던 버그. 화면에 이미 표시된
+    //       overlayMessage 텍스트("DISTANCE 123   DATA COIN 45")를
+    //       파싱해서 실제 값을 가져오도록 수정.
+    function g9GetCurrentStats() {
+        var scoreEl = document.getElementById('overlayMessage');
+        var txt = scoreEl ? scoreEl.innerText : '';
+        var distMatch = txt.match(/DISTANCE\s+(\d+)/);
+        var coinMatch = txt.match(/DATA COIN\s+(\d+)/);
+        return {
+            score: distMatch ? parseInt(distMatch[1], 10) : 0,
+            coin: coinMatch ? parseInt(coinMatch[1], 10) : 0,
+            text: txt
+        };
+    }
+
     function g9GetRankInfo(s) {
         if (s < 100)  return { title: 'ROOKIE HACKER',      emoji: '🔓', color: '#88ccff' };
         if (s < 300)  return { title: 'NETWORK RUNNER',     emoji: '🌐', color: '#66ddaa' };
@@ -4064,7 +4081,8 @@
         var c = document.createElement('canvas');
         c.width = W; c.height = H;
         var cx = c.getContext('2d');
-        var curScore = (typeof score !== 'undefined') ? score : 0;
+        var stats = g9GetCurrentStats();
+        var curScore = stats.score;
         var rank = g9GetRankInfo(curScore);
 
         // 배경
@@ -4128,8 +4146,7 @@
         // 스탯 (칭호보다 작게, 보조 정보로)
         cx.fillStyle = '#c9b8ec';
         cx.font = '26px monospace';
-        var coinVal = (typeof savedCoins !== 'undefined' && typeof totalCoins !== 'undefined')
-            ? Math.floor(savedCoins + totalCoins) : '0';
+        var coinVal = stats.coin;
         cx.fillText('DISTANCE ' + curScore, W / 2, 460);
         cx.fillStyle = '#66ddff';
         cx.fillText('💎 DATA COIN ' + coinVal, W / 2, 500);
@@ -4170,12 +4187,40 @@
         ]);
     }
 
+    // [FIX] alert/clipboard/download는 모두 브라우저 권한에 의존하는 API라,
+    //       이 게임이 iframe 등으로 임베드된 구조라면 보안 정책상 조용히
+    //       막힐 수 있음(에러도 없이 그냥 아무 반응이 없는 것처럼 보임).
+    //       그래서 최종 폴백은 페이지 안에 직접 이미지를 띄우는 팝업으로 —
+    //       이건 순수 DOM 삽입이라 어떤 권한도 필요 없이 항상 동작함.
+    function g9ShowResultPopup(blob, text) {
+        var url = URL.createObjectURL(blob);
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);' +
+            'display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px;';
+        var img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'max-width:90vw;max-height:65vh;border:3px solid #6644aa;border-radius:8px;';
+        var hint = document.createElement('div');
+        hint.textContent = '이미지를 길게 눌러(또는 우클릭) 저장/공유하세요';
+        hint.style.cssText = 'color:#e8d9ff;font-family:sans-serif;font-size:14px;text-align:center;';
+        var closeBtn = document.createElement('button');
+        closeBtn.textContent = '닫기';
+        closeBtn.style.cssText = 'padding:10px 28px;background:#6644aa;color:#fff;border:none;' +
+            'border-radius:24px;font-size:14px;cursor:pointer;';
+        closeBtn.onclick = function() {
+            document.body.removeChild(wrap);
+            URL.revokeObjectURL(url);
+        };
+        wrap.appendChild(img);
+        wrap.appendChild(hint);
+        wrap.appendChild(closeBtn);
+        document.body.appendChild(wrap);
+    }
+
     async function g9ShareResult() {
-        var scoreEl = document.getElementById('overlayMessage');
-        var scoreText = scoreEl ? scoreEl.innerText : '';
-        var curScore = (typeof score !== 'undefined') ? score : 0;
-        var rank = g9GetRankInfo(curScore);
-        var text = '🎮 hohoDash\n' + rank.emoji + ' ' + rank.title + ' 등급 달성!\n' + scoreText.replace(/\n/g, ' | ') + '\n\nRUN. HACK. BREAK THE SYSTEM.\nhttps://hohoplay.github.io';
+        var stats = g9GetCurrentStats();
+        var rank = g9GetRankInfo(stats.score);
+        var text = '🎮 hohoDash\n' + rank.emoji + ' ' + rank.title + ' 등급 달성!\n' + stats.text.replace(/\n/g, ' | ') + '\n\nRUN. HACK. BREAK THE SYSTEM.\nhttps://hohoplay.github.io';
 
         // 1) 이미지 카드 생성 — 동기 함수라 user gesture를 소모하지 않음
         var blob = null;
@@ -4211,16 +4256,18 @@
             }
         }
 
-        // 4) 공유 자체가 안 되거나 위에서 실패한 경우 — 이미지는 자동 다운로드,
-        //    텍스트는 클립보드 복사. [FIX] 이전엔 이 단계로 못 내려오고 그냥
-        //    조용히 끝나버려서 버튼이 완전히 무반응처럼 보였음.
+        // 4) 공유 자체가 안 되거나 위에서 실패한 경우
+        //    [FIX] 이전엔 다운로드+클립보드+alert에만 의존해서, 이 셋이
+        //    전부 권한상 막히는 환경(iframe 등)에서는 진짜로 아무 반응이
+        //    없었음. 이제는 항상 동작하는 인페이지 이미지 팝업을 최종
+        //    수단으로 띄워서, 어떤 상황에서도 결과가 반드시 보이게 함.
         if (blob) {
-            g9DownloadBlob(blob, 'hohoDash-result.png');
+            try { g9DownloadBlob(blob, 'hohoDash-result.png'); } catch (e) {}
         }
-        try {
-            await navigator.clipboard.writeText(text);
-            alert(blob ? '결과 이미지가 다운로드되고, 텍스트는 클립보드에 복사되었습니다!' : '결과가 클립보드에 복사되었습니다!');
-        } catch (e) {
+        try { await navigator.clipboard.writeText(text); } catch (e) {}
+        if (blob) {
+            g9ShowResultPopup(blob, text);
+        } else {
             alert(text);
         }
     }
