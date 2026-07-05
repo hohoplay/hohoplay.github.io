@@ -1086,6 +1086,15 @@
 </div><!-- /jelly-app -->
 
 <script>
+(function() {
+// [FIX] 이 블록 전체를 IIFE로 감쌈. SPA에서 이 게임 페이지를 떠났다가 다시 들어오면
+// 이 <script>가 재실행되는데, 최상위 let/const 선언(COLS, ROWS 등)이 이전 실행의
+// 전역 렉시컬 바인딩과 충돌해 "Identifier has already been declared" SyntaxError가
+// 나면서 스크립트 전체가 죽었음(콘솔에서 확인됨). 그 결과 새로 만들어진 화면의 버튼들이
+// 이전 실행의 죽은(제거된) DOM을 참조하는 함수를 호출해 textContent/innerText를
+// null에 설정하려다 에러가 났던 것. IIFE로 감싸 재진입 시에도 매번 새 스코프에서
+// 변수를 선언하고 DOM을 새로 조회하도록 함.
+
 /* ══════════════════════════════════════════
    JELLY POP 7  —  반응형 (가로 15×7 / 세로 9×12)
    티스토리 최적화: 순수 CSS, 중앙 정렬 카드
@@ -1317,8 +1326,15 @@ function applyLayout(){
   const container = card.parentElement;
   const containerW = (container ? container.clientWidth : window.innerWidth) - 24;
   const aspectW = L.cardW, aspectH = L.cardH;
-  let w = Math.max(320, Math.min(L.cardW, containerW));
+  // [FIX] 기존엔 L.cardW(=400)로 폭이 항상 캡되어 있어서, 데스크탑처럼 컨테이너가
+  // 넓어도 카드가 항상 400px 고정이라 화면에 비해 작아 보이는 문제가 있었음.
+  // 컨테이너 폭과 뷰포트 높이(85%)를 함께 고려해 최대 560px까지 확대되도록 함.
+  // (모바일처럼 컨테이너가 좁을 때는 기존과 동일하게 동작)
+  const maxCardW = 560;
+  let w = Math.max(320, Math.min(maxCardW, containerW));
   let h = Math.round(w * (aspectH / aspectW));
+  const maxH = window.innerHeight * 0.85;
+  if (h > maxH) { h = maxH; w = Math.round(h * (aspectW / aspectH)); }
   if(h < 220){ h = 220; w = Math.round(h * (aspectW / aspectH)); }
   w = Math.floor(w); h = Math.floor(h);
   card.style.width  = w+'px';
@@ -1991,6 +2007,14 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
+// [FIX] onclick="selectMode()/selectDiff()/startGame()/backToTitle()" 은 전역에서
+// 호출되므로 IIFE 안에서 선언된 함수를 window에 명시적으로 노출해줘야 함
+window.selectMode = selectMode;
+window.selectDiff = selectDiff;
+window.startGame = startGame;
+window.backToTitle = backToTitle;
+})();
 </script>
 </section>
 <!-- ════════════════════ JELLY POP 7 게임 소스 끝 ════════════════════ -->

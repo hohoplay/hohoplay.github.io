@@ -761,6 +761,10 @@
 
         async function loadGamePage(file, name) {
             const contentDiv = document.getElementById('content');
+            // [FIX] 게임 → 다른 게임으로 바로 이동할 때도 이전 게임의 오디오를 정리
+            if (typeof window.stopAllGameAudio === 'function') {
+                try { window.stopAllGameAudio(); } catch (e) {}
+            }
             contentDiv.innerHTML =
                 '<div class="flex flex-col items-center justify-center py-32 text-slate-400">' +
                 '<div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>' +
@@ -786,6 +790,13 @@
 
         async function navigateTo(page) {
             const contentDiv = document.getElementById('content');
+
+            // [FIX] game9(hohoDash) 등 게임 페이지에서 벗어날 때 배경음악/효과음이
+            // 계속 재생되는 문제 해결. 게임 스크립트가 window.stopAllGameAudio를
+            // 정의해두면(있을 때만) 페이지 전환 직전에 호출해서 AudioContext를 정리한다.
+            if (typeof window.stopAllGameAudio === 'function') {
+                try { window.stopAllGameAudio(); } catch (e) {}
+            }
 
             // ── partner: partner.html을 fetch해서 <main> 영역만 삽입 ──
             if (page === 'partner') {
