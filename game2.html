@@ -433,6 +433,15 @@
 </div>
 
 <script>
+(function() {
+    // [FIX] 이 블록 전체를 IIFE로 감쌈. index.html SPA에서 이 게임 페이지를 떠났다가
+    // 다시 들어오면 이 <script>가 다시 실행되는데, 기존에는 let/const 최상위 선언들이
+    // 이전 실행에서 만들어진 전역 렉시컬 바인딩과 충돌해 "Identifier has already been
+    // declared" 오류가 나면서 스크립트 전체가 죽었음. 그 결과 새로 만들어진 화면의
+    // '게임 시작' 버튼이 (죽지 않고 남아있던) 이전 실행의 dom 참조(구 DOM, 이미 제거됨)를
+    // 보게 되어 클릭해도 아무 반응이 없었던 것. IIFE로 감싸면 매번 새 스코프에서
+    // 변수를 새로 선언하고 DOM을 새로 조회하므로 재진입 시에도 정상 동작함.
+
     // ── Web Audio API 사운드 시스템 ──────────────────────────────
     let audioCtx = null;
     let volMuted = false;
@@ -1030,6 +1039,12 @@
     document.addEventListener('click', (e) => {
         if (state.isPlaying && e.target.id !== 'input-box') dom.input.focus();
     });
+
+    // [FIX] onclick="startGame()" / onclick="restartGame()" 은 전역에서 호출되므로
+    // IIFE 안에서 선언된 함수를 window에 명시적으로 노출해줘야 함
+    window.startGame = startGame;
+    window.restartGame = restartGame;
+})();
 </script>
                     <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->
 </div><!-- /game-wrapper-outer -->

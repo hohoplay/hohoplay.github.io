@@ -1636,6 +1636,19 @@ const BUS_HEIGHT = 240;
 const TRUCK_HEIGHT = 190;
 const ITEM_SIZE = 60;
 
+// [FIX] 모바일 등 화면이 좁을 때 차선(currentLanes)이 4~6개로 늘어나면
+// 차선 폭(lw = cW()/currentLanes)이 CAR_WIDTH(90)보다 작아지는 경우가 생김.
+// 그런데 차량/아이템 크기는 화면 크기와 무관하게 항상 고정 픽셀(CAR_WIDTH,
+// ITEM_SIZE)로 스폰되고 있어서, 특히 맨 오른쪽 차선의 차량/아이템이 도로
+// 우측 경계(cW())를 넘어가 캔버스 밖으로 삐져나가 잘리는 문제가 있었음.
+// → 차선 폭 기준으로 크기를 비율에 맞게 축소(최대 원래 크기까지)해서 항상
+// 차선 안에 들어오도록 함. 가로세로 비율은 유지.
+function fitToLane(baseW, baseH) {
+  const lw = cW() / currentLanes;
+  const scale = Math.min(1, (lw * 0.86) / baseW);
+  return { w: baseW * scale, h: baseH * scale };
+}
+
 // ===== 방향키 수정: 키보드 좌우 독립 추적 =====
 const keyState = { left: false, right: false };
 const keys = { left: false, right: false };
@@ -1752,14 +1765,20 @@ GameObject.prototype.draw = function() {
     const pulse = Math.sin(frameCount * 0.15) * 5;
     ctx.beginPath();
     ctx.fillStyle = 'rgba(255, 255, 200, 0.6)';
-    ctx.arc(0, 0, this.width/1.5 + pulse, 0, Math.PI * 2);
+    // [FIX] 기존 this.width/1.5 는 펄스가 최소일 때 반경이 아이콘 박스의
+    // 대각선 절반(≈ width*0.707)보다 작아져서, 아이콘 모서리가 배경 원 밖으로
+    // 삐져나와 보이는 구간이 있었음. 항상 아이콘을 넉넉히 감싸도록 비율 상향.
+    ctx.arc(0, 0, this.width * 0.85 + pulse, 0, Math.PI * 2);
     ctx.fill();
 
     const icons = { heart: '❤️', shield: '🛡️', boost: '⚡' };
     const emoji = icons[this.type];
     if (emoji) {
+      // [FIX] 이모지를 항상 60x60으로 고정 그리다 보니, this.width/height가 60이 아닐 때
+      // (예: 좁은 차선에 맞춰 아이템이 축소된 경우) 이모지가 배경 원보다 커져서
+      // 밖으로 삐져나와 보이는 문제가 있었음. 실제 아이템 크기에 맞춰 그리도록 수정.
       const cached = getEmojiCache(emoji, 60);
-      ctx.drawImage(cached, -30, -30, 60, 60);
+      ctx.drawImage(cached, -this.width/2, -this.height/2, this.width, this.height);
     } else {
       ctx.font = 'bold 50px Arial';
       ctx.textAlign = 'center';
@@ -1908,9 +1927,11 @@ function spawn() {
       // ── 버스 비율: 4차선=15%, 5차선+=10% (기존 25%) ──
       const busThreshold = currentLanes >= 5 ? 0.90 : currentLanes >= 4 ? 0.85 : 1.0;
       if (currentLanes >= 4 && roll > busThreshold) {
-        objects.push(new GameObject(lane * lw + (lw/2 - CAR_WIDTH/2), -350, CAR_WIDTH, BUS_HEIGHT, 'bus', colors.bus));
+        const s = fitToLane(CAR_WIDTH, BUS_HEIGHT);
+        objects.push(new GameObject(lane * lw + (lw/2 - s.w/2), -350, s.w, s.h, 'bus', colors.bus));
       } else {
-        objects.push(new GameObject(lane * lw + (lw/2 - CAR_WIDTH/2), -350, CAR_WIDTH, CAR_HEIGHT, 'car', colors.car));
+        const s = fitToLane(CAR_WIDTH, CAR_HEIGHT);
+        objects.push(new GameObject(lane * lw + (lw/2 - s.w/2), -350, s.w, s.h, 'car', colors.car));
       }
     }
   }
@@ -1919,7 +1940,8 @@ function spawn() {
     warnings[i].timer--;
     if (warnings[i].timer <= 0) {
       if (activeTruckCount === 0) {
-        objects.push(new GameObject(warnings[i].lane * lw + (lw/2 - CAR_WIDTH/2), cH() + 250, CAR_WIDTH, TRUCK_HEIGHT, 'truck', colors.truck));
+        const s = fitToLane(CAR_WIDTH, TRUCK_HEIGHT);
+        objects.push(new GameObject(warnings[i].lane * lw + (lw/2 - s.w/2), cH() + 250, s.w, s.h, 'truck', colors.truck));
         activeTruckCount = 1;
       }
       warnings.splice(i, 1);
@@ -1932,7 +1954,8 @@ function spawn() {
     if (hp < maxHp) types.push('heart');
     if (!hasShield) types.push('shield');
     const type = types[Math.floor(Math.random() * types.length)];
-    objects.push(new GameObject(lane * lw + (lw/2 - ITEM_SIZE/2), -150, ITEM_SIZE, ITEM_SIZE, type));
+    const s = fitToLane(ITEM_SIZE, ITEM_SIZE);
+    objects.push(new GameObject(lane * lw + (lw/2 - s.w/2), -150, s.w, s.h, type));
   }
 }
 
