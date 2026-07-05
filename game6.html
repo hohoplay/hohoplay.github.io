@@ -1,6 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+// [FIX] 상단 로고/네비 클릭으로 index.html 등으로 이동할 때 게임 배경음악이
+// 안 꺼지는 문제 해결. 게임마다 오디오 구현 방식(AudioContext 직접 생성,
+// setInterval 기반 신스, 커스텀 객체 메서드 등)이 전부 달라서 게임 내부
+// 함수를 개별적으로 맞추는 대신, AudioContext 생성 자체를 가로채 전부
+// 추적해두고 페이지 이동 직전 한 번에 정지시키는 공통 방식으로 통일함.
+(function() {
+    window.__hpAudioCtxs = window.__hpAudioCtxs || [];
+    var _NativeAC = window.AudioContext || window.webkitAudioContext;
+    if (_NativeAC) {
+        var Patched = function() {
+            var ctx = new (Function.prototype.bind.apply(_NativeAC, [null].concat(Array.prototype.slice.call(arguments))))();
+            window.__hpAudioCtxs.push(ctx);
+            return ctx;
+        };
+        Patched.prototype = _NativeAC.prototype;
+        window.AudioContext = Patched;
+        if (window.webkitAudioContext) window.webkitAudioContext = Patched;
+    }
+    window.stopAllGameAudio = function() {
+        (window.__hpAudioCtxs || []).forEach(function(ctx) {
+            try { if (ctx.state !== 'closed') ctx.close(); } catch (e) {}
+        });
+        document.querySelectorAll('audio, video').forEach(function(el) {
+            try { el.pause(); } catch (e) {}
+        });
+    };
+})();
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HOHO RUN - HOHO PLAY</title>
@@ -503,16 +533,16 @@ canvas {
     <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-14 items-center">
-                <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer">
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer">
                     <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
                     <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
                     <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">HOHO RUN</span>
                 </a>
                 <div class="flex items-center gap-1 sm:gap-4">
-                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">전체게임</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">소개</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">커뮤니티</a>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">고객지원</a>
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','index');return true;" class="text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">전체게임</a>
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','about');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">소개</a>
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','blog');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">커뮤니티</a>
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','guide');return true;" class="hidden md:block text-slate-500 hover:text-indigo-600 font-bold transition text-sm px-2 py-1 rounded-lg hover:bg-indigo-50">고객지원</a>
                 </div>
             </div>
         </div>
@@ -524,7 +554,7 @@ canvas {
             <!-- 게임 헤더 -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <a href="index.html" onclick="sessionStorage.setItem('page','index');return true;" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','index');return true;" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
                         <span class="text-xl">←</span> 전체 리스트로 이동
                     </a>
                     <h1 class="text-5xl font-black text-slate-900 tracking-tight">🏃 HOHO RUN</h1>
