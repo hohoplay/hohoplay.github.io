@@ -4349,13 +4349,42 @@ def get_access_token():
 
 ACCESS_TOKEN = get_access_token() if REFRESH_TOKEN else os.environ.get("BLOGGER_TOKEN","")
 
+_EXISTING_TITLES = set()
+
+def fetch_existing_titles(max_results=80):
+    """최근 게시글 제목을 가져와 중복 발행 방지에 사용 (워크플로우가 중복 실행되어도 안전)"""
+    if not BLOG_ID or not ACCESS_TOKEN:
+        return set()
+    try:
+        url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
+        resp = requests.get(url,
+            headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
+            params={"maxResults": max_results, "fetchBodies": "false", "fields": "items(title)"}
+        )
+        if resp.status_code == 200:
+            items = resp.json().get("items", [])
+            return {item["title"] for item in items if "title" in item}
+        else:
+            print(f"⚠️ 기존 게시글 조회 실패 ({resp.status_code}) — 중복 체크 없이 진행합니다.")
+            return set()
+    except Exception as e:
+        print(f"⚠️ 기존 게시글 조회 중 오류: {e} — 중복 체크 없이 진행합니다.")
+        return set()
+
+
 def post_blogger(title, content, labels, idx, total):
+    # ── 중복 발행 방지: 같은 제목이 이미 발행되어 있으면 건너뜀 ──
+    if title in _EXISTING_TITLES:
+        print(f"[{idx:02d}/{total}] ⏭️  이미 발행됨, 건너뜀 — {title[:45]}")
+        return True
+
     # ── fortune.html 파서 연동 마커 검증 ──
     if not validate_post_markers(title, content):
         return False  # 마커 누락 포스트는 업로드 자체를 막음
 
     if not BLOG_ID or not ACCESS_TOKEN:
         print(f"[{idx:02d}/{total}] (테스트) {title[:50]}")
+        _EXISTING_TITLES.add(title)
         return True
 
     url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
@@ -4367,6 +4396,7 @@ def post_blogger(title, content, labels, idx, total):
         )
         if resp.status_code == 200:
             print(f"[{idx:02d}/{total}] ✅ {title[:45]}  →  200")
+            _EXISTING_TITLES.add(title)
             time.sleep(3)   # 분당 쿼터 보호: 3초 간격
             return True
         elif resp.status_code == 429:
@@ -4392,9 +4422,14 @@ def post_blogger(title, content, labels, idx, total):
 # ─────────────────────────────────────────
 
 def main():
+    global _EXISTING_TITLES
     today_str = now_kst().strftime("%Y년 %m월 %d일")
     kst_now   = now_kst()
     posts = []
+
+    _EXISTING_TITLES = fetch_existing_titles()
+    if _EXISTING_TITLES:
+        print(f"🔍 중복 발행 방지: 최근 게시글 {len(_EXISTING_TITLES)}개 제목 확인 완료")
 
     # 수동 실행 시 강제 포함 옵션
     force_weekly        = os.environ.get("FORCE_WEEKLY",        "false").lower() == "true"
