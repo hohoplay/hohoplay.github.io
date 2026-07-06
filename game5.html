@@ -1925,7 +1925,7 @@ function spawn() {
       sounds.truckWarn();
     } else {
       // ── 버스 비율: 4차선=15%, 5차선+=10% (기존 25%) ──
-      const busThreshold = currentLanes >= 5 ? 0.90 : currentLanes >= 4 ? 0.85 : 1.0;
+      const busThreshold = currentLanes >= 5 ? 0.78 : currentLanes >= 4 ? 0.85 : 1.0;
       if (currentLanes >= 4 && roll > busThreshold) {
         const s = fitToLane(CAR_WIDTH, BUS_HEIGHT);
         objects.push(new GameObject(lane * lw + (lw/2 - s.w/2), -350, s.w, s.h, 'bus', colors.bus));
@@ -2113,12 +2113,12 @@ function drawRoad() {
 function updateRoadMode() {
   if (currentLanes <= 3) {
     currentRoadMode = ROAD_MODES.STRAIGHT;
-    roadModeTimer = 1800;
+    roadModeTimer = 900;
   } else {
     roadModeTimer--;
     if (roadModeTimer <= 0) {
       currentRoadMode = (currentRoadMode === ROAD_MODES.STRAIGHT) ? ROAD_MODES.CURVE : ROAD_MODES.STRAIGHT;
-      roadModeTimer = 1800;
+      roadModeTimer = 900;
     }
   }
   let targetIntensity = 0;
@@ -2742,10 +2742,11 @@ function handleGameStart() {
   }, 800);
 }
 
-// 폰트 로딩 완료 후 initGame 실행 (초기 멈춤 방지)
+// 폰트 로딩 완료 후 initGame 실행 (초기 멈춤 방지) — 폰트가 느려도 1.2초 후엔 강제 시작
 function startWhenReady() {
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function() { requestAnimationFrame(initGame); });
+    var fallback = new Promise(function(resolve){ setTimeout(resolve, 1200); });
+    Promise.race([document.fonts.ready, fallback]).then(function() { requestAnimationFrame(initGame); });
   } else {
     requestAnimationFrame(initGame);
   }
