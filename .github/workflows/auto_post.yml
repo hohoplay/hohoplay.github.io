@@ -54,6 +54,12 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # Node.js 24 강제 적용
 
+# 메인(00:00 KST)과 백업(01:00 KST) cron이 겹쳐서 동시에 도는 것을 방지.
+# 메인이 아직 실행 중일 때 백업이 발동하면, 취소하지 않고 메인이 끝날 때까지 대기(큐잉)했다가 실행됩니다.
+concurrency:
+  group: daily-fortune-posting
+  cancel-in-progress: false
+
 jobs:
   post:
     runs-on: ubuntu-latest
@@ -103,7 +109,7 @@ jobs:
           blog_id = os.environ["BLOG_ID"]
           url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts"
           r = requests.get(url, headers={"Authorization": f"Bearer {token}"},
-                           params={"maxResults": 5, "fetchBodies": "false"})
+                           params={"maxResults": 30, "fetchBodies": "false"})
           posts = r.json().get("items", [])
           already = any(today in p.get("title", "") for p in posts)
 
