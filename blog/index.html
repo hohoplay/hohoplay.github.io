@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOHO PLAY - 프리미엄 웹게임 포털</title>
+    <title>커뮤니티 - HOHO PLAY | 공지사항 및 자유게시판</title>
+    <meta name="description" content="HOHO PLAY 커뮤니티에서 공지사항, 업데이트 소식을 확인하고 자유게시판에서 다른 이용자들과 소통해보세요.">
+    <link rel="canonical" href="https://hohoplay.github.io/blog/">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KR0L7FM6VL"></script>
     <script>
@@ -98,7 +100,7 @@
             if (!force && now - _lastChecked < 10000) return;
             _lastChecked = now;
 
-            fetch('./version.json?_=' + now, {
+            fetch('/version.json?_=' + now, {
                 cache: 'no-store',
                 headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
             })
@@ -134,7 +136,6 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260708112702_47ee430b">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -219,7 +220,7 @@
     <!-- 푸터 -->
     <div id="footer-placeholder"></div>
     <script>
-        fetch('./footer.html')
+        fetch('/footer.html')
             .then(r => r.text())
             .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
     </script>
@@ -242,7 +243,7 @@
         ];
         // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
         const bannerConfig = {
-            img: './data/banner.png',
+            img: '/data/banner.png',
             link: 'fortune-adventure.html',  // 독립 파일로 이동
             alt: '오늘의 운세 모험 시작하기'
         };
@@ -773,7 +774,7 @@
                 '</div>';
             window.scrollTo({ top: 0, behavior: 'smooth' });
             try {
-                const r = await fetch('./' + file + '?v=' + Date.now(), { cache: 'no-store' });
+                const r = await fetch('/' + file + '?v=' + Date.now(), { cache: 'no-store' });
                 const html = await r.text();
                 const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
                 contentDiv.innerHTML = mainMatch
@@ -792,9 +793,9 @@
         async function navigateTo(page) {
             // ── URL 분리 마이그레이션: 실제 폴더 URL이 있는 페이지는 진짜 이동 ──
             // (about/ 부터 시작, 이후 폴더 만들 때마다 이 목록에 추가)
-            const REAL_URL_PAGES = ['about', 'fortune', 'guide', 'blog'];
+            const REAL_URL_PAGES = ['index', 'about', 'fortune', 'guide', 'blog'];
             if (REAL_URL_PAGES.includes(page)) {
-                const targetPath = '/' + page + '/';
+                const targetPath = (page === 'index') ? '/' : ('/' + page + '/');
                 if (location.pathname !== targetPath) {
                     location.href = targetPath;
                     return;
@@ -819,7 +820,7 @@
                     </div>`;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 try {
-                   const r = await fetch('./partner.html?v=' + Date.now(), { cache: 'no-store' });
+                   const r = await fetch('/partner.html?v=' + Date.now(), { cache: 'no-store' });
                     const html = await r.text();
                     // partner.html의 <main>...</main> 내용만 추출
                     const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
@@ -911,7 +912,7 @@
                 sessionStorage.removeItem('page');
                 navigateTo(pendingPage);
             } else {
-                navigateTo('index');
+                navigateTo('blog');
             }
         };
 
@@ -1061,7 +1062,7 @@
     <script>
     window.fortuneReady = false;
     (function(){
-        fetch('./fortune.html?' + Date.now(), { cache: 'no-store' })
+        fetch('/fortune.html?' + Date.now(), { cache: 'no-store' })
             .then(function(r){ return r.text(); })
             .then(function(html){
                 var tmp = document.createElement('div');
