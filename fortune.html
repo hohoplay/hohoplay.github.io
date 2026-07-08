@@ -5110,7 +5110,7 @@ ${info.usage}`;
     (async function loadFortuneCSV() {
         try {
             // chinese_fortune.csv
-            var r1 = await fetch('data/chinese_fortune.csv');
+            var r1 = await fetch('/data/chinese_fortune.csv');
             if (r1.ok) {
                 var t1 = await r1.text();
                 var rows1 = t1.trim().split('\n').slice(1); // 헤더 제외
@@ -5126,7 +5126,7 @@ ${info.usage}`;
 
         try {
             // zodiac_love.csv
-            var r2 = await fetch('data/zodiac_love.csv');
+            var r2 = await fetch('/data/zodiac_love.csv');
             if (r2.ok) {
                 var t2 = await r2.text();
                 var rows2 = t2.trim().split('\n').slice(1); // 헤더 제외
@@ -5144,7 +5144,7 @@ ${info.usage}`;
     // mbti_personalities.csv 로드 — MBTI_DATA 보강 (short_desc, core_trait, strength 등)
     (async function loadMbtiCSV() {
         try {
-            var res = await fetch('data/mbti_personalities.csv');
+            var res = await fetch('/data/mbti_personalities.csv');
             if (!res.ok) return;
             var text = await res.text();
             var lines = text.trim().split('\n');
@@ -5177,7 +5177,7 @@ ${info.usage}`;
     async function loadDreamData() {
         if (DREAM_DATA_LOADED) return;
         try {
-            var res = await fetch('data/dream_interpretations_v3.csv');
+            var res = await fetch('/data/dream_interpretations_v3.csv');
             if (!res.ok) throw new Error('load fail');
             var text = await res.text();
             var lines = text.trim().split('\n');
@@ -6311,7 +6311,7 @@ ${info.usage}`;
     async function loadTarotBridge() {
       if(tBridgeLoaded) return;
       try {
-        const res = await fetch('data/tarot_bridge.csv');
+        const res = await fetch('/data/tarot_bridge.csv');
         if(!res.ok) throw new Error('bridge CSV 없음');
         const rawText = await res.text();
         const lines = rawText.trim().split('\n');
@@ -6337,7 +6337,7 @@ ${info.usage}`;
     async function loadTarotReadings() {
       if(tReadingsLoaded) return;
       try {
-        const res = await fetch('data/tarot_card_readings.csv');
+        const res = await fetch('/data/tarot_card_readings.csv');
         if(!res.ok) throw new Error('readings CSV 없음');
         const rawText = await res.text();
         const lines = rawText.trim().split('\n');
@@ -6441,7 +6441,7 @@ ${info.usage}`;
     async function loadMbtiSynthesis() {
       if(mbtiSynthLoaded) return;
       try {
-        const res = await fetch('data/mbti_tarot_synthesis.csv');
+        const res = await fetch('/data/mbti_tarot_synthesis.csv');
         if(!res.ok) throw new Error('mbti synth CSV 없음');
         const rawText = await res.text();
         const lines = rawText.trim().split('\n');
@@ -6516,7 +6516,7 @@ ${info.usage}`;
     async function loadTarotDeck() {
       if(tDeckLoaded) return tDeck;
       try {
-        const res = await fetch('data/tarot_cards_78.csv');
+        const res = await fetch('/data/tarot_cards_78.csv');
         if(!res.ok) throw new Error('CSV 로드 실패');
         const text = await res.text();
         tDeck = parseTarotCSV(text);
