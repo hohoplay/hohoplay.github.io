@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소개 - HOHO PLAY | 로그인 없는 무료 브라우저 게임 포털</title>
+    <meta name="description" content="HOHO PLAY는 설치와 회원가입 없이 브라우저에서 바로 즐기는 무료 웹게임 포털입니다. 타이핑, 레이싱, 러닝, 퍼즐 등 직접 제작한 게임과 AI 운세 서비스를 함께 만나보세요.">
+    <link rel="canonical" href="https://hohoplay.github.io/about/">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KR0L7FM6VL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-KR0L7FM6VL');
+    </script>
+    <!-- 캐시 방지: 제작자가 파일 수정 시 항상 최신 버전 로드 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ═══ Google AdSense ═══ -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
+    <style>
+        /* ── 로딩 중 광고 슬롯 ── */
+        .loading-ad-slot {
+            width: 100%;
+            max-width: 360px;
+            margin: 16px auto 0;
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 11px;
+            gap: 6px;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+        .loading-ad-slot .ad-label {
+            font-size: 10px;
+            color: #cbd5e1;
+            letter-spacing: .05em;
+        }
+        /* 실제 애드센스 ins 태그 */
+        .loading-ad-slot ins {
+            display: block;
+            width: 100%;
+        }
+        /* ── 띠운세 카드 내부 텍스트 가시성 보장 ── */
+        #ccard-full * { color: inherit !important; }
+        #ccard-full { color: #fff; }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .page-transition { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .game-card:hover { transform: translateY(-5px); transition: all 0.3s ease; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+        .scroll-section { scroll-margin-top: 80px; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4338ca; }
+        /* 게임 카드 터치 피드백 (모바일) */
+        .game-card.touch-active {
+            border-color: #818cf8 !important;
+            box-shadow: 0 10px 25px -5px rgba(99,102,241,0.25) !important;
+            transform: translateY(-2px);
+        }
+        .game-card.touch-active h3 {
+            color: #4f46e5;
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .game-card:active {
+                border-color: #818cf8;
+                box-shadow: 0 10px 25px -5px rgba(99,102,241,0.25);
+                transform: translateY(-2px);
+            }
+        }
+        /* ── 버튼 로딩 스피너 ── */
+        @keyframes btnSpin { to { transform: rotate(360deg); } }
+        .btn-loading { position:relative; pointer-events:none; opacity:.75; }
+        .btn-loading .btn-spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:btnSpin .7s linear infinite; vertical-align:middle; margin-right:7px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- ═══ 캐시 버스팅 & 자동 업데이트 감지 ═══ -->
+    <script>
+    (function() {
+        var CHECK_INTERVAL = 2 * 60 * 1000; // 2분마다 체크 (기존 5분 → 2분)
+        var _lastChecked = 0;
+
+        function checkVersion(force) {
+            var now = Date.now();
+            // 10초 이내 중복 호출 방지
+            if (!force && now - _lastChecked < 10000) return;
+            _lastChecked = now;
+
+            fetch('/version.json?_=' + now, {
+                cache: 'no-store',
+                headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+            })
+            .then(function(r) {
+                if (!r.ok) throw new Error('fetch fail');
+                return r.json();
+            })
+            .then(function(data) {
+                var stored = sessionStorage.getItem('_app_version');
+                if (!stored) {
+                    sessionStorage.setItem('_app_version', data.version);
+                } else if (stored !== data.version) {
+                    sessionStorage.setItem('_app_version', data.version);
+                    var banner = document.getElementById('_update_banner');
+                    if (banner) banner.style.display = 'flex';
+                }
+            })
+            .catch(function() { /* 로컬/오프라인 무시 */ });
+        }
+
+        window.addEventListener('load', function() {
+            // 로드 직후 1초 뒤 첫 체크
+            setTimeout(function(){ checkVersion(true); }, 1000);
+            setInterval(function(){ checkVersion(false); }, CHECK_INTERVAL);
+        });
+
+        // 탭 전환 복귀 시 즉시 체크 (오래 열어둔 탭 대응)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') checkVersion(true);
+        });
+
+        // 창 포커스 복귀 시도 즉시 체크
+        window.addEventListener('focus', function() { checkVersion(true); });
+    })();
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+    <!-- 업데이트 감지 배너 (평소엔 숨김) -->
+    <div id="_update_banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
+         background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;
+         padding:10px 20px;align-items:center;justify-content:space-between;
+         font-size:13px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.3)">
+        <span>🔄 새 버전이 업데이트되었습니다!</span>
+        <div style="display:flex;gap:8px">
+            <button onclick="location.reload(true)"
+                style="background:#fff;color:#4f46e5;border:none;padding:5px 14px;
+                       border-radius:8px;font-weight:900;cursor:pointer;font-size:13px">
+                지금 새로고침
+            </button>
+            <button onclick="document.getElementById('_update_banner').style.display='none'"
+                style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:5px 10px;
+                       border-radius:8px;cursor:pointer;font-size:12px">
+                나중에
+            </button>
+        </div>
+    </div>
+
+    <!-- 상단 네비게이션 -->
+    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('index')">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
+                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <button onclick="navigateTo('index')" class="text-slate-600 hover:text-indigo-600 font-bold transition">전체게임</button>
+                    <button onclick="navigateTo('about')" class="text-slate-600 hover:text-indigo-600 font-bold transition">소개</button>
+                    <button onclick="navigateTo('partner')" class="text-slate-600 hover:text-indigo-600 font-bold transition">파트너</button>
+                    <button onclick="navigateTo('blog')" class="text-slate-600 hover:text-indigo-600 font-bold transition">커뮤니티</button>
+                    <button onclick="navigateTo('fortune')" class="text-purple-600 hover:text-purple-800 font-bold transition">운세</button>
+                    <button onclick="navigateTo('guide')" class="text-slate-600 hover:text-indigo-600 font-bold transition">고객지원</button>
+                    <div class="relative group">
+                        <button class="text-slate-400 hover:text-slate-600 font-bold transition text-sm flex items-center gap-1">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <button onclick="navigateTo('terms')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">이용약관</button>
+                            <button onclick="navigateTo('privacy')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">개인정보처리방침</button>
+                            <button onclick="navigateTo('copyright')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">저작권·콘텐츠 정책</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+
+                    <!-- 햄버거 버튼 (모바일) -->
+                    <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
+                        <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                        <span id="bar2" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                        <span id="bar3" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- 모바일 드롭다운 메뉴 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t shadow-lg">
+            <div class="px-4 py-4 space-y-1">
+                <button onclick="mobileNav('index')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</button>
+                <button onclick="mobileNav('about')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">소개</button>
+                <button onclick="mobileNav('partner')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</button>
+                <button onclick="mobileNav('blog')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</button>
+                <button onclick="mobileNav('fortune')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-purple-600 hover:bg-purple-50 transition">운세</button>
+                <button onclick="mobileNav('guide')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">고객지원</button>
+
+                <div class="border-t my-2"></div>
+                <button onclick="mobileNav('terms')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">이용약관</button>
+                <button onclick="mobileNav('privacy')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">개인정보처리방침</button>
+                <button onclick="mobileNav('copyright')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">저작권·콘텐츠 정책</button>
+            </div>
+        </div>
+    </nav>
+    <!-- 모바일 메뉴 오버레이 (햄버거 열릴 때 게임 클릭 방지) -->
+    <div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8"></main>
+
+    <!-- 푸터 -->
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+    <script>
+        // 모바일 감지
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+        const gameData = [
+            { id: 'g1', name: '호야타자rpg',    genre: '타이핑 액션', version: 'v1.0.0', file: 'game1.html', img: 'data/game1.png' },
+            { id: 'g2', name: '호야속담',        genre: '타이핑',      version: 'v1.0.0', file: 'game2.html', img: 'data/game2.png' },
+            { id: 'g3', name: '호야하늘비타자',  genre: '타이핑',      version: 'v1.0.0', file: 'game3.html', img: 'data/game3.png' },
+            { id: 'g4',  name: '호호타자FPS', genre: '타이핑 슈터', version: 'v1.0.0', file: 'game4.html', img: 'data/game4.png' },
+            { id: 'g5',  name: '호호레이싱', genre: '레이싱', version: 'v1.0.0', file: 'game5.html', img: 'data/game5.png' },
+            { id: 'g6',  name: 'HOHO RUN', genre: '러닝 액션', version: 'v1.0.0', file: 'game6.html', img: 'data/game6.png' },
+            { id: 'g7',  name: '호호사천성', genre: '퍼즐', version: 'v1.0.0', file: 'game7.html', img: 'data/game7.png' },
+            { id: 'g8',  name: 'JELLY POP 7', genre: '퍼즐', version: 'v1.0.0', file: 'game8.html', img: 'data/game8.png' },
+            { id: 'g9',  name: 'HOHO DASH', genre: '러닝 액션', version: 'v1.0.0', file: 'game9.html', img: 'data/game9.png' },
+            { id: 'g10', name: '준비중', genre: '-', version: '준비중', file: null, img: '' }
+        ];
+        // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
+        const bannerConfig = {
+            img: '/data/banner.png',
+            link: 'fortune-adventure.html',  // 독립 파일로 이동
+            alt: '오늘의 운세 모험 시작하기'
+        };
+
+        // 게임 목록 페이지 HTML 생성
+        function buildIndexPage() {
+            var cards = gameData.map(function(game) {
+                var badge = '';
+                if (game.id === 'g1') {
+                    var cls = isMobile
+                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
+                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    badge = '<span id="pc-badge-g1" class="' + cls + '">PC</span>';
+                } else if (game.id === 'g2') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
+                } else if (game.id === 'g3') {
+                    var cls3 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    badge = '<span class="' + cls3 + '">PC</span>';
+                } else if (game.id === 'g4') {
+                    var cls4 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
+                    badge = '<span class="' + cls4 + '">PC</span>';
+                } else if (game.id === 'g5') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                } else if (game.id === 'g6') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                } else if (game.id === 'g7') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                } else if (game.id === 'g8') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                } else if (game.id === 'g9') {
+                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
+                }
+                var hasImg = game.img && game.img.trim() !== '';
+                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3' || game.id === 'g4' || game.id === 'g5' || game.id === 'g6' || game.id === 'g7' || game.id === 'g8' || game.id === 'g9');
+                var thumbBg = isReal ? '#eef2ff' : '#f8fafc';
+                var thumbColor = isReal ? '#4f46e5' : '#94a3b8';
+                var icon = isReal ? '\uD83C\uDFAE' : '\u23F3';
+                var thumb = hasImg
+                    ? '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:10px;"><img src="' + game.img + '" alt="' + game.name + '" style="width:100%;height:100%;object-fit:cover;"></div>'
+                    : '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:' + thumbBg + ';color:' + thumbColor + ';">' + icon + '</div>';
+                var onclick = "handleGameClick('" + game.id + "')";
+                return '<button onclick="' + onclick + '" class="game-card group bg-white p-3 rounded-2xl border border-slate-100 hover:border-indigo-400 hover:shadow-lg transition-all flex flex-col items-center text-center relative w-full">'
+                    + badge
+                    + thumb
+                    + '<h3 class="font-bold text-sm text-slate-800 mb-1 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight">' + game.name + '</h3>'
+                    + '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full uppercase tracking-tighter">' + game.genre + '</span>'
+                    + '</button>';
+            }).join('');
+
+            var hasBanner = bannerConfig.img && bannerConfig.img.trim() !== '';
+            var bannerInner = hasBanner
+                ? '<img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;">'
+                : '<div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">'
+                  + '<span style="font-size:32px;">\uD83D\uDDBC\uFE0F</span>'
+                  + '<span style="font-size:12px;font-weight:800;color:#a5b4fc;letter-spacing:.07em;">BANNER &nbsp;\u00B7&nbsp; \uAD8C\uC7A5 \uC0AC\uC774\uC988: 1200 \u00D7 240 px</span>'
+                  + '<span style="font-size:11px;color:#c4b5fd;">bannerConfig.img \uC5D0 \uC774\uBBF8\uC9C0 \uACBD\uB85C, bannerConfig.link \uC5D0 URL\uC744 \uC785\uB825\uD558\uC138\uC694</span>'
+                  + '</div>';
+
+            return '<div class="page-transition">'
+                + '<style>'
+                + '.top-mobile-banner{display:none;margin-bottom:20px;}'
+                + '.game-icon-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:48px;}'
+                + '@media(max-width:767px){.top-mobile-banner{display:block;}.game-icon-grid{grid-template-columns:1fr;}}'
+                + '@media(min-width:768px) and (max-width:1023px){.game-icon-grid{grid-template-columns:repeat(3,1fr);}}'
+                + '@media(min-width:1024px) and (max-width:1279px){.game-icon-grid{grid-template-columns:repeat(4,1fr);}}'
+                + '@media(min-width:1280px){.game-icon-grid{grid-template-columns:repeat(5,1fr);}}'
+                + '</style>'
+                + '<div class="text-center mb-6">'
+                + '<h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight">\uD50C\uB808\uC774\uD558\uACE0 \uC2F6\uC740 \uAC8C\uC784\uC744 \uC120\uD0DD\uD558\uC138\uC694</h1>'
+                + '<p class="text-base md:text-xl text-slate-500">\uBCC4\uB3C4\uC758 \uC124\uCE58 \uC5C6\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C \uC989\uC2DC \uC2E4\uD589\uB418\uB294 \uD504\uB9AC\uBBF8\uC5C4 \uAC8C\uC784</p>'
+                + '</div>'
+                + '<section class="top-mobile-banner"><a href="' + bannerConfig.link + '" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);"><img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;"></a></section>'
+                + '<div class="game-icon-grid" id="game-icon-grid">' + cards + '</div>'                + '<script>(function(){var grid=document.getElementById("game-icon-grid");if(!grid)return;grid.addEventListener("touchstart",function(e){var c=e.target.closest(".game-card");if(c)c.classList.add("touch-active");},{passive:true});grid.addEventListener("touchend",function(e){var c=e.target.closest(".game-card");if(c)setTimeout(function(){c.classList.remove("touch-active");},200);},{passive:true});grid.addEventListener("touchcancel",function(e){var c=e.target.closest(".game-card");if(c)c.classList.remove("touch-active");},{passive:true});})();<\/script>'
+                + '<section style="margin-bottom:40px;">'
+                + '<a href="' + bannerConfig.link + '" id="banner-link" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform=\'scale(1.01)\';this.style.boxShadow=\'0 12px 48px rgba(99,102,241,.28)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 40px rgba(99,102,241,.18)\'">'
+                + bannerInner
+                + '</a>'
+                + '</section>'
+                + '</div>';
+        }
+
+        const pages = {
+            get index() { return buildIndexPage(); },
+            about: `
+                <div class="page-transition max-w-4xl mx-auto py-12">
+                    <div class="flex items-center gap-4 mb-10">
+                        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-indigo-200 shadow-xl">H</div>
+                        <div>
+                            <h1 class="text-4xl font-black"><span class="text-indigo-600">About HOHO</span><span class="text-violet-500"> PLAY</span></h1>
+                            <p class="text-slate-400 mt-1">로그인 없이 즐기는 브라우저 게임 플랫폼</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 leading-relaxed text-slate-700 space-y-6 text-lg mb-8">
+                        <p class="font-bold text-slate-900 text-xl">HOHO PLAY은 설치의 번거로움과 복잡한 가입 절차를 완전히 제거했습니다.</p>
+                        <p>우리는 브라우저 기술의 한계를 시험하며, 단순한 도구 모음 이상의 고품질 웹 게임 라이브러리를 구축하고 있습니다. 누구나 링크 하나로 즉시 게임을 시작할 수 있습니다.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div class="p-8 bg-indigo-50 rounded-3xl border border-indigo-100">
+                                <h4 class="font-black text-indigo-700 mb-3 text-xl">⚡ Lightning Fast</h4>
+                                <p class="text-base font-medium opacity-80">최적화된 엔진으로 어떤 환경에서도 즉시 로딩됩니다.</p>
+                            </div>
+                            <div class="p-8 bg-emerald-50 rounded-3xl border border-emerald-100">
+                                <h4 class="font-black text-emerald-700 mb-3 text-xl">🛡️ Privacy First</h4>
+                                <p class="text-base font-medium opacity-80">사용자 데이터를 서버에 저장하지 않아 안전합니다.</p>
+                            </div>
+                            <div class="p-8 bg-purple-50 rounded-3xl border border-purple-100">
+                                <h4 class="font-black text-purple-700 mb-3 text-xl">🎮 No Login</h4>
+                                <p class="text-base font-medium opacity-80">회원가입 없이 바로 플레이. 기억해야 할 비밀번호가 없습니다.</p>
+                            </div>
+                            <div class="p-8 bg-amber-50 rounded-3xl border border-amber-100">
+                                <h4 class="font-black text-amber-700 mb-3 text-xl">🔮 AI 운세</h4>
+                                <p class="text-base font-medium opacity-80">AI 기반 타로, 사주, 별자리 운세 서비스도 함께 제공합니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                        <h3 class="font-black text-2xl mb-6 text-slate-800">운영 정보</h3>
+                        <div class="space-y-4 text-slate-600">
+                            <div class="flex gap-4 py-3 border-b border-slate-100">
+                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">서비스명</span>
+                                <span class="font-black"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                            </div>
+                            <div class="flex gap-4 py-3 border-b border-slate-100">
+                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">운영 형태</span>
+                                <span>개인 운영 (1인 개발·운영)</span>
+                            </div>
+                            <div class="flex gap-4 py-3 border-b border-slate-100">
+                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">서비스 시작</span>
+                                <span>2026년</span>
+                            </div>
+                            <div class="flex gap-4 py-3 border-b border-slate-100">
+                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">주요 서비스</span>
+                                <span>브라우저 웹게임, AI 운세, 커뮤니티</span>
+                            </div>
+                            <div class="flex gap-4 py-3">
+                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">문의</span>
+                                <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 만든 사람 -->
+                    <div class="bg-gradient-to-br from-indigo-50 to-violet-50 p-10 rounded-[2.5rem] border border-indigo-100 mt-8">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">호</div>
+                            <div>
+                                <h3 class="font-black text-2xl text-slate-800">👤 만든 사람</h3>
+                                <p class="text-slate-400 text-sm mt-0.5">호야 · HOHO PLAY 운영자</p>
+                            </div>
+                        </div>
+                        <div class="space-y-5 text-slate-700 text-base leading-relaxed">
+                            <p>게임학교를 졸업하고 게임기획 자격증을 취득했습니다. 게임회사에서 4년을 보내며 직접 만든 게임을 처음으로 세상에 내놓았지만, 회사는 문을 닫았고 저는 다른 길을 선택했습니다.</p>
+                            <p>자영업을 하는 사이, AI가 세상을 바꾸기 시작했습니다. 손님은 줄고, 동네는 점점 조용해졌습니다. 그 시간 속에서 조용히 제 블로그를 다듬었습니다. 호호로그TV에서 시작해, 지금의 HOHO PLAY가 되었습니다.</p>
+                            <div class="bg-white rounded-2xl p-6 border border-indigo-100 mt-2">
+                                <p class="text-slate-500 text-sm font-bold mb-2 uppercase tracking-wider">HOHO PLAY 라는 이름은</p>
+                                <p><span class="font-black text-indigo-600">HOHO</span>는 제 이름 끝 글자 '호'와 별명 '호야'를 합쳤습니다. <span class="font-black text-violet-500">PLAY</span>는 언제 어디서나, 가볍게 즐기자는 마음입니다.</p>
+                            </div>
+                            <p>다른 서비스를 따라 만들고 싶지 않았습니다. 제가 직접 꾸민 놀이터 — 그게 HOHO PLAY입니다.</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            blog: `
+                <div class="page-transition">
+                    <style>
+                        .bbs-wrap{background:#0a0e2e;border-radius:16px;padding:24px;font-family:'Courier New',monospace;min-height:500px}
+                        .bbs-top{color:#00ffff;font-size:13px;border-bottom:1px solid #1a2a5e;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+                        .bbs-title{color:#ffd700;font-size:22px;font-weight:900;text-align:center;margin-bottom:20px;text-shadow:0 0 10px #ffd70088}
+                        .bbs-menu-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
+                        .bbs-section h3{color:#00e5ff;font-size:13px;font-weight:700;border-bottom:1px solid #1a3a6e;padding-bottom:6px;margin-bottom:12px}
+                        .bbs-item{color:#7ec8e3;font-size:13px;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #0d1a40;transition:color .2s}
+                        .bbs-item:hover{color:#00ffff}
+                        .bbs-item .num{color:#4a6fa5;min-width:24px}
+                        .bbs-ship{text-align:center;margin-top:20px}
+                        .bbs-ship-name{color:#00e5ff;font-size:14px;font-weight:700;margin-top:8px}
+                        .bbs-board{display:none;background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
+                        .bbs-board.active{display:block}
+                        .bbs-board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+                        .bbs-board-title{color:#ffd700;font-size:16px;font-weight:700}
+                        .bbs-write-btn{background:#1a3a6e;color:#00e5ff;border:1px solid #00e5ff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+                        .bbs-write-btn:hover{background:#00e5ff;color:#0a0e2e}
+                        .bbs-post{border-bottom:1px solid #1a2a5e;padding:12px 0;cursor:pointer}
+                        .bbs-post:hover .bbs-post-title{color:#00ffff}
+                        .bbs-post-title{color:#7ec8e3;font-size:14px;margin-bottom:4px}
+                        .bbs-post-meta{color:#4a6fa5;font-size:11px;display:flex;gap:12px;flex-wrap:wrap}
+                        .bbs-post-comments{color:#00e5ff}
+                        .bbs-loading{color:#4a6fa5;text-align:center;padding:30px;font-size:13px}
+                        .bbs-back{color:#4a6fa5;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;transition:color .2s}
+                        .bbs-back:hover{color:#00e5ff}
+                        @media(max-width:640px){.bbs-menu-grid{grid-template-columns:1fr}}
+                    </style>
+                    <div class="bbs-wrap">
+                        <div class="bbs-top">
+                            <span>🖥 HOHO PLAY BBS v1.0</span>
+                            <span id="bbs-clock"></span>
+                        </div>
+                        <div class="bbs-title">
+                            <span style="display:inline-flex;align-items:center;gap:12px">
+                                <span style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:#4f46e5;border-radius:10px;font-family:Arial Black,sans-serif;font-size:26px;font-weight:900;color:#fff;box-shadow:0 0 18px #4f46e588">H</span>
+                                <span>HOHO PLAY 커뮤니티</span>
+                            </span>
+                        </div>
+                        <div id="bbs-main">
+                            <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
+                                <div class="bbs-item" onclick="openBoard('공지사항','공지사항')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">공지사항</div>
+                                <div class="bbs-item" onclick="openBoard('업데이트','업데이트')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">업데이트</div>
+                                <div class="bbs-item" onclick="openBoard('자유게시판','자유게시판')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">자유게시판</div>
+                            </div>
+                            <div class="bbs-ship">
+                                <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:18px;font-family:Arial Black,sans-serif;font-size:44px;font-weight:900;color:#fff;box-shadow:0 0 30px #4f46e566;margin-bottom:10px">H</div>
+                                <div class="bbs-ship-name">HOHO PLAY BBS</div>
+                                <div style="color:#4a6fa5;font-size:11px;margin-top:4px">Since 2026</div>
+                            </div>
+                        </div>
+                        <div id="bbs-board-area" class="bbs-board">
+                            <span class="bbs-back" onclick="closeBoard()">◀ 메인으로</span>
+                            <div class="bbs-board-top">
+                                <span class="bbs-board-title" id="bbs-board-name"></span>
+                                <a id="bbs-write-link" href="https://github.com/hoholog/hoholog/issues/new" target="_blank" class="bbs-write-btn">✏ 글쓰기</a>
+                            </div>
+                            <div id="bbs-posts"><div class="bbs-loading">⏳ 불러오는 중...</div></div>
+                        </div>
+                    </div>
+                </div>
+            `,
+                        fortune: `
+                <div class="page-transition">
+                    <div class="mb-8" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
+                        <button onclick="showFortune('today')"       id="tab-today"       class="ftab active-ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">오늘운세</button>
+                        <button onclick="showFortune('saju')"        id="tab-saju"        class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">사주</button>
+                        <button onclick="showFortune('zodiac')"      id="tab-zodiac"      class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">별자리</button>
+                        <button onclick="showFortune('chinese')"     id="tab-chinese"     class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">띠운세</button>
+                        <button onclick="showFortune('weekly')"      id="tab-weekly"      class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">별자리주간</button>
+                        <button onclick="showFortune('monthly')"     id="tab-monthly"     class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">띠별월간</button>
+                        <button onclick="showFortune('tarot')"       id="tab-tarot"       class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">타로</button>
+                        <button onclick="showFortune('mbti-tarot')"  id="tab-mbti-tarot"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+타로</button>
+                        <button onclick="showFortune('mbti-dream')"  id="tab-mbti-dream"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+꿈해몽</button>
+                    </div>
+                    <div id="fortune-content"></div>
+                </div>
+            `,
+                        guide: `
+                <div class="page-transition max-w-4xl mx-auto">
+                    <h1 class="text-4xl font-black mb-12 text-center">전체 서비스 가이드</h1>
+                    <div class="grid gap-6">
+                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <h3 class="font-black text-2xl mb-4 text-indigo-600">1. 게임 플레이 환경</h3>
+                            <p class="text-slate-600 text-lg">HOHO PLAY은 크롬(Chrome), 웨일 브라우저에 최적화되어 있습니다.</p>
+                        </div>
+                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <h3 class="font-black text-2xl mb-4 text-indigo-600">2. 데이터 저장 방식</h3>
+                            <p class="text-slate-600 text-lg">대부분의 게임은 브라우저의 'Local Storage'를 사용하여 진행 상황을 저장합니다.</p>
+                        </div>
+                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <h3 class="font-black text-2xl mb-4 text-indigo-600">3. 문의</h3>
+                            <p class="text-slate-600 text-lg">전문적인 피드백이나 비즈니스 문의는 '파트너' 메뉴를 이용해 주세요.</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            contact: `
+                <div class="page-transition max-w-3xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h1 class="text-4xl font-black mb-4">제휴 및 문의</h1>
+                        <p class="text-slate-500">전문적인 피드백이나 비즈니스 문의는 아래 양식을 이용해 주세요.</p>
+                    </div>
+                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-slate-50">
+                        <div class="space-y-8">
+                            <div>
+                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Name / Organization</label>
+                                <input type="text" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="성함 또는 기업명을 입력하세요">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Email Address</label>
+                                <input type="email" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="회신받을 이메일을 입력하세요">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Message</label>
+                                <textarea rows="6" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="문의 내용을 자유롭게 작성해 주세요."></textarea>
+                            </div>
+                            <button class="w-full bg-indigo-600 text-white font-black py-6 rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-100 text-xl transition transform active:scale-[0.98]" onclick="alert('전송되었습니다. 24시간 내 회신드리겠습니다.')">문의 전송하기</button>
+                        </div>
+                    </div>
+                </div>
+            `,
+            privacy: `
+                <div class="page-transition max-w-4xl mx-auto py-12">
+                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">🔒</div>
+                        <div>
+                            <h1 class="text-3xl font-black text-slate-900">개인정보처리방침</h1>
+                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.2 &nbsp;|&nbsp; 최종 수정: 2026년 4월 (AdSense 광고 쿠키 조항 추가)</p>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-3xl p-8 mb-8 text-indigo-800 font-bold text-lg leading-relaxed">
+                        HOHO PLAY은 사용자의 개인정보를 최소한으로 수집하며, 수집된 정보를 외부에 판매하거나 제3자에게 제공하지 않습니다.
+                    </div>
+                    <div class="space-y-8 text-slate-600 leading-loose">
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">1. 수집하는 정보 및 수집 방법</h3>
+                            <p class="mb-4">HOHO PLAY은 회원가입을 요구하지 않으며, 별도의 개인정보를 직접 수집하지 않습니다. 다만, 서비스 운영 과정에서 아래와 같은 정보가 자동으로 처리될 수 있습니다.</p>
+                            <ul class="list-disc list-inside space-y-2 text-slate-600">
+                                <li><strong>브라우저 로컬 스토리지:</strong> 게임 점수, 진행 상황, 환경설정 등 사용자의 기기 내에만 저장되며 서버로 전송되지 않습니다.</li>
+                                <li><strong>GitHub API:</strong> 커뮤니티(BBS) 기능 이용 시 GitHub Issues API를 통해 게시글이 처리됩니다. 이 과정에서 GitHub의 서버에 IP 주소 및 브라우저 정보(User-Agent)가 전달될 수 있으며, 이는 GitHub의 개인정보처리방침에 따릅니다.</li>
+                                <li><strong>AI 운세 서비스:</strong> 운세 기능 이용 시 입력한 생년월일, 이름, 질문 내용 등이 AI API 서버로 전송되어 답변 생성에 사용됩니다. 해당 데이터는 답변 생성 후 보관되지 않습니다.</li>
+                                <li><strong>Google AdSense (광고 서비스):</strong> 본 서비스는 Google AdSense를 통해 광고를 제공합니다. Google은 쿠키 및 광고 식별자를 사용하여 사용자의 관심사에 맞는 맞춤형 광고를 표시할 수 있습니다. Google이 수집하는 데이터에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a>을 참고하시기 바랍니다. 사용자는 <a href="https://adssettings.google.com/" target="_blank" class="text-indigo-600 underline">Google 광고 설정</a>에서 맞춤 광고를 거부하거나 관심사 기반 광고를 비활성화할 수 있습니다.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">2. 개인정보의 이용 목적</h3>
+                            <p>수집 또는 처리되는 정보는 오직 다음의 목적으로만 사용됩니다.</p>
+                            <ul class="list-disc list-inside space-y-2 mt-3">
+                                <li>게임 서비스 제공 및 이용자 환경 유지</li>
+                                <li>커뮤니티 서비스 운영(게시글 표시)</li>
+                                <li>AI 기반 운세 답변 생성</li>
+                                <li>서비스 품질 개선 및 오류 분석</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">3. 개인정보의 보유 및 파기</h3>
+                            <p>HOHO PLAY이 직접 수집하는 개인정보는 없으며, 브라우저 로컬 스토리지에 저장된 데이터는 사용자가 직접 브라우저 설정에서 삭제할 수 있습니다. AI 운세 기능을 통해 전송된 입력값은 답변 생성 후 서버에 보관되지 않습니다.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">4. 제3자 서비스</h3>
+                            <p class="mb-3">본 서비스는 아래 제3자 서비스를 활용합니다. 각 서비스의 개인정보처리방침을 별도로 확인하시기 바랍니다.</p>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>GitHub (커뮤니티 BBS): <a href="https://docs.github.com/ko/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" class="text-indigo-600 underline">GitHub 개인정보처리방침</a></li>
+                                <li>Google AdSense (광고): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a> · <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a></li>
+                                <li>Google Fonts (웹폰트): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a></li>
+                                <li>Anthropic (AI 운세): <a href="https://www.anthropic.com/legal/privacy" target="_blank" class="text-indigo-600 underline">Anthropic 개인정보처리방침</a></li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">5. 이용자의 권리</h3>
+                            <p class="mb-4">이용자는 언제든지 브라우저 로컬 스토리지를 직접 삭제하여 저장된 게임 데이터를 제거할 수 있습니다. 기타 개인정보 관련 문의 및 삭제 요청은 아래 연락처로 문의해 주세요.</p>
+                            <div class="mt-4 bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-2 text-sm">
+                                <p class="font-bold text-amber-800">📢 광고 관련 이용자 권리</p>
+                                <ul class="list-disc list-inside space-y-1 text-amber-700">
+                                    <li><a href="https://adssettings.google.com/" target="_blank" class="underline font-semibold">Google 광고 설정</a>에서 맞춤형 광고를 거부할 수 있습니다.</li>
+                                    <li>브라우저 설정에서 서드파티 쿠키를 차단하면 관심사 기반 광고가 표시되지 않습니다.</li>
+                                    <li>유럽 사용자의 경우 페이지 하단 쿠키 동의 배너를 통해 광고 쿠키 동의를 철회할 수 있습니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">6. 개인정보 보호책임자 및 문의</h3>
+                            <p>개인정보 처리에 관한 문의, 불만, 피해구제 등은 아래로 연락해 주세요.</p>
+                            <div class="mt-4 bg-slate-50 rounded-2xl p-5">
+                                <p class="font-bold text-slate-700">개인정보 보호책임자: HOHO PLAY 운영팀</p>
+                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
+                            </div>
+                            <p class="mt-4 text-sm text-slate-400">개인정보 침해로 인한 구제를 받기 위하여 개인정보분쟁조정위원회, 한국인터넷진흥원 개인정보침해신고센터 등에도 분쟁해결이나 상담 등을 신청할 수 있습니다.</p>
+                        </div>
+                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
+                            본 방침은 2026년 1월 1일부터 시행되며, 내용 변경 시 서비스 내 공지를 통해 안내합니다. (최종 수정: 2026년 4월 — Google AdSense 광고 쿠키 조항 추가)
+                        </div>
+                    </div>
+                </div>
+            `,
+            terms: `
+                <div class="page-transition max-w-4xl mx-auto py-12">
+                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">📋</div>
+                        <div>
+                            <h1 class="text-3xl font-black text-slate-900">이용약관</h1>
+                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.0</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-3xl p-8 mb-8 text-emerald-800 font-bold text-lg leading-relaxed">
+                        HOHO PLAY 서비스를 이용하시면 본 약관에 동의하신 것으로 간주합니다.
+                    </div>
+                    <div class="space-y-8 text-slate-600 leading-loose">
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제1조 (목적)</h3>
+                            <p>본 약관은 HOHO PLAY(이하 "서비스")이 제공하는 웹 게임 플랫폼 및 부가 서비스의 이용 조건과 절차, 이용자와 서비스 운영자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제2조 (서비스의 제공)</h3>
+                            <p class="mb-3">서비스는 이용자에게 다음과 같은 기능을 제공합니다.</p>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>브라우저 기반 웹 게임 플레이 (로그인 불필요)</li>
+                                <li>AI 기반 운세 서비스</li>
+                                <li>커뮤니티 게시판(BBS)</li>
+                                <li>기타 운영자가 추가로 정하는 서비스</li>
+                            </ul>
+                            <p class="mt-4">서비스는 연중무휴 제공을 원칙으로 하나, 시스템 점검·서버 장애·기타 운영상 사유로 일시 중단될 수 있습니다.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제3조 (이용자의 의무)</h3>
+                            <p class="mb-3">이용자는 서비스 이용 시 다음 행위를 해서는 안 됩니다.</p>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>타인의 개인정보, 계정을 도용하는 행위</li>
+                                <li>서비스의 정상적인 운영을 방해하는 행위(해킹, DDoS 등)</li>
+                                <li>서비스 내 게임 코드, 콘텐츠를 무단으로 복제·배포·판매하는 행위</li>
+                                <li>커뮤니티에 음란물, 허위정보, 타인 비방, 광고성 스팸 게시물을 올리는 행위</li>
+                                <li>관련 법령에 위반되는 행위</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제4조 (서비스 이용 제한)</h3>
+                            <p>운영자는 이용자가 제3조의 금지 행위를 하거나 서비스의 정상적인 운영을 방해할 경우 사전 통보 없이 해당 이용자의 서비스 접근을 제한할 수 있습니다.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제5조 (면책 조항)</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>서비스는 무료로 제공되며, 서비스 이용으로 발생한 직간접적 손해에 대해 운영자는 법령상 고의·중과실이 없는 한 책임을 지지 않습니다.</li>
+                                <li>AI 운세 서비스의 결과는 오락 목적으로만 제공되며, 실제 의사결정의 근거로 사용해서는 안 됩니다.</li>
+                                <li>이용자가 커뮤니티에 게시한 내용에 대한 책임은 해당 이용자에게 있습니다.</li>
+                                <li>서비스 중단, 데이터 손실 등 불가항력적 사유로 인한 손해에 대해 운영자는 책임을 지지 않습니다.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제6조 (저작권)</h3>
+                            <p>서비스 내 게임, 디자인, 코드, 텍스트 등 모든 콘텐츠의 저작권은 HOHO PLAY 또는 해당 저작권자에게 있습니다. 이용자는 운영자의 명시적 동의 없이 서비스 콘텐츠를 복제·수정·배포·판매할 수 없습니다. (자세한 내용은 <span class="text-indigo-600 cursor-pointer underline" onclick="navigateTo('copyright')">저작권 및 콘텐츠 정책</span> 참조)</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제7조 (약관의 변경)</h3>
+                            <p>운영자는 필요한 경우 본 약관을 변경할 수 있으며, 변경 시 서비스 내 공지를 통해 7일 전 사전 고지합니다. 변경 후 서비스를 계속 이용하는 경우 변경된 약관에 동의한 것으로 간주합니다.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">제8조 (문의)</h3>
+                            <div class="bg-slate-50 rounded-2xl p-5">
+                                <p class="font-bold text-slate-700">이용약관 관련 문의</p>
+                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
+                            본 약관은 2026년 1월 1일부터 시행됩니다.
+                        </div>
+                    </div>
+                </div>
+            `,
+            copyright: `
+                <div class="page-transition max-w-4xl mx-auto py-12">
+                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
+                        <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl">©️</div>
+                        <div>
+                            <h1 class="text-3xl font-black text-slate-900">저작권 및 콘텐츠 정책</h1>
+                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.0</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 rounded-3xl p-8 mb-8 text-amber-800 font-bold text-lg leading-relaxed">
+                        HOHO PLAY의 모든 콘텐츠는 저작권법의 보호를 받습니다.
+                    </div>
+                    <div class="space-y-8 text-slate-600 leading-loose">
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">1. 서비스 콘텐츠의 저작권</h3>
+                            <p class="mb-3">서비스 내 다음 콘텐츠의 저작권은 HOHO PLAY 또는 원저작권자에게 귀속됩니다.</p>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>웹 게임 소스코드 및 게임 로직</li>
+                                <li>서비스 UI 디자인, 레이아웃, 그래픽 요소</li>
+                                <li>서비스 내 텍스트, 설명문, 게임 내 스토리</li>
+                                <li>HOHO PLAY 로고 및 브랜드 아이덴티티</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">2. 허용되는 이용</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>개인적, 비상업적 목적의 서비스 이용 및 게임 플레이</li>
+                                <li>서비스 소개 목적의 스크린샷 공유 (출처 표기 필수)</li>
+                                <li>학습 목적의 코드 구조 참고 (재배포 금지)</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">3. 금지되는 이용</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>게임 소스코드의 무단 복제, 수정, 재배포</li>
+                                <li>서비스 콘텐츠의 상업적 이용</li>
+                                <li>HOHO PLAY 브랜드명, 로고의 무단 사용</li>
+                                <li>서비스를 통째로 모방한 파생 서비스 제작·운영</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">4. 오픈소스 및 제3자 라이선스</h3>
+                            <p class="mb-3">본 서비스는 다음 오픈소스 및 제3자 서비스를 사용합니다.</p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm border-collapse">
+                                    <thead><tr class="bg-slate-50"><th class="text-left p-3 border border-slate-100 font-bold text-slate-700">라이브러리/서비스</th><th class="text-left p-3 border border-slate-100 font-bold text-slate-700">라이선스</th></tr></thead>
+                                    <tbody>
+                                        <tr><td class="p-3 border border-slate-100">Tailwind CSS</td><td class="p-3 border border-slate-100">MIT License</td></tr>
+                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">Noto Sans KR (Google Fonts)</td><td class="p-3 border border-slate-100">SIL Open Font License 1.1</td></tr>
+                                        <tr><td class="p-3 border border-slate-100">html2canvas</td><td class="p-3 border border-slate-100">MIT License</td></tr>
+                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">GitHub Issues API</td><td class="p-3 border border-slate-100">GitHub Terms of Service</td></tr>
+                                        <tr><td class="p-3 border border-slate-100">Giscus (댓글 위젯)</td><td class="p-3 border border-slate-100">MIT License</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">5. 커뮤니티 게시물의 저작권</h3>
+                            <p>이용자가 커뮤니티(BBS)에 게시한 글의 저작권은 해당 이용자에게 있습니다. 다만, 이용자는 해당 게시물을 서비스 내에서 표시·공유하는 것에 동의합니다. 타인의 저작물을 무단으로 게시하는 행위는 금지되며, 저작권 침해 게시물은 신고 접수 후 삭제 처리될 수 있습니다.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h3 class="text-xl font-black text-slate-800 mb-4">6. 저작권 침해 신고</h3>
+                            <p>본 서비스에서 저작권 침해가 발생했다고 판단되는 경우 아래 연락처로 신고해 주세요. 신고 접수 후 검토를 거쳐 조치합니다.</p>
+                            <div class="mt-4 bg-slate-50 rounded-2xl p-5">
+                                <p class="font-bold text-slate-700">저작권 침해 신고</p>
+                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
+                            © 2026 HOHO PLAY. All rights reserved. 본 정책은 2026년 1월 1일부터 시행됩니다.
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        // 게임 클릭: g1은 game1.html로 이동, 나머지는 준비중 알림
+        function handleGameClick(gameId) {
+            const game = gameData.find(g => g.id === gameId);
+            if (game && game.file) {
+                loadGamePage(game.file, game.name);
+            } else {
+                alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
+            }
+        }
+
+        async function loadGamePage(file, name) {
+            const contentDiv = document.getElementById('content');
+            // [FIX] 게임 → 다른 게임으로 바로 이동할 때도 이전 게임의 오디오를 정리
+            if (typeof window.stopAllGameAudio === 'function') {
+                try { window.stopAllGameAudio(); } catch (e) {}
+            }
+            contentDiv.innerHTML =
+                '<div class="flex flex-col items-center justify-center py-32 text-slate-400">' +
+                '<div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>' +
+                '<p class="font-bold text-sm">' + name + ' 불러오는 중...</p>' +
+                '</div>';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            try {
+                const r = await fetch('/' + file + '?v=' + Date.now(), { cache: 'no-store' });
+                const html = await r.text();
+                const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
+                contentDiv.innerHTML = mainMatch
+                    ? '<div class="page-transition">' + mainMatch[1] + '</div>'
+                    : '<div class="page-transition py-20 text-center text-slate-400">게임을 불러올 수 없습니다.</div>';
+                contentDiv.querySelectorAll('script').forEach(function(oldScript) {
+                    const s = document.createElement('script');
+                    s.textContent = oldScript.textContent;
+                    document.body.appendChild(s);
+                });
+            } catch(e) {
+                contentDiv.innerHTML = '<div class="page-transition py-20 text-center text-slate-400">게임을 불러올 수 없습니다.</div>';
+            }
+        }
+
+        async function navigateTo(page) {
+            // ── URL 분리 마이그레이션: 실제 폴더 URL이 있는 페이지는 진짜 이동 ──
+            // (about/ 부터 시작, 이후 폴더 만들 때마다 이 목록에 추가)
+            const REAL_URL_PAGES = ['index', 'about'];
+            if (REAL_URL_PAGES.includes(page)) {
+                const targetPath = (page === 'index') ? '/' : ('/' + page + '/');
+                if (location.pathname !== targetPath) {
+                    location.href = targetPath;
+                    return;
+                }
+            }
+
+            const contentDiv = document.getElementById('content');
+
+            // [FIX] game9(hohoDash) 등 게임 페이지에서 벗어날 때 배경음악/효과음이
+            // 계속 재생되는 문제 해결. 게임 스크립트가 window.stopAllGameAudio를
+            // 정의해두면(있을 때만) 페이지 전환 직전에 호출해서 AudioContext를 정리한다.
+            if (typeof window.stopAllGameAudio === 'function') {
+                try { window.stopAllGameAudio(); } catch (e) {}
+            }
+
+            // ── partner: partner.html을 fetch해서 <main> 영역만 삽입 ──
+            if (page === 'partner') {
+                contentDiv.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-32 text-slate-400">
+                        <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                        <p class="font-bold text-sm">파트너 페이지 불러오는 중...</p>
+                    </div>`;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                try {
+                   const r = await fetch('/partner.html?v=' + Date.now(), { cache: 'no-store' });
+                    const html = await r.text();
+                    // partner.html의 <main>...</main> 내용만 추출
+                    const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
+                    contentDiv.innerHTML = mainMatch
+                        ? `<div class="page-transition">${mainMatch[1]}</div>`
+                        : `<div class="page-transition py-20 text-center text-slate-400">파트너 페이지를 불러올 수 없습니다.</div>`;
+                    // partner.html의 인라인 <script> 실행
+                    contentDiv.querySelectorAll('script').forEach(oldScript => {
+                        const s = document.createElement('script');
+                        s.textContent = oldScript.textContent;
+                        document.body.appendChild(s);
+                    });
+                    // .p-fade 요소들: IntersectionObserver 대신 즉시 visible 적용
+                    // (innerHTML 삽입 직후엔 뷰포트 감지가 불안정하므로 강제 처리)
+                    requestAnimationFrame(() => {
+                        contentDiv.querySelectorAll('.p-fade').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    });
+                } catch(e) {
+                    contentDiv.innerHTML = `<div class="page-transition py-20 text-center text-slate-400">파트너 페이지를 불러올 수 없습니다.</div>`;
+                }
+                return;
+            }
+
+            if (!pages[page]) return;
+            // 매번 DOM 새로 생성 → 메뉴/H마크 재클릭 시 항상 fresh fetch
+            contentDiv.innerHTML = pages[page];
+            // URL은 항상 깔끔하게 유지 (hash 표시 안 함)
+            history.replaceState(null, '', location.pathname);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (page === 'fortune') {
+                if(window.fortuneReady) {
+                    showFortune('today');
+                } else {
+                    var _fc = document.getElementById('fortune-content');
+                    if (_fc) _fc.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세 모듈 로딩 중...</div>';
+                    window._pendingFortune = function(){ showFortune('today'); };
+                    setTimeout(function(){
+                        if(!window.fortuneReady){
+                            var fc2 = document.getElementById('fortune-content');
+                            if(fc2 && fc2.innerHTML.includes('로딩 중'))
+                                fc2.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa">⚠️ 운세 모듈을 불러오지 못했습니다. 페이지를 새로고침해 주세요.</div>';
+                        }
+                    }, 5000);
+                }
+            }
+            if (page === 'blog') bbsInit();
+        }
+
+        // 푸터 사이트맵 링크
+        // ※ outerHTML 삽입된 footer.html의 <script>는 브라우저가 실행하지 않으므로
+        //    index.html 자체에 footerNav를 반드시 정의해야 함
+        function footerNav(page) {
+            navigateTo(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('menu-overlay');
+            const bar1 = document.getElementById('bar1');
+            const bar2 = document.getElementById('bar2');
+            const bar3 = document.getElementById('bar3');
+            const isOpen = !menu.classList.contains('hidden');
+            if (isOpen) {
+                menu.classList.add('hidden');
+                if(overlay) overlay.style.display = 'none';
+                bar1.style.transform = '';
+                bar2.style.opacity = '1';
+                bar3.style.transform = '';
+            } else {
+                menu.classList.remove('hidden');
+                if(overlay) overlay.style.display = 'block';
+                bar1.style.transform = 'translateY(8px) rotate(45deg)';
+                bar2.style.opacity = '0';
+                bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
+            }
+        }
+
+        function mobileNav(page) {
+            toggleMenu();
+            navigateTo(page);
+        }
+
+        window.onload = () => {
+            const pendingPage = sessionStorage.getItem('page');
+            if (pendingPage) {
+                sessionStorage.removeItem('page');
+                navigateTo(pendingPage);
+            } else {
+                navigateTo('about');
+            }
+        };
+
+        // 현재 활성 페이지에 nav 강조 표시
+        function updateActiveNav(page) {
+            document.querySelectorAll('nav button[onclick]').forEach(btn => {
+                btn.classList.remove('text-indigo-600', 'text-purple-800');
+            });
+        }
+
+        // ═══════════════════════════════
+        //  BBS 커뮤니티 (GitHub Issues)
+        // ═══════════════════════════════
+        const GH_OWNER = 'hoholog';
+        const GH_REPO  = 'hoholog';
+
+        function bbsInit() {
+            (function tick(){
+                const el = document.getElementById('bbs-clock');
+                if(el) { el.textContent = new Date().toLocaleTimeString('ko-KR'); setTimeout(tick,1000); }
+            })();
+        }
+
+        function loadGiscus(term) {
+            const container = document.getElementById('giscus-container');
+            if(!container) return;
+            container.innerHTML = '';
+            const s = document.createElement('script');
+            s.src = 'https://giscus.app/client.js';
+            s.setAttribute('data-repo', 'hoholog/hoholog');
+            s.setAttribute('data-repo-id', 'R_kgDORWaWXQ');
+            s.setAttribute('data-category', 'General');
+            s.setAttribute('data-category-id', 'DIC_kwDORWaWXc4C4glA');
+            s.setAttribute('data-mapping', 'specific');
+            s.setAttribute('data-term', term);
+            s.setAttribute('data-reactions-enabled', '1');
+            s.setAttribute('data-emit-metadata', '0');
+            s.setAttribute('data-input-position', 'top');
+            s.setAttribute('data-theme', 'dark_dimmed');
+            s.setAttribute('data-lang', 'ko');
+            s.setAttribute('crossorigin', 'anonymous');
+            s.async = true;
+            container.appendChild(s);
+        }
+
+        function openBoard(label, name) {
+            document.getElementById('bbs-main').style.display = 'none';
+            document.getElementById('bbs-board-area').classList.add('active');
+            document.getElementById('bbs-board-name').textContent = '[ '+name+' ]';
+
+            // 자유게시판만 글쓰기 버튼 표시
+            const writeBtn = document.getElementById('bbs-write-link');
+            if(name === '자유게시판') {
+                writeBtn.style.display = 'inline-block';
+                writeBtn.href = 'https://github.com/'+GH_OWNER+'/'+GH_REPO+'/issues/new?labels='+encodeURIComponent(label)+'&title=['+encodeURIComponent(name)+']%20';
+            } else {
+                writeBtn.style.display = 'none';
+            }
+            loadIssues(label, name);
+        }
+
+        function closeBoard() {
+            document.getElementById('bbs-main').style.display = 'block';
+            document.getElementById('bbs-board-area').classList.remove('active');
+        }
+
+        async function loadIssues(label, boardType) {
+            const el = document.getElementById('bbs-posts');
+            el.innerHTML = '<div class="bbs-loading">⏳ 게시글 불러오는 중...</div>';
+            try {
+                const url = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/issues?labels='+encodeURIComponent(label)+'&state=open&per_page=30&sort=created&direction=desc';
+                const r = await fetch(url, {headers:{'Accept':'application/vnd.github.v3+json'}});
+                const posts = await r.json();
+                if(!posts.length){
+                    el.innerHTML = '<div class="bbs-loading">📭 등록된 게시글이 없습니다.' +
+                        (boardType==='자유게시판' ? '<br><br><a href="https://github.com/'+GH_OWNER+'/'+GH_REPO+'/issues/new?labels='+encodeURIComponent(label)+'" target="_blank" style="color:#00e5ff">첫 글을 작성해보세요! ✏</a>' : '') +
+                        '</div>';
+                    return;
+                }
+                el.dataset.label = label;
+                el.innerHTML = posts.map((p,i) => {
+                    const d = new Date(p.created_at);
+                    const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+                    const commentsBadge = boardType==='자유게시판' ? '<span class="bbs-post-comments">💬 '+p.comments+'</span>' : '';
+                    return '<div class="bbs-post" onclick="viewPost('+p.number+',\''+p.title.replace(/'/g,"\\'")+'\',\''+boardType+'\')">'+
+                        '<div class="bbs-post-title">'+String(i+1).padStart(2,'0')+'. '+p.title+'</div>'+
+                        '<div class="bbs-post-meta">'+
+                            '<span>'+ds+'</span>'+
+                            '<span>👤 '+p.user.login+'</span>'+
+                            commentsBadge+
+                        '</div>'+
+                    '</div>';
+                }).join('');
+            } catch(e) {
+                el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패. 잠시 후 다시 시도해주세요.</div>';
+            }
+        }
+
+        async function viewPost(number, title, boardType) {
+            const el = document.getElementById('bbs-posts');
+            const label = el.dataset.label || '';
+            el.innerHTML = '<div class="bbs-loading">⏳ 글 불러오는 중...</div>';
+            try {
+                const r = await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/issues/'+number, {headers:{'Accept':'application/vnd.github.v3+json'}});
+                const post = await r.json();
+
+                const d = new Date(post.created_at);
+                const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+                const body = post.body ? post.body.replace(/\n/g,'<br>') : '(내용 없음)';
+
+                const isFree = (boardType === '자유게시판');
+
+                // 댓글 (자유게시판만 giscus)
+                let commentsHtml = '';
+                if(isFree) {
+                    commentsHtml =
+                        '<div style="margin-top:24px;border-top:1px solid #1a2a5e;padding-top:16px">'+
+                        '<div style="color:#00e5ff;font-size:13px;font-weight:700;margin-bottom:12px">💬 댓글</div>'+
+                        '<div id="giscus-container"></div>'+
+                        '</div>';
+                }
+
+                el.innerHTML =
+                    '<span class="bbs-back" onclick="loadIssues(\''+label+'\',\''+boardType+'\')">◀ 목록으로</span>'+
+                    '<div style="border-bottom:1px solid #1a2a5e;padding-bottom:14px;margin-bottom:14px">'+
+                        '<div style="color:#ffd700;font-size:16px;font-weight:700;margin-bottom:8px">'+post.title+'</div>'+
+                        '<div style="color:#4a6fa5;font-size:12px">👤 '+post.user.login+' · '+ds+'</div>'+
+                    '</div>'+
+                    '<div style="color:#7ec8e3;font-size:14px;line-height:1.9;margin-bottom:20px;min-height:60px">'+body+'</div>'+
+                    commentsHtml;
+
+                // giscus 로드 (자유게시판만)
+                if(isFree) {
+                    setTimeout(() => loadGiscus('issue-'+number), 100);
+                }
+            } catch(e) {
+                el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
+            }
+        }
+        // const 사용 금지 — fortune.html var와 충돌 방지
+        window.BLOG_ID  = '5608603268556826697';
+        window.API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
+        window.BASE_URL = 'https://www.googleapis.com/blogger/v3';
+    </script>
+
+    <!-- 운세·타로·MBTI 모듈 동적 로드 -->
+    <script>
+    window.fortuneReady = false;
+    (function(){
+        fetch('/fortune.html?' + Date.now(), { cache: 'no-store' })
+            .then(function(r){ return r.text(); })
+            .then(function(html){
+                var tmp = document.createElement('div');
+                tmp.innerHTML = html;
+                var scripts = tmp.querySelectorAll('script');
+                scripts.forEach(function(s){
+                    var ns = document.createElement('script');
+                    if(s.src) { ns.src = s.src; ns.async = false; }
+                    else { ns.textContent = s.textContent; }
+                    document.body.appendChild(ns);
+                });
+                window.fortuneReady = true;
+                // 대기 중인 운세 페이지 요청 처리
+                if(window._pendingFortune) {
+                    window._pendingFortune();
+                    window._pendingFortune = null;
+                }
+            })
+            .catch(function(e){ console.warn('fortune.html 로드 실패:', e); });
+    })();
+    </script>
+    <script>
+    // ── 보안: 게임 캔버스 영역에서만 우클릭/개발자도구 차단 ──
+    // (전체 페이지 차단은 AdSense 정책 위반 소지 + UX 저하)
+
+    // 게임 페이지(game1.html, game2.html)는 별도 파일이므로 여기선 처리 불필요.
+    // index.html SPA 내에서는 게임이 iframe/별도 창으로 열리므로
+    // 아래 코드는 현재 아무 영향도 주지 않도록 제거합니다.
+
+    // ── 대신: 게임 iframe 내 캔버스에서만 우클릭 차단이 필요하다면
+    //    game1.html / game2.html 내부의 <canvas> 요소에 직접 아래를 추가하세요:
+    //    canvas.addEventListener('contextmenu', e => e.preventDefault());
+</script>
+</body>
