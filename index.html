@@ -791,7 +791,7 @@
         async function navigateTo(page) {
             // ── URL 분리 마이그레이션: 실제 폴더 URL이 있는 페이지는 진짜 이동 ──
             // (about/ 부터 시작, 이후 폴더 만들 때마다 이 목록에 추가)
-            const REAL_URL_PAGES = ['about', 'fortune', 'guide', 'blog'];
+            const REAL_URL_PAGES = ['about', 'fortune', 'guide', 'blog', 'terms', 'privacy', 'copyright', 'partner'];
             if (REAL_URL_PAGES.includes(page)) {
                 const targetPath = '/' + page + '/';
                 if (location.pathname !== targetPath) {
@@ -818,7 +818,7 @@
                     </div>`;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 try {
-                   const r = await fetch('./partner.html?v=' + Date.now(), { cache: 'no-store' });
+                   const r = await fetch('/partner.html?v=' + Date.now(), { cache: 'no-store' });
                     const html = await r.text();
                     // partner.html의 <main>...</main> 내용만 추출
                     const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
