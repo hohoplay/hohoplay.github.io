@@ -134,7 +134,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260708030925_9adcbd84">
+  <meta name="build-version" content="20260708040921_bc26e67a">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -790,6 +790,17 @@
         }
 
         async function navigateTo(page) {
+            // ── URL 분리 마이그레이션: 실제 폴더 URL이 있는 페이지는 진짜 이동 ──
+            // (about/ 부터 시작, 이후 폴더 만들 때마다 이 목록에 추가)
+            const REAL_URL_PAGES = ['about'];
+            if (REAL_URL_PAGES.includes(page)) {
+                const targetPath = '/' + page + '/';
+                if (location.pathname !== targetPath) {
+                    location.href = targetPath;
+                    return;
+                }
+            }
+
             const contentDiv = document.getElementById('content');
 
             // [FIX] game9(hohoDash) 등 게임 페이지에서 벗어날 때 배경음악/효과음이
