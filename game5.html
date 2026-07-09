@@ -2557,6 +2557,14 @@ function startGame() {
   let lastKeyPressed = null; // 'left' | 'right' | null
 
   const handleKeyDown = function(e) {
+    // [FIX] 상하 방향키/스페이스/페이지업다운을 누르면 브라우저가 페이지를
+    // 스크롤시켜서 버벅거림처럼 느껴지던 문제 수정. 게임은 좌우만 쓰므로 차단.
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' ||
+        e.key === 'PageUp' || e.key === 'PageDown' || e.key === 'Spacebar') {
+      e.preventDefault();
+      return;
+    }
+
     const isLeft = (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A');
     const isRight = (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D');
     if (!isLeft && !isRight) return;
