@@ -2518,7 +2518,7 @@ function startGame() {
   if (window._mouseTouchHandlers && canvas) {
     canvas.removeEventListener('mousedown', window._mouseTouchHandlers.mousedown);
     canvas.removeEventListener('mousemove', window._mouseTouchHandlers.mousemove);
-    canvas.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
+    window.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
     canvas.removeEventListener('mouseleave', window._mouseTouchHandlers.mouseleave);
     canvas.removeEventListener('touchstart', window._mouseTouchHandlers.touchstart);
     canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
@@ -2531,6 +2531,12 @@ function startGame() {
     window.removeEventListener('keyup', window._keyHandlers.up);
     window._keyHandlers = null;
   }
+  // [FIX] 마우스를 캔버스 오른쪽 끝 바깥으로 드래그한 채 버튼을 놓으면
+  // canvas 전용 mouseup이 안 잡혀서 isHolding=true가 그대로 남아있었고,
+  // 그 상태로 다음 게임이 시작되면 매 프레임 오른쪽 끝(holdX)으로 자동
+  // 이동하다 즉사하는 무한루프가 발생했음. 새 게임 시작 시 항상 초기화.
+  isHolding = false;
+  holdX = 0;
 
   startBGM();
   gameActive = true;
@@ -2716,7 +2722,8 @@ function startGame() {
 
   canvas.addEventListener('mousedown', handleMouseDown);
   canvas.addEventListener('mousemove', handleMouseMove);
-  canvas.addEventListener('mouseup', handleMouseUp);
+  // [FIX] canvas가 아닌 window에 등록 — 캔버스 밖에서 마우스를 놓아도 확실히 잡힘
+  window.addEventListener('mouseup', handleMouseUp);
   canvas.addEventListener('mouseleave', handleMouseLeave);
   canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
   canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -2755,7 +2762,7 @@ function endGame() {
   if (window._mouseTouchHandlers && canvas) {
     canvas.removeEventListener('mousedown', window._mouseTouchHandlers.mousedown);
     canvas.removeEventListener('mousemove', window._mouseTouchHandlers.mousemove);
-    canvas.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
+    window.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
     canvas.removeEventListener('mouseleave', window._mouseTouchHandlers.mouseleave);
     canvas.removeEventListener('touchstart', window._mouseTouchHandlers.touchstart);
     canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
@@ -2763,6 +2770,10 @@ function endGame() {
     canvas.removeEventListener('touchcancel', window._mouseTouchHandlers.touchcancel);
     window._mouseTouchHandlers = null;
   }
+  // [FIX] 캔버스 밖에서 마우스를 놓아 isHolding이 안 풀린 채 게임이 끝나는
+  // 경우를 대비해 게임 종료 즉시 확실히 초기화 (다음 게임 자동 우측 돌진 방지)
+  isHolding = false;
+  holdX = 0;
   // 상태 초기화
   keyState.left = false;
   keyState.right = false;
