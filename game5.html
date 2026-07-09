@@ -2497,6 +2497,25 @@ function initGame() {
 }
 
 function startGame() {
+  // [FIX] 재시작할 때마다 이전 마우스/터치/키보드 리스너가 제거되지 않고
+  // 계속 누적되던 버그 수정. 새 리스너를 달기 전에 이전 것부터 확실히 정리.
+  if (window._mouseTouchHandlers && canvas) {
+    canvas.removeEventListener('mousedown', window._mouseTouchHandlers.mousedown);
+    canvas.removeEventListener('mousemove', window._mouseTouchHandlers.mousemove);
+    canvas.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
+    canvas.removeEventListener('mouseleave', window._mouseTouchHandlers.mouseleave);
+    canvas.removeEventListener('touchstart', window._mouseTouchHandlers.touchstart);
+    canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
+    canvas.removeEventListener('touchend', window._mouseTouchHandlers.touchend);
+    canvas.removeEventListener('touchcancel', window._mouseTouchHandlers.touchcancel);
+    window._mouseTouchHandlers = null;
+  }
+  if (window._keyHandlers) {
+    window.removeEventListener('keydown', window._keyHandlers.down);
+    window.removeEventListener('keyup', window._keyHandlers.up);
+    window._keyHandlers = null;
+  }
+
   startBGM();
   gameActive = true;
   score = 0;
@@ -2612,64 +2631,85 @@ function startGame() {
 
   // holdInterval 제거 — update() rAF 루프 안에서 직접 호출
 
-  canvas.addEventListener('mousedown', function(e) {
+  const handleMouseDown = function(e) {
     isHolding = true;
     const rect = canvas.getBoundingClientRect();
     holdX = e.clientX - rect.left;
-  });
+  };
 
-  canvas.addEventListener('mousemove', function(e) {
+  const handleMouseMove = function(e) {
     if (!isHolding) return;
     const rect = canvas.getBoundingClientRect();
     holdX = e.clientX - rect.left;
-  });
+  };
 
-  canvas.addEventListener('mouseup', function() {
+  const handleMouseUp = function() {
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  });
+  };
 
-  canvas.addEventListener('mouseleave', function() {
+  const handleMouseLeave = function() {
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  });
+  };
 
-  canvas.addEventListener('touchstart', function(e) {
+  const handleTouchStart = function(e) {
     e.preventDefault();
     isHolding = true;
     const rect = canvas.getBoundingClientRect();
     holdX = e.touches[0].clientX - rect.left;
-  }, { passive: false });
+  };
 
-  canvas.addEventListener('touchmove', function(e) {
+  const handleTouchMove = function(e) {
     e.preventDefault();
     if (!isHolding) return;
     const rect = canvas.getBoundingClientRect();
     holdX = e.touches[0].clientX - rect.left;
-  }, { passive: false });
+  };
 
-  canvas.addEventListener('touchend', function(e) {
+  const handleTouchEnd = function(e) {
     e.preventDefault();
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  });
+  };
 
-  canvas.addEventListener('touchcancel', function() {
+  const handleTouchCancel = function() {
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  });
+  };
+
+  canvas.addEventListener('mousedown', handleMouseDown);
+  canvas.addEventListener('mousemove', handleMouseMove);
+  canvas.addEventListener('mouseup', handleMouseUp);
+  canvas.addEventListener('mouseleave', handleMouseLeave);
+  canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+  canvas.addEventListener('touchend', handleTouchEnd);
+  canvas.addEventListener('touchcancel', handleTouchCancel);
+
+  // [FIX] 다음 재시작 때 정확히 이 리스너들만 제거할 수 있도록 참조 저장
+  window._mouseTouchHandlers = {
+    mousedown: handleMouseDown,
+    mousemove: handleMouseMove,
+    mouseup: handleMouseUp,
+    mouseleave: handleMouseLeave,
+    touchstart: handleTouchStart,
+    touchmove: handleTouchMove,
+    touchend: handleTouchEnd,
+    touchcancel: handleTouchCancel
+  };
 
   window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
 
@@ -2686,6 +2726,18 @@ function endGame() {
     window.removeEventListener('keydown', window._keyHandlers.down);
     window.removeEventListener('keyup', window._keyHandlers.up);
     window._keyHandlers = null;
+  }
+  // [FIX] 마우스/터치 이벤트도 게임 종료 시점에 바로 정리
+  if (window._mouseTouchHandlers && canvas) {
+    canvas.removeEventListener('mousedown', window._mouseTouchHandlers.mousedown);
+    canvas.removeEventListener('mousemove', window._mouseTouchHandlers.mousemove);
+    canvas.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
+    canvas.removeEventListener('mouseleave', window._mouseTouchHandlers.mouseleave);
+    canvas.removeEventListener('touchstart', window._mouseTouchHandlers.touchstart);
+    canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
+    canvas.removeEventListener('touchend', window._mouseTouchHandlers.touchend);
+    canvas.removeEventListener('touchcancel', window._mouseTouchHandlers.touchcancel);
+    window._mouseTouchHandlers = null;
   }
   // 상태 초기화
   keyState.left = false;
