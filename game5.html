@@ -2524,6 +2524,7 @@ function startGame() {
     canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
     canvas.removeEventListener('touchend', window._mouseTouchHandlers.touchend);
     canvas.removeEventListener('touchcancel', window._mouseTouchHandlers.touchcancel);
+    window.removeEventListener('blur', window._mouseTouchHandlers.blur);
     window._mouseTouchHandlers = null;
   }
   if (window._keyHandlers) {
@@ -2720,6 +2721,17 @@ function startGame() {
     }
   };
 
+  // [FIX] 마우스를 누른 채 브라우저 창 자체를 벗어나 버튼을 놓으면
+  // window의 mouseup조차 못 잡는 경우가 있어(포커스가 다른 곳으로 넘어감),
+  // 창이 포커스를 잃는 시점(blur)에도 안전하게 isHolding을 풀어줌.
+  const handleWindowBlur = function() {
+    isHolding = false;
+    keyState.left = false;
+    keyState.right = false;
+    keys.left = false;
+    keys.right = false;
+  };
+
   canvas.addEventListener('mousedown', handleMouseDown);
   canvas.addEventListener('mousemove', handleMouseMove);
   // [FIX] canvas가 아닌 window에 등록 — 캔버스 밖에서 마우스를 놓아도 확실히 잡힘
@@ -2729,6 +2741,7 @@ function startGame() {
   canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
   canvas.addEventListener('touchend', handleTouchEnd);
   canvas.addEventListener('touchcancel', handleTouchCancel);
+  window.addEventListener('blur', handleWindowBlur);
 
   // [FIX] 다음 재시작 때 정확히 이 리스너들만 제거할 수 있도록 참조 저장
   window._mouseTouchHandlers = {
@@ -2739,7 +2752,8 @@ function startGame() {
     touchstart: handleTouchStart,
     touchmove: handleTouchMove,
     touchend: handleTouchEnd,
-    touchcancel: handleTouchCancel
+    touchcancel: handleTouchCancel,
+    blur: handleWindowBlur
   };
 
   window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
@@ -2768,6 +2782,7 @@ function endGame() {
     canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
     canvas.removeEventListener('touchend', window._mouseTouchHandlers.touchend);
     canvas.removeEventListener('touchcancel', window._mouseTouchHandlers.touchcancel);
+    window.removeEventListener('blur', window._mouseTouchHandlers.blur);
     window._mouseTouchHandlers = null;
   }
   // [FIX] 캔버스 밖에서 마우스를 놓아 isHolding이 안 풀린 채 게임이 끝나는
