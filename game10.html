@@ -1990,7 +1990,15 @@ document.getElementById('btn-rst').onclick=()=>{
   addPuzzle();
 };
 
-window.addEventListener('load',async()=>{
+// [FIX] index.html SPA는 <main> 내용을 innerHTML로 주입한 뒤 <script>를
+// 새로 만들어 document.body에 append하는 방식이라, 이 시점엔 이미
+// index.html 자체의 window 'load' 이벤트가 오래 전에 지나간 상태입니다.
+// 즉 window.addEventListener('load', ...)는 SPA 경유 시 절대 호출되지
+// 않아 "퍼즐 생성 중..." 화면에서 무한 로딩에 걸립니다.
+// → load 이벤트를 기다리지 않고, 스크립트 실행 시점에 바로 실행합니다.
+// (이 시점엔 <main> 내용이 이미 DOM에 존재하므로 안전합니다 — 바로 위
+//  #mx/#mfill 등의 바인딩도 동일하게 즉시 실행 방식으로 이미 동작 중)
+(async()=>{
   const ok=await dbReady;
   if(!ok){
     document.getElementById('loading').innerHTML='<div style="padding:24px 16px;text-align:center;color:#dc2626;font-weight:700;font-size:12px;line-height:1.6">⚠️ 단어 데이터를 불러오지 못했습니다.<br>data/db2~5.csv 경로를 확인하거나<br>새로고침 해주세요.</div>';
@@ -1998,7 +2006,7 @@ window.addEventListener('load',async()=>{
   }
   try{addPuzzle();}catch(e){console.error(e);}
   document.getElementById('loading').classList.add('hidden');
-});
+})();
 </script>
 </section>
 </div>
