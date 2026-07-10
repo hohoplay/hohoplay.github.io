@@ -1844,7 +1844,11 @@ function openModal(pidx,pi){
   const inp=document.getElementById('mi');
   inp.value='';inp.maxLength=pw.len;inp.placeholder=pw.len+'글자';
   document.getElementById('modal').classList.remove('hidden');
-  setTimeout(()=>inp.focus(),80);
+  // [FIX] 모바일에서 입력창 focus 시 브라우저가 "스크롤해서 보이게" 하려다
+  // 페이지 전체가 아래로 밀리면서 사이트 상단 메뉴와 게임 UI가 겹쳐 보이는
+  // 현상 발생. 모달은 이미 position:fixed로 화면 중앙에 떠 있어서 스크롤이
+  // 필요 없으므로 preventScroll로 이 자동 스크롤을 막음.
+  setTimeout(()=>{try{inp.focus({preventScroll:true});}catch(e){inp.focus();}},80);
 }
 function closeModal(){document.getElementById('modal').classList.add('hidden');document.getElementById('mi').value='';}
 
@@ -1978,7 +1982,7 @@ document.getElementById('mfill').onclick=()=>{
   if(curModal.pidx===null)return;
   playHint();
   document.getElementById('mi').value=puzzles[curModal.pidx].placed[curModal.pi].w;
-  document.getElementById('mi').focus();
+  try{document.getElementById('mi').focus({preventScroll:true});}catch(e){document.getElementById('mi').focus();}
 };
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
 document.getElementById('btn-rst').onclick=()=>{
