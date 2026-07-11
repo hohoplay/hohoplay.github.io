@@ -2016,15 +2016,24 @@ function addPuzzle(){
 // [FIX] 게임 헤더(#hdr)는 position:sticky로 스크롤해도 항상 보이게 했는데,
 // 사이트 자체 nav(index.html SPA에서는 80px, game10.html 단독 실행 시엔
 // 56px로 높이가 다름)와 겹치지 않도록 실제 nav 높이를 재서 그 바로 아래에
-// 붙임. nav가 없는 경우(예외 상황)엔 CSS 기본값인 top:0 그대로 사용.
+// 붙임. Tailwind CDN이 클래스 스타일을 비동기로 늦게 적용하는 경우가 있어
+// 첫 측정값이 비정상적으로 작게 나올 수 있으므로, 짧은 지연을 두고 몇 차례
+// 재측정해서 자연스럽게 보정함. 그래도 못 구하면 안전한 기본값(64px) 사용.
 (function(){
-  try{
-    const hdr=document.getElementById('hdr');
-    const nav=document.querySelector('nav.sticky');
-    if(hdr&&nav){
-      hdr.style.top=nav.getBoundingClientRect().height+'px';
-    }
-  }catch(e){}
+  function applyHdrOffset(){
+    try{
+      const hdr=document.getElementById('hdr');
+      if(!hdr)return;
+      const nav=document.querySelector('nav.sticky');
+      let h=nav?nav.getBoundingClientRect().height:0;
+      if(!h||h<40) h=64; // 아직 스타일 적용 전이거나 nav를 못 찾은 경우의 안전한 기본값
+      hdr.style.top=h+'px';
+    }catch(e){}
+  }
+  applyHdrOffset();
+  setTimeout(applyHdrOffset,150);
+  setTimeout(applyHdrOffset,500);
+  window.addEventListener('resize',applyHdrOffset);
 })();
 
 // ── 이벤트 ───────────────────────────────────────────
