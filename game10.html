@@ -581,8 +581,9 @@
   background:#1e1b4b;color:#fff;
   padding:8px 12px;
   display:flex;justify-content:space-between;align-items:center;
-  position:relative;
+  position:sticky;top:0;z-index:96;
   border-radius:8px 8px 0 0;
+  box-shadow:0 2px 8px rgba(15,23,42,.18);
 }
 #logo{font-size:11px;font-weight:800;display:flex;align-items:center;gap:4px}
 #logo svg{width:18px;height:18px;stroke:#818cf8;stroke-width:2;fill:none}
@@ -786,8 +787,20 @@
 #mi:focus{border-color:#4f46e5}
 #m-btns{display:flex;gap:7px;margin-top:10px}
 #mfill{background:#e0e7ff;border:none;color:#4f46e5;font-size:11px;font-weight:700;padding:8px 12px;cursor:pointer;font-family:inherit;flex-shrink:0}
+#mfill:disabled{opacity:.5;cursor:not-allowed}
 #mok{flex:1;background:#4f46e5;border:none;color:#fff;font-size:12px;font-weight:700;padding:9px;cursor:pointer;font-family:inherit}
 #mok:active{background:#4338ca}
+
+/* ── 힌트 사용 시 광고 슬롯 (fortune.html의 "로딩 중 광고" 패턴과 동일 구조) ──
+   애드센스 슬롯 ID가 확정되면 getHintAdHTML() 안의 <!-- ins --> 주석만 해제 */
+.hint-ad-slot{
+  margin-top:10px;padding:14px 10px;
+  background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  text-align:center;
+}
+.hint-ad-slot .ad-tag{font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:1px 6px;border-radius:4px}
+.hint-ad-slot .spin-sm{width:18px;height:18px;border-width:2px}
 
 /* 로딩 */
 #loading{position:fixed;inset:0;background:#f8fafc;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:10px}
@@ -827,6 +840,7 @@
     <div id="mr"></div>
     <input id="mi" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
     <div id="m-btns"><button id="mfill"> 힌트</button><button id="mok">확인</button></div>
+    <div id="hint-ad-area" style="display:none"></div>
   </div>
 </div>
 
@@ -1850,7 +1864,33 @@ function openModal(pidx,pi){
   // 필요 없으므로 preventScroll로 이 자동 스크롤을 막음.
   setTimeout(()=>{try{inp.focus({preventScroll:true});}catch(e){inp.focus();}},80);
 }
-function closeModal(){document.getElementById('modal').classList.add('hidden');document.getElementById('mi').value='';}
+// ── 힌트 사용 시 광고 슬롯 HTML (fortune.html의 getLoadingAdHTML()과 동일 구조) ──
+// 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+function getHintAdHTML(){
+  return `<div class="hint-ad-slot">
+    <span class="ad-tag">AD</span>
+    <!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->
+    <!--
+    <ins class="adsbygoogle"
+         style="display:block;width:100%"
+         data-ad-client="ca-pub-7990191075290055"
+         data-ad-slot="XXXXXXXXXX"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
+    -->
+    <div class="spin spin-sm"></div>
+    <span style="font-size:11px;color:#94a3b8">힌트를 불러오는 중...</span>
+  </div>`;
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.add('hidden');
+  document.getElementById('mi').value='';
+  const adArea=document.getElementById('hint-ad-area');
+  if(adArea){adArea.style.display='none';adArea.innerHTML='';}
+  document.getElementById('mfill').disabled=false;
+}
 
 function submitModal(){
   const{pidx,pi}=curModal;if(pidx===null)return;
@@ -1973,6 +2013,20 @@ function addPuzzle(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// [FIX] 게임 헤더(#hdr)는 position:sticky로 스크롤해도 항상 보이게 했는데,
+// 사이트 자체 nav(index.html SPA에서는 80px, game10.html 단독 실행 시엔
+// 56px로 높이가 다름)와 겹치지 않도록 실제 nav 높이를 재서 그 바로 아래에
+// 붙임. nav가 없는 경우(예외 상황)엔 CSS 기본값인 top:0 그대로 사용.
+(function(){
+  try{
+    const hdr=document.getElementById('hdr');
+    const nav=document.querySelector('nav.sticky');
+    if(hdr&&nav){
+      hdr.style.top=nav.getBoundingClientRect().height+'px';
+    }
+  }catch(e){}
+})();
+
 // ── 이벤트 ───────────────────────────────────────────
 document.getElementById('mx').onclick=closeModal;
 document.getElementById('mok').onclick=submitModal;
@@ -1980,9 +2034,22 @@ document.getElementById('mi').addEventListener('keydown',e=>{if(e.key==='Enter')
 document.getElementById('mi').addEventListener('input',()=>{playType();});
 document.getElementById('mfill').onclick=()=>{
   if(curModal.pidx===null)return;
+  const btn=document.getElementById('mfill');
+  if(btn.disabled)return;
   playHint();
-  document.getElementById('mi').value=puzzles[curModal.pidx].placed[curModal.pi].w;
-  try{document.getElementById('mi').focus({preventScroll:true});}catch(e){document.getElementById('mi').focus();}
+  const{pidx,pi}=curModal;
+  const answer=puzzles[pidx].placed[pi].w;
+  const adArea=document.getElementById('hint-ad-area');
+  btn.disabled=true;
+  if(adArea){adArea.style.display='block';adArea.innerHTML=getHintAdHTML();}
+  setTimeout(()=>{
+    if(curModal.pidx!==pidx||curModal.pi!==pi)return; // 그 사이 다른 칸으로 넘어갔으면 무시
+    if(document.getElementById('modal').classList.contains('hidden'))return; // 그 사이 모달을 닫았으면 무시
+    document.getElementById('mi').value=answer;
+    try{document.getElementById('mi').focus({preventScroll:true});}catch(e){document.getElementById('mi').focus();}
+    if(adArea){adArea.style.display='none';adArea.innerHTML='';}
+    btn.disabled=false;
+  },1200);
 };
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
 document.getElementById('btn-rst').onclick=()=>{
