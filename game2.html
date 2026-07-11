@@ -429,7 +429,7 @@
                     <div id="final-speed" class="result-value">0.0s</div>
                 </div>
             </div>
-            <button onclick="restartGame()" class="btn-restart">다시 도전</button>
+            <button onclick="_showRetryAd(restartGame)" class="btn-restart">다시 도전</button>
         </div>
     </div>
 </div>
@@ -1025,6 +1025,28 @@
 
     function restartGame() { showScreen('start'); }
 
+    // ── "다시하기" 클릭 시 광고 슬롯 (fortune.html의 로딩 중 광고 패턴과 동일 구조) ──
+    // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+    function _showRetryAd(actualFn){
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
+      ov.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
+        +'<span style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:2px 8px;border-radius:5px">AD</span>'
+        +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
+        +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+        +'<div style="width:22px;height:22px;border:3px solid #e2e8f0;border-top-color:#4f46e5;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
+        +'<span style="font-size:12px;color:#64748b;font-weight:600">불러오는 중...</span>'
+        +'</div>';
+      document.body.appendChild(ov);
+      setTimeout(function(){ ov.remove(); actualFn(); },1200);
+    }
+    if(!document.getElementById('_adspin-style')){
+      var _s=document.createElement('style');
+      _s.id='_adspin-style';
+      _s.textContent='@keyframes _adspin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(_s);
+    }
+
     // ── 입력 이벤트 ───────────────────────────────────────────────
     dom.input.addEventListener('input', () => {
         if (!state.isPlaying || !state.currentProverb) return;
@@ -1042,10 +1064,11 @@
         if (state.isPlaying && e.target.id !== 'input-box') dom.input.focus();
     });
 
-    // [FIX] onclick="startGame()" / onclick="restartGame()" 은 전역에서 호출되므로
+    // [FIX] onclick="startGame()" / onclick="_showRetryAd(restartGame)" 은 전역에서 호출되므로
     // IIFE 안에서 선언된 함수를 window에 명시적으로 노출해줘야 함
     window.startGame = startGame;
     window.restartGame = restartGame;
+    window._showRetryAd = _showRetryAd;
 })();
 </script>
                     <!-- ↑↑↑ 게임 소스 삽입 끝 ↑↑↑ -->

@@ -60,6 +60,7 @@
 
 #hoho-fps-wrapper {
     position: relative;
+    z-index: 0; /* [FIX] 자체 stacking context 생성 — 내부 z-index(최대 100)가 사이트 nav(50)/메뉴(40) 위로 새어나가지 않도록 격리 */
     width: 100%;
     height: 700px;
     background-color: #050508;
@@ -516,6 +517,7 @@
 
 #hoho-fps-wrapper {
     position: relative;
+    z-index: 0; /* [FIX] 자체 stacking context 생성 — 내부 z-index(최대 100)가 사이트 nav(50)/메뉴(40) 위로 새어나가지 않도록 격리 */
     width: 100%;
     height: 700px;
     background-color: #050508;
@@ -980,7 +982,7 @@
         </button>
       </div>
 
-      <button id="hoho-start-btn" onclick="hohoStartGame()">MISSION START</button>
+      <button id="hoho-start-btn" onclick="hohoStartOrReboot()">MISSION START</button>
       <button id="hoho-save-btn" onclick="hohoSaveImage()">📷 결과 저장</button>
       <button id="hoho-share-btn" onclick="hohoShareResult()">📲 결과 공유</button>
     </div>
@@ -1224,6 +1226,35 @@
     }
 
     /* ── 게임 시작 ── */
+    // ── "REBOOT"(재도전) 클릭 시에만 광고 슬롯 표시 ──
+    // (fortune.html의 로딩 중 광고 패턴과 동일 구조. 최초 "MISSION START"에는 안 넣음)
+    // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+    function _showRetryAd(actualFn){
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
+      ov.innerHTML='<div style="background:#0a0a0a;border:1px solid #00ffcc;border-radius:10px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 0 24px rgba(0,255,204,.25)">'
+        +'<span style="font-size:9px;font-weight:800;color:#00ffcc;letter-spacing:.08em;background:rgba(0,255,204,.12);padding:2px 8px;border-radius:5px;font-family:monospace">AD</span>'
+        +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
+        +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+        +'<div style="width:22px;height:22px;border:3px solid rgba(0,255,204,.2);border-top-color:#00ffcc;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
+        +'<span style="font-size:12px;color:#00ffcc;font-weight:600;font-family:monospace">REBOOTING...</span>'
+        +'</div>';
+      document.body.appendChild(ov);
+      setTimeout(function(){ ov.remove(); actualFn(); },1200);
+    }
+    if(!document.getElementById('_adspin-style')){
+      var _s=document.createElement('style');
+      _s.id='_adspin-style';
+      _s.textContent='@keyframes _adspin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(_s);
+    }
+    window.hohoStartOrReboot = function(){
+      var btn=document.getElementById('hoho-start-btn');
+      var isReboot = btn && btn.innerText.trim()==='REBOOT';
+      if(isReboot){ _showRetryAd(window.hohoStartGame); }
+      else{ window.hohoStartGame(); }
+    };
+
     window.hohoStartGame = function() {
         // ── 혹시 남은 타이머 완전 정리 ──
         clearInterval(window._hohoSpawnTimer); window._hohoSpawnTimer = null;

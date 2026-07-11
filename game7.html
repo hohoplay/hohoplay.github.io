@@ -717,6 +717,15 @@
             letter-spacing: 1.5px;
             opacity: 0.85;
         }
+        /* [FIX] 퇴진(backToSelect) 시 전투판을 확실히 숨기기 위한 규칙.
+           .ts-game-header/.ts-battle-container 단독 클래스에는 모바일 미디어쿼리에서
+           display:grid/flex !important 로 강제하는 규칙이 걸려있어, 단순
+           style.display='none' 으로는 모바일 폭에서 안 가려짐. 클래스를 두 개
+           겹쳐서(compound selector) 명시도를 더 높여 항상 이기도록 함. */
+        .ts-game-header.ts-force-hide,
+        .ts-battle-container.ts-force-hide {
+            display: none !important;
+        }
         .ts-battle-container {
             display: flex;
             flex-direction: row;
@@ -1838,6 +1847,8 @@
     function startBattle(id, cat, idx) {
         document.getElementById('ts-stage-select-overlay').style.display = 'none';
         document.getElementById('ts-result-modal').style.display = 'none';
+        document.querySelector('.ts-game-header').classList.remove('ts-force-hide');
+        document.querySelector('.ts-battle-container').classList.remove('ts-force-hide');
         currentStageInfo = { id, cat, idx };
         const stageLabel = document.getElementById('ts-stage-label');
         if (stageLabel) stageLabel.textContent = `봉인 - ${id}`;
@@ -2275,12 +2286,42 @@
         startBattle(`M-${masterStageNum}`, 'master', masterStageNum - 1);
     };
 
+    // ── "퇴진" 클릭 시 광고 슬롯 (fortune.html의 로딩 중 광고 패턴과 동일 구조) ──
+    // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+    // "봉인 해방 +1"(즉시 보상 버튼)에는 적용하지 않음 — 보상과 광고를
+    // 강제로 묶는 형태가 되어 애드센스 정책상 리스크가 있기 때문.
+    function _showRetryAd(actualFn){
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
+      ov.innerHTML='<div style="background:#0f1420;border:1px solid #fbbf24;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.5)">'
+        +'<span style="font-size:9px;font-weight:800;color:#fbbf24;letter-spacing:.08em;background:rgba(251,191,36,.12);padding:2px 8px;border-radius:5px">AD</span>'
+        +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
+        +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+        +'<div style="width:22px;height:22px;border:3px solid rgba(251,191,36,.2);border-top-color:#fbbf24;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
+        +'<span style="font-size:12px;color:#cbd5e1;font-weight:600">불러오는 중...</span>'
+        +'</div>';
+      document.body.appendChild(ov);
+      setTimeout(function(){ ov.remove(); actualFn(); },1200);
+    }
+    if(!document.getElementById('_adspin-style')){
+      var _s=document.createElement('style');
+      _s.id='_adspin-style';
+      _s.textContent='@keyframes _adspin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(_s);
+    }
+
     window.backToSelect = function() {
+        // 게임 상태는 즉시 정지(타이머 등 멈춤) — 광고 노출 동안 전투가 계속 진행되지 않도록
         gameActive = false;
         clearInterval(mainTimer);
         if(attackTickTimer) clearInterval(attackTickTimer);
-        document.getElementById('ts-result-modal').style.display = 'none';
-        document.getElementById('ts-stage-select-overlay').style.display = 'flex';
+        _showRetryAd(function(){
+            currentStageInfo = null;
+            document.getElementById('ts-result-modal').style.display = 'none';
+            document.querySelector('.ts-game-header').classList.add('ts-force-hide');
+            document.querySelector('.ts-battle-container').classList.add('ts-force-hide');
+            document.getElementById('ts-stage-select-overlay').style.display = 'flex';
+        });
     };
 
     function tick() {

@@ -3842,6 +3842,32 @@
         );
     }
 
+    // ── "다시하기" 탭 시 광고 슬롯 (fortune.html의 로딩 중 광고 패턴과 동일 구조) ──
+    // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+    // 최초 "PRESS START" 탭에는 안 넣고, GAMEOVER 이후 재시작 탭에만 적용.
+    let _retryAdActive = false;
+    function _showRetryAd(actualFn){
+      if(_retryAdActive) return;
+      _retryAdActive = true;
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
+      ov.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
+        +'<span style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:2px 8px;border-radius:5px">AD</span>'
+        +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
+        +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+        +'<div style="width:22px;height:22px;border:3px solid #e2e8f0;border-top-color:#f97316;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
+        +'<span style="font-size:12px;color:#64748b;font-weight:600">불러오는 중...</span>'
+        +'</div>';
+      document.body.appendChild(ov);
+      setTimeout(function(){ ov.remove(); _retryAdActive=false; actualFn(); },1200);
+    }
+    if(!document.getElementById('_adspin-style')){
+      var _s=document.createElement('style');
+      _s.id='_adspin-style';
+      _s.textContent='@keyframes _adspin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(_s);
+    }
+
     const startAction = (e) => {
         if (e.button === 2) return;
         // [FIX] 버튼류는 여기서 바로 브라우저 기본 클릭 동작에 맡기고 리턴
@@ -3869,7 +3895,11 @@
             player.jump();
         } else if (gameState === 'START' || gameState === 'GAMEOVER') {
             if (_isInteractiveTarget(e.target)) return;
-            startGame();
+            if (gameState === 'GAMEOVER') {
+                _showRetryAd(startGame);
+            } else {
+                startGame();
+            }
         }
     };
 
