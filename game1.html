@@ -1559,13 +1559,13 @@
             <p style="color:#ff8a80; font-size: 0.95rem; font-weight: 700; margin-bottom: 4px;">단어의 힘이 다하고 몬스터가 숲을 뒤덮었습니다.</p>
             <p id="game-over-info" style="color:#aaa; font-size:0.9rem; margin-top:4px; margin-bottom:10px;"></p>
             <button class="btn-start" id="btn-gameover-load" style="margin-top:10px; background:rgba(74,144,226,0.25); border:2px solid #4a90e2; font-size:1rem; padding:12px 40px; color:#7ec8ff;" onclick="loadGame()">📂 이어하기</button>
-            <button class="btn-start" style="margin-top:8px; padding:12px 40px; font-size:1rem;" onclick="restartGame()">🔄 다시 도전</button>
+            <button class="btn-start" style="margin-top:8px; padding:12px 40px; font-size:1rem;" onclick="_showRetryAd(restartGame)">🔄 다시 도전</button>
             <button class="btn-start" style="margin-top:8px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); color:#fff; padding:12px 40px; font-size:1rem;" onclick="goToTitle()">🏠 캐릭터 선택</button>
         </div>
 
         <div id="game-clear-screen" class="overlay-screen hidden">
             <h1 class="title" style="color:var(--primary-yellow)">✨ 전설의 수호자 호야! ✨</h1>
-            <button class="btn-start" style="margin-top:10px; padding:12px 40px; font-size:1rem;" onclick="restartGame()">🔄 새로 시작</button>
+            <button class="btn-start" style="margin-top:10px; padding:12px 40px; font-size:1rem;" onclick="_showRetryAd(restartGame)">🔄 새로 시작</button>
             <button class="btn-start" style="margin-top:8px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); color:#fff; padding:12px 40px; font-size:1rem;" onclick="goToTitle()">🏠 캐릭터 선택</button>
         </div>
     </div>
@@ -3422,6 +3422,29 @@
     }
 
     function restartGame() { initGame(); }
+
+    // ── "다시하기" 클릭 시 광고 슬롯 (fortune.html의 로딩 중 광고 패턴과 동일 구조) ──
+    // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+    // 광고 시청을 강제로 보상과 묶지 않고, 재시작 직전의 짧은 로딩 순간에만 노출.
+    function _showRetryAd(actualFn){
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
+      ov.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
+        +'<span style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:2px 8px;border-radius:5px">AD</span>'
+        +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
+        +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+        +'<div style="width:22px;height:22px;border:3px solid #e2e8f0;border-top-color:#4a90e2;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
+        +'<span style="font-size:12px;color:#64748b;font-weight:600">불러오는 중...</span>'
+        +'</div>';
+      document.body.appendChild(ov);
+      setTimeout(function(){ ov.remove(); actualFn(); },1200);
+    }
+    if(!document.getElementById('_adspin-style')){
+      var _s=document.createElement('style');
+      _s.id='_adspin-style';
+      _s.textContent='@keyframes _adspin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(_s);
+    }
 
     function goToTitle() {
         stopAllAudio();

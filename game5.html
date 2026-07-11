@@ -1211,6 +1211,7 @@ canvas {
     <div id="loading-screen" class="hidden">
       <h1>코스 준비 중</h1>
       <p class="loading-dots">엔진 예열 중</p>
+      <div id="retry-ad-slot"></div>
     </div>
 
     <!-- 게임오버 팝업 -->
@@ -1576,26 +1577,10 @@ function getEmojiCache(emoji, size) {
   const octx = oc.getContext('2d');
   octx.font = 'bold ' + Math.round(size * 0.8) + 'px Arial';
   octx.textAlign = 'center';
-  // [FIX] textBaseline: 'middle'은 일반 텍스트 기준 중앙이라, 이모지처럼
-  // 폰트마다(특히 iOS의 Apple Color Emoji) 글리프 내부 여백이 크게 다른
-  // 경우 시각적으로 위쪽/한쪽으로 치우쳐 보였음(모바일 접속 시 아이콘이
-  // 중앙에 없던 원인). 실제 렌더링된 바운딩박스를 측정해서 진짜 중앙에
-  // 오도록 보정. 구형 브라우저 등 measureText 확장 속성 미지원 시엔
-  // 기존 방식(middle)으로 안전하게 폴백.
-  octx.textBaseline = 'alphabetic';
-  let offsetX = 0, offsetY = 0;
-  const m = octx.measureText(emoji);
-  if (m.actualBoundingBoxAscent !== undefined && m.actualBoundingBoxDescent !== undefined &&
-      m.actualBoundingBoxLeft !== undefined && m.actualBoundingBoxRight !== undefined) {
-    offsetX = (m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2;
-    offsetY = (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
-  } else {
-    octx.textBaseline = 'middle';
-  }
-  octx.fillText(emoji, size / 2 + offsetX, size / 2 + offsetY);
+  octx.textBaseline = 'middle';
+  octx.fillText(emoji, size/2, size/2);
   _emojiCache[key] = oc;
   return oc;
-
 }
 let score = 0;
 let baseSpeed = 8;
@@ -2454,6 +2439,24 @@ function initGame() {
     }
   };
 
+  // ── 다시하기/새 게임 클릭 시 기존 로딩화면에 광고 슬롯 삽입 ──
+  // (fortune.html의 로딩 중 광고 패턴과 동일 구조. 최초 시작(handleGameStart)엔 넣지 않음)
+  // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+  function _fillRetryAd(){
+    var slot = document.getElementById('retry-ad-slot');
+    if(!slot) return;
+    slot.innerHTML = '<div style="margin-top:14px;padding:12px 10px;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.25);border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:6px">'
+      +'<span style="font-size:9px;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:.08em;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:5px">AD</span>'
+      +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
+      +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+      +'<span style="font-size:11px;color:rgba(255,255,255,.55)">광고 영역</span>'
+      +'</div>';
+  }
+  function _clearRetryAd(){
+    var slot = document.getElementById('retry-ad-slot');
+    if(slot) slot.innerHTML = '';
+  }
+
   var newGameBtn = document.getElementById('newgame-button');
   if (newGameBtn) {
     newGameBtn.onclick = function() {
@@ -2465,8 +2468,9 @@ function initGame() {
       particles=[]; screenFlash=null; notifQueue=[]; currentNotif=null;
       _prevLanes=3; _prevRoadMode=ROAD_MODES.STRAIGHT; isNewRecord=false; _lastSpawnLane=-1; _lastScore=-1; _lastScoreStr='';
       gameOverScreen.classList.add('hidden');
+      _fillRetryAd();
       loadingScreen.classList.remove('hidden');
-      setTimeout(function(){ loadingScreen.classList.add('hidden'); startGame(); }, 800);
+      setTimeout(function(){ loadingScreen.classList.add('hidden'); _clearRetryAd(); startGame(); }, 800);
     };
   }
   restartBtn.onclick = function() {
@@ -2488,9 +2492,11 @@ function initGame() {
       restartBtn.style.opacity = "1";
       restartBtn.innerText = "🏎️ 다시 도전하기";
 
+      _fillRetryAd();
       loadingScreen.classList.remove('hidden');
       setTimeout(function() {
         loadingScreen.classList.add('hidden');
+        _clearRetryAd();
         startGame();
       }, 800);
     }, 500);
@@ -2513,32 +2519,6 @@ function initGame() {
 }
 
 function startGame() {
-  // [FIX] 재시작할 때마다 이전 마우스/터치/키보드 리스너가 제거되지 않고
-  // 계속 누적되던 버그 수정. 새 리스너를 달기 전에 이전 것부터 확실히 정리.
-  if (window._mouseTouchHandlers && canvas) {
-    canvas.removeEventListener('mousedown', window._mouseTouchHandlers.mousedown);
-    canvas.removeEventListener('mousemove', window._mouseTouchHandlers.mousemove);
-    window.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
-    canvas.removeEventListener('mouseleave', window._mouseTouchHandlers.mouseleave);
-    canvas.removeEventListener('touchstart', window._mouseTouchHandlers.touchstart);
-    canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
-    canvas.removeEventListener('touchend', window._mouseTouchHandlers.touchend);
-    canvas.removeEventListener('touchcancel', window._mouseTouchHandlers.touchcancel);
-    window.removeEventListener('blur', window._mouseTouchHandlers.blur);
-    window._mouseTouchHandlers = null;
-  }
-  if (window._keyHandlers) {
-    window.removeEventListener('keydown', window._keyHandlers.down);
-    window.removeEventListener('keyup', window._keyHandlers.up);
-    window._keyHandlers = null;
-  }
-  // [FIX] 마우스를 캔버스 오른쪽 끝 바깥으로 드래그한 채 버튼을 놓으면
-  // canvas 전용 mouseup이 안 잡혀서 isHolding=true가 그대로 남아있었고,
-  // 그 상태로 다음 게임이 시작되면 매 프레임 오른쪽 끝(holdX)으로 자동
-  // 이동하다 즉사하는 무한루프가 발생했음. 새 게임 시작 시 항상 초기화.
-  isHolding = false;
-  holdX = 0;
-
   startBGM();
   gameActive = true;
   score = 0;
@@ -2580,14 +2560,6 @@ function startGame() {
   let lastKeyPressed = null; // 'left' | 'right' | null
 
   const handleKeyDown = function(e) {
-    // [FIX] 상하 방향키/스페이스/페이지업다운을 누르면 브라우저가 페이지를
-    // 스크롤시켜서 버벅거림처럼 느껴지던 문제 수정. 게임은 좌우만 쓰므로 차단.
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' ||
-        e.key === 'PageUp' || e.key === 'PageDown' || e.key === 'Spacebar') {
-      e.preventDefault();
-      return;
-    }
-
     const isLeft = (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A');
     const isRight = (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D');
     if (!isLeft && !isRight) return;
@@ -2662,99 +2634,64 @@ function startGame() {
 
   // holdInterval 제거 — update() rAF 루프 안에서 직접 호출
 
-  const handleMouseDown = function(e) {
+  canvas.addEventListener('mousedown', function(e) {
     isHolding = true;
     const rect = canvas.getBoundingClientRect();
     holdX = e.clientX - rect.left;
-  };
+  });
 
-  const handleMouseMove = function(e) {
+  canvas.addEventListener('mousemove', function(e) {
     if (!isHolding) return;
     const rect = canvas.getBoundingClientRect();
     holdX = e.clientX - rect.left;
-  };
+  });
 
-  const handleMouseUp = function() {
+  canvas.addEventListener('mouseup', function() {
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  };
+  });
 
-  const handleMouseLeave = function() {
+  canvas.addEventListener('mouseleave', function() {
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  };
+  });
 
-  const handleTouchStart = function(e) {
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     isHolding = true;
     const rect = canvas.getBoundingClientRect();
     holdX = e.touches[0].clientX - rect.left;
-  };
+  }, { passive: false });
 
-  const handleTouchMove = function(e) {
+  canvas.addEventListener('touchmove', function(e) {
     e.preventDefault();
     if (!isHolding) return;
     const rect = canvas.getBoundingClientRect();
     holdX = e.touches[0].clientX - rect.left;
-  };
+  }, { passive: false });
 
-  const handleTouchEnd = function(e) {
+  canvas.addEventListener('touchend', function(e) {
     e.preventDefault();
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  };
+  });
 
-  const handleTouchCancel = function() {
+  canvas.addEventListener('touchcancel', function() {
     isHolding = false;
     if (!keyState.left && !keyState.right) {
       keys.left = false;
       keys.right = false;
     }
-  };
-
-  // [FIX] 마우스를 누른 채 브라우저 창 자체를 벗어나 버튼을 놓으면
-  // window의 mouseup조차 못 잡는 경우가 있어(포커스가 다른 곳으로 넘어감),
-  // 창이 포커스를 잃는 시점(blur)에도 안전하게 isHolding을 풀어줌.
-  const handleWindowBlur = function() {
-    isHolding = false;
-    keyState.left = false;
-    keyState.right = false;
-    keys.left = false;
-    keys.right = false;
-  };
-
-  canvas.addEventListener('mousedown', handleMouseDown);
-  canvas.addEventListener('mousemove', handleMouseMove);
-  // [FIX] canvas가 아닌 window에 등록 — 캔버스 밖에서 마우스를 놓아도 확실히 잡힘
-  window.addEventListener('mouseup', handleMouseUp);
-  canvas.addEventListener('mouseleave', handleMouseLeave);
-  canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-  canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-  canvas.addEventListener('touchend', handleTouchEnd);
-  canvas.addEventListener('touchcancel', handleTouchCancel);
-  window.addEventListener('blur', handleWindowBlur);
-
-  // [FIX] 다음 재시작 때 정확히 이 리스너들만 제거할 수 있도록 참조 저장
-  window._mouseTouchHandlers = {
-    mousedown: handleMouseDown,
-    mousemove: handleMouseMove,
-    mouseup: handleMouseUp,
-    mouseleave: handleMouseLeave,
-    touchstart: handleTouchStart,
-    touchmove: handleTouchMove,
-    touchend: handleTouchEnd,
-    touchcancel: handleTouchCancel,
-    blur: handleWindowBlur
-  };
+  });
 
   window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
 
@@ -2772,23 +2709,6 @@ function endGame() {
     window.removeEventListener('keyup', window._keyHandlers.up);
     window._keyHandlers = null;
   }
-  // [FIX] 마우스/터치 이벤트도 게임 종료 시점에 바로 정리
-  if (window._mouseTouchHandlers && canvas) {
-    canvas.removeEventListener('mousedown', window._mouseTouchHandlers.mousedown);
-    canvas.removeEventListener('mousemove', window._mouseTouchHandlers.mousemove);
-    window.removeEventListener('mouseup', window._mouseTouchHandlers.mouseup);
-    canvas.removeEventListener('mouseleave', window._mouseTouchHandlers.mouseleave);
-    canvas.removeEventListener('touchstart', window._mouseTouchHandlers.touchstart);
-    canvas.removeEventListener('touchmove', window._mouseTouchHandlers.touchmove);
-    canvas.removeEventListener('touchend', window._mouseTouchHandlers.touchend);
-    canvas.removeEventListener('touchcancel', window._mouseTouchHandlers.touchcancel);
-    window.removeEventListener('blur', window._mouseTouchHandlers.blur);
-    window._mouseTouchHandlers = null;
-  }
-  // [FIX] 캔버스 밖에서 마우스를 놓아 isHolding이 안 풀린 채 게임이 끝나는
-  // 경우를 대비해 게임 종료 즉시 확실히 초기화 (다음 게임 자동 우측 돌진 방지)
-  isHolding = false;
-  holdX = 0;
   // 상태 초기화
   keyState.left = false;
   keyState.right = false;

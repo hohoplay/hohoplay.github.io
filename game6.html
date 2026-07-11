@@ -2448,13 +2448,37 @@ btnStart.addEventListener('click', function() {
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
 });
+// ── "다시하기" 클릭 시 광고 슬롯 (fortune.html의 로딩 중 광고 패턴과 동일 구조) ──
+// 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+function _showRetryAd(actualFn){
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
+    +'<span style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:2px 8px;border-radius:5px">AD</span>'
+    +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
+    +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+    +'<div style="width:22px;height:22px;border:3px solid #e2e8f0;border-top-color:#f59e0b;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
+    +'<span style="font-size:12px;color:#64748b;font-weight:600">불러오는 중...</span>'
+    +'</div>';
+  document.body.appendChild(ov);
+  setTimeout(function(){ ov.remove(); actualFn(); },1200);
+}
+if(!document.getElementById('_adspin-style')){
+  var _s=document.createElement('style');
+  _s.id='_adspin-style';
+  _s.textContent='@keyframes _adspin{to{transform:rotate(360deg)}}';
+  document.head.appendChild(_s);
+}
+
 btnRestart.addEventListener('click', function() {
+  _showRetryAd(function(){
     snd.bgmStart();
     scrOver.style.display = 'none';
     resetGame(false);
     active = true;
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
+  });
 });
 btnRevive.addEventListener('click', function() {
     if (upgrades.reviveCount > 0) {
