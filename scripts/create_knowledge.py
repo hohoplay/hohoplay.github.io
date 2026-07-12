@@ -167,16 +167,36 @@ def build_prompt(topic):
 12. 사실 관계(신화, 유래, 방위 등)는 무리해서 확신하지 말고 통상적으로 알려진 내용 위주로 서술하세요."""
 
 
+# 우선순위 순서 — 맨 앞이 실패하면 다음 것을 자동으로 시도.
+# gemini-2.5-flash가 2026-07-09부터 예고 없이 404를 반환하기 시작한 사례가 있어서
+# (공식 종료 예정일은 2026-10-16이었는데 그보다 훨씬 앞서 막힘), 모델 하나에만
+# 의존하지 않도록 대체 모델을 같이 둠.
+GEMINI_MODEL_CANDIDATES = [
+    "gemini-3.1-flash-lite",
+    "gemini-3-flash",
+    "gemini-flash-latest",
+]
+
+
 def generate_knowledge_html(topic):
     client = genai.Client(api_key=GEMINI_API_KEY)
-    resp = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=build_prompt(topic),
-    )
-    text = (resp.text or "").strip()
-    # 혹시 모델이 코드블록으로 감싸서 응답하면 제거
-    text = text.replace("```html", "").replace("```", "").strip()
-    return text
+    prompt = build_prompt(topic)
+    last_err = None
+
+    for model_name in GEMINI_MODEL_CANDIDATES:
+        try:
+            resp = client.models.generate_content(model=model_name, contents=prompt)
+            text = (resp.text or "").strip()
+            if not text:
+                raise ValueError("빈 응답")
+            # 혹시 모델이 코드블록으로 감싸서 응답하면 제거
+            text = text.replace("```html", "").replace("```", "").strip()
+            return text
+        except Exception as e:
+            print(f"  ⚠️ 모델 '{model_name}' 실패: {e} — 다음 후보로 재시도합니다.")
+            last_err = e
+
+    raise RuntimeError(f"모든 Gemini 모델 후보가 실패했습니다. 마지막 에러: {last_err}")
 
 
 def load_state():
