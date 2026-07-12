@@ -1,0 +1,53 @@
+name: 🧠 운세상식 자동 발행
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'   # 매주 일요일 KST 09:00 (UTC 00:00)
+  workflow_dispatch:        # 수동 실행 (초기 시드 배치 등)
+    inputs:
+      count:
+        description: '이번 실행에서 발행할 글 개수 (평소엔 1, 초기 시드 배치 때만 크게)'
+        required: false
+        default: '1'
+
+jobs:
+  publish_knowledge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v5
+
+      - name: 🐍 Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: 📦 패키지 설치
+        run: pip install requests google-genai
+
+      - name: 🧠 운세상식 생성 및 발행
+        env:
+          BLOG_ID: ${{ secrets.BLOG_ID }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DATA_DIR: ${{ github.workspace }}/data
+        run: |
+          COUNT="${{ github.event.inputs.count }}"
+          COUNT="${COUNT:-1}"
+          python scripts/create_knowledge.py --count "$COUNT"
+
+      # ─────────────────────────────────────────────────────────
+      # knowledge_state.json(어느 주제까지 발행했는지 기록)만 커밋합니다.
+      # 기존 운세 CSV는 이 워크플로우에서 전혀 건드리지 않습니다.
+      # ─────────────────────────────────────────────────────────
+      - name: 💾 진행 상태 커밋
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/knowledge_state.json
+          git diff --staged --quiet || git commit -m "🧠 운세상식 발행 기록 업데이트 $(date +'%Y-%m-%d')"
+          git push
