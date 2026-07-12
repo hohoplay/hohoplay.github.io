@@ -21,6 +21,30 @@ def now_kst():
     """항상 KST 기준 현재 시각 반환"""
     return datetime.now(KST)
 
+def _euro(word):
+    """단어 받침 유무에 따라 '로' 또는 '으로' 조사 반환 (받침 없거나 ㄹ받침 → '로', 그 외 → '으로')"""
+    if not word:
+        return "로"
+    last = word.strip()[-1]
+    code = ord(last) - 0xAC00
+    if 0 <= code <= 11171:
+        final = code % 28
+        if final == 0 or final == 8:  # 받침 없음 또는 ㄹ받침
+            return "로"
+        return "으로"
+    return "로"
+
+def _gwa(word):
+    """단어 받침 유무에 따라 '과' 또는 '와' 조사 반환 (받침 있으면 '과', 없으면 '와')"""
+    if not word:
+        return "와"
+    last = word.strip()[-1]
+    code = ord(last) - 0xAC00
+    if 0 <= code <= 11171:
+        final = code % 28
+        return "과" if final != 0 else "와"
+    return "와"
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, '..', 'data')
 # GitHub Actions에서 DATA_DIR 환경변수로 경로 오버라이드 가능
@@ -2573,6 +2597,17 @@ _Z_CHEER = [
     "당신 곁에 좋은 기운이 흐르고 있습니다. 눈에 보이지 않아도 분명히 쌓이고 있으니, 오늘도 힘내시기 바랍니다. ⭐",
 ]
 
+# ── 오늘의 핵심 키워드 — 연애·금전·직장 세 갈래를 하나의 주제로 묶는 장치 ──
+# (word1: 관계·감정 쪽에서 드러나는 결, word2: 금전·직장 쪽에서 드러나는 결)
+_Z_KEYWORD_PAIRS_UP = [
+    ("연결", "정리"), ("표현", "도전"), ("시작", "집중"),
+    ("신뢰", "용기"), ("소통", "정돈"),
+]
+_Z_KEYWORD_PAIRS_WARN = [
+    ("정비", "기다림"), ("여백", "점검"), ("거리두기", "회복"),
+    ("신중함", "정돈"), ("속도 조절", "점검"),
+]
+
 
 def build_zodiac_post(z, today_str):
     fortune_raw = zodiac_fortune(z['kr'])
@@ -2668,26 +2703,27 @@ def build_zodiac_post(z, today_str):
         return "신중하게 움직이는 것이 좋은 날입니다."
 
     # 인과 연결 브릿지 (총운→연애→금전→직장)
+    # ※ "오늘"은 서두(총운 문단)에서 이미 제시했으므로 브릿지 문장에서는 반복하지 않음
     _love_bridges = [
-        f"그 흐름이 오늘 관계에서 먼저 나타납니다.",
-        f"오늘 {z['kr']}의 에너지는 사람과의 연결에서 가장 먼저 드러납니다.",
-        f"그리고 그 에너지는 관계 쪽에서 구체적으로 작동합니다.",
-        f"오늘 이 흐름이 연애와 관계에서 어떻게 나타나는지 살펴보면,",
-        f"같은 흐름이 오늘 {z['kr']}의 관계에도 영향을 줍니다.",
+        "그 흐름이 관계에서 가장 먼저 나타납니다.",
+        f"{z['kr']}의 에너지는 사람과의 연결에서 가장 먼저 드러납니다.",
+        "그리고 그 에너지는 관계 쪽에서 구체적으로 작동합니다.",
+        "이 흐름이 연애와 관계에서 어떻게 나타나는지 살펴보면,",
+        f"같은 흐름이 {z['kr']}의 관계에도 영향을 줍니다.",
     ]
     _money_bridges = [
-        f"그 흐름은 금전에서도 같은 방향으로 이어집니다.",
-        f"오늘 이 에너지가 돈과 재물 쪽에서는 이렇게 나타납니다.",
-        f"관계의 흐름이 정리되면 금전 방향도 같은 곳을 가리킵니다.",
-        f"그리고 오늘 돈과 재물 흐름도 이 방향과 연결되어 있습니다.",
-        f"오늘의 에너지는 금전 쪽에서도 비슷하게 작동합니다.",
+        "그 흐름은 금전에서도 같은 방향으로 이어집니다.",
+        "이 에너지가 돈과 재물 쪽에서는 이렇게 나타납니다.",
+        "관계의 흐름이 정리되면 금전 방향도 같은 곳을 가리킵니다.",
+        "그리고 돈과 재물 흐름도 이 방향과 연결되어 있습니다.",
+        "이 에너지는 금전 쪽에서도 비슷하게 작동합니다.",
     ]
     _work_bridges = [
-        f"마지막으로 오늘 일과 직장에서 이 흐름이 마무리됩니다.",
-        f"그 에너지가 일에서 어떻게 완성되는지가 오늘의 마지막 방향입니다.",
-        f"오늘 {z['kr']}의 직장 흐름도 같은 맥락에서 봐야 합니다.",
-        f"그리고 일과 업무에서 이 흐름이 이렇게 완성됩니다.",
-        f"오늘 하루의 에너지는 일에서 가장 잘 발휘됩니다.",
+        "마지막으로 일과 직장에서 이 흐름이 마무리됩니다.",
+        "그 에너지가 일에서 어떻게 완성되는지가 마지막 방향입니다.",
+        f"{z['kr']}의 직장 흐름도 같은 맥락에서 봐야 합니다.",
+        "그리고 일과 업무에서 이 흐름이 이렇게 완성됩니다.",
+        "하루의 에너지는 일에서 가장 잘 발휘됩니다.",
     ]
 
     lb = _love_bridges[kst_day % len(_love_bridges)]
@@ -2720,6 +2756,12 @@ def build_zodiac_post(z, today_str):
     ]
     action = _actions[kst_day % len(_actions)]
 
+    # 오늘의 핵심 키워드 — 연애·금전·직장 세 갈래를 하나의 주제로 묶는 문장
+    _kw_pool   = _Z_KEYWORD_PAIRS_UP if total >= 65 else _Z_KEYWORD_PAIRS_WARN
+    kw_pair    = _kw_pool[kst_day % len(_kw_pool)]
+    keyword_line = f"오늘의 핵심 키워드는 '{kw_pair[0]}{_gwa(kw_pair[0])} {kw_pair[1]}'입니다."
+    keyword_tie  = f"연애에서는 {kw_pair[0]}{_euro(kw_pair[0])}, 금전과 일에서는 {kw_pair[1]}{_euro(kw_pair[1])} 같은 흐름이 이어지고 있습니다."
+
     # 오늘 하나만 (엔딩 박스)
     _ze = _z_endings[kst_now.day % len(_z_endings)]
     # 별자리별 명언 — 오늘 날짜 시드 기반
@@ -2743,6 +2785,8 @@ def build_zodiac_post(z, today_str):
 
     <p style="margin:0 0 1.4em 0">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}</p>
 
+    <p style="margin:0 0 1.4em 0;font-size:13px;font-weight:700;color:#7c3aed">{keyword_line}</p>
+
     <h3 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa">{lb}</h3>
 
     <p style="margin:0 0 1.4em 0">{love_intro}<br>
@@ -2757,6 +2801,8 @@ def build_zodiac_post(z, today_str):
 
     <p style="margin:0 0 1.4em 0">{work_intro}<br>
     <span style="font-size:13px;color:#1e3a8a">{work_detail}</span></p>
+
+    <p style="margin:0 0 1.4em 0;font-size:13px;color:#6b7280">{keyword_tie}</p>
 
     <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day)}</p>
 
@@ -2813,15 +2859,15 @@ def build_zodiac_post(z, today_str):
     </div>
   </div>
 
+  <!-- 별자리 고유 정보 (프로필로 첫머리에 배치) -->
+  {zodiac_info_card(z['kr'], z['emoji'])}
+
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
 
 
   <!-- 운세 지수 바 (fortune.html 연동용) -->
   {score_html}
-
-  <!-- 별자리 고유 정보 -->
-  {zodiac_info_card(z['kr'], z['emoji'])}
 
   <!-- SEO 키워드 -->
   <div class="card"><span class="badge">🔍 관련 키워드</span>
