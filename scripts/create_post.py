@@ -2356,39 +2356,37 @@ def _zodiac_score_bar(label, emoji, pct):
 
 
 
-_Z_SIGNAL_MONEY_UP   = ["금전운 상승 타이밍", "재물운 급상승", "수입 기회 포착", "금전 흐름 반전"]
-_Z_SIGNAL_LOVE_UP    = ["연애운 급변", "인연 접촉 신호", "애정운 상승 중", "관계 반전 예고"]
-_Z_SIGNAL_WARN       = ["오늘 주의 필요", "신중함이 필요한 날", "충동 결정 주의", "조심해야 할 타이밍"]
-_Z_SIGNAL_TOTAL_UP   = ["오늘 총운 최고조", "행운 기회 포착", "운세 상승 흐름 확인", "오늘 놓치면 후회"]
-_Z_SIGNAL_MID        = ["오늘 균형 잡힌 하루", "안정적 흐름 확인", "차분한 기운의 날"]
+_Z_TITLE_LOVE  = ["연애운과 연락 타이밍", "연애운과 관계 변화", "연애운·인간관계 흐름 분석", "연애운과 감정 흐름 정리"]
+_Z_TITLE_MONEY = ["금전운과 지출 관리 포인트", "금전운과 정리할 것", "금전운·소비 습관 점검", "금전운과 판단 기준"]
+_Z_TITLE_WORK  = ["직장운과 집중력 흐름", "직장운과 발언 타이밍", "직장운·업무 흐름 분석", "직장운과 협업 포인트"]
+_Z_TITLE_TOTAL = ["전체 운세 흐름 분석", "하루 흐름 정리와 변화", "균형과 선택 포인트", "오늘의 흐름과 타이밍"]
+_Z_TITLE_WARN  = ["조심해야 할 순간 정리", "신중함이 필요한 이유", "속도 조절 포인트", "감정 기복 대처법"]
 
 
 def _zodiac_seo_title(z_kr, today_dot, total, money, health, love):
-    """지수 기반 CTR 최적화 제목 생성"""
-    scores = {"money": money, "love": love, "total": total, "health": health}
+    """구글 SEO 조합형 키워드 제목 생성
+    공식 D: [대상] + 오늘의 운세 | 핵심 흐름 키워드 + 행동/분석 키워드
+    (예: '게자리 오늘의 운세 | 연애운과 연락 타이밍') — '상승 중'·'흐름 좋음 ↑' 같은
+    약한 표현 대신 검색 조합형(long-tail) 키워드를 사용한다.
+    """
+    work_score = round((total + health) / 2)
+    scores = {"money": money, "love": love, "work": work_score}
     top_key = max(scores, key=scores.get)
     avg = (total + money + love) / 3
 
-    if top_key == "money" and money >= 78:
-        signal = random.choice(_Z_SIGNAL_MONEY_UP)
-    elif top_key == "love" and love >= 78:
-        signal = random.choice(_Z_SIGNAL_LOVE_UP)
-    elif total >= 82:
-        signal = random.choice(_Z_SIGNAL_TOTAL_UP)
-    elif avg <= 58:
-        signal = random.choice(_Z_SIGNAL_WARN)
-    elif abs(money - love) >= 35:
-        signal = f"{'금전운' if money > love else '연애운'} 반전 주목"
+    if avg <= 55:
+        keyword = random.choice(_Z_TITLE_WARN)
+    elif top_key == "money" and money >= 75:
+        keyword = random.choice(_Z_TITLE_MONEY)
+    elif top_key == "love" and love >= 75:
+        keyword = random.choice(_Z_TITLE_LOVE)
+    elif top_key == "work" and work_score >= 75:
+        keyword = random.choice(_Z_TITLE_WORK)
     else:
-        signal = random.choice(_Z_SIGNAL_MID)
+        keyword = random.choice(_Z_TITLE_TOTAL)
 
-    patterns = [
-        f"{today_dot} {z_kr} 운세 | {signal}",
-        f"{z_kr} 오늘운세 ({today_dot}) – {signal} 확인",
-        f"[{today_dot}] {z_kr} 별자리 운세 — {signal}",
-        f"{z_kr} {today_dot} 오늘의 운세 · {signal}",
-    ]
-    return random.choice(patterns), signal
+    title_variant = f"{z_kr} {today_dot} 오늘의 운세 | {keyword}"
+    return title_variant, keyword
 
 _Z_TOTAL_INTRO_UP = [
     # 공감 → 긴장 → 행동 → 반전
@@ -2889,6 +2887,32 @@ def build_zodiac_post(z, today_str):
     return title, content, ["별자리운세", z['kr'], "운세", "오늘운세"]
 
 
+_C_TITLE_MONEY  = ["금전운과 지출 관리 포인트", "금전운과 정리할 것", "금전운·소비 습관 점검", "금전운과 판단 기준"]
+_C_TITLE_LOVE   = ["애정운과 관계 변화", "애정운·인간관계 흐름 분석", "애정운과 소통 포인트", "애정운과 감정 흐름 정리"]
+_C_TITLE_HEALTH = ["컨디션과 회복 타이밍", "건강 흐름과 에너지 관리", "몸과 마음의 신호 점검", "컨디션 관리 포인트"]
+_C_TITLE_TOTAL  = ["전체 운세 흐름 정리", "금전·건강·관계 흐름 분석", "하루 흐름과 균형 포인트", "오늘의 흐름과 타이밍"]
+_C_TITLE_WARN   = ["조심해야 할 순간 정리", "신중함이 필요한 이유", "속도 조절 포인트", "감정 기복 대처법"]
+
+def _chinese_seo_title_keyword(total, money, health, love):
+    """띠운세 제목용 SEO 조합형 키워드 — 공식 D 구조 적용
+    (예: '개띠 오늘의 운세 | 금전운과 지출 관리 포인트') — '흐름 좋음 ↑'·'주의 ▼' 같은
+    기호·약한 표현 대신 검색 조합형(long-tail) 키워드를 사용한다.
+    """
+    scores = {"money": money, "love": love, "health": health}
+    top_key = max(scores, key=scores.get)
+    avg = (total + money + love) / 3
+
+    if avg <= 55:
+        return random.choice(_C_TITLE_WARN)
+    if top_key == "money" and money >= 75:
+        return random.choice(_C_TITLE_MONEY)
+    if top_key == "love" and love >= 75:
+        return random.choice(_C_TITLE_LOVE)
+    if top_key == "health" and health >= 75:
+        return random.choice(_C_TITLE_HEALTH)
+    return random.choice(_C_TITLE_TOTAL)
+
+
 def build_chinese_post(c, today_str):
     fortune = chinese_fortune(c['en'])
 
@@ -2914,8 +2938,8 @@ def build_chinese_post(c, today_str):
         raw_total, raw_money, raw_health, raw_love
     )
 
-    signal = "흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "주의 ▼")
-    title  = f"{c['kr']} {today_sync} 오늘의 운세 | 띠운세 {signal}"
+    signal = _chinese_seo_title_keyword(total, money, health, love)
+    title  = f"{c['kr']} {today_sync} 오늘의 운세 | {signal}"
 
     # 출생연도별 운세
     # (사람용: 산문 / 기계용: fortune.html parseFortune_Chinese 신규조 — display:flex 행)
@@ -3232,6 +3256,29 @@ def build_chinese_post(c, today_str):
     return title, content, ["띠운세", c['kr'], "운세", "오늘운세"]
 
 
+_W_TITLE_LOVE   = ["이번 주 관계 흐름과 연락 타이밍", "이번 주 관계 변화와 소통 포인트", "이번 주 관계·소통 흐름 분석"]
+_W_TITLE_MONEY  = ["이번 주 금전 관리 포인트", "이번 주 지출 정리와 계획", "이번 주 금전·소비 흐름 분석"]
+_W_TITLE_HEALTH = ["이번 주 컨디션 관리법", "이번 주 휴식과 회복 포인트", "이번 주 건강 흐름과 루틴 정비"]
+_W_TITLE_TOTAL  = ["이번 주 전체 흐름 정리", "이번 주 관계·일·돈 흐름 분석", "이번 주 균형과 계획 포인트"]
+_W_TITLE_WARN   = ["이번 주 조심해야 할 점 정리", "이번 주 신중함이 필요한 이유", "이번 주 속도 조절 포인트"]
+
+def _zodiac_weekly_title_keyword(total, money, health, love):
+    """주간운세 제목용 SEO 조합형 키워드 — 공식 D 구조를 '이번 주' 프레임으로 적용"""
+    scores = {"money": money, "love": love, "health": health}
+    top_key = max(scores, key=scores.get)
+    avg = (total + money + love) / 3
+
+    if avg <= 55:
+        return random.choice(_W_TITLE_WARN)
+    if top_key == "money" and money >= 70:
+        return random.choice(_W_TITLE_MONEY)
+    if top_key == "love" and love >= 70:
+        return random.choice(_W_TITLE_LOVE)
+    if top_key == "health" and health >= 70:
+        return random.choice(_W_TITLE_HEALTH)
+    return random.choice(_W_TITLE_TOTAL)
+
+
 def build_zodiac_weekly_post(today_str):
     """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성"""
     kst_now    = now_kst()
@@ -3327,7 +3374,7 @@ def build_zodiac_weekly_post(today_str):
 
         raw_total, raw_money, raw_health, raw_love = pick_score(z['kr'])
         total = raw_total
-        signal = "이번 주 흐름 좋음 ↑" if total >= 65 else ("잔잔한 흐름 ·" if total >= 50 else "신중한 흐름 ▼")
+        signal = _zodiac_weekly_title_keyword(raw_total, raw_money, raw_health, raw_love)
 
         z_info   = ZODIAC_INFO.get(z['kr'], {})
         z_tip    = z_info.get("tip", "")
@@ -3696,11 +3743,15 @@ def build_chinese_monthly_post(today_str):
         kw_list += pick_seo_keywords(c['kr'], kst_day)
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
-        # 제목용 headline 정리 — 이모지·따옴표 제거
-        import re as _re2
-        _title_headline = _re2.sub(r'[^\w\s가-힣·]', '', headline).strip()
-        _title_headline = _re2.sub(r'\s+', ' ', _title_headline)[:20]
-        title = f"{c['kr']} {month_str} 월간운세 | {_title_headline}"
+        # 제목용 SEO 조합형 키워드 — 공식 D 구조 ('이달' 프레임)
+        # 월간 포스트는 지수(total/money 등)를 계산하지 않으므로 월+띠 인덱스 시드로 순환
+        _M_TITLE_KEYWORDS = [
+            "금전운과 지출 관리 포인트", "애정운과 관계 변화", "직장·인간관계 흐름 정리",
+            "컨디션과 회복 타이밍", "전체 운세 흐름 분석", "이달의 균형과 선택 포인트",
+            "금전·관계 흐름 분석", "조심해야 할 점 정리",
+        ]
+        _title_kw = _M_TITLE_KEYWORDS[(_month_seed + _aid) % len(_M_TITLE_KEYWORDS)]
+        title = f"{c['kr']} {month_str} 월간운세 | {_title_kw}"
 
         # 하나의 흐르는 스토리 — 달빛서재 스토리텔링
         story_html = f'''
