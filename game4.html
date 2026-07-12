@@ -1,36 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script>
-// [FIX] 상단 로고/네비 클릭으로 index.html 등으로 이동할 때 게임 배경음악이
-// 안 꺼지는 문제 해결. 게임마다 오디오 구현 방식(AudioContext 직접 생성,
-// setInterval 기반 신스, 커스텀 객체 메서드 등)이 전부 달라서 게임 내부
-// 함수를 개별적으로 맞추는 대신, AudioContext 생성 자체를 가로채 전부
-// 추적해두고 페이지 이동 직전 한 번에 정지시키는 공통 방식으로 통일함.
-(function() {
-    window.__hpAudioCtxs = window.__hpAudioCtxs || [];
-    var _NativeAC = window.AudioContext || window.webkitAudioContext;
-    if (_NativeAC) {
-        var Patched = function() {
-            var ctx = new (Function.prototype.bind.apply(_NativeAC, [null].concat(Array.prototype.slice.call(arguments))))();
-            window.__hpAudioCtxs.push(ctx);
-            return ctx;
-        };
-        Patched.prototype = _NativeAC.prototype;
-        window.AudioContext = Patched;
-        if (window.webkitAudioContext) window.webkitAudioContext = Patched;
-    }
-    window.stopAllGameAudio = function() {
-        (window.__hpAudioCtxs || []).forEach(function(ctx) {
-            try { if (ctx.state !== 'closed') ctx.close(); } catch (e) {}
-        });
-        document.querySelectorAll('audio, video').forEach(function(el) {
-            try { el.pause(); } catch (e) {}
-        });
-    };
-})();
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>호호타자FPS - HOHO PLAY | 타이핑 슈터 게임</title>
@@ -460,6 +430,38 @@
     </nav>
 
     <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
+        <script>
+        // [FIX] 상단 로고/네비 클릭으로 index.html 등으로 이동할 때 게임 배경음악이
+        // 안 꺼지는 문제 해결. AudioContext 생성 자체를 가로채 추적해두고
+        // 페이지 이동 직전 한 번에 정지시키는 공통 방식.
+        // [FIX2] 이 스크립트는 원래 <head>에 있었으나, index.html SPA가 게임을
+        // 불러올 때 <main>...</main> 내부만 정규식으로 추출하기 때문에 <head> 스크립트는
+        // 통째로 사라져 stopAllGameAudio가 정의되지 않는 문제가 있었음. main 내부로 이동시켜
+        // SPA로 로드되는 경우에도 항상 정의되도록 함.
+        (function() {
+            window.__hpAudioCtxs = window.__hpAudioCtxs || [];
+            var _NativeAC = window.AudioContext || window.webkitAudioContext;
+            if (_NativeAC) {
+                var Patched = function() {
+                    var ctx = new (Function.prototype.bind.apply(_NativeAC, [null].concat(Array.prototype.slice.call(arguments))))();
+                    window.__hpAudioCtxs.push(ctx);
+                    return ctx;
+                };
+                Patched.prototype = _NativeAC.prototype;
+                window.AudioContext = Patched;
+                if (window.webkitAudioContext) window.webkitAudioContext = Patched;
+            }
+            window.stopAllGameAudio = function() {
+                (window.__hpAudioCtxs || []).forEach(function(ctx) {
+                    try { if (ctx.state !== 'closed') ctx.close(); } catch (e) {}
+                });
+                document.querySelectorAll('audio, video').forEach(function(el) {
+                    try { el.pause(); } catch (e) {}
+                });
+            };
+        })();
+        </script>
+
         <div class="page-transition space-y-12">
 
             <!-- 게임 헤더 -->
