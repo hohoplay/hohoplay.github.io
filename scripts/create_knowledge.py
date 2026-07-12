@@ -204,6 +204,7 @@ def run(count=1):
 
     state = load_state()
     n = len(TOPICS)
+    success_count = 0
 
     for i in range(count):
         idx  = (state["last_index"] + 1) % n
@@ -252,6 +253,7 @@ def run(count=1):
                 "posted_at": datetime.now(timezone.utc).isoformat(),
             })
             save_state(state)
+            success_count += 1
         else:
             print(f"  ❌ '{topic}' 발행 실패 — 인덱스를 저장하지 않습니다. "
                   f"다음 실행 때 같은 주제부터 다시 시도합니다.")
@@ -259,6 +261,8 @@ def run(count=1):
 
         if i < count - 1:
             time.sleep(5)  # Gemini + Blogger 쿼터 보호
+
+    return success_count
 
 
 def main():
@@ -268,8 +272,15 @@ def main():
     args = parser.parse_args()
 
     print(f"🚀 운세상식 생성 시작 — {args.count}개")
-    run(args.count)
-    print("🎉 완료")
+    success_count = run(args.count)
+
+    if success_count == 0:
+        # 한 개도 성공 못 했으면 실패로 종료 — 이후 git commit 단계가 애매하게
+        # "커밋할 파일 없음"으로 죽는 대신, 여기서 원인이 명확한 실패로 끝나야 함
+        print("❌ 이번 실행에서 발행에 성공한 글이 하나도 없습니다.")
+        sys.exit(1)
+
+    print(f"🎉 완료 — {success_count}개 발행")
 
 
 if __name__ == "__main__":
