@@ -1801,6 +1801,39 @@ def site_link():
     return ""
 
 # ─────────────────────────────────────────
+# 관련 콘텐츠 링크 — 카테고리별 URL (라벨 URL 인코딩 값, create_post.py가
+# 실제로 붙이는 라벨명과 정확히 일치해야 함)
+# ─────────────────────────────────────────
+_LABEL_URL = {
+    "별자리운세":        ("⭐ 오늘의 별자리운세",   "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%9A%B4%EC%84%B8",        "#1e3a5f,#2563eb"),
+    "띠운세":            ("🐉 오늘의 띠운세",       "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%9D%A0%EC%9A%B4%EC%84%B8",                        "#7c2d12,#ea580c"),
+    "별자리주간":         ("📅 별자리 주간운세",     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%A3%BC%EA%B0%84",       "#1e3a5f,#2563eb"),
+    "띠별월간":          ("🌙 띠별 월간운세",       "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9B%94%EA%B0%84%EC%9A%B4%EC%84%B8",               "#7c2d12,#ea580c"),
+    "별과띠가만나는시간": ("✨ 별과 띠가 만나는 시간", "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EA%B3%BC%EB%9D%A0%EA%B0%80%EB%A7%8C%EB%82%98%EB%8A%94%EC%8B%9C%EA%B0%84", "#4c1d95,#7c3aed"),
+    "오늘의명언":         ("💬 오늘의 명언",         "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%98%A4%EB%8A%98%EC%9D%98%EB%AA%85%EC%96%B8",       "#374151,#6b7280"),
+    "운세상식":          ("📚 운세 상식",           "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9A%B4%EC%84%B8%EC%83%81%EC%8B%9D",               "#5b21b6,#8b5cf6"),
+}
+
+def related_content_links(*category_keys):
+    """관련 콘텐츠 링크 카드 — 카테고리 키 2~4개를 넘기면 버튼으로 렌더링.
+    운세상식 카테고리를 모든 포스트 타입에서 자동으로 하나씩 끼워 넣어
+    새 카테고리로의 유입 경로를 항상 확보한다."""
+    keys = list(category_keys)
+    if "운세상식" not in keys:
+        keys.append("운세상식")
+    buttons = "".join(
+        f'<a href="{_LABEL_URL[k][1]}" style="display:inline-block;background:linear-gradient(135deg,{_LABEL_URL[k][2]});'
+        f'color:#fff;padding:10px 18px;border-radius:20px;font-size:12px;font-weight:700;'
+        f'text-decoration:none;margin:4px">{_LABEL_URL[k][0]}</a>'
+        for k in keys if k in _LABEL_URL
+    )
+    return f'''
+  <!-- 관련 콘텐츠 링크 -->
+  <div class="card" style="text-align:center;padding:16px">
+    {buttons}
+  </div>'''
+
+# ─────────────────────────────────────────
 # HTML 빌더
 # ─────────────────────────────────────────
 
@@ -2089,12 +2122,7 @@ def build_quote_post(today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  <div class="card" style="text-align:center;padding:16px">
-    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EA%B3%BC%EB%9D%A0%EA%B0%80%EB%A7%8C%EB%82%98%EB%8A%94%EC%8B%9C%EA%B0%84"
-       style="display:inline-block;background:linear-gradient(135deg,#4c1d95,#7c3aed);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
-      ✨ 별과 띠가 만나는 시간 보러가기
-    </a>
-  </div>
+  {related_content_links("별과띠가만나는시간", "별자리운세")}
 
   {comment_prompt("quote")}
   {site_link()}
@@ -2884,12 +2912,7 @@ def build_zodiac_post(z, today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  <div class="card" style="text-align:center;padding:16px">
-    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%A3%BC%EA%B0%84"
-       style="display:inline-block;background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
-      📅 별자리 주간운세 보러가기
-    </a>
-  </div>
+  {related_content_links("별자리주간", "별과띠가만나는시간")}
 
   {site_link()}
   {comment_prompt("zodiac")}
@@ -3252,12 +3275,7 @@ def build_chinese_post(c, today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  <div class="card" style="text-align:center;padding:16px">
-    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9B%94%EA%B0%84%EC%9A%B4%EC%84%B8"
-       style="display:inline-block;background:linear-gradient(135deg,#7c2d12,#ea580c);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
-      🌙 띠별 월간운세 보러가기
-    </a>
-  </div>
+  {related_content_links("띠별월간", "별과띠가만나는시간")}
 
   {comment_prompt("chinese")}
   <div class="meta"><p>{c['kr']} 출생연도: {', '.join(map(str, c['years']))}</p>
@@ -3538,12 +3556,7 @@ def build_zodiac_weekly_post(today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  <div class="card" style="text-align:center;padding:16px">
-    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9B%94%EA%B0%84%EC%9A%B4%EC%84%B8"
-       style="display:inline-block;background:linear-gradient(135deg,#7c2d12,#ea580c);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
-      🌙 띠별 월간운세 보러가기
-    </a>
-  </div>
+  {related_content_links("띠별월간", "별자리운세")}
 
   {site_link()}
   {comment_prompt("weekly")}
@@ -3846,12 +3859,7 @@ def build_chinese_monthly_post(today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  <div class="card" style="text-align:center;padding:16px">
-    <a href="https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%A3%BC%EA%B0%84"
-       style="display:inline-block;background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
-      📅 별자리 주간운세 보러가기
-    </a>
-  </div>
+  {related_content_links("별자리주간", "띠운세")}
 
   {site_link()}
   {comment_prompt("monthly")}
@@ -4355,6 +4363,9 @@ def build_omnibus_post(today_str: str) -> tuple:
     <span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
+
+  <!-- 관련 콘텐츠 링크 -->
+  {related_content_links("별자리운세", "띠운세")}
 
   {comment_prompt("omnibus")}
   {site_link()}
