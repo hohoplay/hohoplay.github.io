@@ -124,6 +124,23 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 # 운세상식 주제 리스트 — CSV 아니고 여기 파이썬 리스트로 직접 관리.
 # 더 추가하고 싶으면 이 리스트에 딕셔너리만 이어서 넣으면 됨.
 # ─────────────────────────────────────────
+# ─────────────────────────────────────────
+# 하단 관련 콘텐츠 링크 3개 — 운세상식은 띠/별자리 양쪽 다 다루는 주제라
+# 두 일간 운세 카테고리 + 특별 콘텐츠(별과띠가만나는시간) 조합으로 고정.
+# (label, url, gradient) — url은 실제 create_post.py가 붙이는 라벨과 정확히 일치해야 함
+# ─────────────────────────────────────────
+_RELATED_LINKS = [
+    ("🐉 오늘의 띠운세",
+     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%9D%A0%EC%9A%B4%EC%84%B8",
+     "#7c2d12,#ea580c"),
+    ("⭐ 오늘의 별자리운세",
+     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%9A%B4%EC%84%B8",
+     "#1e3a5f,#2563eb"),
+    ("✨ 별과 띠가 만나는 시간",
+     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EA%B3%BC%EB%9D%A0%EA%B0%80%EB%A7%8C%EB%82%98%EB%8A%94%EC%8B%9C%EA%B0%84",
+     "#4c1d95,#7c3aed"),
+]
+
 TOPICS = [
     {"topic": "지혜롭고 부지런한 소띠의 4가지 성격 특징",   "emoji": "🐮", "tags": ["소띠", "띠별성격", "사주"]},
     {"topic": "꾀 많고 영리한 쥐띠의 반전 성격과 특징",       "emoji": "🐭", "tags": ["쥐띠", "띠별성격", "사주"]},
@@ -248,6 +265,13 @@ def run(count=1):
         kw_list  = [topic] + tags + ["운세상식"]
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
+        related_html = "".join(
+            f'<a href="{url}" style="display:inline-block;background:linear-gradient(135deg,{grad});'
+            f'color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;'
+            f'text-decoration:none;margin:4px">{label}</a>'
+            for label, url, grad in _RELATED_LINKS
+        )
+
         content = f"""{knowledge_style()}
 <div class="wrap">
   <div class="hero">
@@ -259,6 +283,10 @@ def run(count=1):
   </div>
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
+  </div>
+  <div class="card" style="text-align:center;padding:16px">
+    <p style="font-size:12px;color:#9ca3af;margin:0 0 12px">🔗 더 궁금하시다면</p>
+    {related_html}
   </div>
   <div class="meta"><p>※ 참고용으로 정리한 정보성 콘텐츠입니다</p></div>
 </div>"""
