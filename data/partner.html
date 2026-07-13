@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파트너십 — HOHO PLAY</title>
+    <meta name="description" content="HOHO PLAY과 함께 성장할 파트너를 찾습니다.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body style="margin:0;font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;min-height:100vh">
+
+<main style="width:100%">
+
+<!-- ★ CSS를 <style> 태그 대신 JS로 동적 삽입 → innerHTML fetch 시에도 정상 적용 -->
+<script>
+(function(){
+    if (document.getElementById('partner-styles')) return;
+    var s = document.createElement('style');
+    s.id = 'partner-styles';
+    s.textContent = `
+        .p-hero-bg {
+            background: linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#6d28d9 100%);
+            position:relative; overflow:hidden;
+        }
+        .p-hero-bg::before {
+            content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(circle at 20% 50%,rgba(255,255,255,.07) 0%,transparent 50%),
+                radial-gradient(circle at 80% 20%,rgba(255,255,255,.05) 0%,transparent 40%),
+                radial-gradient(circle at 60% 80%,rgba(255,255,255,.04) 0%,transparent 35%);
+        }
+        .p-hero-grid {
+            position:absolute; inset:0;
+            background-image:
+                linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+            background-size:40px 40px;
+        }
+        .p-tag { display:inline-block; background:#eef2ff; color:#4f46e5; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; }
+        .p-tag-w { display:inline-block; background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.3); padding:4px 14px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:24px; }
+        .p-fade { opacity:0; transform:translateY(24px); transition:opacity .55s ease,transform .55s ease; }
+        .p-fade.visible { opacity:1; transform:translateY(0); }
+        .p-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+        @media(max-width:768px){ .p-grid{ grid-template-columns:repeat(2,1fr); gap:14px; } }
+        @media(max-width:480px){ .p-grid{ grid-template-columns:1fr; } }
+        .p-card {
+            background:#fff; border-radius:16px; overflow:hidden;
+            border:1px solid #e8edf5; box-shadow:0 2px 12px rgba(0,0,0,.06);
+            transition:transform .25s ease,box-shadow .25s ease;
+            text-decoration:none; color:inherit; display:block; position:relative;
+        }
+        .p-card:hover { transform:translateY(-6px); box-shadow:0 14px 36px rgba(79,70,229,.15); border-color:#c7d2fe; }
+        .p-card-thumb { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; }
+        .p-card-thumb-ph { width:100%; aspect-ratio:16/9; background:linear-gradient(135deg,#e0e7ff,#ede9fe); display:flex; align-items:center; justify-content:center; font-size:36px; }
+        .p-card-body { padding:14px 16px 18px; }
+        .p-card-badge { font-size:10px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:#4f46e5; background:#eef2ff; padding:2px 8px; border-radius:20px; display:inline-block; margin-bottom:7px; }
+        .p-card-name { font-size:15px; font-weight:900; color:#1e293b; margin-bottom:5px; line-height:1.3; }
+        .p-card-desc { font-size:12px; color:#64748b; line-height:1.65; margin-bottom:12px; }
+        .p-card-url { font-size:11px; font-weight:700; color:#4f46e5; }
+        .p-card-url::after { content:' →'; }
+        .p-new { position:absolute; top:10px; left:10px; background:#ef4444; color:#fff; font-size:9px; font-weight:900; padding:2px 7px; border-radius:6px; letter-spacing:.05em; text-transform:uppercase; }
+        .p-form-input { width:100%; padding:14px 16px; border:1.5px solid #e2e8f0; border-radius:14px; font-size:14px; font-family:inherit; color:#1e293b; background:#fafafa; transition:border-color .2s,background .2s,box-shadow .2s; outline:none; box-sizing:border-box; }
+        .p-form-input:focus { border-color:#4f46e5; background:#fff; box-shadow:0 0 0 4px rgba(79,70,229,.08); }
+        .p-form-label { font-size:13px; font-weight:700; color:#475569; margin-bottom:6px; display:block; }
+        .p-hero-btn { display:inline-block; background:#fff; color:#4338ca; font-weight:900; padding:16px 40px; border-radius:16px; font-size:17px; text-decoration:none; box-shadow:0 8px 32px rgba(0,0,0,.25); transition:background .2s,transform .2s; }
+        .p-hero-btn:hover { background:#eef2ff; transform:translateY(-2px); }
+        .p-submit-btn { margin-top:24px; width:100%; background:#4f46e5; color:#fff; padding:16px; border-radius:16px; font-weight:900; font-size:17px; border:none; cursor:pointer; box-shadow:0 4px 16px rgba(79,70,229,.25); transition:background .2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .p-submit-btn:hover { background:#4338ca; }
+        .p-submit-btn:disabled { opacity:.7; cursor:not-allowed; }
+        .p-form-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+        @media(max-width:600px){ .p-form-row{ grid-template-columns:1fr; } }
+        @keyframes pSpin { to { transform:rotate(360deg); } }
+    `;
+    document.head.appendChild(s);
+})();
+</script>
+
+<!-- ── 히어로 ── -->
+<section class="p-hero-bg p-fade visible" style="padding:96px 16px;color:#fff;">
+    <div class="p-hero-grid"></div>
+    <div style="max-width:720px;margin:0 auto;text-align:center;position:relative;z-index:10;">
+        <span class="p-tag-w">🤝 Partnership</span>
+        <h1 style="font-size:clamp(2.2rem,5.5vw,3.5rem);font-weight:900;margin:0 0 20px;line-height:1.2;letter-spacing:-.02em;">
+            함께 성장하는<br>파트너십
+        </h1>
+        <p style="color:rgba(255,255,255,.82);font-size:clamp(14px,2.5vw,18px);line-height:1.75;margin:0 0 40px;">
+            HOHO PLAY과 함께라면 더 많은 유저에게 닿을 수 있습니다.<br>
+            다양한 방식으로 함께합니다.
+        </p>
+        <a href="#p-contact" class="p-hero-btn">파트너십 문의하기 →</a>
+    </div>
+</section>
+
+<!-- ── 본문 ── -->
+<div style="max-width:1000px;margin:0 auto;padding:64px 20px;display:flex;flex-direction:column;gap:64px;">
+
+    <!-- 파트너사 쇼케이스 -->
+    <section class="p-fade">
+        <div style="text-align:center;margin-bottom:36px;">
+            <span class="p-tag" style="margin-bottom:10px;display:inline-block;">Partners</span>
+            <h2 style="font-size:1.75rem;font-weight:900;color:#1e293b;margin:8px 0 6px;">함께하는 파트너사</h2>
+            <p style="font-size:13px;color:#94a3b8;margin:0;">HOHO PLAY과 함께 성장 중인 파트너사를 소개합니다</p>
+        </div>
+
+        <div class="p-grid">
+
+            <!-- ★ 카드1 — hohoplay | 이미지: /data/hohoplay.PNG -->
+            <a class="p-card" href="https://blog.naver.com/hohologtv" target="_blank" rel="noopener">
+                <span class="p-new">NEW</span>
+                <div class="p-card-thumb-ph" style="background:linear-gradient(135deg,#1a0557,#3b0faa);">
+                    <img src="/data/hohoplay.PNG"
+                         style="max-width:70%;max-height:70%;object-fit:contain;"
+                         alt="HOHO PLAY"
+                         onerror="this.style.display='none';this.parentElement.textContent='🎮';">
+                </div>
+                <div class="p-card-body">
+                    <span class="p-card-badge">광고·마케팅</span>
+                    <div class="p-card-name">hohoplay</div>
+                    <div class="p-card-desc">광고·마케팅 지원합니다.</div>
+                    <span class="p-card-url">https://blog.naver.com/hohologtv</span>
+                </div>
+            </a>
+             <!-- ★ 카드2 — 오늘운세로그 | 이미지: /data/todayhoroscopelaboratory01.png -->
+            <a class="p-card" href="https://todayhoroscopelaboratory.blogspot.com" target="_blank" rel="noopener">
+                <span class="p-new">NEW</span>
+                <div class="p-card-thumb-ph" style="background:#fff;">
+                    <img src="/data/todayhoroscopelaboratory01.png"
+                         style="max-width:70%;max-height:70%;object-fit:contain;"
+                         alt="오늘운세로그"
+                         onerror="this.style.display='none';this.parentElement.textContent='🔮';">
+                </div>
+                <div class="p-card-body">
+                    <span class="p-card-badge">운세·콘텐츠</span>
+                    <div class="p-card-name">오늘운세로그</div>
+                    <div class="p-card-desc">매일 운세 콘텐츠를 제공하는 블로그입니다.</div>
+                    <span class="p-card-url">todayhoroscopelaboratory.blogspot.com</span>
+                </div>
+            </a>
+
+            <!-- ★ 카드3 — 맞춤가발신화 | 이미지: /data/shinha.png -->
+            <a class="p-card" href="https://wig8088.weebly.com/" target="_blank" rel="noopener">
+                <span class="p-new">NEW</span>
+                <div class="p-card-thumb-ph" style="background:#fff;">
+                    <img src="/data/shinha.png"
+                         style="max-width:80%;max-height:80%;object-fit:contain;"
+                         alt="맞춤가발신화"
+                         onerror="this.style.display='none';this.parentElement.textContent='✨';">
+                </div>
+                <div class="p-card-body">
+                    <span class="p-card-badge">콘텐츠 협업</span>
+                    <div class="p-card-name">맞춤가발신화</div>
+                    <div class="p-card-desc">25년 경력, 2000년 미용대회 자유커트부분 금상 수상! 다양한 경력으로 자부심 가지고 스타일을 만들어 드리겠습니다.</div>
+                    <span class="p-card-url">https://wig8088.weebly.com/</span>
+                </div>
+            </a>
+
+            <!-- ★ 카드4 — 찐헤어 | 이미지: /data/zzin.png -->
+            <a class="p-card" href="https://blog.naver.com/zzinmanagement" target="_blank" rel="noopener">
+                <span class="p-new">NEW</span>
+                <div class="p-card-thumb-ph" style="background:linear-gradient(135deg,#0d2b1f,#1a4a35);padding:0;overflow:hidden;">
+                    <img src="/data/zzin.png"
+                         style="width:100%;height:100%;object-fit:cover;"
+                         alt="찐헤어"
+                         onerror="this.style.display='none';this.parentElement.textContent='✂️';">
+                </div>
+                <div class="p-card-body">
+                    <span class="p-card-badge">콘텐츠 협업</span>
+                    <div class="p-card-name">인천 찐헤어</div>
+                    <div class="p-card-desc">찐헤어는 부담 없는 가격과 정직한 시술을 기본으로 두피와 모발 상태까지  함께 고려하는 간석동미용실입니다.</div>
+                    <span class="p-card-url">https://blog.naver.com/zzinmanagement</span>
+                </div>
+            </a>
+
+            <!-- ★ 카드5— 모니카리헤어아카데미 | 이미지: /data/monicalee.jpg -->
+            <a class="p-card" href="https://blog.naver.com/monicaleehair" target="_blank" rel="noopener">
+            <span class="p-new">NEW</span>
+                <div class="p-card-thumb-ph" style="background:#f0f0f0;padding:0;overflow:hidden;">
+                    <img src="/data/monicalee.jpg"
+                         style="width:100%;height:100%;object-fit:contain;object-position:center;"
+                         alt="모니카리헤어아카데미"
+                         onerror="this.style.display='none';this.parentElement.textContent='💇';">
+                </div>
+                <div class="p-card-body">
+                    <span class="p-card-badge">콘텐츠 협업</span>
+                    <div class="p-card-name">모니카리헤어아카데미</div>
+                    <div class="p-card-desc">미용기능장 직접 집도, 미용현장실습가능한 남자커트교육 여자커트교육 매달 모집중</div>
+                    <span class="p-card-url">https://blog.naver.com/monicaleehair</span>
+                </div>
+            </a>
+
+            <!-- ★ 카드6 | 이미지: /data/partner6.png -->
+            <a class="p-card" href="https://example.com" target="_blank" rel="noopener">
+                <div class="p-card-thumb-ph">💡</div>
+                <div class="p-card-body">
+                    <span class="p-card-badge">콘텐츠 협업</span>
+                    <div class="p-card-name">파트너사 이름 6</div>
+                    <div class="p-card-desc">파트너사 소개 문구를 입력하세요. 어떤 서비스인지 한두 줄로 설명합니다.</div>
+                    <span class="p-card-url">example.com</span>
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- ── 문의 폼 ── -->
+    <section class="p-fade" id="p-contact">
+        <div style="text-align:center;margin-bottom:40px;">
+            <span class="p-tag" style="margin-bottom:10px;display:inline-block;">Contact</span>
+            <h2 style="font-size:1.75rem;font-weight:900;color:#1e293b;margin:8px 0 6px;">파트너십 문의</h2>
+            <p style="font-size:13px;color:#94a3b8;margin:0;">영업일 기준 1~2일 내 답변 드립니다</p>
+        </div>
+
+        <div style="background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.08);border:1px solid #f1f5f9;padding:40px;max-width:640px;margin:0 auto;">
+
+            <div class="p-form-row">
+                <div>
+                    <label class="p-form-label" for="pf-name">이름 / 회사명 <span style="color:#f87171">*</span></label>
+                    <input class="p-form-input" id="pf-name" type="text" placeholder="홍길동 / (주)예시회사">
+                </div>
+                <div>
+                    <label class="p-form-label" for="pf-email">이메일 <span style="color:#f87171">*</span></label>
+                    <input class="p-form-input" id="pf-email" type="email" placeholder="example@email.com">
+                </div>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label class="p-form-label" for="pf-type">파트너십 유형 <span style="color:#f87171">*</span></label>
+                <select class="p-form-input" id="pf-type">
+                    <option value="">선택해 주세요</option>
+                    <option value="game">🎮 게임 제휴</option>
+                    <option value="ad">📣 광고·마케팅</option>
+                    <option value="content">✨ 콘텐츠 협업</option>
+                    <option value="other">기타</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label class="p-form-label" for="pf-url">웹사이트 / 포트폴리오 URL</label>
+                <input class="p-form-input" id="pf-url" type="url" placeholder="https://example.com">
+            </div>
+
+            <div>
+                <label class="p-form-label" for="pf-msg">문의 내용 <span style="color:#f87171">*</span></label>
+                <textarea class="p-form-input" id="pf-msg" rows="5"
+                    placeholder="파트너십 목적, 원하시는 방식, 기간 등을 자유롭게 적어주세요."
+                    style="resize:vertical;min-height:120px;"></textarea>
+            </div>
+
+            <div id="pf-error" style="display:none;margin-top:16px;padding:14px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600;"></div>
+            <div id="pf-success" style="display:none;margin-top:16px;padding:16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center;">
+                ✅ 문의가 접수되었습니다! 영업일 1~2일 내로 연락드리겠습니다.
+            </div>
+
+            <button class="p-submit-btn" id="pf-btn" onclick="pSubmit()">
+                <span id="pf-btn-text">문의 보내기</span>
+                <span id="pf-spin" style="display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:pSpin .7s linear infinite;"></span>
+            </button>
+            <p style="text-align:center;color:#cbd5e1;font-size:11px;margin-top:12px;">제출 시 개인정보 수집에 동의하는 것으로 간주됩니다.</p>
+        </div>
+    </section>
+
+</div>
+</main>
+
+<script>
+function pSubmit() {
+    var name  = document.getElementById('pf-name').value.trim();
+    var email = document.getElementById('pf-email').value.trim();
+    var type  = document.getElementById('pf-type').value;
+    var msg   = document.getElementById('pf-msg').value.trim();
+    var url   = document.getElementById('pf-url').value.trim();
+    var err   = document.getElementById('pf-error');
+    var suc   = document.getElementById('pf-success');
+    var btn   = document.getElementById('pf-btn');
+    var tx    = document.getElementById('pf-btn-text');
+    var sp    = document.getElementById('pf-spin');
+
+    err.style.display = 'none'; suc.style.display = 'none';
+
+    if (!name || !email || !type || !msg) {
+        err.textContent = '필수 항목(*)을 모두 입력해 주세요.';
+        err.style.display = 'block'; return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        err.textContent = '올바른 이메일 주소를 입력해 주세요.';
+        err.style.display = 'block'; return;
+    }
+    btn.disabled = true; tx.textContent = '전송 중...'; sp.style.display = 'inline-block';
+    var tl = {game:'게임 제휴',ad:'광고·마케팅',content:'콘텐츠 협업',other:'기타'}[type]||type;
+    var bd = '[파트너십 문의]\n이름/회사: '+name+'\n유형: '+tl+'\n사이트: '+(url||'미입력')+'\n\n'+msg;
+    window.location.href = 'mailto:hoholog@naver.com?subject='+encodeURIComponent('[파트너십 문의] '+name)+'&body='+encodeURIComponent(bd);
+    setTimeout(function(){
+        btn.disabled=false; tx.textContent='문의 보내기'; sp.style.display='none';
+        suc.style.display='block';
+        ['pf-name','pf-email','pf-type','pf-url','pf-msg'].forEach(function(id){ document.getElementById(id).value=''; });
+    }, 1200);
+}
+
+/* 페이드인 */
+(function(){
+    // index.html에서 삽입된 경우 이미 visible 처리됨; 독립 실행 시 대비
+    var ob = new IntersectionObserver(function(en){
+        en.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
+    },{threshold:0, rootMargin:'0px 0px -10px 0px'});
+    document.querySelectorAll('.p-fade').forEach(function(el){ ob.observe(el); });
+})();
+</script>
+</body>
+</html>
