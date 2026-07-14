@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SALON — 시술 안내</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+
+<!-- 호출/음료주문 기능용. call-dashboard.html과 반드시 같은 Firebase 설정을 써야 합니다. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+  /* ============================================================
+     DATA 편집은 페이지 하단 <script> 안의 DATA 객체에서 하시면 됩니다.
+     실제 시술메뉴/음료메뉴/이벤트/스타일북 데이터가 준비되면
+     이 DATA 객체 값만 교체하면 전체 화면에 반영됩니다.
+     ============================================================ */
+
+  :root{
+    --ink:#1c1815;
+    --ivory:#f6f1e6;
+    --paper:#fbf8f2;
+    --clay:#b26b54;
+    --moss:#5b6b4f;
+    --line:#c9bfae;
+    --gold:#a98a4b;
+    --shadow: 0 8px 24px rgba(28,24,21,0.08);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Pretendard', -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    padding:28px 20px 16px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .masthead .eyebrow{
+    font-size:11px;
+    letter-spacing:0.28em;
+    color:var(--clay);
+    font-weight:600;
+    margin-bottom:8px;
+    text-transform:uppercase;
+  }
+  .masthead h1{
+    font-family:'Song Myung', serif;
+    font-size:clamp(28px,6vw,42px);
+    margin:0 0 6px;
+    font-weight:400;
+    letter-spacing:0.02em;
+  }
+  .masthead .sub{
+    font-size:12px;
+    color:#6b6259;
+    letter-spacing:0.08em;
+  }
+
+  /* ---------- Tab Nav ---------- */
+  .tabnav{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    border-bottom:1px solid var(--line);
+    background:var(--paper);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .tabnav::-webkit-scrollbar{display:none;}
+  .tabnav button{
+    flex:1 0 auto;
+    min-width:88px;
+    background:none;
+    border:none;
+    padding:14px 12px 12px;
+    font-family:'Noto Serif KR', serif;
+    font-weight:700;
+    font-size:14px;
+    color:#918879;
+    cursor:pointer;
+    position:relative;
+    letter-spacing:0.02em;
+  }
+  .tabnav button .num{
+    display:block;
+    font-family:'Pretendard',sans-serif;
+    font-weight:600;
+    font-size:10px;
+    color:#b7ad9c;
+    margin-bottom:4px;
+    letter-spacing:0.1em;
+  }
+  .tabnav button.active{color:var(--ink);}
+  .tabnav button.active::after{
+    content:'';
+    position:absolute;
+    left:16px; right:16px; bottom:0;
+    height:2px;
+    background:var(--clay);
+  }
+  .tabnav button:focus-visible{
+    outline:2px solid var(--clay);
+    outline-offset:-2px;
+  }
+
+  main{
+    max-width:920px;
+    margin:0 auto;
+    padding:24px 16px 100px;
+  }
+  .panel{display:none; animation:fadeIn .35s ease;}
+  .panel.active{display:block;}
+  @keyframes fadeIn{
+    from{opacity:0; transform:translateY(6px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .section-title{
+    font-family:'Noto Serif KR', serif;
+    font-weight:700;
+    font-size:15px;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:28px 0 14px;
+  }
+  .section-title::before{
+    content:'';
+    width:14px; height:1px;
+    background:var(--gold);
+  }
+  .section-title:first-child{margin-top:4px;}
+
+  /* ---------- 시술메뉴판 : ticket style ---------- */
+  .ticket-list{display:flex; flex-direction:column; gap:10px;}
+  .ticket{
+    background:var(--paper);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .ticket .name-side{
+    flex:1;
+    padding:14px 16px;
+  }
+  .ticket .name{font-size:14.5px; font-weight:600;}
+  .ticket .desc{font-size:11.5px; color:#8a8072; margin-top:3px;}
+  .perf{
+    width:0;
+    border-left:1px dashed var(--line);
+    height:100%;
+    position:relative;
+  }
+  .perf::before, .perf::after{
+    content:'';
+    position:absolute;
+    width:12px; height:12px;
+    background:var(--ivory);
+    border-radius:50%;
+    left:-6px;
+  }
+  .perf::before{top:-6px;}
+  .perf::after{bottom:-6px;}
+  .price-side{
+    padding:14px 16px;
+    font-weight:700;
+    font-size:14px;
+    color:var(--clay);
+    white-space:nowrap;
+  }
+
+  /* ---------- 스타일북 : contact sheet ---------- */
+  .filmgrid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+  @media (min-width:560px){ .filmgrid{grid-template-columns:repeat(3,1fr);} }
+  .frame{
+    aspect-ratio:3/4;
+    border-radius:6px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:flex-end;
+  }
+  .frame .fnum{
+    position:absolute;
+    top:8px; left:8px;
+    font-size:10px;
+    letter-spacing:0.1em;
+    color:rgba(255,255,255,0.85);
+    font-weight:600;
+  }
+  .frame .flabel{
+    width:100%;
+    padding:10px 10px 9px;
+    background:linear-gradient(transparent, rgba(0,0,0,0.55));
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    line-height:1.3;
+  }
+
+  /* ---------- 음료메뉴 ---------- */
+  .drink-groups{display:flex; flex-direction:column; gap:22px;}
+  .drink-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:9px 0;
+    border-bottom:1px dotted var(--line);
+    font-size:13.5px;
+  }
+  .drink-row .dname{font-weight:500;}
+  .drink-row .dtag{
+    font-size:10px;
+    color:var(--moss);
+    border:1px solid var(--moss);
+    border-radius:20px;
+    padding:1px 7px;
+    margin-left:8px;
+  }
+  .drink-row .dprice{color:#8a8072; font-size:12px;}
+
+  /* ---------- 이벤트 ---------- */
+  .event-card{
+    background:var(--paper);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:18px 18px 16px;
+    margin-bottom:14px;
+    border-left:3px solid var(--clay);
+  }
+  .event-card .etag{
+    font-size:10px;
+    letter-spacing:0.14em;
+    color:var(--clay);
+    font-weight:700;
+    text-transform:uppercase;
+  }
+  .event-card h3{
+    font-family:'Noto Serif KR', serif;
+    font-size:16px;
+    margin:6px 0 6px;
+  }
+  .event-card p{
+    font-size:12.5px;
+    color:#6b6259;
+    line-height:1.6;
+    margin:0 0 8px;
+  }
+  .event-card .period{
+    font-size:11px;
+    color:#a99f8f;
+  }
+
+  /* ---------- Bottom nav (mobile) ---------- */
+  .bottomnav{
+    display:flex;
+    position:fixed;
+    bottom:0; left:0; right:0;
+    background:var(--paper);
+    border-top:1px solid var(--line);
+    z-index:20;
+  }
+  .bottomnav button{
+    flex:1;
+    background:none; border:none;
+    padding:10px 4px 12px;
+    font-family:'Pretendard',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    color:#a99f8f;
+  }
+  .bottomnav button.active{color:var(--clay);}
+  .bottomnav .dot{
+    width:5px; height:5px; border-radius:50%;
+    background:currentColor;
+    margin:0 auto 5px;
+  }
+
+  @media (min-width:720px){
+    .bottomnav{display:none;}
+    main{padding-bottom:60px;}
+  }
+
+  /* ---------- 호출 플로팅 버튼 ---------- */
+  .call-fab{
+    position:fixed;
+    right:16px;
+    bottom:80px;
+    width:52px; height:52px;
+    border-radius:50%;
+    background:var(--ink);
+    color:var(--ivory);
+    border:none;
+    box-shadow:0 8px 20px rgba(28,24,21,0.28);
+    font-size:22px;
+    z-index:30;
+    cursor:pointer;
+  }
+  @media (min-width:720px){ .call-fab{bottom:24px;} }
+
+  .call-sheet-overlay{
+    display:none;
+    position:fixed; inset:0;
+    background:rgba(28,24,21,0.35);
+    z-index:40;
+  }
+  .call-sheet-overlay.open{display:block;}
+  .call-sheet{
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--paper);
+    border-radius:20px 20px 0 0;
+    padding:20px 20px 26px;
+    max-width:420px; margin:0 auto;
+    box-shadow:0 -8px 30px rgba(28,24,21,0.18);
+  }
+  .call-sheet h3{
+    font-family:'Noto Serif KR', serif; font-size:15px; margin:0 0 4px;
+  }
+  .call-sheet .seat-row{
+    font-size:12px; color:#8a8072; margin-bottom:14px;
+  }
+  .call-sheet .seat-row select{
+    font-family:inherit; font-size:12.5px; padding:3px 7px; border-radius:6px;
+    border:1px solid var(--line); background:#fff; margin-left:6px;
+  }
+  .call-opt{
+    width:100%; text-align:left; padding:14px 16px; margin-bottom:8px;
+    background:#fff; border:1px solid var(--line); border-radius:12px;
+    font-size:13.5px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; gap:10px;
+  }
+  .call-opt .sub{font-weight:400; font-size:11px; color:#8a8072; margin-left:auto;}
+  .drink-opts{display:none; margin-top:2px; margin-bottom:8px;}
+  .drink-opts.open{display:block;}
+  .drink-opts button{
+    width:100%; text-align:left; padding:10px 14px; margin-bottom:6px;
+    background:#fff; border:1px solid var(--line); border-radius:8px;
+    font-size:12.5px; cursor:pointer;
+  }
+  .call-sheet .close-row{text-align:center; margin-top:6px;}
+  .call-sheet .close-row button{
+    background:none; border:none; color:#a99f8f; font-size:12px; padding:8px;
+  }
+  .call-toast{
+    position:fixed; bottom:150px; left:50%; transform:translateX(-50%) translateY(10px);
+    background:var(--ink); color:var(--ivory); padding:11px 18px; border-radius:30px;
+    font-size:12.5px; font-weight:600; opacity:0; transition:all .3s ease;
+    z-index:50; pointer-events:none; white-space:nowrap;
+  }
+  .call-toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="eyebrow">Salon Guide · 2026</div>
+  <h1>살롱 이름</h1>
+  <div class="sub">시술 안내 · 스타일북 · 음료 · 이벤트</div>
+</div>
+
+<nav class="tabnav" id="tabnav">
+  <button class="active" data-tab="menu"><span class="num">01</span>시술메뉴판</button>
+  <button data-tab="style"><span class="num">02</span>스타일북</button>
+  <button data-tab="drink"><span class="num">03</span>음료메뉴</button>
+  <button data-tab="event"><span class="num">04</span>이벤트</button>
+</nav>
+
+<main>
+  <section class="panel active" id="panel-menu"></section>
+  <section class="panel" id="panel-style"></section>
+  <section class="panel" id="panel-drink"></section>
+  <section class="panel" id="panel-event"></section>
+</main>
+
+<nav class="bottomnav" id="bottomnav">
+  <button class="active" data-tab="menu"><span class="dot"></span>메뉴</button>
+  <button data-tab="style"><span class="dot"></span>스타일북</button>
+  <button data-tab="drink"><span class="dot"></span>음료</button>
+  <button data-tab="event"><span class="dot"></span>이벤트</button>
+</nav>
+
+<button class="call-fab" id="callFab" title="호출">🙋</button>
+
+<div class="call-sheet-overlay" id="callOverlay">
+  <div class="call-sheet">
+    <h3>무엇을 도와드릴까요?</h3>
+    <div class="seat-row">좌석 번호 <select id="tableSelect"></select></div>
+
+    <button class="call-opt" id="callStaffBtn">🙋 직원 호출 <span class="sub">도움 요청</span></button>
+    <button class="call-opt" id="callDrinkToggle">🥤 음료 주문 <span class="sub">선택하기</span></button>
+
+    <div class="drink-opts" id="drinkOpts">
+      <button data-drink="아메리카노">아메리카노</button>
+      <button data-drink="카페라떼">카페라떼</button>
+      <button data-drink="자몽에이드">자몽에이드</button>
+      <button data-drink="유자차">유자차</button>
+      <button data-drink="캐모마일">캐모마일 (티)</button>
+      <button data-drink="얼그레이">얼그레이 (티)</button>
+    </div>
+
+    <div class="close-row"><button id="callCloseBtn">닫기</button></div>
+  </div>
+</div>
+
+<div class="call-toast" id="callToast"></div>
+
+<script>
+/* ==================================================================
+   DATA — 실제 데이터가 준비되면 아래 값들만 바꿔주시면 됩니다.
+   ================================================================== */
+const DATA = {
+  menu: [
+    { group:'CUT · 컷', items:[
+      {name:'여성 컷', desc:'상담 + 커트 + 스타일링', price:'35,000'},
+      {name:'남성 컷', desc:'상담 + 커트', price:'25,000'},
+      {name:'클리닉 컷', desc:'손상모 다듬기 특화', price:'40,000'},
+    ]},
+    { group:'PERM · 펌', items:[
+      {name:'볼륨매직', desc:'뿌리 볼륨 + 매직 스트레이트', price:'120,000'},
+      {name:'세팅펌', desc:'자연스러운 웨이브', price:'150,000'},
+      {name:'젤리펌', desc:'탄력있는 곱슬 웨이브', price:'130,000'},
+    ]},
+    { group:'COLOR · 염색', items:[
+      {name:'뿌리 염색', desc:'새치/성장모 커버', price:'60,000'},
+      {name:'전체 염색', desc:'모발 전체 컬러링', price:'90,000'},
+      {name:'발레아쥬', desc:'그라데이션 염색', price:'180,000'},
+    ]},
+    { group:'CLINIC · 클리닉', items:[
+      {name:'단백질 클리닉', desc:'손상모 케라틴 보강', price:'50,000'},
+      {name:'두피 클리닉', desc:'두피 스케일링 + 마사지', price:'70,000'},
+    ]},
+  ],
+  style: [
+    { label:'소프트 레이어드 밥', hue:'#c9a08a' },
+    { label:'애시 베이지 발레아쥬', hue:'#a3a186' },
+    { label:'히피펌 롱', hue:'#8f9c8a' },
+    { label:'블런트 단발', hue:'#b28a72' },
+    { label:'다크 초콜릿 브라운', hue:'#7d6653' },
+    { label:'허쉬컷', hue:'#c2b49a' },
+  ],
+  drink: [
+    { group:'COFFEE', items:[
+      {name:'아메리카노', tag:'ICE/HOT', price:'Complimentary'},
+      {name:'카페라떼', tag:'ICE/HOT', price:'Complimentary'},
+    ]},
+    { group:'NON-COFFEE', items:[
+      {name:'자몽에이드', tag:'ICE', price:'3,000'},
+      {name:'유자차', tag:'HOT', price:'3,000'},
+    ]},
+    { group:'TEA', items:[
+      {name:'캐모마일', tag:'HOT', price:'Complimentary'},
+      {name:'얼그레이', tag:'HOT', price:'Complimentary'},
+    ]},
+  ],
+  event: [
+    { tag:'Renewal', title:'리뉴얼 오픈 이벤트', desc:'전 시술 10% 할인 + 헤어 클리닉 서비스 증정', period:'2026.07.01 – 2026.07.31'},
+    { tag:'Birthday', title:'생일 축하 쿠폰', desc:'생일 당월 방문 시 음료 업그레이드 + 스타일링 팁 제공', period:'상시 진행'},
+    { tag:'Referral', title:'친구 추천 이벤트', desc:'친구와 함께 방문 시 두 분 모두 5,000원 할인', period:'상시 진행'},
+  ]
+};
+
+/* ================= Render ================= */
+function renderMenu(){
+  const el = document.getElementById('panel-menu');
+  el.innerHTML = DATA.menu.map(g => `
+    <div class="section-title">${g.group}</div>
+    <div class="ticket-list">
+      ${g.items.map(i => `
+        <div class="ticket">
+          <div class="name-side">
+            <div class="name">${i.name}</div>
+            <div class="desc">${i.desc}</div>
+          </div>
+          <div class="perf"></div>
+          <div class="price-side">${i.price}원</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function renderStyle(){
+  const el = document.getElementById('panel-style');
+  el.innerHTML = `
+    <div class="section-title">Contact Sheet</div>
+    <div class="filmgrid">
+      ${DATA.style.map((s,idx) => `
+        <div class="frame" style="background:linear-gradient(160deg, ${s.hue}, ${shade(s.hue,-24)})">
+          <span class="fnum">No.${String(idx+1).padStart(2,'0')}</span>
+          <div class="flabel">${s.label}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderDrink(){
+  const el = document.getElementById('panel-drink');
+  el.innerHTML = `<div class="drink-groups">` + DATA.drink.map(g => `
+    <div>
+      <div class="section-title">${g.group}</div>
+      ${g.items.map(i => `
+        <div class="drink-row">
+          <span class="dname">${i.name}<span class="dtag">${i.tag}</span></span>
+          <span class="dprice">${i.price}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('') + `</div>`;
+}
+
+function renderEvent(){
+  const el = document.getElementById('panel-event');
+  el.innerHTML = DATA.event.map(e => `
+    <div class="event-card">
+      <div class="etag">${e.tag}</div>
+      <h3>${e.title}</h3>
+      <p>${e.desc}</p>
+      <div class="period">${e.period}</div>
+    </div>
+  `).join('');
+}
+
+// 간단한 hex 색상 어둡게/밝게 조정 (contact sheet 그라디언트용)
+function shade(hex, percent){
+  const n = parseInt(hex.slice(1),16);
+  let r = (n>>16)+percent, g=(n>>8 & 0x00FF)+percent, b=(n & 0x0000FF)+percent;
+  r = Math.max(Math.min(255,r),0); g = Math.max(Math.min(255,g),0); b = Math.max(Math.min(255,b),0);
+  return '#' + (0x1000000 + r*0x10000 + g*0x100 + b).toString(16).slice(1);
+}
+
+// 편집 페이지(salon-menu-edit.html)에서 저장한 데이터가 있으면 그것을 우선 사용
+(function loadSavedData(){
+  try{
+    const saved = localStorage.getItem('salonMenuData');
+    if(saved){
+      const parsed = JSON.parse(saved);
+      Object.assign(DATA, parsed);
+    }
+  }catch(e){ console.warn('저장된 데이터를 불러오지 못했습니다. 기본 데이터로 표시합니다.', e); }
+})();
+
+renderMenu(); renderStyle(); renderDrink(); renderEvent();
+
+/* ================= Tab switching ================= */
+const tabs = ['menu','style','drink','event'];
+function setTab(name){
+  tabs.forEach(t=>{
+    document.getElementById('panel-'+t).classList.toggle('active', t===name);
+  });
+  document.querySelectorAll('.tabnav button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===name);
+  });
+  document.querySelectorAll('.bottomnav button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===name);
+  });
+}
+document.getElementById('tabnav').addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(btn) setTab(btn.dataset.tab);
+});
+document.getElementById('bottomnav').addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(btn) setTab(btn.dataset.tab);
+});
+
+/* ================= 호출 / 음료주문 (call-dashboard.html과 연동) ================= */
+/* call-customer.html / call-dashboard.html과 반드시 동일한 값을 넣어주세요 */
+const firebaseConfig = {
+  apiKey: "AIzaSyAj2NI5Tcpg2eZn728gNapNLpBGPQLMlVc",
+  authDomain: "salon-call.firebaseapp.com",
+  databaseURL: "https://salon-call-default-rtdb.firebaseio.com",
+  projectId: "salon-call",
+};
+
+let callsRef = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  callsRef = firebase.database().ref('calls');
+}catch(e){ console.warn('Firebase 설정이 아직 입력되지 않았습니다.', e); }
+
+// 좌석 번호: ?table=3 이 있으면 고정, 없으면 1~10 선택
+const callParams = new URLSearchParams(location.search);
+const fixedTable = callParams.get('table');
+const tableSelect = document.getElementById('tableSelect');
+if(fixedTable){
+  tableSelect.innerHTML = `<option value="${fixedTable}">${fixedTable}번</option>`;
+  tableSelect.disabled = true;
+}else{
+  for(let i=1;i<=10;i++){
+    const o = document.createElement('option');
+    o.value = i; o.textContent = i + '번';
+    tableSelect.appendChild(o);
+  }
+}
+
+function showCallToast(msg){
+  const t = document.getElementById('callToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function sendCall(type, drink){
+  if(!callsRef){
+    showCallToast('⚠ 호출 기능이 아직 연결되지 않았어요');
+    return;
+  }
+  callsRef.push({
+    type, table: tableSelect.value, drink: drink || null,
+    status:'pending', createdAt: Date.now()
+  });
+}
+
+const callOverlay = document.getElementById('callOverlay');
+document.getElementById('callFab').onclick = () => callOverlay.classList.add('open');
+document.getElementById('callCloseBtn').onclick = () => callOverlay.classList.remove('open');
+callOverlay.addEventListener('click', e => { if(e.target === callOverlay) callOverlay.classList.remove('open'); });
+
+document.getElementById('callStaffBtn').onclick = () => {
+  sendCall('staff');
+  callOverlay.classList.remove('open');
+  showCallToast('직원을 호출했어요 🙏');
+};
+
+document.getElementById('callDrinkToggle').onclick = () => {
+  document.getElementById('drinkOpts').classList.toggle('open');
+};
+
+document.querySelectorAll('#drinkOpts button').forEach(btn=>{
+  btn.onclick = () => {
+    sendCall('drink', btn.dataset.drink);
+    document.getElementById('drinkOpts').classList.remove('open');
+    callOverlay.classList.remove('open');
+    showCallToast(btn.dataset.drink + ' 주문했어요 ☕');
+  };
+});
+</script>
+</body>
+</html>

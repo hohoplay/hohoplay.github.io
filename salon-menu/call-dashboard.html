@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SALON — 호출 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+
+<!-- call-customer.html과 반드시 "같은" Firebase 설정을 아래에 넣어주세요 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+  :root{
+    --ink:#1c1815; --ivory:#f6f1e6; --paper:#fbf8f2;
+    --clay:#b26b54; --moss:#5b6b4f; --line:#c9bfae;
+    --alert:#a8503d;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; background:var(--ivory); color:var(--ink);
+    font-family:'Pretendard',-apple-system,sans-serif;
+  }
+  header{
+    padding:22px 24px 16px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  header h1{font-family:'Noto Serif KR',serif; font-size:20px; margin:0;}
+  #soundStatus{
+    font-size:12px; padding:7px 14px; border-radius:20px; border:1px solid var(--line);
+    background:var(--paper); cursor:pointer; font-weight:600;
+  }
+  #soundStatus.on{color:var(--moss); border-color:var(--moss);}
+
+  main{
+    max-width:900px; margin:0 auto; padding:24px;
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:14px;
+  }
+  .empty{
+    grid-column:1/-1; text-align:center; color:#a99f8f; font-size:13.5px; padding:60px 0;
+  }
+  .card{
+    background:var(--paper); border-radius:14px; box-shadow:0 8px 20px rgba(28,24,21,0.09);
+    padding:18px; border-left:4px solid var(--clay); position:relative;
+    animation:pop .3s ease;
+  }
+  .card.drink{border-left-color:var(--moss);}
+  @keyframes pop{ from{opacity:0; transform:scale(0.94);} to{opacity:1; transform:scale(1);} }
+  .card .top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;}
+  .card .icon{font-size:22px;}
+  .card .table{
+    font-family:'Noto Serif KR',serif; font-weight:700; font-size:16px; margin:6px 0 2px;
+  }
+  .card .detail{font-size:12.5px; color:#6b6259;}
+  .card .elapsed{
+    font-size:11px; color:var(--alert); font-weight:700; margin-top:8px;
+  }
+  .card .done-btn{
+    margin-top:12px; width:100%; padding:9px; border:none; border-radius:8px;
+    background:var(--ink); color:var(--ivory); font-weight:700; font-size:12.5px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>실시간 호출 현황</h1>
+  <button id="soundStatus">🔈 알림음 켜기</button>
+</header>
+
+<main id="cards">
+  <div class="empty" id="emptyMsg">대기 중인 호출이 없습니다</div>
+</main>
+
+<script>
+/* ============ call-customer.html과 동일한 Firebase 설정 ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyAj2NI5Tcpg2eZn728gNapNLpBGPQLMlVc",
+  authDomain: "salon-call.firebaseapp.com",
+  databaseURL: "https://salon-call-default-rtdb.firebaseio.com",
+  projectId: "salon-call",
+};
+
+/* ============ 텔레그램 알림 (선택) ============
+   비워두면 텔레그램 알림 없이 소리+화면 알림만 동작합니다.
+   BotFather에게 받은 토큰과, getUpdates로 확인한 chat id를 넣으세요. */
+const TELEGRAM_BOT_TOKEN = "8396043234:AAF6LYOIb8oJsx9j0by6YQJiYFuCgPoJIys";
+const TELEGRAM_CHAT_IDS  = ["8739672596", "-5475429192"]; // 개인 + hohoplay2026 그룹
+
+function sendTelegram(text){
+  if(!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_IDS.length) return;
+  TELEGRAM_CHAT_IDS.forEach(chatId => {
+    fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ chat_id: chatId, text })
+    }).catch(err => console.warn('텔레그램 전송 실패', err));
+  });
+}
+/* =============================================== */
+/* ==================================================================== */
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const callsRef = db.ref('calls');
+
+let soundOn = false;
+let knownIds = new Set();
+let firstLoad = true;
+
+document.getElementById('soundStatus').onclick = () => {
+  soundOn = !soundOn;
+  const b = document.getElementById('soundStatus');
+  b.textContent = soundOn ? '🔊 알림음 켜짐' : '🔈 알림음 켜기';
+  b.classList.toggle('on', soundOn);
+  if(soundOn) beep(); // 브라우저 정책상 사용자 클릭 시 오디오 컨텍스트 활성화
+};
+
+function beep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.18, ctx.currentTime);
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.18);
+    setTimeout(()=>{
+      const o2 = ctx.createOscillator(); const g2 = ctx.createGain();
+      o2.type='sine'; o2.frequency.value=1100;
+      g2.gain.setValueAtTime(0.18, ctx.currentTime);
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.start(); o2.stop(ctx.currentTime+0.18);
+    }, 220);
+  }catch(e){}
+}
+
+function typeMeta(call){
+  return call.type === 'staff'
+    ? {icon:'🙋', title:'직원 호출', cls:'staff'}
+    : {icon:'🥤', title:call.drink ? call.drink + ' 주문' : '음료 주문', cls:'drink'};
+}
+
+function fmtElapsed(ts){
+  const sec = Math.floor((Date.now()-ts)/1000);
+  const m = Math.floor(sec/60), s = sec%60;
+  return `${m}분 ${s}초 경과`;
+}
+
+function render(calls){
+  const cardsEl = document.getElementById('cards');
+  const entries = Object.entries(calls || {})
+    .filter(([id,c]) => c.status === 'pending')
+    .sort((a,b) => a[1].createdAt - b[1].createdAt);
+
+  document.getElementById('emptyMsg').style.display = entries.length ? 'none' : 'block';
+  cardsEl.querySelectorAll('.card').forEach(el=>el.remove());
+
+  entries.forEach(([id, c]) => {
+    const meta = typeMeta(c);
+    const card = document.createElement('div');
+    card.className = 'card ' + meta.cls;
+    card.innerHTML = `
+      <div class="top"><span class="icon">${meta.icon}</span></div>
+      <div class="table">${c.table}번 좌석</div>
+      <div class="detail">${meta.title}</div>
+      <div class="elapsed" data-ts="${c.createdAt}">${fmtElapsed(c.createdAt)}</div>
+      <button class="done-btn">완료 처리</button>
+    `;
+    card.querySelector('.done-btn').onclick = () => {
+      callsRef.child(id).update({status:'done'});
+    };
+    cardsEl.appendChild(card);
+  });
+}
+
+callsRef.on('value', snap => {
+  const calls = snap.val() || {};
+
+  // 새 pending 호출이 생기면 알림음
+  if(!firstLoad){
+    Object.entries(calls).forEach(([id,c])=>{
+      if(c.status==='pending' && !knownIds.has(id)){
+        if(soundOn) beep();
+        if(document.title.indexOf('🔔') !== 0) document.title = '🔔 새 호출! · SALON';
+        const meta = typeMeta(c);
+        sendTelegram(`${meta.icon} ${c.table}번 좌석 — ${meta.title}`);
+      }
+    });
+  }
+  knownIds = new Set(Object.keys(calls));
+  firstLoad = false;
+
+  render(calls);
+});
+
+document.addEventListener('click', () => {
+  document.title = 'SALON — 호출 대시보드';
+});
+
+// 경과 시간 실시간 갱신
+setInterval(()=>{
+  document.querySelectorAll('.elapsed').forEach(el=>{
+    el.textContent = fmtElapsed(Number(el.dataset.ts));
+  });
+}, 1000);
+</script>
+</body>
+</html>
