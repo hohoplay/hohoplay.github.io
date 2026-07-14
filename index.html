@@ -1009,7 +1009,7 @@
                     const d = new Date(p.created_at);
                     const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
                     const commentsBadge = boardType==='자유게시판' ? '<span class="bbs-post-comments">💬 '+p.comments+'</span>' : '';
-                    return '<div class="bbs-post" onclick="viewPost('+p.number+',\''+p.title.replace(/'/g,"\\'")+'\',\''+boardType+'\')">'+
+                    return '<div class="bbs-post" onclick="viewPost('+p.number+',\''+boardType+'\')">'+
                         '<div class="bbs-post-title">'+String(i+1).padStart(2,'0')+'. '+p.title+'</div>'+
                         '<div class="bbs-post-meta">'+
                             '<span>'+ds+'</span>'+
@@ -1023,7 +1023,7 @@
             }
         }
 
-        async function viewPost(number, title, boardType) {
+        async function viewPost(number, boardType) {
             const el = document.getElementById('bbs-posts');
             const label = el.dataset.label || '';
             el.innerHTML = '<div class="bbs-loading">⏳ 글 불러오는 중...</div>';
