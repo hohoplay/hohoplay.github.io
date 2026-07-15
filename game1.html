@@ -1730,6 +1730,7 @@
             paused: false,
             tutorialOpen: false,
             invincible: false,
+            stoneTypingGuard: false, // [버그2 수정] 비석 단어 타이핑 중 몬스터 피격 무효화 플래그
             job: 'archer',
             coins: 0,
             hp: 3, maxHp: 12,
@@ -2213,6 +2214,7 @@
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-clear-screen').classList.add('hidden');
         document.getElementById('game-over-screen').classList.add('hidden');
+        upgradeScreen.classList.add('hidden'); // [버그1 수정] 이전 게임의 스킬 팝업이 새 게임까지 남아있는 것 방지
         objectLayer.innerHTML = '';
         state.fieldCoins = [];
         state.mapCoins = [];
@@ -2486,6 +2488,7 @@
                 inputBox.blur();
                 inputBox.value = '';
                 updateTypingLabels('');
+                state.stoneTypingGuard = false; // [버그2 수정]
                 state.inputClearTimer = null;
                 inputBox.focus();
             }, 1000);
@@ -2497,6 +2500,16 @@
         }
 
         updateTypingLabels(val);
+
+        // [버그2 수정] 비석 단어 시작 부분과만 일치하고(몬스터 단어와는 안 겹치는 경우) 타이핑 중엔
+        // 화면에 집중하느라 피하지 못한 몬스터 접촉으로 하트가 소모되지 않도록 무효화 처리
+        if (val.length > 0) {
+            const matchesStone = state.nature.some(n => !n.cleared && n.type === 'stone' && n.word && n.word.startsWith(val));
+            const matchesMonster = state.monsters.some(m => !m.dying && m.word && m.word.startsWith(val));
+            state.stoneTypingGuard = matchesStone && !matchesMonster;
+        } else {
+            state.stoneTypingGuard = false;
+        }
 
         let target = null;
         let minDist = Infinity;
@@ -2573,6 +2586,7 @@
 
             inputBox.value = '';
             updateTypingLabels('', true);
+            state.stoneTypingGuard = false; // [버그2 수정]
             if (state.inputClearTimer) { clearTimeout(state.inputClearTimer); state.inputClearTimer = null; }
         }
     });
@@ -2799,6 +2813,7 @@
         if (state.inputClearTimer) { clearTimeout(state.inputClearTimer); state.inputClearTimer = null; }
         inputBox.value = '';
         updateTypingLabels('');
+        state.stoneTypingGuard = false; // [버그2 수정] 이제부턴 state.paused가 보호하므로 가드 해제
         inputBox.setAttribute('tabindex', '-1');
         inputBox.blur();
 
@@ -3050,6 +3065,7 @@
                 inputBox.blur();
                 inputBox.value = '';
                 updateTypingLabels('');
+                state.stoneTypingGuard = false; // [버그2 수정]
                 inputBox.focus();
             }
         }
@@ -3276,7 +3292,7 @@
             }
             m.el.style.transform = `translate(${m.x - state.worldPos.x + VIEW_W/2}px, ${m.y - state.worldPos.y + VIEW_H/2}px)`;
             
-            if (dist < 35 && !state.paused && !state.tutorialOpen && !state.invincible) {
+            if (dist < 35 && !state.paused && !state.tutorialOpen && !state.invincible && !state.stoneTypingGuard) {
                 if (state.hasShield) { state.hasShield = false; sfxShield(); } else { state.hp--; sfxHurt(); }
                 updateHPDisplay();
                 m.x -= (dx/dist) * 120; 
@@ -3298,6 +3314,7 @@
                 if (state.hp <= 0) {
                     sfxGameOver(); stopAllAudio();
                     state.playing = false;
+                    upgradeScreen.classList.add('hidden'); // [버그1 수정] 레벨업 스킬 팝업이 떠있는 채로 사망해도 강제로 닫음
                     document.getElementById('game-over-info').innerText = `LV.${state.level} · 웨이브 ${state.currentWave} · 코인 ${state.coins}개`;
                     document.getElementById('game-over-screen').classList.remove('hidden');
                 }
