@@ -2493,9 +2493,14 @@
         if (state.inputClearTimer) clearTimeout(state.inputClearTimer);
         if (val.length > 0) {
             state.inputClearTimer = setTimeout(() => {
-                // [버그 수정] 조합(IME) 도중에 강제로 value를 비우면 조합 버퍼가 깨져서
-                // 이전 글자가 다음 글자에 잔상처럼 따라붙는 문제가 생기므로, 조합 중이면 건너뛴다.
-                if (isComposing) return;
+                // [버그 수정] 조합(IME) 도중엔 value/blur만 건드리지 않으면 되는데,
+                // 기존엔 여기서 통째로 return 해버려서 updateTypingLabels('')(몬스터·비석
+                // 라벨에 남은 하이라이트 지우는 역할)까지 같이 멈춰 화면 잔상이 남는 문제가 있었음.
+                if (isComposing) {
+                    updateTypingLabels('');
+                    state.stoneTypingGuard = false; // [버그2 수정]
+                    return;
+                }
                 inputBox.blur();
                 inputBox.value = '';
                 updateTypingLabels('');
