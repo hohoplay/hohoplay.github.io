@@ -1629,23 +1629,7 @@
             });
 
             inputField.addEventListener('compositionstart', () => { isComposing = true; updateLangIndicator('ko'); });
-            inputField.addEventListener('compositionupdate', (e) => {
-                if (e.target.value.length > MAX_INPUT_LENGTH) { clearInput(); return; }
-                // [신규] 완성된 음절을 기다리지 않고, 조합 중인 자모 단계마다
-                // 기존에 있던 "텍스트 데미지 이펙트"를 그대로 재사용해서 실시간 피드백을 준다.
-                // displayText/입력창 표시는 건드리지 않고, 이펙트만 추가로 띄운다.
-                const composingChar = e.data || '';
-                if (composingChar) {
-                    // [버그 수정] 여기서 쿨다운을 강제로 무시(lastFiredTime=0)했더니, 한 글자를
-                    // 조합하는 짧은 순간(초성→중성→종성)마다 이펙트가 거의 동시에 여러 개 겹쳐서
-                    // 튀어나와 쌓이는 것처럼 보이는 문제가 있었음. 기존 30ms 쿨다운을 그대로 존중해서
-                    // triggerTextBurst가 알아서 걸러내도록 둔다.
-                    triggerTextBurst(e.target.value.trim() || composingChar, composingChar);
-                }
-                // 조합 중임 = 사용자가 여전히 활발히 타이핑 중이라는 뜻이므로 무입력 타이머를 계속 미룬다.
-                if (resetTimer) clearTimeout(resetTimer);
-                startResetTimer();
-            });
+            inputField.addEventListener('compositionupdate', (e) => { if (e.target.value.length > MAX_INPUT_LENGTH) clearInput(); });
             inputField.addEventListener('compositionend', (e) => {
                 isComposing = false;
                 const val = e.target.value;
@@ -1708,6 +1692,19 @@
                 // (clearInput()이 조합 중 blur를 하지 않도록 수정되어 안전함)
                 if (val !== "" && checkWord(val)) { if (resetTimer) clearTimeout(resetTimer); return; }
 
+                // [버그 수정] 지금 화면에 있는 어떤 단어와도 시작 부분이 안 맞는 확실한 오타/놓친 단어는
+                // 1초 무입력 타이머를 기다리지 않고 즉시 지운다. 이게 없으면 놓친 단어("나비") 뒤에
+                // 다음 단어("미소")를 이어 쳤을 때 "나비미소"처럼 이전 글자가 안 지워지고 붙어 보였음.
+                // (isComposing 플래그는 신뢰할 수 없어 사용하지 않고, 대신 "마지막 글자가 완성된
+                // 한글 음절인지"로 판단한다 — 아직 조합 중인 낱자라면 다음 자모로 매치될 여지가 있음)
+                const lastCharForCheck = val.slice(-1);
+                if (!isDeletion && val !== "" && !isBossEvent && !isLargeBossEvent
+                    && isCompleteHangul(lastCharForCheck)
+                    && !activeWords.some(m => m.word.startsWith(val))) {
+                    clearInput();
+                    return;
+                }
+
                 if (isDeletion || isDeleting || val.length < lastInputLength) {
                     isDeleting = true; handleInput(val); lastInputLength = val.length;
                     if(val === "") setTimeout(() => { isDeleting = false; }, 50);
@@ -1768,25 +1765,15 @@
         }
 
         function clearInput() {
-            // [버그 수정] 한글 조합(IME) 도중에 inputField.value를 강제로 비우면
-            // 브라우저/IME의 조합 버퍼가 비정상 종료되면서, 방금 지운 글자가
-            // 다음 글자 입력 시 잔상처럼 다시 따라붙는 문제가 있었음.
-            // → value/blur는 조합 중엔 절대 건드리지 않는다.
-            if (isComposing) {
-                // 다만 하단 텍스트("입력 대기 중...")는 value를 건드리지 않고도
-                // 안전하게 리셋할 수 있으므로, 조합 중이라도 여기까진 정리해준다.
-                // (이전엔 여기서 통째로 return 해버려서 하단 텍스트가 안 사라지는 문제가 있었음)
-                displayText.innerText = isMobile ? "터치하여 입력" : "입력 대기 중...";
-                displayText.style.color = '#ffb3c1';
-                updateHighlight("");
-                if (resetTimer) clearTimeout(resetTimer);
-                return;
-            }
-            inputField.value = "";
+            // [단순화] type 토글로 IME 버퍼를 강제 플러시하는 방식은, 이 함수가 단어 하나
+            // 맞힐 때마다 매우 자주 호출되는 game3 특성상 오히려 바로 다음 글자 입력을
+            // 방해해서 "한 글자만 나오고 사라짐" 문제를 새로 만들었다. 불필요하게 공격적인
+            // 방식이었으므로 제거하고, 기본적인 value 초기화 + blur만 남긴다.
             inputField.blur();
+            inputField.value = "";
+            isComposing = false;
             lastInputLength = 0;
             isDeleting = false;
-            isComposing = false;
             displayText.innerText = isMobile ? "터치하여 입력" : "입력 대기 중...";
             displayText.style.color = '#ffb3c1';
             updateHighlight("");
