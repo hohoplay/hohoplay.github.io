@@ -1598,6 +1598,7 @@
 
     const BASE_DETECTION_RANGE = 220; 
     const RADAR_SCAN_RANGE = 1200; 
+    const ARROW_KEYS = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight']; // [미세 최적화] keydown마다 배열 재생성 방지
     const VIEW_W = 800;
     const VIEW_H = 600;
     const INITIAL_WORLD_LIMIT = 5000;
@@ -1609,11 +1610,7 @@
     const BOSS_TRIGGER_LEVEL = 6;
     const MAX_CHESTS = 8;
     
-    // [성능 버그 수정] Chrome 프로파일러로 확인 결과, Recalculate Style(21.9%)+Layout(15%)+
-    // Paint 계열이 전체 시간의 86%를 차지했고 실제 게임 로직(gameLoop)은 7%뿐이었다.
-    // 자연물 264개(80×3종+비석16+상자8)를 매 프레임 유지·갱신하는 DOM 체급 자체가 근본
-    // 원인이었으므로, 밀도를 절반으로 낮춰 렌더링 파이프라인 부담을 직접 줄인다.
-    const NATURE_LIMIT_PER_TYPE = 40; 
+    const NATURE_LIMIT_PER_TYPE = 80; 
 
     const SEASON_MAP = {
         1:'spring', 2:'spring',
@@ -2535,10 +2532,13 @@
             }, 1000);
         }
 
-        // [성능/시각 버그 수정] 기존엔 이 input 이벤트가 조합 중간값(ㄴ→나→나ㅂ→나비 등)마다
-        // 매번 발생할 때 launchSubProjectile()도 매번 새 화살 DOM을 만들어 쏘고 있었다.
-        // 긴 단어를 칠수록 화살이 우수수 쏟아지듯 겹쳐서 버벅거리는 원인이었으므로,
-        // "완성된 새 글자가 실제로 늘었을 때"만 한 번 발사하도록 제한한다.
+        // [화살 스팸 수정 복귀 요청] launchSubProjectile()은 다시 원래대로 매 입력마다 발사.
+        if (val.length > 0) {
+            launchSubProjectile();
+            sfxType();
+        }
+
+        // isNewCompleteChar는 이펙트 라벨 중복 생성 방지용으로는 계속 사용 (요청받은 건 화살만 복귀)
         if (val.length < (state._lastSubProjectileLen || 0)) {
             state._lastSubProjectileLen = val.length; // 백스페이스 등으로 줄어든 경우 보정
         }
@@ -2546,8 +2546,6 @@
         const isNewCompleteChar = isCompleteHangul(lastChar) && val.length > (state._lastSubProjectileLen || 0);
         if (isNewCompleteChar) {
             state._lastSubProjectileLen = val.length;
-            launchSubProjectile();
-            sfxType();
         } else if (val.length === 0) {
             state._lastSubProjectileLen = 0;
         }
@@ -3114,7 +3112,7 @@
     window.addEventListener('keydown', e => { 
         if (state.playing && !state.paused) {
             state.keys[e.key] = true;
-            if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+            if (ARROW_KEYS.includes(e.key)) {
                 e.preventDefault();
                 if (wisdomBox.style.display !== 'block' && document.activeElement !== inputBox) inputBox.focus();
             }
