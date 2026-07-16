@@ -1663,6 +1663,7 @@
 
     let currentSeason = 'spring';
     let seasonParticleTimer = null;
+    let seasonApplyTimer = null; // [버그 수정] 재시작 시 이전 게임의 지연된 applySeason 호출이 겹치는 것 방지
     const CULL_DISTANCE = 1500; 
     const SPAWN_DISTANCE = 1100; 
     const COIN_LIMIT = 60;
@@ -2237,6 +2238,7 @@
     async function initGame() {
         if (state.gameLoopId) cancelAnimationFrame(state.gameLoopId);
         if (state.inputClearTimer) clearTimeout(state.inputClearTimer); // [초기화 보강] 이전 게임의 잔여 타이머 정리
+        if (seasonApplyTimer) clearTimeout(seasonApplyTimer); // [버그 수정] 이전 게임의 지연된 시즌 적용 타이머 취소
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-clear-screen').classList.add('hidden');
         document.getElementById('game-over-screen').classList.add('hidden');
@@ -2267,7 +2269,7 @@
         inputBox.focus();
         bgmBpm = 108; stopAllAudio(); startBGM();
         currentSeason = 'spring';
-        setTimeout(() => applySeason(1, true), 500);
+        seasonApplyTimer = setTimeout(() => applySeason(1, true), 500);
         state.gameLoopId = requestAnimationFrame(gameLoop);
     }
 
