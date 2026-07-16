@@ -1629,12 +1629,44 @@
             });
 
             inputField.addEventListener('compositionstart', () => { isComposing = true; updateLangIndicator('ko'); });
-            inputField.addEventListener('compositionupdate', (e) => { if (e.target.value.length > MAX_INPUT_LENGTH) clearInput(); });
+            inputField.addEventListener('compositionupdate', (e) => {
+                if (e.target.value.length > MAX_INPUT_LENGTH) { clearInput(true); return; }
+                // 조합 중임 = 아직 활발히 타이핑 중이라는 뜻이므로, 무입력 타이머가
+                // 조합 도중에 발동하지 않도록 매 자모 단계마다 계속 미룬다.
+                if (resetTimer) clearTimeout(resetTimer);
+                startResetTimer();
+            });
+            function checkMismatchAndClear(val, isDeletion) {
+                const lastCharForCheck = val.slice(-1);
+                let hasPossibleMatch;
+                if (isLargeBossEvent) {
+                    hasPossibleMatch = (currentLargeBossWord && currentLargeBossWord.startsWith(val))
+                        || activeProjectiles.some(p => !p.done && p.word.startsWith(val));
+                } else if (isBossEvent) {
+                    hasPossibleMatch = (currentBossWord && currentBossWord.startsWith(val))
+                        || activeProjectiles.some(p => !p.done && p.word.startsWith(val));
+                } else {
+                    hasPossibleMatch = activeWords.some(m => m.word.startsWith(val));
+                }
+                if (!isDeletion && val !== "" && isCompleteHangul(lastCharForCheck) && !hasPossibleMatch) {
+                    clearInput(true);
+                    return true;
+                }
+                return false;
+            }
+
+
             inputField.addEventListener('compositionend', (e) => {
                 isComposing = false;
                 const val = e.target.value;
                 // 한글 완성 시 즉시 단어 체크
                 if (val !== "" && checkWord(val)) { if (resetTimer) clearTimeout(resetTimer); return; }
+                // [핵심 수정] 오타 판정은 여기(글자 조합이 "완전히" 끝난 시점=compositionend)에서만 한다.
+                // 조합 도중(input 이벤트, isComposing=true)엔 받침이 다음 글자 초성으로 재해석되는
+                // 등 아직 확정 안 된 중간값이 계속 나오는데, 그걸 오타로 오판해서 지워버리는 게
+                // 지금까지의 진짜 원인이었다. compositionend는 브라우저가 "이 글자는 이제 안 바뀐다"고
+                // 확정해주는 유일한 시점이라, 여기서 판단해야 안전하다.
+                if (checkMismatchAndClear(val, isDeleting)) return;
                 handleInput(val);
                 if (val && val.length > 0 && !isDeleting) {
                     const lastChar = val.slice(-1);
@@ -1663,7 +1695,7 @@
             inputField.addEventListener('input', (e) => {
                 if (!gameActive) return;
                 let val = e.target.value;
-                if (val.length > MAX_INPUT_LENGTH) { clearInput(); return; }
+                if (val.length > MAX_INPUT_LENGTH) { clearInput(true); return; }
                 
                 // 키 입력 시 타이핑음 (피치 다양화)
                 if (val !== "") {
@@ -1675,7 +1707,7 @@
                     updateLangIndicator('en');
                     triggerErrorFeedback();
                     totalKeystrokes++;
-                    clearInput();          // 영문 입력 시 입력창 완전 초기화
+                    clearInput(true);          // 영문 입력 시 입력창 완전 초기화
                     updateHUD();
                     return;               // 이후 처리 중단
                 } else if (val !== "") updateLangIndicator('ko');
@@ -1689,21 +1721,16 @@
                 }
 
                 // 조합(IME) 중에도 단어가 완성되면 즉시 판정한다.
-                // (clearInput()이 조합 중 blur를 하지 않도록 수정되어 안전함)
                 if (val !== "" && checkWord(val)) { if (resetTimer) clearTimeout(resetTimer); return; }
 
-                // [버그 수정] 지금 화면에 있는 어떤 단어와도 시작 부분이 안 맞는 확실한 오타/놓친 단어는
-                // 1초 무입력 타이머를 기다리지 않고 즉시 지운다. 이게 없으면 놓친 단어("나비") 뒤에
-                // 다음 단어("미소")를 이어 쳤을 때 "나비미소"처럼 이전 글자가 안 지워지고 붙어 보였음.
-                // (isComposing 플래그는 신뢰할 수 없어 사용하지 않고, 대신 "마지막 글자가 완성된
-                // 한글 음절인지"로 판단한다 — 아직 조합 중인 낱자라면 다음 자모로 매치될 여지가 있음)
-                const lastCharForCheck = val.slice(-1);
-                if (!isDeletion && val !== "" && !isBossEvent && !isLargeBossEvent
-                    && isCompleteHangul(lastCharForCheck)
-                    && !activeWords.some(m => m.word.startsWith(val))) {
-                    clearInput();
-                    return;
+                // [핵심 수정] 오타 즉시삭제 판정은 조합 중(isComposing=true)엔 절대 하지 않는다.
+                // 조합 중간값(받침 재해석 등 아직 확정 안 된 상태)을 오타로 오판하는 게 근본
+                // 원인이었음. 실제 판정은 위쪽 compositionend 핸들러에서, 글자가 "완전히"
+                // 끝난 시점에만 한다 (checkMismatchAndClear 함수로 공용화됨).
+                if (!isComposing) {
+                    if (checkMismatchAndClear(val, isDeletion)) return;
                 }
+
 
                 if (isDeletion || isDeleting || val.length < lastInputLength) {
                     isDeleting = true; handleInput(val); lastInputLength = val.length;
@@ -1764,11 +1791,18 @@
             resetTimer = setTimeout(() => { if (inputField.value !== "") clearInput(); }, 1000);
         }
 
-        function clearInput() {
-            // [단순화] type 토글로 IME 버퍼를 강제 플러시하는 방식은, 이 함수가 단어 하나
-            // 맞힐 때마다 매우 자주 호출되는 game3 특성상 오히려 바로 다음 글자 입력을
-            // 방해해서 "한 글자만 나오고 사라짐" 문제를 새로 만들었다. 불필요하게 공격적인
-            // 방식이었으므로 제거하고, 기본적인 value 초기화 + blur만 남긴다.
+        function clearInput(force = false) {
+            // [핵심 수정] 정답을 맞혀서(checkWord 성공 등) 지우는 경우는 이미 그 글자의
+            // 타이핑이 확정적으로 끝난 것이므로, 브라우저의 조합 상태와 무관하게 무조건
+            // 완전히 지워도 안전하다(=force). 반면 1초 무입력 타이머처럼 "혹시 아직
+            // 타이핑 중일 수도 있는" 경우엔 조합 중이면 value/blur를 건드리지 않는다.
+            if (isComposing && !force) {
+                displayText.innerText = isMobile ? "터치하여 입력" : "입력 대기 중...";
+                displayText.style.color = '#ffb3c1';
+                updateHighlight("");
+                if (resetTimer) clearTimeout(resetTimer);
+                return;
+            }
             inputField.blur();
             inputField.value = "";
             isComposing = false;
@@ -2151,7 +2185,7 @@
                         proj.el.remove();
                         if (proj.onDone) proj.onDone();
                     }, 200);
-                    clearInput();
+                    clearInput(true);
                     return true;
                 }
             }
@@ -2224,7 +2258,7 @@
                     spawnHitParticles(gameField.offsetWidth / 2, gameField.offsetHeight * 0.5);
                     correctKeystrokes += trimmedVal.length;
                     hitLargeBoss();
-                    clearInput();
+                    clearInput(true);
                     updateHUD();
                     return true;
                 }
@@ -2234,7 +2268,7 @@
                     spawnHitParticles(gameField.offsetWidth / 2, gameField.offsetHeight * 0.5);
                     correctKeystrokes += trimmedVal.length;
                     hitBoss();
-                    clearInput();
+                    clearInput(true);
                     updateHUD();
                     return true;
                 }
@@ -2257,7 +2291,7 @@
                         if (combo >= 10) startFever();
                     }
                     score += gain; scoreDisplay.innerText = score;
-                    fallSpeed += 0.0002; clearInput(); updateComboUI();
+                    fallSpeed += 0.0002; clearInput(true); updateComboUI();
                     updateHUD();
                     return true;
                 }
@@ -2481,7 +2515,7 @@
             if (!gameField.contains(bossContainer)) gameField.appendChild(bossContainer);
             if (!gameField.contains(largeBossContainer)) gameField.appendChild(largeBossContainer);
 
-            endFever(); clearInput(); updateLangIndicator('en');
+            endFever(); clearInput(true); updateLangIndicator('en');
             if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
 
             if (SoundEngine.ctx) SoundEngine.resume();
