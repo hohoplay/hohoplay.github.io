@@ -1593,6 +1593,7 @@
         let lastInputLength = 0;
         let isDeleting = false;
         let isComposing = false;
+        let pendingIdleClear = false; // [버그 수정] 무입력 타이머가 조합 중이라 못 지운 경우, 다음 조합 시작 시점에 마저 정리하기 위한 플래그
 
         function init() {
             // Audio init on click
@@ -1628,7 +1629,19 @@
                 }
             });
 
-            inputField.addEventListener('compositionstart', () => { isComposing = true; updateLangIndicator('ko'); });
+            inputField.addEventListener('compositionstart', () => {
+                isComposing = true;
+                updateLangIndicator('ko');
+                // [버그 수정] 무입력 타이머가 지난 번 조합 도중에 발동해서 value를 못 지우고
+                // 넘어간 경우, 여기(완전히 새 글자 조합이 막 시작되는 시점 = 아직 새 글자가
+                // value에 반영되기 전)서 안전하게 마저 지운다. 이 시점을 놓치면 이전에 지우려던
+                // 글자가 새로 조합되는 글자 앞에 그대로 남아 "이전 글씨가 딸려나오는" 잔상이 됐다.
+                if (pendingIdleClear) {
+                    pendingIdleClear = false;
+                    inputField.value = "";
+                    updateHighlight("");
+                }
+            });
             inputField.addEventListener('compositionupdate', (e) => {
                 if (e.target.value.length > MAX_INPUT_LENGTH) { clearInput(true); return; }
                 // 조합 중임 = 아직 활발히 타이핑 중이라는 뜻이므로, 무입력 타이머가
@@ -1637,7 +1650,6 @@
                 startResetTimer();
             });
             function checkMismatchAndClear(val, isDeletion) {
-                const lastCharForCheck = val.slice(-1);
                 let hasPossibleMatch;
                 if (isLargeBossEvent) {
                     hasPossibleMatch = (currentLargeBossWord && currentLargeBossWord.startsWith(val))
@@ -1648,7 +1660,14 @@
                 } else {
                     hasPossibleMatch = activeWords.some(m => m.word.startsWith(val));
                 }
-                if (!isDeletion && val !== "" && isCompleteHangul(lastCharForCheck) && !hasPossibleMatch) {
+                // [버그 수정] isCompleteHangul(마지막 글자가 완성된 음절인지) 조건을 제거했다.
+                // 이 함수는 compositionend 시점(또는 조합이 아예 아닐 때)에만 호출되므로,
+                // 호출되는 시점 자체가 이미 "이 값은 더 안 바뀐다"는 확정 신호다. 그런데
+                // 낱자(모음/자음) 하나만 조합이 끝나버리는 경우(예: "ㅣ")엔 isCompleteHangul이
+                // false라서 오타 판정을 건너뛰었고, 그 낱자가 안 지워진 채 다음 글자에 이어붙는
+                // 잔상 버그로 이어졌다. 실제 단어는 전부 완성된 음절로 시작하므로, 낱자 하나만
+                // 남은 상태는 애초에 100% 매치 불가(hasPossibleMatch=false)라 그냥 지워도 안전하다.
+                if (!isDeletion && val !== "" && !hasPossibleMatch) {
                     clearInput(true);
                     return true;
                 }
@@ -1797,14 +1816,15 @@
             // 완전히 지워도 안전하다(=force). 반면 1초 무입력 타이머처럼 "혹시 아직
             // 타이핑 중일 수도 있는" 경우엔 조합 중이면 value/blur를 건드리지 않는다.
             if (isComposing && !force) {
+                pendingIdleClear = true; // [버그 수정] 지금은 못 지우니, 다음 compositionstart 때 마저 정리
                 displayText.innerText = isMobile ? "터치하여 입력" : "입력 대기 중...";
                 displayText.style.color = '#ffb3c1';
                 updateHighlight("");
                 if (resetTimer) clearTimeout(resetTimer);
                 return;
             }
-            inputField.blur();
             inputField.value = "";
+            pendingIdleClear = false; // 정상적으로 지워졌으니 대기 플래그도 해제
             isComposing = false;
             lastInputLength = 0;
             isDeleting = false;
@@ -1812,12 +1832,14 @@
             displayText.style.color = '#ffb3c1';
             updateHighlight("");
             if (resetTimer) clearTimeout(resetTimer);
-            if(gameActive) {
-                setTimeout(() => { 
-                    const sx=window.scrollX, sy=window.scrollY;
-                    inputField.focus({preventScroll:true});
-                    window.scrollTo(sx,sy);
-                }, 10);
+            // [버그 수정] 예전엔 여기서 blur() 하고 10ms 뒤에 focus()로 되돌리고 있었는데,
+            // 그 10ms 공백 사이에 사용자가 바로 다음 글자를 치면 포커스가 없는 상태라
+            // 그 키 입력이 통째로 씹혀 사라지는 문제가 있었다("ㅎ 안 나옴" 버그의 정체).
+            // clearInput(force=true)가 실행되는 시점은 이미 조합이 끝난 뒤라 blur로
+            // 조합을 강제 종료시킬 필요 자체가 없으므로, blur/재포커스 지연 없이
+            // 포커스를 계속 유지한다.
+            if (gameActive && document.activeElement !== inputField) {
+                inputField.focus({preventScroll:true});
             }
         }
 
