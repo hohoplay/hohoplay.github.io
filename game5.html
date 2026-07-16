@@ -2644,64 +2644,72 @@ function startGame() {
 
   // holdInterval 제거 — update() rAF 루프 안에서 직접 호출
 
-  canvas.addEventListener('mousedown', function(e) {
-    isHolding = true;
-    const rect = canvas.getBoundingClientRect();
-    holdX = e.clientX - rect.left;
-  });
+  // [버그 수정] 기존엔 startGame()이 호출될 때마다(재시작 포함) 아래 리스너들이
+  // 제거 없이 계속 새로 추가되어, 재시작할수록 입력 이벤트 처리 비용이 쌓여
+  // 점점 버벅거리는 원인이 되었음. isHolding/holdX/keys/keyState는 전역(outer scope)
+  // 변수라 리스너를 재생성할 필요가 없으므로, 최초 1회만 등록하도록 가드 처리.
+  if (!canvas._inputListenersBound) {
+    canvas._inputListenersBound = true;
 
-  canvas.addEventListener('mousemove', function(e) {
-    if (!isHolding) return;
-    const rect = canvas.getBoundingClientRect();
-    holdX = e.clientX - rect.left;
-  });
+    canvas.addEventListener('mousedown', function(e) {
+      isHolding = true;
+      const rect = canvas.getBoundingClientRect();
+      holdX = e.clientX - rect.left;
+    });
 
-  canvas.addEventListener('mouseup', function() {
-    isHolding = false;
-    if (!keyState.left && !keyState.right) {
-      keys.left = false;
-      keys.right = false;
-    }
-  });
+    canvas.addEventListener('mousemove', function(e) {
+      if (!isHolding) return;
+      const rect = canvas.getBoundingClientRect();
+      holdX = e.clientX - rect.left;
+    });
 
-  canvas.addEventListener('mouseleave', function() {
-    isHolding = false;
-    if (!keyState.left && !keyState.right) {
-      keys.left = false;
-      keys.right = false;
-    }
-  });
+    canvas.addEventListener('mouseup', function() {
+      isHolding = false;
+      if (!keyState.left && !keyState.right) {
+        keys.left = false;
+        keys.right = false;
+      }
+    });
 
-  canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    isHolding = true;
-    const rect = canvas.getBoundingClientRect();
-    holdX = e.touches[0].clientX - rect.left;
-  }, { passive: false });
+    canvas.addEventListener('mouseleave', function() {
+      isHolding = false;
+      if (!keyState.left && !keyState.right) {
+        keys.left = false;
+        keys.right = false;
+      }
+    });
 
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (!isHolding) return;
-    const rect = canvas.getBoundingClientRect();
-    holdX = e.touches[0].clientX - rect.left;
-  }, { passive: false });
+    canvas.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      isHolding = true;
+      const rect = canvas.getBoundingClientRect();
+      holdX = e.touches[0].clientX - rect.left;
+    }, { passive: false });
 
-  canvas.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    isHolding = false;
-    if (!keyState.left && !keyState.right) {
-      keys.left = false;
-      keys.right = false;
-    }
-  });
+    canvas.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      if (!isHolding) return;
+      const rect = canvas.getBoundingClientRect();
+      holdX = e.touches[0].clientX - rect.left;
+    }, { passive: false });
 
-  canvas.addEventListener('touchcancel', function() {
-    isHolding = false;
-    if (!keyState.left && !keyState.right) {
-      keys.left = false;
-      keys.right = false;
-    }
-  });
+    canvas.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      isHolding = false;
+      if (!keyState.left && !keyState.right) {
+        keys.left = false;
+        keys.right = false;
+      }
+    });
+
+    canvas.addEventListener('touchcancel', function() {
+      isHolding = false;
+      if (!keyState.left && !keyState.right) {
+        keys.left = false;
+        keys.right = false;
+      }
+    });
+  }
 
   window._keyHandlers = { down: handleKeyDown, up: handleKeyUp };
 
