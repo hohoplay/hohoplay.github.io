@@ -2493,6 +2493,9 @@
         if (state.inputClearTimer) clearTimeout(state.inputClearTimer);
         if (val.length > 0) {
             state.inputClearTimer = setTimeout(() => {
+                // [버그 수정] 조합(IME) 도중에 강제로 value를 비우면 조합 버퍼가 깨져서
+                // 이전 글자가 다음 글자에 잔상처럼 따라붙는 문제가 생기므로, 조합 중이면 건너뛴다.
+                if (isComposing) return;
                 inputBox.blur();
                 inputBox.value = '';
                 updateTypingLabels('');
