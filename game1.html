@@ -14,7 +14,12 @@
     <title>호야타자RPG - HOHO PLAY | 타이핑 액션 게임</title>
     <meta name="description" content="타이핑으로 몬스터를 물리치는 RPG 스타일 타자 연습 게임. 로그인 없이 무료로 바로 플레이하세요.">
     <link rel="canonical" href="https://hohoplay.github.io/game1.html">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- [성능 버그 수정] Tailwind CDN(런타임 JIT 컴파일, MutationObserver로 계속 감시)이
+         게임 중 계속 새로 생성되는 DOM 요소마다 재스캔되면서 메인 스레드를 과도하게
+         점유해 버벅거림의 핵심 원인이었음. 실제 사용하는 클래스만 미리 컴파일한
+         정적 CSS(13KB)로 교체 — 런타임 비용이 전혀 없음.
+    -->
+    <style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width:640px){.container{max-width:640px}}@media (min-width:768px){.container{max-width:768px}}@media (min-width:1024px){.container{max-width:1024px}}@media (min-width:1280px){.container{max-width:1280px}}@media (min-width:1536px){.container{max-width:1536px}}.visible{visibility:visible}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.top-0{top:0}.isolate{isolation:isolate}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.ml-1{margin-left:.25rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-14{height:3.5rem}.h-4{height:1rem}.h-8{height:2rem}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-4{width:1rem}.w-8{width:2rem}.w-full{width:100%}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}.flex-shrink{flex-shrink:1}.flex-grow{flex-grow:1}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-12>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(3rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(3rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.rounded-2xl{border-radius:1rem}.rounded-\[2\.5rem\]{border-radius:2.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-b-4{border-bottom-width:4px}.border-indigo-600{--tw-border-opacity:1;border-color:rgb(79 70 229/var(--tw-border-opacity,1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249/var(--tw-border-opacity,1))}.border-transparent{border-color:transparent}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity,1))}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229/var(--tw-bg-opacity,1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249/var(--tw-bg-opacity,1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240/var(--tw-bg-opacity,1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-white\/90{background-color:hsla(0,0%,100%,.9)}.p-10{padding:2.5rem}.p-5{padding:1.25rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-8{padding-top:2rem;padding-bottom:2rem}.text-5xl{font-size:3rem;line-height:1}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-.025em}.tracking-tighter{letter-spacing:-.05em}.tracking-widest{letter-spacing:.1em}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129/var(--tw-text-opacity,1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105/var(--tw-text-opacity,1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59/var(--tw-text-opacity,1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42/var(--tw-text-opacity,1))}.text-violet-500{--tw-text-opacity:1;color:rgb(139 92 246/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color)}.shadow,.shadow-lg{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.shadow-md,.shadow-sm{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.shadow-indigo-100{--tw-shadow-color:#e0e7ff;--tw-shadow:var(--tw-shadow-colored)}.shadow-indigo-200{--tw-shadow-color:#c7d2fe;--tw-shadow:var(--tw-shadow-colored)}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.drop-shadow{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow{--tw-drop-shadow:drop-shadow(0 1px 2px rgba(0,0,0,.1)) drop-shadow(0 1px 1px rgba(0,0,0,.06))}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px)}.backdrop-blur-md,.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.ease-in-out{transition-timing-function:cubic-bezier(.4,0,.2,1)}.ease-out{transition-timing-function:cubic-bezier(0,0,.2,1)}.hover\:bg-indigo-50:hover{--tw-bg-opacity:1;background-color:rgb(238 242 255/var(--tw-bg-opacity,1))}.hover\:text-indigo-600:hover{--tw-text-opacity:1;color:rgb(79 70 229/var(--tw-text-opacity,1))}.hover\:text-slate-600:hover{--tw-text-opacity:1;color:rgb(71 85 105/var(--tw-text-opacity,1))}.hover\:opacity-70:hover{opacity:.7}@media (min-width:640px){.sm\:inline-flex{display:inline-flex}.sm\:gap-4{gap:1rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}}@media (min-width:768px){.md\:block{display:block}.md\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}}@media (min-width:1024px){.lg\:px-8{padding-left:2rem;padding-right:2rem}}</style>
     <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
     <style>
@@ -343,7 +348,8 @@
         .nature-obj {
             position: absolute;
             user-select: none;
-            will-change: transform;
+            /* [성능 테스트] will-change: transform; 제거 — 자연물 264개 전부에 GPU 레이어를
+               강제 생성시켜서 오히려 역효과(특히 내장 그래픽에서)를 낼 수 있어서 임시로 뺌 */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -1516,7 +1522,7 @@
         <div id="upgrade-preview">
             <h3>⭐ 성장 현황</h3>
             <div id="upgrade-preview-list"></div>
-            <button id="save-btn-preview" onclick="saveGame()">💾 저장하기</button>
+            <button id="save-btn-preview" onclick="_showRetryAd(saveGame)">💾 저장하기</button>
         </div>
 
         <div id="skill-container">
@@ -1571,13 +1577,13 @@
             <p style="color:#ff8a80; font-size: 0.95rem; font-weight: 700; margin-bottom: 4px;">단어의 힘이 다하고 몬스터가 숲을 뒤덮었습니다.</p>
             <p id="game-over-info" style="color:#aaa; font-size:0.9rem; margin-top:4px; margin-bottom:10px;"></p>
             <button class="btn-start" id="btn-gameover-load" style="margin-top:10px; background:rgba(74,144,226,0.25); border:2px solid #4a90e2; font-size:1rem; padding:12px 40px; color:#7ec8ff;" onclick="loadGame()">📂 이어하기</button>
-            <button class="btn-start" style="margin-top:8px; padding:12px 40px; font-size:1rem;" onclick="_showRetryAd(restartGame)">🔄 다시 도전</button>
+            <button class="btn-start" style="margin-top:8px; padding:12px 40px; font-size:1rem;" onclick="restartGame()">🔄 다시 도전</button>
             <button class="btn-start" style="margin-top:8px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); color:#fff; padding:12px 40px; font-size:1rem;" onclick="goToTitle()">🏠 캐릭터 선택</button>
         </div>
 
         <div id="game-clear-screen" class="overlay-screen hidden">
             <h1 class="title" style="color:var(--primary-yellow)">✨ 전설의 수호자 호야! ✨</h1>
-            <button class="btn-start" style="margin-top:10px; padding:12px 40px; font-size:1rem;" onclick="_showRetryAd(restartGame)">🔄 새로 시작</button>
+            <button class="btn-start" style="margin-top:10px; padding:12px 40px; font-size:1rem;" onclick="restartGame()">🔄 새로 시작</button>
             <button class="btn-start" style="margin-top:8px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); color:#fff; padding:12px 40px; font-size:1rem;" onclick="goToTitle()">🏠 캐릭터 선택</button>
         </div>
     </div>
@@ -1603,7 +1609,11 @@
     const BOSS_TRIGGER_LEVEL = 6;
     const MAX_CHESTS = 8;
     
-    const NATURE_LIMIT_PER_TYPE = 80; 
+    // [성능 버그 수정] Chrome 프로파일러로 확인 결과, Recalculate Style(21.9%)+Layout(15%)+
+    // Paint 계열이 전체 시간의 86%를 차지했고 실제 게임 로직(gameLoop)은 7%뿐이었다.
+    // 자연물 264개(80×3종+비석16+상자8)를 매 프레임 유지·갱신하는 DOM 체급 자체가 근본
+    // 원인이었으므로, 밀도를 절반으로 낮춰 렌더링 파이프라인 부담을 직접 줄인다.
+    const NATURE_LIMIT_PER_TYPE = 40; 
 
     const SEASON_MAP = {
         1:'spring', 2:'spring',
@@ -1739,6 +1749,7 @@
             tutorialOpen: false,
             invincible: false,
             stoneTypingGuard: false, // [버그2 수정] 비석 단어 타이핑 중 몬스터 피격 무효화 플래그
+            _lastSubProjectileLen: 0, // [화살 스팸 버그 수정] 서브 발사체 중복 발사 방지용 추적값
             job: 'archer',
             coins: 0,
             hp: 3, maxHp: 12,
@@ -2029,6 +2040,12 @@
         return false;
     }
 
+    function isCompleteHangul(char) {
+        if (!char) return false;
+        const code = char.charCodeAt(0);
+        return code >= 0xAC00 && code <= 0xD7A3;
+    }
+
     function generateSimpleHangul(length, type = 'normal') {
         if (type === 'stone') return STONE_WORDS[Math.floor(Math.random() * STONE_WORDS.length)];
         if (state.isBossActive) return BOSS_WORDS[Math.floor(Math.random() * BOSS_WORDS.length)];
@@ -2219,11 +2236,13 @@
 
     async function initGame() {
         if (state.gameLoopId) cancelAnimationFrame(state.gameLoopId);
+        if (state.inputClearTimer) clearTimeout(state.inputClearTimer); // [초기화 보강] 이전 게임의 잔여 타이머 정리
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-clear-screen').classList.add('hidden');
         document.getElementById('game-over-screen').classList.add('hidden');
         upgradeScreen.classList.add('hidden'); // [버그1 수정] 이전 게임의 스킬 팝업이 새 게임까지 남아있는 것 방지
         objectLayer.innerHTML = '';
+        radarDotsContainer.innerHTML = ''; // [초기화 보강] 이전 게임의 레이더 점이 잠깐이라도 남아있지 않도록
         state.fieldCoins = [];
         state.mapCoins = [];
         state.dropCoinsList = [];
@@ -2407,7 +2426,7 @@
         obj.el.appendChild(effectLabel);
     }
 
-    function updateTypingLabels(inputValue, keepEffects = false) {
+    function updateTypingLabels(inputValue, keepEffects = false, spawnEffect = true) {
         if (!inputValue && !keepEffects) {
             document.querySelectorAll('.typing-effect-label').forEach(el => el.remove());
         }
@@ -2432,7 +2451,10 @@
             const label = m.el.querySelector('.typing-label');
             if (label) {
                 label.innerHTML = getHighlightedHTML(m.word, inputValue);
-                if (m.word.startsWith(inputValue)) {
+                // [버그 수정] 이 이펙트 팝업 생성이 조합 중간값마다(또는 input과 compositionupdate
+                // 양쪽에서 중복으로) 계속 발동해서 글자 하나 칠 때마다 여러 개씩 겹쳐 튀어나오며
+                // 버벅거렸다. spawnEffect가 true일 때만(=완성된 새 글자일 때만) 생성하도록 제한.
+                if (spawnEffect && m.word.startsWith(inputValue)) {
                     const effectLabel = document.createElement('div');
                     effectLabel.className = 'typing-effect-label';
                     effectLabel.innerText = lastChar;
@@ -2447,7 +2469,7 @@
                 const label = n.el.querySelector('.typing-label');
                 if (label) {
                     label.innerHTML = getHighlightedHTML(n.word, inputValue);
-                    if (n.word.startsWith(inputValue)) {
+                    if (spawnEffect && n.word.startsWith(inputValue)) {
                         const effectLabel = document.createElement('div');
                         effectLabel.className = 'typing-effect-label';
                         effectLabel.innerText = lastChar;
@@ -2463,12 +2485,12 @@
     let isComposing = false;
     inputBox.addEventListener('compositionstart', () => { isComposing = true; });
     inputBox.addEventListener('compositionupdate', (e) => {
-        // 조합 중인 글자 포함해서 라벨 업데이트
+        // 조합 중인 글자 포함해서 라벨 텍스트만 실시간 갱신 (이펙트 팝업은 안 띄움 — spawnEffect=false)
         if (state.paused) return;
         const composed = e.data || '';
         const base = inputBox.value;
         const val = (base + composed).trim();
-        if (val) updateTypingLabels(val);
+        if (val) updateTypingLabels(val, false, false);
     });
     inputBox.addEventListener('compositionend', (e) => {
         isComposing = false;
@@ -2505,17 +2527,33 @@
                 inputBox.value = '';
                 updateTypingLabels('');
                 state.stoneTypingGuard = false; // [버그2 수정]
+                state._lastSubProjectileLen = 0; // [화살 스팸 버그 수정] 새 단어 시작 시 정상 발사되도록 초기화
                 state.inputClearTimer = null;
                 inputBox.focus();
             }, 1000);
         }
 
-        if (val.length > 0) {
+        // [성능/시각 버그 수정] 기존엔 이 input 이벤트가 조합 중간값(ㄴ→나→나ㅂ→나비 등)마다
+        // 매번 발생할 때 launchSubProjectile()도 매번 새 화살 DOM을 만들어 쏘고 있었다.
+        // 긴 단어를 칠수록 화살이 우수수 쏟아지듯 겹쳐서 버벅거리는 원인이었으므로,
+        // "완성된 새 글자가 실제로 늘었을 때"만 한 번 발사하도록 제한한다.
+        if (val.length < (state._lastSubProjectileLen || 0)) {
+            state._lastSubProjectileLen = val.length; // 백스페이스 등으로 줄어든 경우 보정
+        }
+        const lastChar = val.slice(-1);
+        const isNewCompleteChar = isCompleteHangul(lastChar) && val.length > (state._lastSubProjectileLen || 0);
+        if (isNewCompleteChar) {
+            state._lastSubProjectileLen = val.length;
             launchSubProjectile();
             sfxType();
+        } else if (val.length === 0) {
+            state._lastSubProjectileLen = 0;
         }
 
-        updateTypingLabels(val);
+        // [버그 수정] 여기도 조합 중간값마다 이펙트 팝업이 중복 생성되던 곳이라,
+        // 위에서 이미 계산한 isNewCompleteChar(완성된 새 글자일 때만 true)를 그대로 재사용해서
+        // 하이라이트 텍스트는 실시간으로 갱신하되 이펙트 팝업은 그때만 생성한다.
+        updateTypingLabels(val, false, isNewCompleteChar);
 
         // [버그2 수정] 비석 단어 시작 부분과만 일치하고(몬스터 단어와는 안 겹치는 경우) 타이핑 중엔
         // 화면에 집중하느라 피하지 못한 몬스터 접촉으로 하트가 소모되지 않도록 무효화 처리
@@ -2561,8 +2599,7 @@
             const isPartialMatch = allWords.some(w => w && w.startsWith(val));
             if (!isPartialMatch) {
                 inputBox.classList.remove('miss-flash');
-                void inputBox.offsetWidth;
-                inputBox.classList.add('miss-flash');
+                requestAnimationFrame(() => inputBox.classList.add('miss-flash'));
                 inputBox.addEventListener('animationend', () => inputBox.classList.remove('miss-flash'), { once: true });
                 sfxMiss();
             }
@@ -2603,6 +2640,7 @@
             inputBox.value = '';
             updateTypingLabels('', true);
             state.stoneTypingGuard = false; // [버그2 수정]
+            state._lastSubProjectileLen = 0; // [화살 스팸 버그 수정]
             if (state.inputClearTimer) { clearTimeout(state.inputClearTimer); state.inputClearTimer = null; }
         }
     });
@@ -2737,8 +2775,7 @@
                 obj.fireHp--;
 
                 obj.el.classList.remove('hit-flash');
-                void obj.el.offsetWidth;
-                obj.el.classList.add('hit-flash');
+                requestAnimationFrame(() => obj.el.classList.add('hit-flash'));
                 obj.el.addEventListener('animationend', () => obj.el.classList.remove('hit-flash'), { once: true });
 
                 const hearts = obj.el.querySelectorAll('.fire-heart');
@@ -2830,6 +2867,7 @@
         inputBox.value = '';
         updateTypingLabels('');
         state.stoneTypingGuard = false; // [버그2 수정] 이제부턴 state.paused가 보호하므로 가드 해제
+        state._lastSubProjectileLen = 0; // [화살 스팸 버그 수정]
         inputBox.setAttribute('tabindex', '-1');
         inputBox.blur();
 
@@ -3047,8 +3085,11 @@
         }
     }
 
+    const MAX_MONSTERS = 40; // [성능 버그 수정] 몬스터 최대 개체수 안전장치
+
     function spawnMonster(isBoss = false) {
         if (isBoss) { state.isBossActive = true; sfxBoss(); }
+        else if (state.monsters.filter(m => !m.isBoss).length >= MAX_MONSTERS) return; // 일반 몬스터 상한 도달 시 스폰 스킵
         const angle = Math.random() * Math.PI * 2;
         const dist = 700;
         const x = state.worldPos.x + Math.cos(angle) * dist;
@@ -3082,6 +3123,7 @@
                 inputBox.value = '';
                 updateTypingLabels('');
                 state.stoneTypingGuard = false; // [버그2 수정]
+                state._lastSubProjectileLen = 0; // [화살 스팸 버그 수정]
                 inputBox.focus();
             }
         }
@@ -3121,10 +3163,15 @@
             state.nature.forEach(n => {
                 const dx = n.x - state.worldPos.x; const dy = n.y - state.worldPos.y;
                 const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 1000) {
-                    n.el.style.display = 'flex';
+                const visible = dist < 1000;
+                // [성능 버그 수정] display를 매번 다시 쓰면 값이 그대로여도 강제 리플로우가
+                // 발생할 수 있어서, 실제로 보임/숨김 상태가 바뀔 때만 쓰도록 캐싱한다.
+                if (visible) {
                     n.el.style.transform = `translate(${dx + VIEW_W/2}px, ${dy + VIEW_H/2}px)`;
-                } else n.el.style.display = 'none';
+                    if (n._visible !== true) { n.el.style.display = 'flex'; n._visible = true; }
+                } else if (n._visible !== false) {
+                    n.el.style.display = 'none'; n._visible = false;
+                }
             });
             state.gameLoopId = requestAnimationFrame(gameLoop); 
             return; 
@@ -3177,17 +3224,20 @@
         state.nature.forEach(n => {
             const dx = n.x - state.worldPos.x; const dy = n.y - state.worldPos.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 1000) {
-                n.el.style.display = 'flex';
+            const visible = dist < 1000;
+            // [성능 버그 수정] display를 매번 다시 쓰면 값이 그대로여도 강제 리플로우가
+            // 발생할 수 있어서, 실제로 보임/숨김 상태가 바뀔 때만 쓰도록 캐싱한다.
+            if (visible) {
                 n.el.style.transform = `translate(${dx + VIEW_W/2}px, ${dy + VIEW_H/2}px)`;
-            } else n.el.style.display = 'none';
-            if (dist < RADAR_SCAN_RANGE) {
-                if (!n.cleared && n.type === 'stone') {
-                    if (dist < minStoneDist) { minStoneDist = dist; nearestStone = n; }
-                }
+                if (n._visible !== true) { n.el.style.display = 'flex'; n._visible = true; }
+            } else if (n._visible !== false) {
+                n.el.style.display = 'none'; n._visible = false;
             }
-            if (!n.cleared && n.type === 'stone') {
-                if (dist < minStoneDist) { minStoneDist = dist; nearestStone = n; }
+            // [성능 버그 수정] 바로 아래와 완전히 동일한 비석 거리체크가 중복으로 두 번
+            // 있었어서(복붙 실수로 보임) 하나로 합침 — 자연물 개수만큼(최대 264개) 매 프레임
+            // 불필요한 연산이 두 배로 나가고 있었다.
+            if (!n.cleared && n.type === 'stone' && dist < minStoneDist) {
+                minStoneDist = dist; nearestStone = n;
             }
         });
 
@@ -3205,10 +3255,10 @@
                 dist = Math.sqrt(dx*dx + dy*dy);
             }
             if (dist < 1000) {
-                c.el.style.display = 'flex';
                 c.el.style.transform = `translate(${c.x - state.worldPos.x + VIEW_W/2}px, ${c.y - state.worldPos.y + VIEW_H/2}px)`;
-            } else {
-                c.el.style.display = 'none';
+                if (c._visible !== true) { c.el.style.display = 'flex'; c._visible = true; }
+            } else if (c._visible !== false) {
+                c.el.style.display = 'none'; c._visible = false;
             }
             if (dist < collectRange) {
                 c.el.style.animation = 'coin-collect 0.3s forwards';
@@ -3230,10 +3280,10 @@
                 dist = Math.sqrt(dx*dx + dy*dy);
             }
             if (dist < 1000) {
-                c.el.style.display = 'flex';
                 c.el.style.transform = `translate(${c.x - state.worldPos.x + VIEW_W/2}px, ${c.y - state.worldPos.y + VIEW_H/2}px)`;
-            } else {
-                c.el.style.display = 'none';
+                if (c._visible !== true) { c.el.style.display = 'flex'; c._visible = true; }
+            } else if (c._visible !== false) {
+                c.el.style.display = 'none'; c._visible = false;
             }
             if (dist < collectRange) {
                 c.el.style.animation = 'coin-collect 0.3s forwards';
@@ -3282,10 +3332,20 @@
             }
         });
 
-        state.monsters.forEach(m => {
+        // [성능 버그 수정] 기존엔 몬스터가 죽을 때만 사라지고, 멀어져도 절대 안 사라져서
+        // spawnMonster()가 5초마다 계속 생성하는 몬스터가 플레이 시간이 길어질수록
+        // 무한정 쌓이며 매 프레임 순회 비용이 계속 늘어나 점점 버벅거리는 원인이 되었다.
+        // 나무/코인처럼 CULL_DISTANCE(1500)보다 멀어진 일반 몬스터는 정리한다(보스는 예외).
+        state.monsters = state.monsters.filter(m => {
             const dx = state.worldPos.x - m.x; 
             const dy = state.worldPos.y - m.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if (!m.isBoss && dist > CULL_DISTANCE) {
+                m.el.remove();
+                return false;
+            }
+
             if (doRadar && dist < RADAR_SCAN_RANGE) {
                 const dot = document.createElement('div');
                 dot.className = `radar-dot ${m.isBoss ? 'boss-dot' : m.isFire ? 'fire-dot' : m.isCaterpillar ? 'caterpillar-dot' : 'monster-dot'}`;
@@ -3320,12 +3380,10 @@
                 setTimeout(() => { state.invincible = false; }, 1000);
                 const gameView = document.getElementById('game-view');
                 gameView.classList.remove('screen-shake');
-                void gameView.offsetWidth;
-                gameView.classList.add('screen-shake');
+                requestAnimationFrame(() => gameView.classList.add('screen-shake'));
                 gameView.addEventListener('animationend', () => gameView.classList.remove('screen-shake'), { once: true });
                 playerFixed.classList.remove('player-knockback');
-                void playerFixed.offsetWidth;
-                playerFixed.classList.add('player-knockback');
+                requestAnimationFrame(() => playerFixed.classList.add('player-knockback'));
                 playerFixed.addEventListener('animationend', () => playerFixed.classList.remove('player-knockback'), { once: true });
                 if (state.hp <= 0) {
                     sfxGameOver(); stopAllAudio();
@@ -3335,6 +3393,7 @@
                     document.getElementById('game-over-screen').classList.remove('hidden');
                 }
             }
+            return true;
         });
 
         if (!state.paused) state.projectiles.forEach((p, index) => {
@@ -3468,11 +3527,14 @@
       ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
       ov.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
         +'<span style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:2px 8px;border-radius:5px">AD</span>'
-        +'<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="8741532582" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>'
+        +'<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="8741532582" data-ad-format="auto" data-full-width-responsive="true"></ins>'
         +'<div style="width:22px;height:22px;border:3px solid #e2e8f0;border-top-color:#4a90e2;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
         +'<span style="font-size:12px;color:#64748b;font-weight:600">불러오는 중...</span>'
         +'</div>';
       document.body.appendChild(ov);
+      // [버그 수정] innerHTML로 삽입한 <script> 태그는 브라우저가 실행시켜주지 않아서
+      // 광고가 안 뜨고 있었음. <ins>가 실제로 DOM에 붙은 뒤 직접 push를 실행해야 함.
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
       setTimeout(function(){ ov.remove(); actualFn(); },1200);
     }
     if(!document.getElementById('_adspin-style')){
@@ -3803,8 +3865,7 @@
             document.getElementById('sb-text').style.color = s.banner.color;
             document.getElementById('sb-sub').innerText = s.banner.sub;
             banner.classList.remove('show');
-            void banner.offsetWidth;
-            banner.classList.add('show');
+            requestAnimationFrame(() => banner.classList.add('show'));
             banner.addEventListener('animationend', () => banner.classList.remove('show'), { once: true });
         }
 
@@ -3812,15 +3873,8 @@
     }
 
     function startSeasonParticles() {
-        if (seasonParticleTimer) clearInterval(seasonParticleTimer);
-        const s = SEASONS[currentSeason];
-        let count = 0;
-        seasonParticleTimer = setInterval(() => {
-            if (!state.playing || state.paused) return;
-            spawnSeasonParticle(s.particle);
-            count++;
-            if (count > 60) { clearInterval(seasonParticleTimer); seasonParticleTimer = null; }
-        }, 120);
+        // [요청에 따라 비활성화] 하늘에서 꽃/낙엽 등이 떨어지는 계절 파티클 효과 제거
+        return;
     }
 
     function spawnSeasonParticle(pool) {
