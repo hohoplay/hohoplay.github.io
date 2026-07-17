@@ -2973,7 +2973,7 @@ def build_chinese_post(c, today_str):
     )
 
     signal = _chinese_seo_title_keyword(total, money, health, love)
-    title  = f"{c['kr']} {today_sync} 오늘의 운세 | {signal}"
+    title  = f"{c['kr']} {today_sync} 오늘의 운세 | 띠운세 {signal}"
 
     # 출생연도별 운세
     # (사람용: 산문 / 기계용: fortune.html parseFortune_Chinese 신규조 — display:flex 행)
