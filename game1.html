@@ -3523,18 +3523,16 @@
     // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
     // 광고 시청을 강제로 보상과 묶지 않고, 재시작 직전의 짧은 로딩 순간에만 노출.
     function _showRetryAd(actualFn){
+      // [정책 대응] 콘텐츠 없는 화면에 광고를 표시하는 게 애드센스 "빈약한 콘텐츠" 정책
+      // 위반 사례 중 하나로 지목되어, 이 짧은 전환 화면에서는 광고를 뺐다. 로딩 연출
+      // 자체(스피너+문구)는 그대로 유지한다.
       var ov=document.createElement('div');
       ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
       ov.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
-        +'<span style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:2px 8px;border-radius:5px">AD</span>'
-        +'<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="8741532582" data-ad-format="auto" data-full-width-responsive="true"></ins>'
         +'<div style="width:22px;height:22px;border:3px solid #e2e8f0;border-top-color:#4a90e2;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
         +'<span style="font-size:12px;color:#64748b;font-weight:600">불러오는 중...</span>'
         +'</div>';
       document.body.appendChild(ov);
-      // [버그 수정] innerHTML로 삽입한 <script> 태그는 브라우저가 실행시켜주지 않아서
-      // 광고가 안 뜨고 있었음. <ins>가 실제로 DOM에 붙은 뒤 직접 push를 실행해야 함.
-      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
       setTimeout(function(){ ov.remove(); actualFn(); },1200);
     }
     if(!document.getElementById('_adspin-style')){
