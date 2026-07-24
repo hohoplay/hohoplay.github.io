@@ -1091,11 +1091,12 @@
                 제가 만든 웹게임인데, 한 5분만 써보시고 느낀 점을 편하게 알려주시면 정말 큰 도움이 됩니다.<br>
                 뭐가 헷갈렸는지, 뭐가 있으면 좋았을지 — 짧은 한 줄이어도 좋아요!
             </p>
-            <a href="mailto:lyh0929mm@gmail.com?subject=%5B호호플레이%5D%20피드백&body=%EC%96%B4%EB%96%A4%20%EA%B2%8C%EC%9E%84%EC%9D%84%20%ED%94%8C%EB%A0%88%EC%9D%B4%ED%95%98%EC%85%A8%EB%82%98%EC%9A%94%3F%0A%ED%8E%B8%ED%95%98%EA%B2%8C%20%EB%8A%90%EB%82%80%20%EC%A0%90%EC%9D%84%20%EC%A0%81%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94%20%3A)"
-                onclick="closeFeedbackPopup(true)"
-                class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl transition mb-3">
-                💌 피드백 메일 보내기
-            </a>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 mb-3 flex items-center justify-between gap-2">
+                <span id="feedback-email-text" class="font-black text-slate-800 text-sm select-all">lyh0929mm@gmail.com</span>
+                <button onclick="copyFeedbackEmail(this)" class="shrink-0 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">
+                    복사
+                </button>
+            </div>
             <button onclick="closeFeedbackPopup(true)" class="text-slate-400 hover:text-slate-600 text-xs font-bold underline underline-offset-2">
                 7일 동안 보지 않기
             </button>
@@ -1112,6 +1113,28 @@
                 try { localStorage.setItem(KEY, String(until)); } catch (e) {}
             }
         };
+        window.copyFeedbackEmail = function(btn) {
+            var email = document.getElementById('feedback-email-text').textContent;
+            var done = function() {
+                var old = btn.textContent;
+                btn.textContent = '복사됨!';
+                setTimeout(function() { btn.textContent = old; }, 1500);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(email).then(done).catch(function() {
+                    fallbackCopy(email); done();
+                });
+            } else {
+                fallbackCopy(email); done();
+            }
+        };
+        function fallbackCopy(text) {
+            var t = document.createElement('textarea');
+            t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+            document.body.appendChild(t); t.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(t);
+        }
         try {
             var hideUntil = parseInt(localStorage.getItem(KEY) || '0', 10);
             if (Date.now() < hideUntil) return; // 아직 스누즈 기간 중이면 아예 안 띄움
