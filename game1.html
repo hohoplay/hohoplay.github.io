@@ -3907,6 +3907,10 @@
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         조작 가이드
                     </button>
+                    <button onclick="switchTab('tips')" id="tab-tips"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        공략 &amp; FAQ
+                    </button>
                     <button onclick="switchTab('info')" id="tab-info"
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         시스템 정보
@@ -3915,15 +3919,43 @@
 
                 <!-- 탭 내용: 게임 설명 -->
                 <div id="panel-desc" class="tab-panel p-10">
-                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        숲을 탐험하며 곳곳에 숨겨진 속담 석판을 찾아 타이핑으로 해독하는 RPG 스타일 타자 연습 게임입니다.<br><br>
-                        정확한 타이핑으로 몬스터를 물리치고 캐릭터를 성장시키며, 스테이지를 진행할수록 더 길고 어려운 속담이 등장합니다.
-                        타이핑 실력과 모험을 동시에 즐길 수 있습니다.
-                    </p>
+                    <div>
+                        <h3 class="font-black text-lg text-slate-800 mb-3">🗡️ 어떤 게임인가</h3>
+                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                            숲을 탐험하며 몬스터를 타이핑으로 물리치는 액션 RPG다. 방향키로 이동하면서 화면에 뜬 단어를 정확히 입력하면 가장 가까운 몬스터를 공격하는 방식이라, 이동과 타이핑을 동시에 처리해야 하는 게 이 게임의 핵심이다.
+                        </p>
+                    </div>
+                    <details class="mt-5">
+                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                        <div class="mt-5 space-y-6">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">🌿 플레이 포인트</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    레벨업할 때마다 공격속도나 사거리 같은 스킬을 골라 캐릭터를 키워나가고, 맵 곳곳에 흩어진 비석을 정화하면 속담 완성 퀴즈가 별도로 뜬다. 비석을 정화하는 동안엔 몬스터가 멈추기 때문에 부담 없이 퀴즈에 집중할 수 있고, 웨이브를 진행할수록 계절이 바뀌면서 배경도 함께 달라진다. 다만 초반 몇 웨이브는 몬스터 수가 적어 다소 루즈하게 느껴질 수 있다.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    타이핑 연습을 게임처럼 가볍게 하고 싶은 사람, 손을 바쁘게 움직이며 몰입하는 걸 좋아하는 사람에게 잘 맞는다.
+                                </p>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <!-- 탭 내용: 조작 가이드 -->
                 <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-2">
+                        방향키로 이동하면서도 동시에 타이핑할 수 있습니다.
+                    </p>
+                    <details class="mb-8">
+                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                        <p class="text-slate-600 text-lg leading-relaxed font-medium mt-3">
+                            화면에 뜬 단어를 정확히 입력하면 가장 가까운 몬스터가 자동으로 공격 대상이 됩니다.
+                            레벨업 시 <b class="text-indigo-600">Z</b> 또는 <b class="text-indigo-600">X</b> 키로 스킬을 선택해 캐릭터를 성장시키고, 조합 중 실수했을 땐 <b class="text-indigo-600">Esc</b>로 입력을 바로 취소할 수 있습니다.
+                        </p>
+                    </details>
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">이동 조작</span>
@@ -3947,6 +3979,43 @@
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">테스트 취소</span>
                             <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">Esc</kbd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 내용: 공략 & FAQ -->
+                <div id="panel-tips" class="tab-panel p-10 hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+                            <p class="text-slate-600 text-lg leading-relaxed font-medium">
+                                초반엔 <b class="text-indigo-600">공격속도 스킬</b>을 우선 찍으면 몬스터 처치 속도가 눈에 띄게 빨라집니다.
+                            </p>
+                            <details class="mt-2">
+                                <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                                <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside mt-3">
+                                    <li>비석을 정화하는 동안엔 몬스터가 일시 정지되니, 안전하게 속담 퀴즈에 집중할 수 있습니다.</li>
+                                    <li>HP는 3칸에서 시작해 최대 12칸까지 성장하므로, 초반엔 몬스터와 거리를 유지하는 게 중요합니다.</li>
+                                    <li>궁수는 이동속도가 빠르고, 마법사는 투사체가 느린 대신 강력합니다 — 플레이 스타일에 맞게 선택하세요.</li>
+                                </ul>
+                            </details>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+                            <div class="space-y-4">
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 저장은 어떻게 하나요?</p>
+                                    <p class="text-slate-600">게임 중 "저장하기" 버튼을 누르면 되고, 시작 화면의 "이어하기"로 불러올 수 있습니다.</p>
+                                </div>
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 타자를 잘 못 쳐도 할 수 있나요?</p>
+                                    <p class="text-slate-600">네, 몬스터가 화면 밖에서 천천히 다가오는 구조라 여유 있게 입력할 수 있습니다.</p>
+                                </div>
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 모바일에서도 플레이할 수 있나요?</p>
+                                    <p class="text-slate-600">네, 다만 타이핑 조작 특성상 키보드가 있는 PC 환경에서 가장 원활하게 즐기실 수 있습니다.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

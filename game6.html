@@ -2606,6 +2606,10 @@ if (document.readyState === 'loading') {
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         조작 가이드
                     </button>
+                    <button onclick="switchTab('tips')" id="tab-tips"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        공략 &amp; FAQ
+                    </button>
                     <button onclick="switchTab('info')" id="tab-info"
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         시스템 정보
@@ -2613,15 +2617,35 @@ if (document.readyState === 'loading') {
                 </div>
 
                 <div id="panel-desc" class="tab-panel p-10">
-                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        벽과 벽 사이를 튕기며 최대한 높이 달려가는 러닝 액션 게임입니다.<br><br>
-                        블루·레드 캐릭터를 선택하고, 코인을 모아 업그레이드 상점에서 능력치를 강화하세요.
-                        피버 모드(TURBO!!)를 발동하면 무적 상태로 장애물을 돌파할 수 있습니다.<br><br>
-                        모바일과 PC 모두 플레이 가능합니다.
-                    </p>
+                    <div>
+                        <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
+                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                            좌우 벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션 게임이다. 블루와 레드 두 캐릭터 중 골라 시작하고, 벽에 부딪히는 타이밍을 맞추는 게 핵심 조작이다.
+                        </p>
+                    </div>
+                    <details class="mt-5">
+                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                        <div class="mt-5 space-y-6">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    블루는 이동속도가 빠르고 레드는 버섯(아이템) 등장 확률이 높아서, 성향에 따라 캐릭터를 골라 시작할 수 있다. 게임오버 후 모은 코인으로 업그레이드 상점에서 능력치를 강화할 수 있어서, 몇 판 반복할수록 점점 더 높이 올라가게 되는 성장 재미가 있다. 피버 아이템을 얻으면 TURBO 모드가 발동되어 7초 동안 무적 상태로 장애물을 그냥 뚫고 지나갈 수 있다.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    벽 튕기기 특유의 리듬감 있는 조작을 좋아하거나, 코인을 모아 캐릭터를 강화해가는 성장 재미를 원하는 사람에게 잘 맞는다.
+                                </p>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
+                        좌우 방향키(또는 화면 좌/우 탭)로 벽을 번갈아 차며 위로 올라갑니다. 타이밍이 늦으면 바로 아래로 떨어지니, 벽에 닿기 직전에 반대 방향을 눌러야 합니다.
+                    </p>
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">PC 점프</span>
@@ -2645,6 +2669,33 @@ if (document.readyState === 'loading') {
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">업그레이드</span>
                             <span class="font-bold text-slate-600">게임오버 후 코인으로 능력치 강화</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 내용: 공략 & FAQ -->
+                <div id="panel-tips" class="tab-panel p-10 hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+                            <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
+                                <li>레드 캐릭터로 버섯(피버 아이템)을 자주 얻어 TURBO를 적극 활용하면 초반 기록을 빠르게 늘릴 수 있습니다.</li>
+                                <li>업그레이드는 이동속도나 점프 관련 능력치부터 강화하면 체감 효과가 가장 큽니다.</li>
+                                <li>벽에 너무 붙어서 튕기려 하지 말고, 살짝 여유를 두고 반대 방향을 누르면 실수가 줄어듭니다.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+                            <div class="space-y-4">
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 코인은 어디서 확인하나요?</p>
+                                    <p class="text-slate-600">게임오버 화면에서 모은 코인과 업그레이드 상점을 바로 확인할 수 있습니다.</p>
+                                </div>
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 블루와 레드 중 뭐가 더 좋나요?</p>
+                                    <p class="text-slate-600">우열이 있다기보다 플레이 스타일 차이입니다. 빠른 이동을 원하면 블루, 아이템 활용을 원하면 레드를 추천합니다.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
