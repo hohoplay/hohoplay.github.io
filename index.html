@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260724140057_e57dfdc8">
+  <meta name="build-version" content="20260724140830_c8559601">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -1081,4 +1081,46 @@
     //    game1.html / game2.html 내부의 <canvas> 요소에 직접 아래를 추가하세요:
     //    canvas.addEventListener('contextmenu', e => e.preventDefault());
 </script>
+    <!-- ── 피드백 요청 팝업 ── -->
+    <div id="feedback-popup" class="fixed inset-0 z-[99999] hidden items-center justify-center p-4" style="background:rgba(15,23,42,.55)">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center relative animate-[fadeIn_.2s_ease]">
+            <button onclick="closeFeedbackPopup(false)" aria-label="닫기"
+                class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+            <div class="text-4xl mb-3">🙏</div>
+            <h3 class="font-black text-xl text-slate-800 mb-3">잠깐, 피드백 부탁드려도 될까요?</h3>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                제가 만든 웹게임인데, 한 5분만 써보시고 느낀 점을 편하게 알려주시면 정말 큰 도움이 됩니다.<br>
+                뭐가 헷갈렸는지, 뭐가 있으면 좋았을지 — 짧은 한 줄이어도 좋아요!
+            </p>
+            <a href="mailto:lyh0929mm@gmail.com?subject=%5B호호플레이%5D%20피드백&body=%EC%96%B4%EB%96%A4%20%EA%B2%8C%EC%9E%84%EC%9D%84%20%ED%94%8C%EB%A0%88%EC%9D%B4%ED%95%98%EC%85%A8%EB%82%98%EC%9A%94%3F%0A%ED%8E%B8%ED%95%98%EA%B2%8C%20%EB%8A%90%EB%82%80%20%EC%A0%90%EC%9D%84%20%EC%A0%81%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94%20%3A)"
+                onclick="closeFeedbackPopup(true)"
+                class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl transition mb-3">
+                💌 피드백 메일 보내기
+            </a>
+            <button onclick="closeFeedbackPopup(true)" class="text-slate-400 hover:text-slate-600 text-xs font-bold underline underline-offset-2">
+                7일 동안 보지 않기
+            </button>
+        </div>
+    </div>
+    <script>
+    (function() {
+        var KEY = 'hoho_feedback_popup_hide_until';
+        window.closeFeedbackPopup = function(snooze7days) {
+            document.getElementById('feedback-popup').classList.add('hidden');
+            document.getElementById('feedback-popup').classList.remove('flex');
+            if (snooze7days) {
+                var until = Date.now() + 7 * 24 * 60 * 60 * 1000;
+                try { localStorage.setItem(KEY, String(until)); } catch (e) {}
+            }
+        };
+        try {
+            var hideUntil = parseInt(localStorage.getItem(KEY) || '0', 10);
+            if (Date.now() < hideUntil) return; // 아직 스누즈 기간 중이면 아예 안 띄움
+        } catch (e) {}
+        setTimeout(function() {
+            var el = document.getElementById('feedback-popup');
+            if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
+        }, 2500); // 페이지 로드 2.5초 후 표시 (바로 뜨면 부담스러우니 살짝 텀)
+    })();
+    </script>
 </body>
