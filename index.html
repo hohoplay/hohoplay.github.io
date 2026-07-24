@@ -763,42 +763,14 @@
             `
         };
 
-        // 게임 클릭: g1은 game1.html로 이동, 나머지는 준비중 알림
+        // 게임 클릭: 실제 game*.html 파일로 진짜 이동 (about/fortune 등과 동일한 URL 분리 패턴)
+        // 이래야 애널리틱스가 게임별로 개별 추적되고, 검색엔진도 각 게임을 독립된 페이지로 인식함
         function handleGameClick(gameId) {
             const game = gameData.find(g => g.id === gameId);
             if (game && game.file) {
-                loadGamePage(game.file, game.name);
+                location.href = game.file;
             } else {
                 alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
-            }
-        }
-
-        async function loadGamePage(file, name) {
-            const contentDiv = document.getElementById('content');
-            // [FIX] 게임 → 다른 게임으로 바로 이동할 때도 이전 게임의 오디오를 정리
-            if (typeof window.stopAllGameAudio === 'function') {
-                try { window.stopAllGameAudio(); } catch (e) {}
-            }
-            contentDiv.innerHTML =
-                '<div class="flex flex-col items-center justify-center py-32 text-slate-400">' +
-                '<div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>' +
-                '<p class="font-bold text-sm">' + name + ' 불러오는 중...</p>' +
-                '</div>';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            try {
-                const r = await fetch('./' + file + '?v=' + Date.now(), { cache: 'no-store' });
-                const html = await r.text();
-                const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
-                contentDiv.innerHTML = mainMatch
-                    ? '<div class="page-transition">' + mainMatch[1] + '</div>'
-                    : '<div class="page-transition py-20 text-center text-slate-400">게임을 불러올 수 없습니다.</div>';
-                contentDiv.querySelectorAll('script').forEach(function(oldScript) {
-                    const s = document.createElement('script');
-                    s.textContent = oldScript.textContent;
-                    document.body.appendChild(s);
-                });
-            } catch(e) {
-                contentDiv.innerHTML = '<div class="page-transition py-20 text-center text-slate-400">게임을 불러올 수 없습니다.</div>';
             }
         }
 
