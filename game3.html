@@ -2589,6 +2589,10 @@
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         조작 가이드
                     </button>
+                    <button onclick="switchTab('tips')" id="tab-tips"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        공략 &amp; FAQ
+                    </button>
                     <button onclick="switchTab('info')" id="tab-info"
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         시스템 정보
@@ -2597,16 +2601,36 @@
 
                 <!-- 탭 내용: 게임 설명 -->
                 <div id="panel-desc" class="tab-panel p-10">
-                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        벚꽃이 흩날리는 배경 속, 하늘에서 떨어지는 글자를 정확히 입력해 처리하는 낙하형 타자 게임입니다.<br><br>
-                        10 CHAIN 달성 시 FEVER TIME 돌입.<br>
-                        500pts에 🌸 중간보스, 1000pts에 💀 대형보스 등장.<br>
-                        이후 1000pts 간격으로 보스가 반복 등장합니다.
-                    </p>
+                    <div>
+                        <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
+                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                            위에서 아래로 떨어지는 단어를 타이핑으로 없애는 낙하형 타자 게임이다. 단어를 놓치기 전에 빠르게 입력해야 하는 긴장감이 핵심이고, 벚꽃이 흩날리는 배경이 화면을 채우는 게 특징이다.
+                        </p>
+                    </div>
+                    <details class="mt-5">
+                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                        <div class="mt-5 space-y-6">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    10 CHAIN을 달성하면 FEVER TIME에 돌입해 점수 배율이 오르고, 500점에는 🌸 중간보스, 1000점에는 💀 대형보스가 등장한다. 이후로도 1000점 간격으로 보스가 반복 등장해서, 단순 낙하형치고는 긴장감의 완급조절이 잘 되어 있는 편이다. 단어를 놓치면 SHIELD가 줄어드는 방식이라, 체인이 끊기는 순간의 리스크가 꽤 크게 느껴진다.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    빠른 반응속도와 정확한 타이핑을 동시에 요구하는 게임이라, 손이 빠르거나 타자 속도에 자신 있는 사람에게 특히 재미있을 것이다.
+                                </p>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <!-- 탭 내용: 조작 가이드 -->
                 <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
+                        떨어지는 단어를 화면 아래에 닿기 전에 그대로 입력하면 사라집니다. 한글 조합 중에도 실시간으로 판정되니, 오타가 났을 땐 지우지 말고 바로 <b class="text-indigo-600">Backspace</b>로 정정하는 게 더 빠릅니다.
+                    </p>
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">한글 입력</span>
@@ -2626,6 +2650,33 @@
                         <div class="flex justify-between items-center p-5 bg-red-50 rounded-2xl border border-red-100">
                             <span class="font-black text-xl text-slate-800">단어 낙하 시</span>
                             <span class="text-red-500 font-bold text-sm">ERROR 발생 → SHIELD 감소</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 내용: 공략 & FAQ -->
+                <div id="panel-tips" class="tab-panel p-10 hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+                            <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
+                                <li>여러 단어가 동시에 떨어질 땐, 화면 아래에 가장 가까운 단어부터 우선 처리하는 게 안전합니다.</li>
+                                <li>FEVER TIME 중엔 점수 배율이 오르니, 이 구간에 최대한 많은 단어를 처리하는 게 고득점의 핵심입니다.</li>
+                                <li>보스 등장 구간(500점, 1000점)에는 평소보다 집중력을 끌어올려야 SHIELD를 아낄 수 있습니다.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+                            <div class="space-y-4">
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. SHIELD가 다 떨어지면 어떻게 되나요?</p>
+                                    <p class="text-slate-600">게임이 종료되고 그때까지의 점수가 최종 기록으로 남습니다.</p>
+                                </div>
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 한/영 전환이 자꾸 헷갈려요.</p>
+                                    <p class="text-slate-600">화면 상단에 현재 입력 언어가 표시되니, 시작 전 한 번 확인하는 습관을 들이면 좋습니다.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1098,6 +1098,10 @@
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         조작 가이드
                     </button>
+                    <button onclick="switchTab('tips')" id="tab-tips"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        공략 &amp; FAQ
+                    </button>
                     <button onclick="switchTab('info')" id="tab-info"
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         시스템 정보
@@ -1106,38 +1110,71 @@
 
                 <!-- 탭 내용: 게임 설명 -->
                 <div id="panel-desc" class="tab-panel p-10">
-                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        화면에 등장하는 한국 속담을 빠르고 정확하게 입력하는 심플한 타자 연습 게임입니다.<br><br>
-                        총 10라운드에 걸쳐 무작위로 출제되는 속담을 완성하며 타이핑 속도와 정확도를 기릅니다.
-                        로그인 없이 바로 시작할 수 있어 짧은 시간에도 부담 없이 즐길 수 있습니다.
-                    </p>
+                    <div>
+                        <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
+                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                            화면에 뜨는 한국 속담을 정해진 라운드 안에 정확히 타이핑해서 맞히는 게임이다. 별도의 성장 요소 없이 오직 타이핑 실력만으로 승부하는 구조라, 잡다한 시스템 없이 속담과 타자 속도에만 집중하고 싶을 때 어울린다.
+                        </p>
+                    </div>
+                    <details class="mt-5">
+                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                        <div class="mt-5 space-y-6">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    총 10라운드로 구성되어 있고, 라운드가 진행될수록 등장하는 속담의 길이나 난이도가 조금씩 올라간다. 오타가 나면 바로 표시되기 때문에 정확도를 신경 쓰면서 쳐야 하고, 평소에 잘 안 쓰는 속담들이 섞여 있어 타이핑 연습이면서 동시에 속담 공부도 은근히 된다. 로그인 없이 바로 시작할 수 있어 짧은 시간에도 부담 없이 즐길 수 있다.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    짧게 몇 판만 가볍게 하고 싶거나, 액션 없이 순수 타자 실력만 테스트해보고 싶은 사람에게 추천한다.
+                                </p>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <!-- 탭 내용: 조작 가이드 -->
                 <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
+                        입력창에 화면에 뜬 속담을 그대로 타이핑하고 <b class="text-indigo-600">Enter</b>를 누르면 정답 여부가 바로 채점됩니다. 별도의 이동이나 스킬 조작은 없고, 오직 정확한 타이핑에만 집중하면 됩니다.
+                    </p>
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">이동 조작</span>
-                            <div class="flex flex-col items-center gap-1">
-                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">↑</kbd>
-                                <div class="flex gap-1">
-                                    <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">←</kbd>
-                                    <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">↓</kbd>
-                                    <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">→</kbd>
+                            <span class="font-black text-xl text-slate-800">정답 제출</span>
+                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">Enter</kbd>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="font-black text-xl text-slate-800">입력 초기화</span>
+                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">Esc</kbd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 내용: 공략 & FAQ -->
+                <div id="panel-tips" class="tab-panel p-10 hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+                            <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
+                                <li>속담 전체를 보고 한 번에 외운 뒤 치는 것보다, 눈에 보이는 대로 바로바로 입력하는 게 더 빠릅니다.</li>
+                                <li>오타가 나면 즉시 표시되니, 틀린 부분만 빠르게 지우고 다시 입력하는 습관을 들이면 좋습니다.</li>
+                                <li>라운드 수가 정해져 있어 한 판이 금방 끝나니, 여러 판 반복하며 기록을 조금씩 줄여나가는 재미가 있습니다.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+                            <div class="space-y-4">
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 속담을 몰라도 할 수 있나요?</p>
+                                    <p class="text-slate-600">네, 화면에 속담 전체가 그대로 표시되니 몰라도 보고 따라 치면 됩니다.</p>
+                                </div>
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 중간에 그만두면 기록이 남나요?</p>
+                                    <p class="text-slate-600">10라운드를 모두 마쳐야 최종 결과가 기록됩니다.</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">스킬</span>
-                            <div class="flex gap-2 items-center">
-                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">z</kbd>
-                                <span class="text-slate-400">또는</span>
-                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">x</kbd>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">테스트 취소</span>
-                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">Esc</kbd>
                         </div>
                     </div>
                 </div>

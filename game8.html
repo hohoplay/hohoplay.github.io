@@ -2069,6 +2069,10 @@ window._showRetryAd = _showRetryAd;
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         조작 가이드
                     </button>
+                    <button onclick="switchTab('tips')" id="tab-tips"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        공략 &amp; FAQ
+                    </button>
                     <button onclick="switchTab('info')" id="tab-info"
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         시스템 정보
@@ -2076,15 +2080,35 @@ window._showRetryAd = _showRetryAd;
                 </div>
 
                 <div id="panel-desc" class="tab-panel p-10">
-                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        마법 결정을 드래그로 연결해 합이 7인 마법진을 완성하면 팝! 하고 터집니다.<br><br>
-                        10분 동안 혼자서 MAGIC POINT를 쌓거나 친구와 번갈아 대결합니다.
-                        연속 팝으로 <strong>CHAIN CAST</strong>를 발동하면 점수 배율이 올라갑니다.
-                        3연속 팝에는 <strong>BONUS TIME</strong>이 발동되어 8초간 점수 2배!
-                    </p>
+                    <div>
+                        <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
+                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                            마법 결정을 드래그로 연결해서 합이 7이 되는 마법진을 만들면 터지는 퍼즐 게임이다. 숫자 조합을 계산하면서 동시에 손을 빠르게 움직여야 해서, 두뇌 퍼즐과 순발력이 같이 필요한 편이다.
+                        </p>
+                    </div>
+                    <details class="mt-5">
+                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                        <div class="mt-5 space-y-6">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    10분이라는 시간 제한 안에서 혼자 MAGIC POINT를 쌓거나 친구와 번갈아 대결할 수 있다. 연속으로 팝을 성공시키면 CHAIN CAST가 발동해 배율이 ×1.5~×2로 오르고, 4개 이상을 한 번에 연결하면 추가로 150점이 붙는다. 3연속 팝을 달성하면 8초 동안 점수가 2배가 되는 BONUS TIME까지 터져서, 이 체인을 얼마나 길게 이어가느냐가 결국 최종 점수를 좌우한다.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    단순 매칭 퍼즐보다 살짝 머리를 써야 하는 걸 좋아하거나, 친구와 번갈아 하면서 승부욕을 자극받고 싶은 사람에게 잘 맞는다.
+                                </p>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
+                        인접한 젤리들을 드래그로 이어서, 선택한 숫자의 합이 정확히 7이 되면 마법진이 완성되어 터집니다. 합이 7을 넘거나 유효한 조합이 없으면 판이 자동으로 섞입니다.
+                    </p>
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">마법 결정 연결</span>
@@ -2109,6 +2133,33 @@ window._showRetryAd = _showRetryAd;
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">2인 대결</span>
                             <span class="font-bold text-slate-600">번갈아 연결, 10분 후 높은 점수 승리</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 내용: 공략 & FAQ -->
+                <div id="panel-tips" class="tab-panel p-10 hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+                            <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
+                                <li>작은 조합(2~3개)보다 4개 이상 한 번에 연결하는 쪽이 추가 점수까지 붙어 훨씬 효율적입니다.</li>
+                                <li>CHAIN CAST가 끊기지 않게, 다음 조합을 미리 눈으로 봐두고 연속으로 팝을 이어가는 게 중요합니다.</li>
+                                <li>2인 대결에서는 상대 차례에 유리한 조합이 많이 남지 않도록, 큰 조합을 아꼈다가 마지막에 쓰는 것도 전략입니다.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+                            <div class="space-y-4">
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 판이 막히면 어떻게 되나요?</p>
+                                    <p class="text-slate-600">유효한 조합이 없으면 자동으로 판이 섞이고, 필요하면 🔄 버튼으로 직접 한 번 섞을 수도 있습니다.</p>
+                                </div>
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 친구와는 어떻게 대결하나요?</p>
+                                    <p class="text-slate-600">같은 화면에서 번갈아 연결하는 방식으로, 10분 뒤 더 높은 점수를 낸 쪽이 승리합니다.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

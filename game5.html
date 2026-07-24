@@ -2815,6 +2815,10 @@ if(document.readyState==='loading'){
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         조작 가이드
                     </button>
+                    <button onclick="switchTab('tips')" id="tab-tips"
+                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
+                        공략 &amp; FAQ
+                    </button>
                     <button onclick="switchTab('info')" id="tab-info"
                         class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
                         시스템 정보
@@ -2822,14 +2826,35 @@ if(document.readyState==='loading'){
                 </div>
 
                 <div id="panel-desc" class="tab-panel p-10">
-                    <p class="text-slate-600 text-xl leading-relaxed font-medium">
-                        트럭과 장애물을 피하며 최대한 멀리, 오래 달리는 것이 목표인 레이싱 게임입니다.<br><br>
-                        피버 게이지를 채워 무적에 가까운 피버 모드를 발동시키고, 최고 기록을 명예의 전당에 올려보세요.
-                        모바일과 PC 모두 최적화되어 있어 어디서든 부드럽게 플레이할 수 있습니다.
-                    </p>
+                    <div>
+                        <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
+                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                            트럭과 장애물을 피하며 최대한 멀리, 오래 달리는 게 목표인 러닝형 레이싱 게임이다. 조작은 좌우 이동뿐이라 배우는 데 시간이 안 걸리고, 진행될수록 속도가 빨라지면서 순발력을 요구하는 방식으로 난이도가 올라간다.
+                        </p>
+                    </div>
+                    <details class="mt-5">
+                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+                        <div class="mt-5 space-y-6">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    피버 게이지가 100%까지 차면 무적에 가까운 피버 모드가 자동으로 발동되어서, 이 타이밍을 잘 버텨내느냐가 고득점의 관건이다. 기록은 명예의 전당에 남기 때문에 자기 최고 기록을 갱신하는 재미로 반복 플레이하게 되는 구조다. 모바일과 PC 모두 최적화되어 있어 어디서든 부드럽게 이어서 즐길 수 있다.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                                    짧은 시간에 스코어를 갱신해나가는 재미를 좋아하거나, 복잡한 룰 없이 바로 시작할 수 있는 가벼운 게임을 찾는 사람에게 맞는다.
+                                </p>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <div id="panel-guide" class="tab-panel p-10 hidden">
+                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
+                        좌우로 차선을 옮겨 다니며 트럭과 장애물을 피하기만 하면 됩니다. PC와 모바일 조작법이 달라서 환경에 맞게 확인해두면 좋습니다.
+                    </p>
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">PC 이동</span>
@@ -2845,6 +2870,33 @@ if(document.readyState==='loading'){
                         <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="font-black text-xl text-slate-800">피버 모드</span>
                             <span class="font-bold text-slate-600">피버 게이지 100% 시 자동 발동</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 내용: 공략 & FAQ -->
+                <div id="panel-tips" class="tab-panel p-10 hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+                            <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
+                                <li>속도가 빨라지는 구간에서는 미리 다음 차선을 예측해 여유 있게 이동하는 게 안전합니다.</li>
+                                <li>피버 게이지는 자연스럽게 채워지니, 무리해서 아슬아슬하게 회피하기보다 꾸준히 살아남는 게 결국 더 유리합니다.</li>
+                                <li>최고 기록을 노린다면 초반 저속 구간에서 실수하지 않는 게 무엇보다 중요합니다.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+                            <div class="space-y-4">
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 명예의 전당 기록은 어떻게 저장되나요?</p>
+                                    <p class="text-slate-600">게임이 끝나면 자동으로 그 판의 최고 기록이 명예의 전당에 반영됩니다.</p>
+                                </div>
+                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p class="font-black text-slate-800 mb-1">Q. 모바일에서 조작이 잘 안 먹어요.</p>
+                                    <p class="text-slate-600">화면을 짧게 탭하거나 스와이프하는 방식이라, 길게 누르지 말고 짧게 터치해보세요.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
