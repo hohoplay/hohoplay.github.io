@@ -1773,6 +1773,16 @@ ${info.usage}`;
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
+                    <div onclick="showFortune('saju')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
+                          padding:16px 18px;border-radius:14px;margin-bottom:12px;
+                          background:linear-gradient(135deg,#1e3a8a,#4f46e5)">
+                      <span style="font-size:26px;flex-shrink:0">🔯</span>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:13px;font-weight:700;color:#c7d2fe;margin-bottom:3px;word-break:keep-all">사주팔자로 더 깊이 보기</div>
+                        <div style="font-size:12px;color:#a5b4fc;line-height:1.6;word-break:keep-all">생년월일시로 정밀 사주 분석 →</div>
+                      </div>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+                    </div>
                     
                 </div>`;
         }
@@ -2974,6 +2984,27 @@ ${info.usage}`;
 
             // 12. 부적 시스템
             + buildBujeokHTML(year, month, day, ilgan, ohCount, sjName, age, gender, {pwIdx:pwIdx, maxOH:maxOH, minOH:minOH, scores6:scores6, totalScore:totalScore, nameSajuResult:nameSajuResult});
+
+            // 13. 다른 운세 더 보기 (크로스링크)
+            result.innerHTML +=
+                '<div style="margin-top:16px">'
+                + '<div style="font-size:13px;font-weight:900;color:#6b7280;margin-bottom:10px;padding-left:2px">🔮 다른 운세도 함께 보세요</div>'
+                + '<div onclick="showFortune(\'today\')" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,#6d28d9,#a855f7)">'
+                    + '<span style="font-size:26px;flex-shrink:0">🌟</span>'
+                    + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#f3e8ff;margin-bottom:3px">오늘의 운세 보기</div><div style="font-size:12px;color:#e9d5ff;line-height:1.6">매일 새로운 하루 운세 →</div></div>'
+                    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e9d5ff" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>'
+                + '</div>'
+                + '<div onclick="showFortune(\'zodiac\')" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,#5b21b6,#7c3aed)">'
+                    + '<span style="font-size:26px;flex-shrink:0">✨</span>'
+                    + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#e9d5ff;margin-bottom:3px">별자리 운세 보기</div><div style="font-size:12px;color:#c4b5fd;line-height:1.6">서양 별자리로도 확인해보기 →</div></div>'
+                    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>'
+                + '</div>'
+                + '<div onclick="showFortune(\'chinese\')" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,#7c2d12,#ea580c)">'
+                    + '<span style="font-size:26px;flex-shrink:0">🐉</span>'
+                    + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px">띠 운세 보기</div><div style="font-size:12px;color:#fdba74;line-height:1.6">태어난 해의 띠로 알아보기 →</div></div>'
+                    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>'
+                + '</div>'
+                + '</div>';
 
             result.scrollIntoView({behavior:'smooth',block:'start'});
         }
@@ -5780,6 +5811,16 @@ ${info.usage}`;
             + '</div>'
             + '</div>';
 
+        resultDiv.innerHTML +=
+            '<div style="margin-top:16px">'
+            + '<div style="font-size:13px;font-weight:900;color:#9b8fb0;margin-bottom:10px;padding-left:2px">🎴 다른 타로도 해보세요</div>'
+            + '<div onclick="showFortune(\'tarot\')" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,#581c87,#9333ea)">'
+                + '<span style="font-size:26px;flex-shrink:0">✦</span>'
+                + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#f3e8ff;margin-bottom:3px">일반 타로 카드 리딩 보기</div><div style="font-size:12px;color:#e9d5ff;line-height:1.6">3장 스프레드로 자유롭게 질문하기 →</div></div>'
+                + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e9d5ff" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>'
+            + '</div>'
+            + '</div>';
+
         // 컨텍스트 저장 (이후 확장용)
         window._mbtiTarotCtx = { mbti: mbti, q: q, cards: cards, mbtiD: mbtiD };
     }
@@ -6763,6 +6804,15 @@ ${info.usage}`;
           </ul>
         </div>
       `;
+      area.innerHTML +=
+        '<div style="margin-top:16px">'
+        + '<div style="font-size:13px;font-weight:900;color:#9b8fb0;margin-bottom:10px;padding-left:2px">🎴 다른 타로도 해보세요</div>'
+        + '<div onclick="showFortune(\'mbti-tarot\')" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,#312e81,#6366f1)">'
+            + '<span style="font-size:26px;flex-shrink:0">🧩</span>'
+            + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#e0e7ff;margin-bottom:3px">MBTI 타로 해보기</div><div style="font-size:12px;color:#c7d2fe;line-height:1.6">내 성격 유형에 맞춘 타로 리딩 →</div></div>'
+            + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c7d2fe" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>'
+        + '</div>'
+        + '</div>';
       area.scrollIntoView({behavior:'smooth',block:'start'});
     }
 
