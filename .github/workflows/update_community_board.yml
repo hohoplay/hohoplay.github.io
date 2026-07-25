@@ -1,0 +1,37 @@
+name: 📋 커뮤니티 소식 갱신
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, deleted, labeled, unlabeled]
+  workflow_dispatch:        # 수동 실행
+  schedule:
+    - cron: '0 */6 * * *'   # 안전망: 6시간마다 한 번씩도 갱신
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v5
+
+      - name: 🐍 Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: 📋 이슈 목록 갱신
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/build_community_board.py
+
+      - name: 💾 변경사항 커밋
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/community_board.json
+          git diff --staged --quiet || git commit -m "📋 커뮤니티 소식 갱신 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git push
