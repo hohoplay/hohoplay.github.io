@@ -75,7 +75,7 @@ body {
 
 canvas {
   display: block;
-  touch-action: none;
+  touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
   border-radius: 12px;
   background-color: #D1D9E0;
@@ -598,7 +598,7 @@ canvas {
 <style>
         /* HOHO PLAY 공통 */
         #game-container {
-  touch-action: none; font-family: 'Nanum Gothic', sans-serif; }
+  font-family: 'Nanum Gothic', sans-serif; }
         .page-transition { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 10px; }
@@ -613,7 +613,6 @@ canvas {
 }
 
 #game-container {
-  touch-action: none;
   font-family: 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   background: linear-gradient(180deg, #A7D8DE 0%, #FDFCF0 100%);
   
@@ -626,7 +625,6 @@ canvas {
 
 /* 중앙 정렬 - 모바일 크롬 호환 */
 #game-container {
-  touch-action: none;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -654,7 +652,7 @@ canvas {
 
 canvas {
   display: block;
-  touch-action: none;
+  touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
   border-radius: 12px;
   background-color: #D1D9E0;
@@ -1132,7 +1130,6 @@ canvas {
 /* 반응형 최적화 */
 @media (max-width: 600px) {
   #game-container {
-  touch-action: none;
     padding: 10px 5px;
   }
   
@@ -1170,7 +1167,6 @@ canvas {
 
 @media (max-height: 700px) {
   #game-container {
-  touch-action: none;
     padding: 10px;
   }
   
@@ -2351,6 +2347,7 @@ function resizeCanvas() {
 
 function initGame() {
   canvas = document.getElementById('gameCanvas');
+  canvas.style.touchAction = 'pan-y'; // 기본값: 타이틀 화면 등에서는 스크롤 허용
   canvasWrapper = document.getElementById('canvas-wrapper');
   feverBarFill = document.getElementById('fever-bar-fill');
   
@@ -2531,6 +2528,7 @@ function initGame() {
 function startGame() {
   startBGM();
   gameActive = true;
+  canvas.style.touchAction = 'none'; // 레이싱 중엔 스와이프=조향이라 스크롤 잠금
   score = 0;
   hp = 3;
   hasShield = false;
@@ -2680,6 +2678,7 @@ function startGame() {
     });
 
     canvas.addEventListener('touchstart', function(e) {
+      if (!gameActive) return; // 플레이 중이 아니면 스크롤이 우선되도록 그냥 통과
       e.preventDefault();
       isHolding = true;
       const rect = canvas.getBoundingClientRect();
@@ -2687,6 +2686,7 @@ function startGame() {
     }, { passive: false });
 
     canvas.addEventListener('touchmove', function(e) {
+      if (!gameActive) return;
       e.preventDefault();
       if (!isHolding) return;
       const rect = canvas.getBoundingClientRect();
@@ -2719,6 +2719,7 @@ function startGame() {
 
 function endGame() {
   gameActive = false;
+  canvas.style.touchAction = 'pan-y'; // 게임오버 화면에서 다시 스크롤 가능하게
   if (animationId) cancelAnimationFrame(animationId);
   if (stopBGM) stopBGM();
   // 키보드 이벤트 정리

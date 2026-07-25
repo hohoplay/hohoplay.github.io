@@ -54,7 +54,7 @@
     display: block;
     /* width/height는 JS resize()가 완전 제어 - CSS 고정값 없음 */
     background: #0f172a;
-    touch-action: none;
+    touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -761,7 +761,7 @@
 #main-game{
   position:relative;overflow:hidden;
 }
-#game-canvas{display:block;touch-action:none;}
+#game-canvas{display:block;touch-action:pan-y;}
 
 /* ══ 토스트 ══ */
 #toast-message{
@@ -1464,6 +1464,7 @@ function startGame(){
   if(gameMode==='TWO_PLAYER') resetIdleTimer();
   }
   gameOver=false;shuffleLeft={1:1,2:1};
+  canvas.style.touchAction = 'none';
   comboStreak=0;isBonusTime=false;
   clearTimeout(comboTimer);clearTimeout(bonusTimer);
   hideBonusTime();hideChainBadge();
@@ -1486,6 +1487,7 @@ function updateTurnUI(){
 // ── 메뉴 복귀 ──
 function backToTitle(){
   gameOver=true;          // idleTimer 콜백 차단
+  canvas.style.touchAction = 'pan-y';
   clearIdleTimer();       // 5초 자동 턴 전환 타이머 즉시 취소
   clearInterval(timerID); timerID=null;
   if(dragging)cancelDrag();
@@ -1604,8 +1606,8 @@ function onUp(e){
 canvas.addEventListener('pointerup',onUp);
 window.addEventListener('pointerup',onUp);
 window.addEventListener('pointercancel',onUp);
-canvas.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
-canvas.addEventListener('touchmove', e=>e.preventDefault(),{passive:false});
+canvas.addEventListener('touchstart',e=>{ if(!gameOver) e.preventDefault(); },{passive:false});
+canvas.addEventListener('touchmove', e=>{ if(!gameOver) e.preventDefault(); },{passive:false});
 window.addEventListener('blur',()=>{if(dragging)cancelDrag();});
 
 // ── 합 뱃지 ──
@@ -1843,6 +1845,7 @@ function updateTimer(){
 // ── 게임 오버 ──
 function endGame(){
   gameOver=true;
+  canvas.style.touchAction = 'pan-y';
   clearIdleTimer();if(dragging)cancelDrag();clearInterval(timerID);
   clearTimeout(comboTimer);clearTimeout(bonusTimer);
   hideBonusTime();hideChainBadge();
@@ -1902,6 +1905,7 @@ document.getElementById('restart-btn').addEventListener('click',()=>{
     if(gameMode==='SINGLE'){score=0;document.getElementById('score-display').textContent='0000';}
     else{scores={1:0,2:0};turn=1;updateTurnUI();}
     gameOver=false;shuffleLeft={1:1,2:1};
+    canvas.style.touchAction = 'none';
     comboStreak=0;isBonusTime=false;
     clearTimeout(comboTimer);clearTimeout(bonusTimer);
     hideBonusTime();hideChainBadge();
