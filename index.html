@@ -147,7 +147,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260725040851_504f1e3f">
+  <meta name="build-version" content="20260725041701_17a7c6bd">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -778,7 +778,10 @@
         function handleGameClick(gameId) {
             const game = gameData.find(g => g.id === gameId);
             if (game && game.file) {
-                loadGamePage(game.file, game.name);
+                if (typeof window.stopAllGameAudio === 'function') {
+                    try { window.stopAllGameAudio(); } catch (e) {}
+                }
+                location.href = game.file;
             } else {
                 alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
             }
