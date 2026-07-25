@@ -75,7 +75,7 @@ body {
 
 canvas {
   display: block;
-  touch-action: none;
+  touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
   border-radius: 12px;
   background-color: #D1D9E0;
@@ -621,7 +621,7 @@ canvas {
     display: block;
     /* width/height는 JS resize()가 완전 제어 - CSS 고정값 없음 */
     background: #0f172a;
-    touch-action: none;
+    touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -1895,6 +1895,7 @@ function hit(cause,force) {
 }
 function gameOver(cause) {
     active=false;
+    canvas.style.touchAction = 'pan-y';
     snd.hit(); snd.bgmStop();
     if (score>highScore) { highScore=score; SS.set('hohorun_best',highScore); }
     scrOver.style.display='flex';
@@ -2455,6 +2456,7 @@ btnStart.addEventListener('click', function() {
     scrStart.style.display = 'none';
     resetGame(false);
     active = true;
+    canvas.style.touchAction = 'none';
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
 });
@@ -2486,6 +2488,7 @@ btnRestart.addEventListener('click', function() {
     scrOver.style.display = 'none';
     resetGame(false);
     active = true;
+    canvas.style.touchAction = 'none';
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
   });
@@ -2498,6 +2501,7 @@ btnRevive.addEventListener('click', function() {
         scrOver.style.display = 'none';
         resetGame(true);
         active = true;
+        canvas.style.touchAction = 'none';
         if (rafId) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(loop);
         updateShop();
@@ -2522,6 +2526,7 @@ btnReset.addEventListener('click', function() {
     highScore  = 0;
     /* 게임 상태 완전 정지 */
     active = false;
+    canvas.style.touchAction = 'pan-y';
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     snd.bgmStop();
     /* 화면 전환: 게임오버 → 시작화면 */
@@ -2542,6 +2547,7 @@ canvas.addEventListener('mousedown', function(e) {
     handleInput((e.clientX - r.left) < r.width/2 ? 'left' : 'right');
 });
 canvas.addEventListener('touchstart', function(e) {
+    if (!active) return; // 플레이 중이 아니면 스크롤 우선
     e.preventDefault(); e.stopPropagation();
     var r = canvas.getBoundingClientRect();
     handleInput((e.touches[0].clientX - r.left) < r.width/2 ? 'left' : 'right');
@@ -2554,8 +2560,8 @@ window.addEventListener('keydown', function(e) {
     else if(e.key==='ArrowRight') handleInput('right');
 });
 
-/* 스크롤 차단 */
-wrap.addEventListener('touchmove', function(e) { e.preventDefault(); }, {passive: false});
+/* 스크롤 차단 (플레이 중에만) */
+wrap.addEventListener('touchmove', function(e) { if (active) e.preventDefault(); }, {passive: false});
 
 /* 탭 전환 */
 document.addEventListener('visibilitychange', function() {

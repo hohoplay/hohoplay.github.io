@@ -57,7 +57,7 @@
     display: block;
     /* width/height는 JS resize()가 완전 제어 - CSS 고정값 없음 */
     background: #0f172a;
-    touch-action: none;
+    touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -599,7 +599,7 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            touch-action: none;
+            touch-action: pan-y;
             -webkit-touch-callout: none;
         }
 
@@ -616,14 +616,14 @@
             box-shadow: 0 0 0 4px #3d2a5c, 0 0 0 6px #6644aa, 8px 8px 0 #000;
             border: none;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none;
+            touch-action: pan-y;
         }
 
         #game-wrapper canvas {
             display: block;
             width: 100%;
             height: 100%;
-            touch-action: none;
+            touch-action: pan-y;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -836,8 +836,8 @@
             z-index: 10;
             transition: opacity 0.2s ease;
             /* [FIX] 카카오톡 등 인앱 브라우저는 touch-action 상속을 제대로 안 지키는 경우가 있어
-               오버레이 자체에도 명시적으로 none을 지정 (시작 탭 시 확대되는 문제 방지) */
-            touch-action: none;
+               오버레이 자체에도 명시적으로 지정 (pan-y: 세로 스크롤은 허용하되 핀치줌/가로팬은 계속 차단) */
+            touch-action: pan-y;
             -webkit-touch-callout: none;
         }
 
@@ -3355,6 +3355,8 @@
     function gameOver() {
         if (gameState === 'GAMEOVER') return;
         gameState = 'GAMEOVER';
+        gameWrapperEl.style.touchAction = 'pan-y';
+        overlay.style.touchAction = 'pan-y';
         triggerGlitch();
         stopBGM();
         SFX.gameOver();
@@ -3425,6 +3427,8 @@
         initGame();
         hideUpgradePanel();
         gameState = 'PLAYING';
+        gameWrapperEl.style.touchAction = 'none';
+        overlay.style.touchAction = 'none';
         overlayTitle.innerHTML = 'hoho<br>Dash';
         overlayTitle.style.color = '';
         overlayTitle.style.textShadow = '';
@@ -3888,7 +3892,7 @@
         }
 
         if (e.type === 'touchstart') {
-            e.preventDefault(); // [FIX] 모바일 스크롤/줌 방지
+            if (gameState === 'PLAYING') e.preventDefault(); // [FIX] 모바일 스크롤/줌 방지 — 플레이 중에만
             // [FIX] 멀티터치(핀치줌) 감지 시 무시 — 점프 미발동
             if (e.touches && e.touches.length > 1) return;
             const now = Date.now();
@@ -3927,7 +3931,7 @@
     //       단, 버튼 위에서는 막지 않음 (스크롤 목록 등 정상 동작 위해)
     gameWrapperEl.addEventListener('touchmove', (e) => {
         if (_isInteractiveTarget(e.target)) return;
-        e.preventDefault();
+        if (gameState === 'PLAYING') e.preventDefault();
     }, { passive: false });
 
     // [FIX] 카카오톡/네이버 인앱 브라우저는 touch-action:none을 완전히 무시하고
