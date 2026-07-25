@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260725162504_dca79195">
+  <meta name="build-version" content="20260725162908_0e68d942">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -357,8 +357,10 @@
                 +   'var board=document.getElementById("community-board");'
                 +   'var section=document.getElementById("community-board-section");'
                 +   'if(!board)return;'
-                +   'fetch(`https://api.github.com/repos/hohoplay/hohoplay.github.io/issues?state=open&sort=created&direction=desc&per_page=3`)'
-                +   '.then(function(r){if(!r.ok)throw new Error("fetch failed");return r.json();})'
+                +   'var ctrl=new AbortController();'
+                +   'var timeoutId=setTimeout(function(){ctrl.abort();},5000);'
+                +   'fetch(`https://api.github.com/repos/hohoplay/hohoplay.github.io/issues?state=open&sort=created&direction=desc&per_page=3`,{signal:ctrl.signal})'
+                +   '.then(function(r){clearTimeout(timeoutId);if(!r.ok)throw new Error("fetch failed");return r.json();})'
                 +   '.then(function(issues){'
                 +     'if(!issues||!issues.length){section.style.display="none";return;}'
                 +     'var labelColors={"\uACF5\uC9C0\uC0AC\uD56D":{bg:"#fee2e2",fg:"#dc2626"},"\uC5C5\uB370\uC774\uD2B8":{bg:"#dcfce7",fg:"#16a34a"},"\uC790\uC720\uAC8C\uC2DC\uD310":{bg:"#dbeafe",fg:"#2563eb"}};'
