@@ -777,7 +777,10 @@
         function handleGameClick(gameId) {
             const game = gameData.find(g => g.id === gameId);
             if (game && game.file) {
-                loadGamePage(game.file, game.name);
+                if (typeof window.stopAllGameAudio === 'function') {
+                    try { window.stopAllGameAudio(); } catch (e) {}
+                }
+                location.href = game.file;
             } else {
                 alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
             }
