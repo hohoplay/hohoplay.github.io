@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260725162908_0e68d942">
+  <meta name="build-version" content="20260725163524_cba73165">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -357,19 +357,18 @@
                 +   'var board=document.getElementById("community-board");'
                 +   'var section=document.getElementById("community-board-section");'
                 +   'if(!board)return;'
-                +   'var ctrl=new AbortController();'
-                +   'var timeoutId=setTimeout(function(){ctrl.abort();},5000);'
-                +   'fetch(`https://api.github.com/repos/hohoplay/hohoplay.github.io/issues?state=open&sort=created&direction=desc&per_page=3`,{signal:ctrl.signal})'
-                +   '.then(function(r){clearTimeout(timeoutId);if(!r.ok)throw new Error("fetch failed");return r.json();})'
-                +   '.then(function(issues){'
-                +     'if(!issues||!issues.length){section.style.display="none";return;}'
+                +   'fetch(`./data/community_board.json`)'
+                +   '.then(function(r){if(!r.ok)throw new Error("fetch failed");return r.json();})'
+                +   '.then(function(data){'
+                +     'var issues=(data&&data.issues)?data.issues:[];'
+                +     'if(!issues.length){section.style.display="none";return;}'
                 +     'var labelColors={"\uACF5\uC9C0\uC0AC\uD56D":{bg:"#fee2e2",fg:"#dc2626"},"\uC5C5\uB370\uC774\uD2B8":{bg:"#dcfce7",fg:"#16a34a"},"\uC790\uC720\uAC8C\uC2DC\uD310":{bg:"#dbeafe",fg:"#2563eb"}};'
                 +     'board.innerHTML=issues.map(function(issue){'
-                +       'var label=(issue.labels&&issue.labels[0])?issue.labels[0].name:"";'
+                +       'var label=issue.label||"";'
                 +       'var col=labelColors[label]||{bg:"#f1f5f9",fg:"#64748b"};'
                 +       'var title=String(issue.title).replace(/</g,"&lt;").replace(/>/g,"&gt;");'
                 +       'var badge=label?`<span style="display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;background:${col.bg};color:${col.fg};margin-bottom:8px;">${label}</span>`:"";'
-                +       'return `<a href="${issue.html_url}" target="_blank" rel="noopener" class="community-card" style="display:block;background:#fff;border:1px solid #f1f5f9;border-radius:16px;padding:16px;text-decoration:none;">${badge}<div style="font-size:14px;font-weight:700;color:#1e293b;line-height:1.4;">${title}</div></a>`;'
+                +       'return `<a href="${issue.url}" target="_blank" rel="noopener" class="community-card" style="display:block;background:#fff;border:1px solid #f1f5f9;border-radius:16px;padding:16px;text-decoration:none;">${badge}<div style="font-size:14px;font-weight:700;color:#1e293b;line-height:1.4;">${title}</div></a>`;'
                 +     '}).join("");'
                 +   '})'
                 +   '.catch(function(){ section.style.display="none"; });'
