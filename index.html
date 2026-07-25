@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260725124634_7b0a43e0">
+  <meta name="build-version" content="20260725162504_dca79195">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -338,6 +338,8 @@
                 + '@media(hover:none) and (pointer:coarse){'
                 +   '.play-badge-mobile{display:flex;position:absolute;bottom:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(79,70,229,.92);color:#fff;align-items:center;justify-content:center;font-size:10px;line-height:1;pointer-events:none;}'
                 + '}'
+                + '.community-card{transition:box-shadow .2s,border-color .2s;}'
+                + '.community-card:hover{box-shadow:0 8px 24px rgba(79,70,229,.1);border-color:#c7d2fe;}'
                 + '</style>'
                 + '<div class="text-center mb-6">'
                 + '<h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight">\uD50C\uB808\uC774\uD558\uACE0 \uC2F6\uC740 \uAC8C\uC784\uC744 \uC120\uD0DD\uD558\uC138\uC694</h1>'
@@ -345,6 +347,31 @@
                 + '</div>'
                 + '<section class="top-mobile-banner"><a href="' + bannerConfig.link + '" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);"><img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;"></a></section>'
                 + '<div class="game-icon-grid" id="game-icon-grid">' + cards + '</div>'                + '<script>(function(){var grid=document.getElementById("game-icon-grid");if(!grid)return;grid.addEventListener("touchstart",function(e){var c=e.target.closest(".game-card");if(c)c.classList.add("touch-active");},{passive:true});grid.addEventListener("touchend",function(e){var c=e.target.closest(".game-card");if(c)setTimeout(function(){c.classList.remove("touch-active");},200);},{passive:true});grid.addEventListener("touchcancel",function(e){var c=e.target.closest(".game-card");if(c)c.classList.remove("touch-active");},{passive:true});})();<\/script>'
+                + '<section id="community-board-section" style="margin-bottom:40px;">'
+                + '<h2 class="text-lg font-black text-slate-800 mb-3">커뮤니티 소식</h2>'
+                + '<div id="community-board" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">'
+                + '<div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;grid-column:1/-1;">불러오는 중...</div>'
+                + '</div>'
+                + '</section>'
+                + '<script>(function(){'
+                +   'var board=document.getElementById("community-board");'
+                +   'var section=document.getElementById("community-board-section");'
+                +   'if(!board)return;'
+                +   'fetch(`https://api.github.com/repos/hohoplay/hohoplay.github.io/issues?state=open&sort=created&direction=desc&per_page=3`)'
+                +   '.then(function(r){if(!r.ok)throw new Error("fetch failed");return r.json();})'
+                +   '.then(function(issues){'
+                +     'if(!issues||!issues.length){section.style.display="none";return;}'
+                +     'var labelColors={"\uACF5\uC9C0\uC0AC\uD56D":{bg:"#fee2e2",fg:"#dc2626"},"\uC5C5\uB370\uC774\uD2B8":{bg:"#dcfce7",fg:"#16a34a"},"\uC790\uC720\uAC8C\uC2DC\uD310":{bg:"#dbeafe",fg:"#2563eb"}};'
+                +     'board.innerHTML=issues.map(function(issue){'
+                +       'var label=(issue.labels&&issue.labels[0])?issue.labels[0].name:"";'
+                +       'var col=labelColors[label]||{bg:"#f1f5f9",fg:"#64748b"};'
+                +       'var title=String(issue.title).replace(/</g,"&lt;").replace(/>/g,"&gt;");'
+                +       'var badge=label?`<span style="display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;background:${col.bg};color:${col.fg};margin-bottom:8px;">${label}</span>`:"";'
+                +       'return `<a href="${issue.html_url}" target="_blank" rel="noopener" class="community-card" style="display:block;background:#fff;border:1px solid #f1f5f9;border-radius:16px;padding:16px;text-decoration:none;">${badge}<div style="font-size:14px;font-weight:700;color:#1e293b;line-height:1.4;">${title}</div></a>`;'
+                +     '}).join("");'
+                +   '})'
+                +   '.catch(function(){ section.style.display="none"; });'
+                + '})();<\/script>'
                 + '<section style="margin-bottom:40px;">'
                 + '<a href="' + bannerConfig.link + '" id="banner-link" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform=\'scale(1.01)\';this.style.boxShadow=\'0 12px 48px rgba(99,102,241,.28)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 40px rgba(99,102,241,.18)\'">'
                 + bannerInner
