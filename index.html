@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260725120010_9e4e547b">
+  <meta name="build-version" content="20260725120925_708826d1">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -238,7 +238,11 @@
 
     <script>
         // 모바일 감지
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        // UA + 너비 체크만으로는 "데스크톱 사이트" 모드로 접속하는 안드로이드 태블릿(삼성 갤럭시탭 등)을
+        // 놓칠 수 있어서, 실제 입력 방식(터치 전용 + 마우스 hover 불가)도 함께 확인함
+        const isTouchOnlyDevice = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window)
+            && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768 || isTouchOnlyDevice;
 
         const gameData = [
             { id: 'g1', name: '호야타자rpg',    genre: '타이핑 액션', version: 'v1.0.0', file: 'game1.html', img: 'data/game1.png' },
@@ -775,11 +779,18 @@
             `
         };
 
+        // 물리 키보드가 꼭 필요한 타이핑 게임 — 모바일/태블릿에서는 조작 자체가 불가능해서 진입을 막음
+        const PC_ONLY_GAMES = ['g1', 'g3', 'g4'];
+
         // 게임 클릭: 실제 game*.html 파일로 진짜 이동 (about/fortune 등과 동일한 URL 분리 패턴)
         // 이래야 애널리틱스가 게임별로 개별 추적되고, 검색엔진도 각 게임을 독립된 페이지로 인식함
         function handleGameClick(gameId) {
             const game = gameData.find(g => g.id === gameId);
             if (game && game.file) {
+                if (isMobile && PC_ONLY_GAMES.includes(gameId)) {
+                    alert('🖥️ ' + game.name + '은(는) 물리 키보드가 필요한 PC 전용 게임이에요.\n모바일·태블릿에서는 조작이 안 되니, PC로 접속해서 즐겨주세요!');
+                    return;
+                }
                 location.href = game.file;
             } else {
                 alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
