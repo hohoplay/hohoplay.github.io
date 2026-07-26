@@ -948,6 +948,11 @@
             _dbg('▶ window.onload 시작');
             _dbg('현재 URL: ' + location.href);
 
+            // [FIX] navigateTo() 안의 history.replaceState(..., location.pathname)가
+            // 쿼리스트링(?board=...)까지 지워버리므로, 지워지기 전에 먼저 값을 붙잡아둠
+            var _boardParam = new URLSearchParams(location.search).get('board');
+            _dbg('URL board 파라미터(캡처, navigateTo 실행 전) = ' + JSON.stringify(_boardParam));
+
             const pendingPage = sessionStorage.getItem('page');
             _dbg('sessionStorage["page"] = ' + JSON.stringify(pendingPage));
 
@@ -962,11 +967,6 @@
 
             _dbg('bbs-main 엘리먼트 존재: ' + !!document.getElementById('bbs-main'));
             _dbg('bbs-board-area 엘리먼트 존재: ' + !!document.getElementById('bbs-board-area'));
-
-            // [FIX] pendingPage 분기와 무관하게, 메인 화면 "커뮤니티 소식" 카드에서
-            // ?board=공지사항 형태로 들어오면 항상 해당 게시판을 자동으로 열어줌
-            var _boardParam = new URLSearchParams(location.search).get('board');
-            _dbg('URL board 파라미터 = ' + JSON.stringify(_boardParam));
 
             if (_boardParam) {
                 _dbg('→ openBoard("' + _boardParam + '", "' + _boardParam + '") 호출 시도');
