@@ -917,20 +917,69 @@
             navigateTo(page);
         }
 
+        // ══════════════════════════════════════════════════════════════
+        // [임시 디버그 패널] 화면 하단에 실행 로그를 그대로 보여줌
+        // 버그 원인 찾으면 이 블록 전체와 아래 _dbg(...) 호출들은 지워도 됨
+        // ══════════════════════════════════════════════════════════════
+        function _dbg(msg) {
+            var panel = document.getElementById('_debug-log-panel');
+            if (!panel) {
+                panel = document.createElement('div');
+                panel.id = '_debug-log-panel';
+                panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:45vh;overflow-y:auto;background:rgba(0,0,0,.92);color:#4ade80;font-family:monospace;font-size:12px;line-height:1.5;padding:10px 12px;z-index:2147483647;white-space:pre-wrap;border-top:2px solid #4ade80;';
+                document.body.appendChild(panel);
+                var title = document.createElement('div');
+                title.textContent = '── 디버그 로그 (문제 해결 후 삭제) ──';
+                title.style.cssText = 'color:#facc15;font-weight:bold;margin-bottom:4px;';
+                panel.appendChild(title);
+            }
+            var line = document.createElement('div');
+            var t = new Date().toLocaleTimeString('ko-KR', { hour12: false });
+            line.textContent = '[' + t + '] ' + msg;
+            panel.appendChild(line);
+            panel.scrollTop = panel.scrollHeight;
+        }
+        window.addEventListener('error', function (e) {
+            _dbg('❌ 에러 발생: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')');
+        });
+        // ══════════════════════════════════════════════════════════════
+
         window.onload = () => {
+            _dbg('▶ window.onload 시작');
+            _dbg('현재 URL: ' + location.href);
+
             const pendingPage = sessionStorage.getItem('page');
+            _dbg('sessionStorage["page"] = ' + JSON.stringify(pendingPage));
+
             if (pendingPage) {
+                _dbg('→ if 분기 진입: navigateTo("' + pendingPage + '") 호출');
                 sessionStorage.removeItem('page');
                 navigateTo(pendingPage);
             } else {
+                _dbg('→ else 분기 진입: navigateTo("blog") 호출');
                 navigateTo('blog');
             }
+
+            _dbg('bbs-main 엘리먼트 존재: ' + !!document.getElementById('bbs-main'));
+            _dbg('bbs-board-area 엘리먼트 존재: ' + !!document.getElementById('bbs-board-area'));
+
             // [FIX] pendingPage 분기와 무관하게, 메인 화면 "커뮤니티 소식" 카드에서
             // ?board=공지사항 형태로 들어오면 항상 해당 게시판을 자동으로 열어줌
             var _boardParam = new URLSearchParams(location.search).get('board');
+            _dbg('URL board 파라미터 = ' + JSON.stringify(_boardParam));
+
             if (_boardParam) {
-                openBoard(_boardParam, _boardParam);
+                _dbg('→ openBoard("' + _boardParam + '", "' + _boardParam + '") 호출 시도');
+                try {
+                    openBoard(_boardParam, _boardParam);
+                    _dbg('✅ openBoard() 호출 완료 (에러 없음)');
+                } catch (err) {
+                    _dbg('❌ openBoard() 호출 중 에러: ' + err.message);
+                }
+            } else {
+                _dbg('board 파라미터가 없어서 openBoard 호출 안 함');
             }
+            _dbg('▶ window.onload 종료');
         };
 
         // 현재 활성 페이지에 nav 강조 표시
@@ -976,9 +1025,14 @@
         }
 
         function openBoard(label, name) {
-            document.getElementById('bbs-main').style.display = 'none';
-            document.getElementById('bbs-board-area').classList.add('active');
+            _dbg('  [openBoard] 호출됨 label=' + label + ' name=' + name);
+            var mainEl = document.getElementById('bbs-main');
+            var areaEl = document.getElementById('bbs-board-area');
+            _dbg('  [openBoard] bbs-main 찾음: ' + !!mainEl + ' / bbs-board-area 찾음: ' + !!areaEl);
+            mainEl.style.display = 'none';
+            areaEl.classList.add('active');
             document.getElementById('bbs-board-name').textContent = '[ '+name+' ]';
+            _dbg('  [openBoard] 화면 전환 완료, bbs-board-area에 active 클래스 추가됨');
 
             // 자유게시판만 글쓰기 버튼 표시
             const writeBtn = document.getElementById('bbs-write-link');
@@ -988,6 +1042,7 @@
             } else {
                 writeBtn.style.display = 'none';
             }
+            _dbg('  [openBoard] loadIssues 호출');
             loadIssues(label, name);
         }
 
