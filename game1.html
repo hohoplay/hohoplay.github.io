@@ -60,7 +60,7 @@
     // index.html에서 그리드로 안 거치고 직접 이 URL로 들어와도 동일하게 차단
     var isTouchOnlyDevice = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window)
         && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    var isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    var isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
     if (isMobileUA || isTouchOnlyDevice) {
         document.getElementById('pc-only-guard').style.display = 'flex';
         document.documentElement.style.overflow = 'hidden';

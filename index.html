@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260726133452_6ab0561d">
+  <meta name="build-version" content="20260726134205_12c9c0b5">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -242,7 +242,7 @@
         // 놓칠 수 있어서, 실제 입력 방식(터치 전용 + 마우스 hover 불가)도 함께 확인함
         const isTouchOnlyDevice = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window)
             && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768 || isTouchOnlyDevice;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024 || isTouchOnlyDevice;
 
         const gameData = [
             { id: 'g1', name: '호야타자rpg',    genre: '타이핑 액션', version: 'v1.0.0', file: 'game1.html', img: 'data/game1.png' },
@@ -324,7 +324,7 @@
                 + '.top-mobile-banner{display:none;margin-bottom:20px;}'
                 + '.game-icon-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:48px;}'
                 + '@media(max-width:767px){.top-mobile-banner{display:block;}.game-icon-grid{grid-template-columns:1fr;}}'
-                + '@media(min-width:768px) and (max-width:1023px){.game-icon-grid{grid-template-columns:repeat(3,1fr);}}'
+                + '@media(min-width:768px) and (max-width:1023px){.game-icon-grid{grid-template-columns:repeat(2,1fr);}}'
                 + '@media(min-width:1024px) and (max-width:1279px){.game-icon-grid{grid-template-columns:repeat(4,1fr);}}'
                 + '@media(min-width:1280px){.game-icon-grid{grid-template-columns:repeat(5,1fr);}}'
                 + '.play-overlay{display:none;}'
