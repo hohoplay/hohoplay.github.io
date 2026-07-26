@@ -924,12 +924,12 @@
                 navigateTo(pendingPage);
             } else {
                 navigateTo('blog');
-                // [FIX] 메인 화면 "커뮤니티 소식" 카드에서 ?board=공지사항 형태로 들어오면
-                // 메뉴 화면 대신 해당 게시판을 바로 열어줌
-                var _boardParam = new URLSearchParams(location.search).get('board');
-                if (_boardParam) {
-                    openBoard(_boardParam, _boardParam);
-                }
+            }
+            // [FIX] pendingPage 분기와 무관하게, 메인 화면 "커뮤니티 소식" 카드에서
+            // ?board=공지사항 형태로 들어오면 항상 해당 게시판을 자동으로 열어줌
+            var _boardParam = new URLSearchParams(location.search).get('board');
+            if (_boardParam) {
+                openBoard(_boardParam, _boardParam);
             }
         };
 
