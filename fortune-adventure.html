@@ -445,6 +445,62 @@ function today() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+
+// ─── "이번 주의 주인공" 티저 — fortune.html의 시드 계산과 완전히 동일한 로직 ─────────────
+function kstNow(){ const now = new Date(); return new Date(now.getTime() + 9*60*60*1000); }
+function lastMondayOfMonth(year, month0){
+    const lastDay = new Date(Date.UTC(year, month0+1, 0));
+    const dow = lastDay.getUTCDay();
+    const backToMon = (dow - 1 + 7) % 7;
+    const lm = new Date(lastDay);
+    lm.setUTCDate(lastDay.getUTCDate() - backToMon);
+    return lm;
+}
+function zodiacCycleMonth(){
+    const d=kstNow();
+    const y=d.getUTCFullYear(), m=d.getUTCMonth();
+    const dOnly = Date.UTC(y, m, d.getUTCDate());
+    const lastMon = lastMondayOfMonth(y, m);
+    const lastMonOnly = Date.UTC(lastMon.getUTCFullYear(), lastMon.getUTCMonth(), lastMon.getUTCDate());
+    return y*12 + m + (dOnly >= lastMonOnly ? 1 : 0);
+}
+function weekNum(){
+    const d=kstNow();
+    const mon=new Date(d); mon.setUTCDate(d.getUTCDate()-d.getUTCDay()+1);
+    const yearStart=new Date(Date.UTC(mon.getUTCFullYear(),0,1));
+    return Math.ceil(((mon - yearStart) / 86400000 + 1) / 7);
+}
+const ZODIACS_LIST_MINI=['양자리','황소자리','쌍둥이자리','게자리','사자자리','처녀자리','천칭자리','전갈자리','사수자리','염소자리','물병자리','물고기자리'];
+const ZODIAC_EMOJI_MINI={'양자리':'♈','황소자리':'♉','쌍둥이자리':'♊','게자리':'♋','사자자리':'♌','처녀자리':'♍','천칭자리':'♎','전갈자리':'♏','사수자리':'♐','염소자리':'♑','물병자리':'♒','물고기자리':'♓'};
+const CHINESE_LIST_MINI=['쥐띠','소띠','호랑이띠','토끼띠','용띠','뱀띠','말띠','양띠','원숭이띠','닭띠','개띠','돼지띠'];
+const CHINESE_EMOJI_MINI={'쥐띠':'🐭','소띠':'🐮','호랑이띠':'🐯','토끼띠':'🐰','용띠':'🐲','뱀띠':'🐍','말띠':'🐴','양띠':'🐑','원숭이띠':'🐵','닭띠':'🐓','개띠':'🐶','돼지띠':'🐷'};
+
+function jumpToFortune(tab, sign){
+    sessionStorage.setItem('page', 'fortune');
+    sessionStorage.setItem('fortuneJumpTab', tab);
+    sessionStorage.setItem('fortuneJumpSign', sign);
+    location.href = 'index.html';
+}
+
+function spotlightTeaserHTML(){
+    const z = ZODIACS_LIST_MINI[zodiacCycleMonth() % 12];
+    const c = CHINESE_LIST_MINI[weekNum() % 12];
+    return `
+    <div style="background:linear-gradient(135deg,#fdf6ec,#faead2);border:1px solid #f3dfb8;border-radius:16px;padding:14px 16px;">
+        <p style="font-size:0.72rem;font-weight:800;color:#a8874a;margin-bottom:8px;text-align:center;">📖 이번 주의 주인공도 만나보세요</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div onclick="jumpToFortune('weekly','${z}')" style="cursor:pointer;background:#fff;border-radius:12px;padding:10px;text-align:center;">
+                <div style="font-size:20px;">${ZODIAC_EMOJI_MINI[z]}</div>
+                <div style="font-size:0.72rem;color:#7c5a2e;font-weight:700;margin-top:2px;">이번 달, ${z}</div>
+            </div>
+            <div onclick="jumpToFortune('monthly','${c}')" style="cursor:pointer;background:#fff;border-radius:12px;padding:10px;text-align:center;">
+                <div style="font-size:20px;">${CHINESE_EMOJI_MINI[c]}</div>
+                <div style="font-size:0.72rem;color:#7c5a2e;font-weight:700;margin-top:2px;">이번 주, ${c}</div>
+            </div>
+        </div>
+    </div>`;
+}
+
 function hasPlayedToday() { return localStorage.getItem(DAILY_KEY) === today(); }
 function markPlayedToday() { localStorage.setItem(DAILY_KEY, today()); }
 function loadSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY)) || []; } catch { return []; } }
@@ -663,6 +719,7 @@ function renderResult() {
             <p style="font-size:0.78rem;color:#9ca3af;font-weight:700;margin-bottom:0.5rem;">나의 선택</p>
             <div class="trail">${state.answers.map(a=>`<span class="trail-chip">${a}</span>`).join('')}</div>
         </div>
+        <div style="padding:0 2rem 1rem;">${spotlightTeaserHTML()}</div>
         <div class="result-footer">
             <button class="btn-share" onclick="shareResult()">📤 결과 공유하기</button>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
