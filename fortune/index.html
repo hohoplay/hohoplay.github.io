@@ -873,13 +873,29 @@
             history.replaceState(null, '', location.pathname);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (page === 'fortune') {
-                if(window.fortuneReady) {
-                    showFortune('today');
+                // fortune-adventure.html 결과 화면의 "이번 주의 주인공" 티저에서 넘어온 경우 처리
+                var _jumpTab = sessionStorage.getItem('fortuneJumpTab');
+                var _jumpSign = sessionStorage.getItem('fortuneJumpSign');
+                if (_jumpTab && _jumpSign) {
+                    sessionStorage.removeItem('fortuneJumpTab');
+                    sessionStorage.removeItem('fortuneJumpSign');
+                }
+                function _enterFortune(){
+                    if (_jumpTab && _jumpSign) {
+                        if (_jumpTab === 'weekly') { _selZodiacWeekly = _jumpSign; }
+                        else if (_jumpTab === 'monthly') { _selChineseMonthly = _jumpSign; }
+                        showFortune(_jumpTab);
+                    } else {
+                        showFortune('today');
+                    }
                     if(typeof renderHeroSpotlight === 'function') renderHeroSpotlight();
+                }
+                if(window.fortuneReady) {
+                    _enterFortune();
                 } else {
                     var _fc = document.getElementById('fortune-content');
                     if (_fc) _fc.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세 모듈 로딩 중...</div>';
-                    window._pendingFortune = function(){ showFortune('today'); if(typeof renderHeroSpotlight === 'function') renderHeroSpotlight(); };
+                    window._pendingFortune = _enterFortune;
                     setTimeout(function(){
                         if(!window.fortuneReady){
                             var fc2 = document.getElementById('fortune-content');
