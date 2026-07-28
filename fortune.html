@@ -256,6 +256,30 @@ ${info.usage}`;
             return (mon.getUTCMonth()+1)+'/'+mon.getUTCDate()+' ~ '+(sun.getUTCMonth()+1)+'/'+sun.getUTCDate();
         }
         function monthStr(){const d=kstNow();return d.getUTCFullYear()+'년 '+String(d.getUTCMonth()+1).padStart(2,'0')+'월'}
+        function weekNum(){
+            const d=kstNow();
+            const mon=new Date(d); mon.setUTCDate(d.getUTCDate()-d.getUTCDay()+1);
+            const yearStart=new Date(Date.UTC(mon.getUTCFullYear(),0,1));
+            return Math.ceil(((mon - yearStart) / 86400000 + 1) / 7);
+        }
+        // 그 달(year, month0=0기준)의 마지막 월요일 날짜를 반환
+        function lastMondayOfMonth(year, month0){
+            const lastDay = new Date(Date.UTC(year, month0+1, 0));
+            const dow = lastDay.getUTCDay(); // 0=일 ... 1=월
+            const backToMon = (dow - 1 + 7) % 7;
+            const lm = new Date(lastDay);
+            lm.setUTCDate(lastDay.getUTCDate() - backToMon);
+            return lm;
+        }
+        // 별자리월간 전환 시점 = 매월 1일이 아니라 "그 달의 마지막 주 월요일"부터 다음 버전으로 조기 전환
+        function zodiacCycleMonth(){
+            const d=kstNow();
+            const y=d.getUTCFullYear(), m=d.getUTCMonth();
+            const dOnly = Date.UTC(y, m, d.getUTCDate());
+            const lastMon = lastMondayOfMonth(y, m);
+            const lastMonOnly = Date.UTC(lastMon.getUTCFullYear(), lastMon.getUTCMonth(), lastMon.getUTCDate());
+            return y*12 + m + (dOnly >= lastMonOnly ? 1 : 0); // 마지막 주 월요일부터는 다음 달 버전으로
+        }
         function fmtDate(s){const d=new Date(s);return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()}
 
         // ═══════════════════════════════
@@ -1476,6 +1500,8 @@ ${info.usage}`;
 
 
         var CHINESE_FORTUNE = {'쥐띠':['쥐띠 특유의 기민함이 오늘 빛을 발합니다. 작은 정보 하나를 놓치지 말고 빠르게 움직이세요.','오늘 쥐띠에게는 예상치 못한 곳에서 기회가 열립니다. 직감을 믿고 먼저 손을 내미세요.','쥐띠의 사교성이 오늘 든든한 무기입니다.','오늘은 천천히 살펴보는 것이 득이 됩니다. 쥐띠의 세밀한 눈이 숨은 가능성을 찾아냅니다.'],'소띠':['소띠의 꾸준함이 오늘 결실로 이어집니다.','오늘 소띠에게는 묵묵한 노력이 주변의 신뢰를 얻는 날입니다.','소띠 특유의 책임감이 오늘 관계를 단단하게 만듭니다.','오늘은 계획한 일을 하나씩 완성해 나가는 날입니다.'],'호랑이띠':['호랑이띠의 추진력이 오늘 최고조에 달합니다.','오늘 호랑이띠는 리더십이 자연스럽게 발휘됩니다.','호랑이띠 특유의 용기가 오늘 막혔던 문을 엽니다.','오늘은 과감한 결단이 필요한 날입니다.'],'토끼띠':['토끼띠의 섬세함이 오늘 빛납니다.','오늘 토끼띠는 유연한 대처 능력이 빛을 발합니다.','토끼띠 특유의 공감 능력이 오늘 관계를 따뜻하게 만듭니다.','오늘은 급하게 서두르기보다 최적의 타이밍을 기다리는 것이 현명합니다.'],'용띠':['용띠의 카리스마가 오늘 주변을 끌어당깁니다.','오늘 용띠에게는 큰 그림을 그리기 좋은 날입니다.','용띠 특유의 창의력이 오늘 독창적인 해결책을 만들어냅니다.','오늘은 용띠의 에너지가 주변에 긍정적인 영향을 미칩니다.'],'뱀띠':['뱀띠의 통찰력이 오늘 진가를 발휘합니다.','오늘 뱀띠는 신중하고 깊이 있는 판단이 빛납니다.','뱀띠 특유의 집중력이 오늘 복잡한 문제를 단순하게 만듭니다.','오늘은 조용히 움직이는 것이 득이 됩니다.'],'말띠':['말띠의 활기찬 에너지가 오늘 모든 것을 앞으로 나아가게 합니다.','오늘 말띠에게는 새로운 도전이 설레는 기회로 다가옵니다.','말띠 특유의 자유로운 발상이 오늘 막힌 상황을 돌파합니다.','오늘은 말띠의 넓은 인맥이 예상치 못한 도움을 가져옵니다.'],'양띠':['양띠의 온화한 기운이 오늘 주변을 편안하게 만듭니다.','오늘 양띠는 협력과 조화에서 최선의 결과가 나옵니다.','양띠 특유의 공감 능력이 오늘 갈등을 자연스럽게 해소합니다.','오늘은 감성적인 접근이 논리보다 효과적인 날입니다.'],'원숭이띠':['원숭이띠의 재치가 오늘 빛을 발합니다.','오늘 원숭이띠는 빠른 판단력과 적응력이 강점입니다.','원숭이띠 특유의 호기심이 오늘 새로운 발견으로 이어집니다.','오늘은 원숭이띠의 다재다능함이 여러 가지 가능성을 동시에 열어줍니다.'],'닭띠':['닭띠의 꼼꼼함이 오늘 완성도 높은 결과를 만들어냅니다.','오늘 닭띠에게는 준비해온 것들을 보여줄 시간이 찾아옵니다.','닭띠 특유의 성실함이 오늘 주변의 신뢰를 쌓습니다.','오늘은 닭띠의 분석력이 복잡한 상황을 명확하게 정리합니다.'],'개띠':['개띠의 충직함이 오늘 깊은 신뢰를 만들어냅니다.','오늘 개띠는 정의감과 책임감이 빛을 발합니다.','개띠 특유의 헌신이 오늘 소중한 관계를 더 단단하게 만듭니다.','오늘은 개띠의 직관적인 판단이 정확하게 맞아떨어집니다.'],'돼지띠':['돼지띠의 풍요로운 기운이 오늘 행운을 불러옵니다.','오늘 돼지띠에게는 진심 어린 노력이 풍성한 결실로 돌아옵니다.','돼지띠 특유의 긍정 에너지가 오늘 주변을 밝게 만듭니다.','오늘은 돼지띠의 성실함과 여유로움이 균형을 이루는 날입니다.']};
+        var ZODIAC_MONTHLY_STORY = {}; // hohoplay 전용 별자리 월간 동화(zodiac_monthly_story.csv) — 블로그 미경유
+        var CHINESE_WEEKLY_STORY = {}; // hohoplay 전용 띠 주간 동화(chinese_weekly_story.csv) — 블로그 미경유
         var ZODIAC_LOVE = {'양자리':['양자리의 솔직한 표현이 오늘 상대방의 마음을 움직입니다.','오늘 양자리는 적극적인 매력이 빛납니다.','양자리 특유의 열정이 오늘 연애 에너지를 높입니다.','오늘은 양자리의 직진 스타일이 통하는 날입니다.'],'황소자리':['황소자리의 안정적인 매력이 오늘 상대방에게 깊은 신뢰를 심어줍니다.','오늘 황소자리는 감각적인 즐거움이 관계를 풍요롭게 만듭니다.','황소자리 특유의 헌신이 오늘 상대방에게 든든한 존재감으로 전해집니다.','오늘은 서두르지 않는 황소자리의 방식이 가장 깊은 인연을 만들어냅니다.'],'쌍둥이자리':['쌍둥이자리의 재치 있는 대화가 오늘 관계의 활기를 불어넣습니다.','오늘 쌍둥이자리는 다채로운 매력이 상대방을 끌어당깁니다.','쌍둥이자리 특유의 호기심이 오늘 상대방과의 대화를 풍성하게 만듭니다.','오늘은 가볍고 재미있는 분위기가 관계를 한 단계 발전시킵니다.'],'게자리':['게자리의 따뜻한 공감 능력이 오늘 상대방의 마음을 어루만집니다.','오늘 게자리는 세심한 배려가 관계를 더욱 단단하게 만듭니다.','게자리 특유의 감성이 오늘 깊고 진한 감정의 교류를 만들어냅니다.','오늘은 게자리의 보호 본능이 상대방에게 포근한 안정감을 전해줍니다.'],'사자자리':['사자자리의 빛나는 존재감이 오늘 주변의 시선을 사로잡습니다.','오늘 사자자리는 자신감 넘치는 매력이 관계를 이끌어 나갑니다.','사자자리 특유의 열정이 오늘 상대방의 마음에 불을 지핍니다.','오늘은 사자자리의 관대한 마음이 관계를 더욱 풍요롭게 만듭니다.'],'처녀자리':['처녀자리의 세심한 배려가 오늘 상대방에게 특별하게 전해집니다.','오늘 처녀자리는 진실된 마음이 그 어떤 말보다 강하게 전달됩니다.','처녀자리 특유의 세밀한 관찰력이 오늘 상대방의 필요를 먼저 알아차립니다.','오늘은 처녀자리의 성실함이 상대방에게 신뢰와 안정감을 만들어줍니다.'],'천칭자리':['천칭자리의 균형 감각이 오늘 관계의 조화를 이끌어냅니다.','오늘 천칭자리는 아름다운 분위기 메이킹 능력이 관계를 낭만적으로 만듭니다.','천칭자리 특유의 외교적 감각이 오늘 갈등을 자연스럽게 해소합니다.','오늘은 천칭자리의 매력적인 균형감이 상대방의 마음을 사로잡습니다.'],'전갈자리':['전갈자리의 깊고 진한 감정이 오늘 강렬한 연결을 만들어냅니다.','오늘 전갈자리는 신뢰를 바탕으로 한 깊은 관계가 더욱 단단해지는 날입니다.','전갈자리 특유의 직관이 오늘 상대방의 진심을 정확하게 읽어냅니다.','오늘은 전갈자리의 변신 능력이 관계에 새로운 국면을 만들어냅니다.'],'사수자리':['사수자리의 자유로운 에너지가 오늘 관계에 신선한 바람을 불어넣습니다.','오늘 사수자리는 솔직하고 쾌활한 매력이 주변을 환하게 만듭니다.','사수자리 특유의 모험심이 오늘 관계를 더욱 흥미롭고 다채롭게 만들어냅니다.','오늘은 사수자리의 낙관적인 에너지가 상대방의 마음을 따뜻하게 녹입니다.'],'염소자리':['염소자리의 신뢰할 수 있는 매력이 오늘 관계의 깊이를 더합니다.','오늘 염소자리는 차분하고 성숙한 모습이 상대방에게 든든한 인상을 남깁니다.','염소자리 특유의 진지함이 오늘 의미 있는 대화와 교감을 만들어냅니다.','오늘은 염소자리의 꾸준한 노력이 관계에서 빛을 발합니다.'],'물병자리':['물병자리의 독창적인 매력이 오늘 상대방의 호기심을 자극합니다.','오늘 물병자리는 특유의 개성이 관계를 신선하고 흥미롭게 만듭니다.','물병자리 특유의 인류애적 따뜻함이 오늘 진정한 연결을 만들어냅니다.','오늘은 물병자리의 자유로운 사고방식이 관계에 새로운 가능성을 열어줍니다.'],'물고기자리':['물고기자리의 감성적인 교감 능력이 오늘 상대방의 마음 깊은 곳을 건드립니다.','오늘 물고기자리는 직관적인 공감이 말보다 더 깊은 이해를 만들어냅니다.','물고기자리 특유의 낭만적인 감성이 오늘 특별한 분위기를 자아냅니다.','오늘은 물고기자리의 희생적인 사랑이 관계를 더욱 아름답게 만들어줍니다.']};
         const SCORE_TONE = {총운:{최상:['오늘은 당신을 위해 준비된 날입니다. 자신감을 갖고 원하는 것을 향해 과감하게 나아가세요. 🌟','최상의 에너지가 흐르는 오늘, 오래 미뤄온 중요한 결정을 내리기에 더없이 좋습니다. ✨','오늘 모든 흐름이 당신에게 유리하게 작용합니다. 큰 목표를 향해 힘차게 한 발 내딛어보세요. 💫'],양호:['오늘은 전반적으로 안정된 흐름 속에 있습니다. 서두르지 않아도 원하는 방향으로 차근차근 나아갈 수 있습니다. 😊','좋은 기운이 감돌고 있습니다. 계획한 일을 실행에 옮기기 좋은 날입니다. 🌈','오늘 주변의 도움과 협력이 자연스럽게 이루어집니다. 함께하면 더 좋은 결과가 나옵니다. 🤝'],보통:['오늘은 큰 기대보다는 꾸준한 노력이 빛을 발하는 날입니다. 🌱','평범한 듯 보이지만 오늘의 노력이 내일의 발판이 됩니다. 💪','오늘 하루 인내심을 갖고 꾸준히 나아가는 것이 중요합니다. 🌙'],주의:['오늘은 무리하게 나서기보다 한 발짝 물러서서 상황을 살피는 것이 현명합니다. ⚠️','에너지가 다소 낮은 날입니다. 현재 진행 중인 일에 집중하는 것이 좋습니다. 🔄','오늘은 자신을 돌보는 날로 삼으세요. 🌿']},금전:{최상:['금전 흐름이 활짝 열려있는 날입니다. 열린 마음으로 새로운 가능성을 탐색해보세요. 💰','예상치 못한 수입이나 좋은 소식이 찾아올 수 있습니다. ✨','재정적으로 최상의 흐름입니다. 중요한 금전 결정을 오늘 내리면 좋은 결과로 이어집니다. 🌟'],양호:['금전 운이 안정적입니다. 꾸준한 관리와 계획적인 지출이 중요합니다. 💵','오늘 작은 절약이 큰 차이를 만들 수 있습니다. 📊','재정적으로 균형 잡힌 하루입니다. 🏦'],보통:['금전 흐름이 평이한 날입니다. 무리한 투자보다는 안정적인 관리에 초점을 맞추세요. 💼','오늘은 큰 금전 결정보다는 현재 상황을 점검하는 날로 삼으세요. ⏳','평소보다 지출이 늘어날 수 있습니다. 충동 소비에 주의하세요. 🛒'],주의:['오늘 금전적인 부분에서 신중함이 필요합니다. ⚠️','예상치 못한 지출이 생길 수 있습니다. 비상금을 확인하세요. 🔒','금전 운이 다소 낮은 날입니다. 🚫']},직장:{최상:['직장 운이 최고조입니다. 자신 있게 나서세요. 🏆','오늘 당신의 능력이 빛을 발하는 날입니다. 🌟','직장에서의 노력이 드디어 인정받는 날입니다. ✨'],양호:['직장에서 자연스러운 협력이 이루어지는 날입니다. 🤝','오늘 업무 흐름이 원활합니다. 💻','직장 운이 안정적입니다. 📋'],보통:['오늘은 현재 업무를 충실히 마무리하는 데 집중하세요. 📝','직장에서 소소한 변수가 생길 수 있습니다. 🔄','오늘은 묵묵히 맡은 바를 다하는 하루입니다. 💼'],주의:['오늘 직장에서 불필요한 갈등을 피하는 것이 좋습니다. 🤫','업무 처리 시 실수가 생기지 않도록 꼼꼼하게 확인하세요. ✅','오늘은 중요한 결정이나 발표를 미루는 것이 현명합니다. ⏸']},건강:{최상:['몸과 마음의 활력이 넘치는 날입니다. 💪','건강 운이 최상입니다. 자기 관리에 시간을 투자해보세요. 🌿','오늘 에너지가 풍부합니다. 🏃'],양호:['건강 상태가 전반적으로 양호합니다. 규칙적인 식사와 충분한 수분 섭취로 컨디션을 유지하세요. 🥗','몸이 활기찬 날입니다. 🚶','건강 운이 좋습니다. 🌙'],보통:['오늘은 몸의 신호에 귀를 기울이는 날입니다. 🍎','평소보다 피로감이 느껴질 수 있습니다. 😴','건강 관리에 평소보다 조금 더 신경 쓰는 날입니다. 🧘'],주의:['오늘 컨디션이 다소 좋지 않을 수 있습니다. ⚠️','면역력이 약해질 수 있는 날입니다. 🍵','오늘은 무리한 운동을 자제하세요. 🌿']}};
 
@@ -1834,18 +1860,18 @@ ${info.usage}`;
                           background:linear-gradient(135deg,#1e1b4b,#4c1d95)">
                       <span style="font-size:26px;flex-shrink:0">${zodiac.emoji}</span>
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:13px;font-weight:700;color:#e9d5ff;margin-bottom:3px;word-break:keep-all">이번 주 별자리 운세 보기</div>
-                        <div style="font-size:12px;color:#c4b5fd;line-height:1.6;word-break:keep-all">별자리 주간운세 탭에서 자세히 보기 →</div>
+                        <div style="font-size:13px;font-weight:700;color:#e9d5ff;margin-bottom:3px;word-break:keep-all">이번 달 별자리 운세 보기</div>
+                        <div style="font-size:12px;color:#c4b5fd;line-height:1.6;word-break:keep-all">별자리 월간운세 탭에서 자세히 보기 →</div>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
-                    <div onclick="showFortune('chinese')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
+                    <div onclick="showFortune('monthly')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
                           padding:16px 18px;border-radius:14px;margin-bottom:12px;
                           background:linear-gradient(135deg,#7c2d12,#ea580c)">
                       <span style="font-size:26px;flex-shrink:0">${chinese.emoji}</span>
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">${chinese.name} 오늘운세 더 보기</div>
-                        <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">띠 운세 탭에서 자세히 보기 →</div>
+                        <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">이번 주 띠 운세 보기</div>
+                        <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">띠별 주간운세 탭에서 자세히 보기 →</div>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
@@ -4672,147 +4698,22 @@ ${info.usage}`;
             const z=ZODIACS_LIST.find(x=>x.kr===kr);
             const area=document.getElementById('zodiac-weekly-area');
 
-            // Blogger API로 별자리 주간운세 불러오기
-            area.innerHTML=`<div class="fcard" style="text-align:center;padding:30px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>주간운세를 불러오는 중...</div>${getLoadingAdHTML()}`;
-            const post = await fetchWeeklyPost('별자리주간', kr);
-            const info = extractBlogContent(post);
-            const inner = renderBlogCard(info, z.emoji, z.kr, weekRange(), 'zwcard', '별자리주간운세_'+kr);
-            if (inner) {
-                area.innerHTML=`<div class="fcard">${inner}</div>`;
-            } else {
-                // ── 폴백: 풍부한 주간운세 렌더링 ──
-                const wseed = kr + weekRange();
-
-                // 핵심 키워드 + 주간 총평
-                const kwPool=[['#회복','#아이디어','#가족'],['#성장','#인연','#집중'],['#변화','#도전','#소통'],['#안정','#감사','#휴식'],['#기회','#용기','#배움'],['#창의','#균형','#건강']];
-                const kws=kwPool[_seededInt(wseed+'kw',kwPool.length)];
-                const summaries=[
-                    `이번 주 ${z.kr}는 지난 주의 정체기를 지나 활력을 되찾는 주간입니다. 특히 주 중반의 집중력을 어떻게 활용하느냐가 성패를 가릅니다.`,
-                    `이번 주 ${z.kr}에게는 새로운 시작을 위한 에너지가 충만합니다. 막연했던 계획이 구체적인 행동으로 이어지기 시작합니다.`,
-                    `이번 주 ${z.kr}는 인내와 기다림이 결실로 이어지는 주간입니다. 서두르지 않는 자에게 더 큰 기회가 찾아옵니다.`,
-                    `이번 주 ${z.kr}는 주변과의 소통이 활발해지는 주간입니다. 적극적인 표현이 좋은 관계를 만들어냅니다.`,
-                ];
-                const weekSummary=summaries[_seededInt(wseed+'sum',summaries.length)];
-
-                // 요일별 에너지 지수 + 메시지
-                const dowFull=['월','화','수','목','금','토','일'];
-                const dowEmojis2=['🌱','🔥','💡','⚡','✨','🌈','🌙'];
-                const dowColors2=['#818cf8','#f97316','#22d3ee','#a78bfa','#4ade80','#fb7185','#c084fc'];
-                const dowMsgsAll={
-                    '월':['이번 주의 첫 걸음이 중요합니다. 무리하지 말고 우선순위를 정해 차분하게 시작해보세요.','새로운 한 주의 시작입니다. 오늘의 작은 실천이 일주일 전체의 방향을 만들어갑니다.','월요일 아침, 긍정적인 다짐 하나가 이번 주 전체 에너지를 높여줍니다.'],
-                    '화':['소통과 협력에 좋은 에너지가 흐릅니다. 중요한 대화가 있다면 오늘이 적기입니다.','화요일의 기운이 창의력을 자극합니다. 새로운 아이디어가 떠오른다면 메모해두세요.','추진력이 강해지는 날입니다. 미뤄왔던 업무에 박차를 가해보세요.'],
-                    '수':['한 주의 중간 지점입니다. 지금까지의 진행 상황을 점검하고 필요한 부분을 조정해보세요.','집중력이 높아지는 날입니다. 중요한 업무나 학습에 몰두하기 좋은 시간입니다.','수요일의 균형 잡힌 에너지가 판단력을 높여줍니다. 오래 고민하던 결정을 내리기 좋습니다.'],
-                    '목':['실행력이 높아지는 날입니다. 머릿속에만 있던 계획을 행동으로 옮겨보세요.','주변에서 의미 있는 정보나 조언이 들려올 수 있습니다. 귀를 열고 경청해보세요.','목요일의 활발한 기운이 실행력을 높여줍니다. 결과가 조금씩 보이기 시작합니다.'],
-                    '금':['한 주의 마무리가 가까워지고 있습니다. 오늘 하루를 활기차게 마무리하면 주말이 더욱 풍요로워집니다.','가까운 사람과 따뜻한 시간을 나눠보세요. 감사함을 표현하기 좋은 날입니다.','금요일의 설레는 에너지가 긍정적인 기운을 불어넣습니다. 주변을 돌아보는 여유를 가져보세요.'],
-                    '토':['기다리던 주말입니다. 평소 하지 못했던 취미나 휴식으로 몸과 마음을 재충전해보세요.','창의적인 활동에 특히 좋은 에너지가 흐릅니다. 좋아하는 것에 집중해보세요.','토요일은 새로운 경험에 도전하기 좋은 날입니다. 작은 설렘이 큰 에너지가 됩니다.'],
-                    '일':['한 주를 차분히 돌아보는 시간을 가져보세요. 잘한 일은 스스로 칭찬해보세요.','충분한 휴식이 내일의 새로운 시작을 위한 가장 좋은 준비입니다. 스스로를 쉬게 해주세요.','일요일 저녁, 내일을 위한 작은 준비가 다음 주 전체를 가볍게 만들어줍니다.'],
-                };
-                const dowRows2=dowFull.map((d,i)=>{
-                    const score=55+_seededInt(wseed+d+'e',45);
-                    const msgs2=dowMsgsAll[d];
-                    const msg=msgs2[_seededInt(wseed+d+'m',msgs2.length)];
-                    return `<div style="margin-bottom:10px;padding-bottom:10px;${i<6?'border-bottom:1px solid #f3f4f6':''}">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-                            <span style="font-size:14px">${dowEmojis2[i]}</span>
-                            <span style="font-size:13px;font-weight:800;color:${dowColors2[i]}">${d}요일</span>
-                            <div style="flex:1;background:rgba(255,255,255,.15);border-radius:20px;height:7px;overflow:hidden">
-                                <div style="width:${score}%;height:100%;background:linear-gradient(90deg,${dowColors2[i]},rgba(255,255,255,.5));border-radius:20px"></div>
-                            </div>
-                            <span style="font-size:12px;font-weight:800;color:${dowColors2[i]};min-width:30px;text-align:right">${score}%</span>
-                        </div>
-                        <div style="font-size:12.5px;line-height:1.7;opacity:.88;padding-left:22px">${msg}</div>
-                    </div>`;
-                }).join('');
-
-                // 분야별 주간 지수 표
-                const fields2=[{label:'재물운',emoji:'💰',c:'#fbbf24'},{label:'애정운',emoji:'❤️',c:'#f472b6'},{label:'건강운',emoji:'💪',c:'#4ade80'},{label:'학업·직장운',emoji:'📚',c:'#60a5fa'}];
-                const fg2={'재물운':['현명한 소비와 저축이 빛을 발합니다.','주 중반 이후 예상치 못한 수입 가능성.','목요일 이후 지출 관리에 신경 쓰세요.','충동 구매는 잠시 보류하는 게 좋습니다.'],'애정운':['솔직한 표현이 관계를 더 깊게 합니다.','금요일 저녁, 가까운 이와의 대화가 길어집니다.','오해가 생기기 쉬우니 말 한마디 신중히.','새로운 인연이 시작될 수 있는 주간입니다.'],'건강운':['충분한 수면이 이번 주의 핵심입니다.','컨디션 최상, 야외 활동을 추천합니다.','수요일 이후 무리한 일정은 피하세요.','스트레칭과 가벼운 운동이 효과적입니다.'],'학업·직장운':['집중력이 높아지는 주간, 중요 업무 먼저.','새로운 아이디어가 인정받을 수 있는 시기.','팀 협업에서 좋은 결과가 기대됩니다.','주 초반의 기세를 끝까지 유지해보세요.']};
-                const sr2=['★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'];
-                const fieldRows2=fields2.map(f=>{
-                    const si=_seededInt(wseed+f.label,4);
-                    const guide=fg2[f.label][_seededInt(wseed+f.label+'g',fg2[f.label].length)];
-                    return `<tr><td style="padding:8px 10px;font-size:13px;font-weight:700;white-space:nowrap">${f.emoji} ${f.label}</td><td style="padding:8px 10px;font-size:14px;color:${f.c};letter-spacing:1px">${sr2[si]}</td><td style="padding:8px 10px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.85)">${guide}</td></tr>`;
-                }).join('');
-
-                // 행운 포인트
-                const lColors2=[{c:'스카이블루',eff:'소통과 신뢰감을 높여줍니다'},{c:'골드',eff:'자신감과 풍요로움을 불러옵니다'},{c:'민트그린',eff:'회복력과 신선한 에너지를 줍니다'},{c:'라벤더',eff:'차분함과 직관력을 키워줍니다'},{c:'코랄',eff:'활력과 긍정 에너지를 전달합니다'},{c:'퍼플',eff:'창의력과 직관을 자극합니다'},{c:'로즈핑크',eff:'사랑과 따뜻한 감수성을 높입니다'},{c:'딥블루',eff:'집중과 냉철한 판단력을 도와줍니다'}];
-                const lCol2=lColors2[_seededInt(wseed+'col',lColors2.length)];
-                const lPlaces2=['탁 트인 공원','조용한 서점','가까운 카페','자연 산책로','한강변','도서관','식물원','갤러리'];
-                const lPlace2=lPlaces2[_seededInt(wseed+'plc',lPlaces2.length)];
-
-                // 데칸 세부 운세
-                const DECAN_D={'양자리':[['3/21~3/30','인간관계에서 긍정적인 에너지가 넘치는 주간입니다. 먼저 다가가는 것이 좋은 결과를 만듭니다.'],['3/31~4/9','업무와 학습에서 두드러진 성과가 기대됩니다. 집중력을 발휘할 타이밍입니다.'],['4/10~4/19','내면의 성찰이 중요한 시기입니다. 혼자만의 시간을 갖고 방향을 재정비해보세요.']],'황소자리':[['4/20~4/29','안정적인 흐름 속에 새로운 기회가 찾아옵니다. 준비된 자에게 행운이 따릅니다.'],['4/30~5/9','재물운이 상승하는 시기입니다. 현명한 투자와 저축에 관심을 가져보세요.'],['5/10~5/20','인내와 끈기가 빛을 발하는 주간입니다. 포기하지 말고 한 걸음 더 나아가세요.']],'쌍둥이자리':[['5/21~5/31','소통 능력이 빛을 발하는 주간입니다. 새로운 인연과 정보에 열린 마음을 유지하세요.'],['6/1~6/10','창의적인 아이디어가 샘솟는 시기입니다. 떠오르는 생각을 바로 기록해두세요.'],['6/11~6/21','관계의 깊이를 더하는 주간입니다. 가까운 이들과의 대화에 집중해보세요.']],'게자리':[['6/22~7/1','감성이 풍부해지는 주간입니다. 가족과의 시간이 특별한 의미를 갖게 됩니다.'],['7/2~7/11','직관력이 강해지는 시기입니다. 중요한 결정 앞에서 내면의 소리에 귀 기울이세요.'],['7/12~7/22','회복력과 치유의 에너지가 강한 주간입니다. 몸과 마음을 돌보는 시간을 가져보세요.']],'사자자리':[['7/23~8/1','리더십을 발휘하기 좋은 주간입니다. 자신감 있게 의견을 표현해보세요.'],['8/2~8/11','창의성과 자기표현이 돋보이는 시기입니다. 새로운 도전을 망설이지 마세요.'],['8/12~8/22','관대함과 배려가 주변을 밝히는 주간입니다. 나눔의 기쁨을 경험해보세요.']],'처녀자리':[['8/23~9/1','분석력과 집중력이 최고조인 주간입니다. 꼼꼼한 업무 처리가 좋은 평가를 받습니다.'],['9/2~9/11','건강 관리에 특히 좋은 시기입니다. 규칙적인 생활 습관을 점검해보세요.'],['9/12~9/22','실용적인 접근이 빛을 발하는 주간입니다. 계획적인 행동이 성과로 이어집니다.']],'천칭자리':[['9/23~10/2','균형감각이 돋보이는 주간입니다. 중재자 역할에서 인정받을 수 있습니다.'],['10/3~10/12','미적 감각과 창의성이 상승하는 시기입니다. 예술적 활동이 기쁨을 줍니다.'],['10/13~10/22','인간관계에서 깊은 신뢰를 쌓는 주간입니다. 진심 어린 대화가 관계를 강화합니다.']],'전갈자리':[['10/23~11/1','내면의 강인함이 빛나는 주간입니다. 어떤 도전도 두려워하지 마세요.'],['11/2~11/11','변화와 혁신을 주도하기 좋은 시기입니다. 새로운 관점으로 상황을 바라보세요.'],['11/12~11/21','깊은 통찰력이 발휘되는 주간입니다. 표면 너머의 진실을 꿰뚫어 보는 시기입니다.']],'사수자리':[['11/22~12/1','모험과 탐구 본능이 강해지는 주간입니다. 새로운 경험에 적극적으로 뛰어드세요.'],['12/2~12/11','낙관적인 에너지가 주변을 밝히는 시기입니다. 긍정적인 마인드가 행운을 부릅니다.'],['12/12~12/21','지식과 지혜를 나누기 좋은 주간입니다. 배움을 공유하면 더 큰 가르침이 돌아옵니다.']],'염소자리':[['12/22~12/31','목표를 향한 집중력이 최강인 주간입니다. 한 걸음 한 걸음 차분히 나아가세요.'],['1/1~1/10','새해 에너지가 야망을 불태우는 시기입니다. 장기적인 계획을 구체화해보세요.'],['1/11~1/19','인내의 결실을 맺는 주간입니다. 오랫동안 준비해온 일에서 성과가 나타납니다.']],'물병자리':[['1/20~1/29','독창성과 혁신 아이디어가 빛나는 주간입니다. 남들과 다른 관점이 강점이 됩니다.'],['1/30~2/8','사회적 활동과 네트워킹에 좋은 시기입니다. 인맥이 뜻밖의 기회를 만들어줍니다.'],['2/9~2/18','인도주의적 가치가 돋보이는 주간입니다. 주변을 위한 작은 배려가 큰 보답이 됩니다.']],'물고기자리':[['2/19~2/28','인간관계의 오해를 풀기에 최적의 주간입니다. 솔직한 대화로 마음을 열어보세요.'],['3/1~3/10','업무적 성과가 눈에 띄는 시기입니다. 조금 더 힘내면 인정받는 순간이 찾아옵니다.'],['3/11~3/20','내면의 평화가 중요한 주간입니다. 명상이나 요가 등 마음을 다스리는 활동을 추천합니다.']]};
-                const decans2=DECAN_D[kr]||[];
-                const decanHTML2=decans2.length===3?`
-                    <div style="margin-top:14px">
-                        <div style="font-size:12px;font-weight:700;opacity:.7;letter-spacing:.5px;margin-bottom:8px">🔬 출생 시기별(Decan) 세부 운세</div>
-                        <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px 14px">
-                            ${decans2.map((d,i)=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;${i<2?'border-bottom:1px solid #f3f4f6':''}">
-                                <span style="min-width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">${i+1}</span>
-                                <div><div style="font-size:11px;opacity:.65;margin-bottom:3px">${d[0]}</div><div style="font-size:13px;line-height:1.65">${d[1]}</div></div>
-                            </div>`).join('')}
-                        </div>
-                    </div>`:'';
-
-                const closings2=['운세는 재미로 보되, 긍정적인 마음가짐 자체가 행운을 불러옵니다. 오늘 하루도 최선을 다하는 당신을 응원합니다.','별의 흐름은 참고 사항일 뿐, 삶의 방향을 만드는 건 언제나 당신 자신입니다. 이번 주도 힘차게 나아가세요.','운세를 통해 한 주의 흐름을 파악하고, 자신을 믿는 힘으로 도전해보세요. 준비된 마음에 행운이 따릅니다.'];
-                const closing2=closings2[_seededInt(wseed+'cl',closings2.length)];
-
-                area.innerHTML=`<div class="fcard">
-                    <div id="zwcard" style="background:#fff;border-radius:20px;padding:24px;color:#1f2937;border:1px solid #e0e7ff">
-                        <div style="text-align:center;margin-bottom:14px">
-                            <div style="font-size:44px">${z.emoji}</div>
-                            <div style="font-size:21px;font-weight:900;margin:6px 0">${z.kr} 주간운세</div>
-                            <div style="opacity:.8;font-size:13px">${weekRange()}</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,.18);border-radius:12px;padding:14px 16px;margin-bottom:12px">
-                            <div style="font-size:11px;font-weight:700;opacity:.65;letter-spacing:.5px;margin-bottom:6px">✨ 이번 주 핵심 키워드</div>
-                            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-                                ${kws.map(k=>`<span style="background:rgba(255,255,255,.25);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700">${k}</span>`).join('')}
-                            </div>
-                            <div style="font-size:13px;line-height:1.75;opacity:.92">${weekSummary}</div>
-                        </div>
-                        <div style="margin-bottom:14px">
-                            <div style="font-size:12px;font-weight:700;opacity:.7;letter-spacing:.5px;margin-bottom:8px">📊 요일별 에너지 지수</div>
-                            ${dowRows2}
-                        </div>
-                        <div style="margin-bottom:14px">
-                            <div style="font-size:12px;font-weight:700;opacity:.7;letter-spacing:.5px;margin-bottom:8px">📋 분야별 주간 지수</div>
-                            <table style="width:100%;border-collapse:collapse;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden">
-                                <thead><tr style="background:rgba(255,255,255,.15)">
-                                    <th style="padding:7px 10px;font-size:11px;font-weight:700;text-align:left;opacity:.75">분야</th>
-                                    <th style="padding:7px 10px;font-size:11px;font-weight:700;text-align:left;opacity:.75">지수</th>
-                                    <th style="padding:7px 10px;font-size:11px;font-weight:700;text-align:left;opacity:.75">한 줄 가이드</th>
-                                </tr></thead>
-                                <tbody>${fieldRows2}</tbody>
-                            </table>
-                        </div>
-                        <div style="background:rgba(255,220,100,.15);border:1px solid rgba(255,220,100,.3);border-radius:12px;padding:13px 15px;margin-bottom:14px">
-                            <div style="font-size:12px;font-weight:700;color:#fde68a;margin-bottom:8px">🍀 이번 주 행운 아이템</div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                                
-                                <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:8px;text-align:center">
-                                    <div style="font-size:10px;opacity:.65;margin-bottom:3px">행운의 컬러</div>
-                                    <div style="font-size:12px;font-weight:800;color:#fde68a">${lCol2.c}</div>
-                                    <div style="font-size:10px;opacity:.7;line-height:1.4;margin-top:2px">${lCol2.eff}</div>
-                                </div>
-                                <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:8px;text-align:center">
-                                    <div style="font-size:10px;opacity:.65;margin-bottom:3px">행운의 장소</div>
-                                    <div style="font-size:11px;font-weight:700;color:#fde68a;line-height:1.4">${lPlace2}</div>
-                                </div>
-                            </div>
-                        </div>
-                        ${decanHTML2}
-                        <div style="border-top:1px solid #e0e7ff;margin-top:14px;padding-top:12px;font-size:12px;line-height:1.7;color:#6b7280;font-style:italic">
-                            💬 ${closing2}
-                        </div>
+            // hohoplay 전용 동화 스토리 (zodiac_monthly_story.csv, 3버전) — 블로그 미경유, 완전 고정. 매월 마지막 주 월요일마다 다음 버전으로 전환
+            const zVersions = ZODIAC_MONTHLY_STORY[kr] || ['이야기를 준비 중이에요.'];
+            const zStory = zVersions[zodiacCycleMonth() % zVersions.length];
+            const paragraphs = zStory.split('|||').map(s=>s.trim()).filter(Boolean);
+            const bodyHtml = paragraphs.map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            area.innerHTML = `
+                <div class="fcard">
+                    <div style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);border-radius:16px;padding:22px;color:#fff;text-align:center;margin-bottom:16px">
+                        <div style="font-size:36px">${z.emoji}</div>
+                        <div style="font-size:20px;font-weight:900;margin:6px 0">${z.kr} 월간운세</div>
+                        <div style="opacity:.8;font-size:13px">${monthStr()}</div>
                     </div>
-                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px">
-                        <button onclick="saveCard('zwcard','별자리주간운세_${kr}')"
-                            style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">📸 이미지 저장</button>
-                    </div>
+                    <div style="font-size:15px;color:#374151">${bodyHtml}</div>
                 </div>`;
-            }
         }
+
 
         async function selectChineseMonthly(kr){
             _selChineseMonthly=kr;
@@ -4821,39 +4722,23 @@ ${info.usage}`;
             if(btn){btn.style.background='#ede9fe';btn.style.borderColor='#7c3aed';}
             const ch=CHINESE_LIST.find(x=>x.kr===kr);
             const area=document.getElementById('chinese-monthly-area');
-            area.innerHTML=`<div class="fcard" style="text-align:center;padding:30px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>월간운세를 불러오는 중...</div>${getLoadingAdHTML()}`;
-            const post = await fetchMonthlyPost('띠별월간', ch.kr);
-            const info = extractBlogContent(post);
-            const inner = renderBlogCard(info, ch.emoji, ch.kr, monthStr(), 'cmcard', '띠월간운세_'+kr);
-            if (inner) {
-                area.innerHTML=`<div class="fcard">${inner}</div>`;
-            } else {
-                const periods=[['🌱 상순','1~10일',rnd(MONTHLY_MSGS)],['🌿 중순','11~20일',rnd(MONTHLY_MSGS)],['🍂 하순','21~말일',rnd(MONTHLY_MSGS)]];
-                const borderColors={'🌱 상순':'#10b981','🌿 중순':'#3b82f6','🍂 하순':'#8b5cf6'};
-                const periodRows=periods.map(([p,d,m])=>`<div style="border-left:4px solid ${borderColors[p]||'#f59e0b'};border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:8px;background:#f9fafb">
-                    <div style="font-size:12px;font-weight:700;color:${borderColors[p]||'#f59e0b'};margin-bottom:6px">${p} <span style="color:#9ca3af">${d}</span></div>
-                    <span style="font-size:13px;color:#374151;line-height:1.9">${m}</span>
-                </div>`).join('');
-                area.innerHTML=`<div class="fcard">
-                    <div style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-left:5px solid #f59e0b;border-radius:14px;padding:16px;margin-bottom:12px">
-                        <p style="font-size:16px;font-weight:900;color:#92400e;line-height:1.7;margin:0">${ch.emoji} ${ch.kr} 이번 달 운세를 확인하세요.</p>
-                    </div>
-                    <div style="background:linear-gradient(135deg,#f59e0b,#92400e);border-radius:16px;padding:20px;color:#fff;text-align:center;margin-bottom:12px" id="cmcard">
-                        <div style="font-size:36px">${ch.emoji}</div>
-                        <div style="font-size:20px;font-weight:900;margin:6px 0">${ch.kr} 월간운세</div>
-                        <div style="opacity:.8;font-size:13px">${monthStr()}</div>
-                        <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:14px;margin-top:14px;font-size:14px;line-height:1.8">${rnd(MONTHLY_MSGS)}</div>
-                    </div>
-                    <div style="margin:4px 0 10px;font-size:13px;font-weight:700;color:#374151">📅 ${monthStr()} 기간별 흐름</div>
-                    ${periodRows}
-                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
-                        <button onclick="saveCard('cmcard','띠월간운세_${kr}')"
-                            style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">📸 이미지 저장</button>
 
+            // hohoplay 전용 동화 스토리 (chinese_weekly_story.csv, 3버전) — 블로그 미경유, 완전 고정. 주차 기준으로 버전 순환
+            const cVersions = CHINESE_WEEKLY_STORY[kr] || ['이야기를 준비 중이에요.'];
+            const cStory = cVersions[(weekNum() - 1) % cVersions.length];
+            const paragraphs = cStory.split('|||').map(s=>s.trim()).filter(Boolean);
+            const bodyHtml = paragraphs.map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            area.innerHTML = `
+                <div class="fcard">
+                    <div style="background:linear-gradient(135deg,#f59e0b,#92400e);border-radius:16px;padding:22px;color:#fff;text-align:center;margin-bottom:16px">
+                        <div style="font-size:36px">${ch.emoji}</div>
+                        <div style="font-size:20px;font-weight:900;margin:6px 0">${ch.kr} 주간운세</div>
+                        <div style="opacity:.8;font-size:13px">${weekRange()}</div>
                     </div>
+                    <div style="font-size:15px;color:#374151">${bodyHtml}</div>
                 </div>`;
-            }
         }
+
 
         // ═══════════════════════════════
         //  탭 전환
@@ -4945,10 +4830,10 @@ ${info.usage}`;
                 <div onclick="showFortune('weekly')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
                           padding:16px 18px;border-radius:14px;margin-bottom:12px;
                           background:linear-gradient(135deg,#1e3a5f,#2563eb)">
-                  <span style="font-size:26px;flex-shrink:0">📅</span>
+                  <span style="font-size:26px;flex-shrink:0">🌙</span>
                   <div style="flex:1;min-width:0">
-                    <div style="font-size:13px;font-weight:700;color:#bfdbfe;margin-bottom:3px;word-break:keep-all">별자리 주간운세</div>
-                    <div style="font-size:12px;color:#93c5fd;line-height:1.6;word-break:keep-all">이번 주 내 별자리의 흐름 보러 가기 →</div>
+                    <div style="font-size:13px;font-weight:700;color:#bfdbfe;margin-bottom:3px;word-break:keep-all">별자리 월간운세</div>
+                    <div style="font-size:12px;color:#93c5fd;line-height:1.6;word-break:keep-all">이번 달 내 별자리의 흐름 보러 가기 →</div>
                   </div>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                 </div>
@@ -4983,8 +4868,8 @@ ${info.usage}`;
                           background:linear-gradient(135deg,#7c2d12,#ea580c)">
                   <span style="font-size:26px;flex-shrink:0">🐉</span>
                   <div style="flex:1;min-width:0">
-                    <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">띠별 월간운세</div>
-                    <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">이번 달 내 띠의 흐름 보러 가기 →</div>
+                    <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">띠별 주간운세</div>
+                    <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">이번 주 내 띠의 흐름 보러 가기 →</div>
                   </div>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                 </div>
@@ -4994,7 +4879,7 @@ ${info.usage}`;
 
             else if(type==='weekly'){
                 c.innerHTML=`
-                    <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">📅 별자리 주간 운세</h2><p style="opacity:.85">${weekRange()}</p></div>
+                    <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">🌙 별자리 월간 운세</h2><p style="opacity:.85">${monthStr()}</p></div>
                     <div class="fcard">
                         <div style="font-weight:900;font-size:16px;margin-bottom:14px;color:#7c3aed">✨ 내 별자리 선택</div>
                         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">
@@ -5019,8 +4904,8 @@ ${info.usage}`;
                               background:linear-gradient(135deg,#7c2d12,#ea580c)">
                       <span style="font-size:26px;flex-shrink:0">🌙</span>
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">띠별 월간운세</div>
-                        <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">이번 달 내 띠의 흐름 보러 가기 →</div>
+                        <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">띠별 주간운세</div>
+                        <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">이번 주 내 띠의 흐름 보러 가기 →</div>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
@@ -5030,7 +4915,7 @@ ${info.usage}`;
 
             else if(type==='monthly'){
                 c.innerHTML=`
-                    <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">🌙 띠별 월간 운세</h2><p style="opacity:.85">${monthStr()}</p></div>
+                    <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">📅 띠별 주간 운세</h2><p style="opacity:.85">${weekRange()}</p></div>
                     <div class="fcard">
                         <div style="font-weight:900;font-size:16px;margin-bottom:14px;color:#7c3aed">🐾 내 띠 선택</div>
                         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">
@@ -5053,10 +4938,10 @@ ${info.usage}`;
                     <div onclick="showFortune('weekly')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
                               padding:16px 18px;border-radius:14px;margin-bottom:12px;
                               background:linear-gradient(135deg,#1e3a5f,#2563eb)">
-                      <span style="font-size:26px;flex-shrink:0">📅</span>
+                      <span style="font-size:26px;flex-shrink:0">🌙</span>
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:13px;font-weight:700;color:#bfdbfe;margin-bottom:3px;word-break:keep-all">별자리 주간운세</div>
-                        <div style="font-size:12px;color:#93c5fd;line-height:1.6;word-break:keep-all">이번 주 내 별자리의 흐름 보러 가기 →</div>
+                        <div style="font-size:13px;font-weight:700;color:#bfdbfe;margin-bottom:3px;word-break:keep-all">별자리 월간운세</div>
+                        <div style="font-size:12px;color:#93c5fd;line-height:1.6;word-break:keep-all">이번 달 내 별자리의 흐름 보러 가기 →</div>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
@@ -5250,6 +5135,35 @@ ${info.usage}`;
                 console.log('[HOHO] zodiac_love.csv 로드 완료');
             }
         } catch(e) { console.warn('[HOHO] zodiac_love.csv 로드 실패, 폴백 사용'); }
+    })();
+
+    // zodiac_monthly_story.csv / chinese_weekly_story.csv 로드 — hohoplay 전용 동화 콘텐츠(블로그 미경유, 완전 고정)
+    (async function loadStoryCSV() {
+        try {
+            var rz = await fetch('/data/zodiac_monthly_story.csv');
+            if (rz.ok) {
+                var tz = await rz.text();
+                var rowsZ = tz.trim().split('\n').slice(1); // 헤더 제외
+                rowsZ.forEach(function(row) {
+                    var cols = parseCSVLine(row);
+                    if (cols[0] && cols[1]) ZODIAC_MONTHLY_STORY[cols[0]] = [cols[1], cols[2], cols[3]].filter(Boolean);
+                });
+                console.log('[HOHO] zodiac_monthly_story.csv 로드 완료');
+            }
+        } catch(e) { console.warn('[HOHO] zodiac_monthly_story.csv 로드 실패'); }
+
+        try {
+            var rc = await fetch('/data/chinese_weekly_story.csv');
+            if (rc.ok) {
+                var tc = await rc.text();
+                var rowsC = tc.trim().split('\n').slice(1); // 헤더 제외
+                rowsC.forEach(function(row) {
+                    var cols = parseCSVLine(row);
+                    if (cols[0] && cols[1]) CHINESE_WEEKLY_STORY[cols[0]] = [cols[1], cols[2], cols[3]].filter(Boolean);
+                });
+                console.log('[HOHO] chinese_weekly_story.csv 로드 완료');
+            }
+        } catch(e) { console.warn('[HOHO] chinese_weekly_story.csv 로드 실패'); }
     })();
 
     // mbti_personalities.csv 로드 — MBTI_DATA 보강 (short_desc, core_trait, strength 등)
