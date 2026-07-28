@@ -1084,41 +1084,75 @@ ${info.usage}`;
         //  운세상식 게시판 (나열형) — 블로그로 내보내지 않고 본문을 fortune.html 안에서 그대로 렌더링
         // ═══════════════════════════════
         var _wisdomPosts = [];
+        var _wisdomPage = 0;
+        var WISDOM_PAGE_SIZE = 5;
 
         async function renderWisdomList(){
             const c = document.getElementById('fortune-content');
             c.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa">⏳ 불러오는 중...</div>';
             _wisdomPosts = await fetchPosts('운세상식', 20);
+            _wisdomPage = 0;
+            renderWisdomPage();
+        }
+
+        function renderWisdomPage(){
+            const c = document.getElementById('fortune-content');
             if(!_wisdomPosts.length){
                 c.innerHTML = `
                     <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">📖 운세상식</h2><p style="opacity:.85">알아두면 좋은 운세 이야기</p></div>
                     <div class="fcard" style="text-align:center;padding:40px;color:#aaa">아직 등록된 글이 없습니다</div>`;
                 return;
             }
+            const totalPages = Math.ceil(_wisdomPosts.length / WISDOM_PAGE_SIZE);
+            const start = _wisdomPage * WISDOM_PAGE_SIZE;
+            const pagePosts = _wisdomPosts.slice(start, start + WISDOM_PAGE_SIZE);
+            const pagerHtml = totalPages > 1 ? `
+                <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:14px">
+                    <button onclick="wisdomGoPage(${_wisdomPage - 1})" ${_wisdomPage === 0 ? 'disabled style="opacity:.35;cursor:default"' : ''}
+                        style="background:#f1f5f9;color:#4b5563;border:none;padding:8px 16px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer">‹ 이전</button>
+                    <span style="font-size:13px;color:#6b7280;font-weight:700">${_wisdomPage + 1} / ${totalPages}</span>
+                    <button onclick="wisdomGoPage(${_wisdomPage + 1})" ${_wisdomPage >= totalPages - 1 ? 'disabled style="opacity:.35;cursor:default"' : ''}
+                        style="background:#f1f5f9;color:#4b5563;border:none;padding:8px 16px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer">다음 ›</button>
+                </div>` : '';
             c.innerHTML = `
                 <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">📖 운세상식</h2><p style="opacity:.85">알아두면 좋은 운세 이야기</p></div>
                 <div id="wisdom-list">
-                    ${_wisdomPosts.map((p,i)=>{
+                    ${pagePosts.map((p,i)=>{
+                        const idx = start + i;
                         const snippet = p.content ? p.content.replace(/<[^>]+>/g,'').slice(0,70)+'...' : '';
-                        return `<div onclick="showWisdomPost(${i})"
+                        return `<div onclick="showWisdomPost(${idx})"
                             style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;margin-bottom:10px;cursor:pointer">
                             <div style="font-weight:700;font-size:15px;color:#3730a3;margin-bottom:6px;word-break:keep-all">${p.title}</div>
                             <div style="font-size:12px;color:#9ca3af;margin-bottom:6px">${fmtDate(p.published)}</div>
                             <div style="font-size:13px;color:#6b7280;line-height:1.6;word-break:keep-all">${snippet}</div>
                         </div>`;
                     }).join('')}
-                </div>`;
+                </div>
+                ${pagerHtml}`;
+        }
+
+        function wisdomGoPage(n){
+            const totalPages = Math.ceil(_wisdomPosts.length / WISDOM_PAGE_SIZE);
+            if(n < 0 || n >= totalPages) return;
+            _wisdomPage = n;
+            renderWisdomPage();
         }
 
         function showWisdomPost(i){
             const p = _wisdomPosts[i];
             if(!p) return;
             const c = document.getElementById('fortune-content');
+            // 블로그 전용 섹션 제거 — hohoplay 쪽엔 안 맞는 것들
+            // 1) "🔗 더 궁금하시다면" — 숨긴 별자리/띠운세 "오늘" 탭으로 연결되는 관련 링크 카드
+            // 2) "🔍 관련 키워드" — 태그 클라우드 카드
+            const cleanContent = (p.content || '')
+                .replace(/<div class="card"[^>]*>\s*<p[^>]*>🔗 더 궁금하시다면<\/p>[\s\S]*?<\/div>/, '')
+                .replace(/<div class="card"><span class="badge">🔍 관련 키워드<\/span>[\s\S]*?<\/div>\s*<\/div>/, '');
             c.innerHTML = `
                 <div class="fhero"><h2 style="font-size:20px;margin-bottom:6px">📖 ${p.title}</h2><p style="opacity:.85">${fmtDate(p.published)}</p></div>
                 <div class="fcard">
-                    <div onclick="renderWisdomList()" style="display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:16px">← 목록으로</div>
-                    <div style="font-size:15px;line-height:1.9;color:#374151;word-break:keep-all">${p.content}</div>
+                    <div onclick="renderWisdomPage()" style="display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:16px">← 목록으로</div>
+                    <div style="font-size:15px;line-height:1.9;color:#374151;word-break:keep-all">${cleanContent}</div>
                 </div>`;
         }
         function luckyRow(color, item, number){
