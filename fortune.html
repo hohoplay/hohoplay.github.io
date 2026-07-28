@@ -1079,6 +1079,48 @@ ${info.usage}`;
                 </div>`;
             }).join('');
         }
+
+        // ═══════════════════════════════
+        //  운세상식 게시판 (나열형) — 블로그로 내보내지 않고 본문을 fortune.html 안에서 그대로 렌더링
+        // ═══════════════════════════════
+        var _wisdomPosts = [];
+
+        async function renderWisdomList(){
+            const c = document.getElementById('fortune-content');
+            c.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa">⏳ 불러오는 중...</div>';
+            _wisdomPosts = await fetchPosts('운세상식', 20);
+            if(!_wisdomPosts.length){
+                c.innerHTML = `
+                    <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">📖 운세상식</h2><p style="opacity:.85">알아두면 좋은 운세 이야기</p></div>
+                    <div class="fcard" style="text-align:center;padding:40px;color:#aaa">아직 등록된 글이 없습니다</div>`;
+                return;
+            }
+            c.innerHTML = `
+                <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">📖 운세상식</h2><p style="opacity:.85">알아두면 좋은 운세 이야기</p></div>
+                <div id="wisdom-list">
+                    ${_wisdomPosts.map((p,i)=>{
+                        const snippet = p.content ? p.content.replace(/<[^>]+>/g,'').slice(0,70)+'...' : '';
+                        return `<div onclick="showWisdomPost(${i})"
+                            style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;margin-bottom:10px;cursor:pointer">
+                            <div style="font-weight:700;font-size:15px;color:#3730a3;margin-bottom:6px;word-break:keep-all">${p.title}</div>
+                            <div style="font-size:12px;color:#9ca3af;margin-bottom:6px">${fmtDate(p.published)}</div>
+                            <div style="font-size:13px;color:#6b7280;line-height:1.6;word-break:keep-all">${snippet}</div>
+                        </div>`;
+                    }).join('')}
+                </div>`;
+        }
+
+        function showWisdomPost(i){
+            const p = _wisdomPosts[i];
+            if(!p) return;
+            const c = document.getElementById('fortune-content');
+            c.innerHTML = `
+                <div class="fhero"><h2 style="font-size:20px;margin-bottom:6px">📖 ${p.title}</h2><p style="opacity:.85">${fmtDate(p.published)}</p></div>
+                <div class="fcard">
+                    <div onclick="renderWisdomList()" style="display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:16px">← 목록으로</div>
+                    <div style="font-size:15px;line-height:1.9;color:#374151;word-break:keep-all">${p.content}</div>
+                </div>`;
+        }
         function luckyRow(color, item, number){
             color  = color  || rnd(COLORS);
             item   = item   || rnd(LUCKY_ITEMS);
@@ -5088,6 +5130,10 @@ ${info.usage}`;
                 const dtEl = document.getElementById('tarot-date-label');
                 if(dtEl) dtEl.textContent = todayStr();
                 initTarot();
+            }
+
+            else if(type==='wisdom'){
+                renderWisdomList();
             }
 
             // 날짜 표시
