@@ -486,6 +486,7 @@
             `,
                         fortune: `
                 <div class="page-transition">
+                    <div id="hero-spotlight" style="opacity:1"></div>
                     <div class="mb-8" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
                         <button onclick="showFortune('today')"       id="tab-today"       class="ftab active-ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">오늘운세</button>
                         <button onclick="showFortune('saju')"        id="tab-saju"        class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">사주</button>
@@ -874,10 +875,11 @@
             if (page === 'fortune') {
                 if(window.fortuneReady) {
                     showFortune('today');
+                    if(typeof renderHeroSpotlight === 'function') renderHeroSpotlight();
                 } else {
                     var _fc = document.getElementById('fortune-content');
                     if (_fc) _fc.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세 모듈 로딩 중...</div>';
-                    window._pendingFortune = function(){ showFortune('today'); };
+                    window._pendingFortune = function(){ showFortune('today'); if(typeof renderHeroSpotlight === 'function') renderHeroSpotlight(); };
                     setTimeout(function(){
                         if(!window.fortuneReady){
                             var fc2 = document.getElementById('fortune-content');
