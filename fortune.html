@@ -283,6 +283,61 @@ ${info.usage}`;
         function fmtDate(s){const d=new Date(s);return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()}
 
         // ═══════════════════════════════
+        //  "이번 주의 주인공" 스포트라이트 배너 — /fortune/ 상단, 페이드 전환
+        //  기존 시드(zodiacCycleMonth/weekNum) 그대로 재사용. 카피는 나중에 24개 전용 문구로 교체 예정.
+        //  SPOTLIGHT_COPY.zodiac['양자리']='...', SPOTLIGHT_COPY.chinese['쥐띠']='...' 형태로 채우면
+        //  아래 fallback 템플릿 대신 그 문구가 우선 사용됨.
+        // ═══════════════════════════════
+        var SPOTLIGHT_COPY = { zodiac: {}, chinese: {} };
+        var _spotlightItems = [];
+        var _spotlightIdx = 0;
+        var _spotlightTimer = null;
+
+        function spotlightZodiacItem(){
+            const z = ZODIACS_LIST[zodiacCycleMonth() % ZODIACS_LIST.length];
+            const copy = SPOTLIGHT_COPY.zodiac[z.kr] || `이번 달, 하늘의 주인공은 ${z.kr}예요 — 어떤 이야기가 기다리고 있을까요?`;
+            return { emoji: z.emoji, copy: copy, go: function(){ showFortune('weekly'); setTimeout(function(){ selectZodiacWeekly(z.kr); }, 60); } };
+        }
+        function spotlightChineseItem(){
+            const c = CHINESE_LIST[weekNum() % CHINESE_LIST.length];
+            const copy = SPOTLIGHT_COPY.chinese[c.kr] || `이번 주, 숲 오솔길의 주인공은 ${c.kr}예요 — 어떤 이야기가 기다리고 있을까요?`;
+            return { emoji: c.emoji, copy: copy, go: function(){ showFortune('monthly'); setTimeout(function(){ selectChineseMonthly(c.kr); }, 60); } };
+        }
+        function spotlightClick(){
+            const it = _spotlightItems[_spotlightIdx];
+            if(it && it.go) it.go();
+        }
+        function paintSpotlight(){
+            const el = document.getElementById('hero-spotlight');
+            if(!el) return;
+            const it = _spotlightItems[_spotlightIdx];
+            if(!it) return;
+            el.style.transition = 'opacity .4s ease';
+            el.style.opacity = '0';
+            setTimeout(function(){
+                el.innerHTML = `
+                    <div onclick="spotlightClick()" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+                        background:linear-gradient(135deg,#fdf6ec,#faead2);border:1px solid #f3dfb8;border-radius:16px;
+                        padding:14px 20px;margin-bottom:16px;text-align:center">
+                        <span style="font-size:22px;flex-shrink:0">${it.emoji}</span>
+                        <span style="font-size:13px;font-weight:700;color:#8a6a2e;line-height:1.6">${it.copy}</span>
+                        <span style="font-size:12px;color:#c4a862;flex-shrink:0">→</span>
+                    </div>`;
+                el.style.opacity = '1';
+            }, 400);
+        }
+        function renderHeroSpotlight(){
+            _spotlightItems = [spotlightZodiacItem(), spotlightChineseItem()];
+            _spotlightIdx = 0;
+            paintSpotlight();
+            if(_spotlightTimer) clearInterval(_spotlightTimer);
+            _spotlightTimer = setInterval(function(){
+                _spotlightIdx = (_spotlightIdx + 1) % _spotlightItems.length;
+                paintSpotlight();
+            }, 5000);
+        }
+
+        // ═══════════════════════════════
         //  Blogger API 설정
         //  window.BLOG_ID (index.html 주입) 우선 → 없으면 자체 정의
         // ═══════════════════════════════
