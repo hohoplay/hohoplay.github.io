@@ -1302,39 +1302,54 @@ ${info.usage}`;
 
         function renderMeetingBook(){
             const c = document.getElementById('fortune-content');
-            const candidates = ZODIACS_LIST.map(z=>({kr:z.kr})).concat(CHINESE_LIST.map(x=>({kr:x.kr})));
-            if(!candidates.length || Object.keys(CATEGORY_REASONS).length === 0){
+            const zPool = ZODIACS_LIST.map((z,i)=>({kr:z.kr, idx:i}));
+            const cPool = CHINESE_LIST.map((x,i)=>({kr:x.kr, idx:12+i}));
+            if(!zPool.length || !cPool.length || Object.keys(CATEGORY_REASONS).length === 0){
                 c.innerHTML = `
                     <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
                     <div class="fcard" style="text-align:center;padding:40px;color:#aaa">이야기를 준비 중이에요</div>`;
                 return;
             }
             const monthSeed = zodiacCycleMonth();
-            // 카테고리 7개 내내 같은 연결어만 쓰면 단조로우니 4세트를 catIdx로 돌려씀
-            const ORDINAL_SETS = [
-                ['그중 으뜸은', '그 뒤를 이은 건', '마지막으로는'],
-                ['가장 먼저 눈에 띈 건', '이어서 눈길을 끈 건', '끝으로 눈에 들어온 건'],
-                ['첫손에 꼽힌 건', '두 번째로 꼽힌 건', '세 번째로 꼽힌 건'],
-                ['맨 앞자리는', '그다음 자리는', '나머지 한 자리는'],
+            // 하늘(별자리)과 오솔길(띠)을 별도 풀로 계산해 세계관이 한 문단 안에서 섞이지 않게 함
+            function topOf(pool, catIdx){
+                const scored = pool.map(p => ({ kr: p.kr, score: candidateScore(p.idx, catIdx, monthSeed) }));
+                scored.sort((a,b) => b.score - a.score);
+                return scored[0];
+            }
+            // 매번 "도입→A→B→맺음"으로 똑같이 반복되지 않도록, 카테고리 절반은 양쪽 세계 병렬로,
+            // 절반은 한쪽 세계만 깊게 들여다보는 구조로 섞음(catIdx 홀짝)
+            const SKY_LEADS = [
+                z => `하늘에서는 ${z}의 별빛이 유독 밝게 빛났어요.`,
+                z => `부엉이 마을 하늘 위, ${z}의 기운이 남달리 반짝였어요.`,
+                z => `밤하늘을 올려다보면, 오늘따라 ${z}의 별자리가 또렷했어요.`,
             ];
-            const CLOSINGS = [
-                z => `이 세 사람의 이야기가, 이번 달 ${z.label}을 가장 잘 보여주는 흐름이었어요.`,
-                z => `부엉이도 나뭇가지 위에서 이 셋을 가만히 지켜보며 고개를 끄덕였답니다.`,
-                z => `오늘 밤 오솔길엔 유독 이 세 사람의 발걸음이 또렷하게 남아있었어요.`,
+            const PATH_LEADS = [
+                c => `오솔길에서는 ${c}의 발걸음이 유독 눈에 띄었어요.`,
+                c => `숲 오솔길을 따라, ${c}의 기운이 조용히 번져갔어요.`,
+                c => `발밑을 보면, ${c}의 발자국이 유난히 선명하게 남아있었어요.`,
             ];
             const paras = [];
             MEETING_CATEGORIES.forEach((cat, catIdx) => {
-                const scored = candidates.map((cd, idx) => ({ kr: cd.kr, score: candidateScore(idx, catIdx, monthSeed) }));
-                scored.sort((a,b) => b.score - a.score);
-                const top3 = scored.slice(0, 3);
-                const ordinals = ORDINAL_SETS[catIdx % ORDINAL_SETS.length];
+                const zWin = topOf(zPool, catIdx);
+                const cWin = topOf(cPool, catIdx);
+                const zReason = (CATEGORY_REASONS[zWin.kr] || {})[cat.key] || '';
+                const cReason = (CATEGORY_REASONS[cWin.kr] || {})[cat.key] || '';
                 paras.push(cat.intro);
-                top3.forEach((t, i) => {
-                    const reasons = CATEGORY_REASONS[t.kr];
-                    const reason = reasons ? reasons[cat.key] : '';
-                    if(reason) paras.push(`${ordinals[i]} ${t.kr}예요. ${reason}`);
-                });
-                paras.push(CLOSINGS[catIdx % CLOSINGS.length](cat));
+                const dualMode = catIdx % 2 === 0;
+                if(dualMode){
+                    // 양쪽 세계 병렬 — 하늘 한 줄, 오솔길 한 줄
+                    if(zReason) paras.push(`${SKY_LEADS[catIdx % SKY_LEADS.length](zWin.kr)} ${zReason}`);
+                    if(cReason) paras.push(`${PATH_LEADS[catIdx % PATH_LEADS.length](cWin.kr)} ${cReason}`);
+                } else {
+                    // 한쪽 세계만 깊게 — catIdx로 하늘/오솔길 번갈아 선택
+                    const useSky = (catIdx % 4 === 1);
+                    if(useSky && zReason){
+                        paras.push(`${SKY_LEADS[catIdx % SKY_LEADS.length](zWin.kr)} ${zReason}`);
+                    } else if(!useSky && cReason){
+                        paras.push(`${PATH_LEADS[catIdx % PATH_LEADS.length](cWin.kr)} ${cReason}`);
+                    }
+                }
             });
             const bodyHtml = paras.map(s=>`<p style="margin:0 0 16px;line-height:1.9">${s}</p>`).join('');
             c.innerHTML = `
