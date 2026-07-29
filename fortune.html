@@ -1287,25 +1287,51 @@ ${info.usage}`;
             (z,c) => `${c}의 발걸음이 오솔길 굽이를 돌던 그때, 마침 ${z}의 별빛도 그 굽이로 스며들고 있었어요. 딱 맞춰 만난 두 이야기가 오늘 밤의 주인공이에요.`,
             (z,c) => `부엉이가 나뭇가지 위에서 가만히 지켜보니, ${z}의 이야기와 ${c}의 이야기가 서로를 알아보고는 자연스레 나란히 걷기 시작했어요. 오늘 밤은 그 뒷모습을 따라가 볼까요.`,
         ];
+        let _selMeetingZodiac = null; // null이면 이번 달 스포트라이트 자동 선택
+        let _selMeetingChinese = null; // null이면 이번 주 스포트라이트 자동 선택
+
+        function selectMeetingZodiac(kr){ _selMeetingZodiac = kr; renderMeetingBook(); }
+        function selectMeetingChinese(kr){ _selMeetingChinese = kr; renderMeetingBook(); }
+
         function renderMeetingBook(){
             const c = document.getElementById('fortune-content');
-            const zItem = ZODIACS_LIST[zodiacCycleMonth() % ZODIACS_LIST.length];
-            const cItem = CHINESE_LIST[weekNum() % CHINESE_LIST.length];
+            const zDefault = ZODIACS_LIST[zodiacCycleMonth() % ZODIACS_LIST.length];
+            const cDefault = CHINESE_LIST[weekNum() % CHINESE_LIST.length];
+            const zItem = _selMeetingZodiac ? ZODIACS_LIST.find(z=>z.kr===_selMeetingZodiac) || zDefault : zDefault;
+            const cItem = _selMeetingChinese ? CHINESE_LIST.find(x=>x.kr===_selMeetingChinese) || cDefault : cDefault;
             const zVersions = ZODIAC_MONTHLY_STORY[zItem.kr];
             const cVersions = CHINESE_WEEKLY_STORY[cItem.kr];
+
+            const zPicker = `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px">
+                ${ZODIACS_LIST.map(z=>`<span onclick="selectMeetingZodiac('${z.kr}')" title="${z.kr}"
+                    style="cursor:pointer;font-size:18px;padding:4px 6px;border-radius:8px;${z.kr===zItem.kr?'background:#ede9fe':''}">${z.emoji}</span>`).join('')}
+            </div>`;
+            const cPicker = `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px">
+                ${CHINESE_LIST.map(x=>`<span onclick="selectMeetingChinese('${x.kr}')" title="${x.kr}"
+                    style="cursor:pointer;font-size:18px;padding:4px 6px;border-radius:8px;${x.kr===cItem.kr?'background:#ffedd5':''}">${x.emoji}</span>`).join('')}
+            </div>`;
+
             if(!zVersions || !cVersions){
                 c.innerHTML = `
-                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">이야기를 준비 중이에요</p></div>`;
+                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">이야기를 준비 중이에요</p></div>
+                    <div class="fcard">${zPicker}${cPicker}</div>`;
                 return;
             }
             const zStory = zVersions[zodiacCycleMonth() % zVersions.length];
             const cStory = cVersions[(weekNum() - 1) % cVersions.length];
             const bridge = MEETING_BRIDGES[(zodiacCycleMonth() + weekNum()) % MEETING_BRIDGES.length](zItem.kr, cItem.kr);
-            const zParas = zStory.split('|||').map(s=>s.trim()).filter(Boolean).map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
-            const cParas = cStory.split('|||').map(s=>s.trim()).filter(Boolean).map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            // 명언/속담(쪽지) 문단 제거 — 뼈대상 항상 뒤에서 두 번째 문단(...공감|흐름|심화|영역|명언|배웅). 이 조합 페이지에서만 빼고, 개별 탭 원문은 그대로 둠
+            function stripQuote(story){
+                const arr = story.split('|||').map(s=>s.trim()).filter(Boolean);
+                if(arr.length >= 2) arr.splice(arr.length - 2, 1);
+                return arr;
+            }
+            const zParas = stripQuote(zStory).map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            const cParas = stripQuote(cStory).map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
             c.innerHTML = `
                 <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">${zItem.kr} × ${cItem.kr}</p></div>
                 <div class="fcard">
+                    ${zPicker}${cPicker}
                     <div style="font-size:15px;color:#374151">
                         ${zParas}
                         <p style="margin:24px 0;line-height:1.9;font-weight:700;color:#7c5a2e">${bridge}</p>
