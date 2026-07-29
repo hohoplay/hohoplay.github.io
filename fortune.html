@@ -1267,6 +1267,53 @@ ${info.usage}`;
                     <div style="font-size:15px;line-height:1.9;color:#374151;word-break:keep-all">${cleanContent}</div>
                 </div>`;
         }
+
+        // ═══════════════════════════════
+        //  "별빛이 오솔길로 내려오는 밤" — 이번 달 주인공 별자리 이야기 + 이번 주 주인공 띠 이야기를
+        //  다리 문장으로 이어붙여 보여줌. 새로 쓰는 글 없이 이미 완성된 ZODIAC_MONTHLY_STORY/
+        //  CHINESE_WEEKLY_STORY를 그대로 재사용 — 블로그 미경유, 완전 고정. 카드/박스/숫자 배지 없음.
+        // ═══════════════════════════════
+        const MEETING_BRIDGES = [
+            (z,c) => `그리고 오늘 밤, 하늘에서 내려온 ${z}의 이야기가 오솔길을 따라 걸어온 ${c}의 이야기와 부엉이 마을 광장에서 마주쳤어요. 두 이야기는 잠시 나란히 걸으며, 서로의 계절을 조용히 나누었답니다.`,
+            (z,c) => `그 순간, 별빛이 ${z}의 이야기를 감싸안은 채 오솔길로 스며들었고, 마침 그 길 끝에서 ${c}의 이야기가 걸어오고 있었어요. 두 이야기가 만나는 이 밤, 부엉이 마을은 유난히 포근해졌답니다.`,
+            (z,c) => `저 하늘의 ${z} 이야기와 이 숲의 ${c} 이야기, 오늘 밤은 이 둘이 나란히 앉아 서로의 하루를 들려주는 밤이에요. 부엉이도 가만히 곁에 앉아 그 이야기를 함께 들었답니다.`,
+            (z,c) => `${z}의 별빛이 사부작사부작 오솔길로 스며드는 사이, 저 멀리서 ${c}의 발걸음 소리가 점점 가까워졌어요. 두 이야기가 만나는 자리엔 늘 작은 반짝임이 생긴답니다.`,
+            (z,c) => `부엉이 마을 광장의 오래된 등불 아래, ${z}의 이야기가 먼저 도착해 자리를 잡았어요. 조금 뒤 ${c}의 이야기가 웃으며 다가와 그 곁에 앉았답니다.`,
+            (z,c) => `${c}가 오솔길 끝에서 문득 하늘을 올려다봤을 때, 마침 ${z}의 별빛 한 줄기가 조용히 내려오고 있었어요. 그렇게 두 이야기의 저녁이 시작됐답니다.`,
+            (z,c) => `오늘 밤은 유독 하늘과 숲의 경계가 흐릿했어요. ${z}의 이야기가 흘러내려 오솔길에 닿았고, 그 자리엔 이미 ${c}의 이야기가 기다리고 있었답니다.`,
+            (z,c) => `누가 먼저랄 것도 없이, ${z}의 이야기와 ${c}의 이야기가 부엉이 마을 우물가에서 마주쳤어요. 서로의 안부를 묻는 것만으로도 이미 다정한 밤이었답니다.`,
+            (z,c) => `${z}의 별빛이 내려앉은 자리마다 작은 길이 열렸는데, 그 길의 끝에서 기다리고 있던 건 다름 아닌 ${c}의 이야기였어요. 우연이라기엔 너무 다정한 만남이었답니다.`,
+            (z,c) => `숲과 하늘 사이 어딘가, 부엉이만 아는 작은 쉼터가 있어요. 오늘 밤엔 그곳에서 ${z}의 이야기와 ${c}의 이야기가 우연히 마주 앉게 됐답니다.`,
+            (z,c) => `${c}의 발걸음이 오솔길 굽이를 돌던 그때, 마침 ${z}의 별빛도 그 굽이로 스며들고 있었어요. 딱 맞춰 만난 두 이야기가 오늘 밤의 주인공이에요.`,
+            (z,c) => `부엉이가 나뭇가지 위에서 가만히 지켜보니, ${z}의 이야기와 ${c}의 이야기가 서로를 알아보고는 자연스레 나란히 걷기 시작했어요. 오늘 밤은 그 뒷모습을 따라가 볼까요.`,
+        ];
+        function renderMeetingBook(){
+            const c = document.getElementById('fortune-content');
+            const zItem = ZODIACS_LIST[zodiacCycleMonth() % ZODIACS_LIST.length];
+            const cItem = CHINESE_LIST[weekNum() % CHINESE_LIST.length];
+            const zVersions = ZODIAC_MONTHLY_STORY[zItem.kr];
+            const cVersions = CHINESE_WEEKLY_STORY[cItem.kr];
+            if(!zVersions || !cVersions){
+                c.innerHTML = `
+                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">이야기를 준비 중이에요</p></div>`;
+                return;
+            }
+            const zStory = zVersions[zodiacCycleMonth() % zVersions.length];
+            const cStory = cVersions[(weekNum() - 1) % cVersions.length];
+            const bridge = MEETING_BRIDGES[(zodiacCycleMonth() + weekNum()) % MEETING_BRIDGES.length](zItem.kr, cItem.kr);
+            const zParas = zStory.split('|||').map(s=>s.trim()).filter(Boolean).map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            const cParas = cStory.split('|||').map(s=>s.trim()).filter(Boolean).map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            c.innerHTML = `
+                <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">${zItem.kr} × ${cItem.kr}</p></div>
+                <div class="fcard">
+                    <div style="font-size:15px;color:#374151">
+                        ${zParas}
+                        <p style="margin:24px 0;line-height:1.9;font-weight:700;color:#7c5a2e">${bridge}</p>
+                        ${cParas}
+                    </div>
+                </div>`;
+        }
+
         function luckyRow(color, item, number){
             color  = color  || rnd(COLORS);
             item   = item   || rnd(LUCKY_ITEMS);
@@ -4980,10 +5027,10 @@ ${info.usage}`;
                     <div onclick="showFortune('wisdom')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
                               padding:16px 18px;border-radius:14px;margin-bottom:8px;
                               background:linear-gradient(135deg,#1e1b4b,#4c1d95)">
-                      <span style="font-size:26px;flex-shrink:0">📖</span>
+                      <span style="font-size:26px;flex-shrink:0">🌙</span>
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:13px;font-weight:700;color:#e9d5ff;margin-bottom:3px;word-break:keep-all">운세상식</div>
-                        <div style="font-size:12px;color:#c4b5fd;line-height:1.6;word-break:keep-all">알아두면 좋은 운세 이야기 보러 가기 →</div>
+                        <div style="font-size:13px;font-weight:700;color:#e9d5ff;margin-bottom:3px;word-break:keep-all">별빛이 오솔길로 내려오는 밤</div>
+                        <div style="font-size:12px;color:#c4b5fd;line-height:1.6;word-break:keep-all">이번 달의 만남 이야기 보러 가기 →</div>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
@@ -5016,10 +5063,10 @@ ${info.usage}`;
                     <div onclick="showFortune('wisdom')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
                               padding:16px 18px;border-radius:14px;margin-bottom:8px;
                               background:linear-gradient(135deg,#7c2d12,#ea580c)">
-                      <span style="font-size:26px;flex-shrink:0">📖</span>
+                      <span style="font-size:26px;flex-shrink:0">🌙</span>
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">운세상식</div>
-                        <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">알아두면 좋은 운세 이야기 보러 가기 →</div>
+                        <div style="font-size:13px;font-weight:700;color:#fed7aa;margin-bottom:3px;word-break:keep-all">별빛이 오솔길로 내려오는 밤</div>
+                        <div style="font-size:12px;color:#fdba74;line-height:1.6;word-break:keep-all">이번 달의 만남 이야기 보러 가기 →</div>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
@@ -5140,7 +5187,7 @@ ${info.usage}`;
             }
 
             else if(type==='wisdom'){
-                renderWisdomList();
+                renderMeetingBook();
             }
 
             // 날짜 표시
