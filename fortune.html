@@ -1273,23 +1273,56 @@ ${info.usage}`;
         //  다리 문장으로 이어붙여 보여줌. 새로 쓰는 글 없이 이미 완성된 ZODIAC_MONTHLY_STORY/
         //  CHINESE_WEEKLY_STORY를 그대로 재사용 — 블로그 미경유, 완전 고정. 카드/박스/숫자 배지 없음.
         // ═══════════════════════════════
-        var TOP3_MEETINGS = {}; // "별빛이 오솔길로 내려오는 밤"(top3_meetings.csv) — 별자리마다 TOP3 띠 궁합만, 처음부터 둘을 함께 다루는 짧은 이야기. 블로그 미경유, 완전 고정, 선택 UI 없음
+        var CATEGORY_REASONS = {}; // "별빛이 오솔길로 내려오는 밤"(category_reasons.csv) — 후보(별자리12+띠12) × 카테고리7 짧은 이유 문구. 블로그 미경유, 완전 고정
+
+        // 카테고리 메타 — 도입 문장 + 순위 라벨 없이 서수 연결어로만 3명을 소개
+        var MEETING_CATEGORIES = [
+            { key:'side',      label:'부업운',       intro:'이번 달 부엉이 마을에서는 부업의 씨앗을 유독 잘 틔울 이들이 눈에 띄었어요.' },
+            { key:'move',      label:'이사운',       intro:'새로운 터전을 향해 가장 산뜻하게 발걸음을 옮길 이들의 이야기도 있었죠.' },
+            { key:'money',     label:'금전운',       intro:'곳간을 가장 든든하게 채울 이들의 이야기도 빼놓을 수 없어요.' },
+            { key:'potential', label:'잠재력',       intro:'아직 다 펼치지 못한 잠재력이 유독 반짝이던 이들도 있었답니다.' },
+            { key:'talent',    label:'재능',         intro:'타고난 재능이 이번 달 유독 빛을 발한 이들의 이야기예요.' },
+            { key:'best',      label:'이번 달 가장 좋은 점', intro:'이번 달 가장 환하게 웃을 수 있었던 이들의 이야기부터 들어볼까요.' },
+            { key:'caution',   label:'조심해야 할 점', intro:'다만 아무리 좋은 달에도, 마음에 새겨둘 이야기는 있는 법이죠.' },
+        ];
+
+        // 후보(별자리12+띠12) × 카테고리 × 이번 달을 조합한 결정론적 시드 점수 — 매달 값이 바뀜, 새로고침해도 안 바뀜(가짜 난수 아님)
+        // FNV-1a 스타일 해시로 골고루 섞음 — 단순 선형 조합은 인접 후보가 여러 카테고리에서 계속 몰리는 편향이 있었음
+        function _hashStr(str){
+            let h = 2166136261;
+            for(let i=0;i<str.length;i++){
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return (h >>> 0);
+        }
+        function candidateScore(idx, catIdx, monthSeed){
+            return _hashStr(idx+'-'+catIdx+'-'+monthSeed) % 100;
+        }
 
         function renderMeetingBook(){
             const c = document.getElementById('fortune-content');
-            // 열두 별자리 전부 × 각자의 TOP3(총 36편)를 순서대로 이어붙여 한 권의 책으로 보여줌 — 소제목·구분선 없이 순수 텍스트 흐름
-            const paras = [];
-            ZODIACS_LIST.forEach(z => {
-                const partners = TOP3_MEETINGS[z.kr];
-                if(!partners) return;
-                partners.forEach(p => paras.push(p.story));
-            });
-            if(!paras.length){
+            const candidates = ZODIACS_LIST.map(z=>({kr:z.kr})).concat(CHINESE_LIST.map(x=>({kr:x.kr})));
+            if(!candidates.length || Object.keys(CATEGORY_REASONS).length === 0){
                 c.innerHTML = `
                     <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
                     <div class="fcard" style="text-align:center;padding:40px;color:#aaa">이야기를 준비 중이에요</div>`;
                 return;
             }
+            const monthSeed = zodiacCycleMonth();
+            const ORDINALS = ['그중 으뜸은', '그 뒤를 이은 건', '마지막으로는'];
+            const paras = [];
+            MEETING_CATEGORIES.forEach((cat, catIdx) => {
+                const scored = candidates.map((cd, idx) => ({ kr: cd.kr, score: candidateScore(idx, catIdx, monthSeed) }));
+                scored.sort((a,b) => b.score - a.score);
+                const top3 = scored.slice(0, 3);
+                paras.push(cat.intro);
+                top3.forEach((t, i) => {
+                    const reasons = CATEGORY_REASONS[t.kr];
+                    const reason = reasons ? reasons[cat.key] : '';
+                    if(reason) paras.push(`${ORDINALS[i]} ${t.kr}예요. ${reason}`);
+                });
+            });
             const bodyHtml = paras.map(s=>`<p style="margin:0 0 16px;line-height:1.9">${s}</p>`).join('');
             c.innerHTML = `
                 <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
@@ -5285,23 +5318,25 @@ ${info.usage}`;
         } catch(e) { console.warn('[HOHO] chinese_weekly_story.csv 로드 실패'); }
     })();
 
-    // top3_meetings.csv 로드 — "별빛이 오솔길로 내려오는 밤"(별자리별 TOP3 띠 궁합, 36행), 블로그 미경유
-    (async function loadTop3MeetingsCSV() {
+    // category_reasons.csv 로드 — "별빛이 오솔길로 내려오는 밤"(후보24×카테고리7=168개 이유 문구), 블로그 미경유
+    (async function loadCategoryReasonsCSV() {
         try {
-            var rt = await fetch('/data/top3_meetings.csv');
-            if (rt.ok) {
-                var tt = await rt.text();
-                var rowsT = tt.trim().split('\n').slice(1); // 헤더 제외
-                rowsT.forEach(function(row) {
+            var rr = await fetch('/data/category_reasons.csv');
+            if (rr.ok) {
+                var tr = await rr.text();
+                var rowsR = tr.trim().split('\n').slice(1); // 헤더: candidate,type,side,move,money,potential,talent,best,caution
+                rowsR.forEach(function(row) {
                     var cols = parseCSVLine(row);
-                    var z = cols[0], ch = cols[1], story = cols[2];
-                    if (!z || !ch || !story) return;
-                    if (!TOP3_MEETINGS[z]) TOP3_MEETINGS[z] = [];
-                    TOP3_MEETINGS[z].push({ chinese: ch, story: story }); // CSV 등장 순서 = 그 별자리의 TOP3 순서
+                    var name = cols[0];
+                    if (!name) return;
+                    CATEGORY_REASONS[name] = {
+                        side: cols[2], move: cols[3], money: cols[4],
+                        potential: cols[5], talent: cols[6], best: cols[7], caution: cols[8]
+                    };
                 });
-                console.log('[HOHO] top3_meetings.csv 로드 완료');
+                console.log('[HOHO] category_reasons.csv 로드 완료');
             }
-        } catch(e) { console.warn('[HOHO] top3_meetings.csv 로드 실패'); }
+        } catch(e) { console.warn('[HOHO] category_reasons.csv 로드 실패'); }
     })();
 
     // mbti_personalities.csv 로드 — MBTI_DATA 보강 (short_desc, core_trait, strength 등)
