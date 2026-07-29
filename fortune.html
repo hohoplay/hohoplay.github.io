@@ -1334,14 +1334,22 @@ ${info.usage}`;
             });
 
             const SKY_LEADS = [
-                z => `밤하늘의 ${z}가`,
-                z => `하늘에서는 ${z}가`,
-                z => `부엉이 마을 하늘 위, ${z}의 별빛이`,
+                z => `밤하늘에서는 ${z}가 유독 눈에 띄었어요.`,
+                z => `별빛 아래서는 ${z}의 기운이 남달랐어요.`,
+                z => `가지 끝 너머 하늘에는 ${z}가 반짝이고 있었어요.`,
+                z => `달빛 사이로 ${z}의 별자리가 또렷하게 보였어요.`,
+                z => `고요한 밤하늘 한켠에서 ${z}가 빛나고 있었어요.`,
+                z => `부엉이가 바라본 하늘 저편엔 ${z}가 있었어요.`,
+                z => `별빛 너머에서는 ${z}의 기운이 유독 짙었어요.`,
             ];
             const PATH_LEADS = [
-                c => `오솔길 아래선 ${c}가`,
-                c => `숲 오솔길에서는 ${c}가`,
-                c => `발밑 오솔길을 보면, ${c}의 발걸음이`,
+                c => `오솔길에서는 ${c}가 유독 눈에 띄었어요.`,
+                c => `숲속에서는 ${c}의 발걸음이 남달랐어요.`,
+                c => `숲길 한켠에서 ${c}가 조용히 지나가고 있었어요.`,
+                c => `나뭇잎 사이로 ${c}의 그림자가 스쳐 지나갔어요.`,
+                c => `발밑 오솔길엔 ${c}의 발자국이 선명했어요.`,
+                c => `고요한 밤공기 속, 오솔길에서 ${c}가 걸어오고 있었어요.`,
+                c => `숲 가장자리에서는 ${c}의 기운이 유독 짙었어요.`,
             ];
 
             const paras = [];
@@ -1351,8 +1359,9 @@ ${info.usage}`;
                 pairs.forEach(({z, c: chi}, k) => {
                     const zReason = (CATEGORY_REASONS[z] || {})[cat.key] || '';
                     const cReason = (CATEGORY_REASONS[chi] || {})[cat.key] || '';
-                    const skyLead = SKY_LEADS[(catIdx+k) % SKY_LEADS.length](z);
-                    const pathLead = PATH_LEADS[(catIdx+k) % PATH_LEADS.length](chi);
+                    // 리드 문장(완결)과 이유 문장(독립)을 따로 이어붙여 문법이 어색하게 뒤엉키지 않도록 함
+                    const skyLead = SKY_LEADS[(catIdx*3+k) % SKY_LEADS.length](z);
+                    const pathLead = PATH_LEADS[(catIdx*3+k+1) % PATH_LEADS.length](chi);
                     if(zReason) paras.push(`${skyLead} ${zReason}`);
                     if(cReason) paras.push(`${pathLead} ${cReason}`);
                 });
