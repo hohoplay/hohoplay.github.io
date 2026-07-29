@@ -1277,18 +1277,24 @@ ${info.usage}`;
 
         function renderMeetingBook(){
             const c = document.getElementById('fortune-content');
-            const zItem = ZODIACS_LIST[zodiacCycleMonth() % ZODIACS_LIST.length];
-            const partners = TOP3_MEETINGS[zItem.kr]; // [{chinese, story}, {chinese, story}, {chinese, story}]
-            if(!partners || !partners.length){
+            // 열두 별자리 전부 × 각자의 TOP3(총 36편)를 순서대로 이어붙여 한 권의 책으로 보여줌 — 소제목·구분선 없이 순수 텍스트 흐름
+            const paras = [];
+            ZODIACS_LIST.forEach(z => {
+                const partners = TOP3_MEETINGS[z.kr];
+                if(!partners) return;
+                partners.forEach(p => paras.push(p.story));
+            });
+            if(!paras.length){
                 c.innerHTML = `
-                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">이야기를 준비 중이에요</p></div>`;
+                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
+                    <div class="fcard" style="text-align:center;padding:40px;color:#aaa">이야기를 준비 중이에요</div>`;
                 return;
             }
-            const picked = partners[weekNum() % partners.length]; // 그 달의 별자리(zodiacCycleMonth) × TOP3 중 하나(weekNum)로 자동 선택 — 고르는 UI 없음
+            const bodyHtml = paras.map(s=>`<p style="margin:0 0 16px;line-height:1.9">${s}</p>`).join('');
             c.innerHTML = `
-                <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">${zItem.kr} × ${picked.chinese}</p></div>
+                <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
                 <div class="fcard">
-                    <div style="font-size:15px;line-height:1.9;color:#374151">${picked.story}</div>
+                    <div style="font-size:15px;color:#374151">${bodyHtml}</div>
                 </div>`;
         }
 
