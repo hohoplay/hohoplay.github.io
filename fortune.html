@@ -1273,85 +1273,22 @@ ${info.usage}`;
         //  다리 문장으로 이어붙여 보여줌. 새로 쓰는 글 없이 이미 완성된 ZODIAC_MONTHLY_STORY/
         //  CHINESE_WEEKLY_STORY를 그대로 재사용 — 블로그 미경유, 완전 고정. 카드/박스/숫자 배지 없음.
         // ═══════════════════════════════
-        const MEETING_BRIDGES = [
-            (z,c) => `그리고 오늘 밤, 하늘에서 내려온 ${z}의 이야기가 오솔길을 따라 걸어온 ${c}의 이야기와 부엉이 마을 광장에서 마주쳤어요. 두 이야기는 잠시 나란히 걸으며, 서로의 계절을 조용히 나누었답니다.`,
-            (z,c) => `그 순간, 별빛이 ${z}의 이야기를 감싸안은 채 오솔길로 스며들었고, 마침 그 길 끝에서 ${c}의 이야기가 걸어오고 있었어요. 두 이야기가 만나는 이 밤, 부엉이 마을은 유난히 포근해졌답니다.`,
-            (z,c) => `저 하늘의 ${z} 이야기와 이 숲의 ${c} 이야기, 오늘 밤은 이 둘이 나란히 앉아 서로의 하루를 들려주는 밤이에요. 부엉이도 가만히 곁에 앉아 그 이야기를 함께 들었답니다.`,
-            (z,c) => `${z}의 별빛이 사부작사부작 오솔길로 스며드는 사이, 저 멀리서 ${c}의 발걸음 소리가 점점 가까워졌어요. 두 이야기가 만나는 자리엔 늘 작은 반짝임이 생긴답니다.`,
-            (z,c) => `부엉이 마을 광장의 오래된 등불 아래, ${z}의 이야기가 먼저 도착해 자리를 잡았어요. 조금 뒤 ${c}의 이야기가 웃으며 다가와 그 곁에 앉았답니다.`,
-            (z,c) => `${c}가 오솔길 끝에서 문득 하늘을 올려다봤을 때, 마침 ${z}의 별빛 한 줄기가 조용히 내려오고 있었어요. 그렇게 두 이야기의 저녁이 시작됐답니다.`,
-            (z,c) => `오늘 밤은 유독 하늘과 숲의 경계가 흐릿했어요. ${z}의 이야기가 흘러내려 오솔길에 닿았고, 그 자리엔 이미 ${c}의 이야기가 기다리고 있었답니다.`,
-            (z,c) => `누가 먼저랄 것도 없이, ${z}의 이야기와 ${c}의 이야기가 부엉이 마을 우물가에서 마주쳤어요. 서로의 안부를 묻는 것만으로도 이미 다정한 밤이었답니다.`,
-            (z,c) => `${z}의 별빛이 내려앉은 자리마다 작은 길이 열렸는데, 그 길의 끝에서 기다리고 있던 건 다름 아닌 ${c}의 이야기였어요. 우연이라기엔 너무 다정한 만남이었답니다.`,
-            (z,c) => `숲과 하늘 사이 어딘가, 부엉이만 아는 작은 쉼터가 있어요. 오늘 밤엔 그곳에서 ${z}의 이야기와 ${c}의 이야기가 우연히 마주 앉게 됐답니다.`,
-            (z,c) => `${c}의 발걸음이 오솔길 굽이를 돌던 그때, 마침 ${z}의 별빛도 그 굽이로 스며들고 있었어요. 딱 맞춰 만난 두 이야기가 오늘 밤의 주인공이에요.`,
-            (z,c) => `부엉이가 나뭇가지 위에서 가만히 지켜보니, ${z}의 이야기와 ${c}의 이야기가 서로를 알아보고는 자연스레 나란히 걷기 시작했어요. 오늘 밤은 그 뒷모습을 따라가 볼까요.`,
-        ];
-        const MEETING_CLOSINGS = [
-            (z,c) => `그렇게 ${z}의 이야기와 ${c}의 이야기는 밤이 깊도록 나란히 앉아있었어요. 부엉이 마을의 별빛도 오솔길의 이슬도, 그 둘을 다정하게 지켜봐 주었답니다. 오늘 밤의 이야기는 여기서 조용히 책장을 덮지만, 두 이야기는 계속 이어질 거예요. 또 만나요, 안녕!`,
-            (z,c) => `어느새 밤이 깊어지고, ${z}와 ${c}는 서로에게 다음을 기약하며 자리에서 일어섰어요. 하늘로 돌아가는 별빛과 오솔길로 돌아가는 발걸음, 그 둘 다 오늘 밤을 오래 기억할 것 같아요. 다음 페이지에서 또 만나요. 안녕!`,
-            (z,c) => `부엉이가 나뭇가지 위에서 하품을 하며 눈을 감을 때쯤, ${z}의 이야기와 ${c}의 이야기도 조용히 인사를 나누고 각자의 길로 돌아갔어요. 오늘 밤의 만남은 여기서 마무리되지만, 그 온기는 오래 남을 거예요. 안녕!`,
-            (z,c) => `${z}와 ${c}는 오늘 나눈 이야기를 마음 한켠에 담아둔 채, 각자의 자리로 돌아갔어요. 하늘의 별빛도, 오솔길의 발자국도 내일이면 또 다른 이야기를 준비하고 있을 거예요. 안녕!`,
-            (z,c) => `이야기가 끝나갈 무렵, ${z}와 ${c}는 서로에게 작은 미소를 건넸어요. 말하지 않아도, 오늘 이 만남이 서로에게 작은 위로가 되었다는 걸 둘 다 알고 있었답니다. 또 만나요, 안녕!`,
-            (z,c) => `별빛이 다시 하늘로, 발걸음이 다시 오솔길 저편으로 향할 때까지 ${z}와 ${c}는 한참을 함께 걸었어요. 부엉이 마을의 밤은 그렇게 조용히 깊어갔답니다. 안녕!`,
-        ];
-        let _selMeetingZodiac = null; // null이면 이번 달 스포트라이트 자동 선택
-        let _selMeetingChinese = null; // null이면 이번 주 스포트라이트 자동 선택
-
-        function selectMeetingZodiac(kr){ _selMeetingZodiac = kr; renderMeetingBook(); }
-        function selectMeetingChinese(kr){ _selMeetingChinese = kr; renderMeetingBook(); }
+        var TOP3_MEETINGS = {}; // "별빛이 오솔길로 내려오는 밤"(top3_meetings.csv) — 별자리마다 TOP3 띠 궁합만, 처음부터 둘을 함께 다루는 짧은 이야기. 블로그 미경유, 완전 고정, 선택 UI 없음
 
         function renderMeetingBook(){
             const c = document.getElementById('fortune-content');
-            const zDefault = ZODIACS_LIST[zodiacCycleMonth() % ZODIACS_LIST.length];
-            const cDefault = CHINESE_LIST[weekNum() % CHINESE_LIST.length];
-            const zItem = _selMeetingZodiac ? ZODIACS_LIST.find(z=>z.kr===_selMeetingZodiac) || zDefault : zDefault;
-            const cItem = _selMeetingChinese ? CHINESE_LIST.find(x=>x.kr===_selMeetingChinese) || cDefault : cDefault;
-            const zVersions = ZODIAC_MONTHLY_STORY[zItem.kr];
-            const cVersions = CHINESE_WEEKLY_STORY[cItem.kr];
-
-            const zPicker = `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px">
-                ${ZODIACS_LIST.map(z=>`<span onclick="selectMeetingZodiac('${z.kr}')" title="${z.kr}"
-                    style="cursor:pointer;font-size:18px;padding:4px 6px;border-radius:8px;${z.kr===zItem.kr?'background:#ede9fe':''}">${z.emoji}</span>`).join('')}
-            </div>`;
-            const cPicker = `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px">
-                ${CHINESE_LIST.map(x=>`<span onclick="selectMeetingChinese('${x.kr}')" title="${x.kr}"
-                    style="cursor:pointer;font-size:18px;padding:4px 6px;border-radius:8px;${x.kr===cItem.kr?'background:#ffedd5':''}">${x.emoji}</span>`).join('')}
-            </div>`;
-
-            if(!zVersions || !cVersions){
+            const zItem = ZODIACS_LIST[zodiacCycleMonth() % ZODIACS_LIST.length];
+            const partners = TOP3_MEETINGS[zItem.kr]; // [{chinese, story}, {chinese, story}, {chinese, story}]
+            if(!partners || !partners.length){
                 c.innerHTML = `
-                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">이야기를 준비 중이에요</p></div>
-                    <div class="fcard">${zPicker}${cPicker}</div>`;
+                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">이야기를 준비 중이에요</p></div>`;
                 return;
             }
-            const zStory = zVersions[zodiacCycleMonth() % zVersions.length];
-            const cStory = cVersions[(weekNum() - 1) % cVersions.length];
-            const bridge = MEETING_BRIDGES[(zodiacCycleMonth() + weekNum()) % MEETING_BRIDGES.length](zItem.kr, cItem.kr);
-            const closing = MEETING_CLOSINGS[(zodiacCycleMonth() + weekNum()) % MEETING_CLOSINGS.length](zItem.kr, cItem.kr);
-            // 명언/속담(쪽지)과 각자의 개별 배웅 인사(뒤에서 두 문단)는 빼고, 나머지 문단을 별자리·띠 번갈아가며 배치해 하나의 장면처럼 이어붙임
-            function coreParas(story){
-                const arr = story.split('|||').map(s=>s.trim()).filter(Boolean);
-                return arr.slice(0, Math.max(0, arr.length - 2)); // 뒤에서 두 문단(명언, 배웅) 제외
-            }
-            const zCore = coreParas(zStory); // [공감, 흐름, 심화, 영역]
-            const cCore = coreParas(cStory);
-            const p = s => `<p style="margin:0 0 16px;line-height:1.9">${s}</p>`;
-            let interleaved = '';
-            const len = Math.max(zCore.length, cCore.length);
-            for(let i=0;i<len;i++){
-                if(zCore[i]) interleaved += p(zCore[i]);
-                if(cCore[i]) interleaved += p(cCore[i]);
-            }
+            const picked = partners[weekNum() % partners.length]; // 그 달의 별자리(zodiacCycleMonth) × TOP3 중 하나(weekNum)로 자동 선택 — 고르는 UI 없음
             c.innerHTML = `
-                <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">${zItem.kr} × ${cItem.kr}</p></div>
+                <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">${zItem.kr} × ${picked.chinese}</p></div>
                 <div class="fcard">
-                    ${zPicker}${cPicker}
-                    <div style="font-size:15px;color:#374151">
-                        <p style="margin:0 0 16px;line-height:1.9">${bridge}</p>
-                        ${interleaved}
-                        <p style="margin:24px 0 0;line-height:1.9">${closing}</p>
-                    </div>
+                    <div style="font-size:15px;line-height:1.9;color:#374151">${picked.story}</div>
                 </div>`;
         }
 
@@ -5340,6 +5277,25 @@ ${info.usage}`;
                 console.log('[HOHO] chinese_weekly_story.csv 로드 완료');
             }
         } catch(e) { console.warn('[HOHO] chinese_weekly_story.csv 로드 실패'); }
+    })();
+
+    // top3_meetings.csv 로드 — "별빛이 오솔길로 내려오는 밤"(별자리별 TOP3 띠 궁합, 36행), 블로그 미경유
+    (async function loadTop3MeetingsCSV() {
+        try {
+            var rt = await fetch('/data/top3_meetings.csv');
+            if (rt.ok) {
+                var tt = await rt.text();
+                var rowsT = tt.trim().split('\n').slice(1); // 헤더 제외
+                rowsT.forEach(function(row) {
+                    var cols = parseCSVLine(row);
+                    var z = cols[0], ch = cols[1], story = cols[2];
+                    if (!z || !ch || !story) return;
+                    if (!TOP3_MEETINGS[z]) TOP3_MEETINGS[z] = [];
+                    TOP3_MEETINGS[z].push({ chinese: ch, story: story }); // CSV 등장 순서 = 그 별자리의 TOP3 순서
+                });
+                console.log('[HOHO] top3_meetings.csv 로드 완료');
+            }
+        } catch(e) { console.warn('[HOHO] top3_meetings.csv 로드 실패'); }
     })();
 
     // mbti_personalities.csv 로드 — MBTI_DATA 보강 (short_desc, core_trait, strength 등)
