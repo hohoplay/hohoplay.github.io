@@ -1310,18 +1310,31 @@ ${info.usage}`;
                 return;
             }
             const monthSeed = zodiacCycleMonth();
-            const ORDINALS = ['그중 으뜸은', '그 뒤를 이은 건', '마지막으로는'];
+            // 카테고리 7개 내내 같은 연결어만 쓰면 단조로우니 4세트를 catIdx로 돌려씀
+            const ORDINAL_SETS = [
+                ['그중 으뜸은', '그 뒤를 이은 건', '마지막으로는'],
+                ['가장 먼저 눈에 띈 건', '이어서 눈길을 끈 건', '끝으로 눈에 들어온 건'],
+                ['첫손에 꼽힌 건', '두 번째로 꼽힌 건', '세 번째로 꼽힌 건'],
+                ['맨 앞자리는', '그다음 자리는', '나머지 한 자리는'],
+            ];
+            const CLOSINGS = [
+                z => `이 세 사람의 이야기가, 이번 달 ${z.label}을 가장 잘 보여주는 흐름이었어요.`,
+                z => `부엉이도 나뭇가지 위에서 이 셋을 가만히 지켜보며 고개를 끄덕였답니다.`,
+                z => `오늘 밤 오솔길엔 유독 이 세 사람의 발걸음이 또렷하게 남아있었어요.`,
+            ];
             const paras = [];
             MEETING_CATEGORIES.forEach((cat, catIdx) => {
                 const scored = candidates.map((cd, idx) => ({ kr: cd.kr, score: candidateScore(idx, catIdx, monthSeed) }));
                 scored.sort((a,b) => b.score - a.score);
                 const top3 = scored.slice(0, 3);
+                const ordinals = ORDINAL_SETS[catIdx % ORDINAL_SETS.length];
                 paras.push(cat.intro);
                 top3.forEach((t, i) => {
                     const reasons = CATEGORY_REASONS[t.kr];
                     const reason = reasons ? reasons[cat.key] : '';
-                    if(reason) paras.push(`${ORDINALS[i]} ${t.kr}예요. ${reason}`);
+                    if(reason) paras.push(`${ordinals[i]} ${t.kr}예요. ${reason}`);
                 });
+                paras.push(CLOSINGS[catIdx % CLOSINGS.length](cat));
             });
             const bodyHtml = paras.map(s=>`<p style="margin:0 0 16px;line-height:1.9">${s}</p>`).join('');
             c.innerHTML = `
