@@ -1179,7 +1179,7 @@ ${info.usage}`;
         function renderPosts(posts){
             if(!posts.length) return '<p style="color:#aaa;text-align:center;padding:20px">아직 게시글이 없습니다</p>';
             return posts.map(p=>{
-                const snippet = p.content ? p.content.replace(/<[^>]+>/g,'').slice(0,80)+'...' : '';
+                const snippet = p.content ? p.content.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,'').trim().slice(0,80)+'...' : '';
                 return `<div class="post-item" onclick="window.open('${p.url}','_blank')">
                     <div class="post-title">${p.title}</div>
                     <div class="post-date">${fmtDate(p.published)}</div>
@@ -1227,7 +1227,7 @@ ${info.usage}`;
                 <div id="wisdom-list">
                     ${pagePosts.map((p,i)=>{
                         const idx = start + i;
-                        const snippet = p.content ? p.content.replace(/<[^>]+>/g,'').slice(0,70)+'...' : '';
+                        const snippet = p.content ? p.content.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,'').trim().slice(0,70)+'...' : '';
                         return `<div onclick="showWisdomPost(${idx})"
                             style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;margin-bottom:10px;cursor:pointer">
                             <div style="font-weight:700;font-size:15px;color:#3730a3;margin-bottom:6px;word-break:keep-all">${p.title}</div>
@@ -1250,10 +1250,14 @@ ${info.usage}`;
             const p = _wisdomPosts[i];
             if(!p) return;
             const c = document.getElementById('fortune-content');
-            // 블로그 전용 섹션 제거 — hohoplay 쪽엔 안 맞는 것들
-            // 1) "🔗 더 궁금하시다면" — 숨긴 별자리/띠운세 "오늘" 탭으로 연결되는 관련 링크 카드
-            // 2) "🔍 관련 키워드" — 태그 클라우드 카드
+            // 블로그 전용 섹션 및 원본 <style>/<script> 블록 제거
+            // 1) <style>/<script> — create_knowledge.py가 글 맨 앞에 넣는 자체 스타일 블록. 그대로 두면 스니펫에 CSS 원문이
+            //    그대로 노출되고, 본문에 삽입 시 body/* 같은 전역 선택자가 사이트 전체 스타일을 덮어쓸 위험도 있어 반드시 제거
+            // 2) "🔗 더 궁금하시다면" — 숨긴 별자리/띠운세 "오늘" 탭으로 연결되는 관련 링크 카드
+            // 3) "🔍 관련 키워드" — 태그 클라우드 카드
             const cleanContent = (p.content || '')
+                .replace(/<style[\s\S]*?<\/style>/gi, '')
+                .replace(/<script[\s\S]*?<\/script>/gi, '')
                 .replace(/<div class="card"[^>]*>\s*<p[^>]*>🔗 더 궁금하시다면<\/p>[\s\S]*?<\/div>/, '')
                 .replace(/<div class="card"><span class="badge">🔍 관련 키워드<\/span>[\s\S]*?<\/div>\s*<\/div>/, '');
             c.innerHTML = `
