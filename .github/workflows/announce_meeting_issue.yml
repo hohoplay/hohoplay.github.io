@@ -1,0 +1,26 @@
+name: 🌙 별빛오솔길의 밤 신간 오픈 공지
+
+on:
+  workflow_dispatch:        # 수동 실행(테스트용)
+  schedule:
+    - cron: '0 0 * * 1'     # 매주 월요일 KST 09:00(UTC 00:00) — 그 달 마지막 월요일이 아니면 스크립트가 알아서 건너뜀
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v5
+
+      - name: 🐍 Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: 🌙 신간 오픈 공지 이슈 생성(해당 시)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/announce_meeting_issue.py
