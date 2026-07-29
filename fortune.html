@@ -1312,16 +1312,8 @@ ${info.usage}`;
             return a;
         }
 
-        function renderMeetingBook(){
-            const c = document.getElementById('fortune-content');
-            if(!ZODIACS_LIST.length || !CHINESE_LIST.length || Object.keys(CATEGORY_REASONS).length === 0){
-                c.innerHTML = `
-                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
-                    <div class="fcard" style="text-align:center;padding:40px;color:#aaa">이야기를 준비 중이에요</div>`;
-                return;
-            }
-            const monthSeed = zodiacCycleMonth();
-            // 12별자리·12띠를 이번 달 시드로 섞은 뒤, 카테고리 7개에 [2,2,2,2,2,1,1](=12명)씩 순서대로 배정 — 전원 정확히 한 번씩만 등장
+        // 이번 달 기준 seed로 그 달 전체 이야기(카테고리 7개, 하늘·오솔길 전원 배정)를 문단 배열로 조립
+        function buildMeetingParas(monthSeed){
             const zShuffled = seededShuffle(ZODIACS_LIST.map(z=>z.kr), monthSeed * 7 + 1);
             const cShuffled = seededShuffle(CHINESE_LIST.map(x=>x.kr), monthSeed * 7 + 2);
             const COUNTS = [2,2,2,2,2,1,1];
@@ -1332,46 +1324,101 @@ ${info.usage}`;
                 const cs = cShuffled.slice(ci, ci+n); ci += n;
                 return { cat, pairs: zs.map((z,k)=>({ z, c: cs[k] })) };
             });
-
             const SKY_LEADS = [
-                z => `밤하늘에서는 ${z}가 유독 눈에 띄었어요.`,
-                z => `별빛 아래서는 ${z}의 기운이 남달랐어요.`,
-                z => `가지 끝 너머 하늘에는 ${z}가 반짝이고 있었어요.`,
-                z => `달빛 사이로 ${z}의 별자리가 또렷하게 보였어요.`,
-                z => `고요한 밤하늘 한켠에서 ${z}가 빛나고 있었어요.`,
-                z => `부엉이가 바라본 하늘 저편엔 ${z}가 있었어요.`,
-                z => `별빛 너머에서는 ${z}의 기운이 유독 짙었어요.`,
+                z => `밤하늘에서는 ${z}가 유난히 밝게 빛났어요.`,
+                z => `오늘은 ${z}의 별빛이 먼저 시선을 끌었어요.`,
+                z => `가지 끝 너머 하늘에는 ${z}가 조용히 빛나고 있었어요.`,
+                z => `달빛 사이로 ${z}의 별자리가 유난히 또렷했어요.`,
+                z => `고요한 밤하늘 한켠에서 ${z}의 별빛이 은은하게 퍼졌어요.`,
+                z => `부엉이가 바라본 하늘 저편엔 ${z}가 자리하고 있었어요.`,
+                z => `별빛 너머에서는 ${z}의 이야기가 깊게 느껴졌어요.`,
+                z => `오늘 밤은 ${z}가 먼저 말을 걸어오는 듯했어요.`,
+                z => `별빛 아래서는 ${z}의 별빛이 더욱 힘차게 반짝였어요.`,
+                z => `${z}의 기운이 하늘 저편에서 가장 먼저 전해졌어요.`,
             ];
             const PATH_LEADS = [
-                c => `오솔길에서는 ${c}가 유독 눈에 띄었어요.`,
-                c => `숲속에서는 ${c}의 발걸음이 남달랐어요.`,
+                c => `오솔길에서는 ${c}가 유난히 선명하게 다가왔어요.`,
+                c => `숲속에서는 ${c}의 발걸음이 먼저 눈에 들어왔어요.`,
                 c => `숲길 한켠에서 ${c}가 조용히 지나가고 있었어요.`,
-                c => `나뭇잎 사이로 ${c}의 그림자가 스쳐 지나갔어요.`,
-                c => `발밑 오솔길엔 ${c}의 발자국이 선명했어요.`,
-                c => `고요한 밤공기 속, 오솔길에서 ${c}가 걸어오고 있었어요.`,
-                c => `숲 가장자리에서는 ${c}의 기운이 유독 짙었어요.`,
+                c => `나뭇잎 사이로 ${c}의 그림자가 은은하게 퍼졌어요.`,
+                c => `발밑 오솔길엔 ${c}의 발자국이 유난히 또렷했어요.`,
+                c => `고요한 밤공기 속, 오솔길에서 ${c}가 조용히 걸어오고 있었어요.`,
+                c => `숲 가장자리에서는 ${c}가 먼저 말을 걸어오는 듯했어요.`,
+                c => `오솔길 저편에서 ${c}의 이야기가 깊게 느껴졌어요.`,
+                c => `오늘은 ${c}의 발걸음이 더욱 씩씩하게 이어졌어요.`,
+                c => `${c}의 기운이 오솔길 저편에서 가장 먼저 전해졌어요.`,
             ];
-
+            // 두세 문단마다 한 번씩, 부엉이가 배경이 아니라 이야기를 지켜보는 화자로 살아있게 짧은 시선 문장을 끼워넣음
+            const OWL_ASIDES = [
+                '부엉이는 잠시 고개를 갸웃했어요.',
+                '부엉이는 그 모습을 한참 바라보았어요.',
+                '부엉이는 조용히 날개를 접고 미소 지었어요.',
+                '부엉이도 그 이야기가 흥미로운 듯 눈을 반짝였어요.',
+                '부엉이는 나뭇가지를 살짝 고쳐 앉으며 다음 이야기를 기다렸어요.',
+            ];
             const paras = [];
-            paras.push('부엉이가 나뭇가지 위에 앉아 밤하늘과 오솔길을 번갈아 내려다봐요. 오늘은 이번 달 부엉이 마을에 어떤 기운이 감도는지, 그 이야기를 하나씩 들려줄 시간이에요.');
+            paras.push('부엉이가 나뭇가지 위에 앉아 밤하늘과 오솔길을 번갈아 내려다봐요. 이번 호에는 부엉이 마을에 어떤 기운이 감도는지, 그 이야기를 하나씩 들려줄 시간이에요.');
+            let owlIdx = 0;
             assign.forEach(({cat, pairs}, catIdx) => {
                 paras.push(cat.intro);
                 pairs.forEach(({z, c: chi}, k) => {
                     const zReason = (CATEGORY_REASONS[z] || {})[cat.key] || '';
                     const cReason = (CATEGORY_REASONS[chi] || {})[cat.key] || '';
-                    // 리드 문장(완결)과 이유 문장(독립)을 따로 이어붙여 문법이 어색하게 뒤엉키지 않도록 함
                     const skyLead = SKY_LEADS[(catIdx*3+k) % SKY_LEADS.length](z);
                     const pathLead = PATH_LEADS[(catIdx*3+k+1) % PATH_LEADS.length](chi);
                     if(zReason) paras.push(`${skyLead} ${zReason}`);
                     if(cReason) paras.push(`${pathLead} ${cReason}`);
                 });
+                if(catIdx % 2 === 1 && catIdx < assign.length - 1){
+                    paras.push(OWL_ASIDES[owlIdx % OWL_ASIDES.length]);
+                    owlIdx++;
+                }
             });
-            paras.push('오늘 밤 이야기는 여기서 살며시 책장을 덮지만, 부엉이 마을의 하늘과 오솔길은 내일도 여전히 그 자리에서 당신을 기다리고 있을 거예요. 안녕!');
+            paras.push('이번 호 이야기는 여기서 살며시 책장을 덮지만, 부엉이 마을의 하늘과 오솔길은 다음 호에도 여전히 그 자리에서 당신을 기다리고 있을 거예요. 안녕!');
+            return paras;
+        }
+        function meetingMonthLabel(monthSeed){
+            const y = Math.floor(monthSeed / 12), m = monthSeed % 12; // m: 0~11
+            return `${y}년 ${m+1}월호`;
+        }
 
+        var _meetingIssues = []; // [{seed, label}] — 목록에 보여줄 최근 호 목록(이번 달 포함 최근 6개월)
+
+        function renderMeetingBook(){
+            const cEl = document.getElementById('fortune-content');
+            if(!ZODIACS_LIST.length || !CHINESE_LIST.length || Object.keys(CATEGORY_REASONS).length === 0){
+                cEl.innerHTML = `
+                    <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
+                    <div class="fcard" style="text-align:center;padding:40px;color:#aaa">이야기를 준비 중이에요</div>`;
+                return;
+            }
+            const thisMonth = zodiacCycleMonth();
+            _meetingIssues = [];
+            for(let i=0;i<6;i++) _meetingIssues.push({ seed: thisMonth - i, label: meetingMonthLabel(thisMonth - i) });
+
+            const cardsHtml = _meetingIssues.map((iss, i) => {
+                const preview = buildMeetingParas(iss.seed)[1] || ''; // 첫 카테고리 도입 문장을 스니펫으로
+                return `<div onclick="showMeetingIssue(${i})"
+                    style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;margin-bottom:10px;cursor:pointer">
+                    <div style="font-weight:700;font-size:15px;color:#3730a3;margin-bottom:6px;word-break:keep-all">🌙 별빛이 오솔길로 내려오는 밤 — ${iss.label}</div>
+                    <div style="font-size:13px;color:#6b7280;line-height:1.6;word-break:keep-all">${preview}</div>
+                </div>`;
+            }).join('');
+            cEl.innerHTML = `
+                <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">매달 새로 열리는 부엉이 마을 이야기</p></div>
+                <div id="meeting-list">${cardsHtml}</div>`;
+        }
+
+        function showMeetingIssue(i){
+            const iss = _meetingIssues[i];
+            if(!iss) return;
+            const cEl = document.getElementById('fortune-content');
+            const paras = buildMeetingParas(iss.seed);
             const bodyHtml = paras.map(s=>`<p style="margin:0 0 16px;line-height:1.9">${s}</p>`).join('');
-            c.innerHTML = `
-                <div class="fhero"><h2 style="font-size:22px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2></div>
+            cEl.innerHTML = `
+                <div class="fhero"><h2 style="font-size:20px;margin-bottom:6px">🌙 ${iss.label}</h2></div>
                 <div class="fcard">
+                    <div onclick="renderMeetingBook()" style="display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:16px">← 목록으로</div>
                     <div style="font-size:15px;color:#374151">${bodyHtml}</div>
                 </div>`;
         }
