@@ -251,20 +251,36 @@ def save_state(state):
 def load_coupang_links():
     """coupang_links.csv를 인덱스 기준으로 읽어온다. (index, product_keyword, coupang_url)
     파일이 없거나 특정 인덱스 행이 없어도 에러 없이 빈 값으로 처리 — coupang_url이 비어있으면
-    광고 카드 없이 평소처럼 발행된다. 이 파일은 코드 수정 없이 GitHub에서 직접 편집하는 용도."""
+    광고 카드 없이 평소처럼 발행된다. 이 파일은 코드 수정 없이 GitHub에서 직접 편집하는 용도.
+
+    인코딩은 여러 개를 순서대로 시도한다 — 엑셀(특히 한글 윈도우)에서 저장하면 UTF-8이 아니라
+    CP949로 저장되는 경우가 흔해서, 사람이 매번 인코딩을 신경 쓰지 않아도 되게 방어적으로 처리."""
     links = {}
     if not os.path.exists(COUPANG_LINKS_PATH):
         return links
-    with open(COUPANG_LINKS_PATH, "r", encoding="utf-8-sig") as f:
-        for row in csv.DictReader(f):
-            try:
-                idx = int(row.get("index", "").strip())
-            except (ValueError, AttributeError):
-                continue
-            links[idx] = {
-                "product_keyword": (row.get("product_keyword") or "").strip(),
-                "coupang_url":     (row.get("coupang_url") or "").strip(),
-            }
+
+    raw = None
+    for enc in ("utf-8-sig", "utf-8", "cp949", "euc-kr"):
+        try:
+            with open(COUPANG_LINKS_PATH, "r", encoding=enc) as f:
+                raw = f.read()
+            break
+        except UnicodeDecodeError:
+            continue
+
+    if raw is None:
+        print(f"  ⚠️ {COUPANG_LINKS_PATH} 인코딩을 인식할 수 없습니다 — 쿠팡 링크 없이 진행합니다.")
+        return links
+
+    for row in csv.DictReader(raw.splitlines()):
+        try:
+            idx = int((row.get("index") or "").strip())
+        except (ValueError, AttributeError):
+            continue
+        links[idx] = {
+            "product_keyword": (row.get("product_keyword") or "").strip(),
+            "coupang_url":     (row.get("coupang_url") or "").strip(),
+        }
     return links
 
 
