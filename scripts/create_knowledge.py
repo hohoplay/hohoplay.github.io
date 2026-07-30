@@ -29,6 +29,7 @@ create_knowledge.py — '운세상식' 카테고리 정보성 글 자동 생성/
 import os
 import sys
 import json
+import csv
 import time
 import argparse
 from datetime import datetime, timezone
@@ -48,6 +49,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 DATA_DIR   = os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data"))
 STATE_PATH = os.path.join(DATA_DIR, "knowledge_state.json")
+COUPANG_LINKS_PATH = os.path.join(DATA_DIR, "coupang_links.csv")
 
 
 def get_access_token_for_knowledge():
@@ -142,36 +144,21 @@ _RELATED_LINKS = [
 ]
 
 TOPICS = [
-    {"topic": "지혜롭고 부지런한 소띠의 4가지 성격 특징",   "emoji": "🐮", "tags": ["소띠", "띠별성격", "사주"],
-     "product_keyword": "성실함 테마 다이어리/문구", "coupang_url": ""},
-    {"topic": "꾀 많고 영리한 쥐띠의 반전 성격과 특징",       "emoji": "🐭", "tags": ["쥐띠", "띠별성격", "사주"],
-     "product_keyword": "메모지/수첩", "coupang_url": ""},
-    {"topic": "용맹하고 열정적인 호랑이띠의 성격 분석",       "emoji": "🐯", "tags": ["호랑이띠", "띠별성격", "사주"],
-     "product_keyword": "홈트레이닝/운동 소품", "coupang_url": ""},
-    {"topic": "물병자리에 숨겨진 그리스 신화 이야기",         "emoji": "♒", "tags": ["물병자리", "별자리유래", "그리스신화"],
-     "product_keyword": "별자리 목걸이/액세서리", "coupang_url": ""},
-    {"topic": "사자자리의 유래와 밤하늘에 얽힌 전설",         "emoji": "♌", "tags": ["사자자리", "별자리유래", "그리스신화"],
-     "product_keyword": "골드 액세서리", "coupang_url": ""},
-    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"],
-     "product_keyword": "디퓨저/화분/현관 거울", "coupang_url": ""},
-    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"],
-     "product_keyword": "침구/무드등", "coupang_url": ""},
-    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"],
-     "product_keyword": "컬러 액세서리/소품", "coupang_url": ""},
-    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"],
-     "product_keyword": "탄생석 주얼리", "coupang_url": ""},
-    {"topic": "재물운을 부르는 지갑 색깔과 정리 습관",         "emoji": "🪙", "tags": ["지갑풍수", "재물운", "정리습관"],
-     "product_keyword": "지갑/카드지갑", "coupang_url": ""},
-    {"topic": "별자리별 잘 어울리는 향수 노트 찾기",           "emoji": "🌸", "tags": ["별자리향수", "향수추천", "별자리매칭"],
-     "product_keyword": "향수", "coupang_url": ""},
-    {"topic": "이사할 때 챙기면 좋은 손없는 날과 개운 소품",   "emoji": "🧂", "tags": ["손없는날", "이사풍수", "개운소품"],
-     "product_keyword": "이사 선물세트/소금", "coupang_url": ""},
-    {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"],
-     "product_keyword": "합격 기원 문구류/영양제", "coupang_url": ""},
-    {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"],
-     "product_keyword": "자기계발 다이어리/정장 소품", "coupang_url": ""},
-    {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"],
-     "product_keyword": "인테리어 소품", "coupang_url": ""},
+    {"topic": "지혜롭고 부지런한 소띠의 4가지 성격 특징",   "emoji": "🐮", "tags": ["소띠", "띠별성격", "사주"]},
+    {"topic": "꾀 많고 영리한 쥐띠의 반전 성격과 특징",       "emoji": "🐭", "tags": ["쥐띠", "띠별성격", "사주"]},
+    {"topic": "용맹하고 열정적인 호랑이띠의 성격 분석",       "emoji": "🐯", "tags": ["호랑이띠", "띠별성격", "사주"]},
+    {"topic": "물병자리에 숨겨진 그리스 신화 이야기",         "emoji": "♒", "tags": ["물병자리", "별자리유래", "그리스신화"]},
+    {"topic": "사자자리의 유래와 밤하늘에 얽힌 전설",         "emoji": "♌", "tags": ["사자자리", "별자리유래", "그리스신화"]},
+    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"]},
+    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"]},
+    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"]},
+    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"]},
+    {"topic": "재물운을 부르는 지갑 색깔과 정리 습관",         "emoji": "🪙", "tags": ["지갑풍수", "재물운", "정리습관"]},
+    {"topic": "별자리별 잘 어울리는 향수 노트 찾기",           "emoji": "🌸", "tags": ["별자리향수", "향수추천", "별자리매칭"]},
+    {"topic": "이사할 때 챙기면 좋은 손없는 날과 개운 소품",   "emoji": "🧂", "tags": ["손없는날", "이사풍수", "개운소품"]},
+    {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"]},
+    {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"]},
+    {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"]},
 ]
 
 # 쿠팡파트너스 필수 고지 문구 (정보통신망법 — 게시물 최상단에 위치해야 함)
@@ -261,6 +248,26 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
+def load_coupang_links():
+    """coupang_links.csv를 인덱스 기준으로 읽어온다. (index, product_keyword, coupang_url)
+    파일이 없거나 특정 인덱스 행이 없어도 에러 없이 빈 값으로 처리 — coupang_url이 비어있으면
+    광고 카드 없이 평소처럼 발행된다. 이 파일은 코드 수정 없이 GitHub에서 직접 편집하는 용도."""
+    links = {}
+    if not os.path.exists(COUPANG_LINKS_PATH):
+        return links
+    with open(COUPANG_LINKS_PATH, "r", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            try:
+                idx = int(row.get("index", "").strip())
+            except (ValueError, AttributeError):
+                continue
+            links[idx] = {
+                "product_keyword": (row.get("product_keyword") or "").strip(),
+                "coupang_url":     (row.get("coupang_url") or "").strip(),
+            }
+    return links
+
+
 def run(count=1):
     if not GEMINI_API_KEY:
         print("❌ GEMINI_API_KEY 환경변수가 없습니다.")
@@ -272,6 +279,7 @@ def run(count=1):
         sys.exit(1)
 
     state = load_state()
+    coupang_links = load_coupang_links()
     n = len(TOPICS)
     success_count = 0
 
@@ -279,8 +287,9 @@ def run(count=1):
         idx  = (state["last_index"] + 1) % n
         item = TOPICS[idx]
         topic, emoji, tags = item["topic"], item["emoji"], item["tags"]
-        coupang_url     = item.get("coupang_url", "").strip()
-        product_keyword = item.get("product_keyword", "").strip()
+        _cp = coupang_links.get(idx, {})
+        coupang_url     = _cp.get("coupang_url", "")
+        product_keyword = _cp.get("product_keyword", "")
 
         # 특정 상황(수험생 학부모/이직/신혼부부) 타겟 주제는 체크리스트형 프롬프트로
         style = "checklist" if any(t in {"합격운", "취업운", "신혼부부"} for t in tags) else "info"
