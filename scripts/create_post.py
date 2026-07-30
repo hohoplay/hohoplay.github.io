@@ -2918,7 +2918,7 @@ def build_zodiac_post(z, today_str):
   {comment_prompt("zodiac")}
   <div class="meta"><p>{z['kr']} ({z['date']})</p><p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
 </div>"""
-    return title, content, ["별자리운세", z['kr'], "운세", "오늘운세"]
+    return title, content, ["별자리운세", z['kr'], "운세", "오늘운세", "noindex-daily"]
 
 
 _C_TITLE_MONEY  = ["금전운과 지출 관리 포인트", "금전운과 정리할 것", "금전운·소비 습관 점검", "금전운과 판단 기준"]
@@ -3282,7 +3282,7 @@ def build_chinese_post(c, today_str):
     <p>※ 재미로 보는 운세 콘텐츠입니다</p></div>
 {site_link()}
 </div>"""
-    return title, content, ["띠운세", c['kr'], "운세", "오늘운세"]
+    return title, content, ["띠운세", c['kr'], "운세", "오늘운세", "noindex-daily"]
 
 
 _W_TITLE_LOVE   = ["이번 주 관계 흐름과 연락 타이밍", "이번 주 관계 변화와 소통 포인트", "이번 주 관계·소통 흐름 분석"]
