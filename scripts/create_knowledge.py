@@ -142,23 +142,46 @@ _RELATED_LINKS = [
 ]
 
 TOPICS = [
-    {"topic": "지혜롭고 부지런한 소띠의 4가지 성격 특징",   "emoji": "🐮", "tags": ["소띠", "띠별성격", "사주"]},
-    {"topic": "꾀 많고 영리한 쥐띠의 반전 성격과 특징",       "emoji": "🐭", "tags": ["쥐띠", "띠별성격", "사주"]},
-    {"topic": "용맹하고 열정적인 호랑이띠의 성격 분석",       "emoji": "🐯", "tags": ["호랑이띠", "띠별성격", "사주"]},
-    {"topic": "물병자리에 숨겨진 그리스 신화 이야기",         "emoji": "♒", "tags": ["물병자리", "별자리유래", "그리스신화"]},
-    {"topic": "사자자리의 유래와 밤하늘에 얽힌 전설",         "emoji": "♌", "tags": ["사자자리", "별자리유래", "그리스신화"]},
-    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"]},
-    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"]},
-    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"]},
-    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"]},
-    {"topic": "숫자에 담긴 동서양의 길흉 상징 이야기",         "emoji": "🔢", "tags": ["숫자의미", "길흉", "운세상식"]},
-    {"topic": "사주팔자란 무엇일까, 기초부터 알아보기",       "emoji": "🀄", "tags": ["사주팔자", "동양점술", "기초상식"]},
-    {"topic": "별자리 점성술은 어떻게 시작되었을까",           "emoji": "⭐", "tags": ["점성술기원", "서양점성술", "별자리역사"]},
+    {"topic": "지혜롭고 부지런한 소띠의 4가지 성격 특징",   "emoji": "🐮", "tags": ["소띠", "띠별성격", "사주"],
+     "product_keyword": "성실함 테마 다이어리/문구", "coupang_url": ""},
+    {"topic": "꾀 많고 영리한 쥐띠의 반전 성격과 특징",       "emoji": "🐭", "tags": ["쥐띠", "띠별성격", "사주"],
+     "product_keyword": "메모지/수첩", "coupang_url": ""},
+    {"topic": "용맹하고 열정적인 호랑이띠의 성격 분석",       "emoji": "🐯", "tags": ["호랑이띠", "띠별성격", "사주"],
+     "product_keyword": "홈트레이닝/운동 소품", "coupang_url": ""},
+    {"topic": "물병자리에 숨겨진 그리스 신화 이야기",         "emoji": "♒", "tags": ["물병자리", "별자리유래", "그리스신화"],
+     "product_keyword": "별자리 목걸이/액세서리", "coupang_url": ""},
+    {"topic": "사자자리의 유래와 밤하늘에 얽힌 전설",         "emoji": "♌", "tags": ["사자자리", "별자리유래", "그리스신화"],
+     "product_keyword": "골드 액세서리", "coupang_url": ""},
+    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"],
+     "product_keyword": "디퓨저/화분/현관 거울", "coupang_url": ""},
+    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"],
+     "product_keyword": "침구/무드등", "coupang_url": ""},
+    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"],
+     "product_keyword": "컬러 액세서리/소품", "coupang_url": ""},
+    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"],
+     "product_keyword": "탄생석 주얼리", "coupang_url": ""},
+    {"topic": "재물운을 부르는 지갑 색깔과 정리 습관",         "emoji": "🪙", "tags": ["지갑풍수", "재물운", "정리습관"],
+     "product_keyword": "지갑/카드지갑", "coupang_url": ""},
+    {"topic": "별자리별 잘 어울리는 향수 노트 찾기",           "emoji": "🌸", "tags": ["별자리향수", "향수추천", "별자리매칭"],
+     "product_keyword": "향수", "coupang_url": ""},
+    {"topic": "이사할 때 챙기면 좋은 손없는 날과 개운 소품",   "emoji": "🧂", "tags": ["손없는날", "이사풍수", "개운소품"],
+     "product_keyword": "이사 선물세트/소금", "coupang_url": ""},
+    {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"],
+     "product_keyword": "합격 기원 문구류/영양제", "coupang_url": ""},
+    {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"],
+     "product_keyword": "자기계발 다이어리/정장 소품", "coupang_url": ""},
+    {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"],
+     "product_keyword": "인테리어 소품", "coupang_url": ""},
 ]
 
+# 쿠팡파트너스 필수 고지 문구 (정보통신망법 — 게시물 최상단에 위치해야 함)
+_COUPANG_DISCLOSURE = (
+    "이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다."
+)
 
-def build_prompt(topic):
-    return f"""당신은 사주·별자리·풍수 등 전통·점성 문화를 알기 쉽게 설명하는 블로그 필자입니다.
+
+def build_prompt(topic, style="info"):
+    base = f"""당신은 사주·별자리·풍수 등 전통·점성 문화를 알기 쉽게 설명하는 블로그 필자입니다.
 아래 주제로 블로그 정보성 글을 작성해 주세요.
 
 주제: {topic}
@@ -183,6 +206,15 @@ def build_prompt(topic):
 11. 마지막 문단은 독자를 다정하게 응원하는 한두 문장으로 마무리하세요.
 12. 사실 관계(신화, 유래, 방위 등)는 무리해서 확신하지 말고 통상적으로 알려진 내용 위주로 서술하세요."""
 
+    if style == "checklist":
+        base += """
+13. 이 글은 특정 상황(수험생 학부모, 이직 준비생, 신혼부부 등)에 놓인 독자를 위한 실천 가이드입니다.
+    본론 소제목 중 최소 하나는 <ul><li> 목록을 사용해 바로 실천할 수 있는 행동 체크리스트 3~5개를
+    제시하세요 (예: "오늘부터 해볼 수 있는 것 3가지"). 다만 목록만으로 소제목을 채우지 말고,
+    목록 앞뒤에 설명 문단을 붙여 정보성 글의 구조(도입 → 본론 → 마무리)는 그대로 유지하세요."""
+
+    return base
+
 
 # 우선순위 순서 — 맨 앞이 실패하면 다음 것을 자동으로 시도.
 # gemini-2.5-flash가 2026-07-09부터 예고 없이 404를 반환하기 시작한 사례가 있어서
@@ -195,9 +227,9 @@ GEMINI_MODEL_CANDIDATES = [
 ]
 
 
-def generate_knowledge_html(topic):
+def generate_knowledge_html(topic, style="info"):
     client = genai.Client(api_key=GEMINI_API_KEY)
-    prompt = build_prompt(topic)
+    prompt = build_prompt(topic, style=style)
     last_err = None
 
     for model_name in GEMINI_MODEL_CANDIDATES:
@@ -247,13 +279,18 @@ def run(count=1):
         idx  = (state["last_index"] + 1) % n
         item = TOPICS[idx]
         topic, emoji, tags = item["topic"], item["emoji"], item["tags"]
+        coupang_url     = item.get("coupang_url", "").strip()
+        product_keyword = item.get("product_keyword", "").strip()
+
+        # 특정 상황(수험생 학부모/이직/신혼부부) 타겟 주제는 체크리스트형 프롬프트로
+        style = "checklist" if any(t in {"합격운", "취업운", "신혼부부"} for t in tags) else "info"
 
         cycle_note = " (주제 리스트를 모두 사용해 처음부터 다시 순환합니다)" \
             if idx == 0 and state["last_index"] != -1 else ""
         print(f"[{i+1}/{count}] 주제 #{idx}: {topic}{cycle_note}")
 
         try:
-            body_html = generate_knowledge_html(topic)
+            body_html = generate_knowledge_html(topic, style=style)
         except Exception as e:
             print(f"  ⚠️ Gemini 생성 실패: {e} — 이 주제는 건너뜁니다.")
             continue
@@ -272,15 +309,35 @@ def run(count=1):
             for label, url, grad in _RELATED_LINKS
         )
 
+        # 쿠팡 링크가 채워진 주제에만 고지문구 + 상품 카드 렌더링.
+        # coupang_url이 비어있으면(아직 링크 안 만든 주제) 평소처럼 이 두 블록 없이 발행됨.
+        disclosure_html = ""
+        product_html = ""
+        if coupang_url:
+            disclosure_html = (
+                f'<div class="card" style="background:#fffbeb;border:1px solid #fde68a;'
+                f'padding:12px 16px;font-size:12px;color:#92400e;margin-bottom:16px">'
+                f'{_COUPANG_DISCLOSURE}</div>'
+            )
+            product_html = f"""
+  <div class="card" style="text-align:center;padding:20px">
+    <p style="font-size:12px;color:#9ca3af;margin:0 0 10px">🛒 이런 상품은 어떠세요</p>
+    <a href="{coupang_url}" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ea580c);
+       color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:700;
+       text-decoration:none">{product_keyword or '관련 상품'} 보러가기</a>
+  </div>"""
+
         content = f"""{knowledge_style()}
 <div class="wrap">
   <div class="hero">
     <h1>{emoji} {topic}</h1>
     <p>운세 상식</p>
   </div>
+  {disclosure_html}
   <div class="card">
     {body_html}
   </div>
+  {product_html}
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
   </div>
