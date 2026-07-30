@@ -255,7 +255,7 @@ def load_coupang_links():
     links = {}
     if not os.path.exists(COUPANG_LINKS_PATH):
         return links
-    with open(COUPANG_LINKS_PATH, "r", encoding="utf-8") as f:
+    with open(COUPANG_LINKS_PATH, "r", encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
             try:
                 idx = int(row.get("index", "").strip())
