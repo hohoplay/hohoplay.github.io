@@ -4977,6 +4977,23 @@ ${info.usage}`;
             }
         }
 
+        // 별자리월간·띠별주간 공용 — 첫 문단(공감)은 살짝 강조, 명언(쪽지, 뒤에서 2번째)은 기울임체+왼쪽 테두리로 구분,
+        // 마지막(배웅)은 가운데 정렬+장식 기호로 마무리 — 카드/박스 추가 없이 타이포그래피만으로 리듬을 살림
+        function renderStoryParagraphs(paragraphs){
+            return paragraphs.map((p, i) => {
+                if(i === 0){
+                    return `<p style="margin:0 0 18px;line-height:1.95;font-size:16px;color:#1f2937">${p}</p>`;
+                }
+                if(i === paragraphs.length - 2){
+                    return `<p style="margin:0 0 18px;line-height:1.9;color:#6b5f4f;padding-left:14px;border-left:3px solid #e8dcc8">${p}</p>`;
+                }
+                if(i === paragraphs.length - 1){
+                    return `<p style="margin:26px 0 0;line-height:1.9;text-align:center;color:#8a8a94">✧ 　${p}　 ✧</p>`;
+                }
+                return `<p style="margin:0 0 16px;line-height:1.9">${p}</p>`;
+            }).join('');
+        }
+
         async function selectZodiacWeekly(kr){
             _selZodiacWeekly=kr;
             document.querySelectorAll('[id^="zwsel-"]').forEach(b=>{b.style.background='#f5f3ff';b.style.borderColor='transparent';});
@@ -4989,7 +5006,7 @@ ${info.usage}`;
             const zVersions = ZODIAC_MONTHLY_STORY[kr] || ['이야기를 준비 중이에요.'];
             const zStory = zVersions[zodiacCycleMonth() % zVersions.length];
             const paragraphs = zStory.split('|||').map(s=>s.trim()).filter(Boolean);
-            const bodyHtml = paragraphs.map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            const bodyHtml = renderStoryParagraphs(paragraphs);
             area.innerHTML = `
                 <div class="fcard">
                     <div style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);border-radius:16px;padding:22px;color:#fff;text-align:center;margin-bottom:16px">
@@ -5015,7 +5032,7 @@ ${info.usage}`;
             const cVersions = CHINESE_WEEKLY_STORY[kr] || ['이야기를 준비 중이에요.'];
             const cStory = cVersions[(weekNum() - 1) % cVersions.length];
             const paragraphs = cStory.split('|||').map(s=>s.trim()).filter(Boolean);
-            const bodyHtml = paragraphs.map(p=>`<p style="margin:0 0 16px;line-height:1.9">${p}</p>`).join('');
+            const bodyHtml = renderStoryParagraphs(paragraphs);
             area.innerHTML = `
                 <div class="fcard">
                     <div style="background:linear-gradient(135deg,#f59e0b,#92400e);border-radius:16px;padding:22px;color:#fff;text-align:center;margin-bottom:16px">
