@@ -4518,6 +4518,41 @@ def fetch_existing_titles(max_results=80):
         return set()
 
 
+# ── 영어 URL 슬러그용 매핑 ──
+# 한글 제목 그대로 insert하면 Blogger가 슬러그를 못 만들고 숫자 코드로 떨어지기 때문에,
+# 영어 제목으로 먼저 발행한 뒤 한글 제목으로 고치는 2단계 방식(post_blogger)에 사용한다.
+# (Blogger API는 url 필드를 직접 지정해도 무시하고 title 기반으로 슬러그를 만듦 — 공식 문서에
+#  명시되어 있지 않은 동작이라, 이 우회 방식이 현재로선 유일하게 확인된 방법)
+_KR_EN_MAP = {z['kr']: z['en'] for z in ZODIACS}
+_KR_EN_MAP.update({c['kr']: c['en'] for c in CHINESE})
+
+_LABEL_TYPE_EN = {
+    "띠운세":            "daily-fortune",
+    "별자리운세":         "daily-horoscope",
+    "별자리주간":         "weekly-horoscope",
+    "띠별월간":          "monthly-fortune",
+    "오늘의명언":         "daily-quote",
+    "별과띠가만나는시간": "zodiac-meets-fortune",
+    "운세상식":          "fortune-knowledge",
+}
+
+def _build_slug_title(labels):
+    """라벨 조합으로 영어 슬러그용 임시 제목을 만든다. 어떤 라벨 조합인지 인식 못 하면
+    None을 반환 — 이 경우 post_blogger는 기존처럼 한글 제목으로 바로 발행한다."""
+    animal_en = None
+    type_en   = None
+    for l in labels:
+        if l in _KR_EN_MAP and animal_en is None:
+            animal_en = _KR_EN_MAP[l]
+        if l in _LABEL_TYPE_EN and type_en is None:
+            type_en = _LABEL_TYPE_EN[l]
+    if not type_en:
+        return None
+    date_part = now_kst().strftime("%Y %m %d")
+    parts = [p for p in [animal_en, type_en, date_part] if p]
+    return " ".join(parts).title()
+
+
 def post_blogger(title, content, labels, idx, total):
     # ── 중복 발행 방지: 같은 제목이 이미 발행되어 있으면 건너뜀 ──
     if title in _EXISTING_TITLES:
@@ -4534,17 +4569,21 @@ def post_blogger(title, content, labels, idx, total):
         return True
 
     url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
-    
+
+    # 영어 슬러그 확보 시도 — 성공하면 [영어 제목으로 생성 → 한글 제목으로 수정] 2단계로 발행.
+    # 실패(라벨 조합 인식 안 됨)하면 기존처럼 한글 제목으로 바로 발행.
+    slug_title   = _build_slug_title(labels)
+    insert_title = slug_title or title
+
+    post_id = None
     for attempt in range(1, 4):  # 최대 3회 재시도
         resp = requests.post(url,
             headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
-            json={"title":title,"content":content,"labels":labels}
+            json={"title":insert_title,"content":content,"labels":labels}
         )
         if resp.status_code == 200:
-            print(f"[{idx:02d}/{total}] ✅ {title[:45]}  →  200")
-            _EXISTING_TITLES.add(title)
-            time.sleep(3)   # 분당 쿼터 보호: 3초 간격
-            return True
+            post_id = resp.json().get("id")
+            break
         elif resp.status_code == 429:
             wait = 60 * attempt  # 1분, 2분, 3분
             print(f"[{idx:02d}/{total}] ⏳ 429 쿼터 초과 — {wait}초 대기 후 재시도 ({attempt}/3)...")
@@ -4555,8 +4594,27 @@ def post_blogger(title, content, labels, idx, total):
             time.sleep(3)
             return False
 
-    print(f"[{idx:02d}/{total}] ❌ {title[:45]}  →  3회 재시도 후 실패")
-    return False
+    if post_id is None:
+        print(f"[{idx:02d}/{total}] ❌ {title[:45]}  →  3회 재시도 후 실패")
+        return False
+
+    # 영어 제목으로 만들었다면, 실제 한글 제목으로 수정 — URL(슬러그)은 그대로 유지됨
+    if slug_title:
+        try:
+            patch_resp = requests.patch(f"{url}{post_id}",
+                headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
+                json={"title": title}
+            )
+            if patch_resp.status_code != 200:
+                print(f"[{idx:02d}/{total}] ⚠️ 한글 제목으로 수정 실패({patch_resp.status_code}) "
+                      f"— URL은 영어로 정상이나 화면 제목이 영어로 남았을 수 있음")
+        except Exception as e:
+            print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류: {e}")
+
+    print(f"[{idx:02d}/{total}] ✅ {title[:45]}  →  200")
+    _EXISTING_TITLES.add(title)
+    time.sleep(3)   # 분당 쿼터 보호: 3초 간격
+    return True
 
 
 # ─────────────────────────────────────────
