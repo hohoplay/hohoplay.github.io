@@ -67,35 +67,25 @@ def get_access_token_for_knowledge():
     return ""
 
 
-def post_blogger_scheduled(access_token, title, content, labels, published_iso=None, slug=None):
+def post_blogger_scheduled(access_token, title, content, labels, published_iso=None):
     """운세상식 전용 발행 함수 — 기존 post_blogger()는 절대 건드리지 않고 별도로 둠.
-    published_iso를 주면 예약 발행, 생략하면 즉시 발행 (지금 구조는 즉시 발행만 사용).
-    slug를 주면 [영어 슬러그 제목으로 생성 → 한글 제목으로 수정] 2단계로 발행해서
-    URL이 숫자 코드 대신 영어 슬러그로 남는다 (예: /2026/07/ox-personality.html)."""
+    published_iso를 주면 예약 발행, 생략하면 즉시 발행 (지금 구조는 즉시 발행만 사용)."""
     if not BLOG_ID or not access_token:
         print(f"(테스트 모드 — BLOG_ID/토큰 없음) {title}")
         return True
 
-    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
-
-    slug_title = None
-    if slug:
-        date_part = datetime.now(timezone.utc).strftime("%Y %m %d")
-        slug_title = f"{slug} {date_part}".title()
-    insert_title = slug_title or title
-
-    body = {"title": insert_title, "content": content, "labels": labels}
+    url  = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
+    body = {"title": title, "content": content, "labels": labels}
     if published_iso:
         body["published"] = published_iso
 
-    post_id = None
     for attempt in range(1, 4):  # 최대 3회 재시도 (기존 post_blogger()와 동일한 패턴)
         resp = requests.post(url,
             headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
             json=body)
         if resp.status_code in (200, 201):
-            post_id = resp.json().get("id")
-            break
+            print(f"✅ 발행 완료 — {title}")
+            return True
         elif resp.status_code == 429:
             wait = 60 * attempt
             print(f"⏳ 429 쿼터 초과 — {wait}초 대기 후 재시도 ({attempt}/3)")
@@ -104,22 +94,8 @@ def post_blogger_scheduled(access_token, title, content, labels, published_iso=N
             print(f"❌ 발행 실패 ({resp.status_code}): {resp.text[:150]}")
             return False
 
-    if post_id is None:
-        print("❌ 3회 재시도 후 실패")
-        return False
-
-    if slug_title:
-        try:
-            patch_resp = requests.patch(f"{url}{post_id}",
-                headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
-                json={"title": title})
-            if patch_resp.status_code not in (200, 201):
-                print(f"⚠️ 한글 제목으로 수정 실패({patch_resp.status_code}) — URL은 영어로 정상이나 화면 제목이 영어로 남았을 수 있음")
-        except Exception as e:
-            print(f"⚠️ 제목 수정 요청 중 오류: {e}")
-
-    print(f"✅ 발행 완료 — {title}")
-    return True
+    print("❌ 3회 재시도 후 실패")
+    return False
 
 
 # ─────────────────────────────────────────
@@ -168,21 +144,21 @@ _RELATED_LINKS = [
 ]
 
 TOPICS = [
-    {"topic": "지혜롭고 부지런한 소띠의 4가지 성격 특징",   "emoji": "🐮", "tags": ["소띠", "띠별성격", "사주"], "slug": "ox-personality"},
-    {"topic": "꾀 많고 영리한 쥐띠의 반전 성격과 특징",       "emoji": "🐭", "tags": ["쥐띠", "띠별성격", "사주"], "slug": "rat-personality"},
-    {"topic": "용맹하고 열정적인 호랑이띠의 성격 분석",       "emoji": "🐯", "tags": ["호랑이띠", "띠별성격", "사주"], "slug": "tiger-personality"},
-    {"topic": "물병자리에 숨겨진 그리스 신화 이야기",         "emoji": "♒", "tags": ["물병자리", "별자리유래", "그리스신화"], "slug": "aquarius-myth"},
-    {"topic": "사자자리의 유래와 밤하늘에 얽힌 전설",         "emoji": "♌", "tags": ["사자자리", "별자리유래", "그리스신화"], "slug": "leo-myth"},
-    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"], "slug": "entrance-fengshui"},
-    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"], "slug": "bedroom-fengshui"},
-    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"], "slug": "lucky-color"},
-    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"], "slug": "birthstone-meaning"},
-    {"topic": "재물운을 부르는 지갑 색깔과 정리 습관",         "emoji": "🪙", "tags": ["지갑풍수", "재물운", "정리습관"], "slug": "wallet-fengshui"},
-    {"topic": "별자리별 잘 어울리는 향수 노트 찾기",           "emoji": "🌸", "tags": ["별자리향수", "향수추천", "별자리매칭"], "slug": "zodiac-perfume"},
-    {"topic": "이사할 때 챙기면 좋은 손없는 날과 개운 소품",   "emoji": "🧂", "tags": ["손없는날", "이사풍수", "개운소품"], "slug": "moving-day-fengshui"},
-    {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"], "slug": "exam-luck-guide"},
-    {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"], "slug": "job-luck-checklist"},
-    {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"], "slug": "newlywed-fengshui"},
+    {"topic": "지혜롭고 부지런한 소띠의 4가지 성격 특징",   "emoji": "🐮", "tags": ["소띠", "띠별성격", "사주"]},
+    {"topic": "꾀 많고 영리한 쥐띠의 반전 성격과 특징",       "emoji": "🐭", "tags": ["쥐띠", "띠별성격", "사주"]},
+    {"topic": "용맹하고 열정적인 호랑이띠의 성격 분석",       "emoji": "🐯", "tags": ["호랑이띠", "띠별성격", "사주"]},
+    {"topic": "물병자리에 숨겨진 그리스 신화 이야기",         "emoji": "♒", "tags": ["물병자리", "별자리유래", "그리스신화"]},
+    {"topic": "사자자리의 유래와 밤하늘에 얽힌 전설",         "emoji": "♌", "tags": ["사자자리", "별자리유래", "그리스신화"]},
+    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"]},
+    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"]},
+    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"]},
+    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"]},
+    {"topic": "재물운을 부르는 지갑 색깔과 정리 습관",         "emoji": "🪙", "tags": ["지갑풍수", "재물운", "정리습관"]},
+    {"topic": "별자리별 잘 어울리는 향수 노트 찾기",           "emoji": "🌸", "tags": ["별자리향수", "향수추천", "별자리매칭"]},
+    {"topic": "이사할 때 챙기면 좋은 손없는 날과 개운 소품",   "emoji": "🧂", "tags": ["손없는날", "이사풍수", "개운소품"]},
+    {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"]},
+    {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"]},
+    {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"]},
 ]
 
 # 쿠팡파트너스 필수 고지 문구 (정보통신망법 — 게시물 최상단에 위치해야 함)
@@ -275,36 +251,20 @@ def save_state(state):
 def load_coupang_links():
     """coupang_links.csv를 인덱스 기준으로 읽어온다. (index, product_keyword, coupang_url)
     파일이 없거나 특정 인덱스 행이 없어도 에러 없이 빈 값으로 처리 — coupang_url이 비어있으면
-    광고 카드 없이 평소처럼 발행된다. 이 파일은 코드 수정 없이 GitHub에서 직접 편집하는 용도.
-
-    인코딩은 여러 개를 순서대로 시도한다 — 엑셀(특히 한글 윈도우)에서 저장하면 UTF-8이 아니라
-    CP949로 저장되는 경우가 흔해서, 사람이 매번 인코딩을 신경 쓰지 않아도 되게 방어적으로 처리."""
+    광고 카드 없이 평소처럼 발행된다. 이 파일은 코드 수정 없이 GitHub에서 직접 편집하는 용도."""
     links = {}
     if not os.path.exists(COUPANG_LINKS_PATH):
         return links
-
-    raw = None
-    for enc in ("utf-8-sig", "utf-8", "cp949", "euc-kr"):
-        try:
-            with open(COUPANG_LINKS_PATH, "r", encoding=enc) as f:
-                raw = f.read()
-            break
-        except UnicodeDecodeError:
-            continue
-
-    if raw is None:
-        print(f"  ⚠️ {COUPANG_LINKS_PATH} 인코딩을 인식할 수 없습니다 — 쿠팡 링크 없이 진행합니다.")
-        return links
-
-    for row in csv.DictReader(raw.splitlines()):
-        try:
-            idx = int((row.get("index") or "").strip())
-        except (ValueError, AttributeError):
-            continue
-        links[idx] = {
-            "product_keyword": (row.get("product_keyword") or "").strip(),
-            "coupang_url":     (row.get("coupang_url") or "").strip(),
-        }
+    with open(COUPANG_LINKS_PATH, "r", encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            try:
+                idx = int(row.get("index", "").strip())
+            except (ValueError, AttributeError):
+                continue
+            links[idx] = {
+                "product_keyword": (row.get("product_keyword") or "").strip(),
+                "coupang_url":     (row.get("coupang_url") or "").strip(),
+            }
     return links
 
 
@@ -397,7 +357,7 @@ def run(count=1):
   <div class="meta"><p>※ 참고용으로 정리한 정보성 콘텐츠입니다</p></div>
 </div>"""
 
-        ok = post_blogger_scheduled(access_token, topic, content, ["운세상식"], slug=item.get("slug"))
+        ok = post_blogger_scheduled(access_token, topic, content, ["운세상식"])
 
         if ok:
             state["last_index"] = idx
