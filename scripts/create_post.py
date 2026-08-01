@@ -69,10 +69,10 @@ if os.environ.get('DATA_DIR'):
 # ※ 아래 _GITHUB_RAW 의 {유저명}/{저장소명} 을 실제 값으로 교체하세요
 # ─────────────────────────────────────────
 IMG = {
-    "zodiac":  "https://i.ibb.co/hFTQc66p/todayhoroscopelaboratory03.png",  # 별자리 오늘 운세
-    "chinese": "https://i.ibb.co/ccxKySzq/todayhoroscopelaboratory04.png",  # 띠 오늘 운세
-    "weekly":  "https://i.ibb.co/PZyr5FvY/todayhoroscopelaboratory05.png",  # 주간운세 (띠+별자리)
-    "monthly": "https://i.ibb.co/Dfqdzbd2/todayhoroscopelaboratory06.png",  # 띠별 월간운세
+    "zodiac":  "https://raw.githubusercontent.com/hohoplay/hohoplay.github.io/main/data/todayhoroscopelaboratory03.png",  # 별자리 오늘 운세
+    "chinese": "https://raw.githubusercontent.com/hohoplay/hohoplay.github.io/main/data/todayhoroscopelaboratory04.png",  # 띠 오늘 운세
+    "weekly":  "https://raw.githubusercontent.com/hohoplay/hohoplay.github.io/main/data/todayhoroscopelaboratory05.png",  # 주간운세 (띠+별자리)
+    "monthly": "https://raw.githubusercontent.com/hohoplay/hohoplay.github.io/main/data/todayhoroscopelaboratory06.png",  # 띠별 월간운세
 }
 
 def post_img(key):
@@ -2896,6 +2896,8 @@ def build_zodiac_post(z, today_str):
     </div>
   </div>
 
+  {post_img('zodiac')}
+
   <!-- 별자리 고유 정보 (프로필로 첫머리에 배치) -->
   {zodiac_info_card(z['kr'], z['emoji'])}
 
@@ -3263,6 +3265,8 @@ def build_chinese_post(c, today_str):
     </div>
   </div>
 
+  {post_img('chinese')}
+
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
 
@@ -3536,6 +3540,8 @@ def build_zodiac_weekly_post(today_str):
     <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
   </div>
+
+  {post_img('weekly')}
 
   <!-- 별자리 고유 정보 (프로필로 첫머리에 배치) -->
   <div style="font-size:14px;line-height:2.0;color:#374151;
@@ -3846,6 +3852,8 @@ def build_chinese_monthly_post(today_str):
     <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:3px 12px;border-radius:20px;font-size:12px">{headline[:25]}</div>
   </div>
+
+  {post_img('monthly')}
 
   {story_html}
 
