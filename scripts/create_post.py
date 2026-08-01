@@ -1,12 +1,12 @@
 """
-운세 자동화 - 하루 27개 포스팅
-  1개  : 오늘의 명언
+운세 자동화 - 하루 최대 27개 포스팅
+  1개  : 오늘의 명언 (매주 월요일만)
  12개  : 별자리 운세
  12개  : 띠 운세
-  1개  : 별자리 주간 운세 (12별자리 통합)
+  1개  : 별자리 주간 운세 (12별자리 통합, 매주 월요일만)
   1개  : 띠별 월간 운세 (12띠 통합)
 ────────────────────────────────
- 27개/일 × 30일 = 810개/월
+ 평일 25개, 월요일 27개 — 대략 26개/일 × 30일 ≈ 780개/월
 """
 
 import os, random, time, re
@@ -4271,7 +4271,7 @@ def build_omnibus_post(today_str: str) -> tuple:
     <div class="novel-date">{today_str} · {season}</div>
     <h1 class="novel-title">🌙 별과띠가만나는시간</h1>
     <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
-    <div class="novel-part">{part_label} · {part_name}</div>
+    <h2 class="novel-part">{part_label} · {part_name}</h2>
     <div class="novel-rule">&middot; &middot; &middot;</div>
     {opening_html}
     <div style="font-size:14.5px;line-height:1.95;color:#374151;word-break:keep-all;background:none">
@@ -4318,6 +4318,7 @@ def build_omnibus_post(today_str: str) -> tuple:
   text-align: center;
   color: #c4b5fd;
   letter-spacing: 0.1em;
+  margin-top: 0;
   margin-bottom: 0.7rem;
   font-weight: 600;
 }}
@@ -4708,8 +4709,12 @@ def main():
         print(f"\n✅ 완료: {success}/{total}개 게시 성공")
         return
 
-    # ① 오늘의 명언 1개
-    posts.append(build_quote_post(today_str))
+    # ① 오늘의 명언 — 매주 월요일만 (매일 반복 콘텐츠 비중을 줄이기 위해 주 1회로 조정)
+    if kst_now.weekday() == 0:
+        posts.append(build_quote_post(today_str))
+        print("💬 오늘의 명언 포함 (월요일)")
+    else:
+        print("💬 오늘의 명언 스킵 (월요일 아님)")
 
     # ② 별자리 운세 12개
     for z in ZODIACS:
@@ -4754,11 +4759,11 @@ def main():
         print("📅 월간운세 스킵")
 
     total = len(posts)
-    weekly  = " + 별자리주간 12" if kst_now.weekday() == 0 else ""
-    monthly = " + 띠별월간 12"   if (is_last_monday or force_monthly) else ""
-    count   = 28 + (12 if kst_now.weekday() == 0 else 0) + (12 if (is_last_monday or force_monthly) else 0)
+    quote   = "오늘의명언 1 + " if kst_now.weekday() == 0 else ""
+    weekly  = "별자리주간 12 + " if kst_now.weekday() == 0 else ""
+    monthly = "띠별월간 12 + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
-    print(f"구성: 오늘의명언 1 + 별자리 12 + 띠 12 + 별과띠가만나는시간 1{weekly}{monthly} = {count}개\n")
+    print(f"구성: {quote}별자리 12 + 띠 12 + 별과띠가만나는시간 1 + {weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
 
     success = 0
     for i, (title, content, labels) in enumerate(posts, 1):
