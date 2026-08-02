@@ -873,17 +873,18 @@
             history.replaceState(null, '', location.pathname);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (page === 'fortune') {
-                // fortune-adventure.html 결과 화면의 "이번 주의 주인공" 티저에서 넘어온 경우 처리
+                // fortune-adventure.html "이번 주의 주인공" 티저 + 메인 통합검색 결과, 둘 다 여기서 처리
+                // sign(별자리/띠)이 있으면 weekly/monthly에서 그 기호까지 선택, 없으면 탭만 이동(오늘운세/사주/타로 등)
                 var _jumpTab = sessionStorage.getItem('fortuneJumpTab');
                 var _jumpSign = sessionStorage.getItem('fortuneJumpSign');
-                if (_jumpTab && _jumpSign) {
+                if (_jumpTab) {
                     sessionStorage.removeItem('fortuneJumpTab');
                     sessionStorage.removeItem('fortuneJumpSign');
                 }
                 function _enterFortune(){
-                    if (_jumpTab && _jumpSign) {
-                        if (_jumpTab === 'weekly') { _selZodiacWeekly = _jumpSign; }
-                        else if (_jumpTab === 'monthly') { _selChineseMonthly = _jumpSign; }
+                    if (_jumpTab) {
+                        if (_jumpTab === 'weekly' && _jumpSign) { _selZodiacWeekly = _jumpSign; }
+                        else if (_jumpTab === 'monthly' && _jumpSign) { _selChineseMonthly = _jumpSign; }
                         showFortune(_jumpTab);
                     } else {
                         showFortune('today');
