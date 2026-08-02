@@ -512,8 +512,10 @@
                 // 운세 탭 자동 이동은 /fortune/index.html 쪽 진입 로직에 fortuneJumpTab 처리가 필요함(추후 반영)
                 sessionStorage.setItem('fortuneJumpTab', id.replace('fortune-', ''));
                 window.location.href = '/fortune/';
+            } else if (id === 'site-about') {
+                navigateTo('about');
             }
-            // site 타입은 별도 이동 없음(정보성 항목이라 클릭해도 그 자리에 머묾)
+            // 나머지 site 타입은 별도 이동 없음(정보성 항목이라 클릭해도 그 자리에 머묾)
         }
 
         const pages = {
