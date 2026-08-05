@@ -5065,7 +5065,10 @@ ${info.usage}`;
 
             if(type==='today'){
                 c.innerHTML=`
-                    <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">오늘의 운세</h2><p style="opacity:.85">${todayStr()}</p></div>
+                    <div class="fhero" style="background-image:linear-gradient(135deg,rgba(102,126,234,.6),rgba(118,75,162,.7)),url('/data/fortune_today_hero.jpg');background-size:cover;background-position:center 60%">
+                        <h2 style="font-size:24px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.35)">오늘의 운세</h2>
+                        <p style="opacity:.9;text-shadow:0 1px 4px rgba(0,0,0,.3)">${todayStr()}</p>
+                    </div>
                     <div class="fcard" style="margin-bottom:16px">
                         <p style="font-size:14px;line-height:1.8;color:#4b5563;margin:0">
                             이름과 생년월일을 입력하면, 사주 명리학을 바탕으로 계산한 오늘의 운세를 확인할 수 있어요.
@@ -5303,6 +5306,10 @@ ${info.usage}`;
 
             else if(type==='saju'){
                 c.innerHTML=`
+                <div class="fhero" style="background-image:linear-gradient(135deg,rgba(102,126,234,.6),rgba(118,75,162,.7)),url('/data/fortune_today_hero.jpg');background-size:cover;background-position:center 60%">
+                    <h2 style="font-size:24px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.35)">사주</h2>
+                    <p style="opacity:.9;text-shadow:0 1px 4px rgba(0,0,0,.3)">네 기둥으로 풀어보는 나의 사주</p>
+                </div>
                 <div class="fcard" style="margin-bottom:16px">
                     <p style="font-size:14px;line-height:1.8;color:#4b5563;margin:0">
                         사주는 태어난 연·월·일·시를 기준으로 네 개의 기둥(四柱)을 세우고, 그 안에 담긴 오행의 흐름을 살펴보는
@@ -5397,6 +5404,9 @@ ${info.usage}`;
                     <div class="tarot-title">
                         <h2>✦ 타로 카드 리딩 ✦</h2>
                         <p id="tarot-date-label"></p>
+                    </div>
+                    <div style="background:rgba(255,255,255,.05);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:13px;line-height:1.85;color:#c9bdd9">
+                        타로는 78장의 카드에 담긴 상징으로 지금의 마음과 흐름을 비춰보는 오래된 방법이에요. 궁금한 주제를 고르거나 질문을 직접 입력하면 과거·현재·미래 세 장의 카드를 뽑아 그 흐름을 풀어드립니다. 재미로 즐기는 콘텐츠이니 중요한 결정은 스스로의 판단과 함께 고려해주세요.
                     </div>
                     <div id="tarot-inner">
                         <div style="text-align:center;padding:2rem;color:#9b8fb0">
@@ -5672,6 +5682,9 @@ ${info.usage}`;
         return '<div class="tarot-wrap">'
             + '<div class="tarot-title"><h2>🧠 MBTI + 타로 리딩</h2>'
             + '<p style="color:#9b8fb0;font-size:.85rem">MBTI 성격 기반 맞춤 타로 해석</p></div>'
+            + '<div style="background:rgba(255,255,255,.05);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:13px;line-height:1.85;color:#c9bdd9">'
+            + 'MBTI 성격 유형별 성향을 더해 타로 카드를 해석해드려요. 먼저 MBTI를 선택하고 궁금한 주제를 고르면, 나의 성향에 맞춰 풀이한 카드 리딩을 확인할 수 있어요.'
+            + '</div>'
             + '<div id="mbti-tarot-inner">'
                 + '<div style="background:rgba(255,255,255,.05);border-radius:14px;padding:16px;margin-bottom:16px">'
                 + '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin-bottom:12px">STEP 1 — MBTI를 선택하세요</div>'
@@ -5726,6 +5739,9 @@ ${info.usage}`;
         return '<div class="tarot-wrap">'
             + '<div class="tarot-title"><h2>🌙 MBTI + 꿈해몽</h2>'
             + '<p style="color:#9b8fb0;font-size:.85rem">MBTI 성격 기반 맞춤 꿈 해석</p></div>'
+            + '<div style="background:rgba(255,255,255,.05);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:13px;line-height:1.85;color:#c9bdd9">'
+            + 'MBTI 성격 유형을 반영해 꿈의 의미를 풀어드려요. 먼저 MBTI를 선택하고 꿈에서 본 것을 고르거나 직접 입력하면, 나의 성향에 맞춘 꿈해몽 결과를 확인할 수 있어요.'
+            + '</div>'
             + '<div id="mbti-dream-inner">'
                 + '<div style="background:rgba(255,255,255,.05);border-radius:14px;padding:16px;margin-bottom:16px">'
                 + '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin-bottom:12px">STEP 1 — MBTI를 선택하세요</div>'
