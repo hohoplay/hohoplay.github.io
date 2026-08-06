@@ -6235,11 +6235,8 @@ ${info.usage}`;
             + '</div>';
 
         resultDiv.innerHTML = '<div style="background:rgba(255,255,255,.03);border-radius:14px;padding:16px">'
-            + '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin-bottom:12px">STEP 3 — 카드를 한 장씩 클릭해서 열어보세요</div>'
+            + '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin-bottom:12px">STEP 3 — 카드가 공개됩니다</div>'
             + cardsHtml
-            + '<button id="mbti-reveal-all-btn" onclick="mbtiRevealAll()" '
-            + 'style="width:100%;margin:4px 0 14px;padding:9px;background:rgba(201,168,76,.08);color:#c9a84c;'
-            + 'border:1px solid rgba(201,168,76,.25);border-radius:10px;font-weight:700;cursor:pointer;font-size:12px">✦ 전체 공개</button>'
             + '<div id="mbti-tarot-synth-area" style="display:none">'
             + mbtiCardDetailBlock
             + '<div style="font-size:12px;color:#c9a84c;font-weight:700;margin:14px 0 10px;letter-spacing:.05em">✦ MBTI × 타로 종합</div>'
@@ -6250,6 +6247,7 @@ ${info.usage}`;
             + 'border:1px solid rgba(255,255,255,.15);border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">🔄 MBTI+타로 다시보기</button>'
             + '</div>'
             + '</div>';
+        setTimeout(function(){ if(window.mbtiRevealAll) window.mbtiRevealAll(); }, 700);
 
         resultDiv.innerHTML +=
             '<div style="margin-top:16px">'
@@ -7048,7 +7046,6 @@ ${info.usage}`;
         <button class="tarot-draw-btn" id="tarot-draw-btn" onclick="tDrawCards()" disabled>✦ 카드 뽑기 ✦</button>
         <div id="tarot-cards-area" style="display:none">
           <div class="tarot-cards-row" id="tarot-cards-row"></div>
-          <button class="tarot-reveal-all-btn" id="tarot-reveal-all" onclick="tRevealAll()">✦ 카드 모두 공개</button>
         </div>
         <div id="tarot-result-area" style="display:none"></div>
       `;
@@ -7092,6 +7089,7 @@ ${info.usage}`;
         document.getElementById('tarot-cards-area').style.display = 'block';
         if(_tarotResultArea){ _tarotResultArea.style.display='none'; _tarotResultArea.innerHTML=''; }
         renderTarotCards();
+        setTimeout(tRevealAll, 700);
       }, 2000);
     }
 
@@ -7133,7 +7131,8 @@ ${info.usage}`;
       el.classList.add('t-revealed');
       tRevealedCount++;
       if(tRevealedCount===3) {
-        document.getElementById('tarot-reveal-all').style.display='none';
+        const _allBtn = document.getElementById('tarot-reveal-all');
+        if(_allBtn) _allBtn.style.display='none';
         tShowInterpretation();
       }
     }
@@ -7144,7 +7143,8 @@ ${info.usage}`;
         if(el && !el.classList.contains('t-revealed')){el.classList.add('t-revealed');}
       });
       tRevealedCount=3;
-      document.getElementById('tarot-reveal-all').style.display='none';
+      const _allBtn = document.getElementById('tarot-reveal-all');
+      if(_allBtn) _allBtn.style.display='none';
       tShowInterpretation();
     }
 
