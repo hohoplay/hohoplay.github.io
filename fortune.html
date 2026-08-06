@@ -5130,12 +5130,6 @@ ${info.usage}`;
                             AI가 임의로 지어내는 문장이 아니라, 실제 사주 계산 로직으로 오늘의 기운과 흐름을 풀이해드려요.
                         </p>
                     </div>
-                    <div class="fcard" style="margin-bottom:16px;background:#fffbeb;border:1px dashed #f5c451">
-                        <div style="text-align:center;font-size:13px;font-weight:700;color:#b45309">
-                            ※ 아래는 샘플 결과예요. 실제 나의 운세를 보려면 폼에 생년월일을 입력해주세요.
-                        </div>
-                    </div>
-                    <div id="today-sample-content" style="margin-bottom:16px"></div>
                     <div class="fcard">
                         <div style="font-weight:900;font-size:17px;margin-bottom:18px;color:#7c3aed">✏️ 정보 입력</div>
                         <div style="margin-bottom:14px">
@@ -5182,7 +5176,13 @@ ${info.usage}`;
                             🔮 오늘의 운세 보기
                         </button>
                     </div>
-                    <div id="today-result"></div>`;
+                    <div id="today-result"></div>
+                    <div class="fcard" style="margin:16px 0;background:#fffbeb;border:1px dashed #f5c451">
+                        <div style="text-align:center;font-size:13px;font-weight:700;color:#b45309">
+                            ※ 아래는 샘플 결과예요. 실제 나의 운세를 보려면 위에 생년월일을 입력해주세요.
+                        </div>
+                    </div>
+                    <div id="today-sample-content"></div>`;
                 if(_gender) setGender(_gender);
                 setCalType(_calType);
                 createDrumRoll('drum-today','inp-year','inp-month','inp-day');
@@ -5476,6 +5476,11 @@ ${info.usage}`;
             else if(type==='mbti-tarot'){
                 c.innerHTML = buildMbtiTarotUI();
                 mbtiTarotSelectMbti('INTJ');
+                var _mtQBtn = document.querySelector('#mbti-tarot-step2 .tarot-q-btn');
+                if(_mtQBtn){
+                    _mtQBtn.click();
+                    mbtiTarotDraw();
+                }
             }
 
             else if(type==='mbti-dream'){
@@ -5483,6 +5488,11 @@ ${info.usage}`;
                 buildMbtiDreamUI().then(function(html){
                     c.innerHTML = html;
                     mbtiDreamSelectMbti('INTJ');
+                    var _mdKwBtn = document.querySelector('#mbti-dream-step2 .tarot-q-btn');
+                    if(_mdKwBtn){
+                        _mdKwBtn.click();
+                        mbtiDreamInterpret();
+                    }
                 });
             }
 
