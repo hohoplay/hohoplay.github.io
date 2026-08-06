@@ -5476,6 +5476,11 @@ ${info.usage}`;
             else if(type==='mbti-tarot'){
                 c.innerHTML = buildMbtiTarotUI();
                 mbtiTarotSelectMbti('INTJ');
+                var _mtQBtn = document.querySelector('#mbti-tarot-step2 .tarot-q-btn');
+                if(_mtQBtn){
+                    _mtQBtn.click();
+                    mbtiTarotDraw();
+                }
             }
 
             else if(type==='mbti-dream'){
@@ -5483,6 +5488,11 @@ ${info.usage}`;
                 buildMbtiDreamUI().then(function(html){
                     c.innerHTML = html;
                     mbtiDreamSelectMbti('INTJ');
+                    var _mdKwBtn = document.querySelector('#mbti-dream-step2 .tarot-q-btn');
+                    if(_mdKwBtn){
+                        _mdKwBtn.click();
+                        mbtiDreamInterpret();
+                    }
                 });
             }
 
@@ -7073,9 +7083,12 @@ ${info.usage}`;
       tDrawnCards = [];
       tRevealedCount = 0;
       renderTarotUI();
-      // ── 진입 즉시 첫 질문 카테고리를 자동 선택해 카드뽑기 버튼을 바로 누를 수 있는 상태로 ──
+      // ── 진입 즉시 첫 질문 카테고리를 자동 선택하고, 카드뽑기까지 자동 실행해 샘플 결과 표시 ──
       const _firstQBtn = inner.querySelector('.tarot-q-grid .tarot-q-btn');
-      if(_firstQBtn) tSelectQ(_firstQBtn.textContent, _firstQBtn);
+      if(_firstQBtn){
+        tSelectQ(_firstQBtn.textContent, _firstQBtn);
+        tDrawCards();
+      }
     }
 
     // 타로 UI 렌더링
