@@ -5475,24 +5475,32 @@ ${info.usage}`;
 
             else if(type==='mbti-tarot'){
                 c.innerHTML = buildMbtiTarotUI();
-                mbtiTarotSelectMbti('INTJ');
-                var _mtQBtn = document.querySelector('#mbti-tarot-step2 .tarot-q-btn');
-                if(_mtQBtn){
-                    _mtQBtn.click();
-                    mbtiTarotDraw();
-                }
+                // ── STEP1/STEP2는 사용자가 직접 고르도록 그대로 두고, 별도 샘플 영역만 실제 엔진으로 계산 ──
+                (async function(){
+                    _mbtiTarotMbti = 'INTJ';
+                    _mbtiTarotQ = '연애와 관계';
+                    await mbtiTarotDraw();
+                    var _resultEl = document.getElementById('mbti-tarot-result');
+                    var _sampleEl = document.getElementById('mbti-tarot-sample-content');
+                    if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
+                    _mbtiTarotMbti = null;
+                    _mbtiTarotQ = null;
+                })();
             }
 
             else if(type==='mbti-dream'){
                 c.innerHTML = '<div style="text-align:center;padding:40px;color:#9b8fb0"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>꿈해몽 데이터 로드 중...</div>';
-                buildMbtiDreamUI().then(function(html){
+                buildMbtiDreamUI().then(async function(html){
                     c.innerHTML = html;
-                    mbtiDreamSelectMbti('INTJ');
-                    var _mdKwBtn = document.querySelector('#mbti-dream-step2 .tarot-q-btn');
-                    if(_mdKwBtn){
-                        _mdKwBtn.click();
-                        mbtiDreamInterpret();
-                    }
+                    // ── STEP1/STEP2는 사용자가 직접 고르도록 그대로 두고, 별도 샘플 영역만 실제 엔진으로 계산 ──
+                    _mbtiDreamMbti = 'INTJ';
+                    _mbtiDreamKeyword = '하늘';
+                    await mbtiDreamInterpret();
+                    var _resultEl = document.getElementById('mbti-dream-result');
+                    var _sampleEl = document.getElementById('mbti-dream-sample-content');
+                    if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
+                    _mbtiDreamMbti = null;
+                    _mbtiDreamKeyword = null;
                 });
             }
 
@@ -5511,6 +5519,10 @@ ${info.usage}`;
                             <div class="tarot-spinner"></div> 카드 덱을 준비하는 중...
                         </div>
                     </div>
+                    <div style="background:rgba(251,191,36,.1);border:1px dashed rgba(251,191,36,.4);border-radius:14px;padding:12px 16px;margin-top:20px;margin-bottom:12px;text-align:center;font-size:13px;font-weight:700;color:#fbbf24">
+                        ※ 아래는 샘플 결과예요. 위에서 질문을 직접 선택하고 카드를 뽑으면 나만의 결과를 볼 수 있어요.
+                    </div>
+                    <div id="tarot-sample-content"></div>
                 </div>
                 ${SHARE_BAR_HTML}`;
                 // 날짜 표시
@@ -5812,6 +5824,10 @@ ${info.usage}`;
                     + '</div>'
                 + '</div>'
                 + '<div id="mbti-tarot-result" style="margin-top:16px"></div>'
+                + '<div style="background:rgba(251,191,36,.1);border:1px dashed rgba(251,191,36,.4);border-radius:14px;padding:12px 16px;margin-top:20px;margin-bottom:12px;text-align:center;font-size:13px;font-weight:700;color:#fbbf24">'
+                + '※ 아래는 샘플 결과예요. 위에서 나의 MBTI와 질문을 직접 선택하면 나만의 결과를 볼 수 있어요.'
+                + '</div>'
+                + '<div id="mbti-tarot-sample-content"></div>'
             + '</div>'
         + '</div>'
         + SHARE_BAR_HTML;
@@ -5869,6 +5885,10 @@ ${info.usage}`;
                     + '</div>'
                 + '</div>'
                 + '<div id="mbti-dream-result" style="margin-top:16px"></div>'
+                + '<div style="background:rgba(251,191,36,.1);border:1px dashed rgba(251,191,36,.4);border-radius:14px;padding:12px 16px;margin-top:20px;margin-bottom:12px;text-align:center;font-size:13px;font-weight:700;color:#fbbf24">'
+                + '※ 아래는 샘플 결과예요. 위에서 나의 MBTI와 꿈을 직접 선택하면 나만의 결과를 볼 수 있어요.'
+                + '</div>'
+                + '<div id="mbti-dream-sample-content"></div>'
             + '</div>'
         + '</div>'
         + SHARE_BAR_HTML;
@@ -6803,9 +6823,16 @@ ${info.usage}`;
         var c = document.getElementById('fortune-content');
         if (c) {
             c.innerHTML = '<div style="text-align:center;padding:40px;color:#9b8fb0">⏳ 초기화 중...</div>';
-            buildMbtiDreamUI().then(function(html){
+            buildMbtiDreamUI().then(async function(html){
                 c.innerHTML = html;
-                mbtiDreamSelectMbti('INTJ');
+                _mbtiDreamMbti = 'INTJ';
+                _mbtiDreamKeyword = '하늘';
+                await mbtiDreamInterpret();
+                var _resultEl = document.getElementById('mbti-dream-result');
+                var _sampleEl = document.getElementById('mbti-dream-sample-content');
+                if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
+                _mbtiDreamMbti = null;
+                _mbtiDreamKeyword = null;
                 // UI 재구성 완료 후 상단 스크롤
                 setTimeout(function(){
                     c.scrollIntoView({behavior:'smooth', block:'start'});
@@ -6820,7 +6847,16 @@ ${info.usage}`;
         var c = document.getElementById('fortune-content');
         if (c) {
             c.innerHTML = buildMbtiTarotUI();
-            mbtiTarotSelectMbti('INTJ');
+            (async function(){
+                _mbtiTarotMbti = 'INTJ';
+                _mbtiTarotQ = '연애와 관계';
+                await mbtiTarotDraw();
+                var _resultEl = document.getElementById('mbti-tarot-result');
+                var _sampleEl = document.getElementById('mbti-tarot-sample-content');
+                if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
+                _mbtiTarotMbti = null;
+                _mbtiTarotQ = null;
+            })();
             setTimeout(function(){
                 c.scrollIntoView({behavior:'smooth', block:'start'});
             }, 50);
@@ -7083,12 +7119,23 @@ ${info.usage}`;
       tDrawnCards = [];
       tRevealedCount = 0;
       renderTarotUI();
-      // ── 진입 즉시 첫 질문 카테고리를 자동 선택하고, 카드뽑기까지 자동 실행해 샘플 결과 표시 ──
-      const _firstQBtn = inner.querySelector('.tarot-q-grid .tarot-q-btn');
-      if(_firstQBtn){
-        tSelectQ(_firstQBtn.textContent, _firstQBtn);
-        tDrawCards();
+      // ── 인터랙티브 영역은 미선택 상태로 두고, 별도 샘플 영역에만 실제 엔진으로 계산한 고정 예시 결과 생성 ──
+      tQuestion = '연애와 관계';
+      const _drawBtn = document.getElementById('tarot-draw-btn');
+      if(_drawBtn) _drawBtn.disabled = false;
+      await tDrawCards();
+      await new Promise(r => setTimeout(r, 3000));
+      const _cardsRow = document.getElementById('tarot-cards-row');
+      const _resultArea = document.getElementById('tarot-result-area');
+      const _sampleEl = document.getElementById('tarot-sample-content');
+      if(_sampleEl){
+        _sampleEl.innerHTML = '<div class="tarot-cards-row">' + (_cardsRow ? _cardsRow.innerHTML : '') + '</div>' + (_resultArea ? _resultArea.innerHTML : '');
       }
+      // 인터랙티브 영역은 완전히 미선택 상태로 리셋
+      tQuestion = '';
+      tDrawnCards = [];
+      tRevealedCount = 0;
+      renderTarotUI();
     }
 
     // 타로 UI 렌더링
