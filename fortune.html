@@ -5475,6 +5475,7 @@ ${info.usage}`;
 
             else if(type==='mbti-tarot'){
                 c.innerHTML = buildMbtiTarotUI();
+                mbtiTarotSelectMbti('INTJ');
             }
 
             else if(type==='mbti-dream'){
@@ -6809,6 +6810,7 @@ ${info.usage}`;
         var c = document.getElementById('fortune-content');
         if (c) {
             c.innerHTML = buildMbtiTarotUI();
+            mbtiTarotSelectMbti('INTJ');
             setTimeout(function(){
                 c.scrollIntoView({behavior:'smooth', block:'start'});
             }, 50);
@@ -7071,6 +7073,9 @@ ${info.usage}`;
       tDrawnCards = [];
       tRevealedCount = 0;
       renderTarotUI();
+      // ── 진입 즉시 첫 질문 카테고리를 자동 선택해 카드뽑기 버튼을 바로 누를 수 있는 상태로 ──
+      const _firstQBtn = inner.querySelector('.tarot-q-grid .tarot-q-btn');
+      if(_firstQBtn) tSelectQ(_firstQBtn.textContent, _firstQBtn);
     }
 
     // 타로 UI 렌더링
@@ -7087,8 +7092,17 @@ ${info.usage}`;
           <button onclick="tApplyCustomQ()">입력</button>
         </div>
         <button class="tarot-draw-btn" id="tarot-draw-btn" onclick="tDrawCards()" disabled>✦ 카드 뽑기 ✦</button>
-        <div id="tarot-cards-area" style="display:none">
-          <div class="tarot-cards-row" id="tarot-cards-row"></div>
+        <div id="tarot-cards-area">
+          <div class="tarot-cards-row" id="tarot-cards-row">
+            ${T_POS.map(pos=>`
+              <div>
+                <div class="tarot-pos-label">${pos.labelKo} · ${pos.label}</div>
+                <div class="tarot-card" style="opacity:.5;pointer-events:none">
+                  <div class="tarot-back-sym">✦</div>
+                  <div class="tarot-hint" style="font-size:.65rem;color:#6b5f7a;margin-top:.4rem">카드뽑기를 눌러주세요</div>
+                </div>
+              </div>`).join('')}
+          </div>
         </div>
         <div id="tarot-result-area" style="display:none"></div>
       `;
