@@ -2818,7 +2818,7 @@ ${info.usage}`;
         }
 
         // ── 사주 생성 메인 ──
-        function generateSaju() {
+        function generateSaju(skipScroll) {
             const rawYear  = parseInt(document.getElementById('sj-year')?.value);
             const rawMonth = parseInt(document.getElementById('sj-month')?.value);
             const rawDay   = parseInt(document.getElementById('sj-day')?.value);
@@ -3454,7 +3454,7 @@ ${info.usage}`;
                 + '</div>'
                 + SHARE_BAR_HTML;
 
-            result.scrollIntoView({behavior:'smooth',block:'start'});
+            if(!skipScroll) result.scrollIntoView({behavior:'smooth',block:'start'});
         }
 
 
@@ -5460,7 +5460,7 @@ ${info.usage}`;
                     var _timeSel = document.getElementById('sj-time-sel');
                     if(_timeSel) _timeSel.value = 'unknown';
                     sjSetGender('여');
-                    generateSaju();
+                    generateSaju(true);
                     document.getElementById('sj-year').value = '';
                     document.getElementById('sj-month').value = '';
                     document.getElementById('sj-day').value = '';
@@ -7038,6 +7038,7 @@ ${info.usage}`;
     let tQuestion = '';
     let tDrawnCards = [];
     let tRevealedCount = 0;
+    let _tSkipScroll = false;
 
     // 카드별 이모지 매핑
     const TAROT_EMOJI = {
@@ -7121,10 +7122,12 @@ ${info.usage}`;
       renderTarotUI();
       // ── 인터랙티브 영역은 미선택 상태로 두고, 별도 샘플 영역에만 실제 엔진으로 계산한 고정 예시 결과 생성 ──
       tQuestion = '연애와 관계';
+      _tSkipScroll = true;
       const _drawBtn = document.getElementById('tarot-draw-btn');
       if(_drawBtn) _drawBtn.disabled = false;
       await tDrawCards();
       await new Promise(r => setTimeout(r, 3000));
+      _tSkipScroll = false;
       const _cardsRow = document.getElementById('tarot-cards-row');
       const _resultArea = document.getElementById('tarot-result-area');
       const _sampleEl = document.getElementById('tarot-sample-content');
@@ -7370,7 +7373,7 @@ ${info.usage}`;
             + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c7d2fe" stroke-width="2.5" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>'
         + '</div>'
         + '</div>';
-      area.scrollIntoView({behavior:'smooth',block:'start'});
+      if(!_tSkipScroll) area.scrollIntoView({behavior:'smooth',block:'start'});
     }
 
     // ══════════════════════════════════════════════
