@@ -5440,7 +5440,10 @@ ${info.usage}`;
 
             else if(type==='mbti-dream'){
                 c.innerHTML = '<div style="text-align:center;padding:40px;color:#9b8fb0"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>꿈해몽 데이터 로드 중...</div>';
-                buildMbtiDreamUI().then(function(html){ c.innerHTML = html; });
+                buildMbtiDreamUI().then(function(html){
+                    c.innerHTML = html;
+                    mbtiDreamSelectMbti('INTJ');
+                });
             }
 
             else if(type==='tarot'){
@@ -6752,6 +6755,7 @@ ${info.usage}`;
             c.innerHTML = '<div style="text-align:center;padding:40px;color:#9b8fb0">⏳ 초기화 중...</div>';
             buildMbtiDreamUI().then(function(html){
                 c.innerHTML = html;
+                mbtiDreamSelectMbti('INTJ');
                 // UI 재구성 완료 후 상단 스크롤
                 setTimeout(function(){
                     c.scrollIntoView({behavior:'smooth', block:'start'});
