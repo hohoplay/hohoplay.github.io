@@ -2042,9 +2042,10 @@ ${info.usage}`;
             if (!d.value) d.value = t.getDate();
         }
 
-        function showFortuneTab(tab, data){
+        function showFortuneTab(tab, data, targetId){
+            targetId = targetId || 'fortune-tab-content';
             // ── 탭 전환 로딩 ──
-            const _tabContentEl = document.getElementById('fortune-tab-content');
+            const _tabContentEl = document.getElementById(targetId);
             if(_tabContentEl && data===undefined){
                 _tabContentEl.innerHTML = '<div style="text-align:center;padding:32px;color:#aaa"><span style="display:inline-block;width:22px;height:22px;border:3px solid rgba(124,58,237,.25);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:8px"></span>운세를 불러오는 중...</div>' + getLoadingAdHTML();
             }
@@ -2172,14 +2173,18 @@ ${info.usage}`;
                     <div style="font-size:13px;line-height:1.8;opacity:.95">${timeMsg}</div>
                 </div>` : '';
 
-            document.getElementById('fortune-tab-content').innerHTML = `
+            const _isSample = targetId !== 'fortune-tab-content';
+            const _cardId = _isSample ? targetId + '-card' : 'today-card';
+            const _genderVal = inp.gender || _gender;
+
+            document.getElementById(targetId).innerHTML = `
                 <div class="fcard" style="padding:0">
-                    <div id="today-card" style="background:#fff;border-radius:20px;padding:24px;color:#1f2937;border:1px solid #e0e7ff">
+                    <div id="${_cardId}" style="background:#fff;border-radius:20px;padding:24px;color:#1f2937;border:1px solid #e0e7ff">
                         <div style="text-align:center;margin-bottom:16px">
                             ${userName ? `<div style="font-size:18px;font-weight:900;margin-bottom:4px">${userName}</div>` : ''}
                             <div style="font-size:12px;opacity:.8;margin-bottom:2px">${_calType} · ${year}년 ${month}월 ${day}일${lunarNote ? '<br><span style=\"font-size:10px;opacity:.7\">' + lunarNote + '</span>' : ''}</div>
                             <div style="font-size:22px;font-weight:900">${chinese.emoji} ${chinese.name} &nbsp;·&nbsp; ${zodiac.emoji} ${zodiac.name}</div>
-                            <div style="font-size:13px;opacity:.8;margin-top:4px">만 ${age}세 · ${_gender}성</div>
+                            <div style="font-size:13px;opacity:.8;margin-top:4px">만 ${age}세 · ${_genderVal}성</div>
                             <div style="color:#f59e0b;margin-top:6px;font-size:16px">${headerLabel}</div>
                             <div style="color:#f59e0b;font-size:13px">${rating}</div>
                         </div>
@@ -2187,12 +2192,13 @@ ${info.usage}`;
                         ${sectionHtml}
 
                     </div>
+                    ${_isSample ? '' : `
                     <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;flex-wrap:wrap">
                         <button onclick="saveCard('today-card','운세_${year}${month}${day}_${tab}')"
                             style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px">
                             📸 이미지 저장
                         </button>
-                    </div>
+                    </div>`}
 
                     <div onclick="showFortune('weekly')" style="display:flex;align-items:center;gap:12px;cursor:pointer;
                           padding:16px 18px;border-radius:14px;margin-top:12px;margin-bottom:8px;
@@ -5124,18 +5130,12 @@ ${info.usage}`;
                             AI가 임의로 지어내는 문장이 아니라, 실제 사주 계산 로직으로 오늘의 기운과 흐름을 풀이해드려요.
                         </p>
                     </div>
-                    <div class="fcard" style="margin-bottom:16px">
-                        <div style="font-weight:900;font-size:15px;margin-bottom:14px;color:#374151">🔎 오늘의 운세에서 확인할 수 있는 것</div>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;text-align:center">
-                            <div><div style="font-size:22px">🌅</div><div style="font-size:12px;color:#6b7280;margin-top:4px">사시 기운</div></div>
-                            <div><div style="font-size:22px">🌟</div><div style="font-size:12px;color:#6b7280;margin-top:4px">총운</div></div>
-                            <div><div style="font-size:22px">❤️</div><div style="font-size:12px;color:#6b7280;margin-top:4px">애정운</div></div>
-                            <div><div style="font-size:22px">💰</div><div style="font-size:12px;color:#6b7280;margin-top:4px">금전운</div></div>
-                            <div><div style="font-size:22px">💼</div><div style="font-size:12px;color:#6b7280;margin-top:4px">직장운</div></div>
-                            <div><div style="font-size:22px">📖</div><div style="font-size:12px;color:#6b7280;margin-top:4px">학업·성적운</div></div>
-                            <div><div style="font-size:22px">💪</div><div style="font-size:12px;color:#6b7280;margin-top:4px">건강운</div></div>
+                    <div class="fcard" style="margin-bottom:16px;background:#fffbeb;border:1px dashed #f5c451">
+                        <div style="text-align:center;font-size:13px;font-weight:700;color:#b45309">
+                            ※ 아래는 샘플 결과예요. 실제 나의 운세를 보려면 폼에 생년월일을 입력해주세요.
                         </div>
                     </div>
+                    <div id="today-sample-content" style="margin-bottom:16px"></div>
                     <div class="fcard">
                         <div style="font-weight:900;font-size:17px;margin-bottom:18px;color:#7c3aed">✏️ 정보 입력</div>
                         <div style="margin-bottom:14px">
@@ -5186,6 +5186,15 @@ ${info.usage}`;
                 if(_gender) setGender(_gender);
                 setCalType(_calType);
                 createDrumRoll('drum-today','inp-year','inp-month','inp-day');
+                // ── 샘플 결과 렌더링 (실제 엔진으로 계산, 고정 예시 데이터일 뿐 실존 인물 아님) ──
+                (function(){
+                    var _sy=1995, _sm=5, _sd=15, _st='모름';
+                    var _sChinese = getChineseZodiac(_sy);
+                    var _sZodiac  = getZodiacSign(_sm,_sd);
+                    var _sAge     = kstNow().getUTCFullYear()-_sy;
+                    var _sTimeMsg = TIME_MSG[_st]||TIME_MSG['모름'];
+                    showFortuneTab('today', {year:_sy,month:_sm,day:_sd,time:_st,chinese:_sChinese,zodiac:_sZodiac,age:_sAge,timeMsg:_sTimeMsg,userName:'',lunarNote:'',gender:'여'}, 'today-sample-content');
+                })();
             }
 
             else if(type==='zodiac'){
@@ -5431,13 +5440,37 @@ ${info.usage}`;
                                 style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;background:#f8fafc;font-weight:700;cursor:pointer;font-size:15px">👩 여성</button>
                         </div>
                     </div>
-                    <button onclick="generateSaju()"
+                    <button onclick="document.getElementById('sj-sample-banner')?.remove();generateSaju()"
                         style="width:100%;padding:16px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:14px;font-size:17px;font-weight:900;cursor:pointer">
                         🔮 사주팔자 보기
                     </button>
                 </div>
+                <div id="sj-sample-banner" class="fcard" style="margin-top:16px;background:#fffbeb;border:1px dashed #f5c451">
+                    <div style="text-align:center;font-size:13px;font-weight:700;color:#b45309">
+                        ※ 아래는 샘플 결과예요. 실제 나의 사주를 보려면 위에 생년월일을 입력해주세요.
+                    </div>
+                </div>
                 <div id="saju-result"></div>`;
                 createDrumRoll('drum-saju','sj-year','sj-month','sj-day');
+                // ── 샘플 결과 렌더링 (실제 엔진으로 계산, 고정 예시 데이터일 뿐 실존 인물 아님) ──
+                (function(){
+                    document.getElementById('sj-year').value = 1995;
+                    document.getElementById('sj-month').value = 5;
+                    document.getElementById('sj-day').value = 15;
+                    var _timeSel = document.getElementById('sj-time-sel');
+                    if(_timeSel) _timeSel.value = 'unknown';
+                    sjSetGender('여');
+                    generateSaju();
+                    document.getElementById('sj-year').value = '';
+                    document.getElementById('sj-month').value = '';
+                    document.getElementById('sj-day').value = '';
+                    if(_timeSel) _timeSel.value = 'unknown';
+                    _sj_gender = null;
+                    document.getElementById('sj-male').style.borderColor = '#e2e8f0';
+                    document.getElementById('sj-male').style.background = '#f8fafc';
+                    document.getElementById('sj-female').style.borderColor = '#e2e8f0';
+                    document.getElementById('sj-female').style.background = '#f8fafc';
+                })();
             }
 
             else if(type==='mbti-tarot'){
