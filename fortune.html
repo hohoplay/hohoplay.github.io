@@ -1411,17 +1411,8 @@ ${info.usage}`;
             const thisMonth = zodiacCycleMonth();
             _meetingIssues = [];
             _meetingIssues.push({ seed: thisMonth, label: meetingMonthLabel(thisMonth) }); // 우선 이번 달만 노출
-
-            const cardsHtml = _meetingIssues.map((iss, i) => {
-                return `<div onclick="showMeetingIssue(${i})"
-                    style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;margin-bottom:10px;cursor:pointer">
-                    <div style="font-weight:700;font-size:15px;color:#3730a3;word-break:keep-all">🌙 별빛이 오솔길로 내려오는 밤 — ${iss.label}</div>
-                </div>`;
-            }).join('');
-            cEl.innerHTML = `
-                <div class="fhero"><h2 style="font-size:24px;margin-bottom:6px">🌙 별빛이 오솔길로 내려오는 밤</h2><p style="opacity:.85">매달 새로 열리는 부엉이 마을 이야기</p></div>
-                <div id="meeting-list">${cardsHtml}</div>
-                ${SHARE_BAR_HTML}`;
+            // 별자리월간·띠별주간처럼 목록 단계 없이 이번 달 이야기를 바로 전체 노출(크롤러 가시성 + 클릭 절약)
+            showMeetingIssue(0);
         }
 
         function showMeetingIssue(i){
@@ -1433,7 +1424,6 @@ ${info.usage}`;
             cEl.innerHTML = `
                 <div class="fhero"><h2 style="font-size:20px;margin-bottom:6px">🌙 ${iss.label}</h2></div>
                 <div class="fcard">
-                    <div onclick="renderMeetingBook()" style="display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:16px">← 목록으로</div>
                     <div style="font-size:15px;color:#374151">${bodyHtml}</div>
                 </div>
                 ${SHARE_BAR_HTML}`;
