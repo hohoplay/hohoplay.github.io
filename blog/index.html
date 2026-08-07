@@ -461,6 +461,10 @@
                                 <span>HOHO PLAY 커뮤니티</span>
                             </span>
                         </div>
+                        <div style="text-align:center;color:#7ec8e3;font-size:13px;line-height:1.7;max-width:640px;margin:0 auto 24px">
+                            HOHO PLAY의 새 소식과 업데이트를 확인하고, 다른 이용자들과 자유롭게 이야기 나눌 수 있는 공간이에요.
+                            공지사항에서는 사이트 소식을, 업데이트에서는 게임·기능 변경 내역을, 자유게시판에서는 이용자들의 이야기를 만나보세요.
+                        </div>
                         <div id="bbs-main">
                             <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
                                 <div class="bbs-item" onclick="openBoard('공지사항','공지사항')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">공지사항</div>
@@ -480,6 +484,7 @@
                                 <a id="bbs-write-link" href="https://github.com/hohoplay/hohoplay.github.io/issues/new" target="_blank" class="bbs-write-btn">✏ 글쓰기</a>
                             </div>
                             <div id="bbs-posts"><div class="bbs-loading">⏳ 불러오는 중...</div></div>
+                            <div id="bbs-other-boards"></div>
                         </div>
                     </div>
                 </div>
@@ -1010,6 +1015,10 @@
             document.getElementById('bbs-board-area').classList.remove('active');
         }
 
+        let _bbsAllPosts = [];
+        let _bbsPage = 1;
+        const BBS_PAGE_SIZE = 5;
+
         async function loadIssues(label, boardType) {
             const el = document.getElementById('bbs-posts');
             el.innerHTML = '<div class="bbs-loading">⏳ 게시글 불러오는 중...</div>';
@@ -1021,25 +1030,73 @@
                     el.innerHTML = '<div class="bbs-loading">📭 등록된 게시글이 없습니다.' +
                         (boardType==='자유게시판' ? '<br><br><a href="https://github.com/'+GH_OWNER+'/'+GH_REPO+'/issues/new?labels='+encodeURIComponent(label)+'" target="_blank" style="color:#00e5ff">첫 글을 작성해보세요! ✏</a>' : '') +
                         '</div>';
+                    renderBbsOtherBoards(boardType);
                     return;
                 }
                 el.dataset.label = label;
-                el.innerHTML = posts.map((p,i) => {
-                    const d = new Date(p.created_at);
-                    const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-                    const commentsBadge = boardType==='자유게시판' ? '<span class="bbs-post-comments">💬 '+p.comments+'</span>' : '';
-                    return '<div class="bbs-post" onclick="viewPost('+p.number+',\''+p.title.replace(/'/g,"\\'")+'\',\''+boardType+'\')">'+
-                        '<div class="bbs-post-title">'+String(i+1).padStart(2,'0')+'. '+p.title+'</div>'+
-                        '<div class="bbs-post-meta">'+
-                            '<span>'+ds+'</span>'+
-                            '<span>👤 '+p.user.login+'</span>'+
-                            commentsBadge+
-                        '</div>'+
-                    '</div>';
-                }).join('');
+                _bbsAllPosts = posts;
+                _bbsPage = 1;
+                renderBbsPage(boardType);
             } catch(e) {
                 el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패. 잠시 후 다시 시도해주세요.</div>';
             }
+        }
+
+        function renderBbsPage(boardType) {
+            const el = document.getElementById('bbs-posts');
+            const totalPages = Math.ceil(_bbsAllPosts.length / BBS_PAGE_SIZE);
+            const start = (_bbsPage - 1) * BBS_PAGE_SIZE;
+            const pagePosts = _bbsAllPosts.slice(start, start + BBS_PAGE_SIZE);
+
+            el.innerHTML = pagePosts.map((p,i) => {
+                const d = new Date(p.created_at);
+                const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+                const commentsBadge = boardType==='자유게시판' ? '<span class="bbs-post-comments">💬 '+p.comments+'</span>' : '';
+                return '<div class="bbs-post" onclick="viewPost('+p.number+',\''+p.title.replace(/'/g,"\\'")+'\',\''+boardType+'\')">'+
+                    '<div class="bbs-post-title">'+String(start+i+1).padStart(2,'0')+'. '+p.title+'</div>'+
+                    '<div class="bbs-post-meta">'+
+                        '<span>'+ds+'</span>'+
+                        '<span>👤 '+p.user.login+'</span>'+
+                        commentsBadge+
+                    '</div>'+
+                '</div>';
+            }).join('');
+
+            // 게시글이 페이지 크기 초과 시 페이지네이션 표시
+            if (_bbsAllPosts.length > BBS_PAGE_SIZE) {
+                let pagerHtml = '<div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-top:18px;flex-wrap:wrap">';
+                pagerHtml += '<span onclick="'+(_bbsPage>1 ? "bbsGoPage("+(_bbsPage-1)+",'"+boardType+"')" : '')+'" style="cursor:'+(_bbsPage>1?'pointer':'default')+';color:'+(_bbsPage>1?'#00e5ff':'#2a3a6e')+';font-size:12px;padding:4px 8px">◀ 이전</span>';
+                for (let pn = 1; pn <= totalPages; pn++) {
+                    pagerHtml += '<span onclick="bbsGoPage('+pn+',\''+boardType+'\')" style="cursor:pointer;font-size:12px;padding:4px 10px;border-radius:6px;background:'+(pn===_bbsPage?'#00e5ff':'#0d1a40')+';color:'+(pn===_bbsPage?'#0a0e2e':'#7ec8e3')+';font-weight:700">'+pn+'</span>';
+                }
+                pagerHtml += '<span onclick="'+(_bbsPage<totalPages ? "bbsGoPage("+(_bbsPage+1)+",'"+boardType+"')" : '')+'" style="cursor:'+(_bbsPage<totalPages?'pointer':'default')+';color:'+(_bbsPage<totalPages?'#00e5ff':'#2a3a6e')+';font-size:12px;padding:4px 8px">다음 ▶</span>';
+                pagerHtml += '</div>';
+                el.innerHTML += pagerHtml;
+            }
+
+            renderBbsOtherBoards(boardType);
+        }
+
+        function bbsGoPage(n, boardType) {
+            _bbsPage = n;
+            renderBbsPage(boardType);
+            document.getElementById('bbs-board-area').scrollIntoView({behavior:'smooth', block:'start'});
+        }
+
+        // 지금 보고 있는 게시판을 제외한 나머지 두 게시판으로 가는 링크를 하단에 표시
+        function renderBbsOtherBoards(currentBoard) {
+            const holder = document.getElementById('bbs-other-boards');
+            if (!holder) return;
+            const all = [
+                {label:'공지사항', name:'공지사항'},
+                {label:'업데이트', name:'업데이트'},
+                {label:'자유게시판', name:'자유게시판'},
+            ];
+            const others = all.filter(b => b.name !== currentBoard);
+            holder.innerHTML = '<div style="border-top:1px solid #1a2a5e;margin-top:20px;padding-top:16px;text-align:center;font-size:12px;color:#4a6fa5">' +
+                '다른 게시판도 둘러보세요&nbsp;&nbsp;' +
+                others.map(b => '<span onclick="openBoard(\''+b.label+'\',\''+b.name+'\')" style="cursor:pointer;color:#00e5ff;margin:0 8px">['+b.name+']</span>').join('') +
+                '</div>';
         }
 
         async function viewPost(number, title, boardType) {
