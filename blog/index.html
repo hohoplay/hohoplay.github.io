@@ -928,6 +928,7 @@
             var _boardParam = new URLSearchParams(location.search).get('board');
 
             const pendingPage = sessionStorage.getItem('page');
+            var _targetPage = pendingPage || 'blog';
             if (pendingPage) {
                 sessionStorage.removeItem('page');
                 navigateTo(pendingPage);
@@ -939,6 +940,10 @@
             // ?board=공지사항 형태로 들어오면 항상 해당 게시판을 자동으로 열어줌
             if (_boardParam) {
                 openBoard(_boardParam, _boardParam);
+            } else if (_targetPage === 'blog') {
+                // 커뮤니티 페이지에 board 파라미터 없이 들어와도 빈 화면으로 두지 않고
+                // 기본으로 공지사항 게시판을 바로 열어줌(빈 페이지처럼 보이는 것 방지)
+                openBoard('공지사항', '공지사항');
             }
         };
 
