@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260809145634_70e6b4b9">
+  <meta name="build-version" content="20260809150904_7ac733b5">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -399,7 +399,29 @@
                 + '<h2 class="text-xl md:text-2xl font-black text-slate-900 mb-3">HOHO PLAY 소개</h2>'
                 + '<p class="text-base md:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">HOHO PLAY은 설치의 번거로움과 복잡한 가입 절차를 완전히 제거했습니다. 브라우저 기술의 한계를 시험하며, 단순한 도구 모음 이상의 고품질 웹 게임 라이브러리를 구축하고 있습니다. 누구나 링크 하나로 즉시 게임을 시작할 수 있습니다.</p><div class="flex flex-wrap justify-center gap-3 mt-6 max-w-3xl mx-auto"><div class="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2.5 border border-slate-100 text-left"><span class="text-lg">⚡</span><div><div class="font-bold text-slate-700 text-sm">Lightning Fast</div><div class="text-slate-400 text-xs">최적화된 엔진으로 어떤 환경에서도 즉시 로딩됩니다.</div></div></div><div class="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2.5 border border-slate-100 text-left"><span class="text-lg">🛡</span><div><div class="font-bold text-slate-700 text-sm">Privacy First</div><div class="text-slate-400 text-xs">사용자 데이터를 서버에 저장하지 않아 안전합니다.</div></div></div><div class="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2.5 border border-slate-100 text-left"><span class="text-lg">🎮</span><div><div class="font-bold text-slate-700 text-sm">No Login</div><div class="text-slate-400 text-xs">회원가입 없이 바로 플레이. 기억해야 할 비밀번호가 없습니다.</div></div></div><div class="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2.5 border border-slate-100 text-left"><span class="text-lg">🔮</span><div><div class="font-bold text-slate-700 text-sm">무료 운세</div><div class="text-slate-400 text-xs">타로, 사주, 별자리 운세 서비스도 함께 제공합니다.</div></div></div></div>'
                 + '</section>'
+                + '<section style="margin-bottom:24px;text-align:center;">'
+                + '<div class="text-sm font-bold text-slate-400 mb-3">🔗 이 사이트를 친구에게 공유해보세요</div>'
+                + '<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">'
+                    + '<button onclick="mainSnsShare(\'facebook\')" aria-label="페이스북 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">f</button>'
+                    + '<button onclick="mainSnsShare(\'x\')" aria-label="X 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">X</button>'
+                    + '<button onclick="mainSnsShare(\'naver\')" aria-label="네이버 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">N</button>'
+                    + '<button onclick="mainSnsShare(\'band\')" aria-label="밴드 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">밴드</button>'
+                    + '<button onclick="mainSnsShare(\'line\')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>'
+                + '</div>'
+                + '</section>'
                 + '</div>';
+        }
+
+        function mainSnsShare(type) {
+            var url = encodeURIComponent(location.origin + '/');
+            var text = encodeURIComponent('로그인 없이 바로 즐기는 웹게임과 운세, HOHO PLAY');
+            var shareUrl = '';
+            if (type === 'facebook') shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
+            else if (type === 'x') shareUrl = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + text;
+            else if (type === 'naver') shareUrl = 'https://share.naver.com/web/shareView?url=' + url + '&title=' + text;
+            else if (type === 'band') shareUrl = 'https://www.band.us/plugin/share?body=' + text + '&route=' + url;
+            else if (type === 'line') shareUrl = 'https://social-plugins.line.me/lineit/share?url=' + url;
+            if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=500');
         }
 
         // ═══════════════════════════════
