@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260810055114_98014cf5">
+  <meta name="build-version" content="20260810060535_42894a28">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -470,7 +470,7 @@
                 +     'if(!tokens.length)tokens=[lq];'
                 +     'function tokenHits(text,token){'
                 +       'if(!text)return false;'
-                +       'var minN=Math.max(2,Math.ceil(token.length*0.6));'+'for(var n=token.length;n>=minN;n--){'
+                +       'var minN=Math.min(token.length,Math.max(3,Math.ceil(token.length*0.7)));'+'for(var n=token.length;n>=minN;n--){'
                 +         'if(text.indexOf(token.slice(0,n))!==-1)return true;'
                 +       '}'
                 +       'return false;'
