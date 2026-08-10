@@ -5467,14 +5467,18 @@ ${info.usage}`;
                 c.innerHTML = buildMbtiTarotUI();
                 // ── STEP1/STEP2는 사용자가 직접 고르도록 그대로 두고, 별도 샘플 영역만 실제 엔진으로 계산 ──
                 (async function(){
+                    _mtSampleActive = true;
                     _mbtiTarotMbti = 'INTJ';
                     _mbtiTarotQ = '연애와 관계';
                     await mbtiTarotDraw();
                     var _resultEl = document.getElementById('mbti-tarot-result');
                     var _sampleEl = document.getElementById('mbti-tarot-sample-content');
                     if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
-                    _mbtiTarotMbti = null;
-                    _mbtiTarotQ = null;
+                    // 그 사이 사용자가 이미 직접 선택을 시작했다면(플래그가 꺼졌다면) 그 선택을 덮어쓰지 않음
+                    if(_mtSampleActive){
+                        _mbtiTarotMbti = null;
+                        _mbtiTarotQ = null;
+                    }
                 })();
             }
 
@@ -5483,14 +5487,17 @@ ${info.usage}`;
                 buildMbtiDreamUI().then(async function(html){
                     c.innerHTML = html;
                     // ── STEP1/STEP2는 사용자가 직접 고르도록 그대로 두고, 별도 샘플 영역만 실제 엔진으로 계산 ──
+                    _mdSampleActive = true;
                     _mbtiDreamMbti = 'INTJ';
                     _mbtiDreamKeyword = '하늘';
                     await mbtiDreamInterpret();
                     var _resultEl = document.getElementById('mbti-dream-result');
                     var _sampleEl = document.getElementById('mbti-dream-sample-content');
                     if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
-                    _mbtiDreamMbti = null;
-                    _mbtiDreamKeyword = null;
+                    if(_mdSampleActive){
+                        _mbtiDreamMbti = null;
+                        _mbtiDreamKeyword = null;
+                    }
                 });
             }
 
@@ -5886,8 +5893,10 @@ ${info.usage}`;
 
     // ─── MBTI+타로 로직 ───
     var _mbtiTarotMbti = null, _mbtiTarotQ = null;
+    var _mtSampleActive = false; // 샘플 자동생성이 아직 상태변수를 쓰고 있는 중인지(사용자가 실제로 선택하면 false로 꺼짐)
 
     function mbtiTarotSelectMbti(mbti) {
+        _mtSampleActive = false; // 사용자가 직접 선택 — 이후 샘플 정리 루틴이 이 값을 덮어쓰지 않도록 함
         _mbtiTarotMbti = mbti;
         // 버튼 하이라이트
         Object.keys(MBTI_DATA).forEach(function(t) {
@@ -5910,6 +5919,7 @@ ${info.usage}`;
     }
 
     function mbtiTarotSelectQ(q, btn) {
+        _mtSampleActive = false; // 사용자가 직접 선택
         _mbtiTarotQ = q;
         document.querySelectorAll('#mbti-tarot-step2 .tarot-q-btn').forEach(function(b){ b.classList.remove('tq-active'); });
         if(btn) btn.classList.add('tq-active');
@@ -5918,6 +5928,7 @@ ${info.usage}`;
     }
 
     function mbtiTarotApplyCustomQ() {
+        _mtSampleActive = false; // 사용자가 직접 입력
         var v = document.getElementById('mbti-tarot-custom-q').value.trim();
         if(!v) return;
         _mbtiTarotQ = v;
@@ -6439,8 +6450,10 @@ ${info.usage}`;
 
     // ─── MBTI+꿈해몽 로직 ───
     var _mbtiDreamMbti = null, _mbtiDreamKeyword = null;
+    var _mdSampleActive = false;
 
     function mbtiDreamSelectMbti(mbti) {
+        _mdSampleActive = false;
         _mbtiDreamMbti = mbti;
         Object.keys(MBTI_DATA).forEach(function(t) {
             var btn = document.getElementById('mbti-btn-' + t);
@@ -6462,6 +6475,7 @@ ${info.usage}`;
     }
 
     function mbtiDreamSelectKeyword(kw, btn) {
+        _mdSampleActive = false;
         _mbtiDreamKeyword = kw;
         document.querySelectorAll('#mbti-dream-step2 .tarot-q-btn').forEach(function(b){ b.classList.remove('tq-active'); });
         if(btn) btn.classList.add('tq-active');
@@ -6470,6 +6484,7 @@ ${info.usage}`;
     }
 
     function mbtiDreamApplyCustom() {
+        _mdSampleActive = false;
         var v = document.getElementById('mbti-dream-custom').value.trim();
         if(!v) return;
         _mbtiDreamKeyword = v;
@@ -6815,14 +6830,17 @@ ${info.usage}`;
             c.innerHTML = '<div style="text-align:center;padding:40px;color:#9b8fb0">⏳ 초기화 중...</div>';
             buildMbtiDreamUI().then(async function(html){
                 c.innerHTML = html;
+                _mdSampleActive = true;
                 _mbtiDreamMbti = 'INTJ';
                 _mbtiDreamKeyword = '하늘';
                 await mbtiDreamInterpret();
                 var _resultEl = document.getElementById('mbti-dream-result');
                 var _sampleEl = document.getElementById('mbti-dream-sample-content');
                 if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
-                _mbtiDreamMbti = null;
-                _mbtiDreamKeyword = null;
+                if(_mdSampleActive){
+                    _mbtiDreamMbti = null;
+                    _mbtiDreamKeyword = null;
+                }
                 // UI 재구성 완료 후 상단 스크롤
                 setTimeout(function(){
                     c.scrollIntoView({behavior:'smooth', block:'start'});
@@ -6838,14 +6856,17 @@ ${info.usage}`;
         if (c) {
             c.innerHTML = buildMbtiTarotUI();
             (async function(){
+                _mtSampleActive = true;
                 _mbtiTarotMbti = 'INTJ';
                 _mbtiTarotQ = '연애와 관계';
                 await mbtiTarotDraw();
                 var _resultEl = document.getElementById('mbti-tarot-result');
                 var _sampleEl = document.getElementById('mbti-tarot-sample-content');
                 if(_sampleEl && _resultEl){ _sampleEl.innerHTML = _resultEl.innerHTML; _resultEl.innerHTML = ''; }
-                _mbtiTarotMbti = null;
-                _mbtiTarotQ = null;
+                if(_mtSampleActive){
+                    _mbtiTarotMbti = null;
+                    _mbtiTarotQ = null;
+                }
             })();
             setTimeout(function(){
                 c.scrollIntoView({behavior:'smooth', block:'start'});
@@ -7029,6 +7050,7 @@ ${info.usage}`;
     let tDrawnCards = [];
     let tRevealedCount = 0;
     let _tSkipScroll = false;
+    let _tSampleActive = false;
 
     // 카드별 이모지 매핑
     const TAROT_EMOJI = {
@@ -7111,6 +7133,7 @@ ${info.usage}`;
       tRevealedCount = 0;
       renderTarotUI();
       // ── 인터랙티브 영역은 미선택 상태로 두고, 별도 샘플 영역에만 실제 엔진으로 계산한 고정 예시 결과 생성 ──
+      _tSampleActive = true;
       tQuestion = '연애와 관계';
       _tSkipScroll = true;
       const _drawBtn = document.getElementById('tarot-draw-btn');
@@ -7124,11 +7147,14 @@ ${info.usage}`;
       if(_sampleEl){
         _sampleEl.innerHTML = '<div class="tarot-cards-row">' + (_cardsRow ? _cardsRow.innerHTML : '') + '</div>' + (_resultArea ? _resultArea.innerHTML : '');
       }
-      // 인터랙티브 영역은 완전히 미선택 상태로 리셋
-      tQuestion = '';
-      tDrawnCards = [];
-      tRevealedCount = 0;
-      renderTarotUI();
+      // 그 사이 사용자가 이미 직접 질문을 선택했다면(플래그가 꺼졌다면), 인터랙티브 영역을
+      // 리셋·재렌더링하면 사용자의 진행 상황을 덮어써버리므로 이 블록 전체를 건너뜀
+      if(_tSampleActive){
+        tQuestion = '';
+        tDrawnCards = [];
+        tRevealedCount = 0;
+        renderTarotUI();
+      }
     }
 
     // 타로 UI 렌더링
@@ -7162,6 +7188,7 @@ ${info.usage}`;
     }
 
     function tSelectQ(q, btn) {
+      _tSampleActive = false; // 사용자가 직접 선택
       tQuestion = q;
       document.querySelectorAll('.tarot-q-btn').forEach(b=>b.classList.remove('tq-active'));
       btn.classList.add('tq-active');
@@ -7170,6 +7197,7 @@ ${info.usage}`;
     }
 
     function tApplyCustomQ() {
+      _tSampleActive = false; // 사용자가 직접 입력
       const v = document.getElementById('tarot-custom-q').value.trim();
       if(!v) return;
       tQuestion = v;
