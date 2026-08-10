@@ -811,6 +811,13 @@
         }
 
         async function navigateTo(page) {
+            // [FIX] 어떤 경로로 navigateTo가 호출되든, 모바일 메뉴 오버레이가
+            // 열려있었다면 페이지 전환 시 항상 닫아 잔존을 방지(안전장치)
+            const _moMenu = document.getElementById('mobile-menu');
+            const _moOverlay = document.getElementById('menu-overlay');
+            if (_moMenu) _moMenu.classList.add('hidden');
+            if (_moOverlay) _moOverlay.style.display = 'none';
+
             // ── URL 분리 마이그레이션: 실제 폴더 URL이 있는 페이지는 진짜 이동 ──
             // (about/ 부터 시작, 이후 폴더 만들 때마다 이 목록에 추가)
             const REAL_URL_PAGES = ['index', 'about', 'fortune', 'guide', 'blog', 'terms', 'privacy', 'copyright', 'partner'];
@@ -940,7 +947,21 @@
         }
 
         function mobileNav(page) {
-            toggleMenu();
+            // [FIX] toggleMenu()는 "열림→닫힘/닫힘→열림"을 토글하는 방식이라,
+            // 어떤 이유로든 메뉴가 이미 닫힌 상태에서 호출되면 오히려 다시 열려버려
+            // 화면 전체를 덮는 오버레이(#menu-overlay)가 보이지 않게 남아
+            // 이후 탭 안의 버튼(MBTI 선택 등)을 눌러도 반응이 없는 것처럼 보이는
+            // 원인이 될 수 있음. 토글 대신 항상 "닫힘" 상태로 명시적으로 고정.
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('menu-overlay');
+            const bar1 = document.getElementById('bar1');
+            const bar2 = document.getElementById('bar2');
+            const bar3 = document.getElementById('bar3');
+            if (menu) menu.classList.add('hidden');
+            if (overlay) overlay.style.display = 'none';
+            if (bar1) bar1.style.transform = '';
+            if (bar2) bar2.style.opacity = '1';
+            if (bar3) bar3.style.transform = '';
             navigateTo(page);
         }
 
