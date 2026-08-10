@@ -469,7 +469,7 @@
                 +     'if(!tokens.length)tokens=[lq];'
                 +     'function tokenHits(text,token){'
                 +       'if(!text)return false;'
-                +       'var minN=Math.max(2,Math.ceil(token.length*0.6));'+'for(var n=token.length;n>=minN;n--){'
+                +       'var minN=Math.min(token.length,Math.max(3,Math.ceil(token.length*0.7)));'+'for(var n=token.length;n>=minN;n--){'
                 +         'if(text.indexOf(token.slice(0,n))!==-1)return true;'
                 +       '}'
                 +       'return false;'
