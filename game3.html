@@ -2784,9 +2784,18 @@
                 </div>
             <script>
                 function toggleAccordion(key) {
+                    const keys = ['desc','guide','tips','info'];
                     const panel = document.getElementById('panel-' + key);
                     const icon = document.getElementById('icon-' + key);
                     const isHidden = panel.classList.contains('hidden');
+                    // 한 번에 하나만 열리도록 — 새로 여는 섹션 말고는 전부 닫기
+                    keys.forEach(function(k){
+                        if (k === key) return;
+                        const p = document.getElementById('panel-' + k);
+                        const ic = document.getElementById('icon-' + k);
+                        if (p) p.classList.add('hidden');
+                        if (ic) { ic.classList.remove('rotate-180', 'text-indigo-600'); ic.classList.add('text-slate-400'); }
+                    });
                     if (isHidden) {
                         panel.classList.remove('hidden');
                         icon.classList.add('rotate-180', 'text-indigo-600');
