@@ -2136,12 +2136,8 @@ window._showRetryAd = _showRetryAd;
 
             <!-- 탭 패널 -->
             <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-                <div class="">
-                    <button onclick="toggleAccordion('desc')" id="tab-desc" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
-                        <span>📖 게임 설명</span>
-                        <svg id="icon-desc" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 rotate-180 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div id="panel-desc" class="acc-panel px-8 md:px-10 pb-10">
+                <div class="flex border-b border-slate-100" style="position:sticky;top:0;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
+                <div id="desc" class="p-10" style="scroll-margin-top:70px;">
 <div>
 <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
 <p class="text-slate-600 text-xl leading-relaxed font-medium">
@@ -2169,14 +2165,8 @@ window._showRetryAd = _showRetryAd;
 </div>
 </div>
 </details>
-                    </div>
                 </div>
-                <div class="border-t border-slate-100">
-                    <button onclick="toggleAccordion('guide')" id="tab-guide" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
-                        <span>🎮 조작 가이드</span>
-                        <svg id="icon-guide" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div id="panel-guide" class="acc-panel px-8 md:px-10 pb-10 hidden">
+                <div id="guide" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
                         인접한 젤리들을 드래그로 이어서, 선택한 숫자의 합이 정확히 7이 되면 마법진이 완성되어 터집니다. 합이 7을 넘거나 유효한 조합이 없으면 판이 자동으로 섞입니다.
                     </p>
@@ -2206,14 +2196,8 @@ window._showRetryAd = _showRetryAd;
 <span class="font-bold text-slate-600">번갈아 연결, 10분 후 높은 점수 승리</span>
 </div>
 </div>
-                    </div>
                 </div>
-                <div class="border-t border-slate-100">
-                    <button onclick="toggleAccordion('tips')" id="tab-tips" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
-                        <span>💡 공략 & FAQ</span>
-                        <svg id="icon-tips" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div id="panel-tips" class="acc-panel px-8 md:px-10 pb-10 hidden">
+                <div id="tips" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="space-y-6">
 <div>
 <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
@@ -2237,45 +2221,22 @@ window._showRetryAd = _showRetryAd;
 </div>
 </div>
 </div>
-                    </div>
                 </div>
-                <div class="border-t border-slate-100">
-                    <button onclick="toggleAccordion('info')" id="tab-info" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
-                        <span>ℹ️ 시스템 정보</span>
-                        <svg id="icon-info" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div id="panel-info" class="acc-panel px-8 md:px-10 pb-10 hidden">
+                <div id="info" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div>
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.1.0</p></div>
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
 </div>
-                    </div>
                 </div>
+            </div>
             <script>
-                function toggleAccordion(key) {
-                    const keys = ['desc','guide','tips','info'];
-                    const panel = document.getElementById('panel-' + key);
-                    const icon = document.getElementById('icon-' + key);
-                    const isHidden = panel.classList.contains('hidden');
-                    // 한 번에 하나만 열리도록 — 새로 여는 섹션 말고는 전부 닫기
-                    keys.forEach(function(k){
-                        if (k === key) return;
-                        const p = document.getElementById('panel-' + k);
-                        const ic = document.getElementById('icon-' + k);
-                        if (p) p.classList.add('hidden');
-                        if (ic) { ic.classList.remove('rotate-180', 'text-indigo-600'); ic.classList.add('text-slate-400'); }
-                    });
-                    if (isHidden) {
-                        panel.classList.remove('hidden');
-                        icon.classList.add('rotate-180', 'text-indigo-600');
-                        icon.classList.remove('text-slate-400');
-                    } else {
-                        panel.classList.add('hidden');
-                        icon.classList.remove('rotate-180', 'text-indigo-600');
-                        icon.classList.add('text-slate-400');
-                    }
+                document.documentElement.style.scrollBehavior = 'smooth';
+                function gameNavScroll(key) {
+                    const el = document.getElementById(key);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return false;
                 }
             </script>
 
