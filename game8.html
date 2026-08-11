@@ -1955,12 +1955,12 @@ function _showRetryAd(actualFn){
   ov2.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
   ov2.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
     +'<span style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.08em;background:#e2e8f0;padding:2px 8px;border-radius:5px">AD</span>'
-    +'<!-- 애드센스 활성화 시 아래 ins 태그의 주석 해제 후 Slot ID 입력 -->'
-    +'<!--\n<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle=window.adsbygoogle||[]).push({});<\/script>\n-->'
+    +'<!-- 게임 재시작 광고 --><ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="ca-pub-7990191075290055" data-ad-slot="8741532582" data-ad-format="auto" data-full-width-responsive="true"></ins>'
     +'<div style="width:22px;height:22px;border:3px solid #e2e8f0;border-top-color:#f472b6;border-radius:50%;animation:_adspin .8s linear infinite"></div>'
     +'<span style="font-size:12px;color:#64748b;font-weight:600">불러오는 중...</span>'
     +'</div>';
   document.body.appendChild(ov2);
+  try{ (window.adsbygoogle = window.adsbygoogle || []).push({}); }catch(e){}
   setTimeout(function(){ ov2.remove(); actualFn(); },1200);
 }
 if(!document.getElementById('_adspin-style')){
@@ -2161,6 +2161,10 @@ window._showRetryAd = _showRetryAd;
                         <p class="text-slate-600 text-xl leading-relaxed font-medium">
                             마법 결정을 드래그로 연결해서 합이 7이 되는 마법진을 만들면 터지는 퍼즐 게임이다. 숫자 조합을 계산하면서 동시에 손을 빠르게 움직여야 해서, 두뇌 퍼즐과 순발력이 같이 필요한 편이다.
                         </p>
+                    </div>
+                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
+                        <div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
+                        <div style="color:#78716c;font-size:14px;line-height:1.7">숫자 계산하면서 손도 빨라야 해서 생각보다 집중력이 필요해요. 10분 제한이라 짧게 끊어서 하기 좋아요.</div>
                     </div>
                     <details class="mt-5">
                         <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
