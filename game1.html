@@ -3986,154 +3986,153 @@
             <!-- 탭 구조 -->
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
                 <!-- 탭 버튼 -->
-                <div class="flex border-b border-slate-100">
-                    <button onclick="switchTab('desc')" id="tab-desc"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-indigo-600 text-indigo-600">
-                        게임 설명
+                <div class="">
+                    <button onclick="toggleAccordion('desc')" id="tab-desc" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>📖 게임 설명</span>
+                        <svg id="icon-desc" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 rotate-180 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <button onclick="switchTab('guide')" id="tab-guide"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        조작 가이드
-                    </button>
-                    <button onclick="switchTab('tips')" id="tab-tips"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        공략 &amp; FAQ
-                    </button>
-                    <button onclick="switchTab('info')" id="tab-info"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        시스템 정보
-                    </button>
-                </div>
-
-                <!-- 탭 내용: 게임 설명 -->
-                <div id="panel-desc" class="tab-panel p-10">
-                    <div>
-                        <h3 class="font-black text-lg text-slate-800 mb-3">🗡️ 어떤 게임인가</h3>
-                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                    <div id="panel-desc" class="acc-panel px-8 md:px-10 pb-10">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">🗡️ 어떤 게임인가</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                             숲을 탐험하며 몬스터를 타이핑으로 물리치는 액션 RPG다. 방향키로 이동하면서 화면에 뜬 단어를 정확히 입력하면 가장 가까운 몬스터를 공격하는 방식이라, 이동과 타이핑을 동시에 처리해야 하는 게 이 게임의 핵심이다.
                         </p>
-                    </div>
-                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
-                        <div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
-                        <div style="color:#78716c;font-size:14px;line-height:1.7">타자 연습용으로 만들었는데, 막상 해보니 그냥 게임으로도 재밌더라고요. 궁수보다 마법사가 초반엔 좀 더 편해요.</div>
-                    </div>
-                    <details class="mt-5">
-                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
-                        <div class="mt-5 space-y-6">
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800 mb-3">🌿 플레이 포인트</h3>
-                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+</div>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
+<div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
+<div style="color:#78716c;font-size:14px;line-height:1.7">타자 연습용으로 만들었는데, 막상 해보니 그냥 게임으로도 재밌더라고요. 궁수보다 마법사가 초반엔 좀 더 편해요.</div>
+</div>
+<details class="mt-5">
+<summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+<div class="mt-5 space-y-6">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">🌿 플레이 포인트</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                                     레벨업할 때마다 공격속도나 사거리 같은 스킬을 골라 캐릭터를 키워나가고, 맵 곳곳에 흩어진 비석을 정화하면 속담 완성 퀴즈가 별도로 뜬다. 비석을 정화하는 동안엔 몬스터가 멈추기 때문에 부담 없이 퀴즈에 집중할 수 있고, 웨이브를 진행할수록 계절이 바뀌면서 배경도 함께 달라진다. 다만 초반 몇 웨이브는 몬스터 수가 적어 다소 루즈하게 느껴질 수 있다.
                                 </p>
-                            </div>
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
-                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+</div>
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                                     타이핑 연습을 게임처럼 가볍게 하고 싶은 사람, 손을 바쁘게 움직이며 몰입하는 걸 좋아하는 사람에게 잘 맞는다.
                                 </p>
-                            </div>
-                        </div>
-                    </details>
+</div>
+</div>
+</details>
+                    </div>
                 </div>
-
-                <!-- 탭 내용: 조작 가이드 -->
-                <div id="panel-guide" class="tab-panel p-10 hidden">
-                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-2">
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('guide')" id="tab-guide" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>🎮 조작 가이드</span>
+                        <svg id="icon-guide" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-guide" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<p class="text-slate-600 text-lg leading-relaxed font-medium mb-2">
                         방향키로 이동하면서도 동시에 타이핑할 수 있습니다.
                     </p>
-                    <details class="mb-8">
-                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
-                        <p class="text-slate-600 text-lg leading-relaxed font-medium mt-3">
+<details class="mb-8">
+<summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+<p class="text-slate-600 text-lg leading-relaxed font-medium mt-3">
                             화면에 뜬 단어를 정확히 입력하면 가장 가까운 몬스터가 자동으로 공격 대상이 됩니다.
                             레벨업 시 <b class="text-indigo-600">Z</b> 또는 <b class="text-indigo-600">X</b> 키로 스킬을 선택해 캐릭터를 성장시키고, 조합 중 실수했을 땐 <b class="text-indigo-600">Esc</b>로 입력을 바로 취소할 수 있습니다.
                         </p>
-                    </details>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">이동 조작</span>
-                            <div class="flex flex-col items-center gap-1">
-                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">↑</kbd>
-                                <div class="flex gap-1">
-                                    <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">←</kbd>
-                                    <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">↓</kbd>
-                                    <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">→</kbd>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">스킬</span>
-                            <div class="flex gap-2 items-center">
-                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">z</kbd>
-                                <span class="text-slate-400">또는</span>
-                                <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">x</kbd>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">테스트 취소</span>
-                            <kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">Esc</kbd>
-                        </div>
+</details>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">이동 조작</span>
+<div class="flex flex-col items-center gap-1">
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">↑</kbd>
+<div class="flex gap-1">
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">←</kbd>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">↓</kbd>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-lg">→</kbd>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">스킬</span>
+<div class="flex gap-2 items-center">
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">z</kbd>
+<span class="text-slate-400">또는</span>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">x</kbd>
+</div>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">테스트 취소</span>
+<kbd class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-black shadow">Esc</kbd>
+</div>
+</div>
                     </div>
                 </div>
-
-                <!-- 탭 내용: 공략 & FAQ -->
-                <div id="panel-tips" class="tab-panel p-10 hidden">
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
-                            <p class="text-slate-600 text-lg leading-relaxed font-medium">
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('tips')" id="tab-tips" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>💡 공략 & FAQ</span>
+                        <svg id="icon-tips" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-tips" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<div class="space-y-6">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+<p class="text-slate-600 text-lg leading-relaxed font-medium">
                                 초반엔 <b class="text-indigo-600">공격속도 스킬</b>을 우선 찍으면 몬스터 처치 속도가 눈에 띄게 빨라집니다.
                             </p>
-                            <details class="mt-2">
-                                <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
-                                <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside mt-3">
-                                    <li>비석을 정화하는 동안엔 몬스터가 일시 정지되니, 안전하게 속담 퀴즈에 집중할 수 있습니다.</li>
-                                    <li>HP는 3칸에서 시작해 최대 12칸까지 성장하므로, 초반엔 몬스터와 거리를 유지하는 게 중요합니다.</li>
-                                    <li>궁수는 이동속도가 빠르고, 마법사는 투사체가 느린 대신 강력합니다 — 플레이 스타일에 맞게 선택하세요.</li>
-                                </ul>
-                            </details>
-                        </div>
-                        <div>
-                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
-                            <div class="space-y-4">
-                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="font-black text-slate-800 mb-1">Q. 저장은 어떻게 하나요?</p>
-                                    <p class="text-slate-600">게임 중 "저장하기" 버튼을 누르면 되고, 시작 화면의 "이어하기"로 불러올 수 있습니다.</p>
-                                </div>
-                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="font-black text-slate-800 mb-1">Q. 타자를 잘 못 쳐도 할 수 있나요?</p>
-                                    <p class="text-slate-600">네, 몬스터가 화면 밖에서 천천히 다가오는 구조라 여유 있게 입력할 수 있습니다.</p>
-                                </div>
-                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="font-black text-slate-800 mb-1">Q. 모바일에서도 플레이할 수 있나요?</p>
-                                    <p class="text-slate-600">네, 다만 타이핑 조작 특성상 키보드가 있는 PC 환경에서 가장 원활하게 즐기실 수 있습니다.</p>
-                                </div>
-                            </div>
-                        </div>
+<details class="mt-2">
+<summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+<ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside mt-3">
+<li>비석을 정화하는 동안엔 몬스터가 일시 정지되니, 안전하게 속담 퀴즈에 집중할 수 있습니다.</li>
+<li>HP는 3칸에서 시작해 최대 12칸까지 성장하므로, 초반엔 몬스터와 거리를 유지하는 게 중요합니다.</li>
+<li>궁수는 이동속도가 빠르고, 마법사는 투사체가 느린 대신 강력합니다 — 플레이 스타일에 맞게 선택하세요.</li>
+</ul>
+</details>
+</div>
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+<div class="space-y-4">
+<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1">Q. 저장은 어떻게 하나요?</p>
+<p class="text-slate-600">게임 중 "저장하기" 버튼을 누르면 되고, 시작 화면의 "이어하기"로 불러올 수 있습니다.</p>
+</div>
+<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1">Q. 타자를 잘 못 쳐도 할 수 있나요?</p>
+<p class="text-slate-600">네, 몬스터가 화면 밖에서 천천히 다가오는 구조라 여유 있게 입력할 수 있습니다.</p>
+</div>
+<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1">Q. 모바일에서도 플레이할 수 있나요?</p>
+<p class="text-slate-600">네, 다만 타이핑 조작 특성상 키보드가 있는 PC 환경에서 가장 원활하게 즐기실 수 있습니다.</p>
+</div>
+</div>
+</div>
+</div>
                     </div>
                 </div>
-
-                <!-- 탭 내용: 시스템 정보 -->
-                <div id="panel-info" class="tab-panel p-10 hidden">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 / 자바스크립트</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('info')" id="tab-info" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>ℹ️ 시스템 정보</span>
+                        <svg id="icon-info" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-info" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 / 자바스크립트</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+</div>
                     </div>
                 </div>
-            </div>
-
             <script>
-                function switchTab(tab) {
-                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
-                    document.querySelectorAll('.tab-btn').forEach(b => {
-                        b.classList.remove('border-indigo-600', 'text-indigo-600');
-                        b.classList.add('border-transparent', 'text-slate-400');
-                    });
-                    document.getElementById('panel-' + tab).classList.remove('hidden');
-                    const btn = document.getElementById('tab-' + tab);
-                    btn.classList.add('border-indigo-600', 'text-indigo-600');
-                    btn.classList.remove('border-transparent', 'text-slate-400');
+                function toggleAccordion(key) {
+                    const panel = document.getElementById('panel-' + key);
+                    const icon = document.getElementById('icon-' + key);
+                    const isHidden = panel.classList.contains('hidden');
+                    if (isHidden) {
+                        panel.classList.remove('hidden');
+                        icon.classList.add('rotate-180', 'text-indigo-600');
+                        icon.classList.remove('text-slate-400');
+                    } else {
+                        panel.classList.add('hidden');
+                        icon.classList.remove('rotate-180', 'text-indigo-600');
+                        icon.classList.add('text-slate-400');
+                    }
                 }
             </script>
 

@@ -2752,131 +2752,133 @@
 
             <!-- 탭 패널 -->
             <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-                <div class="flex border-b border-slate-100">
-                    <button onclick="switchTab('desc')" id="tab-desc"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-indigo-600 text-indigo-600">
-                        게임 설명
+                <div class="">
+                    <button onclick="toggleAccordion('desc')" id="tab-desc" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>📖 게임 설명</span>
+                        <svg id="icon-desc" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 rotate-180 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <button onclick="switchTab('guide')" id="tab-guide"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        조작 가이드
-                    </button>
-                    <button onclick="switchTab('tips')" id="tab-tips"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        공략 &amp; FAQ
-                    </button>
-                    <button onclick="switchTab('info')" id="tab-info"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        시스템 정보
-                    </button>
-                </div>
-
-                <div id="panel-desc" class="tab-panel p-10">
-                    <div>
-                        <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
-                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                    <div id="panel-desc" class="acc-panel px-8 md:px-10 pb-10">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                             AI와 실시간으로 타일을 연결해 없애는 대결형 사천성이다. 혼자 하는 퍼즐이 아니라 AI 상대와 동시에 진행하는 방식이라, 일반 사천성보다 훨씬 긴박하게 흘러간다.
                         </p>
-                    </div>
-                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
-                        <div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
-                        <div style="color:#78716c;font-size:14px;line-height:1.7">AI랑 동시에 진행되다 보니 혼자 할 때보다 훨씬 긴장돼요. 여유 있게 하려다가 매번 서두르게 되더라고요.</div>
-                    </div>
-                    <details class="mt-5">
-                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
-                        <div class="mt-5 space-y-6">
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
-                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+</div>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
+<div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
+<div style="color:#78716c;font-size:14px;line-height:1.7">AI랑 동시에 진행되다 보니 혼자 할 때보다 훨씬 긴장돼요. 여유 있게 하려다가 매번 서두르게 되더라고요.</div>
+</div>
+<details class="mt-5">
+<summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+<div class="mt-5 space-y-6">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                                     총 20단계의 봉인 스테이지를 거치면서 난이도가 점점 올라가고, 🔍 통찰(연결 가능한 쌍 표시)이나 🌀 결계재편(남은 타일 재배치) 같은 아이템을 상황에 맞게 써서 불리한 판을 뒤집을 수 있다. 연속으로 타일을 연결하면 🔥 피버 결계가 자동 발동해 파괴력이 올라가서, 이 흐름을 얼마나 길게 이어가느냐가 승부를 가른다. 다만 AI가 실시간으로 같이 움직이는 구조라, 느긋하게 생각할 여유는 별로 없는 편이다.
                                 </p>
-                            </div>
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
-                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+</div>
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                                     전형적인 사천성의 여유로운 템포보다는, 시간 압박 속에서 빠르게 판단하는 긴장감을 즐기고 싶은 사람에게 맞는다.
                                 </p>
-                            </div>
-                        </div>
-                    </details>
+</div>
+</div>
+</details>
+                    </div>
                 </div>
-
-                <div id="panel-guide" class="tab-panel p-10 hidden">
-                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('guide')" id="tab-guide" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>🎮 조작 가이드</span>
+                        <svg id="icon-guide" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-guide" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
                         같은 그림의 타일 두 개를 클릭해서 연결하면 사라집니다. 직선으로, 또는 최대 2번까지 꺾어서 연결할 수 있는 경로만 유효합니다.
                     </p>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">봉인 연결</span>
-                            <span class="font-bold text-slate-600">같은 타일 두 개 클릭</span>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">연결 조건</span>
-                            <span class="font-bold text-slate-600">직선 또는 2번 꺾어서 연결 가능</span>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">통찰</span>
-                            <span class="font-bold text-slate-600">🔍 통찰 — 연결 가능한 쌍 표시</span>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">결계재편</span>
-                            <span class="font-bold text-slate-600">🌀 결계재편 — 남은 타일 위치 재배치</span>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">🔥 피버 결계</span>
-                            <span class="font-bold text-slate-600">연속 연결 시 자동 발동, 결계 파괴력 증가</span>
-                        </div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">봉인 연결</span>
+<span class="font-bold text-slate-600">같은 타일 두 개 클릭</span>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">연결 조건</span>
+<span class="font-bold text-slate-600">직선 또는 2번 꺾어서 연결 가능</span>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">통찰</span>
+<span class="font-bold text-slate-600">🔍 통찰 — 연결 가능한 쌍 표시</span>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">결계재편</span>
+<span class="font-bold text-slate-600">🌀 결계재편 — 남은 타일 위치 재배치</span>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">🔥 피버 결계</span>
+<span class="font-bold text-slate-600">연속 연결 시 자동 발동, 결계 파괴력 증가</span>
+</div>
+</div>
                     </div>
                 </div>
-
-                <!-- 탭 내용: 공략 & FAQ -->
-                <div id="panel-tips" class="tab-panel p-10 hidden">
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
-                            <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
-                                <li>통찰은 정말 막힐 때만 아껴 쓰는 게 좋습니다 — 초반부터 남발하면 후반 어려운 구간에서 곤란해질 수 있습니다.</li>
-                                <li>연속 연결(피버 결계)을 끊기지 않게 유지하는 것만으로도 체감 난이도가 크게 낮아집니다.</li>
-                                <li>결계재편은 판이 완전히 막혔을 때 쓰는 최후의 수단으로 남겨두는 걸 추천합니다.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
-                            <div class="space-y-4">
-                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="font-black text-slate-800 mb-1">Q. AI가 너무 빨라서 못 따라가겠어요.</p>
-                                    <p class="text-slate-600">초반 스테이지일수록 AI 속도가 느리게 설정되어 있으니, 낮은 단계부터 차근차근 감을 익히시는 걸 추천합니다.</p>
-                                </div>
-                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="font-black text-slate-800 mb-1">Q. 아이템은 어떻게 얻나요?</p>
-                                    <p class="text-slate-600">스테이지를 진행하면서 자연스럽게 통찰과 결계재편 아이템을 획득하게 됩니다.</p>
-                                </div>
-                            </div>
-                        </div>
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('tips')" id="tab-tips" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>💡 공략 & FAQ</span>
+                        <svg id="icon-tips" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-tips" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<div class="space-y-6">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+<ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
+<li>통찰은 정말 막힐 때만 아껴 쓰는 게 좋습니다 — 초반부터 남발하면 후반 어려운 구간에서 곤란해질 수 있습니다.</li>
+<li>연속 연결(피버 결계)을 끊기지 않게 유지하는 것만으로도 체감 난이도가 크게 낮아집니다.</li>
+<li>결계재편은 판이 완전히 막혔을 때 쓰는 최후의 수단으로 남겨두는 걸 추천합니다.</li>
+</ul>
+</div>
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+<div class="space-y-4">
+<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1">Q. AI가 너무 빨라서 못 따라가겠어요.</p>
+<p class="text-slate-600">초반 스테이지일수록 AI 속도가 느리게 설정되어 있으니, 낮은 단계부터 차근차근 감을 익히시는 걸 추천합니다.</p>
+</div>
+<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1">Q. 아이템은 어떻게 얻나요?</p>
+<p class="text-slate-600">스테이지를 진행하면서 자연스럽게 통찰과 결계재편 아이템을 획득하게 됩니다.</p>
+</div>
+</div>
+</div>
+</div>
                     </div>
                 </div>
-
-                <div id="panel-info" class="tab-panel p-10 hidden">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('info')" id="tab-info" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>ℹ️ 시스템 정보</span>
+                        <svg id="icon-info" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-info" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+</div>
                     </div>
                 </div>
-            </div>
-
             <script>
-                function switchTab(tab) {
-                    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
-                    document.querySelectorAll('.tab-btn').forEach(function(b){
-                        b.classList.remove('border-indigo-600', 'text-indigo-600');
-                        b.classList.add('border-transparent', 'text-slate-400');
-                    });
-                    document.getElementById('panel-' + tab).classList.remove('hidden');
-                    var btn = document.getElementById('tab-' + tab);
-                    btn.classList.add('border-indigo-600', 'text-indigo-600');
-                    btn.classList.remove('border-transparent', 'text-slate-400');
+                function toggleAccordion(key) {
+                    const panel = document.getElementById('panel-' + key);
+                    const icon = document.getElementById('icon-' + key);
+                    const isHidden = panel.classList.contains('hidden');
+                    if (isHidden) {
+                        panel.classList.remove('hidden');
+                        icon.classList.add('rotate-180', 'text-indigo-600');
+                        icon.classList.remove('text-slate-400');
+                    } else {
+                        panel.classList.add('hidden');
+                        icon.classList.remove('rotate-180', 'text-indigo-600');
+                        icon.classList.add('text-slate-400');
+                    }
                 }
             </script>
 
