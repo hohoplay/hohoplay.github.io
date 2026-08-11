@@ -2675,136 +2675,136 @@ if (document.readyState === 'loading') {
 
             <!-- 탭 패널 -->
             <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-                <div class="flex border-b border-slate-100">
-                    <button onclick="switchTab('desc')" id="tab-desc"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent" style="border-color:#4f46e5;color:#4f46e5;">
-                        게임 설명
+                <div class="">
+                    <button onclick="toggleAccordion('desc')" id="tab-desc" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>📖 게임 설명</span>
+                        <svg id="icon-desc" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 rotate-180 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <button onclick="switchTab('guide')" id="tab-guide"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        조작 가이드
-                    </button>
-                    <button onclick="switchTab('tips')" id="tab-tips"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        공략 &amp; FAQ
-                    </button>
-                    <button onclick="switchTab('info')" id="tab-info"
-                        class="tab-btn flex-1 py-5 font-black text-base transition-all border-b-4 border-transparent text-slate-400 hover:text-slate-600">
-                        시스템 정보
-                    </button>
-                </div>
-
-                <div id="panel-desc" class="tab-panel p-10">
-                    <div>
-                        <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
-                        <p class="text-slate-600 text-xl leading-relaxed font-medium">
+                    <div id="panel-desc" class="acc-panel px-8 md:px-10 pb-10">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                             좌우 벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션 게임이다. 블루와 레드 두 캐릭터 중 골라 시작하고, 벽에 부딪히는 타이밍을 맞추는 게 핵심 조작이다.
                         </p>
-                    </div>
-                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
-                        <div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
-                        <div style="color:#78716c;font-size:14px;line-height:1.7">벽 튕기는 타이밍 하나가 전부인 게임인데, 그 타이밍 맞추는 게 은근 중독성 있어요.</div>
-                    </div>
-                    <details class="mt-5">
-                        <summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
-                        <div class="mt-5 space-y-6">
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
-                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+</div>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
+<div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
+<div style="color:#78716c;font-size:14px;line-height:1.7">벽 튕기는 타이밍 하나가 전부인 게임인데, 그 타이밍 맞추는 게 은근 중독성 있어요.</div>
+</div>
+<details class="mt-5">
+<summary class="cursor-pointer font-black text-indigo-600 text-base select-none">더보기</summary>
+<div class="mt-5 space-y-6">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">⚡ 플레이 포인트</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                                     블루는 이동속도가 빠르고 레드는 버섯(아이템) 등장 확률이 높아서, 성향에 따라 캐릭터를 골라 시작할 수 있다. 게임오버 후 모은 코인으로 업그레이드 상점에서 능력치를 강화할 수 있어서, 몇 판 반복할수록 점점 더 높이 올라가게 되는 성장 재미가 있다. 피버 아이템을 얻으면 TURBO 모드가 발동되어 7초 동안 무적 상태로 장애물을 그냥 뚫고 지나갈 수 있다.
                                 </p>
-                            </div>
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
-                                <p class="text-slate-600 text-xl leading-relaxed font-medium">
+</div>
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
+<p class="text-slate-600 text-xl leading-relaxed font-medium">
                                     벽 튕기기 특유의 리듬감 있는 조작을 좋아하거나, 코인을 모아 캐릭터를 강화해가는 성장 재미를 원하는 사람에게 잘 맞는다.
                                 </p>
-                            </div>
-                        </div>
-                    </details>
+</div>
+</div>
+</details>
+                    </div>
                 </div>
-
-                <div id="panel-guide" class="tab-panel p-10 hidden">
-                    <p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('guide')" id="tab-guide" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>🎮 조작 가이드</span>
+                        <svg id="icon-guide" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-guide" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
                         좌우 방향키(또는 화면 좌/우 탭)로 벽을 번갈아 차며 위로 올라갑니다. 타이밍이 늦으면 바로 아래로 떨어지니, 벽에 닿기 직전에 반대 방향을 눌러야 합니다.
                     </p>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">PC 점프</span>
-                            <div class="flex gap-2">
-                                <kbd class="w-16 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-sm">←</kbd>
-                                <kbd class="w-16 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-sm">→</kbd>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">모바일 점프</span>
-                            <span class="font-bold text-slate-600">화면 좌/우 탭</span>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">캐릭터 선택</span>
-                            <span class="font-bold text-slate-600">블루(이동속도) / 레드(버섯확률)</span>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">피버(TURBO)</span>
-                            <span class="font-bold text-slate-600">피버 아이템 획득 시 발동, 7초 무적</span>
-                        </div>
-                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span class="font-black text-xl text-slate-800">업그레이드</span>
-                            <span class="font-bold text-slate-600">게임오버 후 코인으로 능력치 강화</span>
-                        </div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">PC 점프</span>
+<div class="flex gap-2">
+<kbd class="w-16 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-sm">←</kbd>
+<kbd class="w-16 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center text-sm">→</kbd>
+</div>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">모바일 점프</span>
+<span class="font-bold text-slate-600">화면 좌/우 탭</span>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">캐릭터 선택</span>
+<span class="font-bold text-slate-600">블루(이동속도) / 레드(버섯확률)</span>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">피버(TURBO)</span>
+<span class="font-bold text-slate-600">피버 아이템 획득 시 발동, 7초 무적</span>
+</div>
+<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-xl text-slate-800">업그레이드</span>
+<span class="font-bold text-slate-600">게임오버 후 코인으로 능력치 강화</span>
+</div>
+</div>
                     </div>
                 </div>
-
-                <!-- 탭 내용: 공략 & FAQ -->
-                <div id="panel-tips" class="tab-panel p-10 hidden">
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
-                            <ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
-                                <li>레드 캐릭터로 버섯(피버 아이템)을 자주 얻어 TURBO를 적극 활용하면 초반 기록을 빠르게 늘릴 수 있습니다.</li>
-                                <li>업그레이드는 이동속도나 점프 관련 능력치부터 강화하면 체감 효과가 가장 큽니다.</li>
-                                <li>벽에 너무 붙어서 튕기려 하지 말고, 살짝 여유를 두고 반대 방향을 누르면 실수가 줄어듭니다.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
-                            <div class="space-y-4">
-                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="font-black text-slate-800 mb-1">Q. 코인은 어디서 확인하나요?</p>
-                                    <p class="text-slate-600">게임오버 화면에서 모은 코인과 업그레이드 상점을 바로 확인할 수 있습니다.</p>
-                                </div>
-                                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="font-black text-slate-800 mb-1">Q. 블루와 레드 중 뭐가 더 좋나요?</p>
-                                    <p class="text-slate-600">우열이 있다기보다 플레이 스타일 차이입니다. 빠른 이동을 원하면 블루, 아이템 활용을 원하면 레드를 추천합니다.</p>
-                                </div>
-                            </div>
-                        </div>
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('tips')" id="tab-tips" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>💡 공략 & FAQ</span>
+                        <svg id="icon-tips" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-tips" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<div class="space-y-6">
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
+<ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
+<li>레드 캐릭터로 버섯(피버 아이템)을 자주 얻어 TURBO를 적극 활용하면 초반 기록을 빠르게 늘릴 수 있습니다.</li>
+<li>업그레이드는 이동속도나 점프 관련 능력치부터 강화하면 체감 효과가 가장 큽니다.</li>
+<li>벽에 너무 붙어서 튕기려 하지 말고, 살짝 여유를 두고 반대 방향을 누르면 실수가 줄어듭니다.</li>
+</ul>
+</div>
+<div>
+<h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+<div class="space-y-4">
+<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1">Q. 코인은 어디서 확인하나요?</p>
+<p class="text-slate-600">게임오버 화면에서 모은 코인과 업그레이드 상점을 바로 확인할 수 있습니다.</p>
+</div>
+<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1">Q. 블루와 레드 중 뭐가 더 좋나요?</p>
+<p class="text-slate-600">우열이 있다기보다 플레이 스타일 차이입니다. 빠른 이동을 원하면 블루, 아이템 활용을 원하면 레드를 추천합니다.</p>
+</div>
+</div>
+</div>
+</div>
                     </div>
                 </div>
-
-                <div id="panel-info" class="tab-panel p-10 hidden">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 2D / 순수 JS</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
-                        <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+                <div class="border-t border-slate-100">
+                    <button onclick="toggleAccordion('info')" id="tab-info" class="acc-btn w-full flex items-center justify-between px-8 md:px-10 py-6 font-black text-lg text-left text-slate-800 hover:bg-slate-50 transition">
+                        <span>ℹ️ 시스템 정보</span>
+                        <svg id="icon-info" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="panel-info" class="acc-panel px-8 md:px-10 pb-10 hidden">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 2D / 순수 JS</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p class="text-xl font-black text-slate-800">1.0.0</p></div>
+<div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-emerald-500">전체 이용가</p></div>
+</div>
                     </div>
                 </div>
-            </div>
-
             <script>
-                function switchTab(tab) {
-                    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
-                    document.querySelectorAll('.tab-btn').forEach(function(b){
-                        b.classList.add('border-transparent', 'text-slate-400');
-                        b.style.borderColor = '';
-                        b.style.color = '';
-                    });
-                    document.getElementById('panel-' + tab).classList.remove('hidden');
-                    var btn = document.getElementById('tab-' + tab);
-                    btn.classList.remove('border-transparent', 'text-slate-400');
-                    btn.style.borderColor = '#4f46e5';
-                    btn.style.color = '#4f46e5';
+                function toggleAccordion(key) {
+                    const panel = document.getElementById('panel-' + key);
+                    const icon = document.getElementById('icon-' + key);
+                    const isHidden = panel.classList.contains('hidden');
+                    if (isHidden) {
+                        panel.classList.remove('hidden');
+                        icon.classList.add('rotate-180', 'text-indigo-600');
+                        icon.classList.remove('text-slate-400');
+                    } else {
+                        panel.classList.add('hidden');
+                        icon.classList.remove('rotate-180', 'text-indigo-600');
+                        icon.classList.add('text-slate-400');
+                    }
                 }
             </script>
 
