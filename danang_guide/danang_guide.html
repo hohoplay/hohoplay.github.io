@@ -1720,7 +1720,7 @@
 
             if (show) {
                 mapContainer.classList.remove('hidden', 'map-peek-mode');
-                mapContainer.classList.add('block');
+                mapContainer.style.removeProperty('display');
                 if (peekExpandBtn) peekExpandBtn.classList.add('hidden');
                 // 좁은 화면(모바일)에서는 지도가 사이드바 뒤에 깔려 안 보이므로,
                 // 지도를 펼칠 때 리스트를 실제로 숨겨서 지도가 화면에 드러나게 함
@@ -1728,11 +1728,12 @@
                     sidebarPanel.style.display = 'none';
                 }
             } else {
-                mapContainer.classList.add('hidden');
-                mapContainer.classList.remove('block', 'map-peek-mode');
+                // 인라인 스타일로 확실하게 숨김 (클래스 우선순위 충돌 가능성 원천 차단)
+                mapContainer.style.display = 'none';
+                mapContainer.classList.remove('map-peek-mode');
                 if (peekExpandBtn) peekExpandBtn.classList.add('hidden');
                 if (sidebarPanel) {
-                    sidebarPanel.style.display = '';
+                    sidebarPanel.style.removeProperty('display');
                 }
             }
             setTimeout(() => {
@@ -1748,7 +1749,8 @@
             if (!mapContainer) return;
 
             mapContainer.classList.remove('hidden');
-            mapContainer.classList.add('block', 'map-peek-mode');
+            mapContainer.classList.add('map-peek-mode');
+            mapContainer.style.removeProperty('display');
             if (peekExpandBtn) peekExpandBtn.classList.remove('hidden');
             // 리스트(사이드바)는 그대로 유지 — 작은 지도가 하단에 겹쳐서 뜸
 
