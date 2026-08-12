@@ -1296,17 +1296,37 @@
 
         function toggleMap(show) {
             const mapContainer = document.getElementById('mapContainer');
+            const sidebarPanel = document.getElementById('sidebarPanel');
+            const isMobile = window.innerWidth < 768;
+
             if (show) {
                 mapContainer.classList.remove('hidden');
                 mapContainer.classList.add('block');
+                // 좁은 화면(모바일)에서는 지도가 사이드바 뒤에 깔려 안 보이므로,
+                // 지도를 펼칠 때 리스트를 실제로 숨겨서 지도가 화면에 드러나게 함
+                if (isMobile && sidebarPanel) {
+                    sidebarPanel.style.display = 'none';
+                }
             } else {
                 mapContainer.classList.add('hidden');
                 mapContainer.classList.remove('block');
+                if (sidebarPanel) {
+                    sidebarPanel.style.display = '';
+                }
             }
             setTimeout(() => {
                 if (map) map.invalidateSize();
             }, 200);
         }
+
+        // 좁은 화면에서 지도를 보다가 창 크기가 데스크톱 폭으로 바뀌면
+        // 숨겨뒀던 리스트를 강제로 복원(양쪽 다 보이는 원래 레이아웃으로)
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                const sidebarPanel = document.getElementById('sidebarPanel');
+                if (sidebarPanel) sidebarPanel.style.display = '';
+            }
+        });
 
         function resetMapView() {
             if (activePolyline) {
