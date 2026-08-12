@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리치 부티크 호텔 다낭 - 주변 맛집 & 명소 가이드 지도</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet.js Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Map Marker Pulsing Animation for Hotel */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .hotel-pulse {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            background-color: rgba(239, 68, 68, 0.4);
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite ease-in-out;
+            top: -6px;
+            left: -6px;
+            z-index: -1;
+        }
+
+        /* Custom Popup Styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .leaflet-popup-content {
+            margin: 12px 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <!-- SIDEBAR PANEL -->
+    <aside class="w-full md:w-[420px] lg:w-[460px] h-[55vh] md:h-full bg-white flex flex-col z-20 shadow-xl border-r border-slate-200">
+        
+        <!-- Header -->
+        <header class="p-4 bg-gradient-to-r from-indigo-700 to-blue-600 text-white shadow-md flex-shrink-0">
+            <div class="flex items-center justify-between mb-1">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm">
+                    <i class="fa-solid fa-hotel text-amber-300"></i> 기준점: 리치 부티크 호텔
+                </span>
+                <span class="text-xs text-blue-100"><i class="fa-solid fa-location-dot"></i> 다낭 안상동</span>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight">다낭 여행 맞춤 가이드 지도</h1>
+            <p class="text-xs text-blue-100 mt-0.5">호텔 주변 맛집, 야시장, 용다리, ATM 위치 모음</p>
+            
+            <!-- Quick Course Banner Button -->
+            <button onclick="highlightNightCourse()" class="mt-3 w-full py-2 px-3 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-lg text-xs font-bold transition flex items-center justify-between shadow-sm">
+                <span><i class="fa-solid fa-wand-magic-sparkles text-amber-800 mr-1"></i> 추천 야간 코스 (ATM ➔ 야시장 ➔ 불쇼)</span>
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+        </header>
+
+        <!-- Search & Filter Area -->
+        <div class="p-3 bg-slate-50 border-b border-slate-200 flex-shrink-0 space-y-2">
+            <!-- Search Input -->
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="filterPlaces()" placeholder="장소명, 음식, 키워드 검색 (예: 불쇼, BBQ, ATM)..." 
+                       class="w-full pl-9 pr-8 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
+                <button onclick="clearSearch()" id="clearBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Category Chips -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+                <button onclick="setCategory('all')" class="cat-btn active px-3 py-1.5 rounded-full font-medium whitespace-nowrap bg-slate-800 text-white shadow-xs transition" data-cat="all">전체</button>
+                <button onclick="setCategory('food')" class="cat-btn px-3 py-1.5 rounded-full font-medium whitespace-nowrap bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition" data-cat="food"><i class="fa-solid fa-utensils text-rose-500 mr-1"></i>맛집</button>
+                <button onclick="setCategory('spot')" class="cat-btn px-3 py-1.5 rounded-full font-medium whitespace-nowrap bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition" data-cat="spot"><i class="fa-solid fa-camera text-indigo-500 mr-1"></i>명소/밤문화</button>
+                <button onclick="setCategory('spa')" class="cat-btn px-3 py-1.5 rounded-full font-medium whitespace-nowrap bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition" data-cat="spa"><i class="fa-solid fa-spa text-emerald-500 mr-1"></i>스파/마사지</button>
+                <button onclick="setCategory('atm')" class="cat-btn px-3 py-1.5 rounded-full font-medium whitespace-nowrap bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition" data-cat="atm"><i class="fa-solid fa-credit-card text-blue-500 mr-1"></i>ATM/은행</button>
+            </div>
+        </div>
+
+        <!-- Place List -->
+        <div id="placeList" class="flex-1 overflow-y-auto p-3 space-y-2">
+            <!-- Places loaded via JavaScript -->
+        </div>
+
+        <!-- Footer Info -->
+        <footer class="p-2.5 bg-slate-100 text-slate-500 text-[11px] text-center border-t border-slate-200 flex-shrink-0 flex justify-between items-center px-4">
+            <span><i class="fa-solid fa-map text-indigo-500"></i> 위치 핀 클릭 시 상세 정보 제공</span>
+            <button onclick="resetMapView()" class="text-indigo-600 font-semibold hover:underline">
+                <i class="fa-solid fa-rotate-left"></i> 전체보기
+            </button>
+        </footer>
+    </aside>
+
+    <!-- MAP CONTAINER -->
+    <main class="flex-1 h-[45vh] md:h-full relative z-10">
+        <div id="map" class="w-full h-full"></div>
+
+        <!-- Map Floating Legend / Controls Overlay -->
+        <div class="absolute bottom-4 right-4 z-[500] bg-white/90 backdrop-blur-md px-3 py-2.5 rounded-xl shadow-lg border border-slate-200 text-xs hidden sm:block">
+            <div class="font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                <i class="fa-solid fa-layer-group text-indigo-600"></i> 범례 안내
+            </div>
+            <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-slate-600">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 숙소 (리치부티크)</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> 맛집/식당</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span> 명소/볼거리</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 스파/마사지</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> 수수료 무료/ATM</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- 1. DATA DEFINITIONS ---
+        const HOTEL = {
+            id: 'hotel_rich',
+            name: '리치 부티크 호텔 다낭',
+            tag: '숙소 (기준점)',
+            category: 'hotel',
+            lat: 16.0503,
+            lng: 108.2435,
+            icon: 'fa-hotel',
+            color: '#f59e0b', // Amber
+            desc: '안상동 여행자 거리 부근의 가성비 우수한 숙소',
+            details: '주변에 맛집, 마사지, 편의점이 가까움. 샤워기 필터 사용 추천.',
+            googleQuery: 'Rich Boutique Hotel Danang'
+        };
+
+        const PLACES = [
+            {
+                id: 'p_moc_quan',
+                name: 'Mộc quán Seafood (목꽌)',
+                category: 'food',
+                lat: 16.0538,
+                lng: 108.2428,
+                distanceText: '도보 5분 (약 400m)',
+                icon: 'fa-fish-fins',
+                color: '#f43f5e',
+                tags: ['해산물', '칠리크랩', '인기맛집'],
+                desc: '정찰제 해산물 전문점, 쾌적한 야외 정원 분위기',
+                tips: '인기 메뉴: 칠리 크랩, 치즈 구이 가리비. 사전 예약 권장.',
+                googleQuery: 'Moc Quan Seafood Danang'
+            },
+            {
+                id: 'p_bep_cuon',
+                name: 'Bếp Cuốn (벱꾸온 다낭)',
+                category: 'food',
+                lat: 16.0515,
+                lng: 108.2440,
+                distanceText: '도보 3분 (약 250m)',
+                icon: 'fa-utensils',
+                color: '#f43f5e',
+                tags: ['베트남정식', '반세오', '분짜'],
+                desc: '깔끔한 에어컨 시설을 갖춘 베트남 현지 정식집',
+                tips: '반세오, 스프링롤 세트가 대표 메뉴. 한국인 입맛에 딱 맞음.',
+                googleQuery: 'Bep Cuon Danang'
+            },
+            {
+                id: 'p_banh_mi',
+                name: 'Bánh Mì Phượng (반미 프엉)',
+                category: 'food',
+                lat: 16.0518,
+                lng: 108.2425,
+                distanceText: '도보 2분 (약 150m)',
+                icon: 'fa-bread-slice',
+                color: '#f43f5e',
+                tags: ['반미', '간식', '아침식사'],
+                desc: '호이안 명물 반미 프엉의 다낭 지점',
+                tips: '모둠 반미(Bánh mì thập cẩm) 추천. 바삭한 바게트와 알찬 소.',
+                googleQuery: 'Banh Mi Phuong Danang'
+            },
+            {
+                id: 'p_bo_steak',
+                name: 'Bo Steak House (보 스테이크)',
+                category: 'food',
+                lat: 16.0612,
+                lng: 108.2325,
+                distanceText: '차량 5분 (약 2.2km)',
+                icon: 'fa-drumstick-bite',
+                color: '#f43f5e',
+                tags: ['가성비', '스테이크', '단품'],
+                desc: '돌판에 구워 먹는 최고의 가성비 로컬 스테이크 전문점',
+                tips: '안심(Tenderloin) 스테이크 강력 추천. 단품 위주 구성.',
+                googleQuery: 'Bo Steak House Danang'
+            },
+            {
+                id: 'p_domdom_bbq',
+                name: 'Đom Đóm BBQ (돔돔 BBQ)',
+                category: 'food',
+                lat: 16.0545,
+                lng: 108.2430,
+                distanceText: '도보 7분 (약 500m)',
+                icon: 'fa-fire-burner',
+                color: '#f43f5e',
+                tags: ['무한리필', 'BBQ', '177 Nguyen Van Thoai'],
+                desc: '소고기, 돼지고기, 해산물 무한리필 뷔페',
+                tips: '구글맵 검색 시 "177 Nguyễn Văn Thoại" 주소로 검색 가능. 에어컨 완비.',
+                googleQuery: 'Dom Dom BBQ 177 Nguyen Van Thoai Danang'
+            },
+            {
+                id: 'p_el_gaucho',
+                name: 'El Gaucho (엘 가우초)',
+                category: 'food',
+                lat: 16.0560,
+                lng: 108.2462,
+                distanceText: '차량 4분 / 도보 12분',
+                icon: 'fa-wine-glass',
+                color: '#f43f5e',
+                tags: ['프리미엄', '와규', '분위기'],
+                desc: '최상급 와규/드라이에이징 소고기 고급 스테이크하우스',
+                tips: '특별한 날이나 고급 식사에 적합. 와인 페어링 훌륭함.',
+                googleQuery: 'El Gaucho Steakhouse Danang'
+            },
+            {
+                id: 'p_mykhe_beach',
+                name: 'My Khe Beach (미케 비치)',
+                category: 'spot',
+                lat: 16.0540,
+                lng: 108.2470,
+                distanceText: '도보 5~7분 (약 450m)',
+                icon: 'fa-umbrella-beach',
+                color: '#4f46e5',
+                tags: ['해변', '해양스포츠', '산책'],
+                desc: '세계적 해변. 패러세일링, 제트스키 및 선베드 휴식',
+                tips: '아침 일찍이나 오후 5시 이후 해 질 녘 방문 추천.',
+                googleQuery: 'My Khe Beach Danang'
+            },
+            {
+                id: 'p_esco_bar',
+                name: 'Esco Beach Bar (에스코 비치바)',
+                category: 'spot',
+                lat: 16.0535,
+                lng: 108.2475,
+                distanceText: '도보 6분 (약 500m)',
+                icon: 'fa-cocktail',
+                color: '#4f46e5',
+                tags: ['비치바', '불쇼', '나이트라이프'],
+                desc: '백사장 바로 위 라이브 DJ & 야외 불쇼 라운지',
+                tips: '외국인 관광객 및 자연스러운 교류/합석 분위기. 불쇼 공연 유명.',
+                googleQuery: 'Esco Beach Bar Danang'
+            },
+            {
+                id: 'p_maia_bar',
+                name: 'Maia Beach Bar (마이아 비치바)',
+                category: 'spot',
+                lat: 16.0570,
+                lng: 108.2478,
+                distanceText: '차량 3분 / 도보 10분',
+                icon: 'fa-glass-cheers',
+                color: '#4f46e5',
+                tags: ['해변야경', '파티', '칵테일'],
+                desc: '해변 야경과 신나는 음악이 있는 인기 비치바',
+                tips: '밤시간대 파티 분위기로 전환. 칵테일 한잔하기 좋음.',
+                googleQuery: 'Maia Beach Bar Danang'
+            },
+            {
+                id: 'p_sontra_market',
+                name: 'Chợ Đêm Sơn Trà (손짜 야시장)',
+                category: 'spot',
+                lat: 16.0610,
+                lng: 108.2285,
+                distanceText: '차량 6분 (약 2.4km)',
+                icon: 'fa-store',
+                color: '#4f46e5',
+                tags: ['야시장', '해산물구이', '야식'],
+                desc: '다낭 대표 밤 야시장. 각종 숯불 해산물 구이와 길거리 음식',
+                tips: '운영시간 17:00~23:30. 용다리 바로 옆이라 함께 구경 필수.',
+                googleQuery: 'Son Tra Night Market Danang'
+            },
+            {
+                id: 'p_dragon_bridge',
+                name: 'Dragon Bridge (용다리)',
+                category: 'spot',
+                lat: 16.0612,
+                lng: 108.2272,
+                distanceText: '차량 6분 (약 2.5km)',
+                icon: 'fa-dragon',
+                color: '#4f46e5',
+                tags: ['불쇼/물쇼', '금토일21시', '다낭명소'],
+                desc: '다낭의 상징. 매주 금/토/일 밤 9시 거대한 불쇼&물쇼 연출',
+                tips: '★금·토·일 밤 9:00 정각 불쇼 (약 15분간). 손짜 야시장과 연계!',
+                googleQuery: 'Dragon Bridge Danang'
+            },
+            {
+                id: 'p_vpbank_atm',
+                name: 'VPBank Sơn Trà (수수료 무료 ATM)',
+                category: 'atm',
+                lat: 16.0585,
+                lng: 108.2320,
+                distanceText: '차량 5분 (1094 Ngo Quyen)',
+                icon: 'fa-money-bill-transfer',
+                color: '#2563eb',
+                tags: ['토스카운터', '수수료무료', 'VPBank'],
+                desc: '1094 Ngô Quyền 위치. 토스카드 현지 출금 수수료 무료!',
+                tips: '★출금 시 "Without Conversion" 선택 필수. 비밀번호 6자리(비번+00).',
+                googleQuery: '1094 Ngo Quyen Son Tra Danang'
+            },
+            {
+                id: 'p_techcom_atm',
+                name: 'Techcombank ATM',
+                category: 'atm',
+                lat: 16.0540,
+                lng: 108.2420,
+                distanceText: '도보 4분 (305 Nguyen Van Thoai)',
+                icon: 'fa-credit-card',
+                color: '#2563eb',
+                tags: ['가까운ATM', '대로변'],
+                desc: '호텔에서 가장 가까운 응우옌반토아이 대로변 ATM',
+                tips: '소액 현금 인출용으로 유용.',
+                googleQuery: '305 Nguyen Van Thoai Danang'
+            },
+            {
+                id: 'p_an_spa',
+                name: 'An Spa (안스파)',
+                category: 'spa',
+                lat: 16.0525,
+                lng: 108.2460,
+                distanceText: '도보 6분 (약 450m)',
+                icon: 'fa-spa',
+                color: '#10b981',
+                tags: ['마사지', '한국어예약', '디저트포함'],
+                desc: '시설이 매우 깔끔하고 후기가 우수한 인기 마사지 숍',
+                tips: '마사지 후 음료/식사 서비스 포함 옵션 제공. 사전 카톡 예약 권장.',
+                googleQuery: 'An Spa Danang'
+            }
+        ];
+
+        // --- 2. MAP INITIALIZATION ---
+        let map;
+        let markers = {};
+        let activePolyline = null;
+        let activeCategory = 'all';
+
+        window.onload = function() {
+            // Initialize Leaflet Map centered between hotel & Dragon Bridge
+            map = L.map('map', {
+                zoomControl: false
+            }).setView([16.055, 108.238], 14);
+
+            // Add Custom CartoDB Voyager Tile Layer (Clean & clear, works reliably without API keys)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                subdomains: 'abcd',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
+            }).addTo(map);
+
+            // Add Zoom Control at top right
+            L.control.zoom({ position: 'topright' }).addTo(map);
+
+            // Render Hotel Marker
+            renderHotelMarker();
+
+            // Render Places Markers & Sidebar List
+            renderPlaces();
+        };
+
+        // --- 3. MARKER GENERATORS ---
+        function renderHotelMarker() {
+            const hotelHtml = `
+                <div class="relative flex items-center justify-center w-10 h-10 bg-amber-500 text-white rounded-full shadow-lg border-2 border-white font-bold text-base cursor-pointer">
+                    <div class="hotel-pulse"></div>
+                    <i class="fa-solid ${HOTEL.icon}"></i>
+                </div>
+            `;
+            const hotelIcon = L.divIcon({
+                html: hotelHtml,
+                className: 'custom-hotel-pin',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+
+            const marker = L.marker([HOTEL.lat, HOTEL.lng], { icon: hotelIcon }).addTo(map);
+            
+            const popupContent = `
+                <div class="text-xs">
+                    <div class="font-bold text-sm text-amber-600 flex items-center gap-1">
+                        <i class="fa-solid fa-hotel"></i> ${HOTEL.name}
+                    </div>
+                    <p class="text-slate-600 mt-1 font-medium">${HOTEL.desc}</p>
+                    <div class="mt-2 text-[11px] bg-amber-50 text-amber-800 p-1.5 rounded border border-amber-200">
+                        💡 <b>숙소 팁:</b> ${HOTEL.details}
+                    </div>
+                </div>
+            `;
+            marker.bindPopup(popupContent);
+            markers[HOTEL.id] = marker;
+        }
+
+        function renderPlaces() {
+            const listEl = document.getElementById('placeList');
+            listEl.innerHTML = '';
+
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            PLACES.forEach(place => {
+                // Category & Search filter logic
+                const matchesCat = (activeCategory === 'all' || place.category === activeCategory);
+                const matchesSearch = !searchTerm || 
+                    place.name.toLowerCase().includes(searchTerm) || 
+                    place.desc.toLowerCase().includes(searchTerm) ||
+                    place.tips.toLowerCase().includes(searchTerm) ||
+                    place.tags.some(t => t.toLowerCase().includes(searchTerm));
+
+                if (matchesCat && matchesSearch) {
+                    // Create Marker if not exists
+                    if (!markers[place.id]) {
+                        const iconHtml = `
+                            <div class="flex items-center justify-center w-8 h-8 rounded-full shadow-md border-2 border-white text-white font-bold text-xs transform hover:scale-110 transition" style="background-color: ${place.color}">
+                                <i class="fa-solid ${place.icon}"></i>
+                            </div>
+                        `;
+                        const customIcon = L.divIcon({
+                            html: iconHtml,
+                            className: 'custom-place-pin',
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16]
+                        });
+
+                        const marker = L.marker([place.lat, place.lng], { icon: customIcon }).addTo(map);
+                        
+                        // Popup HTML
+                        const popupHtml = `
+                            <div class="text-xs min-w-[200px]">
+                                <div class="font-bold text-slate-800 text-sm flex items-center gap-1.5" style="color: ${place.color}">
+                                    <i class="fa-solid ${place.icon}"></i> ${place.name}
+                                </div>
+                                <div class="text-[11px] text-slate-500 font-semibold mt-0.5">
+                                    <i class="fa-solid fa-person-walking text-slate-400"></i> ${place.distanceText}
+                                </div>
+                                <p class="text-slate-600 mt-1.5 leading-tight">${place.desc}</p>
+                                <div class="mt-2 p-1.5 bg-slate-50 text-slate-700 text-[11px] rounded border border-slate-200">
+                                    <b>💡 팁:</b> ${place.tips}
+                                </div>
+                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.googleQuery)}" target="_blank" 
+                                   class="mt-2.5 block text-center py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded text-[11px]">
+                                   <i class="fa-solid fa-arrow-up-right-from-square"></i> 구글지도에서 열기
+                                </a>
+                            </div>
+                        `;
+                        marker.bindPopup(popupHtml);
+                        
+                        marker.on('click', () => {
+                            selectPlace(place.id, false);
+                        });
+
+                        markers[place.id] = marker;
+                    } else {
+                        // Ensure marker is visible on map
+                        if (!map.hasLayer(markers[place.id])) {
+                            map.addLayer(markers[place.id]);
+                        }
+                    }
+
+                    // Append Sidebar Card
+                    listEl.appendChild(createPlaceCard(place));
+                } else {
+                    // Remove marker from map if filtered out
+                    if (markers[place.id] && map.hasLayer(markers[place.id])) {
+                        map.removeLayer(markers[place.id]);
+                    }
+                }
+            });
+
+            if (listEl.children.length === 0) {
+                listEl.innerHTML = `
+                    <div class="p-8 text-center text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2"></i>
+                        <p class="text-xs font-medium">검색 결과가 없습니다.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function createPlaceCard(place) {
+            const card = document.createElement('div');
+            card.id = `card_${place.id}`;
+            card.className = "p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-xs transition cursor-pointer group hover:border-indigo-300";
+            card.onclick = () => selectPlace(place.id, true);
+
+            const tagsHtml = place.tags.map(tag => 
+                `<span class="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-medium">#${tag}</span>`
+            ).join(' ');
+
+            card.innerHTML = `
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style="background-color: ${place.color}">
+                            <i class="fa-solid ${place.icon}"></i>
+                        </span>
+                        <div>
+                            <h3 class="font-bold text-xs text-slate-800 group-hover:text-indigo-600 transition">${place.name}</h3>
+                            <span class="text-[11px] text-slate-500 font-medium"><i class="fa-solid fa-route text-slate-400"></i> ${place.distanceText}</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">${place.desc}</p>
+                <div class="mt-2 text-[11px] text-amber-800 bg-amber-50/70 p-1.5 rounded border border-amber-200/60">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i> ${place.tips}
+                </div>
+                <div class="mt-2 flex items-center justify-between pt-1 border-t border-slate-100">
+                    <div class="flex flex-wrap gap-1">${tagsHtml}</div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.googleQuery)}" target="_blank" onclick="event.stopPropagation()"
+                       class="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                        길찾기 <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                    </a>
+                </div>
+            `;
+            return card;
+        }
+
+        function selectPlace(placeId, zoomTo = true) {
+            const place = PLACES.find(p => p.id === placeId);
+            if (!place) return;
+
+            // Highlight Sidebar card
+            document.querySelectorAll('#placeList > div').forEach(c => {
+                c.classList.remove('border-indigo-500', 'bg-indigo-50/30', 'ring-1', 'ring-indigo-500');
+            });
+            const activeCard = document.getElementById(`card_${placeId}`);
+            if (activeCard) {
+                activeCard.classList.add('border-indigo-500', 'bg-indigo-50/30', 'ring-1', 'ring-indigo-500');
+                activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Draw Dashed Route Line from Hotel to Place
+            if (activePolyline) {
+                map.removeLayer(activePolyline);
+            }
+            activePolyline = L.polyline([
+                [HOTEL.lat, HOTEL.lng],
+                [place.lat, place.lng]
+            ], {
+                color: '#6366f1',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '8, 8'
+            }).addTo(map);
+
+            // Zoom & Open Marker Popup
+            if (markers[placeId]) {
+                const marker = markers[placeId];
+                if (zoomTo) {
+                    map.flyToBounds([
+                        [HOTEL.lat, HOTEL.lng],
+                        [place.lat, place.lng]
+                    ], { padding: [50, 50], maxZoom: 16, duration: 1 });
+                }
+                setTimeout(() => {
+                    marker.openPopup();
+                }, 400);
+            }
+        }
+
+        // --- 4. FILTERING & SEARCH CONTROL ---
+        function setCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.classList.add('bg-slate-800', 'text-white');
+                    btn.classList.remove('bg-white', 'text-slate-600', 'border');
+                } else {
+                    btn.classList.remove('bg-slate-800', 'text-white');
+                    btn.classList.add('bg-white', 'text-slate-600', 'border');
+                }
+            });
+            renderPlaces();
+        }
+
+        function filterPlaces() {
+            const val = document.getElementById('searchInput').value;
+            const clearBtn = document.getElementById('clearBtn');
+            if (val) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderPlaces();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterPlaces();
+        }
+
+        function resetMapView() {
+            if (activePolyline) {
+                map.removeLayer(activePolyline);
+                activePolyline = null;
+            }
+            document.querySelectorAll('#placeList > div').forEach(c => {
+                c.classList.remove('border-indigo-500', 'bg-indigo-50/30', 'ring-1', 'ring-indigo-500');
+            });
+            map.flyTo([16.055, 108.238], 14);
+        }
+
+        // --- 5. SPECIAL NIGHT COURSE HIGHLIGHT ---
+        function highlightNightCourse() {
+            setCategory('all');
+            
+            // Draw multi-point course: Hotel -> VPBank -> Son Tra Night Market -> Dragon Bridge
+            if (activePolyline) {
+                map.removeLayer(activePolyline);
+            }
+
+            const vpbank = PLACES.find(p => p.id === 'p_vpbank_atm');
+            const market = PLACES.find(p => p.id === 'p_sontra_market');
+            const dragon = PLACES.find(p => p.id === 'p_dragon_bridge');
+
+            const courseCoords = [
+                [HOTEL.lat, HOTEL.lng],
+                [vpbank.lat, vpbank.lng],
+                [market.lat, market.lng],
+                [dragon.lat, dragon.lng]
+            ];
+
+            activePolyline = L.polyline(courseCoords, {
+                color: '#f59e0b',
+                weight: 5,
+                opacity: 0.9,
+                dashArray: '6, 10'
+            }).addTo(map);
+
+            map.flyToBounds(courseCoords, { padding: [40, 40], duration: 1.2 });
+
+            // Popup Info Alert
+            const alertMsg = `
+                <div style="font-size: 12px; line-height: 1.5;">
+                    <b style="color: #d97706;">✨ 추천 야간 풀코스 (금·토·일 강력추천)</b><br>
+                    1. <b>VPBank:</b> 현금 무수수료 출금<br>
+                    2. <b>손짜 야시장:</b> 해산물 야식 & 쇼핑<br>
+                    3. <b>용다리:</b> 밤 9시 불쇼/물쇼 관람
+                </div>
+            `;
+            L.popup()
+                .setLatLng([market.lat, market.lng])
+                .setContent(alertMsg)
+                .openOn(map);
+        }
+    </script>
+</body>
+</html>
