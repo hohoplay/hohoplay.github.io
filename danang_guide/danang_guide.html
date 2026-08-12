@@ -70,6 +70,21 @@
         .map-container-transition {
             transition: all 0.3s ease-in-out;
         }
+
+        /* 모바일: 장소 카드를 클릭하면 화면 전체를 지도로 덮는 대신,
+           하단에 작은 지도 미리보기(피크)를 띄워서 리스트를 그대로 유지 */
+        @media (max-width: 767px) {
+            #mapContainer.map-peek-mode {
+                top: auto !important;
+                height: 38vh !important;
+                max-height: 320px !important;
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+                box-shadow: 0 -10px 30px -8px rgba(0, 0, 0, 0.35);
+                z-index: 40 !important;
+                overflow: hidden;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row relative">
@@ -96,7 +111,7 @@
             </div>
             
             <div class="flex items-center justify-between">
-                <div>
+                <div onclick="location.reload()" class="cursor-pointer active:opacity-70 transition" title="새로고침">
                     <h1 class="text-lg font-bold tracking-tight">다낭 여행 맞춤 가이드 지도</h1>
                     <p class="text-[11px] text-blue-100">호텔 주변 맛집, 야시장, 용다리, ATM 위치 모음</p>
                 </div>
@@ -180,6 +195,13 @@
                 class="md:hidden absolute top-4 right-4 z-[600] bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xl border border-white/20 flex items-center gap-2 transition transform active:scale-95">
             <i class="fa-solid fa-xmark text-sm text-rose-400"></i>
             <span>지도 닫기</span>
+        </button>
+
+        <!-- 피크(작은 지도 미리보기) 모드에서 전체화면으로 확장하는 버튼 -->
+        <button onclick="toggleMap(true)" id="mapPeekExpandBtn"
+                class="hidden md:hidden absolute top-2.5 left-1/2 -translate-x-1/2 z-[600] bg-white/95 backdrop-blur-sm text-slate-700 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md border border-slate-200 flex items-center gap-1 active:scale-95 transition">
+            <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-indigo-600"></i>
+            <span>지도 크게 보기</span>
         </button>
 
         <!-- Map Floating Legend -->
@@ -977,7 +999,7 @@
             card.onclick = () => {
                 selectPlace(place.id, true);
                 if (window.innerWidth < 768) {
-                    toggleMap(true);
+                    peekMap();
                 }
             };
 
@@ -1301,11 +1323,13 @@
         function toggleMap(show) {
             const mapContainer = document.getElementById('mapContainer');
             const sidebarPanel = document.getElementById('sidebarPanel');
+            const peekExpandBtn = document.getElementById('mapPeekExpandBtn');
             const isMobile = window.innerWidth < 768;
 
             if (show) {
-                mapContainer.classList.remove('hidden');
+                mapContainer.classList.remove('hidden', 'map-peek-mode');
                 mapContainer.classList.add('block');
+                if (peekExpandBtn) peekExpandBtn.classList.add('hidden');
                 // 좁은 화면(모바일)에서는 지도가 사이드바 뒤에 깔려 안 보이므로,
                 // 지도를 펼칠 때 리스트를 실제로 숨겨서 지도가 화면에 드러나게 함
                 if (isMobile && sidebarPanel) {
@@ -1313,7 +1337,8 @@
                 }
             } else {
                 mapContainer.classList.add('hidden');
-                mapContainer.classList.remove('block');
+                mapContainer.classList.remove('block', 'map-peek-mode');
+                if (peekExpandBtn) peekExpandBtn.classList.add('hidden');
                 if (sidebarPanel) {
                     sidebarPanel.style.display = '';
                 }
@@ -1321,6 +1346,23 @@
             setTimeout(() => {
                 if (map) map.invalidateSize();
             }, 200);
+        }
+
+        // 모바일에서 장소 카드를 클릭했을 때: 화면 전체를 지도로 덮지 않고
+        // 리스트는 그대로 둔 채 하단에 작은 지도 미리보기(피크)만 띄움
+        function peekMap() {
+            const mapContainer = document.getElementById('mapContainer');
+            const peekExpandBtn = document.getElementById('mapPeekExpandBtn');
+            if (!mapContainer) return;
+
+            mapContainer.classList.remove('hidden');
+            mapContainer.classList.add('block', 'map-peek-mode');
+            if (peekExpandBtn) peekExpandBtn.classList.remove('hidden');
+            // 리스트(사이드바)는 그대로 유지 — 작은 지도가 하단에 겹쳐서 뜸
+
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+            }, 250);
         }
 
         // 좁은 화면에서 지도를 보다가 창 크기가 데스크톱 폭으로 바뀌면
