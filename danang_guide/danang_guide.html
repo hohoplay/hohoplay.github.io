@@ -870,8 +870,12 @@
 
             const visibleCoords = [];
             if (zone === 'all') {
-                visibleCoords.push([HOTEL.lat, HOTEL.lng]);
-                PLACES.forEach(p => visibleCoords.push([p.lat, p.lng]));
+                // "전체/호텔" 탭은 리스트는 전체를 다 보여주되, 지도는 기준점인 호텔 위치로 되돌림
+                // (손짜반도/하이반 관문처럼 멀리 있는 곳까지 다 맞추려고 지도를 확 줄여버리지 않도록)
+                if (map) {
+                    map.flyTo([HOTEL.lat, HOTEL.lng], 14, { duration: 1.2 });
+                }
+                return;
             } else if (zone === 'hotel') {
                 visibleCoords.push([HOTEL.lat, HOTEL.lng]);
                 PLACES.filter(p => (p.zone === 'hotel' || !p.zone)).forEach(p => visibleCoords.push([p.lat, p.lng]));
@@ -1329,6 +1333,23 @@
         });
 
         function resetMapView() {
+            activeZone = 'all';
+
+            // 탭 UI를 "전체/호텔"로 되돌림
+            document.querySelectorAll('.zone-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-indigo-900', 'shadow-sm');
+                btn.classList.add('text-white', 'hover:bg-white/10');
+            });
+            const activeTabBtn = document.getElementById('tab-all');
+            if (activeTabBtn) {
+                activeTabBtn.classList.add('bg-white', 'text-indigo-900', 'shadow-sm');
+                activeTabBtn.classList.remove('text-white', 'hover:bg-white/10');
+            }
+            const banner = document.getElementById('zoneInfoBanner');
+            if (banner) banner.classList.add('hidden');
+
+            renderPlaces();
+
             if (activePolyline) {
                 map.removeLayer(activePolyline);
                 activePolyline = null;
@@ -1336,7 +1357,18 @@
             document.querySelectorAll('#placeList > div').forEach(c => {
                 c.classList.remove('border-indigo-500', 'bg-indigo-50/30', 'ring-1', 'ring-indigo-500');
             });
-            map.flyTo([HOTEL.lat, HOTEL.lng], 14);
+
+            // "전체보기"는 탭과 달리, 문자 그대로 등록된 모든 장소(멀리 있는 손짜반도/하이반 관문 포함)가
+            // 화면 안에 다 들어오도록 범위를 맞춤
+            if (map) {
+                const allCoords = [[HOTEL.lat, HOTEL.lng], ...PLACES.map(p => [p.lat, p.lng])];
+                map.flyToBounds(allCoords, { padding: [50, 50], duration: 1.2 });
+            }
+
+            // 모바일 화면에서는 지도가 리스트 뒤에 가려져 있으므로, 전체보기를 누르면 지도를 바로 펼쳐서 보여줌
+            if (window.innerWidth < 768) {
+                toggleMap(true);
+            }
         }
 
         function showToast(msg) {
