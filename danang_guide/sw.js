@@ -23,8 +23,8 @@ const MAX_TILE_CACHE_ITEMS = 400; // 타일 캐시 용량 제한(오래된 것�
 // 최초 설치 시 미리 캐싱해둘 핵심 정적 리소스
 const PRECACHE_URLS = [
     'https://cdn.tailwindcss.com',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
     'https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap'
 ];
@@ -65,7 +65,6 @@ function isMapTileRequest(url) {
 function isStaticAssetRequest(url) {
     return (
         url.includes('cdn.tailwindcss.com') ||
-        url.includes('unpkg.com/leaflet') ||
         url.includes('cdnjs.cloudflare.com') ||
         url.includes('fonts.googleapis.com') ||
         url.includes('fonts.gstatic.com')
