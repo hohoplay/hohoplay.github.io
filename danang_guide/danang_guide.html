@@ -1303,10 +1303,12 @@
                 return;
             } else if (zone === 'hotel') {
                 visibleCoords.push([HOTEL.lat, HOTEL.lng]);
-                PLACES.filter(p => (p.zone === 'hotel' || !p.zone)).forEach(p => visibleCoords.push([p.lat, p.lng]));
+                PLACES.filter(p => (p.zone === 'hotel' || !p.zone) && Number.isFinite(p.lat) && Number.isFinite(p.lng))
+                    .forEach(p => visibleCoords.push([p.lat, p.lng]));
             } else {
                 visibleCoords.push([HOTEL.lat, HOTEL.lng]);
-                PLACES.filter(p => p.zone === zone).forEach(p => visibleCoords.push([p.lat, p.lng]));
+                PLACES.filter(p => p.zone === zone && Number.isFinite(p.lat) && Number.isFinite(p.lng))
+                    .forEach(p => visibleCoords.push([p.lat, p.lng]));
             }
 
             if (visibleCoords.length > 0 && map) {
@@ -1457,6 +1459,11 @@
         function selectPlace(placeId, zoomTo = true) {
             const place = PLACES.find(p => p.id === placeId);
             if (!place) return;
+            // 좌표가 유효하지 않으면 경로선/줌 이동을 시도하지 않고 여기서 중단 (Invalid LatLng 에러 방지)
+            if (!Number.isFinite(place.lat) || !Number.isFinite(place.lng)) {
+                console.warn(`좌표 없음, 선택 동작 생략: ${place.name} (${place.id})`);
+                return;
+            }
 
             document.querySelectorAll('#placeList > div').forEach(c => {
                 c.classList.remove('border-indigo-500', 'bg-indigo-50/30', 'ring-1', 'ring-indigo-500');
@@ -1813,7 +1820,8 @@
             // "전체보기"는 탭과 달리, 문자 그대로 등록된 모든 장소(멀리 있는 손짜반도/하이반 관문 포함)가
             // 화면 안에 다 들어오도록 범위를 맞춤
             if (map) {
-                const allCoords = [[HOTEL.lat, HOTEL.lng], ...PLACES.map(p => [p.lat, p.lng])];
+                const validPlaces = PLACES.filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+                const allCoords = [[HOTEL.lat, HOTEL.lng], ...validPlaces.map(p => [p.lat, p.lng])];
                 map.flyToBounds(allCoords, { padding: [50, 50], duration: 1.2 });
             }
 
