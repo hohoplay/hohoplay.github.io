@@ -64,6 +64,8 @@ jobs:
   post:
     runs-on: ubuntu-latest
     timeout-minutes: 180    # 월요일+1일 최대 49개 포스팅 대기 포함
+    permissions:
+      contents: write   # 오늘의명언 슬러그 순차번호(data/quote_state.json) 커밋·푸시를 위해 필요
 
     steps:
       - name: 📥 체크아웃
@@ -214,3 +216,18 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           DATA_DIR: ${{ github.workspace }}/data
         run: python scripts/create_post.py
+
+      # ─────────────────────────────────────────────────────────
+      # 오늘의명언 URL 슬러그 순차번호(data/quote_state.json) 커밋.
+      # 오늘의명언은 매주 월요일에만 발행되므로, 그 외 요일에는 파일 변경이
+      # 없어 git diff가 비어 커밋 없이 조용히 넘어간다(정상).
+      # ─────────────────────────────────────────────────────────
+      - name: 💾 명언 슬러그 번호 저장
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -f data/quote_state.json ]; then
+            git add data/quote_state.json
+            git diff --staged --quiet || git commit -m "🔢 오늘의명언 슬러그 번호 갱신 $(date -u +'%Y-%m-%d')"
+            git push
+          fi
