@@ -67,21 +67,20 @@ def get_access_token_for_knowledge():
     return ""
 
 
-def post_blogger_scheduled(access_token, title, content, labels, published_iso=None, slug=None):
+def post_blogger_scheduled(access_token, title, content, labels, published_iso=None, slug_number=None):
     """운세상식 전용 발행 함수 — 기존 post_blogger()는 절대 건드리지 않고 별도로 둠.
     published_iso를 주면 예약 발행, 생략하면 즉시 발행 (지금 구조는 즉시 발행만 사용).
-    slug를 주면 [영어 슬러그 제목으로 생성 → 한글 제목으로 수정] 2단계로 발행해서
-    URL이 숫자 코드 대신 영어 슬러그로 남는다 (예: /2026/07/ox-personality.html)."""
+    slug_number를 주면 [숫자만으로 된 제목으로 생성 → 한글 제목으로 수정] 2단계로 발행해서
+    URL이 무작위 숫자 코드 대신 순차 숫자 슬러그로 남는다 (예: /2026/08/20001.html).
+    2026-08-19부터 기존 영어 단어 슬러그(예: ox-personality) 방식은 폐기했다 — 오늘의명언
+    (create_post.py, 1로 시작하는 순차번호)과 앞자리를 다르게(2로 시작) 맞춰 서로 안 겹침."""
     if not BLOG_ID or not access_token:
         print(f"(테스트 모드 — BLOG_ID/토큰 없음) {title}")
         return True
 
     url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
 
-    slug_title = None
-    if slug:
-        date_part = datetime.now(timezone.utc).strftime("%Y %m %d")
-        slug_title = f"{slug} {date_part}".title()
+    slug_title = str(slug_number) if slug_number else None
     insert_title = slug_title or title
 
     body = {"title": insert_title, "content": content, "labels": labels}
@@ -262,8 +261,13 @@ def generate_knowledge_html(topic, style="info"):
 def load_state():
     if os.path.exists(STATE_PATH):
         with open(STATE_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"last_index": -1, "history": []}
+            state = json.load(f)
+    else:
+        state = {"last_index": -1, "history": []}
+    # 숫자 URL 슬러그 순차번호 — 운세상식은 2로 시작(20001~), 오늘의명언(create_post.py, 1로 시작)과
+    # 앞자리가 겹치지 않게 분리
+    state.setdefault("next_slug_number", 20001)
+    return state
 
 
 def save_state(state):
@@ -397,13 +401,16 @@ def run(count=1):
   <div class="meta"><p>※ 참고용으로 정리한 정보성 콘텐츠입니다</p></div>
 </div>"""
 
-        ok = post_blogger_scheduled(access_token, topic, content, ["운세상식"], slug=item.get("slug"))
+        slug_number = state["next_slug_number"]
+        ok = post_blogger_scheduled(access_token, topic, content, ["운세상식"], slug_number=slug_number)
 
         if ok:
             state["last_index"] = idx
+            state["next_slug_number"] = slug_number + 1  # 발행 성공 시에만 다음 번호로 갱신
             state["history"].append({
                 "index":     idx,
                 "topic":     topic,
+                "slug":      str(slug_number),
                 "posted_at": datetime.now(timezone.utc).isoformat(),
             })
             save_state(state)
