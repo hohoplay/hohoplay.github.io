@@ -9,7 +9,7 @@
  평일 25개, 월요일 27개 — 대략 26개/일 × 30일 ≈ 780개/월
 """
 
-import os, random, time, re
+import os, random, time, re, json
 import pandas as pd
 import requests
 from datetime import datetime, date, timezone, timedelta
@@ -4527,39 +4527,71 @@ def fetch_existing_titles(max_results=80):
         return set()
 
 
-# ── 영어 URL 슬러그용 매핑 ──
+# ── 숫자 전용 URL 슬러그 매핑 (기존 영어 단어 슬러그 방식 폐기, 2026-08-19 전환) ──
 # 한글 제목 그대로 insert하면 Blogger가 슬러그를 못 만들고 숫자 코드로 떨어지기 때문에,
-# 영어 제목으로 먼저 발행한 뒤 한글 제목으로 고치는 2단계 방식(post_blogger)에 사용한다.
+# 슬러그용 임시 제목(숫자+하이픈만으로 구성)으로 먼저 발행한 뒤 한글 제목으로 고치는
+# 2단계 방식(post_blogger)은 그대로 유지하고, 임시 제목의 내용만 영어 단어 → 숫자로 바꿨다.
 # (Blogger API는 url 필드를 직접 지정해도 무시하고 title 기반으로 슬러그를 만듦 — 공식 문서에
 #  명시되어 있지 않은 동작이라, 이 우회 방식이 현재로선 유일하게 확인된 방법)
-_KR_EN_MAP = {z['kr']: z['en'] for z in ZODIACS}
-_KR_EN_MAP.update({c['kr']: c['en'] for c in CHINESE})
+#
+# 규칙:
+#   · 띠운세/별자리운세/별자리주간/띠별월간/별과띠가만나는시간
+#       {타입코드 2자리}{항목코드 2자리}-{YYYY}-{MM}-{DD}   예) 0107-2026-08-19
+#       (항목코드는 ZODIACS/CHINESE 리스트 순서상 1~12번째, 별과띠가만나는시간은 항목이 없어 00 고정)
+#   · 오늘의명언
+#       1로 시작하는 순차번호(10001~) — data/quote_state.json에 다음 번호를 기록해 관리.
+#       운세상식(create_knowledge.py)은 2로 시작(20001~)이라 앞자리가 겹치지 않는다.
+_ZODIAC_CODE = {z['kr']: f"{i+1:02d}" for i, z in enumerate(ZODIACS)}
+_ANIMAL_CODE = {c['kr']: f"{i+1:02d}" for i, c in enumerate(CHINESE)}
 
-_LABEL_TYPE_EN = {
-    "띠운세":            "daily-fortune",
-    "별자리운세":         "daily-horoscope",
-    "별자리주간":         "weekly-horoscope",
-    "띠별월간":          "monthly-fortune",
-    "오늘의명언":         "daily-quote",
-    "별과띠가만나는시간": "zodiac-meets-fortune",
-    "운세상식":          "fortune-knowledge",
+_LABEL_TYPE_CODE = {
+    "띠운세":            "01",
+    "별자리운세":         "02",
+    "별자리주간":         "03",
+    "띠별월간":          "04",
+    "별과띠가만나는시간": "05",
 }
 
+QUOTE_STATE_PATH = os.path.join(DATA, "quote_state.json")
+
+def _load_quote_state():
+    """오늘의명언 슬러그 순차번호 상태 로드 — 파일이 없으면 1로 시작하는 10001부터."""
+    if os.path.exists(QUOTE_STATE_PATH):
+        with open(QUOTE_STATE_PATH, "r", encoding="utf-8") as f:
+            state = json.load(f)
+    else:
+        state = {}
+    state.setdefault("next_number", 10001)
+    return state
+
+def _save_quote_state(state):
+    os.makedirs(os.path.dirname(QUOTE_STATE_PATH), exist_ok=True)
+    with open(QUOTE_STATE_PATH, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+
+
 def _build_slug_title(labels):
-    """라벨 조합으로 영어 슬러그용 임시 제목을 만든다. 어떤 라벨 조합인지 인식 못 하면
+    """라벨 조합으로 숫자 전용 URL 슬러그를 만든다. 어떤 라벨 조합인지 인식 못 하면
     None을 반환 — 이 경우 post_blogger는 기존처럼 한글 제목으로 바로 발행한다."""
-    animal_en = None
-    type_en   = None
+    if "오늘의명언" in labels:
+        return str(_load_quote_state()["next_number"])
+
+    type_code = None
+    item_code = None
     for l in labels:
-        if l in _KR_EN_MAP and animal_en is None:
-            animal_en = _KR_EN_MAP[l]
-        if l in _LABEL_TYPE_EN and type_en is None:
-            type_en = _LABEL_TYPE_EN[l]
-    if not type_en:
+        if l in _LABEL_TYPE_CODE and type_code is None:
+            type_code = _LABEL_TYPE_CODE[l]
+        if l in _ZODIAC_CODE and item_code is None:
+            item_code = _ZODIAC_CODE[l]
+        if l in _ANIMAL_CODE and item_code is None:
+            item_code = _ANIMAL_CODE[l]
+
+    if not type_code:
         return None
-    date_part = now_kst().strftime("%Y %m %d")
-    parts = [p for p in [animal_en, type_en, date_part] if p]
-    return " ".join(parts).title()
+
+    item_code = item_code or "00"  # 별과띠가만나는시간처럼 세부 항목이 없는 타입
+    date_part = now_kst().strftime("%Y-%m-%d")
+    return f"{type_code}{item_code}-{date_part}"
 
 
 def post_blogger(title, content, labels, idx, total):
@@ -4606,6 +4638,18 @@ def post_blogger(title, content, labels, idx, total):
     if post_id is None:
         print(f"[{idx:02d}/{total}] ❌ {title[:45]}  →  3회 재시도 후 실패")
         return False
+
+    # 오늘의명언은 슬러그가 순차번호라, 발행이 실제로 성공한 뒤에만 다음 번호로 갱신해야
+    # 실패한 시도 때문에 번호가 헛되이 건너뛰는 일이 없다. (URL은 이미 insert 시점에
+    # 확정됐으므로 아래 한글 제목 PATCH 성공 여부와는 무관하게 여기서 처리)
+    if slug_title and "오늘의명언" in labels:
+        try:
+            q_state = _load_quote_state()
+            q_state["next_number"] = int(slug_title) + 1
+            _save_quote_state(q_state)
+        except Exception as e:
+            print(f"[{idx:02d}/{total}] ⚠️ 명언 슬러그 번호 저장 실패: {e} "
+                  f"— data/quote_state.json을 확인해 다음 번호가 겹치지 않는지 점검 필요")
 
     # 영어 제목으로 만들었다면, 실제 한글 제목으로 수정 — URL(슬러그)은 그대로 유지됨
     if slug_title:
