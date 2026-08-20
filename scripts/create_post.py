@@ -4529,14 +4529,14 @@ def fetch_existing_titles(max_results=80):
 
 # ── 숫자 전용 URL 슬러그 매핑 (기존 영어 단어 슬러그 방식 폐기, 2026-08-19 전환) ──
 # 한글 제목 그대로 insert하면 Blogger가 슬러그를 못 만들고 숫자 코드로 떨어지기 때문에,
-# 슬러그용 임시 제목(숫자+하이픈만으로 구성)으로 먼저 발행한 뒤 한글 제목으로 고치는
+# 슬러그용 임시 제목(숫자만으로 구성)으로 먼저 발행한 뒤 한글 제목으로 고치는
 # 2단계 방식(post_blogger)은 그대로 유지하고, 임시 제목의 내용만 영어 단어 → 숫자로 바꿨다.
 # (Blogger API는 url 필드를 직접 지정해도 무시하고 title 기반으로 슬러그를 만듦 — 공식 문서에
 #  명시되어 있지 않은 동작이라, 이 우회 방식이 현재로선 유일하게 확인된 방법)
 #
 # 규칙:
 #   · 띠운세/별자리운세/별자리주간/띠별월간/별과띠가만나는시간
-#       {타입코드 2자리}{항목코드 2자리}-{YYYY}-{MM}-{DD}   예) 0107-2026-08-19
+#       {타입코드 2자리}{항목코드 2자리}{YYYY}{MM}{DD}   예) 020120260819 (총 12자리 고정, 하이픈 없음)
 #       (항목코드는 ZODIACS/CHINESE 리스트 순서상 1~12번째, 별과띠가만나는시간은 항목이 없어 00 고정)
 #   · 오늘의명언
 #       1로 시작하는 순차번호(10001~) — data/quote_state.json에 다음 번호를 기록해 관리.
@@ -4590,8 +4590,8 @@ def _build_slug_title(labels):
         return None
 
     item_code = item_code or "00"  # 별과띠가만나는시간처럼 세부 항목이 없는 타입
-    date_part = now_kst().strftime("%Y-%m-%d")
-    return f"{type_code}{item_code}-{date_part}"
+    date_part = now_kst().strftime("%Y%m%d")
+    return f"{type_code}{item_code}{date_part}"
 
 
 def post_blogger(title, content, labels, idx, total):
