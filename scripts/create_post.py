@@ -1814,11 +1814,17 @@ _LABEL_URL = {
     "운세상식":          ("📚 운세 상식",           "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9A%B4%EC%84%B8%EC%83%81%EC%8B%9D",               "#5b21b6,#8b5cf6"),
 }
 
-def related_content_links(*category_keys):
-    """관련 콘텐츠 링크 카드 — 카테고리 키 2~4개를 넘기면 버튼으로 렌더링.
-    운세상식 카테고리를 모든 포스트 타입에서 자동으로 하나씩 끼워 넣어
-    새 카테고리로의 유입 경로를 항상 확보한다."""
-    keys = list(category_keys)
+# create_post.py가 매일/매주/매달 발행하는 6개 포스팅 타입 — related_content_links()가
+# 이 목록에서 "자기 자신 타입"만 뺀 나머지 전부를 보여준다(운세상식은 항상 별도로 추가됨)
+_ALL_TYPES = ["별자리운세", "띠운세", "별자리주간", "띠별월간", "별과띠가만나는시간", "오늘의명언"]
+
+def related_content_links(own_type):
+    """관련 콘텐츠 링크 카드 — own_type(지금 발행 중인 포스트 자신의 카테고리) 하나만
+    빼고 나머지 5개 타입 전부를 버튼으로 렌더링. 운세상식은 own_type과 무관하게 항상
+    끼워 넣어 새 카테고리로의 유입 경로를 확보한다.
+    (2026-08-20 이전에는 타입마다 2개씩만 골라 보여주는 방식이었으나, 자기 타입만 빼고
+     전부 보여주는 방식으로 변경)"""
+    keys = [k for k in _ALL_TYPES if k != own_type]
     if "운세상식" not in keys:
         keys.append("운세상식")
     buttons = "".join(
@@ -2122,7 +2128,7 @@ def build_quote_post(today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  {related_content_links("별과띠가만나는시간", "별자리운세")}
+  {related_content_links("오늘의명언")}
 
   {comment_prompt("quote")}
   {site_link()}
@@ -2914,7 +2920,7 @@ def build_zodiac_post(z, today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  {related_content_links("별자리주간", "별과띠가만나는시간")}
+  {related_content_links("별자리운세")}
 
   {site_link()}
   {comment_prompt("zodiac")}
@@ -3279,7 +3285,7 @@ def build_chinese_post(c, today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  {related_content_links("띠별월간", "별과띠가만나는시간")}
+  {related_content_links("띠운세")}
 
   {comment_prompt("chinese")}
   <div class="meta"><p>{c['kr']} 출생연도: {', '.join(map(str, c['years']))}</p>
@@ -3562,7 +3568,7 @@ def build_zodiac_weekly_post(today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  {related_content_links("띠별월간", "별자리운세")}
+  {related_content_links("별자리주간")}
 
   {site_link()}
   {comment_prompt("weekly")}
@@ -3867,7 +3873,7 @@ def build_chinese_monthly_post(today_str):
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  {related_content_links("별자리주간", "띠운세")}
+  {related_content_links("띠별월간")}
 
   {site_link()}
   {comment_prompt("monthly")}
@@ -4374,7 +4380,7 @@ def build_omnibus_post(today_str: str) -> tuple:
   </div>
 
   <!-- 관련 콘텐츠 링크 -->
-  {related_content_links("별자리운세", "띠운세")}
+  {related_content_links("별과띠가만나는시간")}
 
   {comment_prompt("omnibus")}
   {site_link()}
