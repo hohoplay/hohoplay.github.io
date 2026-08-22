@@ -231,7 +231,79 @@
     <div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
 
     <!-- 메인 콘텐츠 영역 -->
-    <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8"></main>
+    <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
+                <div class="page-transition">
+                    <style>
+                        .bbs-wrap{background:#0a0e2e;border-radius:16px;padding:24px;font-family:'Courier New',monospace;min-height:500px}
+                        .bbs-top{color:#00ffff;font-size:13px;border-bottom:1px solid #1a2a5e;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+                        .bbs-title{color:#ffd700;font-size:22px;font-weight:900;text-align:center;margin-bottom:20px;text-shadow:0 0 10px #ffd70088}
+                        .bbs-menu-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
+                        .bbs-section h3{color:#00e5ff;font-size:13px;font-weight:700;border-bottom:1px solid #1a3a6e;padding-bottom:6px;margin-bottom:12px}
+                        .bbs-item{color:#7ec8e3;font-size:13px;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #0d1a40;transition:color .2s}
+                        .bbs-item:hover{color:#00ffff}
+                        .bbs-item .num{color:#4a6fa5;min-width:24px}
+                        .bbs-ship{text-align:center;margin-top:20px}
+                        .bbs-ship-name{color:#00e5ff;font-size:14px;font-weight:700;margin-top:8px}
+                        .bbs-board{display:none;background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
+                        .bbs-board.active{display:block}
+                        .bbs-board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+                        .bbs-board-title{color:#ffd700;font-size:16px;font-weight:700}
+                        .bbs-write-btn{background:#1a3a6e;color:#00e5ff;border:1px solid #00e5ff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+                        .bbs-write-btn:hover{background:#00e5ff;color:#0a0e2e}
+                        .bbs-post{border-bottom:1px solid #1a2a5e;padding:12px 0;cursor:pointer}
+                        .bbs-post:hover .bbs-post-title{color:#00ffff}
+                        .bbs-post-title{color:#7ec8e3;font-size:14px;margin-bottom:4px}
+                        .bbs-post-meta{color:#4a6fa5;font-size:11px;display:flex;gap:12px;flex-wrap:wrap}
+                        .bbs-post-comments{color:#00e5ff}
+                        .bbs-loading{color:#4a6fa5;text-align:center;padding:30px;font-size:13px}
+                        .bbs-back{color:#4a6fa5;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;transition:color .2s}
+                        .bbs-back:hover{color:#00e5ff}
+                        @media(max-width:640px){.bbs-menu-grid{grid-template-columns:1fr}}
+                    </style>
+                    <div class="bbs-wrap">
+                        <div class="bbs-top">
+                            <span>🖥 HOHO PLAY BBS v1.0</span>
+                            <span id="bbs-clock"></span>
+                        </div>
+                        <div class="bbs-title">
+                            <span style="display:inline-flex;align-items:center;gap:12px">
+                                <span style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:#4f46e5;border-radius:10px;font-family:Arial Black,sans-serif;font-size:26px;font-weight:900;color:#fff;box-shadow:0 0 18px #4f46e588">H</span>
+                                <span>HOHO PLAY 커뮤니티</span>
+                            </span>
+                        </div>
+                        <div style="text-align:center;color:#7ec8e3;font-size:13px;line-height:1.7;max-width:640px;margin:0 auto 24px">
+                            HOHO PLAY의 새 소식과 업데이트를 확인하고, 다른 이용자들과 자유롭게 이야기 나눌 수 있는 공간이에요.
+                            공지사항에서는 사이트 소식을, 업데이트에서는 게임·기능 변경 내역을, 자유게시판에서는 이용자들의 이야기를 만나보세요.
+                        </div>
+                        <div id="bbs-main">
+                            <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
+                                <div class="bbs-item" onclick="openBoard('공지사항','공지사항')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">공지사항</div>
+                                <div class="bbs-item" onclick="openBoard('업데이트','업데이트')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">업데이트</div>
+                                <div class="bbs-item" onclick="openBoard('자유게시판','자유게시판')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">자유게시판</div>
+                            </div>
+                            <div style="max-width:640px;margin:0 auto 24px;color:#4a6fa5;font-size:12px;line-height:1.9">
+                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">공지사항</strong> — 사이트 업데이트, 새 기능, 점검 등 운영 소식을 안내해요.</div>
+                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">업데이트</strong> — 게임 추가·수정, 운세 콘텐츠 갱신 등 변경 내역을 기록해요.</div>
+                                <div><strong style="color:#7ec8e3">자유게시판</strong> — 게임 후기, 건의사항 등 이용자분들이 자유롭게 이야기 나누는 공간이에요.</div>
+                            </div>
+                            <div class="bbs-ship">
+                                <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:18px;font-family:Arial Black,sans-serif;font-size:44px;font-weight:900;color:#fff;box-shadow:0 0 30px #4f46e566;margin-bottom:10px">H</div>
+                                <div class="bbs-ship-name">HOHO PLAY BBS</div>
+                                <div style="color:#4a6fa5;font-size:11px;margin-top:4px">Since 2026</div>
+                            </div>
+                        </div>
+                        <div id="bbs-board-area" class="bbs-board">
+                            <span class="bbs-back" onclick="closeBoard()">◀ 메인으로</span>
+                            <div class="bbs-board-top">
+                                <span class="bbs-board-title" id="bbs-board-name"></span>
+                                <a id="bbs-write-link" href="https://github.com/hohoplay/hohoplay.github.io/issues/new" target="_blank" class="bbs-write-btn">✏ 글쓰기</a>
+                            </div>
+                            <div id="bbs-posts"><div class="bbs-loading">⏳ 불러오는 중...</div></div>
+                            <div id="bbs-other-boards"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
 
     <!-- 푸터 -->
     <div id="footer-placeholder"></div>
@@ -470,6 +542,11 @@
                                 <div class="bbs-item" onclick="openBoard('공지사항','공지사항')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">공지사항</div>
                                 <div class="bbs-item" onclick="openBoard('업데이트','업데이트')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">업데이트</div>
                                 <div class="bbs-item" onclick="openBoard('자유게시판','자유게시판')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">자유게시판</div>
+                            </div>
+                            <div style="max-width:640px;margin:0 auto 24px;color:#4a6fa5;font-size:12px;line-height:1.9">
+                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">공지사항</strong> — 사이트 업데이트, 새 기능, 점검 등 운영 소식을 안내해요.</div>
+                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">업데이트</strong> — 게임 추가·수정, 운세 콘텐츠 갱신 등 변경 내역을 기록해요.</div>
+                                <div><strong style="color:#7ec8e3">자유게시판</strong> — 게임 후기, 건의사항 등 이용자분들이 자유롭게 이야기 나누는 공간이에요.</div>
                             </div>
                             <div class="bbs-ship">
                                 <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:18px;font-family:Arial Black,sans-serif;font-size:44px;font-weight:900;color:#fff;box-shadow:0 0 30px #4f46e566;margin-bottom:10px">H</div>
