@@ -1154,6 +1154,13 @@
             }
 
             renderBbsOtherBoards(boardType);
+
+            // 항상 최신 게시글(1페이지의 맨 위 글)은 기본으로 펼쳐진 상태로 보여줌
+            if (_bbsPage === 1 && pagePosts.length > 0) {
+                _bbsOpenPost = null; // 이전 열림 상태를 초기화해서 토글이 정확히 "열기"로 동작하게 함
+                const latest = pagePosts[0];
+                togglePostAccordion(latest.number, latest.title, boardType);
+            }
         }
 
         function bbsGoPage(n, boardType) {
