@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260822162049_6bc0af14">
+  <meta name="build-version" content="20260822163208_576fcd53">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -1158,7 +1158,12 @@
             navigateTo(page);
         }
 
-        window.onload = () => {
+        // [FIX] 정적 폴백 텍스트(크롤러/애드센스 대응용)가 실제 사용자 화면에는 되도록
+        // 짧게만 보이도록, window.onload(이미지·외부스크립트까지 전부 로드될 때까지 대기해서
+        // 수 초씩 걸릴 수 있음)를 기다리지 않고 이 스크립트가 실행되는 시점(=이미 <main id="content">가
+        // 파싱 완료된 시점)에 바로 실제 콘텐츠로 교체한다. 정적 폴백 텍스트 자체는 그대로 두므로
+        // JS를 실행하지 않는 크롤러 관점에서는 기존과 동일하게 보인다.
+        (function renderInitialPage() {
             const pendingPage = sessionStorage.getItem('page');
             if (pendingPage) {
                 sessionStorage.removeItem('page');
@@ -1166,7 +1171,7 @@
             } else {
                 navigateTo('index');
             }
-        };
+        })();
 
         // 현재 활성 페이지에 nav 강조 표시
         function updateActiveNav(page) {
