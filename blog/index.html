@@ -1049,8 +1049,8 @@
             })();
         }
 
-        function loadGiscus(term) {
-            const container = document.getElementById('giscus-container');
+        function loadGiscus(term, containerId) {
+            const container = document.getElementById(containerId || 'giscus-container');
             if(!container) return;
             container.innerHTML = '';
             const s = document.createElement('script');
@@ -1129,13 +1129,15 @@
                 const d = new Date(p.created_at);
                 const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
                 const commentsBadge = boardType==='자유게시판' ? '<span class="bbs-post-comments">💬 '+p.comments+'</span>' : '';
-                return '<div class="bbs-post" onclick="viewPost('+p.number+',\''+p.title.replace(/'/g,"\\'")+'\',\''+boardType+'\')">'+
-                    '<div class="bbs-post-title">'+String(start+i+1).padStart(2,'0')+'. '+p.title+'</div>'+
+                const safeTitle = p.title.replace(/'/g,"\\'");
+                return '<div class="bbs-post" id="bbs-post-'+p.number+'" style="cursor:default">'+
+                    '<div class="bbs-post-title" onclick="togglePostAccordion('+p.number+',\''+safeTitle+'\',\''+boardType+'\')" style="cursor:pointer">'+String(start+i+1).padStart(2,'0')+'. '+p.title+'</div>'+
                     '<div class="bbs-post-meta">'+
                         '<span>'+ds+'</span>'+
                         '<span>👤 '+p.user.login+'</span>'+
                         commentsBadge+
                     '</div>'+
+                    '<div class="bbs-post-body" id="bbs-post-body-'+p.number+'" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #1a2a5e"></div>'+
                 '</div>';
             }).join('');
 
@@ -1176,45 +1178,59 @@
                 '</div>';
         }
 
-        async function viewPost(number, title, boardType) {
-            const el = document.getElementById('bbs-posts');
-            const label = el.dataset.label || '';
-            el.innerHTML = '<div class="bbs-loading">⏳ 글 불러오는 중...</div>';
+        let _bbsOpenPost = null; // 현재 펼쳐진 게시글 번호(한 번에 하나만 열림)
+
+        async function togglePostAccordion(number, title, boardType) {
+            const bodyEl = document.getElementById('bbs-post-body-'+number);
+            if (!bodyEl) return;
+
+            const isCurrentlyOpen = (_bbsOpenPost === number);
+
+            // 이전에 열려있던 다른 게시글은 닫기
+            if (_bbsOpenPost !== null && _bbsOpenPost !== number) {
+                const prevBody = document.getElementById('bbs-post-body-'+_bbsOpenPost);
+                if (prevBody) prevBody.style.display = 'none';
+            }
+
+            if (isCurrentlyOpen) {
+                // 같은 글을 다시 누르면 접기
+                bodyEl.style.display = 'none';
+                _bbsOpenPost = null;
+                return;
+            }
+
+            _bbsOpenPost = number;
+            bodyEl.style.display = 'block';
+
+            // 이미 한 번 불러온 내용이면 재요청 없이 그대로 보여줌
+            if (bodyEl.dataset.loaded === 'true') return;
+
+            bodyEl.innerHTML = '<div class="bbs-loading">⏳ 글 불러오는 중...</div>';
             try {
                 const r = await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/issues/'+number, {headers:{'Accept':'application/vnd.github.v3+json'}});
                 const post = await r.json();
-
-                const d = new Date(post.created_at);
-                const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
                 const body = post.body ? post.body.replace(/\n/g,'<br>') : '(내용 없음)';
-
                 const isFree = (boardType === '자유게시판');
 
-                // 댓글 (자유게시판만 giscus)
                 let commentsHtml = '';
                 if(isFree) {
                     commentsHtml =
-                        '<div style="margin-top:24px;border-top:1px solid #1a2a5e;padding-top:16px">'+
+                        '<div style="margin-top:20px;border-top:1px solid #1a2a5e;padding-top:14px">'+
                         '<div style="color:#00e5ff;font-size:13px;font-weight:700;margin-bottom:12px">💬 댓글</div>'+
-                        '<div id="giscus-container"></div>'+
+                        '<div id="giscus-container-'+number+'"></div>'+
                         '</div>';
                 }
 
-                el.innerHTML =
-                    '<span class="bbs-back" onclick="loadIssues(\''+label+'\',\''+boardType+'\')">◀ 목록으로</span>'+
-                    '<div style="border-bottom:1px solid #1a2a5e;padding-bottom:14px;margin-bottom:14px">'+
-                        '<div style="color:#ffd700;font-size:16px;font-weight:700;margin-bottom:8px">'+post.title+'</div>'+
-                        '<div style="color:#4a6fa5;font-size:12px">👤 '+post.user.login+' · '+ds+'</div>'+
-                    '</div>'+
-                    '<div style="color:#7ec8e3;font-size:14px;line-height:1.9;margin-bottom:20px;min-height:60px">'+body+'</div>'+
+                bodyEl.innerHTML =
+                    '<div style="color:#7ec8e3;font-size:14px;line-height:1.9">'+body+'</div>'+
                     commentsHtml;
+                bodyEl.dataset.loaded = 'true';
 
-                // giscus 로드 (자유게시판만)
                 if(isFree) {
-                    setTimeout(() => loadGiscus('issue-'+number), 100);
+                    setTimeout(() => loadGiscus('issue-'+number, 'giscus-container-'+number), 100);
                 }
             } catch(e) {
-                el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
+                bodyEl.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
             }
         }
         // const 사용 금지 — fortune.html var와 충돌 방지
