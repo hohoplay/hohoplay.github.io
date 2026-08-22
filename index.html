@@ -146,7 +146,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260820135525_b4c59069">
+  <meta name="build-version" content="20260822125406_0c8f7a26">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -231,7 +231,35 @@
     <div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
 
     <!-- 메인 콘텐츠 영역 -->
-    <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8"></main>
+    <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
+        <noscript-fallback style="display:block">
+        <h1 style="font-size:1.75rem;font-weight:900;margin-bottom:.75rem">호호플레이(HOHO PLAY) — 로그인 없는 무료 웹게임 포털</h1>
+        <p style="line-height:1.8;margin-bottom:1rem">
+            HOHO PLAY는 회원가입이나 설치 없이 브라우저에서 바로 즐기는 무료 웹게임 포털입니다.
+            타이핑, 퍼즐, 러닝, 레이싱 등 다양한 장르의 자체 제작 게임을 제공하며,
+            사주·타로 등 실제 계산 로직 기반의 운세 콘텐츠도 함께 즐길 수 있습니다.
+        </p>
+        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">제공 중인 게임</h2>
+        <ul style="line-height:2;padding-left:1.25rem">
+            <li><strong>호야타자RPG</strong> — 타이핑 액션. 단어를 입력해 몬스터를 물리치는 RPG</li>
+            <li><strong>호야속담</strong> — 타이핑. 속담을 완성하며 타자 실력을 겨루는 게임. 아는 속담이 나오면 반갑고 몰랐던 것도 배우게 돼요.</li>
+            <li><strong>호호벚꽃타자</strong> — 타이핑. 벚꽃이 흩날리는 화면에서 떨어지는 단어를 입력하는 낙하형 타자 게임. 놓치면 안 돼요.</li>
+            <li><strong>호호타자FPS</strong> — 타이핑 슈터. 단어 입력으로 적을 조준·사격</li>
+            <li><strong>호호레이싱</strong> — 레이싱. 좌우 조작만으로 달리는 캐주얼 레이싱. 갈수록 속도가 빨라져서 손이 바빠져요.</li>
+            <li><strong>HOHO RUN</strong> — 러닝 액션. 벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션. 타이밍 하나로 승부가 갈려요.</li>
+            <li><strong>호호사천성</strong> — 퍼즐. 같은 그림 두 개를 선으로 이어 없애는 고전 매칭 퍼즐. 머리 식히기 좋아요.</li>
+            <li><strong>JELLY POP 7</strong> — 퍼즐. 숫자 합이 7이 되도록 젤리를 연결해 터뜨리는 매치 퍼즐. 10분 제한이 있어요.</li>
+            <li><strong>HOHO DASH</strong> — 러닝 액션. 도트 그래픽으로 장애물을 피해 달리는 러닝 게임. 단순하지만 손을 못 떼요.</li>
+            <li><strong>낱말퍼즐 던전</strong> — 낱말 퍼즐. 던전을 테마로 한 낱말 맞추기</li>
+        </ul>
+        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">운세 서비스</h2>
+        <p style="line-height:1.8">
+            오늘의 운세, 사주, 타로, 별자리 월간운세, 띠별 주간운세, MBTI 결합 콘텐츠 등을 제공합니다.
+            AI가 임의로 문장을 지어내는 방식이 아니라, 사주 명리학과 정해진 계산 로직을 바탕으로
+            결과를 만들어내며, 입력하신 정보는 외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
+        </p>
+        </noscript-fallback>
+    </main>
 
     <!-- 푸터 -->
     <div id="footer-placeholder"></div>
@@ -250,16 +278,16 @@
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024 || isTouchOnlyDevice;
 
         const gameData = [
-            { id: 'g1', name: '호야타자rpg',    genre: '타이핑 액션', version: 'v1.0.0', file: 'game1.html', img: 'data/game1.png' },
-            { id: 'g2', name: '호야속담',        genre: '타이핑',      version: 'v1.0.0', file: 'game2.html', img: 'data/game2.png' },
-            { id: 'g3', name: '호호벚꽃타자',  genre: '타이핑',      version: 'v1.0.0', file: 'game3.html', img: 'data/game3.png' },
-            { id: 'g4',  name: '호호타자FPS', genre: '타이핑 슈터', version: 'v1.0.0', file: 'game4.html', img: 'data/game4.png' },
-            { id: 'g5',  name: '호호레이싱', genre: '레이싱', version: 'v1.0.0', file: 'game5.html', img: 'data/game5.png' },
-            { id: 'g6',  name: 'HOHO RUN', genre: '러닝 액션', version: 'v1.0.0', file: 'game6.html', img: 'data/game6.png' },
-            { id: 'g7',  name: '호호사천성', genre: '퍼즐', version: 'v1.0.0', file: 'game7.html', img: 'data/game7.png' },
-            { id: 'g8',  name: 'JELLY POP 7', genre: '퍼즐', version: 'v1.0.0', file: 'game8.html', img: 'data/game8.png' },
-            { id: 'g9',  name: 'HOHO DASH', genre: '러닝 액션', version: 'v1.0.0', file: 'game9.html', img: 'data/game9.png' },
-            { id: 'g10', name: '낱말퍼즐 던전', genre: '낱말 퍼즐', version: 'v1.0.0', file: 'game10.html', img: 'data/game10.png' }
+            { id: 'g1', name: '호야타자rpg',    genre: '타이핑 액션', desc: '숲을 탐험하며 몬스터를 타이핑으로 물리치는 액션 RPG. 이동과 타이핑을 동시에 처리해야 해요.', version: 'v1.0.0', file: 'game1.html', img: 'data/game1.png' },
+            { id: 'g2', name: '호야속담',        genre: '타이핑',      desc: '속담을 완성하며 타자 실력을 겨루는 게임. 아는 속담이 나오면 반갑고 몰랐던 것도 배우게 돼요.', version: 'v1.0.0', file: 'game2.html', img: 'data/game2.png' },
+            { id: 'g3', name: '호호벚꽃타자',  genre: '타이핑',      desc: '벚꽃이 흩날리는 화면에서 떨어지는 단어를 입력하는 낙하형 타자 게임. 놓치면 안 돼요.', version: 'v1.0.0', file: 'game3.html', img: 'data/game3.png' },
+            { id: 'g4',  name: '호호타자FPS', genre: '타이핑 슈터', desc: '총 대신 단어로 적을 쏘는 타이핑 슈터. 정확하고 빠른 타자 실력이 곧 전투력이에요.', version: 'v1.0.0', file: 'game4.html', img: 'data/game4.png' },
+            { id: 'g5',  name: '호호레이싱', genre: '레이싱', desc: '좌우 조작만으로 달리는 캐주얼 레이싱. 갈수록 속도가 빨라져서 손이 바빠져요.', version: 'v1.0.0', file: 'game5.html', img: 'data/game5.png' },
+            { id: 'g6',  name: 'HOHO RUN', genre: '러닝 액션', desc: '벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션. 타이밍 하나로 승부가 갈려요.', version: 'v1.0.0', file: 'game6.html', img: 'data/game6.png' },
+            { id: 'g7',  name: '호호사천성', genre: '퍼즐', desc: '같은 그림 두 개를 선으로 이어 없애는 고전 매칭 퍼즐. 머리 식히기 좋아요.', version: 'v1.0.0', file: 'game7.html', img: 'data/game7.png' },
+            { id: 'g8',  name: 'JELLY POP 7', genre: '퍼즐', desc: '숫자 합이 7이 되도록 젤리를 연결해 터뜨리는 매치 퍼즐. 10분 제한이 있어요.', version: 'v1.0.0', file: 'game8.html', img: 'data/game8.png' },
+            { id: 'g9',  name: 'HOHO DASH', genre: '러닝 액션', desc: '도트 그래픽으로 장애물을 피해 달리는 러닝 게임. 단순하지만 손을 못 떼요.', version: 'v1.0.0', file: 'game9.html', img: 'data/game9.png' },
+            { id: 'g10', name: '낱말퍼즐 던전', genre: '낱말 퍼즐', desc: '던전을 테마로 한 낱말 맞추기 퍼즐. 단어가 막히면 은근 오래 걸려요.', version: 'v1.0.0', file: 'game10.html', img: 'data/game10.png' }
         ];
         // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
         const bannerConfig = {
@@ -312,6 +340,8 @@
                     + badge
                     + '<h3 class="font-bold text-sm text-slate-800 mb-1 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight">' + game.name + '</h3>'
                     + '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full uppercase tracking-tighter">' + game.genre + '</span>'
+                    + (game.desc ? '<p class="text-[11px] text-slate-400 mt-1.5 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + game.desc + '</p>' : '')
+                    + '<span class="text-[10px] text-indigo-400 font-bold mt-1.5">🎮 게임을 하려면 이미지를 터치하세요</span>'
                     + '</button>';
             }).join('');
 
