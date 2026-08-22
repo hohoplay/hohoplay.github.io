@@ -274,7 +274,9 @@
         // 놓칠 수 있어서, 실제 입력 방식(터치 전용 + 마우스 hover 불가)도 함께 확인함
         const isTouchOnlyDevice = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window)
             && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024 || isTouchOnlyDevice;
+        // 창 폭(window.innerWidth) 기반 판별은 넣지 않음: const라 페이지 로드 시점에 한 번만 계산되어
+        // 창을 좁게 연 채로 로드하면 이후 창을 넓혀도 값이 갱신되지 않아 PC에서도 계속 막히는 문제가 있었음
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || isTouchOnlyDevice;
 
         const gameData = [
             { id: 'g1', name: '호야타자rpg',    genre: '타이핑 액션', desc: '숲을 탐험하며 몬스터를 타이핑으로 물리치는 액션 RPG. 이동과 타이핑을 동시에 처리해야 해요.', version: 'v1.0.0', file: 'game1.html', img: 'data/game1.png' },
