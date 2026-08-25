@@ -501,21 +501,18 @@ ZODIAC_INFO = {
 }
 
 def zodiac_info_card(z_kr, emoji):
-    """별자리 배경 지식 — 산문 형태 (박스/테두리 없음)"""
+    """별자리 배경 지식 — 알약형 배지 스타일"""
     info = ZODIAC_INFO.get(z_kr)
     if not info:
         return ""
     return f'''
-<div style="font-size:14px;line-height:2.0;color:#374151;
-            font-family:'Noto Serif KR',Georgia,serif;
-            margin:0 0 1.4rem;word-break:keep-all">
-  <h3 style="margin:0 0 0.6rem;font-size:14px;font-weight:700;color:#374151">{emoji} {z_kr} — {info["trait"]}</h3>
-  <p style="font-size:13px;color:#6b7280;margin:0">
-    🌿 {info["element"]} · {info["ruling"]} &nbsp;·&nbsp;
-    ✅ {info["strength"]} &nbsp;·&nbsp;
-    ⚠️ {info["weakness"]} &nbsp;·&nbsp;
-    💑 {info["compatible"]}
-  </p>
+<p class="fortune-lead">{emoji} {z_kr} — {info["trait"]}</p>
+<div class="z-traits">
+  <span class="z-trait">🌿 <b>{info["element"]}</b></span>
+  <span class="z-trait">☿ <b>{info["ruling"]}</b></span>
+  <span class="z-trait">✅ {info["strength"]}</span>
+  <span class="z-trait">⚠️ {info["weakness"]}</span>
+  <span class="z-trait">💑 {info["compatible"]}</span>
 </div>'''
 
 
@@ -1699,6 +1696,35 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 .sheet-item span{font-size:11px;color:#444;font-weight:600}
 .sheet-cancel{display:block;width:100%;background:#f3f4f6;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;color:#333;cursor:pointer;margin-top:4px}
 .sheet-cancel:hover{background:#e5e7eb}
+
+.fortune-lead{font-size:15px;line-height:1.7;color:#4b5563;margin:0 0 14px;font-weight:500;word-break:keep-all}
+.z-traits{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.z-trait{display:inline-flex;align-items:center;gap:4px;background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe;border-radius:999px;padding:5px 12px;font-size:12.5px}
+.z-trait b{color:#4c1d95}
+.z-today{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;padding:22px 24px;margin:0 0 22px}
+.z-today-label{display:inline-block;font-size:12px;font-weight:800;background:rgba(255,255,255,.22);padding:4px 12px;border-radius:999px;margin:0 0 10px}
+.z-today p{font-size:15px;line-height:1.8;margin:0;word-break:keep-all}
+.z-divider{display:flex;align-items:center;gap:8px;margin:6px 0 16px;color:#c4b5fd;font-size:10px}
+.z-divider::before,.z-divider::after{content:"";flex:1;height:1px;background:#e9d5ff}
+.z-section{border-radius:18px;padding:20px 22px;margin:0 0 14px;border:1px solid}
+.z-section.love{background:#fff1f2;border-color:#fecdd3}
+.z-section.money{background:#fefce8;border-color:#fde68a}
+.z-section.work{background:#eff6ff;border-color:#bfdbfe}
+.z-section h2{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;margin:0 0 10px}
+.z-section.love h2{color:#9f1239}
+.z-section.money h2{color:#78350f}
+.z-section.work h2{color:#1e3a8a}
+.z-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:15px;flex-shrink:0}
+.z-section.love .z-icon{background:#fecdd3}
+.z-section.money .z-icon{background:#fde68a}
+.z-section.work .z-icon{background:#bfdbfe}
+.z-section p{font-size:14px;line-height:1.8;color:#374151;margin:0 0 8px;word-break:keep-all}
+.z-section p:last-child{margin-bottom:0}
+.z-bridge{font-size:12.5px;color:#9ca3af;font-weight:600;margin-bottom:6px}
+.z-quote-block{background:#faf5ff;border-left:4px solid #a78bfa;border-radius:0 16px 16px 0;padding:20px 22px;margin:8px 0 20px}
+.z-quote-label{font-size:12px;font-weight:800;color:#7c3aed;margin:0 0 10px}
+.z-quote-text{font-size:15px;font-style:italic;font-weight:600;color:#4c1d95;line-height:1.7;margin:0 0 6px;word-break:keep-all}
+.z-quote-author{font-size:12px;color:#9d8bc7;margin:0 0 14px}
 </style>
 <script>
 function saveFortuneCard(cardId, filename) {
@@ -2815,65 +2841,62 @@ def build_zodiac_post(z, today_str):
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <p style="font-size:15px;line-height:2.1;color:#374151;
-            margin:0 0 1.4em 0;word-break:keep-all">
-    💭 {empathy}
-  </p>
+  <div class="z-today">
+    <span class="z-today-label">💭 오늘의 핵심 메시지</span>
+    <p>{empathy}</p>
+  </div>
 
   <!-- fortune.html 파서 연동용 히든 마커 -->
   <div style="display:none" aria-hidden="true">오늘의 흐름</div>
 
-  <div style="font-size:15px;line-height:2.1;color:#374151;
-               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <div style="font-family:'Noto Serif KR',Georgia,serif">
 
-    <p style="margin:0 0 1.4em 0">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}</p>
+    <p style="margin:0 0 1.2em 0;font-size:15px;line-height:2.0;color:#374151;word-break:keep-all">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}</p>
 
-    <p style="margin:0 0 1.4em 0;font-size:13px;font-weight:700;color:#7c3aed">{keyword_line}</p>
+    <p style="margin:0 0 1.2em 0;font-size:13px;font-weight:700;color:#7c3aed">{keyword_line}</p>
 
-    <h3 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa">{lb}</h3>
+    <div class="z-divider">✦</div>
 
-    <p style="margin:0 0 1.4em 0">{love_intro}<br>
-    <span style="font-size:13px;color:#9f1239">{love_detail}</span></p>
+    <div class="z-section love">
+      <h2><span class="z-icon">💑</span> {z['kr']} 애정운 · 관계</h2>
+      <p class="z-bridge">{lb}</p>
+      <p>{love_intro}<br>{love_detail}</p>
+    </div>
 
-    <h3 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa">{mb}</h3>
+    <div class="z-section money">
+      <h2><span class="z-icon">💰</span> {z['kr']} 금전운</h2>
+      <p class="z-bridge">{mb}</p>
+      <p>{money_intro}<br>{money_detail}</p>
+    </div>
 
-    <p style="margin:0 0 1.4em 0">{money_intro}<br>
-    <span style="font-size:13px;color:#78350f">{money_detail}</span></p>
+    <div class="z-section work">
+      <h2><span class="z-icon">💼</span> {z['kr']} 업무운</h2>
+      <p class="z-bridge">{wb}</p>
+      <p>{work_intro}<br>{work_detail}</p>
+    </div>
 
-    <h3 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#a78bfa">{wb}</h3>
+    <p style="margin:1.2em 0;font-size:13px;color:#6b7280;word-break:keep-all">{keyword_tie}</p>
 
-    <p style="margin:0 0 1.4em 0">{work_intro}<br>
-    <span style="font-size:13px;color:#1e3a8a">{work_detail}</span></p>
-
-    <p style="margin:0 0 1.4em 0;font-size:13px;color:#6b7280">{keyword_tie}</p>
-
-    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day)}</p>
+    <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{pick_insight_bridge(kst_day)}</p>
 
   </div>
 
-  <div style="background:none;padding:0;margin:0">
-    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
-              word-break:keep-all">{pick_human_bridge(kst_day, "zodiac", _zq.get("category","인생"))}</p>
-    <h3 style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all;font-weight:500">오늘 이 흐름에 어울리는 말</h3>
-    <p style="font-size:15px;line-height:2.0;color:#1f2937;
-              font-weight:500;margin:0 0 6px;word-break:keep-all;
-              ">"{_zq["quote"]}"</p>
-    <p style="font-size:12px;color:#9d8bc7;margin:0 0 1.2rem">
-      — {_zq["author"]} ({_zq["profession"]})
-    </p>
-    <p style="font-size:13px;line-height:1.9;color:#374151;
-              margin:0 0 1.4rem;word-break:keep-all">{_zq["apply"]}</p>
-    <p style="font-size:13px;line-height:1.9;color:#5b21b6;
-              margin:0 0 1.4rem;word-break:keep-all">{_zq["meaning"]}</p>
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
-              word-break:keep-all">{_ze[1]}</p>
-    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all">{pick_farewell_bridge(kst_day, "daily")}</p>
+  <div class="z-quote-block">
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1rem;word-break:keep-all">{pick_human_bridge(kst_day, "zodiac", _zq.get("category","인생"))}</p>
+    <h3 class="z-quote-label">📖 오늘 이 흐름에 어울리는 말</h3>
+    <p class="z-quote-text">"{_zq["quote"]}"</p>
+    <p class="z-quote-author">— {_zq["author"]} ({_zq["profession"]})</p>
+    <p style="font-size:13px;line-height:1.9;color:#374151;margin:0 0 1rem;word-break:keep-all">{_zq["apply"]}</p>
+    <p style="font-size:13px;line-height:1.9;color:#5b21b6;margin:0;word-break:keep-all">{_zq["meaning"]}</p>
   </div>
 
-</div>'''  
+  <div style="background:none;padding:0;margin:1.4rem 0 0">
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;margin:0 0 0.8rem;word-break:keep-all">{_ze[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;word-break:keep-all">{_ze[1]}</p>
+    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;word-break:keep-all">{pick_farewell_bridge(kst_day, "daily")}</p>
+  </div>
+
+</div>'''
 
     # SEO 키워드
     kw_list = [
