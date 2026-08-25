@@ -1710,14 +1710,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 .z-section.love{background:#fff1f2;border-color:#fecdd3}
 .z-section.money{background:#fefce8;border-color:#fde68a}
 .z-section.work{background:#eff6ff;border-color:#bfdbfe}
+.z-section.health{background:#f0fdf4;border-color:#bbf7d0}
 .z-section h2{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;margin:0 0 10px}
 .z-section.love h2{color:#9f1239}
 .z-section.money h2{color:#78350f}
 .z-section.work h2{color:#1e3a8a}
+.z-section.health h2{color:#166534}
 .z-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:15px;flex-shrink:0}
 .z-section.love .z-icon{background:#fecdd3}
 .z-section.money .z-icon{background:#fde68a}
 .z-section.work .z-icon{background:#bfdbfe}
+.z-section.health .z-icon{background:#bbf7d0}
 .z-section p{font-size:14px;line-height:1.8;color:#374151;margin:0 0 8px;word-break:keep-all}
 .z-section p:last-child{margin-bottom:0}
 .z-bridge{font-size:12.5px;color:#9ca3af;font-weight:600;margin-bottom:6px}
@@ -1748,6 +1751,26 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 .c-quote-label{font-size:12px;font-weight:800;color:#92400e;margin:0 0 10px}
 .c-quote-text{font-size:15px;font-style:italic;font-weight:600;color:#78350f;line-height:1.7;margin:0 0 6px;word-break:keep-all}
 .c-quote-author{font-size:12px;color:#9a7b4f;margin:0 0 14px}
+
+.m-today{background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;border-radius:20px;padding:22px 24px;margin:0 0 22px}
+.m-today-label{display:inline-block;font-size:12px;font-weight:800;background:rgba(255,255,255,.22);padding:4px 12px;border-radius:999px;margin:0 0 10px}
+.m-today p{font-size:15px;line-height:1.8;margin:0 0 10px;word-break:keep-all}
+.m-today p:last-child{margin-bottom:0}
+.m-divider{display:flex;align-items:center;gap:8px;margin:6px 0 16px;color:#d8b4fe;font-size:10px}
+.m-divider::before,.m-divider::after{content:"";flex:1;height:1px;background:#e9d5ff}
+.m-section{border-radius:18px;padding:20px 22px;margin:0 0 14px;border:1px solid}
+.m-section.period{background:#f5f3ff;border-color:#ddd6fe}
+.m-section.trait{background:#fdf4ff;border-color:#f5d0fe}
+.m-section h2{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;margin:0 0 10px}
+.m-section.period h2{color:#5b21b6}
+.m-section.trait h2{color:#86198f}
+.m-section.period .z-icon{background:#ddd6fe}
+.m-section.trait .z-icon{background:#f5d0fe}
+.m-section p{font-size:14px;line-height:1.8;color:#374151;margin:0 0 8px;word-break:keep-all}
+.m-section p:last-child{margin-bottom:0}
+.m-quote-block{background:#fdf4ff;border-left:4px solid #a855f7;border-radius:0 16px 16px 0;padding:20px 22px;margin:8px 0 20px}
+.m-quote-label{font-size:12px;font-weight:800;color:#86198f;margin:0 0 10px}
+.m-quote-text{font-size:15px;font-style:italic;font-weight:600;color:#581c87;line-height:1.7;margin:0 0 6px;word-break:keep-all}
 </style>
 <script>
 function saveFortuneCard(cardId, filename) {
@@ -3525,49 +3548,65 @@ def build_zodiac_weekly_post(today_str):
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <div style="font-size:15px;line-height:2.1;color:#374151;
-              word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <p class="fortune-lead">{z['emoji']} {z['kr']} — {z_info.get("trait","")}</p>
+  <div class="z-traits">
+    <span class="z-trait">🌿 <b>{z_info.get("element","")}</b></span>
+    <span class="z-trait">☿ <b>{z_info.get("ruling","")}</b></span>
+    <span class="z-trait">✅ {z_info.get("strength","")}</span>
+    <span class="z-trait">⚠️ {z_info.get("weakness","")}</span>
+  </div>
 
-    <p style="font-size:15px;line-height:2.1;color:#374151;
-              margin:0 0 1.4em 0;word-break:keep-all">💭 {empathy}</p>
+  <div class="z-today">
+    <span class="z-today-label">💭 이번 주 핵심 메시지</span>
+    <p>{empathy}</p>
+  </div>
 
-    <h2 style="margin:0 0 0.5em 0;font-size:13px;font-weight:500;color:#a78bfa">{tfb}</h2>
-    <p style="margin:0 0 1.6em 0">{fortune}</p>
+  <div style="font-family:'Noto Serif KR',Georgia,serif">
 
-    <h3 style="margin:1.4em 0 0.4em;font-size:14px;font-weight:700;color:#e11d48">❤️ 관계</h3>
-    <p style="margin:0 0 1.2em 0">{area_rel}</p>
+    <p style="margin:0 0 0.5em 0;font-size:13px;font-weight:600;color:#a78bfa">{tfb}</p>
+    <p style="margin:0 0 1.4em 0;font-size:15px;line-height:2.0;color:#374151;word-break:keep-all">{fortune}</p>
 
-    <h3 style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#3b82f6">💼 일</h3>
-    <p style="margin:0 0 1.2em 0">{area_work}</p>
+    <div class="z-divider">✦</div>
 
-    <h3 style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#d97706">💰 돈</h3>
-    <p style="margin:0 0 1.2em 0">{area_money}</p>
+    <div class="z-section love">
+      <h2><span class="z-icon">❤️</span> {z['kr']} 이번 주 관계</h2>
+      <p>{area_rel}</p>
+    </div>
 
-    <h3 style="margin:0 0 0.4em;font-size:14px;font-weight:700;color:#16a34a">💪 건강</h3>
-    <p style="margin:0 0 1.6em 0">{area_health}</p>
+    <div class="z-section work">
+      <h2><span class="z-icon">💼</span> {z['kr']} 이번 주 일</h2>
+      <p>{area_work}</p>
+    </div>
 
-    <h3 style="margin:0 0 0.5em 0;font-size:13px;font-weight:600;color:#a78bfa">이번 주 {z['kr']}{_iga(z['kr'])} 집중해야 할 것입니다.</h3>
-    <p style="margin:0 0 1.4em 0">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
+    <div class="z-section money">
+      <h2><span class="z-icon">💰</span> {z['kr']} 이번 주 돈</h2>
+      <p>{area_money}</p>
+    </div>
+
+    <div class="z-section health">
+      <h2><span class="z-icon">💪</span> {z['kr']} 이번 주 건강</h2>
+      <p>{area_health}</p>
+    </div>
+
+    <p class="z-bridge" style="margin-top:8px">이번 주 {z['kr']}{_iga(z['kr'])} 집중해야 할 것입니다.</p>
+    <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
     {compat_tip_html_w}
 
-    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day+2, mode='weekly')}</p>
+    <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{pick_insight_bridge(kst_day+2, mode='weekly')}</p>
 
-    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1.2rem;
-              word-break:keep-all">{pick_human_bridge(kst_day, "weekly", _wq.get("category","인생"))}</p>
-    <h3 style="font-size:13px;color:#9d8bc7;margin:0 0 0.4rem;word-break:keep-all;font-weight:500">이 흐름에 어울리는 속담</h3>
-    <p style="font-size:17px;line-height:1.9;color:#1f2937;
-              font-weight:500;margin:0 0 6px;word-break:keep-all;
-              ">"{_wq["proverb"]}"</p>
-    <p style="font-size:13px;line-height:1.9;color:#6d28d9;
-              margin:0 0 1.6rem;word-break:keep-all">{_wq["meaning"]}</p>
+  </div>
 
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;
-              word-break:keep-all">{_we[1]}</p>
-    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all">{pick_farewell_bridge(kst_day, "weekly")}</p>
+  <div class="z-quote-block">
+    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1rem;word-break:keep-all">{pick_human_bridge(kst_day, "weekly", _wq.get("category","인생"))}</p>
+    <h3 class="z-quote-label">📜 이 흐름에 어울리는 속담</h3>
+    <p class="z-quote-text">"{_wq["proverb"]}"</p>
+    <p style="font-size:13px;line-height:1.9;color:#5b21b6;margin:0;word-break:keep-all">{_wq["meaning"]}</p>
+  </div>
 
+  <div style="background:none;padding:0;margin:1.4rem 0 0">
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;word-break:keep-all">{_we[1]}</p>
+    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;word-break:keep-all">{pick_farewell_bridge(kst_day, "weekly")}</p>
   </div>
 
 </div>'''
@@ -3582,18 +3621,6 @@ def build_zodiac_weekly_post(today_str):
   </div>
 
   {post_img('weekly')}
-
-  <!-- 별자리 고유 정보 (프로필로 첫머리에 배치) -->
-  <div style="font-size:14px;line-height:2.0;color:#374151;
-              font-family:'Noto Serif KR',Georgia,serif;
-              margin:0 0 1.4rem;word-break:keep-all">
-    <h3 style="margin:0 0 0.6rem;font-size:14px;font-weight:700;color:#374151">{z['emoji']} {z['kr']} — {z_info.get("trait","")}</h3>
-    <p style="font-size:13px;color:#6b7280;margin:0">
-      🌿 {z_info.get("element","")} · {z_info.get("ruling","")} &nbsp;·&nbsp;
-      ✅ {z_info.get("strength","")} &nbsp;·&nbsp;
-      ⚠️ {z_info.get("weakness","")}
-    </p>
-  </div>
 
   {story_html}
 
@@ -3833,41 +3860,45 @@ def build_chinese_monthly_post(today_str):
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto;
             font-size:15px;line-height:2.2;color:#374151;word-break:keep-all">
 
-  <p style="margin:0 0 1.6em 0">{entrance_html}</p>
-
-  <p style="margin:0 0 1.6em 0">{book_found_html}</p>
+  <div class="m-today">
+    <span class="m-today-label">📖 이달의 이야기</span>
+    <p>{entrance_html}</p>
+    <p>{book_found_html}</p>
+  </div>
 
   <p style="margin:0 0 1.6em 0">{headline.replace(chr(10),' ').strip()}</p>
 
   <p style="margin:0 0 1.6em 0;font-size:14px;color:#6b7280">{sympathy.replace(chr(10),' ').strip()}</p>
 
-  <h3 style="margin:0 0 0.5em 0;font-size:13px;font-weight:600;color:#7c3aed">{tpb}</h3>
+  <div class="m-divider">✦</div>
 
-  <p style="margin:0 0 1.6em 0">{period_html}</p>
+  <div class="m-section period">
+    <h2><span class="z-icon">🌙</span> {c['kr']} 이달의 흐름</h2>
+    <p class="z-bridge">{tpb}</p>
+    <p>{period_html}</p>
+  </div>
 
-  <h3 style="margin:0 0 0.5em 0;font-size:13px;font-weight:600;color:#7c3aed">{tmb}</h3>
-
-  <p style="margin:0 0 1.6em 0">{c['kr']}{"는" if (ord(c["kr"][-1])-0xAC00)%28==0 else "은"} 본래 {trait}입니다. 이달은 그 성향이 가장 자연스럽게 빛나는 시기입니다.</p>
-
-  {f'<p style="margin:0 0 1.6em 0">{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
-
-  <p style="margin:0 0 1.6em 0">{_m_peak_tip}</p>
-
-  {avoid_html_m}
-
-  <p style="margin:0 0 1.6em 0;font-size:14px;color:#6b7280">{_m_low_tip}</p>
+  <div class="m-section trait">
+    <h2><span class="z-icon">🀄</span> {c['kr']} 이달의 특성</h2>
+    <p class="z-bridge">{tmb}</p>
+    <p>{c['kr']}{"는" if (ord(c["kr"][-1])-0xAC00)%28==0 else "은"} 본래 {trait}입니다. 이달은 그 성향이 가장 자연스럽게 빛나는 시기입니다.</p>
+    {f'<p>{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
+    <p>{_m_peak_tip}</p>
+    {avoid_html_m}
+    <p style="color:#6b7280;font-size:13px">{_m_low_tip}</p>
+  </div>
 
   <p style="margin:0 0 2.0em 0;font-size:13px;color:#9d8bc7">{pick_human_bridge(_month_seed, "monthly", _mq.get("category","인생"))}</p>
 
-  <h3 style="margin:0 0 0.4em 0;font-size:13px;font-weight:500;color:#9d8bc7">이 흐름에 어울리는 속담이 있습니다.</h3>
+  <div class="m-quote-block">
+    <h3 class="m-quote-label">📜 이 흐름에 어울리는 속담</h3>
+    <p class="m-quote-text">"{_mq["proverb"]}"</p>
+    <p style="font-size:13px;line-height:1.9;color:#6d28d9;margin:0;word-break:keep-all">{_mq.get("풀이", _mq.get("meaning", ""))}</p>
+  </div>
 
-  <p style="margin:0 0 0.3em 0;font-size:16px;font-weight:500;color:#1f2937">❝ {_mq["proverb"]} ❞</p>
+  <p style="margin:1.6em 0 2.0em;font-size:13px;color:#78350f">{info.get("monthly_tip","")}</p>
 
-  <p style="margin:0 0 1.6em 0;font-size:13px;color:#6d28d9">{_mq.get("풀이", _mq.get("meaning", ""))}</p>
-
-  <p style="margin:0 0 2.0em 0;font-size:13px;color:#78350f">{info.get("monthly_tip","")}</p>
-
-  <p style="margin:0 0 0.6em 0;font-size:15px;font-weight:500;color:#374151">❝ {_me[0]} ❞</p>
+  <p style="margin:0 0 0.6em 0;font-size:15px;font-weight:500;color:#374151">"{_me[0]}"</p>
 
   <p style="margin:0 0 1.6em 0;font-size:14px;color:#6d28d9">{_me[1]}</p>
 
