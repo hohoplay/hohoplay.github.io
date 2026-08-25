@@ -58,6 +58,18 @@ on:
         description: '💫 위 테스트용 별자리 이름 (비워두면 처녀자리)'
         required: false
         default: ''
+      force_chinese_test:
+        description: '🐾 띠운세 하루만 발행 (테스트 1개)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+      force_chinese_name:
+        description: '🐾 위 테스트용 띠 이름 (비워두면 쥐띠)'
+        required: false
+        default: ''
       force_date:
         description: '📅 발행 날짜 지정 (YYYY-MM-DD, 비워두면 오늘)'
         required: false
@@ -96,7 +108,7 @@ jobs:
       # ─────────────────────────────────────────────────────────
       - name: 🔍 오늘 이미 포스팅했는지 확인 (중복 방지)
         id: check
-        if: github.event.inputs.force_monthly != 'true' && github.event.inputs.force_chinese_daily != 'true' && github.event.inputs.force_monthly_test != 'true' && github.event.inputs.force_weekly_test != 'true' && github.event.inputs.force_weekly != 'true' && github.event.inputs.force_zodiac_test != 'true'
+        if: github.event.inputs.force_monthly != 'true' && github.event.inputs.force_chinese_daily != 'true' && github.event.inputs.force_monthly_test != 'true' && github.event.inputs.force_weekly_test != 'true' && github.event.inputs.force_weekly != 'true' && github.event.inputs.force_zodiac_test != 'true' && github.event.inputs.force_chinese_test != 'true'
         env:
           BLOG_ID: ${{ secrets.BLOG_ID }}
           BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
@@ -203,6 +215,23 @@ jobs:
           FORCE_DATE: ${{ github.event.inputs.force_date }}
         run: python scripts/create_post.py
 
+      # ─────────────────────────────────────────────────────────
+      # 케이스 H: 띠운세 하루 테스트 발행 (force_chinese_test=true)
+      # ─────────────────────────────────────────────────────────
+      - name: 🐾 띠운세 하루 테스트 발행 (1개)
+        if: github.event.inputs.force_chinese_test == 'true'
+        env:
+          BLOG_ID: ${{ secrets.BLOG_ID }}
+          BLOGGER_TOKEN: ${{ secrets.BLOGGER_TOKEN }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          DATA_DIR: ${{ github.workspace }}/data
+          FORCE_CHINESE_TEST: 'true'
+          FORCE_CHINESE: ${{ github.event.inputs.force_chinese_name }}
+          FORCE_DATE: ${{ github.event.inputs.force_date }}
+        run: python scripts/create_post.py
+
       - name: 🌙 띠별 월간운세 단독 발행 (12개)
         if: github.event.inputs.force_monthly == 'true'
         env:
@@ -236,7 +265,7 @@ jobs:
       # 케이스 B: 정규 27개 포스팅 (스케줄 / 일반 수동 실행)
       # ─────────────────────────────────────────────────────────
       - name: 🌟 27개 운세 포스팅 실행
-        if: github.event.inputs.force_monthly != 'true' && github.event.inputs.force_chinese_daily != 'true' && github.event.inputs.force_monthly_test != 'true' && github.event.inputs.force_weekly_test != 'true' && github.event.inputs.force_weekly != 'true' && github.event.inputs.force_zodiac_test != 'true' && steps.check.outputs.skip != 'true'
+        if: github.event.inputs.force_monthly != 'true' && github.event.inputs.force_chinese_daily != 'true' && github.event.inputs.force_monthly_test != 'true' && github.event.inputs.force_weekly_test != 'true' && github.event.inputs.force_weekly != 'true' && github.event.inputs.force_zodiac_test != 'true' && github.event.inputs.force_chinese_test != 'true' && steps.check.outputs.skip != 'true'
         env:
           BLOG_ID: ${{ secrets.BLOG_ID }}
           BLOGGER_TOKEN: ${{ secrets.BLOGGER_TOKEN }}
