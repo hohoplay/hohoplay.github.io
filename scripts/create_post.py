@@ -4746,6 +4746,18 @@ def main():
         print("✅ 완료: 1/1개 게시 성공")
         return
 
+    # FORCE_ZODIAC_TEST=true → 별자리(하루) 1개만 발행 (테스트용)
+    # FORCE_ZODIAC 환경변수로 별자리 이름 지정 가능 (기본값: 처녀자리)
+    force_zodiac_test = os.environ.get("FORCE_ZODIAC_TEST", "false").lower() == "true"
+    if force_zodiac_test:
+        target_name = os.environ.get("FORCE_ZODIAC", "처녀자리")
+        z = next((zz for zz in ZODIACS if zz['kr'] == target_name), ZODIACS[0])
+        print(f"🧪 FORCE_ZODIAC_TEST 모드: {z['kr']} 오늘의 운세 1개만 발행 ({today_str})")
+        title, content, labels = build_zodiac_post(z, today_str)
+        post_blogger(title, content, labels, 1, 1)
+        print("✅ 완료: 1/1개 게시 성공")
+        return
+
 
     if force_date:
         try:
