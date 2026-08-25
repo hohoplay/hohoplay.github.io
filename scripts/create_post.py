@@ -1725,6 +1725,29 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 .z-quote-label{font-size:12px;font-weight:800;color:#7c3aed;margin:0 0 10px}
 .z-quote-text{font-size:15px;font-style:italic;font-weight:600;color:#4c1d95;line-height:1.7;margin:0 0 6px;word-break:keep-all}
 .z-quote-author{font-size:12px;color:#9d8bc7;margin:0 0 14px}
+
+.c-today{background:linear-gradient(135deg,#f59e0b,#92400e);color:#fff;border-radius:20px;padding:22px 24px;margin:0 0 22px}
+.c-today-label{display:inline-block;font-size:12px;font-weight:800;background:rgba(255,255,255,.22);padding:4px 12px;border-radius:999px;margin:0 0 10px}
+.c-today p{font-size:15px;line-height:1.8;margin:0;word-break:keep-all}
+.c-divider{display:flex;align-items:center;gap:8px;margin:6px 0 16px;color:#fcd34d;font-size:10px}
+.c-divider::before,.c-divider::after{content:"";flex:1;height:1px;background:#fde68a}
+.c-section{border-radius:18px;padding:20px 22px;margin:0 0 14px;border:1px solid}
+.c-section.flow{background:#fffbeb;border-color:#fde68a}
+.c-section.compat{background:#ecfdf5;border-color:#a7f3d0}
+.c-section.years{background:#eff6ff;border-color:#bfdbfe}
+.c-section h2{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;margin:0 0 10px}
+.c-section.flow h2{color:#92400e}
+.c-section.compat h2{color:#047857}
+.c-section.years h2{color:#1e3a8a}
+.c-section.flow .z-icon{background:#fde68a}
+.c-section.compat .z-icon{background:#a7f3d0}
+.c-section.years .z-icon{background:#bfdbfe}
+.c-section p{font-size:14px;line-height:1.8;color:#374151;margin:0 0 8px;word-break:keep-all}
+.c-section p:last-child{margin-bottom:0}
+.c-quote-block{background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 16px 16px 0;padding:20px 22px;margin:8px 0 20px}
+.c-quote-label{font-size:12px;font-weight:800;color:#92400e;margin:0 0 10px}
+.c-quote-text{font-size:15px;font-style:italic;font-weight:600;color:#78350f;line-height:1.7;margin:0 0 6px;word-break:keep-all}
+.c-quote-author{font-size:12px;color:#9a7b4f;margin:0 0 14px}
 </style>
 <script>
 function saveFortuneCard(cardId, filename) {
@@ -3204,15 +3227,10 @@ def build_chinese_post(c, today_str):
     story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <p style="font-size:15px;line-height:2.1;color:#374151;
-            margin:0 0 1.4em 0;word-break:keep-all">
-    💭 {empathy}
-  </p>
-
-  <p style="font-size:15px;line-height:2.1;color:#374151;
-            margin:0 0 1.4em 0;word-break:keep-all">
-    {empathy_bridge}
-  </p>
+  <div class="c-today">
+    <span class="c-today-label">💭 오늘의 핵심 메시지</span>
+    <p>{empathy} {empathy_bridge}</p>
+  </div>
 
   <!-- fortune.html 파서 연동용 히든 마커 -->
   <div style="display:none" aria-hidden="true">
@@ -3221,55 +3239,48 @@ def build_chinese_post(c, today_str):
     {year_section_html}
   </div>
 
-  <div style="font-size:15px;line-height:2.1;color:#374151;
-               word-break:keep-all;font-family:'Noto Serif KR',Georgia,serif">
+  <div class="c-divider">✦</div>
 
-    <p style="margin:0 0 1.4em 0">{fortune} {_peak_tip}</p>
+  <div class="c-section flow">
+    <h2><span class="z-icon">🌊</span> {c['kr']} 오늘의 운세 흐름</h2>
+    <p>{fortune} {_peak_tip}</p>
+    <p style="color:#92400e">{_low_tip}</p>
+  </div>
 
-    <p style="margin:0 0 1.4em 0;font-size:14px;color:#6b7280">{_low_tip}</p>
-
-    <h3 style="margin:0 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b">{tcb}</h3>
-
-    <p style="margin:0 0 1.4em 0">
+  <div class="c-section compat">
+    <h2><span class="z-icon">🤝</span> {c['kr']} 오늘의 궁합</h2>
+    <p class="z-bridge">{tcb}</p>
+    <p>
       오늘 특히 잘 맞는 띠는 <span style="font-weight:700;color:#065f46">{best_compat[1]} {best_compat[0]}</span>입니다.
       {best_compat[2]} 반대로 <span style="font-weight:700;color:#991b1b">{avoid_compat[1]} {avoid_compat[0]}</span>와는
       {avoid_compat[2]}
     </p>
-
-    <p style="margin:0 0 1.4em 0">{pick_insight_bridge(kst_day+1)}</p>
-
   </div>
 
-  <div style="background:none;padding:0;margin:0">
-    <p style="font-size:13px;color:#9a7b4f;margin:0 0 1.2rem;
-              word-break:keep-all">{pick_human_bridge(kst_day, "chinese", _cq.get("category","인생"))}</p>
-    <h3 style="font-size:13px;color:#9a7b4f;margin:0 0 0.4rem;word-break:keep-all;font-weight:500">오늘 이 흐름에 어울리는 말</h3>
-    <p style="font-size:15px;line-height:2.0;color:#1f2937;
-              font-weight:500;margin:0 0 6px;word-break:keep-all;
-              ">"{_cq["quote"]}"</p>
-    <p style="font-size:12px;color:#9a7b4f;margin:0 0 1.2rem">
-      — {_cq["author"]} ({_cq["profession"]})
-    </p>
-    <p style="font-size:13px;line-height:1.9;color:#374151;
-              margin:0 0 1.4rem;word-break:keep-all">{_cq["apply"]}</p>
-    <p style="font-size:13px;line-height:1.9;color:#78350f;
-              margin:0 0 1.4rem;word-break:keep-all">{_cq["meaning"]}</p>
+  <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{pick_insight_bridge(kst_day+1)}</p>
 
-    <h3 style="margin:1.4rem 0 0.6em 0;font-size:13px;font-weight:500;color:#f59e0b">{tyb}</h3>
-    <div style="margin:0 0 1.4em 0">
-      {year_section_html}
-    </div>
-
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;
-              margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;
-              word-break:keep-all">{_ce[1]}</p>
-
-    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;
-              word-break:keep-all">{pick_farewell_bridge(kst_day, "daily")}</p>
+  <div class="c-quote-block">
+    <p style="font-size:13px;color:#9a7b4f;margin:0 0 1rem;word-break:keep-all">{pick_human_bridge(kst_day, "chinese", _cq.get("category","인생"))}</p>
+    <h3 class="c-quote-label">📖 오늘 이 흐름에 어울리는 말</h3>
+    <p class="c-quote-text">"{_cq["quote"]}"</p>
+    <p class="c-quote-author">— {_cq["author"]} ({_cq["profession"]})</p>
+    <p style="font-size:13px;line-height:1.9;color:#374151;margin:0 0 1rem;word-break:keep-all">{_cq["apply"]}</p>
+    <p style="font-size:13px;line-height:1.9;color:#78350f;margin:0;word-break:keep-all">{_cq["meaning"]}</p>
   </div>
 
-</div>'''  
+  <div class="c-section years">
+    <h2><span class="z-icon">🎂</span> {c['kr']} 출생연도별 오늘 운세</h2>
+    <p class="z-bridge">{tyb}</p>
+    {year_section_html}
+  </div>
+
+  <div style="background:none;padding:0;margin:1.4rem 0 0">
+    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;margin:0 0 0.8rem;word-break:keep-all">{_ce[0]}</p>
+    <p style="font-size:14px;line-height:1.95;color:#92400e;margin:0 0 1.4rem;word-break:keep-all">{_ce[1]}</p>
+    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;word-break:keep-all">{pick_farewell_bridge(kst_day, "daily")}</p>
+  </div>
+
+</div>'''
 
     # SEO 키워드
     kw_list = [
@@ -4754,6 +4765,18 @@ def main():
         z = next((zz for zz in ZODIACS if zz['kr'] == target_name), ZODIACS[0])
         print(f"🧪 FORCE_ZODIAC_TEST 모드: {z['kr']} 오늘의 운세 1개만 발행 ({today_str})")
         title, content, labels = build_zodiac_post(z, today_str)
+        post_blogger(title, content, labels, 1, 1)
+        print("✅ 완료: 1/1개 게시 성공")
+        return
+
+    # FORCE_CHINESE_TEST=true → 띠운세(하루) 1개만 발행 (테스트용)
+    # FORCE_CHINESE 환경변수로 띠 이름 지정 가능 (기본값: 쥐띠)
+    force_chinese_test = os.environ.get("FORCE_CHINESE_TEST", "false").lower() == "true"
+    if force_chinese_test:
+        target_name = os.environ.get("FORCE_CHINESE", "쥐띠")
+        c = next((cc for cc in CHINESE if cc['kr'] == target_name), CHINESE[0])
+        print(f"🧪 FORCE_CHINESE_TEST 모드: {c['kr']} 오늘의 운세 1개만 발행 ({today_str})")
+        title, content, labels = build_chinese_post(c, today_str)
         post_blogger(title, content, labels, 1, 1)
         print("✅ 완료: 1/1개 게시 성공")
         return
