@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VGTXTM4R91');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>두더지 잡기 - HOHO PLAY | 미니게임</title>
+    <meta name="description" content="랜덤하게 튀어나오는 두더지를 제한시간 안에 클릭해서 잡는 미니게임. 로그인 없이 바로 즐겨보세요.">
+    <link rel="canonical" href="https://hohoplay.github.io/mgame10.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="/index.html" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">두더지 잡기</span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:4px">
+                    <a href="/index.html" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">전체게임</a>
+                    <a href="/vote/" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">익명투표</a>
+                    <a href="/quiz/" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">상식테스트</a>
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','about');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">소개</a>
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">파트너</a>
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">커뮤니티</a>
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">고객지원</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','fortune');return true;" id="g-nav-cta" style="display:none;align-items:center;gap:6px;background:#f3e8ff;color:#7c3aed;font-weight:700;font-size:14px;padding:8px 16px;border-radius:9999px;text-decoration:none">
+                        <span>🔮</span> 오늘의 운세
+                    </a>
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','fortune');return true;" aria-label="오늘의 운세" id="g-nav-cta-m" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:#f3e8ff;color:#7c3aed;border-radius:9999px;text-decoration:none;font-size:16px">
+                        🔮
+                    </a>
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
+                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','about');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">소개</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">고객지원</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+
+    <main class="flex-grow max-w-3xl mx-auto w-full px-4 py-10">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3">🔨 두더지 잡기</h1>
+            <p class="text-slate-500">30초 안에 최대한 많이 잡아보세요</p>
+        </div>
+
+
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 text-center">
+            <div class="flex justify-center gap-8 mb-4 text-sm font-bold text-slate-500">
+                <span>점수 <span id="wm-score" class="text-indigo-600 text-lg">0</span></span>
+                <span>남은 시간 <span id="wm-time" class="text-red-500 text-lg">30</span>초</span>
+                <span>최고 <span id="wm-best" class="text-amber-500 text-lg">0</span></span>
+            </div>
+            <div id="wm-board" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:0 auto 20px"></div>
+            <button onclick="wmStart()" id="wm-start-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl">시작</button>
+        </div>
+    
+
+        <section style="max-width:56rem;margin:24px auto 0;padding:0 16px">
+            <div style="padding:16px;background:#f8fafc;border-radius:16px;text-align:center">
+                <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:10px">🔗 이 게임 공유하기</div>
+                <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+                    <button onclick="snsShare('facebook')" style="width:42px;height:42px;border-radius:50%;border:none;background:#1877f2;color:#fff;font-size:18px;font-weight:900;cursor:pointer">f</button>
+                    <button onclick="snsShare('x')" style="width:42px;height:42px;border-radius:50%;border:none;background:#000;color:#fff;font-size:16px;font-weight:900;cursor:pointer">X</button>
+                    <button onclick="snsShare('kakaot')" style="width:42px;height:42px;border-radius:50%;border:none;background:#fee500;color:#3c1e1e;font-size:18px;cursor:pointer">💬</button>
+                    <button onclick="snsShare('naver')" style="width:42px;height:42px;border-radius:50%;border:none;background:#03c75a;color:#fff;font-size:16px;font-weight:900;cursor:pointer">N</button>
+                </div>
+            </div>
+        </section>
+        <script>
+            function snsShare(type){
+                var shareUrl   = encodeURIComponent(window.location.href);
+                var shareTitle = encodeURIComponent(document.title);
+                if(type==='facebook'){
+                    window.open('https://www.facebook.com/sharer/sharer.php?u='+shareUrl, 'sns_facebook', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,width=800,height=600');
+                } else if(type==='x'){
+                    window.open('https://twitter.com/intent/tweet?text='+shareTitle+'&url='+shareUrl, 'sns_x', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,width=500,height=650');
+                } else if(type==='naver'){
+                    window.open('https://share.naver.com/web/shareView.nhn?url='+shareUrl+'&title='+shareTitle, 'sns_naver', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,width=750,height=600');
+                } else if(type==='kakaot' || type==='band'){
+                    if(navigator.clipboard) navigator.clipboard.writeText(window.location.href);
+                    alert('링크가 복사되었습니다. 카카오톡/밴드에 붙여넣어 공유해보세요!');
+                }
+            }
+        </script>
+
+        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 mt-8">
+            <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#m-desc" onclick="return gameNavScroll('m-desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 설명</a><a href="#m-guide" onclick="return gameNavScroll('m-guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 방법</a><a href="#m-tips" onclick="return gameNavScroll('m-tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a></div>
+            <div id="m-desc" class="p-10" style="scroll-margin-top:70px;">
+                <h3 class="font-black text-lg text-slate-800 mb-3">🔨 어떤 게임인가</h3>
+                <p class="text-slate-600 text-lg leading-relaxed font-medium">9개의 구멍 중 무작위로 튀어나오는 두더지를 제한시간(30초) 안에 최대한 많이 클릭해서 잡는 반사신경 게임입니다.</p>
+            </div>
+            <div id="m-guide" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+                <p class="text-slate-600 text-lg leading-relaxed font-medium">"시작" 버튼을 누르면 두더지가 무작위 위치에 튀어나오기 시작합니다. 튀어나온 두더지를 클릭하면 점수가 올라가고, 시간이 다 되면 최종 점수가 표시됩니다.</p>
+            </div>
+            <div id="m-tips" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+                <h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+                <div class="space-y-4">
+                    <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="font-black text-slate-800 mb-1">Q. 두더지가 점점 빨라지나요?</p>
+                        <p class="text-slate-600">네, 시간이 지날수록 두더지가 나타났다 사라지는 간격이 조금씩 짧아집니다.</p>
+                    </div>
+                    <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="font-black text-slate-800 mb-1">Q. 최고 점수가 저장되나요?</p>
+                        <p class="text-slate-600">이 브라우저에서 플레이하는 동안에만 최고 점수가 표시되고, 새로고침하면 초기화됩니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function gameNavScroll(key) {
+                const el = document.getElementById(key);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return false;
+            }
+        </script>
+
+        <section style="max-width:56rem;margin:24px auto 0;padding:0 16px">
+            <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px">
+                <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+                    <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+                    <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+                    <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                        <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                        <button id="cmt-submit" onclick="submitComment()"
+                            style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
+                    </div>
+                </div>
+                <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+                    <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+                </div>
+            </div>
+        </section>
+
+        <section style="max-width:56rem;margin:0 auto;padding:24px 16px">
+            <button onclick="openInquiryModal()" style="width:100%;padding:16px;border:1.5px dashed #c7d2fe;border-radius:16px;background:#eef2ff;color:#4f46e5;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+                ✉️ 문의하기 · 버그 제보 · 의견 남기기
+            </button>
+        </section>
+
+        <div id="inquiry-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+            <div style="background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);max-width:520px;width:100%;padding:32px;position:relative;margin:auto">
+                <button onclick="closeInquiryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;line-height:1">×</button>
+                <div style="text-align:center;margin-bottom:24px">
+                    <span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:8px">Contact</span>
+                    <h2 style="font-size:1.4rem;font-weight:900;color:#1e293b;margin:8px 0 4px">문의하기</h2>
+                    <p style="font-size:13px;color:#94a3b8;margin:0">두더지 잡기에 대한 버그·제안·기타 문의를 남겨주세요</p>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">이메일 <span style="color:#f87171">*</span></label>
+                    <input id="iq-email" type="email" placeholder="example@email.com"
+                        style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">문의 유형 <span style="color:#f87171">*</span></label>
+                    <select id="iq-type"
+                        style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box">
+                        <option value="">선택해 주세요</option>
+                        <option value="bug">🐛 버그 신고</option>
+                        <option value="idea">💡 개선 제안·아이디어</option>
+                        <option value="other">❓ 기타 문의</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:8px">
+                    <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">내용 <span style="color:#f87171">*</span></label>
+                    <textarea id="iq-msg" rows="5" placeholder="어떤 기기·브라우저에서 발생했는지 함께 적어주시면 더 빠르게 확인할 수 있어요."
+                        style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;resize:vertical;min-height:100px"></textarea>
+                </div>
+                <div id="iq-error" style="display:none;margin-top:10px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600"></div>
+                <div id="iq-success" style="display:none;margin-top:10px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center">
+                    ✅ 메일 앱이 열립니다. 내용을 확인하고 전송해 주세요!
+                </div>
+                <button id="iq-btn" onclick="submitInquiry()"
+                    style="margin-top:18px;width:100%;background:#4f46e5;color:#fff;padding:14px;border-radius:14px;font-weight:900;font-size:15px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+                    <span id="iq-btn-text">문의 보내기</span>
+                    <span id="iq-spin" style="display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:iqSpin .7s linear infinite"></span>
+                </button>
+            </div>
+        </div>
+        <style>@keyframes iqSpin { to { transform:rotate(360deg); } }</style>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+    <script>
+        const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+        const CMT_GAME_ID = 'mgame10';
+        const INQUIRY_GAME_NAME = '두더지 잡기';
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.innerText = str;
+            return d.innerHTML;
+        }
+        function formatCmtTime(ts) {
+            const diff = Date.now() - ts;
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return '방금 전';
+            if (min < 60) return min + '분 전';
+            const hr = Math.floor(min / 60);
+            if (hr < 24) return hr + '시간 전';
+            const day = Math.floor(hr / 24);
+            if (day < 7) return day + '일 전';
+            return new Date(ts).toLocaleDateString('ko-KR');
+        }
+        async function loadComments() {
+            const list = document.getElementById('cmt-list');
+            try {
+                const res = await fetch(COMMENTS_API + '?game_id=' + CMT_GAME_ID);
+                const data = await res.json();
+                if (!data.comments || data.comments.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
+                    return;
+                }
+                list.innerHTML = data.comments.map(c => `
+                    <div style="padding:12px 14px;background:#f8fafc;border-radius:12px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                            <span style="font-weight:800;font-size:13px;color:#334155">${escapeHtml(c.nickname)}</span>
+                            <span style="font-size:11px;color:#94a3b8">${formatCmtTime(c.created_at)}</span>
+                        </div>
+                        <div style="font-size:14px;color:#475569;line-height:1.6;word-break:break-word">${escapeHtml(c.content)}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                list.innerHTML = '<div style="text-align:center;color:#f87171;font-size:13px;padding:20px 0">댓글을 불러오지 못했어요.</div>';
+            }
+        }
+        async function submitComment() {
+            const nicknameEl = document.getElementById('cmt-nickname');
+            const contentEl = document.getElementById('cmt-content');
+            const statusEl = document.getElementById('cmt-status');
+            const btn = document.getElementById('cmt-submit');
+            const nickname = nicknameEl.value.trim();
+            const content = contentEl.value.trim();
+            if (!nickname || !content) {
+                statusEl.textContent = '닉네임과 댓글을 모두 입력해주세요';
+                statusEl.style.color = '#f87171';
+                return;
+            }
+            btn.disabled = true;
+            statusEl.textContent = '등록 중...';
+            statusEl.style.color = '#94a3b8';
+            try {
+                const res = await fetch(COMMENTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: CMT_GAME_ID, nickname, content }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    statusEl.textContent = data.error || '등록에 실패했어요';
+                    statusEl.style.color = '#f87171';
+                    btn.disabled = false;
+                    return;
+                }
+                contentEl.value = '';
+                statusEl.textContent = '등록됐어요!';
+                statusEl.style.color = '#22c55e';
+                await loadComments();
+                setTimeout(() => { statusEl.textContent = ''; btn.disabled = false; }, 30000);
+            } catch (e) {
+                statusEl.textContent = '네트워크 오류가 발생했어요';
+                statusEl.style.color = '#f87171';
+                btn.disabled = false;
+            }
+        }
+        loadComments();
+
+        function openInquiryModal() { document.getElementById('inquiry-modal').style.display = 'flex'; }
+        function closeInquiryModal() { document.getElementById('inquiry-modal').style.display = 'none'; }
+        function submitInquiry() {
+            const email = document.getElementById('iq-email').value.trim();
+            const type = document.getElementById('iq-type').value;
+            const msg = document.getElementById('iq-msg').value.trim();
+            const err = document.getElementById('iq-error');
+            const suc = document.getElementById('iq-success');
+            const btn = document.getElementById('iq-btn');
+            const tx = document.getElementById('iq-btn-text');
+            const sp = document.getElementById('iq-spin');
+            err.style.display = 'none';
+            suc.style.display = 'none';
+            if (!email || !type || !msg) {
+                err.textContent = '필수 항목(*)을 모두 입력해 주세요.';
+                err.style.display = 'block';
+                return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                err.textContent = '올바른 이메일 주소를 입력해 주세요.';
+                err.style.display = 'block';
+                return;
+            }
+            btn.disabled = true;
+            tx.textContent = '전송 중...';
+            sp.style.display = 'inline-block';
+            const typeLabel = { bug: '버그 신고', idea: '개선 제안·아이디어', other: '기타 문의' }[type] || type;
+            const body = '[' + INQUIRY_GAME_NAME + ' 문의]\n답장받을 이메일: ' + email + '\n유형: ' + typeLabel + '\n\n' + msg;
+            window.location.href = 'mailto:lyh0929mm@gmail.com?subject=' + encodeURIComponent('[' + INQUIRY_GAME_NAME + ' 문의] ' + typeLabel) + '&body=' + encodeURIComponent(body);
+            setTimeout(() => {
+                btn.disabled = false;
+                tx.textContent = '문의 보내기';
+                sp.style.display = 'none';
+                suc.style.display = 'block';
+                document.getElementById('iq-email').value = '';
+                document.getElementById('iq-type').value = '';
+                document.getElementById('iq-msg').value = '';
+            }, 1200);
+        }
+
+
+        let wmScore = 0, wmBest = 0, wmTimeLeft = 30, wmActiveHole = -1, wmPlaying = false;
+        let wmMoleTimer = null, wmCountdownTimer = null;
+
+        function wmRender() {
+            const board = document.getElementById('wm-board');
+            board.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.style.cssText = 'aspect-ratio:1/1;border-radius:16px;background:#78350f;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;overflow:hidden';
+                hole.textContent = i === wmActiveHole ? '🐹' : '';
+                hole.onclick = () => wmWhack(i);
+                board.appendChild(hole);
+            }
+        }
+
+        function wmWhack(i) {
+            if (!wmPlaying || i !== wmActiveHole) return;
+            wmScore++;
+            document.getElementById('wm-score').textContent = wmScore;
+            wmActiveHole = -1;
+            wmRender();
+        }
+
+        function wmPopMole() {
+            wmActiveHole = Math.floor(Math.random() * 9);
+            wmRender();
+            const showTime = Math.max(400, 900 - wmScore * 15);
+            wmMoleTimer = setTimeout(() => {
+                wmActiveHole = -1;
+                wmRender();
+                if (wmPlaying) wmMoleTimer = setTimeout(wmPopMole, 200 + Math.random() * 300);
+            }, showTime);
+        }
+
+        function wmStart() {
+            if (wmPlaying) return;
+            wmPlaying = true;
+            wmScore = 0;
+            wmTimeLeft = 30;
+            document.getElementById('wm-score').textContent = '0';
+            document.getElementById('wm-time').textContent = '30';
+            document.getElementById('wm-start-btn').disabled = true;
+            wmPopMole();
+            wmCountdownTimer = setInterval(() => {
+                wmTimeLeft--;
+                document.getElementById('wm-time').textContent = wmTimeLeft;
+                if (wmTimeLeft <= 0) wmEnd();
+            }, 1000);
+        }
+
+        function wmEnd() {
+            wmPlaying = false;
+            clearTimeout(wmMoleTimer);
+            clearInterval(wmCountdownTimer);
+            wmActiveHole = -1;
+            wmRender();
+            document.getElementById('wm-start-btn').disabled = false;
+            if (wmScore > wmBest) {
+                wmBest = wmScore;
+                document.getElementById('wm-best').textContent = wmBest;
+            }
+            alert('종료! 최종 점수: ' + wmScore + '점');
+        }
+
+        wmRender();
+    
+    </script>
+</body>
+</html>
