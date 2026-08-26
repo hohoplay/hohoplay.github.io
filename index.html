@@ -411,6 +411,31 @@
                 + '</div>'
                 + '<section class="top-mobile-banner"><a href="' + bannerConfig.link + '" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);"><img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;"></a></section>'
                 + '<div class="game-icon-grid" id="game-icon-grid">' + cards + '</div>'                + '<script>(function(){var grid=document.getElementById("game-icon-grid");if(!grid)return;grid.addEventListener("touchstart",function(e){var c=e.target.closest(".game-card");if(c)c.classList.add("touch-active");},{passive:true});grid.addEventListener("touchend",function(e){var c=e.target.closest(".game-card");if(c)setTimeout(function(){c.classList.remove("touch-active");},200);},{passive:true});grid.addEventListener("touchcancel",function(e){var c=e.target.closest(".game-card");if(c)c.classList.remove("touch-active");},{passive:true});})();<\/script>'
+                + '<style>'
+                +   '.mini-game-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:36px;}'
+                +   '@media(min-width:640px) and (max-width:1023px){.mini-game-grid{grid-template-columns:repeat(5,1fr);}}'
+                +   '@media(min-width:1024px){.mini-game-grid{grid-template-columns:repeat(10,1fr);}}'
+                +   '.mini-game-tile{aspect-ratio:1/1;border:1.5px solid #e2e8f0;border-radius:14px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:.15s;text-decoration:none;}'
+                +   '.mini-game-tile:hover{border-color:#818cf8;background:#eef2ff;}'
+                + '</style>'
+                + '<section style="margin-bottom:8px;">'
+                + '<div class="mini-game-grid">'
+                +   [
+                        ['mgame1','🪜','사다리게임'],
+                        ['mgame2','🪙','동전 던지기'],
+                        ['mgame3','🎲','주사위 굴리기'],
+                        ['mgame4','🎡','행운의 룰렛'],
+                        ['mgame5','✊','가위바위보'],
+                        ['mgame6','⚾','숫자 야구'],
+                        ['mgame7','⭕','틱택토'],
+                        ['mgame8','⚡','반응속도 테스트'],
+                        ['mgame9','🃏','카드 짝맞추기'],
+                        ['mgame10','🔨','두더지 잡기'],
+                    ].map(function(g){
+                        return '<a href="' + g[0] + '.html" class="mini-game-tile"><span style="font-size:20px;">' + g[1] + '</span><span style="font-size:10px;font-weight:700;color:#64748b;text-align:center;padding:0 2px;">' + g[2] + '</span></a>';
+                    }).join('')
+                + '</div>'
+                + '</section>'
                 + '<section id="community-board-section" style="margin-bottom:40px;">'
                 + '<h2 class="text-lg font-black text-slate-800 mb-3">커뮤니티 소식</h2>'
                 + '<div id="community-board" class="community-board-grid">'
