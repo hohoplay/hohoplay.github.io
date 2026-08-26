@@ -2848,6 +2848,121 @@
         }
     </script>
 
+    <section style="max-width:56rem;margin:0 auto;padding:0 16px 24px">
+        <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px">
+            <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+                <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                    style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+                <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                    style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+                <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                    <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                    <button id="cmt-submit" onclick="submitComment()"
+                        style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
+                </div>
+            </div>
+
+            <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+                <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+            </div>
+        </div>
+    </section>
+    <script>
+        const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+        const CMT_GAME_ID = 'game3';
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.innerText = str;
+            return d.innerHTML;
+        }
+
+        function formatCmtTime(ts) {
+            const diff = Date.now() - ts;
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return '방금 전';
+            if (min < 60) return min + '분 전';
+            const hr = Math.floor(min / 60);
+            if (hr < 24) return hr + '시간 전';
+            const day = Math.floor(hr / 24);
+            if (day < 7) return day + '일 전';
+            return new Date(ts).toLocaleDateString('ko-KR');
+        }
+
+        async function loadComments() {
+            const list = document.getElementById('cmt-list');
+            try {
+                const res = await fetch(COMMENTS_API + '?game_id=' + CMT_GAME_ID);
+                const data = await res.json();
+                if (!data.comments || data.comments.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
+                    return;
+                }
+                list.innerHTML = data.comments.map(c => `
+                    <div style="padding:12px 14px;background:#f8fafc;border-radius:12px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                            <span style="font-weight:800;font-size:13px;color:#334155">${escapeHtml(c.nickname)}</span>
+                            <span style="font-size:11px;color:#94a3b8">${formatCmtTime(c.created_at)}</span>
+                        </div>
+                        <div style="font-size:14px;color:#475569;line-height:1.6;word-break:break-word">${escapeHtml(c.content)}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                list.innerHTML = '<div style="text-align:center;color:#f87171;font-size:13px;padding:20px 0">댓글을 불러오지 못했어요.</div>';
+            }
+        }
+
+        async function submitComment() {
+            const nicknameEl = document.getElementById('cmt-nickname');
+            const contentEl = document.getElementById('cmt-content');
+            const statusEl = document.getElementById('cmt-status');
+            const btn = document.getElementById('cmt-submit');
+
+            const nickname = nicknameEl.value.trim();
+            const content = contentEl.value.trim();
+
+            if (!nickname || !content) {
+                statusEl.textContent = '닉네임과 댓글을 모두 입력해주세요';
+                statusEl.style.color = '#f87171';
+                return;
+            }
+
+            btn.disabled = true;
+            statusEl.textContent = '등록 중...';
+            statusEl.style.color = '#94a3b8';
+
+            try {
+                const res = await fetch(COMMENTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: CMT_GAME_ID, nickname, content }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    statusEl.textContent = data.error || '등록에 실패했어요';
+                    statusEl.style.color = '#f87171';
+                    btn.disabled = false;
+                    return;
+                }
+
+                contentEl.value = '';
+                statusEl.textContent = '등록됐어요!';
+                statusEl.style.color = '#22c55e';
+                await loadComments();
+                setTimeout(() => { statusEl.textContent = ''; btn.disabled = false; }, 30000);
+            } catch (e) {
+                statusEl.textContent = '네트워크 오류가 발생했어요';
+                statusEl.style.color = '#f87171';
+                btn.disabled = false;
+            }
+        }
+
+        loadComments();
+    </script>
+
     <div id="footer-placeholder"></div>
     <script>
         fetch('./footer.html')
