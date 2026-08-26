@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VGTXTM4R91');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>익명투표 - HOHO PLAY | 로그인 없이 참여하는 투표</title>
+    <meta name="description" content="로그인 없이 바로 참여하는 익명 투표. 결과도 실시간으로 바로 확인할 수 있어요.">
+    <link rel="canonical" href="https://hohoplay.github.io/vote.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="index.html" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">익명투표</span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:4px">
+                    <a href="index.html" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">전체게임</a>
+                    <a href="vote.html" style="color:#4f46e5;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">익명투표</a>
+                    <a href="quiz.html" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">상식테스트</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">고객지원</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','fortune');return true;" id="g-nav-cta" style="display:none;align-items:center;gap:6px;background:#f3e8ff;color:#7c3aed;font-weight:700;font-size:14px;padding:8px 16px;border-radius:9999px;text-decoration:none">
+                        <span>🔮</span> 오늘의 운세
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','fortune');return true;" aria-label="오늘의 운세" id="g-nav-cta-m" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:#f3e8ff;color:#7c3aed;border-radius:9999px;text-decoration:none;font-size:16px">
+                        🔮
+                    </a>
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                <a href="index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="vote.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#4f46e5;text-decoration:none">익명투표</a>
+                <a href="quiz.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">소개</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">고객지원</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+
+    <main class="flex-grow max-w-3xl mx-auto w-full px-4 py-10">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3">🗳️ 익명투표</h1>
+            <p class="text-slate-500">로그인 없이 바로 참여하고, 결과도 바로 확인하세요</p>
+        </div>
+
+        <div id="polls-container" class="flex flex-col gap-6"></div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+    <script>
+        // ⚠️ 투표 주제는 이 배열만 고치면 됩니다. id는 한번 배포한 뒤엔 바꾸지 마세요(기존 투표 기록과 끊어짐).
+        const POLLS = [
+            {
+                id: 'poll_next_genre',
+                question: '다음 신작 게임, 어떤 장르가 제일 궁금하세요?',
+                options: ['타이핑 액션', '퍼즐', '레이싱', '방탈출·추리'],
+            },
+            {
+                id: 'poll_device',
+                question: '게임 하실 때 주로 어떤 기기를 쓰세요?',
+                options: ['PC', '스마트폰', '태블릿'],
+            },
+            {
+                id: 'poll_today_mood',
+                question: '오늘 컨디션은 어떠세요?',
+                options: ['최고예요 😄', '그냥 그래요 😐', '피곤해요 😴', '별로예요 😩'],
+            },
+        ];
+
+        const VOTE_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/polls';
+
+        const barColors = ['#4f46e5', '#7c3aed', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444'];
+
+        function renderPollCard(poll) {
+            const card = document.createElement('div');
+            card.id = 'poll-' + poll.id;
+            card.style.cssText = 'background:#fff;border:1px solid #f1f5f9;border-radius:20px;padding:24px';
+            card.innerHTML = `
+                <div style="font-size:16px;font-weight:900;color:#1e293b;margin-bottom:16px">${poll.question}</div>
+                <div class="poll-body" style="display:flex;flex-direction:column;gap:10px">
+                    <div style="text-align:center;color:#94a3b8;font-size:13px;padding:10px 0">불러오는 중...</div>
+                </div>
+            `;
+            return card;
+        }
+
+        function renderVoteButtons(poll) {
+            return poll.options.map((opt, i) => `
+                <button onclick="submitVote('${poll.id}', ${i})"
+                    style="width:100%;text-align:left;padding:12px 16px;border:1.5px solid #e2e8f0;border-radius:12px;background:#fff;font-size:14px;font-weight:700;color:#334155;cursor:pointer;transition:.15s"
+                    onmouseover="this.style.borderColor='#818cf8';this.style.background='#eef2ff'"
+                    onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+                    ${opt}
+                </button>
+            `).join('');
+        }
+
+        function renderResults(poll, counts, total, votedOption) {
+            return poll.options.map((opt, i) => {
+                const cnt = counts[i] || 0;
+                const pct = total > 0 ? Math.round((cnt / total) * 100) : 0;
+                const isMine = votedOption === i;
+                const color = barColors[i % barColors.length];
+                return `
+                    <div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                            <span style="font-size:13px;font-weight:${isMine ? '900' : '700'};color:${isMine ? '#4f46e5' : '#475569'}">${opt}${isMine ? ' · 내 선택' : ''}</span>
+                            <span style="font-size:12px;font-weight:700;color:#94a3b8">${pct}% (${cnt}명)</span>
+                        </div>
+                        <div style="background:#f1f5f9;border-radius:8px;height:10px;overflow:hidden">
+                            <div style="width:${pct}%;height:100%;background:${color};border-radius:8px;transition:width .5s ease"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('') + `<div style="text-align:center;font-size:12px;color:#cbd5e1;margin-top:6px">총 ${total}명 참여</div>`;
+        }
+
+        async function loadPoll(poll) {
+            const body = document.querySelector('#poll-' + poll.id + ' .poll-body');
+            try {
+                const res = await fetch(VOTE_API + '/results?poll_id=' + poll.id);
+                const data = await res.json();
+                if (data.votedOption !== null && data.votedOption !== undefined) {
+                    body.innerHTML = renderResults(poll, data.counts, data.total, data.votedOption);
+                } else {
+                    body.innerHTML = renderVoteButtons(poll);
+                }
+            } catch (e) {
+                body.innerHTML = '<div style="text-align:center;color:#f87171;font-size:13px">결과를 불러오지 못했어요.</div>';
+            }
+        }
+
+        async function submitVote(pollId, optionIndex) {
+            const poll = POLLS.find(p => p.id === pollId);
+            const body = document.querySelector('#poll-' + pollId + ' .poll-body');
+            body.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:10px 0">투표 중...</div>';
+            try {
+                const res = await fetch(VOTE_API + '/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ poll_id: pollId, option_index: optionIndex }),
+                });
+                const data = await res.json();
+                body.innerHTML = renderResults(poll, data.counts || {}, data.total || 0, data.votedOption ?? optionIndex);
+            } catch (e) {
+                body.innerHTML = '<div style="text-align:center;color:#f87171;font-size:13px">투표 중 오류가 발생했어요.</div>';
+            }
+        }
+
+        const container = document.getElementById('polls-container');
+        POLLS.forEach(poll => {
+            const card = renderPollCard(poll);
+            container.appendChild(card);
+            loadPoll(poll);
+        });
+    </script>
+</body>
+</html>
