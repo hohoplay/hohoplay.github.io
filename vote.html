@@ -34,6 +34,8 @@
                     <a href="vote.html" style="color:#4f46e5;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">익명투표</a>
                     <a href="quiz.html" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">상식테스트</a>
                     <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">파트너</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">커뮤니티</a>
                     <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">고객지원</a>
                 </div>
                 <div class="flex items-center gap-2">
@@ -57,6 +59,8 @@
                 <a href="vote.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#4f46e5;text-decoration:none">익명투표</a>
                 <a href="quiz.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
                 <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">소개</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
                 <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">고객지원</a>
             </div>
         </div>
@@ -115,7 +119,10 @@
 
     <script>
         // ⚠️ 투표 주제는 이 배열만 고치면 됩니다. id는 한번 배포한 뒤엔 바꾸지 마세요(기존 투표 기록과 끊어짐).
-        const POLLS = [
+        // ⚠️ 투표 주제 창고 — 여기에 계속 추가만 하면 됩니다(순서 상관없이 뒤에 붙이면 됨).
+        // 한 주에 POLLS_PER_WEEK개씩 순서대로 자동 노출되고, 끝까지 가면 처음부터 다시 순환합니다.
+        // id는 한번 쓴 뒤엔 절대 바꾸지 마세요(그 투표의 득표 기록과 연결되는 값입니다).
+        const POLL_POOL = [
             {
                 id: 'poll_next_genre',
                 question: '다음 신작 게임, 어떤 장르가 제일 궁금하세요?',
@@ -131,7 +138,36 @@
                 question: '오늘 컨디션은 어떠세요?',
                 options: ['최고예요 😄', '그냥 그래요 😐', '피곤해요 😴', '별로예요 😩'],
             },
+            {
+                id: 'poll_play_time',
+                question: '게임은 주로 언제 하세요?',
+                options: ['출퇴근·등하교길', '점심시간', '자기 전', '주말에 몰아서'],
+            },
+            {
+                id: 'poll_difficulty',
+                question: '게임 난이도, 어느 정도가 좋으세요?',
+                options: ['쉬운 게 최고', '적당히 도전적으로', '어려워야 재밌음'],
+            },
+            {
+                id: 'poll_comeback',
+                question: '다음에 또 하고 싶은 장르는?',
+                options: ['타이핑', '퍼즐', '러닝 액션', '레이싱'],
+            },
         ];
+
+        const POLLS_PER_WEEK = 3;
+
+        function getWeekIndex() {
+            const d = new Date();
+            const start = new Date(d.getFullYear(), 0, 1);
+            const days = Math.floor((d - start) / 86400000);
+            const week = Math.ceil((days + start.getDay() + 1) / 7);
+            return d.getFullYear() * 100 + week;
+        }
+
+        const totalSets = Math.max(1, Math.floor(POLL_POOL.length / POLLS_PER_WEEK));
+        const weekIdx = getWeekIndex() % totalSets;
+        const POLLS = POLL_POOL.slice(weekIdx * POLLS_PER_WEEK, weekIdx * POLLS_PER_WEEK + POLLS_PER_WEEK);
 
         const VOTE_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/polls';
 

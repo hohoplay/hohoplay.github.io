@@ -44,6 +44,8 @@
                     <a href="vote.html" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">익명투표</a>
                     <a href="quiz.html" style="color:#4f46e5;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">상식테스트</a>
                     <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">파트너</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">커뮤니티</a>
                     <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">고객지원</a>
                 </div>
                 <div class="flex items-center gap-2">
@@ -67,6 +69,8 @@
                 <a href="vote.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="quiz.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#4f46e5;text-decoration:none">상식테스트</a>
                 <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">소개</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
                 <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">고객지원</a>
             </div>
         </div>
@@ -164,6 +168,20 @@
             { q: '눈의 결정은 보통 몇 각형일까요?', options: ['4각형', '5각형', '6각형', '8각형'], answer: 2 },
         ];
 
+        const QUESTIONS_PER_WEEK = 5;
+
+        function getWeekIndex() {
+            const d = new Date();
+            const start = new Date(d.getFullYear(), 0, 1);
+            const days = Math.floor((d - start) / 86400000);
+            const week = Math.ceil((days + start.getDay() + 1) / 7);
+            return d.getFullYear() * 100 + week;
+        }
+
+        const totalSets = Math.max(1, Math.floor(QUESTION_BANK.length / QUESTIONS_PER_WEEK));
+        const weekIdx = getWeekIndex() % totalSets;
+        const thisWeekQuestions = QUESTION_BANK.slice(weekIdx * QUESTIONS_PER_WEEK, weekIdx * QUESTIONS_PER_WEEK + QUESTIONS_PER_WEEK);
+
         const TIME_PER_Q = 12000; // 12초
         let quizQuestions = [];
         let currentIndex = 0;
@@ -180,7 +198,7 @@
         }
 
         function startQuiz() {
-            quizQuestions = shuffle(QUESTION_BANK).slice(0, 5);
+            quizQuestions = shuffle(thisWeekQuestions);
             currentIndex = 0;
             document.getElementById('q-start').classList.add('hidden');
             document.getElementById('q-end').classList.add('hidden');
