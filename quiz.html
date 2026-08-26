@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VGTXTM4R91');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상식테스트 - HOHO PLAY | 짧게 즐기는 5문제 퀴즈</title>
+    <meta name="description" content="로그인 없이 바로 즐기는 5문제 상식 퀴즈. 시간 안에 답을 맞혀보세요.">
+    <link rel="canonical" href="https://hohoplay.github.io/quiz.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}
+        .quiz-stage{background:#0f172a;border-radius:24px;color:#fff;padding:32px 24px;position:relative;overflow:hidden}
+        .timer-container{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:28px;overflow:hidden}
+        #timer-progress{width:100%;height:100%;background:#3b82f6;transition:width .1s linear, background .4s}
+        .quiz-option{width:100%;text-align:left;padding:14px 18px;border-radius:14px;background:#1e293b;border:1.5px solid #334155;color:#e2e8f0;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+        .quiz-option:hover{border-color:#64748b}
+        .quiz-option.correct{background:#065f46;border-color:#10b981;color:#fff}
+        .quiz-option.wrong{background:#7f1d1d;border-color:#ef4444;color:#fff}
+        .quiz-option:disabled{cursor:default}
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="index.html" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">상식테스트</span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:4px">
+                    <a href="index.html" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">전체게임</a>
+                    <a href="vote.html" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">익명투표</a>
+                    <a href="quiz.html" style="color:#4f46e5;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">상식테스트</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">소개</a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="color:#64748b;font-weight:700;transition:.2s;font-size:14px;padding:4px 8px;border-radius:8px;text-decoration:none">고객지원</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="index.html" onclick="sessionStorage.setItem('page','fortune');return true;" id="g-nav-cta" style="display:none;align-items:center;gap:6px;background:#f3e8ff;color:#7c3aed;font-weight:700;font-size:14px;padding:8px 16px;border-radius:9999px;text-decoration:none">
+                        <span>🔮</span> 오늘의 운세
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('page','fortune');return true;" aria-label="오늘의 운세" id="g-nav-cta-m" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:#f3e8ff;color:#7c3aed;border-radius:9999px;text-decoration:none;font-size:16px">
+                        🔮
+                    </a>
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                <a href="index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="vote.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
+                <a href="quiz.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#4f46e5;text-decoration:none">상식테스트</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','about');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">소개</a>
+                <a href="index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">고객지원</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+
+    <main class="flex-grow max-w-2xl mx-auto w-full px-4 py-10">
+        <div class="quiz-stage">
+            <div id="q-start" class="text-center py-10">
+                <div style="font-size:48px;margin-bottom:12px">🧠</div>
+                <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:10px">상식테스트</h1>
+                <p style="color:#94a3b8;margin-bottom:28px">5문제, 시간 안에 답을 골라보세요</p>
+                <button onclick="startQuiz()" style="background:#4f46e5;color:#fff;padding:14px 44px;border-radius:9999px;font-weight:800;font-size:16px;border:none;cursor:pointer">시작하기</button>
+            </div>
+
+            <div id="q-play" class="hidden">
+                <div class="timer-container"><div id="timer-progress"></div></div>
+                <div style="font-size:12px;color:#94a3b8;font-weight:700;margin-bottom:8px" id="q-progress">1 / 5</div>
+                <div id="q-text" style="font-size:19px;font-weight:800;margin-bottom:22px;line-height:1.5"></div>
+                <div id="q-options" style="display:flex;flex-direction:column;gap:10px"></div>
+            </div>
+
+            <div id="q-end" class="hidden text-center py-10">
+                <div style="font-size:48px;margin-bottom:12px">🎉</div>
+                <h2 style="font-size:1.5rem;font-weight:900;margin-bottom:10px">수고하셨습니다!</h2>
+                <p style="color:#94a3b8;margin-bottom:28px">오늘의 상식테스트가 끝났어요</p>
+                <button onclick="startQuiz()" style="background:#4f46e5;color:#fff;padding:14px 44px;border-radius:9999px;font-weight:800;font-size:16px;border:none;cursor:pointer">다시하기</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+    <script>
+        // ⚠️ 문제은행 — 이 배열만 고치면 문항을 늘리거나 바꿀 수 있습니다. 매 판마다 이 중 5개를 무작위로 뽑습니다.
+        const QUESTION_BANK = [
+            { q: '대한민국의 수도는 어디일까요?', options: ['서울', '부산', '인천', '대전'], answer: 0 },
+            { q: '물의 화학식은 무엇일까요?', options: ['CO2', 'H2O', 'O2', 'NaCl'], answer: 1 },
+            { q: '세계에서 가장 긴 강은?', options: ['한강', '나일강', '낙동강', '두만강'], answer: 1 },
+            { q: '1년은 며칠일까요? (평년 기준)', options: ['364일', '365일', '366일', '360일'], answer: 1 },
+            { q: '태양계에서 가장 큰 행성은?', options: ['지구', '토성', '목성', '화성'], answer: 2 },
+            { q: '한글을 창제한 왕은?', options: ['태종', '세종대왕', '정조', '영조'], answer: 1 },
+            { q: '무지개는 몇 가지 색으로 이루어져 있을까요?', options: ['5가지', '6가지', '7가지', '8가지'], answer: 2 },
+            { q: '피아노 건반은 총 몇 개일까요?', options: ['76개', '88개', '92개', '100개'], answer: 1 },
+            { q: '사람의 뼈는 총 몇 개일까요? (성인 기준)', options: ['186개', '206개', '226개', '246개'], answer: 1 },
+            { q: '올림픽은 몇 년마다 열릴까요?', options: ['2년', '3년', '4년', '5년'], answer: 2 },
+            { q: '커피의 원료가 되는 식물은?', options: ['카카오', '커피나무', '녹차나무', '보리'], answer: 1 },
+            { q: '지구에서 가장 큰 대륙은?', options: ['아프리카', '유럽', '아시아', '북아메리카'], answer: 2 },
+            { q: '벌집의 방은 보통 어떤 모양일까요?', options: ['사각형', '원형', '삼각형', '육각형'], answer: 3 },
+            { q: '우리나라의 화폐 단위는?', options: ['엔', '위안', '원', '달러'], answer: 2 },
+            { q: '거미는 다리가 몇 개일까요?', options: ['6개', '8개', '10개', '4개'], answer: 1 },
+            { q: '세계에서 인구가 가장 많은 나라는?', options: ['미국', '인도', '중국', '인도네시아'], answer: 1 },
+            { q: '1킬로그램은 몇 그램일까요?', options: ['100g', '1000g', '10000g', '10g'], answer: 1 },
+            { q: '광복절은 몇 월 며칠일까요?', options: ['3월 1일', '6월 6일', '8월 15일', '10월 3일'], answer: 2 },
+            { q: '사람 몸에서 가장 큰 장기는?', options: ['간', '심장', '피부', '폐'], answer: 2 },
+            { q: '눈의 결정은 보통 몇 각형일까요?', options: ['4각형', '5각형', '6각형', '8각형'], answer: 2 },
+        ];
+
+        const TIME_PER_Q = 12000; // 12초
+        let quizQuestions = [];
+        let currentIndex = 0;
+        let timerInterval = null;
+        let answered = false;
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function startQuiz() {
+            quizQuestions = shuffle(QUESTION_BANK).slice(0, 5);
+            currentIndex = 0;
+            document.getElementById('q-start').classList.add('hidden');
+            document.getElementById('q-end').classList.add('hidden');
+            document.getElementById('q-play').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = quizQuestions[currentIndex];
+            document.getElementById('q-progress').textContent = (currentIndex + 1) + ' / ' + quizQuestions.length;
+            document.getElementById('q-text').textContent = q.q;
+
+            const optsWrap = document.getElementById('q-options');
+            optsWrap.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(i);
+                optsWrap.appendChild(btn);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            const bar = document.getElementById('timer-progress');
+            let remaining = TIME_PER_Q;
+            bar.style.width = '100%';
+            bar.style.background = '#3b82f6';
+
+            timerInterval = setInterval(() => {
+                remaining -= 100;
+                const pct = remaining / TIME_PER_Q;
+                bar.style.width = (pct * 100) + '%';
+                if (pct > 0.6) bar.style.background = '#3b82f6';
+                else if (pct > 0.3) bar.style.background = '#fbbf24';
+                else bar.style.background = '#ef4444';
+
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    if (!answered) revealAnswer(-1);
+                }
+            }, 100);
+        }
+
+        function selectAnswer(i) {
+            if (answered) return;
+            answered = true;
+            clearInterval(timerInterval);
+            revealAnswer(i);
+        }
+
+        function revealAnswer(selectedIndex) {
+            const q = quizQuestions[currentIndex];
+            const buttons = document.querySelectorAll('#q-options .quiz-option');
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.answer) btn.classList.add('correct');
+                else if (i === selectedIndex) btn.classList.add('wrong');
+            });
+
+            setTimeout(() => {
+                currentIndex++;
+                if (currentIndex < quizQuestions.length) {
+                    renderQuestion();
+                } else {
+                    document.getElementById('q-play').classList.add('hidden');
+                    document.getElementById('q-end').classList.remove('hidden');
+                }
+            }, 1100);
+        }
+    </script>
+</body>
+</html>
