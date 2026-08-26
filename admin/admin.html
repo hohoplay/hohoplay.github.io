@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>댓글 관리</title>
+<style>
+  body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; background: #f8fafc; }
+  h1 { font-size: 18px; }
+  input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 12px; }
+  .comment { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; }
+  .meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .content { font-size: 14px; color: #333; }
+  button.del { background: #ef4444; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; }
+</style>
+</head>
+<body>
+<h1>💬 댓글 관리</h1>
+<input id="key" type="password" placeholder="관리자 키 입력">
+<input id="gameFilter" type="text" placeholder="game_id로 필터 (비우면 전체, 예: game1)">
+<button onclick="load()">불러오기</button>
+<div id="list" style="margin-top:20px"></div>
+
+<script>
+const API = 'https://old-rain-16f7.lyh0929mm.workers.dev';
+
+async function load() {
+  const key = document.getElementById('key').value;
+  const gameId = document.getElementById('gameFilter').value.trim();
+  let url = API + '/admin/comments?key=' + encodeURIComponent(key);
+  if (gameId) url += '&game_id=' + encodeURIComponent(gameId);
+
+  const res = await fetch(url);
+  const data = await res.json();
+  const list = document.getElementById('list');
+
+  if (!res.ok) {
+    list.innerHTML = '<p style="color:red">' + (data.error || '오류') + '</p>';
+    return;
+  }
+
+  if (!data.comments.length) {
+    list.innerHTML = '<p>댓글이 없습니다.</p>';
+    return;
+  }
+
+  list.innerHTML = data.comments.map(c => `
+    <div class="comment">
+      <button class="del" onclick="del(${c.id})">삭제</button>
+      <div class="meta">[${c.game_id}] ${c.nickname} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
+      <div class="content">${c.content.replace(/</g,'&lt;')}</div>
+    </div>
+  `).join('');
+}
+
+async function del(id) {
+  if (!confirm('정말 삭제하시겠습니까?')) return;
+  const key = document.getElementById('key').value;
+  await fetch(API + '/admin/comments?key=' + encodeURIComponent(key) + '&id=' + id, { method: 'DELETE' });
+  load();
+}
+</script>
+</body>
+</html>
