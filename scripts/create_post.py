@@ -75,14 +75,15 @@ IMG = {
     "monthly": "https://raw.githubusercontent.com/hohoplay/hohoplay.github.io/main/data/todayhoroscopelaboratory06.png",  # 띠별 월간운세
 }
 
-def post_img(key):
+def post_img(key, alt=None):
     """포스트 상단 히어로 아래 삽입용 이미지 HTML"""
     url = IMG.get(key, "")
     if not url:
         return ""
+    alt_text = alt or "오늘의운세로그"
     return (
         '<div style="text-align:center;margin-bottom:20px">'
-        f'<img src="{url}" alt="오늘의운세로그" '
+        f'<img src="{url}" alt="{alt_text}" '
         'style="width:100%;max-width:680px;border-radius:16px;'
         'box-shadow:0 4px 20px rgba(0,0,0,0.12)" '
         "onerror=\"this.style.display='none'\">"
@@ -2971,7 +2972,7 @@ def build_zodiac_post(z, today_str):
     </div>
   </div>
 
-  {post_img('zodiac')}
+  {post_img('zodiac', f"{z['kr']} 오늘의 운세")}
 
   <!-- 별자리 고유 정보 (프로필로 첫머리에 배치) -->
   {zodiac_info_card(z['kr'], z['emoji'])}
@@ -3328,7 +3329,7 @@ def build_chinese_post(c, today_str):
     </div>
   </div>
 
-  {post_img('chinese')}
+  {post_img('chinese', f"{c['kr']} 오늘의 운세")}
 
   <!-- 하나의 흐르는 스토리 -->
   {story_html}
@@ -3620,7 +3621,7 @@ def build_zodiac_weekly_post(today_str):
                 padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
   </div>
 
-  {post_img('weekly')}
+  {post_img('weekly', f"{z['kr']} 주간운세")}
 
   {story_html}
 
@@ -3924,7 +3925,7 @@ def build_chinese_monthly_post(today_str):
                 padding:3px 12px;border-radius:20px;font-size:12px">{headline[:25]}</div>
   </div>
 
-  {post_img('monthly')}
+  {post_img('monthly', f"{c['kr']} 월간운세")}
 
   {story_html}
 
