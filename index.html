@@ -1482,39 +1482,54 @@
     //    game1.html / game2.html 내부의 <canvas> 요소에 직접 아래를 추가하세요:
     //    canvas.addEventListener('contextmenu', e => e.preventDefault());
 </script>
-    <!-- ── 피드백 요청 팝업 ── -->
-    <div id="feedback-popup" class="fixed inset-0 z-[99999] hidden items-center justify-center p-4" style="background:rgba(15,23,42,.55)">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center relative animate-[fadeIn_.2s_ease]">
-            <button onclick="closeFeedbackPopup(false)" aria-label="닫기"
-                class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
-            <div class="text-4xl mb-3">🙏</div>
-            <h3 class="font-black text-xl text-slate-800 mb-3">잠깐, 피드백 부탁드려도 될까요?</h3>
-            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+    <!-- ── 피드백 알림 토스트 ── -->
+    <div id="feedback-toast" style="position:fixed;bottom:20px;left:16px;right:16px;max-width:360px;z-index:99999;transform:translateX(-140%);transition:transform .5s cubic-bezier(.16,1,.3,1);">
+        <div id="feedback-toast-collapsed" onclick="expandFeedbackToast()"
+            style="background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;border:1px solid #f1f5f9;">
+            <span style="font-size:20px;flex-shrink:0">🙏</span>
+            <span style="font-size:13px;font-weight:700;color:#334155;flex:1;line-height:1.4">잠깐, 피드백 부탁드려도 될까요?</span>
+            <span style="font-size:11px;color:#c7d2fe;flex-shrink:0">▸</span>
+        </div>
+        <div id="feedback-toast-expanded" style="display:none;background:#fff;border-radius:20px;box-shadow:0 16px 40px rgba(0,0,0,.2);padding:22px;border:1px solid #f1f5f9;opacity:0;transform:translateX(-16px);transition:opacity .3s ease,transform .3s ease;">
+            <div style="font-size:28px;margin-bottom:8px">🙏</div>
+            <h3 style="font-weight:900;font-size:16px;color:#1e293b;margin-bottom:8px">잠깐, 피드백 부탁드려도 될까요?</h3>
+            <p style="font-size:13px;color:#64748b;line-height:1.6;margin-bottom:14px">
                 제가 만든 웹게임인데, 한 5분만 써보시고 느낀 점을 편하게 알려주시면 정말 큰 도움이 됩니다.<br>
                 뭐가 헷갈렸는지, 뭐가 있으면 좋았을지 — 짧은 한 줄이어도 좋아요!
             </p>
-            <div class="bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 mb-3 flex items-center justify-between gap-2">
-                <span id="feedback-email-text" class="font-black text-slate-800 text-sm select-all">lyh0929mm@gmail.com</span>
-                <button onclick="copyFeedbackEmail(this)" class="shrink-0 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">
-                    복사
-                </button>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span id="feedback-email-text" style="font-weight:900;font-size:13px;color:#1e293b">lyh0929mm@gmail.com</span>
+                <button onclick="copyFeedbackEmail(this)" style="font-size:11px;font-weight:700;color:#4f46e5;background:#eef2ff;padding:6px 10px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0">복사</button>
             </div>
-            <button onclick="closeFeedbackPopup(true)" class="text-slate-400 hover:text-slate-600 text-xs font-bold underline underline-offset-2">
-                7일 동안 보지 않기
-            </button>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid #f1f5f9;padding-top:14px">
+                <button onclick="closeFeedbackToast(true)" style="font-size:11px;font-weight:700;color:#94a3b8;background:none;border:none;text-decoration:underline;cursor:pointer;padding:0">7일 동안 보지 않기</button>
+                <button onclick="closeFeedbackToast(false)" style="font-size:13px;font-weight:800;color:#fff;background:#4f46e5;padding:8px 20px;border-radius:10px;border:none;cursor:pointer">닫기</button>
+            </div>
         </div>
     </div>
     <script>
     (function() {
         var KEY = 'hoho_feedback_popup_hide_until';
-        window.closeFeedbackPopup = function(snooze7days) {
-            document.getElementById('feedback-popup').classList.add('hidden');
-            document.getElementById('feedback-popup').classList.remove('flex');
+
+        window.expandFeedbackToast = function() {
+            document.getElementById('feedback-toast-collapsed').style.display = 'none';
+            var exp = document.getElementById('feedback-toast-expanded');
+            exp.style.display = 'block';
+            requestAnimationFrame(function() {
+                exp.style.opacity = '1';
+                exp.style.transform = 'translateX(0)';
+            });
+        };
+
+        window.closeFeedbackToast = function(snooze7days) {
+            var toast = document.getElementById('feedback-toast');
+            toast.style.transform = 'translateX(-140%)';
             if (snooze7days) {
                 var until = Date.now() + 7 * 24 * 60 * 60 * 1000;
                 try { localStorage.setItem(KEY, String(until)); } catch (e) {}
             }
         };
+
         window.copyFeedbackEmail = function(btn) {
             var email = document.getElementById('feedback-email-text').textContent;
             var done = function() {
@@ -1537,14 +1552,15 @@
             try { document.execCommand('copy'); } catch (e) {}
             document.body.removeChild(t);
         }
+
         try {
             var hideUntil = parseInt(localStorage.getItem(KEY) || '0', 10);
             if (Date.now() < hideUntil) return; // 아직 스누즈 기간 중이면 아예 안 띄움
         } catch (e) {}
         setTimeout(function() {
-            var el = document.getElementById('feedback-popup');
-            if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
-        }, 2500); // 페이지 로드 2.5초 후 표시 (바로 뜨면 부담스러우니 살짝 텀)
+            var toast = document.getElementById('feedback-toast');
+            if (toast) { toast.style.transform = 'translateX(0)'; }
+        }, 2500); // 페이지 로드 2.5초 후 왼쪽에서 슬라이드 인 (바로 뜨면 부담스러우니 살짝 텀)
     })();
     </script>
 </body>
