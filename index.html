@@ -671,12 +671,12 @@
                 +       '}'
                 +       'return it.summary||it.genre||"";'
                 +     '}'
-                +     'var iconOf={game:"\uD83C\uDFAE",fortune:"\uD83D\uDD2E",site:"\u2139\uFE0F"};'
+                +     'var iconOf={game:"\uD83C\uDFAE",fortune:"\uD83D\uDD2E",site:"\u2139\uFE0F",corner:"\u2728"};'
                 +     'box.innerHTML=\'<div style="font-size:13px;color:#94a3b8;font-weight:700;margin-bottom:12px;">\'+results.length+\'\uAC1C\uC758 \uACB0\uACFC</div>\''
                 +       '+results.map(function(it){'
                 +         'var icon=iconOf[it.type]||"\uD83D\uDCC4";'
                 +         'var sub=bestSnippet(it);'
-                +         'return \'<div onclick="hohoSearchResultClick(\\\'\'+it.type+\'\\\',\\\'\'+it.id+\'\\\')" style="display:flex;align-items:center;gap:14px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:8px;background:#fff;border:1px solid #f1f5f9;transition:box-shadow .15s,border-color .15s;" onmouseover="this.style.boxShadow=\\\'0 4px 16px rgba(79,70,229,.08)\\\';this.style.borderColor=\\\'#e0e7ff\\\'" onmouseout="this.style.boxShadow=\\\'none\\\';this.style.borderColor=\\\'#f1f5f9\\\'">\'+'
+                +         'return \'<div onclick="hohoSearchResultClick(\\\'\'+it.type+\'\\\',\\\'\'+it.id+\'\\\',\\\'\'+(it.url||\'\')+\'\\\')" style="display:flex;align-items:center;gap:14px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:8px;background:#fff;border:1px solid #f1f5f9;transition:box-shadow .15s,border-color .15s;" onmouseover="this.style.boxShadow=\\\'0 4px 16px rgba(79,70,229,.08)\\\';this.style.borderColor=\\\'#e0e7ff\\\'" onmouseout="this.style.boxShadow=\\\'none\\\';this.style.borderColor=\\\'#f1f5f9\\\'">\'+'
                 +           '\'<span style="font-size:24px;flex-shrink:0;">\'+icon+\'</span>\'+'
                 +           '\'<div style="flex:1;min-width:0;">\'+'
                 +             '\'<div style="font-weight:800;font-size:14px;color:#1e293b;margin-bottom:2px;">\'+it.name+\'</div>\'+'
@@ -691,13 +691,19 @@
                 + '})();<' + '/scri' + 'pt>'
                 + '</div>';
         }
-        function hohoSearchResultClick(type, id) {
-            if (type === 'game') {
-                window.location.href = id + '.html';
-            } else if (type === 'fortune') {
-                // 운세 탭 자동 이동은 /fortune/index.html 쪽 진입 로직에 fortuneJumpTab 처리가 필요함(추후 반영)
+        function hohoSearchResultClick(type, id, url) {
+            if (url) {
+                // url 필드가 있으면 최우선으로 그대로 이동 (game1~10, mgame1~10, fortune-adventure 등)
+                window.location.href = url;
+                return;
+            }
+            if (type === 'fortune') {
+                // url이 없는 순수 사주/타로 탭류만 여기로 옴 (fortune-adventure는 위에서 이미 처리됨)
                 sessionStorage.setItem('fortuneJumpTab', id.replace('fortune-', ''));
                 window.location.href = '/fortune/';
+            } else if (type === 'corner') {
+                // 익명투표·상식테스트처럼 폴더형 URL을 쓰는 코너 (id: 'vote' → /vote/, id: 'quiz' → /quiz/)
+                window.location.href = '/' + id + '/';
             } else if (id === 'site-about') {
                 navigateTo('about');
             }
