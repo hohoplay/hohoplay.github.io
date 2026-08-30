@@ -2342,7 +2342,7 @@
                 }
                 rankingInput.style.display = "block";
                 if(savedNickname) document.getElementById('ts-nickname-input').value = savedNickname;
-                setTimeout(() => { modal.style.display = 'flex'; fetchRankings(); }, 600);
+                setTimeout(() => { modal.style.display = 'flex'; fetchRankings(); if (window.hpOnGameOver) window.hpOnGameOver('호호사천성'); }, 600);
             } else {
                 title.textContent = "SEAL LOST";
                 title.style.color = "var(--ts-ai-color)";
@@ -2353,7 +2353,7 @@
                 triggerShake(8);
                 nextBtn.style.display = "none";
                 rankingInput.style.display = "none";
-                setTimeout(() => { modal.style.display = 'flex'; fetchRankings(); }, 400);
+                setTimeout(() => { modal.style.display = 'flex'; fetchRankings(); if (window.hpOnGameOver) window.hpOnGameOver('호호사천성'); }, 400);
             }
         }
     }
@@ -2760,7 +2760,74 @@
             <!-- 탭 패널 -->
             <div class="bg-white rounded-3xl border border-slate-100 shadow-sm">
                 <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
-                <div id="desc" class="p-10" style="scroll-margin-top:70px;">
+                    <!-- ── 게임 결과 피드백 카드 (공용) ── -->
+    <div id="hp-feedback-card" style="display:none;max-width:480px;margin:16px auto 0;background:#fff;border:1px solid #e0e7ff;border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(79,70,229,.08)">
+        <div id="hp-fb-ask" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:18px;flex-shrink:0">💬</span>
+            <span style="font-size:13px;font-weight:700;color:#334155;flex:1;min-width:160px">어떤 게임이 더 있으면 좋겠어요?</span>
+            <button onclick="window.hpFbClose()" aria-label="닫기" style="flex-shrink:0;background:none;border:none;color:#cbd5e1;font-size:15px;cursor:pointer;padding:2px 4px">✕</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+            <input id="hp-fb-input" type="text" maxlength="80" placeholder="한 줄로 편하게 적어주세요"
+                style="flex:1;padding:9px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;box-sizing:border-box">
+            <button onclick="window.hpFbSubmit()" style="flex-shrink:0;padding:9px 16px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">보내기</button>
+        </div>
+        <div id="hp-fb-thanks" style="display:none;text-align:center;font-size:13px;color:#4f46e5;font-weight:700;padding:4px 0">감사합니다! 소중한 의견 잘 전달됐어요 🙌</div>
+    </div>
+    <script>
+    (function() {
+        var K = { mute: 'hp_fb_mute_until', done: 'hp_fb_done', plays: 'hp_fb_plays' };
+        function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+        function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+        function blocked() {
+            if (get(K.done) === '1') return true;
+            var until = parseInt(get(K.mute) || '0', 10);
+            return !!(until && Date.now() < until);
+        }
+
+        // 이 게임 결과 화면이 뜰 때마다 호출: 전체 사이트 통산 플레이 횟수를 늘리고,
+        // 2~3판째부터(과거 게임 포함 누적) 카드를 보여줌
+        window.hpOnGameOver = function(gameName) {
+            var plays = (parseInt(get(K.plays) || '0', 10) || 0) + 1;
+            set(K.plays, String(plays));
+            if (plays < 3 || blocked()) return;
+
+            var card = document.getElementById('hp-feedback-card');
+            if (!card) return;
+            card.dataset.game = gameName || '';
+            card.style.display = 'block';
+
+            // 보여준 시점에 일단 14일 뮤트로 선(先)설정 — 아무 반응 없이
+            // 다른 페이지로 넘어가도 최소 14일은 다시 안 뜨게 함(사용자가
+            // ✕를 명시적으로 누르면 아래에서 30일로 덮어씀, 제출하면 영구로 덮어씀)
+            set(K.mute, String(Date.now() + 14 * 24 * 60 * 60 * 1000));
+        };
+
+        window.hpFbClose = function() {
+            set(K.mute, String(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 명시적 닫기 = 30일
+            var card = document.getElementById('hp-feedback-card');
+            if (card) card.style.display = 'none';
+        };
+
+        window.hpFbSubmit = function() {
+            var input = document.getElementById('hp-fb-input');
+            var text = (input.value || '').trim();
+            if (!text) { window.hpFbClose(); return; }
+            var card = document.getElementById('hp-feedback-card');
+            var gameName = (card && card.dataset.game) || '';
+            var body = '[게임 결과화면 피드백]\n게임: ' + gameName + '\n내용: ' + text;
+            window.location.href = 'mailto:lyh0929mm@gmail.com?subject=' + encodeURIComponent('[게임 피드백] ' + gameName) + '&body=' + encodeURIComponent(body);
+            set(K.done, '1'); // 제출 완료 = 영구 중단
+            document.getElementById('hp-fb-ask').style.display = 'none';
+            document.getElementById('hp-fb-thanks').style.display = 'block';
+            input.value = '';
+            setTimeout(function() { if (card) card.style.display = 'none'; }, 2000);
+        };
+    })();
+    </script>
+
+            <div id="desc" class="p-10" style="scroll-margin-top:70px;">
 <div>
 <h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
 <p class="text-slate-600 text-xl leading-relaxed font-medium">
