@@ -155,7 +155,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260830170253_61835dc3">
+  <meta name="build-version" content="20260831111246_d3b83177">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -427,51 +427,54 @@
 
         // 게임 목록 페이지 HTML 생성
         function buildIndexPage() {
-            var cards = gameData.map(function(game) {
+            function makeCard(game) {
                 var badge = '';
-                if (game.id === 'g1') {
-                    var cls = isMobile
+                var isPcOnly = (game.id === 'g1' || game.id === 'g3' || game.id === 'g4');
+                if (isPcOnly) {
+                    var clsPc = isMobile
                         ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
                         : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
-                    badge = '<span id="pc-badge-g1" class="' + cls + '">PC</span>';
-                } else if (game.id === 'g2') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
-                } else if (game.id === 'g3') {
-                    var cls3 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
-                    badge = '<span class="' + cls3 + '">PC</span>';
-                } else if (game.id === 'g4') {
-                    var cls4 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
-                    badge = '<span class="' + cls4 + '">PC</span>';
-                } else if (game.id === 'g5') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g6') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g7') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g8') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g9') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g10') {
+                    badge = '<span id="pc-badge-' + game.id + '" class="' + clsPc + '">\u2328\uFE0F \uD0A4\uBCF4\uB4DC \uD544\uC694</span>';
+                } else {
                     badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
                 }
                 var hasImg = game.img && game.img.trim() !== '';
-                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3' || game.id === 'g4' || game.id === 'g5' || game.id === 'g6' || game.id === 'g7' || game.id === 'g8' || game.id === 'g9' || game.id === 'g10');
-                var thumbBg = isReal ? '#eef2ff' : '#f8fafc';
-                var thumbColor = isReal ? '#4f46e5' : '#94a3b8';
-                var icon = isReal ? '\uD83C\uDFAE' : '\u23F3';
+                var thumbBg = '#eef2ff';
+                var thumbColor = '#4f46e5';
+                var icon = '\uD83C\uDFAE';
                 var thumb = hasImg
                     ? '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:10px;position:relative;"><img src="' + game.img + '" alt="' + game.name + '" style="width:100%;height:100%;object-fit:cover;">' + '<div class="play-overlay"><span>\u25B6 \uD50C\uB808\uC774\uD558\uAE30</span></div>' + '<div class="play-badge-mobile">\u25B6</div>' + '</div>'
                     : '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:' + thumbBg + ';color:' + thumbColor + ';position:relative;">' + icon + '<div class="play-overlay"><span>\u25B6 \uD50C\uB808\uC774\uD558\uAE30</span></div>' + '<div class="play-badge-mobile">\u25B6</div>' + '</div>';
                 var onclick = "handleGameClick('" + game.id + "')";
+                // 모바일 + PC전용 게임일 때만 "PC에서 다시 만나요" 안내 노출
+                var pcNote = (isMobile && isPcOnly)
+                    ? '<span class="text-[10px] text-indigo-400 font-bold mt-1.5">\uD83D\uDCCC PC\uC5D0\uC11C \uB2E4\uC2DC \uB9CC\uB098\uC694</span>'
+                    : '';
                 return '<button onclick="' + onclick + '" class="game-card group bg-white p-3 rounded-2xl border border-slate-100 hover:border-indigo-400 hover:shadow-lg transition-all flex flex-col items-center text-center relative w-full">'
                     + thumb
                     + badge
                     + '<h3 class="font-bold text-sm text-slate-800 mb-1 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight">' + game.name + '</h3>'
                     + '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full uppercase tracking-tighter">' + game.genre + '</span>'
                     + (game.desc ? '<p class="text-[11px] text-slate-400 mt-1.5 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + game.desc + '</p>' : '')
+                    + pcNote
                     + '</button>';
-            }).join('');
+            }
+
+            var cards;
+            if (isMobile) {
+                // 모바일: 한 손으로 바로 되는 게임 먼저, 키보드 필요한 게임은 아래 별도 섹션으로
+                var oneHandGames = gameData.filter(function(g){ return !(g.id === 'g1' || g.id === 'g3' || g.id === 'g4'); });
+                var keyboardGames = gameData.filter(function(g){ return (g.id === 'g1' || g.id === 'g3' || g.id === 'g4'); });
+                cards = '<div style="grid-column:1/-1;font-size:13px;font-weight:900;color:#1e293b;margin-bottom:2px">\uD83D\uDCF1 \uD55C \uC190\uC73C\uB85C 5\uCD08</div>'
+                    + '<div style="grid-column:1/-1;font-size:11px;color:#94a3b8;margin-bottom:10px">\uBC14\uB85C \uB204\ub974\uba74 \ubc14\ub85c \ub418\ub294 \uac8c\uc784\ub4e4</div>'
+                    + oneHandGames.map(makeCard).join('')
+                    + '<div style="grid-column:1/-1;font-size:13px;font-weight:900;color:#1e293b;margin:20px 0 2px">\u2328\uFE0F \uD0A4\uBCF4\uB4DC \uC788\uC744 \uB54C</div>'
+                    + '<div style="grid-column:1/-1;font-size:11px;color:#94a3b8;margin-bottom:10px">\ud0c0\uc774\ud551\uc774 \ud575\uc2ec\uc774\ub77c PC\uc5d0\uc11c \ub354 \uc798 \ub3c4\ub294 \uac8c\uc784\ub4e4</div>'
+                    + keyboardGames.map(makeCard).join('');
+            } else {
+                // PC: 기존 순서 그대로
+                cards = gameData.map(makeCard).join('');
+            }
 
             var hasBanner = bannerConfig.img && bannerConfig.img.trim() !== '';
             var bannerInner = hasBanner
@@ -1176,12 +1179,50 @@
             const game = gameData.find(g => g.id === gameId);
             if (game && game.file) {
                 if (isMobile && PC_ONLY_GAMES.includes(gameId)) {
-                    alert('🖥️ ' + game.name + '은(는) 물리 키보드가 필요한 PC 전용 게임이에요.\n모바일·태블릿에서는 조작이 안 되니, PC로 접속해서 즐겨주세요!');
+                    openPcSendModal(game);
                     return;
                 }
                 location.href = game.file;
             } else {
                 alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
+            }
+        }
+
+        // 모바일에서 PC전용 게임을 눌렀을 때: 그냥 막고 끝내는 대신
+        // 링크를 저장해뒀다가 PC에서 이어서 열어볼 수 있게 안내
+        function openPcSendModal(game) {
+            var modal = document.getElementById('pc-send-modal');
+            var titleEl = document.getElementById('pc-send-title');
+            var linkEl = document.getElementById('pc-send-link');
+            if (!modal) return;
+            titleEl.textContent = game.name + '은(는) 키보드가 있는 PC에서 즐길 수 있어요';
+            var fullUrl = location.origin + '/' + game.file;
+            linkEl.textContent = fullUrl;
+            linkEl.dataset.url = fullUrl;
+            modal.style.display = 'flex';
+        }
+        function closePcSendModal() {
+            var modal = document.getElementById('pc-send-modal');
+            if (modal) modal.style.display = 'none';
+        }
+        function copyPcSendLink() {
+            var linkEl = document.getElementById('pc-send-link');
+            var url = linkEl.dataset.url;
+            var done = function() {
+                var btn = document.getElementById('pc-send-copy-btn');
+                var old = btn.textContent;
+                btn.textContent = '복사됨! 카톡 나에게 보내기 등으로 저장해두세요';
+                setTimeout(function(){ btn.textContent = old; }, 2500);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(done).catch(function(){
+                    var t = document.createElement('textarea');
+                    t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+                    document.body.appendChild(t); t.select();
+                    try { document.execCommand('copy'); } catch(e) {}
+                    document.body.removeChild(t);
+                    done();
+                });
             }
         }
 
@@ -1518,4 +1559,25 @@
     //    hoya-typing-rpg.html / hoya-proverb-typing.html 내부의 <canvas> 요소에 직접 아래를 추가하세요:
     //    canvas.addEventListener('contextmenu', e => e.preventDefault());
 </script>
+
+<!-- ── 모바일에서 PC전용 게임 탭 시: 링크 저장 안내 모달 ── -->
+<div id="pc-send-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:20px">
+    <div style="background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);max-width:400px;width:100%;padding:28px;position:relative">
+        <button onclick="closePcSendModal()" aria-label="닫기" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;line-height:1">×</button>
+        <div style="text-align:center;margin-bottom:18px">
+            <div style="font-size:32px;margin-bottom:8px">⌨️</div>
+            <h3 id="pc-send-title" style="font-size:15px;font-weight:900;color:#1e293b;line-height:1.5">이 게임은 키보드가 있는 PC에서 즐길 수 있어요</h3>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;margin-bottom:14px;overflow-wrap:break-word;word-break:break-all">
+            <span id="pc-send-link" style="font-size:12px;color:#64748b"></span>
+        </div>
+        <button id="pc-send-copy-btn" onclick="copyPcSendLink()"
+            style="width:100%;background:#4f46e5;color:#fff;padding:13px;border-radius:12px;font-weight:800;font-size:14px;border:none;cursor:pointer;margin-bottom:8px">
+            링크 복사하기
+        </button>
+        <p style="font-size:12px;color:#94a3b8;text-align:center;line-height:1.6;margin:0">
+            복사한 링크를 카카오톡 '나에게 보내기' 등으로 저장해두시면<br>나중에 PC에서 바로 열어보실 수 있어요.
+        </p>
+    </div>
+</div>
 </body>
