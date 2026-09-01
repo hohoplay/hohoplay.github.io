@@ -10,6 +10,13 @@
       gtag('config', 'G-VGTXTM4R91');
     </script>
     <meta charset="UTF-8">
+    <!-- ═══ Kakao SDK (실제 공유 기능) ═══ -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+      crossorigin="anonymous"></script>
+    <script>
+      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>상식테스트 - HOHO PLAY | 짧게 즐기는 5문제 퀴즈</title>
@@ -176,8 +183,24 @@
             } else if(type==='line'){
                 window.open('https://social-plugins.line.me/lineit/share?url='+shareUrl+'&text='+shareTitle, 'sns_line', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,width=750,height=700');
             } else if(type==='kakaot'){
-                if(navigator.clipboard) navigator.clipboard.writeText(window.location.href);
-                alert('링크가 복사되었습니다. 카카오톡에 붙여넣어 공유해주세요!');
+                if(window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()){
+                    var _descEl = document.querySelector('meta[name="description"]');
+                    Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: document.title.split(' - ')[0],
+                            description: _descEl ? _descEl.content : '',
+                            imageUrl: 'https://hohoplay.github.io/data/banner.png',
+                            link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
+                        },
+                        buttons: [
+                            { title: '나도 해보기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }
+                        ]
+                    });
+                } else if(navigator.clipboard){
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('링크가 복사되었습니다. 카카오톡에 붙여넣어 공유해주세요!');
+                }
             }
         }
     </script>
