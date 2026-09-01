@@ -2,6 +2,13 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <!-- ═══ Kakao SDK (실제 공유 기능) ═══ -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+      crossorigin="anonymous"></script>
+    <script>
+      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <!-- [FIX] Tailwind CDN·html2canvas 스크립트가 async 없이 동기 로딩이라, 네트워크가
          느리면 그 다운로드가 끝날 때까지 실제 콘텐츠 교체 스크립트 실행 자체가 지연되어
@@ -596,6 +603,7 @@
                 + '<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">'
                     + '<button onclick="mainSnsShare(\'facebook\')" aria-label="페이스북 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">f</button>'
                     + '<button onclick="mainSnsShare(\'x\')" aria-label="X 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">X</button>'
+                    + '<button onclick="mainSnsShare(\'kakaot\')" aria-label="카카오톡 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:18px">💬</button>'
                     + '<button onclick="mainSnsShare(\'naver\')" aria-label="네이버 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">N</button>'
                     + '<button onclick="mainSnsShare(\'band\')" aria-label="밴드 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">밴드</button>'
                     + '<button onclick="mainSnsShare(\'line\')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>'
@@ -608,6 +616,26 @@
             var url = encodeURIComponent(location.origin + '/');
             var text = encodeURIComponent('로그인 없이 바로 즐기는 웹게임과 운세, HOHO PLAY');
             var shareUrl = '';
+            if (type === 'kakaot') {
+                if (window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()) {
+                    Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: 'HOHO PLAY - 로그인 없는 무료 웹게임 포털',
+                            description: '타이핑, 퍼즐, 러닝, 레이싱 게임과 운세를 한곳에서. 설치·가입 없이 바로 즐기세요.',
+                            imageUrl: 'https://hohoplay.github.io/data/banner.png',
+                            link: { mobileWebUrl: location.origin + '/', webUrl: location.origin + '/' }
+                        },
+                        buttons: [
+                            { title: '지금 플레이하기', link: { mobileWebUrl: location.origin + '/', webUrl: location.origin + '/' } }
+                        ]
+                    });
+                } else if (navigator.clipboard) {
+                    navigator.clipboard.writeText(location.origin + '/');
+                    alert('링크가 복사되었습니다. 카카오톡에 붙여넣어 공유해주세요!');
+                }
+                return;
+            }
             if (type === 'facebook') shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
             else if (type === 'x') shareUrl = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + text;
             else if (type === 'naver') shareUrl = 'https://share.naver.com/web/shareView?url=' + url + '&title=' + text;
