@@ -125,6 +125,7 @@ def pick_seo_keywords(name, day_seed, n=2):
         result.append(str(pool.iloc[idx]['keyword']))
     return result
 zodiac_kr         = csv("zodiac_fortune_1000.csv")
+chinese_fortune_1000 = csv("chinese_fortune_1000.csv")   # ← 신규: grow_chinese_fortune.yml이 매달 확장 (SEO 개선안 ③)
 fortune_score     = csv("fortune_score.csv")          # ← 운세 지수
 lucky_items       = csv("lucky_items_1000.csv")        # ← 행운의 아이템 (별자리용)
 chinese_zodiac    = csv("chinese_zodiac_fortunes.csv")
@@ -568,6 +569,19 @@ def zodiac_fortune(kr_name):
             return str(text).replace('\n\n', '<br><br>').replace('\n', '<br>')
     return sentence()
 
+def zodiac_fortune_by_type(kr_name, type_name, day_seed):
+    """zodiac_fortune_1000.csv에서 특정 타입(애정운/금전운/직장운/총운 등) 문장을
+    날짜 시드로 하나 골라 반환. grow_fortune.yml이 매달 확장해주는 풀이라
+    시간이 지날수록 반복 빈도가 자연히 낮아진다. (SEO 개선안 ③, API 비용 없음)"""
+    if zodiac_kr.empty or 'zodiac' not in zodiac_kr.columns or 'type' not in zodiac_kr.columns:
+        return ""
+    pool = zodiac_kr[(zodiac_kr['zodiac'] == kr_name) & (zodiac_kr['type'] == type_name)].reset_index(drop=True)
+    if pool.empty:
+        return ""
+    idx = day_seed % len(pool)
+    text = str(pool.iloc[idx]['fortune'])
+    return text.replace('\n\n', '<br><br>').replace('\n', '<br>')
+
 def chinese_fortune(en_name):
     if not chinese_zodiac.empty:
         m = chinese_zodiac[chinese_zodiac['animal_zodiac'] == en_name]
@@ -575,6 +589,20 @@ def chinese_fortune(en_name):
             text = str(m.sample(1).iloc[0]['fortune'])
             return _to_formal(text)
     return sentence()
+
+def chinese_fortune_by_type(kr_name, type_name, day_seed):
+    """chinese_fortune_1000.csv(신규 — grow_chinese_fortune.yml이 매달 확장)에서
+    특정 타입 문장을 날짜 시드로 하나 골라 반환. 파일이 아직 없거나 비어 있으면
+    빈 문자열을 반환하므로(csv() 헬퍼가 실패 시 빈 DataFrame을 주기 때문) 이 CSV가
+    아직 생성되지 않은 상태로 배포해도 안전하다. (SEO 개선안 ③, API 비용 없음)"""
+    if chinese_fortune_1000.empty or 'chinese' not in chinese_fortune_1000.columns or 'type' not in chinese_fortune_1000.columns:
+        return ""
+    pool = chinese_fortune_1000[(chinese_fortune_1000['chinese'] == kr_name) & (chinese_fortune_1000['type'] == type_name)].reset_index(drop=True)
+    if pool.empty:
+        return ""
+    idx = day_seed % len(pool)
+    text = str(pool.iloc[idx]['fortune'])
+    return text.replace('\n\n', '<br><br>').replace('\n', '<br>')
 
 def _to_formal(text):
     """구어체 → 격식체 자동 변환 (CSV 원본 데이터 보정용)"""
@@ -2878,6 +2906,13 @@ def build_zodiac_post(z, today_str):
     keyword_line = f"오늘의 핵심 키워드는 '{kw_pair[0]}{_gwa(kw_pair[0])} {kw_pair[1]}'입니다."
     keyword_tie  = f"연애에서는 {kw_pair[0]}{_euro(kw_pair[0])}, 금전과 일에서는 {kw_pair[1]}{_euro(kw_pair[1])} 같은 흐름이 이어지고 있습니다."
 
+    # ③ 고유성 강화 — grow_fortune.yml이 매달 확장하는 zodiac_fortune_1000.csv에서
+    # 타입별(총운/애정운/금전운/직장운) 문장을 하나씩 추가로 뽑아온다 (API 비용 없음)
+    _z_total_extra = zodiac_fortune_by_type(z['kr'], '총운',   kst_day)
+    _z_love_extra  = zodiac_fortune_by_type(z['kr'], '애정운', kst_day)
+    _z_money_extra = zodiac_fortune_by_type(z['kr'], '금전운', kst_day)
+    _z_work_extra  = zodiac_fortune_by_type(z['kr'], '직장운', kst_day)
+
     # 오늘 하나만 (엔딩 박스)
     _ze = _z_endings[kst_now.day % len(_z_endings)]
     # 별자리별 명언 — 오늘 날짜 시드 기반
@@ -2896,11 +2931,25 @@ def build_zodiac_post(z, today_str):
   <!-- fortune.html 파서 연동용 히든 마커 -->
   <div style="display:none" aria-hidden="true">오늘의 흐름</div>
 
+  <!-- ① 3줄 핵심 요약 (SEO 개선안 ①) -->
+  <div class="z-summary" style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:14px;padding:16px 20px;margin:0 0 20px;font-size:14px;line-height:1.85;color:#4c1d95;word-break:keep-all">
+    <strong style="font-size:12px;letter-spacing:.3px">📌 {z['kr']} {today_dot} 한눈에 보기</strong>
+    <p style="margin:8px 0 0">· 오늘의 총운 &nbsp;{total}점 · {_flow(total)}</p>
+    <p style="margin:4px 0 0">· 핵심 키워드 &nbsp;{kw_pair[0]}{_gwa(kw_pair[0])} {kw_pair[1]}</p>
+    <p style="margin:4px 0 0">· 실천 포인트 &nbsp;{action}</p>
+  </div>
+
   <div style="font-family:'Noto Serif KR',Georgia,serif">
 
-    <p style="margin:0 0 1.2em 0;font-size:15px;line-height:2.0;color:#374151;word-break:keep-all">{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}</p>
-
-    <p style="margin:0 0 1.2em 0;font-size:13px;font-weight:700;color:#7c3aed">{keyword_line}</p>
+    <!-- ② 총운에도 h2 소제목 부여 (SEO 개선안 ②) — 기존 미사용 CSS(.z-section.health) 재활용 -->
+    <div class="z-section health">
+      <h2><span class="z-icon">🌟</span> {z['kr']} 오늘의 총운</h2>
+      <p>{random.choice(_Z_TOTAL_INTRO_UP if total >= 65 else _Z_TOTAL_INTRO_WARN)}</p>
+      <p style="font-size:13px;font-weight:700;color:#7c3aed;margin-bottom:0">{keyword_line}</p>
+      <!-- ③ 고유성 강화: 매일 실제로 바뀌는 계산값을 그대로 노출 (SEO 개선안 ③, API 비용 없음) -->
+      <p style="font-size:12px;color:#6d28d9;margin:6px 0 0">오늘 지수 — 애정 {love}점 · 금전 {money}점 · 업무 {work_score}점 (100점 만점)</p>
+      {f'<p style="font-size:13px;color:#4c1d95;margin-top:8px">{_z_total_extra}</p>' if _z_total_extra else ''}
+    </div>
 
     <div class="z-divider">✦</div>
 
@@ -2908,18 +2957,21 @@ def build_zodiac_post(z, today_str):
       <h2><span class="z-icon">💑</span> {z['kr']} 애정운 · 관계</h2>
       <p class="z-bridge">{lb}</p>
       <p>{love_intro}<br>{love_detail}</p>
+      {f'<p style="font-size:13px;color:#9f1239">{_z_love_extra}</p>' if _z_love_extra else ''}
     </div>
 
     <div class="z-section money">
       <h2><span class="z-icon">💰</span> {z['kr']} 금전운</h2>
       <p class="z-bridge">{mb}</p>
       <p>{money_intro}<br>{money_detail}</p>
+      {f'<p style="font-size:13px;color:#78350f">{_z_money_extra}</p>' if _z_money_extra else ''}
     </div>
 
     <div class="z-section work">
       <h2><span class="z-icon">💼</span> {z['kr']} 업무운</h2>
       <p class="z-bridge">{wb}</p>
       <p>{work_intro}<br>{work_detail}</p>
+      {f'<p style="font-size:13px;color:#1e3a8a">{_z_work_extra}</p>' if _z_work_extra else ''}
     </div>
 
     <p style="margin:1.2em 0;font-size:13px;color:#6b7280;word-break:keep-all">{keyword_tie}</p>
@@ -3241,6 +3293,10 @@ def build_chinese_post(c, today_str):
     ]
     action = _c_actions[kst_day % len(_c_actions)]
 
+    # ③ 고유성 강화 — grow_chinese_fortune.yml(신규)이 매달 확장하는
+    # chinese_fortune_1000.csv에서 총운 문장을 추가로 뽑아온다 (API 비용 없음)
+    _c_total_extra = chinese_fortune_by_type(c['kr'], '총운', kst_day)
+
     # 엔딩
     _ce = _c_endings[kst_now.day % len(_c_endings)]
     # 띠별 명언 — 오늘 날짜 시드 기반
@@ -3256,6 +3312,14 @@ def build_chinese_post(c, today_str):
     <p>{empathy} {empathy_bridge}</p>
   </div>
 
+  <!-- ① 3줄 핵심 요약 (SEO 개선안 ①) -->
+  <div class="c-summary" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:16px 20px;margin:0 0 20px;font-size:14px;line-height:1.85;color:#7c2d12;word-break:keep-all">
+    <strong style="font-size:12px;letter-spacing:.3px">📌 {c['kr']} {today_sync} 한눈에 보기</strong>
+    <p style="margin:8px 0 0">· 오늘의 총운 &nbsp;{total}점 · {_flow(total)}</p>
+    <p style="margin:4px 0 0">· 오늘의 시그널 &nbsp;{signal}</p>
+    <p style="margin:4px 0 0">· 실천 포인트 &nbsp;{action}</p>
+  </div>
+
   <!-- fortune.html 파서 연동용 히든 마커 -->
   <div style="display:none" aria-hidden="true">
     <div class="fc-text">{fortune}</div>
@@ -3269,6 +3333,9 @@ def build_chinese_post(c, today_str):
     <h2><span class="z-icon">🌊</span> {c['kr']} 오늘의 운세 흐름</h2>
     <p>{fortune} {_peak_tip}</p>
     <p style="color:#92400e">{_low_tip}</p>
+    <!-- ③ 고유성 강화: 매일 실제로 바뀌는 계산값을 그대로 노출 (SEO 개선안 ③, API 비용 없음) -->
+    <p style="font-size:12px;color:#92400e;margin:6px 0 0">오늘 지수 — 애정 {love}점 · 금전 {money}점 · 건강 {health}점 (100점 만점)</p>
+    {f'<p style="font-size:13px;color:#78350f;margin-top:8px">{_c_total_extra}</p>' if _c_total_extra else ''}
   </div>
 
   <div class="c-section compat">
