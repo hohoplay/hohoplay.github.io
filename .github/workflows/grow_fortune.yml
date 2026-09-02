@@ -46,10 +46,11 @@ jobs:
             python scripts/grow_csv.py --count "$COUNT"
           fi
 
-      - name: 💾 변경사항 커밋
+            - name: 💾 변경사항 커밋
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/zodiac_fortune_1000.csv
           git diff --staged --quiet || git commit -m "📈 운세 CSV 자동 확장 $(date +'%Y-%m')"
+          git pull --rebase origin main
           git push
