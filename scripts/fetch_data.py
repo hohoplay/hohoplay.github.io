@@ -11,7 +11,7 @@ SEARCH_FROM = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('
 # 주의: 공공데이터포털에서 발급받은 두 키 중 "디코딩(Decoding)" 키를 넣을 것.
 # "인코딩(Encoding)" 키를 넣으면 requests가 다시 한 번 인코딩해서 401 오류가 남.
 API_KEY = os.environ.get("TOUR_API_KEY", "YOUR_TOUR_API_KEY")
-BASE_URL = "http://apis.data.go.kr/B551011/KorService1/searchFestival1"
+BASE_URL = "https://apis.data.go.kr/B551011/KorService2/searchFestival2"
 
 
 def fetch_page(page_no, num_of_rows=200):
@@ -86,10 +86,12 @@ def main():
             'tel': item.get('tel', '')
         })
 
-    with open('festivals.json', 'w', encoding='utf-8') as f:
+    # repo 루트 기준 data/ 폴더에 저장 (workflow가 repo 루트에서 scripts/fetch_data.py로 실행하는 것을 전제)
+    os.makedirs('data', exist_ok=True)
+    with open('data/festivals.json', 'w', encoding='utf-8') as f:
         json.dump(festivals, f, ensure_ascii=False, indent=2)
 
-    print(f"총 수신 {len(all_items)}건, 진행중/예정 축제 {len(festivals)}건 저장 완료.")
+    print(f"총 수신 {len(all_items)}건, 진행중/예정 축제 {len(festivals)}건 data/festivals.json에 저장 완료.")
 
 
 if __name__ == '__main__':
