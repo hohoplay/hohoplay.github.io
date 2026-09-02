@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>애드센스 승인 전략 가이드 V1.0 — HOHO PLAY 내부 문서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --ink:#1e293b; --ink-soft:#475569; --ink-faint:#94a3b8;
+        --indigo:#4f46e5; --violet:#7c3aed;
+        --amber:#f59e0b; --amber-bg:#fffbeb; --amber-border:#fde68a;
+        --emerald:#059669; --emerald-bg:#ecfdf5; --emerald-border:#a7f3d0;
+        --sky:#0284c7; --sky-bg:#f0f9ff; --sky-border:#bae6fd;
+        --rose:#e11d48; --rose-bg:#fff1f2; --rose-border:#fecdd3;
+        --slate-bg:#f8fafc; --line:#e2e8f0;
+    }
+    *{box-sizing:border-box}
+    body{
+        margin:0; background:var(--slate-bg); color:var(--ink);
+        font-family:'Noto Sans KR',sans-serif; line-height:1.75;
+        -webkit-font-smoothing:antialiased;
+    }
+    .mono{font-family:'JetBrains Mono',monospace}
+
+    /* ── 상단 문서 헤더 ── */
+    .doc-header{
+        background:linear-gradient(135deg,#1e1b4b,#312e81 55%,#4c1d95);
+        color:#fff; padding:56px 24px 64px;
+    }
+    .doc-header-inner{max-width:760px;margin:0 auto}
+    .doc-badge{
+        display:inline-flex; align-items:center; gap:8px;
+        background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25);
+        padding:6px 14px; border-radius:999px; font-size:12px; font-weight:700;
+        letter-spacing:.02em; margin-bottom:20px;
+    }
+    .doc-badge .dot{width:6px;height:6px;border-radius:50%;background:#4ade80}
+    .doc-title{font-size:clamp(1.6rem,4vw,2.3rem); font-weight:900; margin:0 0 10px; letter-spacing:-.01em}
+    .doc-sub{font-size:15px; color:#c7d2fe; margin:0 0 24px; max-width:44ch}
+    .doc-meta{
+        display:flex; flex-wrap:wrap; gap:10px 28px; font-size:13px; color:#a5b4fc;
+        border-top:1px solid rgba(255,255,255,.15); padding-top:18px;
+    }
+    .doc-meta b{color:#fff; font-weight:700}
+
+    /* ── 본문 ── */
+    .doc-body{max-width:760px; margin:0 auto; padding:44px 24px 100px}
+    .toc{
+        background:#fff; border:1px solid var(--line); border-radius:16px;
+        padding:20px 24px; margin-bottom:40px;
+    }
+    .toc-title{font-size:12px; font-weight:800; color:var(--ink-faint); letter-spacing:.06em; margin-bottom:10px}
+    .toc ol{margin:0; padding-left:20px}
+    .toc li{margin-bottom:4px}
+    .toc a{color:var(--indigo); text-decoration:none; font-weight:600; font-size:14px}
+    .toc a:hover{text-decoration:underline}
+
+    section{margin-bottom:52px; scroll-margin-top:24px}
+    .sec-eyebrow{
+        font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700;
+        color:var(--indigo); letter-spacing:.08em; margin-bottom:8px; text-transform:uppercase;
+    }
+    h2{font-size:1.4rem; font-weight:900; margin:0 0 20px; letter-spacing:-.01em}
+    h3{font-size:1.05rem; font-weight:800; margin:28px 0 10px; color:var(--ink)}
+    p{margin:0 0 14px; color:var(--ink-soft); font-size:15.5px}
+    ul, ol.plain{margin:0 0 14px; padding-left:22px; color:var(--ink-soft); font-size:15.5px}
+    li{margin-bottom:6px}
+    strong{color:var(--ink); font-weight:700}
+
+    .callout{
+        border-radius:14px; padding:18px 20px; margin:16px 0 20px;
+        border:1px solid var(--line); background:#fff;
+    }
+    .callout-title{font-weight:800; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:8px}
+    .callout.warn{background:var(--amber-bg); border-color:var(--amber-border)}
+    .callout.warn .callout-title{color:#92400e}
+
+    /* ── 거절 사유 카드 ── */
+    .reject-grid{display:grid; grid-template-columns:1fr; gap:10px; margin:18px 0 20px}
+    @media(min-width:600px){.reject-grid{grid-template-columns:1fr 1fr}}
+    .reject-card{
+        background:#fff; border:1px solid var(--line); border-radius:12px;
+        padding:14px 16px; display:flex; gap:12px; align-items:flex-start;
+    }
+    .reject-num{
+        font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;
+        color:#fff; background:var(--rose); width:24px; height:24px; border-radius:7px;
+        display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+    }
+    .reject-text b{display:block; font-size:14px; color:var(--ink); margin-bottom:2px}
+    .reject-text span{font-size:13px; color:var(--ink-faint)}
+
+    /* ── URL 진단 매트릭스 (시그니처 요소) ── */
+    .matrix{display:grid; grid-template-columns:1fr; gap:14px; margin:20px 0 8px}
+    @media(min-width:600px){.matrix{grid-template-columns:1fr 1fr}}
+    .matrix-card{
+        border-radius:16px; padding:20px; position:relative; overflow:hidden;
+        border:1px solid var(--line);
+    }
+    .matrix-card .grade{
+        font-family:'JetBrains Mono',monospace; font-weight:900; font-size:28px;
+        line-height:1; margin-bottom:10px; display:block;
+    }
+    .matrix-card .grade-label{font-size:13px; font-weight:800; margin-bottom:12px}
+    .matrix-card .grade-desc{font-size:13.5px; color:var(--ink-soft); margin-bottom:10px}
+    .matrix-card .grade-action{
+        font-size:13px; font-weight:700; padding-top:10px;
+        border-top:1px dashed currentColor; opacity:.85;
+    }
+    .m-a{background:var(--emerald-bg); border-color:var(--emerald-border)} .m-a .grade{color:var(--emerald)} .m-a .grade-label{color:#065f46}
+    .m-b{background:var(--sky-bg); border-color:var(--sky-border)} .m-b .grade{color:var(--sky)} .m-b .grade-label{color:#075985}
+    .m-c{background:var(--amber-bg); border-color:var(--amber-border)} .m-c .grade{color:#b45309} .m-c .grade-label{color:#92400e}
+    .m-d{background:var(--rose-bg); border-color:var(--rose-border)} .m-d .grade{color:var(--rose)} .m-d .grade-label{color:#9f1239}
+
+    /* ── 체크리스트 ── */
+    .check-list{list-style:none; margin:0 0 14px; padding:0}
+    .check-list li{
+        display:flex; gap:10px; align-items:flex-start; padding:9px 0;
+        border-bottom:1px solid var(--line); font-size:14.5px; color:var(--ink-soft);
+    }
+    .check-list li:last-child{border-bottom:none}
+    .check-list li::before{
+        content:"✓"; flex-shrink:0; width:20px; height:20px; border-radius:6px;
+        background:#eef2ff; color:var(--indigo); font-weight:900; font-size:12px;
+        display:flex; align-items:center; justify-content:center; margin-top:1px;
+    }
+
+    .footnote{
+        margin-top:60px; padding-top:24px; border-top:1px solid var(--line);
+        font-size:12.5px; color:var(--ink-faint);
+    }
+
+    /* ── 적용 현황 상태 뱃지 (V2.0) ── */
+    .status-row{
+        display:flex; gap:12px; align-items:flex-start; padding:14px 16px;
+        border:1px solid var(--line); border-radius:12px; margin-bottom:10px; background:#fff;
+    }
+    .status-badge{
+        flex-shrink:0; font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px;
+        white-space:nowrap; margin-top:1px;
+    }
+    .status-done{background:var(--emerald-bg); color:#065f46; border:1px solid var(--emerald-border)}
+    .status-partial{background:var(--sky-bg); color:#075985; border:1px solid var(--sky-border)}
+    .status-open{background:var(--rose-bg); color:#9f1239; border:1px solid var(--rose-border)}
+    .status-text b{display:block; font-size:14px; color:var(--ink); margin-bottom:2px}
+    .status-text span{font-size:13px; color:var(--ink-faint); line-height:1.6}
+
+    .metric-strip{
+        display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:16px 0 24px;
+    }
+    @media(min-width:600px){.metric-strip{grid-template-columns:repeat(4,1fr)}}
+    .metric-card{
+        background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; text-align:center;
+    }
+    .metric-num{font-family:'JetBrains Mono',monospace; font-weight:900; font-size:22px; color:var(--indigo)}
+    .metric-label{font-size:11.5px; color:var(--ink-faint); margin-top:4px; line-height:1.4}
+</style>
+</head>
+<body>
+
+    <header class="doc-header">
+        <div class="doc-header-inner">
+            <div class="doc-badge"><span class="dot"></span> 내부 참고 문서 · 공개 페이지 아님</div>
+            <h1 class="doc-title">애드센스 승인 전략 가이드</h1>
+            <p class="doc-sub">HOHO PLAY 사이트의 애드센스 승인/유지를 위한 콘텐츠 운영 기준과, 실제 사이트에 적용한 현황을 정리한 내부 플레이북입니다.</p>
+            <div class="doc-meta">
+                <span>버전 <b class="mono">V2.0</b></span>
+                <span>문서 번호 <b class="mono">ADS-001</b></span>
+                <span>기준 <b>Google AdSense 프로그램 정책</b></span>
+                <span>V1.0 대비 <b>크롤러 연결·URL 구조 적용 현황 추가</b></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="doc-body">
+
+        <nav class="toc" aria-label="목차">
+            <div class="toc-title">CONTENTS</div>
+            <ol>
+                <li><a href="#basics">01. 승인을 위한 기본 수칙</a></li>
+                <li><a href="#rejection">02. 거절 1순위 — 가치가 낮은 콘텐츠 7가지</a></li>
+                <li><a href="#matrix">03. 기존 URL 진단 매트릭스 (A/B/C/D)</a></li>
+                <li><a href="#status">04. HOHO PLAY 적용 현황</a></li>
+            </ol>
+        </nav>
+
+        <section id="basics">
+            <div class="sec-eyebrow">Section 01</div>
+            <h2>승인을 위한 기본 수칙 및 지침</h2>
+
+            <h3>웹사이트 콘텐츠의 기반 조성</h3>
+            <p>
+                "준비 중(Under Construction)" 안내 페이지, 더미(Dummy) 글, 빈 페이지는 승인 거절의
+                주요 원인이다. 분량이 충분하고 실질적인 정보를 담은 콘텐츠를 배치해야 한다.
+            </p>
+
+            <h3>독창적인 고품질 콘텐츠 작성</h3>
+            <ul>
+                <li>표절이나 타 사이트 복사 글은 절대 금물 — 직접 작성한 고유한 콘텐츠여야 한다.</li>
+                <li>얕은 정보를 담은 페이지 여러 개보다, 깊이 있고 유용한 고품질 포스트 몇 개가 훨씬 효과적이다.</li>
+                <li>문법 오류나 오타를 줄여 글의 전문성을 높인다 (필요 시 문법 검사 도구 활용).</li>
+            </ul>
+
+            <h3>사이트 내 중복 콘텐츠 지양 및 내비게이션 최적화</h3>
+            <ul>
+                <li>여러 페이지에 동일한 내용을 복사해 붙여넣는 행위는 피한다.</li>
+                <li>관련 글끼리는 내부 링크(Internal Linking)로 연결한다 — SEO에도 도움이 된다.</li>
+                <li>모든 기기(PC·모바일 등)에서 메뉴·내비게이션 바의 위치와 동작이 일관되고 직관적이어야 한다.</li>
+            </ul>
+
+            <h3>금지 콘텐츠 규정 준수 및 트래픽 관리</h3>
+            <div class="callout warn">
+                <div class="callout-title">⚠️ 엄격히 금지되는 콘텐츠</div>
+                성인용, 폭력적, 위험 물질 제작 방법 등 부적절하거나 위험한 콘텐츠.
+            </div>
+            <ul>
+                <li>SNS·메신저 등을 통한 정당한 링크 공유로 방문자를 유치한다 (봇·조회수 구매 등 불법 가짜 트래픽 금지).</li>
+                <li>광고 게재 및 수익 창출 사실을 명시하는 <strong>개인정보 처리방침(Privacy Policy)</strong> 페이지를 반드시 구비한다.</li>
+            </ul>
+        </section>
+
+        <section id="rejection">
+            <div class="sec-eyebrow">Section 02</div>
+            <h2>거절 1순위 — '가치가 낮은 콘텐츠' 7가지 유형</h2>
+            <p>단순히 글자 수가 부족해서가 아니라, 아래 7가지 사유로 거절 메일을 받는 경우가 대부분이다.</p>
+
+            <div class="reject-grid">
+                <div class="reject-card"><span class="reject-num">1</span><span class="reject-text"><b>고유 콘텐츠 부족</b><span>나만의 독창적인 내용이나 분석이 없는 글</span></span></div>
+                <div class="reject-card"><span class="reject-num">2</span><span class="reject-text"><b>요약·번역·재작성</b><span>단순 타 사이트 글 요약, 기계적 번역, 재가공 글</span></span></div>
+                <div class="reject-card"><span class="reject-num">3</span><span class="reject-text"><b>AI 대량 유사 글</b><span>생성형 AI로 대량 발행된 유사 문서</span></span></div>
+                <div class="reject-card"><span class="reject-num">4</span><span class="reject-text"><b>짧은·빈 페이지</b><span>내용이 거의 없거나 형식적인 빈 페이지</span></span></div>
+                <div class="reject-card"><span class="reject-num">5</span><span class="reject-text"><b>미디어만 있고 설명 부족</b><span>이미지·동영상만 있고 텍스트 설명이 부실한 글</span></span></div>
+                <div class="reject-card"><span class="reject-num">6</span><span class="reject-text"><b>방문 이유 약함</b><span>유익함이나 명확한 정보 가치를 제공하지 못하는 글</span></span></div>
+                <div class="reject-card"><span class="reject-num">7</span><span class="reject-text"><b>찾기 어려운 구조</b><span>카테고리 분류가 모호하거나 탐색 구조가 복잡한 사이트</span></span></div>
+            </div>
+        </section>
+
+        <section id="matrix">
+            <div class="sec-eyebrow">Section 03</div>
+            <h2>기존 URL 진단 및 정리 기준</h2>
+            <p>무작정 새 글을 쓰기보다, 기존 URL을 아래 4등급으로 먼저 진단하고 정리하는 작업이 우선이다.</p>
+
+            <div class="matrix">
+                <div class="matrix-card m-a">
+                    <span class="grade">A</span>
+                    <div class="grade-label">유지</div>
+                    <div class="grade-desc">콘텐츠 가치가 높고 트래픽 및 전환 상태가 양호함</div>
+                    <div class="grade-action">조치 → 현재 상태 유지</div>
+                </div>
+                <div class="matrix-card m-b">
+                    <span class="grade">B</span>
+                    <div class="grade-label">보강</div>
+                    <div class="grade-desc">주제의 잠재력은 있으나 내용이 다소 부족함</div>
+                    <div class="grade-action">조치 → 콘텐츠 보강, 내부 링크·사이트 구조 개선</div>
+                </div>
+                <div class="matrix-card m-c">
+                    <span class="grade">C</span>
+                    <div class="grade-label">통합 → 301 리다이렉트</div>
+                    <div class="grade-desc">내용이 유사하거나 중복된 글이 여러 개 존재</div>
+                    <div class="grade-action">조치 → 대표 페이지 하나로 통합 후 301 리다이렉트</div>
+                </div>
+                <div class="matrix-card m-d">
+                    <span class="grade">D</span>
+                    <div class="grade-label">삭제·제외</div>
+                    <div class="grade-desc">콘텐츠 가치가 낮고 트래픽·전환이 거의 없음</div>
+                    <div class="grade-action">조치 → 글 삭제 또는 검색 노출(색인) 제외</div>
+                </div>
+            </div>
+
+            <h3>진단 체크리스트</h3>
+            <ul class="check-list">
+                <li>이 페이지는 A~D 중 어디에 해당하는가?</li>
+                <li>C 등급이라면, 통합할 대표 페이지는 어디로 정할 것인가?</li>
+                <li>D 등급이라면, 완전 삭제할지 색인 제외(noindex)만 할지 정했는가?</li>
+                <li>B 등급 보강 시, 어떤 내부 링크를 새로 연결할 것인가?</li>
+            </ul>
+        </section>
+
+        <section id="status">
+            <div class="sec-eyebrow">Section 04 · New in V2.0</div>
+            <h2>HOHO PLAY 적용 현황</h2>
+            <p>위 3개 섹션의 기준을 실제 사이트(hohoplaylab.com)에 어디까지 적용했는지 정리한 현황판이다. 크롤러가 JS 없이도 사이트 전체를 발견할 수 있는지 직접 소스 검증까지 마쳤다.</p>
+
+            <div class="metric-strip">
+                <div class="metric-card"><div class="metric-num">0 → 47</div><div class="metric-label">홈페이지 정적 링크 개수</div></div>
+                <div class="metric-card"><div class="metric-num">10 × 10</div><div class="metric-label">게임 상호 크로스링크 매트릭스</div></div>
+                <div class="metric-card"><div class="metric-num">32</div><div class="metric-label">sitemap.xml 등록 URL</div></div>
+                <div class="metric-card"><div class="metric-num">10</div><div class="metric-label">의미 있는 슬러그 URL 확보</div></div>
+            </div>
+
+            <h3>크롤러 연결 상태 (섹션 01 대응)</h3>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>내비게이션 일관성</b><span>전체 페이지(홈·게임·미니게임·투표·퀴즈·운세·정책 등) nav 메뉴와 약관 드롭다운을 완전히 통일함.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>내부 링크로 콘텐츠 연결</b><span>홈 → 게임/미니게임/투표/퀴즈/운세, 게임 → 다른 게임 9개, 이렇게 어디서 진입해도 사이트 전체를 발견할 수 있는 구조로 재구성.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>빈 페이지·더미 텍스트 제거</b><span>각 게임 설명·조작가이드·공략FAQ·킥포인트를 실제 게임 로직 기반으로 채움. "이미지를 터치하세요" 같은 의미 없는 반복 문구도 제거.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>개인정보 처리방침 구비</b><span>광고 게재·쿠키 수집 관련 조항까지 포함해 이미 게시되어 있음.</span></span>
+            </div>
+
+            <h3>거절 사유 7가지 대조 (섹션 02 대응)</h3>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>① 고유 콘텐츠 부족 / ⑥ 방문 이유 약함</b><span>게임마다 실제 메커니즘(등장 시점·난이도 상승 방식·종료 조건)을 담은 "킥포인트" 문단과 FAQ 5개씩 신규 작성.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>④ 짧은·빈 페이지</b><span>정적 폴백 텍스트 분량을 지속적으로 보강(홈페이지 기준 대폭 확충).</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>⑦ 찾기 어려운 구조</b><span>게임을 장르가 아닌 상황 기준(결정 못 할 때·5초 때우기·친구랑 둘이 등)으로 재분류하고, "계속 늘어나요" 신선도 신호도 추가.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-open">해당 없음</span>
+                <span class="status-text"><b>② 요약·번역·재작성 / ③ AI 대량 유사 글 / ⑤ 미디어만 있고 설명 부족</b><span>자체 제작 게임 콘텐츠라 해당 사유 자체가 발생하지 않는 영역.</span></span>
+            </div>
+
+            <h3>URL 진단 매트릭스 적용 (섹션 03 대응)</h3>
+            <div class="status-row">
+                <span class="status-badge status-partial">부분 완료</span>
+                <span class="status-text"><b>C등급(통합 → 301 리다이렉트) 대체 적용</b><span>GitHub Pages는 정적 호스팅이라 서버 차원의 진짜 301은 불가능. 대신 <span class="mono">game1.html</span> 같은 의미 없는 URL을 <span class="mono">hoya-typing-rpg.html</span> 등 의미 있는 슬러그로 복제하고, 원본의 canonical을 새 슬러그로 지정해 구글이 새 URL을 대표 페이지로 인식하게 처리(10개 게임 전체 적용). 진짜 301만큼 깔끔하진 않지만 실질적 효과는 유사함.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-done">완료</span>
+                <span class="status-text"><b>내부 링크도 새 URL로 완전 갱신</b><span>게임 간 크로스링크, 홈페이지 그리드, 검색 데이터(encyclopedia_index.json)까지 전부 새 슬러그로 일괄 갱신해 링크 파워가 분산되지 않도록 처리.</span></span>
+            </div>
+
+            <h3>남은 미해결 항목</h3>
+            <div class="callout warn">
+                <div class="callout-title">⚠️ 코드로 해결 불가능한 영역</div>
+                아래 항목은 파일 수정으로 해결되지 않아 별도 의사결정·작업이 필요하다.
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-open">미해결</span>
+                <span class="status-text"><b>커스텀 도메인</b><span><span class="mono">github.io</span> 서브도메인 대신 자체 도메인 구매 필요 — 비용/의사결정 사항.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-open">미해결</span>
+                <span class="status-text"><b>PC 전용 타이핑 게임의 모바일 대안</b><span>물리 키보드가 필요한 게임 4종에 가상 키패드·선택지 모드를 새로 만들어야 함 — 게임 로직 자체를 새로 설계하는 큰 작업.</span></span>
+            </div>
+            <div class="status-row">
+                <span class="status-badge status-open">미해결</span>
+                <span class="status-text"><b>캐릭터 IP 통일 + SNS 유입 루프</b><span>브랜딩·콘텐츠 제작 전략 영역으로, 코드 수정과는 별개로 운영자가 직접 추진해야 하는 부분.</span></span>
+            </div>
+        </section>
+
+        <p class="footnote">
+            HOHO PLAY 내부 문서 · V2.0(V1.0 → 크롤러 연결·URL 구조 적용 현황 섹션 추가) · 이 문서는 사이트에 공개 게시되지 않는 운영 참고용 정적 페이지입니다.
+        </p>
+    </main>
+
+</body>
+</html>
