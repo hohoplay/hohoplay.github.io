@@ -146,9 +146,21 @@
 
     <main class="max-w-3xl mx-auto px-4 py-10 w-full">
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
-    <div class="mb-2">
+    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">게임 공략 모음</span>
+        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
     </div>
+    <script>
+      (function() {
+          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=guide-hub')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                  var el = document.getElementById('page-view-num');
+                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
+              })
+              .catch(function() { /* 실패 시 숫자 표시 생략 */ });
+      })();
+    </script>
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">HOHO PLAY 게임 공략 모음</h1>
     <p class="text-slate-500 mb-8">게임 10종의 전체 공략을 한곳에 모았습니다 — 원하는 게임을 골라보세요</p>
 
@@ -199,6 +211,25 @@
     <div class="mt-10 p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-center">
         <a href="/index.html" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-black text-sm px-6 py-3 rounded-full hover:bg-indigo-700 transition">🎮 전체 게임 목록 보기</a>
     </div>
+
+    <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px;margin-top:24px">
+                <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+                    <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+                    <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+                    <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                        <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                        <button id="cmt-submit" onclick="submitComment()"
+                            style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
+                    </div>
+                </div>
+                <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+                    <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+                </div>
+            </div>
+
 </div>
     </main>
 

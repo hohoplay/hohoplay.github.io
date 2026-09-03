@@ -146,9 +146,21 @@
 
     <main class="max-w-3xl mx-auto px-4 py-10 w-full">
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
-    <div class="mb-2">
+    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">게임 공략</span>
+        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
     </div>
+    <script>
+      (function() {
+          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=guide-hoho-cherry-blossom-typing')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                  var el = document.getElementById('page-view-num');
+                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
+              })
+              .catch(function() { /* 실패 시 숫자 표시 생략 */ });
+      })();
+    </script>
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">호호벚꽃타자 완벽 공략</h1>
     <p class="text-slate-500 mb-8">게임 소개부터 점수 올리는 요령, 초보자 실수까지 — 이 글 하나로 정리했습니다</p>
 
@@ -220,6 +232,25 @@
             <button onclick="snsShare('line')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>
         </div>
     </div>
+
+    <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px;margin-top:24px">
+                <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+                    <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+                    <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+                    <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                        <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                        <button id="cmt-submit" onclick="submitComment()"
+                            style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
+                    </div>
+                </div>
+                <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+                    <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+                </div>
+            </div>
+
 </div>
     </main>
 
