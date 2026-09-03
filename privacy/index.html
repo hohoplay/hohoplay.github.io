@@ -278,7 +278,7 @@
                             <p class="mb-4">HOHO PLAY은 회원가입을 요구하지 않으며, 별도의 개인정보를 직접 수집하지 않습니다. 다만, 서비스 운영 과정에서 아래와 같은 정보가 자동으로 처리될 수 있습니다.</p>
                             <ul class="list-disc list-inside space-y-2 text-slate-600">
                                 <li><strong>브라우저 로컬 스토리지:</strong> 게임 점수, 진행 상황, 환경설정 등 사용자의 기기 내에만 저장되며 서버로 전송되지 않습니다.</li>
-                                <li><strong>GitHub API:</strong> 커뮤니티(BBS) 기능 이용 시 GitHub Issues API를 통해 게시글이 처리됩니다. 이 과정에서 GitHub의 서버에 IP 주소 및 브라우저 정보(User-Agent)가 전달될 수 있으며, 이는 GitHub의 개인정보처리방침에 따릅니다.</li>
+                                <li><strong>Cloudflare Workers(커뮤니티·댓글 서비스):</strong> 커뮤니티(BBS) 게시글 열람 및 댓글 작성 시 Cloudflare Workers와 D1 데이터베이스를 통해 처리됩니다. 이 과정에서 Cloudflare 서버에 IP 주소가 전달되며, 부정 이용 방지 목적으로 복호화 불가능한 해시 값으로 변환되어 저장됩니다.</li>
                                 <li><strong>운세 서비스:</strong> 사주·타로 등 운세 기능은 입력하신 생년월일, 이름, 질문 내용을 브라우저 내에서 계산 로직으로 처리하며, 외부 서버로 전송되지 않습니다.</li>
                                 <li><strong>Google AdSense (광고 서비스):</strong> 본 서비스는 Google AdSense를 통해 광고를 제공합니다. Google은 쿠키 및 광고 식별자를 사용하여 사용자의 관심사에 맞는 맞춤형 광고를 표시할 수 있습니다. Google이 수집하는 데이터에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a>을 참고하시기 바랍니다. 사용자는 <a href="https://adssettings.google.com/" target="_blank" class="text-indigo-600 underline">Google 광고 설정</a>에서 맞춤 광고를 거부하거나 관심사 기반 광고를 비활성화할 수 있습니다.</li>
                             </ul>
@@ -301,7 +301,7 @@
                             <h3 class="text-xl font-black text-slate-800 mb-4">4. 제3자 서비스</h3>
                             <p class="mb-3">본 서비스는 아래 제3자 서비스를 활용합니다. 각 서비스의 개인정보처리방침을 별도로 확인하시기 바랍니다.</p>
                             <ul class="list-disc list-inside space-y-2">
-                                <li>GitHub (커뮤니티 BBS): <a href="https://docs.github.com/ko/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" class="text-indigo-600 underline">GitHub 개인정보처리방침</a></li>
+                                <li>Cloudflare (커뮤니티·댓글 서비스): <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" class="text-indigo-600 underline">Cloudflare 개인정보처리방침</a></li>
                                 <li>Google AdSense (광고): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a> · <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a></li>
                                 <li>Google Fonts (웹폰트): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a></li>
                             </ul>
@@ -748,7 +748,7 @@
                             <p class="mb-4">HOHO PLAY은 회원가입을 요구하지 않으며, 별도의 개인정보를 직접 수집하지 않습니다. 다만, 서비스 운영 과정에서 아래와 같은 정보가 자동으로 처리될 수 있습니다.</p>
                             <ul class="list-disc list-inside space-y-2 text-slate-600">
                                 <li><strong>브라우저 로컬 스토리지:</strong> 게임 점수, 진행 상황, 환경설정 등 사용자의 기기 내에만 저장되며 서버로 전송되지 않습니다.</li>
-                                <li><strong>GitHub API:</strong> 커뮤니티(BBS) 기능 이용 시 GitHub Issues API를 통해 게시글이 처리됩니다. 이 과정에서 GitHub의 서버에 IP 주소 및 브라우저 정보(User-Agent)가 전달될 수 있으며, 이는 GitHub의 개인정보처리방침에 따릅니다.</li>
+                                <li><strong>Cloudflare Workers(커뮤니티·댓글 서비스):</strong> 커뮤니티(BBS) 게시글 열람 및 댓글 작성 시 Cloudflare Workers와 D1 데이터베이스를 통해 처리됩니다. 이 과정에서 Cloudflare 서버에 IP 주소가 전달되며, 부정 이용 방지 목적으로 복호화 불가능한 해시 값으로 변환되어 저장됩니다.</li>
                                 <li><strong>운세 서비스:</strong> 사주·타로 등 운세 기능은 입력하신 생년월일, 이름, 질문 내용을 브라우저 내에서 계산 로직으로 처리하며, 외부 서버로 전송되지 않습니다.</li>
                                 <li><strong>Google AdSense (광고 서비스):</strong> 본 서비스는 Google AdSense를 통해 광고를 제공합니다. Google은 쿠키 및 광고 식별자를 사용하여 사용자의 관심사에 맞는 맞춤형 광고를 표시할 수 있습니다. Google이 수집하는 데이터에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a>을 참고하시기 바랍니다. 사용자는 <a href="https://adssettings.google.com/" target="_blank" class="text-indigo-600 underline">Google 광고 설정</a>에서 맞춤 광고를 거부하거나 관심사 기반 광고를 비활성화할 수 있습니다.</li>
                             </ul>
@@ -771,7 +771,7 @@
                             <h3 class="text-xl font-black text-slate-800 mb-4">4. 제3자 서비스</h3>
                             <p class="mb-3">본 서비스는 아래 제3자 서비스를 활용합니다. 각 서비스의 개인정보처리방침을 별도로 확인하시기 바랍니다.</p>
                             <ul class="list-disc list-inside space-y-2">
-                                <li>GitHub (커뮤니티 BBS): <a href="https://docs.github.com/ko/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" class="text-indigo-600 underline">GitHub 개인정보처리방침</a></li>
+                                <li>Cloudflare (커뮤니티·댓글 서비스): <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" class="text-indigo-600 underline">Cloudflare 개인정보처리방침</a></li>
                                 <li>Google AdSense (광고): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a> · <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a></li>
                                 <li>Google Fonts (웹폰트): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a></li>
                             </ul>
@@ -926,7 +926,7 @@
                                         <tr><td class="p-3 border border-slate-100">Tailwind CSS</td><td class="p-3 border border-slate-100">MIT License</td></tr>
                                         <tr class="bg-slate-50"><td class="p-3 border border-slate-100">Noto Sans KR (Google Fonts)</td><td class="p-3 border border-slate-100">SIL Open Font License 1.1</td></tr>
                                         <tr><td class="p-3 border border-slate-100">html2canvas</td><td class="p-3 border border-slate-100">MIT License</td></tr>
-                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">GitHub Issues API</td><td class="p-3 border border-slate-100">GitHub Terms of Service</td></tr>
+                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">Cloudflare Workers / D1</td><td class="p-3 border border-slate-100">Cloudflare Terms of Service</td></tr>
                                         <tr><td class="p-3 border border-slate-100">Giscus (댓글 위젯)</td><td class="p-3 border border-slate-100">MIT License</td></tr>
                                     </tbody>
                                 </table>
