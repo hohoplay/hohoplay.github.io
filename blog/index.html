@@ -280,8 +280,11 @@
                         .bbs-item .num{color:#4a6fa5;min-width:24px}
                         .bbs-ship{text-align:center;margin-top:20px}
                         .bbs-ship-name{color:#00e5ff;font-size:14px;font-weight:700;margin-top:8px}
-                        .bbs-board{display:none;background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
-                        .bbs-board.active{display:block}
+                        .bbs-board{background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
+                        .bbs-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+                        .bbs-tab{color:#7ec8e3;font-size:13px;font-weight:700;padding:9px 22px;background:#0d1a40;border-radius:8px;cursor:pointer;transition:all .2s}
+                        .bbs-tab:hover{background:#132352}
+                        .bbs-tab.active{background:#00e5ff;color:#0a0e2e}
                         .bbs-board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
                         .bbs-board-title{color:#ffd700;font-size:16px;font-weight:700}
                         .bbs-write-btn{background:#1a3a6e;color:#00e5ff;border:1px solid #00e5ff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
@@ -296,23 +299,6 @@
                         .bbs-back:hover{color:#00e5ff}
                         @media(max-width:640px){.bbs-menu-grid{grid-template-columns:1fr}}
                     </style>
-                    <div style="max-width:900px;margin:0 auto 20px;">
-                        <h3 style="font-size:14px;font-weight:900;color:#94a3b8;margin-bottom:10px;letter-spacing:.05em">📖 콘텐츠 가이드</h3>
-                        <div style="display:grid;grid-template-columns:1fr;gap:10px" class="guide-links-grid">
-                            <a href="/blog/typing-practice-guide.html" style="display:block;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit">
-                                <div style="font-weight:800;font-size:14px;color:#1e293b">타이핑 실력을 키우는 가장 확실한 방법</div>
-                                <div style="font-size:12px;color:#94a3b8;margin-top:2px">게임으로 배우는 타자 연습, 난이도별 순서</div>
-                            </a>
-                            <a href="/blog/quick-break-minigames.html" style="display:block;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit">
-                                <div style="font-weight:800;font-size:14px;color:#1e293b">잠깐 쉬고 싶을 때 하기 좋은 미니게임 고르는 법</div>
-                                <div style="font-size:12px;color:#94a3b8;margin-top:2px">상황별로 골라보는 5초~1분짜리 미니게임</div>
-                            </a>
-                            <a href="/blog/play-together-guide.html" style="display:block;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit">
-                                <div style="font-weight:800;font-size:14px;color:#1e293b">혼자보다 둘이 - 함께 즐기는 게임 고르는 법</div>
-                                <div style="font-size:12px;color:#94a3b8;margin-top:2px">친구, 동료와 같이 즐기기 좋은 게임 모음</div>
-                            </a>
-                        </div>
-                    </div>
                     <div class="bbs-wrap">
                         <div class="bbs-top">
                             <span>🖥 HOHO PLAY BBS v1.0</span>
@@ -335,31 +321,13 @@
                                 <!-- COMMUNITY_STATIC_LIST_END -->
                             </div>
                         </div>
-                        <div id="bbs-main">
-                            <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
-                                <div class="bbs-item" onclick="openBoard('공지사항','공지사항')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">공지사항</div>
-                                <div class="bbs-item" onclick="openBoard('업데이트','업데이트')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">업데이트</div>
-                                <div class="bbs-item" onclick="openBoard('게임소개','게임소개')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">게임소개</div>
-                            </div>
-                            <div style="max-width:640px;margin:0 auto 24px;color:#4a6fa5;font-size:12px;line-height:1.9">
-                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">공지사항</strong> — 사이트 업데이트, 새 기능, 점검 등 운영 소식을 안내해요.</div>
-                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">업데이트</strong> — 게임 추가·수정, 운세 콘텐츠 갱신 등 변경 내역을 기록해요.</div>
-                                <div><strong style="color:#7ec8e3">게임소개</strong> — 각 게임의 개발 뒷이야기와 특징을 운영자가 직접 소개하는 공간이에요.</div>
-                            </div>
-                            <div class="bbs-ship">
-                                <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:18px;font-family:Arial Black,sans-serif;font-size:44px;font-weight:900;color:#fff;box-shadow:0 0 30px #4f46e566;margin-bottom:10px">H</div>
-                                <div class="bbs-ship-name">HOHO PLAY BBS</div>
-                                <div style="color:#4a6fa5;font-size:11px;margin-top:4px">Since 2026</div>
-                            </div>
+                        <div class="bbs-tabs">
+                            <div class="bbs-tab active" data-board="공지사항" onclick="switchBoard('공지사항')">공지사항</div>
+                            <div class="bbs-tab" data-board="업데이트" onclick="switchBoard('업데이트')">업데이트</div>
+                            <div class="bbs-tab" data-board="게임소개" onclick="switchBoard('게임소개')">게임소개</div>
                         </div>
                         <div id="bbs-board-area" class="bbs-board">
-                            <span class="bbs-back" onclick="closeBoard()">◀ 메인으로</span>
-                            <div class="bbs-board-top">
-                                <span class="bbs-board-title" id="bbs-board-name"></span>
-                                <a id="bbs-write-link" href="https://github.com/hohoplay/hohoplaylab.com/issues/new" target="_blank" class="bbs-write-btn">✏ 글쓰기</a>
-                            </div>
                             <div id="bbs-posts"><div class="bbs-loading">⏳ 불러오는 중...</div></div>
-                            <div id="bbs-other-boards"></div>
                         </div>
                     </div>
                 </div>
@@ -651,8 +619,11 @@
                         .bbs-item .num{color:#4a6fa5;min-width:24px}
                         .bbs-ship{text-align:center;margin-top:20px}
                         .bbs-ship-name{color:#00e5ff;font-size:14px;font-weight:700;margin-top:8px}
-                        .bbs-board{display:none;background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
-                        .bbs-board.active{display:block}
+                        .bbs-board{background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
+                        .bbs-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+                        .bbs-tab{color:#7ec8e3;font-size:13px;font-weight:700;padding:9px 22px;background:#0d1a40;border-radius:8px;cursor:pointer;transition:all .2s}
+                        .bbs-tab:hover{background:#132352}
+                        .bbs-tab.active{background:#00e5ff;color:#0a0e2e}
                         .bbs-board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
                         .bbs-board-title{color:#ffd700;font-size:16px;font-weight:700}
                         .bbs-write-btn{background:#1a3a6e;color:#00e5ff;border:1px solid #00e5ff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
@@ -667,23 +638,6 @@
                         .bbs-back:hover{color:#00e5ff}
                         @media(max-width:640px){.bbs-menu-grid{grid-template-columns:1fr}}
                     </style>
-                    <div style="max-width:900px;margin:0 auto 20px;">
-                        <h3 style="font-size:14px;font-weight:900;color:#94a3b8;margin-bottom:10px;letter-spacing:.05em">📖 콘텐츠 가이드</h3>
-                        <div style="display:grid;grid-template-columns:1fr;gap:10px" class="guide-links-grid">
-                            <a href="/blog/typing-practice-guide.html" style="display:block;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit">
-                                <div style="font-weight:800;font-size:14px;color:#1e293b">타이핑 실력을 키우는 가장 확실한 방법</div>
-                                <div style="font-size:12px;color:#94a3b8;margin-top:2px">게임으로 배우는 타자 연습, 난이도별 순서</div>
-                            </a>
-                            <a href="/blog/quick-break-minigames.html" style="display:block;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit">
-                                <div style="font-weight:800;font-size:14px;color:#1e293b">잠깐 쉬고 싶을 때 하기 좋은 미니게임 고르는 법</div>
-                                <div style="font-size:12px;color:#94a3b8;margin-top:2px">상황별로 골라보는 5초~1분짜리 미니게임</div>
-                            </a>
-                            <a href="/blog/play-together-guide.html" style="display:block;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit">
-                                <div style="font-weight:800;font-size:14px;color:#1e293b">혼자보다 둘이 - 함께 즐기는 게임 고르는 법</div>
-                                <div style="font-size:12px;color:#94a3b8;margin-top:2px">친구, 동료와 같이 즐기기 좋은 게임 모음</div>
-                            </a>
-                        </div>
-                    </div>
                     <div class="bbs-wrap">
                         <div class="bbs-top">
                             <span>🖥 HOHO PLAY BBS v1.0</span>
@@ -706,31 +660,13 @@
                                 <!-- COMMUNITY_STATIC_LIST_END -->
                             </div>
                         </div>
-                        <div id="bbs-main">
-                            <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
-                                <div class="bbs-item" onclick="openBoard('공지사항','공지사항')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">공지사항</div>
-                                <div class="bbs-item" onclick="openBoard('업데이트','업데이트')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">업데이트</div>
-                                <div class="bbs-item" onclick="openBoard('게임소개','게임소개')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">게임소개</div>
-                            </div>
-                            <div style="max-width:640px;margin:0 auto 24px;color:#4a6fa5;font-size:12px;line-height:1.9">
-                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">공지사항</strong> — 사이트 업데이트, 새 기능, 점검 등 운영 소식을 안내해요.</div>
-                                <div style="margin-bottom:6px"><strong style="color:#7ec8e3">업데이트</strong> — 게임 추가·수정, 운세 콘텐츠 갱신 등 변경 내역을 기록해요.</div>
-                                <div><strong style="color:#7ec8e3">게임소개</strong> — 각 게임의 개발 뒷이야기와 특징을 운영자가 직접 소개하는 공간이에요.</div>
-                            </div>
-                            <div class="bbs-ship">
-                                <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:18px;font-family:Arial Black,sans-serif;font-size:44px;font-weight:900;color:#fff;box-shadow:0 0 30px #4f46e566;margin-bottom:10px">H</div>
-                                <div class="bbs-ship-name">HOHO PLAY BBS</div>
-                                <div style="color:#4a6fa5;font-size:11px;margin-top:4px">Since 2026</div>
-                            </div>
+                        <div class="bbs-tabs">
+                            <div class="bbs-tab active" data-board="공지사항" onclick="switchBoard('공지사항')">공지사항</div>
+                            <div class="bbs-tab" data-board="업데이트" onclick="switchBoard('업데이트')">업데이트</div>
+                            <div class="bbs-tab" data-board="게임소개" onclick="switchBoard('게임소개')">게임소개</div>
                         </div>
                         <div id="bbs-board-area" class="bbs-board">
-                            <span class="bbs-back" onclick="closeBoard()">◀ 메인으로</span>
-                            <div class="bbs-board-top">
-                                <span class="bbs-board-title" id="bbs-board-name"></span>
-                                <a id="bbs-write-link" href="https://github.com/hohoplay/hohoplaylab.com/issues/new" target="_blank" class="bbs-write-btn">✏ 글쓰기</a>
-                            </div>
                             <div id="bbs-posts"><div class="bbs-loading">⏳ 불러오는 중...</div></div>
-                            <div id="bbs-other-boards"></div>
                         </div>
                     </div>
                 </div>
@@ -1190,11 +1126,11 @@
             // pendingPage 분기와 무관하게, 메인 화면 "커뮤니티 소식" 카드에서
             // ?board=공지사항 형태로 들어오면 항상 해당 게시판을 자동으로 열어줌
             if (_boardParam) {
-                openBoard(_boardParam, _boardParam);
+                switchBoard(_boardParam);
             } else if (_targetPage === 'blog') {
                 // 커뮤니티 페이지에 board 파라미터 없이 들어와도 빈 화면으로 두지 않고
                 // 기본으로 공지사항 게시판을 바로 열어줌(빈 페이지처럼 보이는 것 방지)
-                openBoard('공지사항', '공지사항');
+                switchBoard('공지사항');
             }
         };
 
@@ -1217,21 +1153,12 @@
             })();
         }
 
-        function openBoard(label, name) {
-            document.getElementById('bbs-main').style.display = 'none';
-            document.getElementById('bbs-board-area').classList.add('active');
-            document.getElementById('bbs-board-name').textContent = '[ '+name+' ]';
-
-            // 이제 모든 게시판은 운영자가 직접 작성하는 콘텐츠라, 사용자용 글쓰기 버튼은 표시하지 않음
-            const writeBtn = document.getElementById('bbs-write-link');
-            if (writeBtn) writeBtn.style.display = 'none';
-
-            loadPosts(label, name);
-        }
-
-        function closeBoard() {
-            document.getElementById('bbs-main').style.display = 'block';
-            document.getElementById('bbs-board-area').classList.remove('active');
+        function switchBoard(name) {
+            document.querySelectorAll('.bbs-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.board === name);
+            });
+            _bbsOpenPost = null; // 탭 전환 시 이전 게시판의 펼침 상태 초기화
+            loadPosts(name, name);
         }
 
         let _bbsAllPosts = [];
@@ -1248,7 +1175,6 @@
                 const posts = data.posts || [];
                 if(!posts.length){
                     el.innerHTML = '<div class="bbs-loading">📭 등록된 게시글이 없습니다.</div>';
-                    renderBbsOtherBoards(boardType);
                     return;
                 }
                 el.dataset.label = category;
@@ -1291,8 +1217,6 @@
                 el.innerHTML += pagerHtml;
             }
 
-            renderBbsOtherBoards(boardType);
-
             // 항상 최신 게시글(1페이지의 맨 위 글)은 기본으로 펼쳐진 상태로 보여줌
             if (_bbsPage === 1 && pagePosts.length > 0) {
                 _bbsOpenPost = null; // 이전 열림 상태를 초기화해서 토글이 정확히 "열기"로 동작하게 함
@@ -1305,22 +1229,6 @@
             _bbsPage = n;
             renderBbsPage(boardType);
             document.getElementById('bbs-board-area').scrollIntoView({behavior:'smooth', block:'start'});
-        }
-
-        // 지금 보고 있는 게시판을 제외한 나머지 두 게시판으로 가는 링크를 하단에 표시
-        function renderBbsOtherBoards(currentBoard) {
-            const holder = document.getElementById('bbs-other-boards');
-            if (!holder) return;
-            const all = [
-                {label:'공지사항', name:'공지사항'},
-                {label:'업데이트', name:'업데이트'},
-                {label:'게임소개', name:'게임소개'},
-            ];
-            const others = all.filter(b => b.name !== currentBoard);
-            holder.innerHTML = '<div style="border-top:1px solid #1a2a5e;margin-top:20px;padding-top:16px;text-align:center;font-size:12px;color:#4a6fa5">' +
-                '다른 게시판도 둘러보세요&nbsp;&nbsp;' +
-                others.map(b => '<span onclick="openBoard(\''+b.label+'\',\''+b.name+'\')" style="cursor:pointer;color:#00e5ff;margin:0 8px">['+b.name+']</span>').join('') +
-                '</div>';
         }
 
         let _bbsOpenPost = null; // 현재 펼쳐진 게시글 번호(한 번에 하나만 열림)
