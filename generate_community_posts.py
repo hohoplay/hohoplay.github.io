@@ -13,7 +13,8 @@ GitHub Pages는 완전한 정적 호스팅이라 서버가 요청마다 새로 �
 1. Worker API에서 전체 게시글 목록 + 각 게시글 상세 내용을 가져온다
 2. blog/posts/{id}.html 정적 페이지를 생성한다 (없는 것만 새로 생성, 있는 것은 건드리지 않음
    — 게시글 내용은 등록 후 바뀌지 않는다는 전제. 삭제된 글은 정리 단계에서 함께 제거)
-3. blog/index.html 안의 "최근 게시글" 정적 폴백 섹션을 최신 12개로 갱신한다
+3. blog/index.html 안의 "최근 게시글" 정적 폴백 섹션(HOHO PLAY BBS 패널 내부, BBS 톤으로
+   스타일링됨)을 최신 12개로 갱신한다
 4. sitemap.xml에 새로 생긴 게시글 URL을 추가한다 (중복 추가하지 않음)
 
 실행 환경: GitHub Actions (Python 3.11+, requests 필요)
@@ -138,15 +139,14 @@ def generate_post_pages(posts):
     return new_count, removed_count
 
 
-CATEGORY_COLORS = {
-    "공지사항": ("#fee2e2", "#dc2626"),
-    "업데이트": ("#dcfce7", "#16a34a"),
-    "게임소개": ("#dbeafe", "#2563eb"),
-}
-
-
 def update_blog_index_static_list(posts):
-    """blog/index.html 안의 '최근 게시글' 정적 폴백 섹션을 최신 12개로 갱신."""
+    """blog/index.html 안의 '최근 게시글' 정적 폴백 섹션을 최신 12개로 갱신.
+
+    이 섹션은 HOHO PLAY BBS 패널(.bbs-wrap) 안에 위치하며, 실시간 JS로
+    그려지는 게시판 목록과 동일한 톤(.bbs-post/.bbs-post-title/.bbs-post-meta)의
+    다크 터미널 스타일로 렌더링한다. 방문자에게는 패널 하나로 보이지만, 이 목록
+    자체는 빌드 시점에 미리 HTML로 박아넣는 정적 텍스트라 크롤러도 그대로 읽을 수 있다.
+    """
     if not os.path.exists(BLOG_INDEX_PATH):
         print("⚠️ blog/index.html을 찾을 수 없어 정적 목록 갱신을 건너뜁니다.", file=sys.stderr)
         return
@@ -156,31 +156,38 @@ def update_blog_index_static_list(posts):
     recent = posts[:12]
     items_html = ""
     for p in recent:
-        bg, fg = CATEGORY_COLORS.get(p["category"], ("#f1f5f9", "#64748b"))
         title_escaped = html_lib.escape(p["title"])
+        category_escaped = html_lib.escape(p["category"])
+        author_escaped = html_lib.escape(p["author"])
         items_html += (
-            f'<a href="/blog/posts/{p["id"]}.html" style="display:block;background:#f8fafc;'
-            f'border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit">'
-            f'<span style="display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;'
-            f'border-radius:999px;background:{bg};color:{fg};margin-bottom:6px">{html_lib.escape(p["category"])}</span>'
-            f'<div style="font-weight:800;font-size:14px;color:#1e293b">{title_escaped}</div>'
-            f'</a>\n                        '
+            f'<a href="/blog/posts/{p["id"]}.html" class="bbs-post" style="display:block;text-decoration:none">'
+            f'<div class="bbs-post-title">{title_escaped}</div>'
+            f'<div class="bbs-post-meta">'
+            f'<span>{category_escaped}</span>'
+            f'<span>{format_date(p["created_at"])}</span>'
+            f'<span>👤 {author_escaped}</span>'
+            f'</div>'
+            f'</a>\n                                '
         )
+
+    if not items_html:
+        items_html = '<div class="bbs-loading">아직 등록된 게시글이 없습니다.</div>\n                                '
 
     start_marker = "<!-- COMMUNITY_STATIC_LIST_START -->"
     end_marker = "<!-- COMMUNITY_STATIC_LIST_END -->"
 
-    if start_marker not in html_content or end_marker not in html_content:
+    count = html_content.count(start_marker)
+    if count == 0:
         print("⚠️ blog/index.html에서 정적 목록 마커를 찾지 못했습니다. 수동 확인이 필요합니다.", file=sys.stderr)
         return
 
     pattern = re.compile(re.escape(start_marker) + r".*?" + re.escape(end_marker), re.DOTALL)
-    replacement = f"{start_marker}\n                        {items_html}{end_marker}"
-    new_html = pattern.sub(replacement, html_content)
+    replacement = f"{start_marker}\n                                {items_html}{end_marker}"
+    new_html, n_subs = pattern.subn(replacement, html_content)
 
     with open(BLOG_INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(new_html)
-    print(f"  ✓ blog/index.html 정적 목록 갱신 완료 ({len(recent)}개)")
+    print(f"  ✓ blog/index.html 정적 목록 갱신 완료 ({len(recent)}개, {n_subs}곳 반영)")
 
 
 def update_sitemap(posts):
