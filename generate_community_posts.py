@@ -139,13 +139,19 @@ def generate_post_pages(posts):
     return new_count, removed_count
 
 
-def update_blog_index_static_list(posts):
-    """blog/index.html 안의 '최근 게시글' 정적 폴백 섹션을 최신 12개로 갱신.
+# 커뮤니티 페이지가 처음 열렸을 때 기본으로 보여주는 탭(= window.onload의 switchBoard 기본값과
+# 반드시 일치시켜야, 정적 콘텐츠 → 자바스크립트 실시간 콘텐츠로 바뀔 때 내용이 안 튄다).
+DEFAULT_STATIC_CATEGORY = "공지사항"
+STATIC_LIST_SIZE = 5  # 실시간 게시판의 BBS_PAGE_SIZE(5)와 동일하게 맞춤
 
-    이 섹션은 HOHO PLAY BBS 패널(.bbs-wrap) 안에 위치하며, 실시간 JS로
-    그려지는 게시판 목록과 동일한 톤(.bbs-post/.bbs-post-title/.bbs-post-meta)의
-    다크 터미널 스타일로 렌더링한다. 방문자에게는 패널 하나로 보이지만, 이 목록
-    자체는 빌드 시점에 미리 HTML로 박아넣는 정적 텍스트라 크롤러도 그대로 읽을 수 있다.
+
+def update_blog_index_static_list(posts):
+    """blog/index.html의 커뮤니티 탭 안, 게시글 목록 자리를 정적 텍스트로 채워 넣는다.
+
+    이 목록은 실시간 자바스크립트가 기본 탭(공지사항)의 글을 불러오기 '전'에 이미
+    페이지 소스에 존재하는 정적 텍스트라, 크롤러가 자바스크립트 실행 없이도 그대로
+    읽을 수 있다. 자바스크립트가 로드되면 이 자리를 최신 데이터로 다시 그려 넣는다
+    (내용은 이미 같으므로 화면이 튀지 않는다).
     """
     if not os.path.exists(BLOG_INDEX_PATH):
         print("⚠️ blog/index.html을 찾을 수 없어 정적 목록 갱신을 건너뜁니다.", file=sys.stderr)
@@ -153,17 +159,15 @@ def update_blog_index_static_list(posts):
 
     html_content = open(BLOG_INDEX_PATH, encoding="utf-8").read()
 
-    recent = posts[:12]
+    recent = [p for p in posts if p["category"] == DEFAULT_STATIC_CATEGORY][:STATIC_LIST_SIZE]
     items_html = ""
-    for p in recent:
+    for i, p in enumerate(recent):
         title_escaped = html_lib.escape(p["title"])
-        category_escaped = html_lib.escape(p["category"])
         author_escaped = html_lib.escape(p["author"])
         items_html += (
             f'<a href="/blog/posts/{p["id"]}.html" class="bbs-post" style="display:block;text-decoration:none">'
-            f'<div class="bbs-post-title">{title_escaped}</div>'
+            f'<div class="bbs-post-title">{i + 1:02d}. {title_escaped}</div>'
             f'<div class="bbs-post-meta">'
-            f'<span>{category_escaped}</span>'
             f'<span>{format_date(p["created_at"])}</span>'
             f'<span>👤 {author_escaped}</span>'
             f'</div>'
