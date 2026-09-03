@@ -20,9 +20,9 @@
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게임 공략 모음 - HOHO PLAY</title>
-    <meta name="description" content="호호플레이 게임 10종의 전체 공략을 한곳에 모았습니다. 게임 소개, 조작법, 점수 올리는 요령, 초보자 실수, 자주 묻는 질문까지 게임별로 정리되어 있습니다.">
-    <link rel="canonical" href="https://hohoplaylab.com/guides/index.html">
+    <title>동전 던지기 완벽 가이드 - HOHO PLAY</title>
+    <meta name="description" content="동전 던지기 상세 가이드. 언제 활용하면 좋은지, 확률적으로 왜 공정한지 정리했습니다.">
+    <link rel="canonical" href="https://hohoplaylab.com/guides/coin-flip-guide.html">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@
                 <a href="/index.html" class="flex items-center gap-2 cursor-pointer">
                     <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
                     <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">게임 공략 모음</span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">게임 공략</span>
                 </a>
                 <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -144,168 +144,114 @@
         }
     </script>
 
-    <main class="max-w-3xl mx-auto px-4 py-10 w-full">
+<main class="max-w-3xl mx-auto px-4 py-10 w-full">
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
     <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">게임 공략 모음</span>
+        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">게임 공략</span>
         <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
     </div>
     <script>
       (function() {
-          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=guide-hub')
+          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=guide-coin-flip')
               .then(function(r) { return r.json(); })
               .then(function(data) {
                   var el = document.getElementById('page-view-num');
                   if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
               })
-              .catch(function() { /* 실패 시 숫자 표시 생략 */ });
+              .catch(function() { });
       })();
     </script>
-    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">HOHO PLAY 게임 공략 모음</h1>
-    <p class="text-slate-500 mb-8">게임 10종의 전체 공략을 한곳에 모았습니다 — 원하는 게임을 골라보세요</p>
+    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">동전 던지기 완벽 가이드</h1>
+    <p class="text-slate-500 mb-8">게임 소개부터 활용 요령, 자주 묻는 질문까지 — 이 글 하나로 정리했습니다</p>
 
-    <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid #e2e8f0">
-        <button id="tab-btn-main" onclick="switchGuideTab('main')" style="padding:10px 18px;font-weight:800;font-size:14px;background:none;border:none;cursor:pointer;color:#4f46e5;border-bottom:2px solid #4f46e5;margin-bottom:-1px">🎮 일반게임</button>
-        <button id="tab-btn-mini" onclick="switchGuideTab('mini')" style="padding:10px 18px;font-weight:800;font-size:14px;background:none;border:none;cursor:pointer;color:#94a3b8;border-bottom:2px solid transparent;margin-bottom:-1px">🎲 미니게임</button>
+    <div class="space-y-6 text-slate-700 leading-relaxed">
+
+        <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
+            <a href="/mgame2.html" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-black text-sm px-5 py-3 rounded-full hover:bg-indigo-700 transition">🎮 동전 던지기 플레이하러 가기</a>
+        </div>
+
+        <h2 class="text-xl font-black text-slate-900 mt-8 mb-3">이 게임은 어떤 게임인가요</h2>
+        <p>동전 던지기는 앞면과 뒷면, 정확히 50대 50 확률로 결과를 정해주는 가장 단순한 결정 도구입니다. 복잡한 설정 없이 버튼 하나로 바로 사용할 수 있어서, 둘 중 하나만 정하면 되는 상황에 가장 빠르게 쓸 수 있습니다.</p>
+
+        <h2 class="text-xl font-black text-slate-900 mt-8 mb-3">사용법</h2>
+        <p>앞면 또는 뒷면을 예측한 뒤 버튼을 누르면 동전이 던져집니다. 결과는 무작위로 결정되며 예측이 맞았는지 바로 확인할 수 있습니다.</p>
+
+        <h2 class="text-xl font-black text-slate-900 mt-8 mb-3">활용 요령</h2>
+        <div class="space-y-3 mt-4">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">1. 둘 중 하나 정할 때 최적</p>
+                <p class="text-slate-600 text-sm">항목이 정확히 2개일 때는 룰렛보다 동전 던지기가 더 빠르고 직관적입니다.</p>
+            </div><div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">2. 던지기 전에 규칙 정하기</p>
+                <p class="text-slate-600 text-sm">몇 번까지 다시 던질 수 있는지, 혹은 한 번으로 끝낼지 미리 정해두면 나중에 다툼이 없습니다.</p>
+            </div><div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">3. 예측을 먼저 말하기</p>
+                <p class="text-slate-600 text-sm">여러 명이 함께 볼 때는 던지기 전에 각자 예측을 미리 말하게 하면 더 재밌어집니다.</p>
+            </div><div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">4. 순서 정하기에도 활용</p>
+                <p class="text-slate-600 text-sm">두 사람 중 누가 먼저 할지 정할 때도 유용하게 쓸 수 있습니다.</p>
+            </div><div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">5. 확률을 신뢰하기</p>
+                <p class="text-slate-600 text-sm">동전 던지기는 매번 독립적인 확률이라, 직전 결과가 다음 결과에 영향을 주지 않습니다.</p>
+            </div>
+        </div>
+
+        <h2 class="text-xl font-black text-slate-900 mt-8 mb-3">자주 하는 실수</h2>
+        <ul class="list-disc list-inside space-y-2">
+            <li>결과가 마음에 안 든다고 계속 다시 던지는 경우</li><li>던지기 전에 예측을 안 정하고 결과를 보고 나서 우기는 경우</li><li>항목이 3개 이상인데 동전으로 억지로 나누려는 경우</li>
+        </ul>
+
+        <h2 class="text-xl font-black text-slate-900 mt-8 mb-3">자주 묻는 질문</h2>
+        <div class="space-y-4">
+            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">Q. 정말 정확히 반반 확률인가요?</p>
+                <p class="text-slate-600">네, 매번 독립적으로 무작위 결정되어 통계적으로 앞뒤 확률이 동일합니다.</p>
+            </div><div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">Q. 여러 번 연속으로 같은 면이 나올 수도 있나요?</p>
+                <p class="text-slate-600">네, 확률적으로 충분히 가능한 일입니다. 각 시도는 이전 결과와 무관합니다.</p>
+            </div><div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="font-black text-slate-800 mb-1">Q. 항목이 3개 이상이면 어떻게 하나요?</p>
+                <p class="text-slate-600">항목이 3개 이상일 때는 행운의 룰렛을 사용하는 게 더 적합합니다.</p>
+            </div>
+        </div>
+
+        <div class="mt-8 p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-center">
+            <a href="/mgame2.html" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-black text-sm px-6 py-3 rounded-full hover:bg-indigo-700 transition">🎮 지금 바로 플레이하기</a>
+        </div>
+
     </div>
 
-    <div id="tab-main" style="display:grid;grid-template-columns:1fr;gap:12px" class="md:grid-cols-2">
-
-        <a href="/guides/hoya-typing-rpg-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">타이핑 액션</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">호호타자RPG 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">캐릭터 선택부터 스킬 우선순위, 점수 올리는 요령까지</div>
-    </a><a href="/guides/hoya-proverb-typing-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">타이핑</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">호호속담 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">라운드별 난이도 변화와 정확도를 높이는 요령</div>
-    </a><a href="/guides/hoho-cherry-blossom-typing-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">타이핑</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">호호벚꽃타자 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">SHIELD 관리법과 FEVER TIME·보스 타이밍</div>
-    </a><a href="/guides/hoho-typing-fps-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">타이핑 슈터</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">호호타자FPS 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">CHAIN 배율 쌓는 법과 BARRIER 아이템 활용</div>
-    </a><a href="/guides/hoho-racing-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">레이싱</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">호호레이싱 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">속도 증가 패턴 대응법과 장애물 회피 요령</div>
-    </a><a href="/guides/hoho-run-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">러닝 액션</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">HOHO RUN 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">TURBO 아이템 활용법과 상점 업그레이드 우선순위</div>
-    </a><a href="/guides/hoho-tile-match-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">퍼즐</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">호호사천성 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">피버 결계 활용법과 아이템 사용 타이밍</div>
-    </a><a href="/guides/jelly-pop-7-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">퍼즐</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">JELLY POP 7 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">CHAIN CAST와 BONUS TIME 노리는 법</div>
-    </a><a href="/guides/hoho-dash-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">러닝 액션</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">HOHO DASH 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">피버 모드와 자석 아이템 활용법</div>
-    </a><a href="/guides/word-puzzle-dungeon-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">낱말 퍼즐</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">낱말퍼즐 던전 완벽 공략</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">교차 칸 활용법과 힌트 사용 전략</div>
-    </a>
-    </div>
-
-    <div id="tab-mini" style="display:none;grid-template-columns:1fr;gap:12px" class="md:grid-cols-2">
-<a href="/guides/ladder-game-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">결정 도구</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">사다리게임 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">인원수와 항목만 정하면 되는 사용법, 언제 쓰면 좋은지</div>
-    </a><a href="/guides/coin-flip-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">결정 도구</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">동전 던지기 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">50대 50 확률로 빠르게 결정하는 활용법</div>
-    </a><a href="/guides/dice-roll-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">결정 도구</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">주사위 굴리기 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">순서 정하기와 숫자 하나가 필요할 때 활용법</div>
-    </a><a href="/guides/lucky-roulette-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">결정 도구</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">행운의 룰렛 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">항목 구성 요령과 메뉴 고민 해결법</div>
-    </a><a href="/guides/rock-paper-scissors-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">대결</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">가위바위보 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">컴퓨터 상대 심리전 요령</div>
-    </a><a href="/guides/number-baseball-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">두뇌</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">숫자 야구 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">스트라이크·볼 힌트로 효율적으로 추리하는 법</div>
-    </a><a href="/guides/tic-tac-toe-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">대결</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">틱택토 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">절대 지지 않는 최적 전략</div>
-    </a><a href="/guides/reaction-time-test-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">반사신경</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">반응속도 테스트 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">평균 반응속도 기준과 기록 높이는 법</div>
-    </a><a href="/guides/card-matching-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">기억력</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">카드 짝맞추기 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">기억력을 높이는 구역별 암기 요령</div>
-    </a><a href="/guides/whack-a-mole-guide.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:16px;padding:18px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fff'" onmouseout="this.style.borderColor='#f1f5f9';this.style.background='#f8fafc'">
-        <span style="display:inline-block;font-size:10px;font-weight:800;color:#818cf8;background:#eef2ff;padding:2px 8px;border-radius:999px;margin-bottom:6px">반사신경</span>
-        <div style="font-weight:900;font-size:15px;color:#1e293b;margin-bottom:4px">두더지 잡기 완벽 가이드</div>
-        <div style="font-size:12px;color:#94a3b8;line-height:1.5">30초 안에 최대한 많이 잡는 시야 확보 요령</div>
-    </a>
-    </div>
-
-    <script>
-        function switchGuideTab(tab) {
-            var mainTab = document.getElementById('tab-main');
-            var miniTab = document.getElementById('tab-mini');
-            var btnMain = document.getElementById('tab-btn-main');
-            var btnMini = document.getElementById('tab-btn-mini');
-            if (tab === 'main') {
-                mainTab.style.display = 'grid';
-                miniTab.style.display = 'none';
-                btnMain.style.color = '#4f46e5';
-                btnMain.style.borderBottomColor = '#4f46e5';
-                btnMini.style.color = '#94a3b8';
-                btnMini.style.borderBottomColor = 'transparent';
-            } else {
-                mainTab.style.display = 'none';
-                miniTab.style.display = 'grid';
-                btnMini.style.color = '#4f46e5';
-                btnMini.style.borderBottomColor = '#4f46e5';
-                btnMain.style.color = '#94a3b8';
-                btnMain.style.borderBottomColor = 'transparent';
-            }
-        }
-    </script>
-
-    <div class="mt-10 p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-center">
-        <a href="/index.html" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-black text-sm px-6 py-3 rounded-full hover:bg-indigo-700 transition">🎮 전체 게임 목록 보기</a>
+    <div style="margin-top:24px;text-align:center;">
+        <div class="text-sm font-bold text-slate-400 mb-3">🔗 이 가이드를 공유해보세요</div>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+            <button onclick="snsShare('facebook')" aria-label="페이스북 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">f</button>
+            <button onclick="snsShare('x')" aria-label="X 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">X</button>
+            <button onclick="snsShare('kakaot')" aria-label="카카오톡 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:18px">💬</button>
+            <button onclick="snsShare('naver')" aria-label="네이버 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">N</button>
+            <button onclick="snsShare('band')" aria-label="밴드 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">밴드</button>
+            <button onclick="snsShare('line')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>
+        </div>
     </div>
 
     <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px;margin-top:24px">
-                <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
-                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-                    <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
-                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
-                    <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
-                        style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
-                    <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
-                        <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
-                        <button id="cmt-submit" onclick="submitComment()"
-                            style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
-                    </div>
-                </div>
-                <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
-                    <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
-                </div>
+        <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+            <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+            <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                <button id="cmt-submit" onclick="submitComment()"
+                    style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
             </div>
-
-</div>
-    </main>
+        </div>
+        <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+            <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+        </div>
+    </div>
+    </div>
+    </main>    </main>
 
     <div id="footer-placeholder"></div>
     <script>
@@ -316,8 +262,8 @@
 
     <script>
         const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
-        const CMT_GAME_ID = 'guide-hub';
-        const INQUIRY_GAME_NAME = '게임 공략 모음';
+        const CMT_GAME_ID = 'guide-coin-flip';
+        const INQUIRY_GAME_NAME = '게임 공략';
 
         function escapeHtml(str) {
             const d = document.createElement('div');
