@@ -148,13 +148,6 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-    <!-- ═══ Kakao SDK (커뮤니티 공유 기능) ═══ -->
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
-      crossorigin="anonymous"></script>
-    <script>
-      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
-    </script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -270,33 +263,33 @@
     <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
                 <div class="page-transition">
                     <style>
-                        .bbs-wrap{background:#0a0e2e;border-radius:16px;padding:24px;font-family:'Courier New',monospace;min-height:500px}
-                        .bbs-top{color:#00ffff;font-size:13px;border-bottom:1px solid #1a2a5e;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-                        .bbs-title{color:#ffd700;font-size:22px;font-weight:900;text-align:center;margin-bottom:20px;text-shadow:0 0 10px #ffd70088}
+                        .bbs-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:28px;font-family:'Noto Sans KR',sans-serif;min-height:500px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+                        .bbs-top{color:#94a3b8;font-size:12px;border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+                        .bbs-title{color:#1e293b;font-size:22px;font-weight:900;text-align:center;margin-bottom:20px}
                         .bbs-menu-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
-                        .bbs-section h3{color:#00e5ff;font-size:13px;font-weight:700;border-bottom:1px solid #1a3a6e;padding-bottom:6px;margin-bottom:12px}
-                        .bbs-item{color:#7ec8e3;font-size:13px;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #0d1a40;transition:color .2s}
-                        .bbs-item:hover{color:#00ffff}
-                        .bbs-item .num{color:#4a6fa5;min-width:24px}
+                        .bbs-section h3{color:#4f46e5;font-size:13px;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:12px}
+                        .bbs-item{color:#475569;font-size:13px;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f1f5f9;transition:color .2s}
+                        .bbs-item:hover{color:#4f46e5}
+                        .bbs-item .num{color:#94a3b8;min-width:24px}
                         .bbs-ship{text-align:center;margin-top:20px}
-                        .bbs-ship-name{color:#00e5ff;font-size:14px;font-weight:700;margin-top:8px}
-                        .bbs-board{background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
+                        .bbs-ship-name{color:#4f46e5;font-size:14px;font-weight:700;margin-top:8px}
+                        .bbs-board{background:#f8fafc;border-radius:16px;padding:20px;margin-top:16px}
                         .bbs-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
-                        .bbs-tab{color:#7ec8e3;font-size:13px;font-weight:700;padding:9px 22px;background:#0d1a40;border-radius:8px;cursor:pointer;transition:all .2s}
-                        .bbs-tab:hover{background:#132352}
-                        .bbs-tab.active{background:#00e5ff;color:#0a0e2e}
+                        .bbs-tab{color:#64748b;font-size:13px;font-weight:700;padding:9px 22px;background:#f1f5f9;border-radius:8px;cursor:pointer;transition:all .2s}
+                        .bbs-tab:hover{background:#e2e8f0}
+                        .bbs-tab.active{background:#4f46e5;color:#fff}
                         .bbs-board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-                        .bbs-board-title{color:#ffd700;font-size:16px;font-weight:700}
-                        .bbs-write-btn{background:#1a3a6e;color:#00e5ff;border:1px solid #00e5ff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
-                        .bbs-write-btn:hover{background:#00e5ff;color:#0a0e2e}
-                        .bbs-post{border-bottom:1px solid #1a2a5e;padding:12px 0;cursor:pointer}
-                        .bbs-post:hover .bbs-post-title{color:#00ffff}
-                        .bbs-post-title{color:#7ec8e3;font-size:14px;margin-bottom:4px}
-                        .bbs-post-meta{color:#4a6fa5;font-size:11px;display:flex;gap:12px;flex-wrap:wrap}
-                        .bbs-post-comments{color:#00e5ff}
-                        .bbs-loading{color:#4a6fa5;text-align:center;padding:30px;font-size:13px}
-                        .bbs-back{color:#4a6fa5;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;transition:color .2s}
-                        .bbs-back:hover{color:#00e5ff}
+                        .bbs-board-title{color:#1e293b;font-size:16px;font-weight:700}
+                        .bbs-write-btn{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+                        .bbs-write-btn:hover{background:#4f46e5;color:#fff}
+                        .bbs-post{border-bottom:1px solid #e2e8f0;padding:12px 0;cursor:pointer}
+                        .bbs-post:hover .bbs-post-title{color:#4f46e5}
+                        .bbs-post-title{color:#1e293b;font-size:14px;font-weight:700;margin-bottom:4px}
+                        .bbs-post-meta{color:#94a3b8;font-size:11px;display:flex;gap:12px;flex-wrap:wrap}
+                        .bbs-post-comments{color:#4f46e5}
+                        .bbs-loading{color:#94a3b8;text-align:center;padding:30px;font-size:13px}
+                        .bbs-back{color:#94a3b8;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;transition:color .2s}
+                        .bbs-back:hover{color:#4f46e5}
                         @media(max-width:640px){.bbs-menu-grid{grid-template-columns:1fr}}
                     </style>
                     <div class="bbs-wrap">
@@ -310,7 +303,7 @@
                                 <span>HOHO PLAY 커뮤니티</span>
                             </span>
                         </div>
-                        <div style="text-align:center;color:#7ec8e3;font-size:13px;line-height:1.7;max-width:640px;margin:0 auto 24px">
+                        <div style="text-align:center;color:#64748b;font-size:13px;line-height:1.7;max-width:640px;margin:0 auto 24px">
                             HOHO PLAY의 새 소식과 업데이트를 확인하고, 다른 이용자들과 자유롭게 이야기 나눌 수 있는 공간이에요.
                             공지사항에서는 사이트 소식을, 업데이트에서는 게임·기능 변경 내역을, 게임소개에서는 각 게임의 이야기를 만나보세요.
                         </div>
@@ -318,7 +311,6 @@
                             <div style="color:#94a3b8;font-size:12px;font-weight:900;letter-spacing:.05em;margin-bottom:10px;text-align:center">🆕 최근 게시글</div>
                             <div id="bbs-recent-list">
                                 <!-- COMMUNITY_STATIC_LIST_START -->
-                                <a href="/blog/posts/1.html" class="bbs-post" style="display:block;text-decoration:none"><div class="bbs-post-title">ㅋ</div><div class="bbs-post-meta"><span>게임소개</span><span>2026.09.03</span><span>👤 HOHO PLAY</span></div></a>
                                 <!-- COMMUNITY_STATIC_LIST_END -->
                             </div>
                         </div>
@@ -610,33 +602,33 @@
             blog: `
                 <div class="page-transition">
                     <style>
-                        .bbs-wrap{background:#0a0e2e;border-radius:16px;padding:24px;font-family:'Courier New',monospace;min-height:500px}
-                        .bbs-top{color:#00ffff;font-size:13px;border-bottom:1px solid #1a2a5e;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-                        .bbs-title{color:#ffd700;font-size:22px;font-weight:900;text-align:center;margin-bottom:20px;text-shadow:0 0 10px #ffd70088}
+                        .bbs-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:28px;font-family:'Noto Sans KR',sans-serif;min-height:500px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+                        .bbs-top{color:#94a3b8;font-size:12px;border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+                        .bbs-title{color:#1e293b;font-size:22px;font-weight:900;text-align:center;margin-bottom:20px}
                         .bbs-menu-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
-                        .bbs-section h3{color:#00e5ff;font-size:13px;font-weight:700;border-bottom:1px solid #1a3a6e;padding-bottom:6px;margin-bottom:12px}
-                        .bbs-item{color:#7ec8e3;font-size:13px;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #0d1a40;transition:color .2s}
-                        .bbs-item:hover{color:#00ffff}
-                        .bbs-item .num{color:#4a6fa5;min-width:24px}
+                        .bbs-section h3{color:#4f46e5;font-size:13px;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:12px}
+                        .bbs-item{color:#475569;font-size:13px;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f1f5f9;transition:color .2s}
+                        .bbs-item:hover{color:#4f46e5}
+                        .bbs-item .num{color:#94a3b8;min-width:24px}
                         .bbs-ship{text-align:center;margin-top:20px}
-                        .bbs-ship-name{color:#00e5ff;font-size:14px;font-weight:700;margin-top:8px}
-                        .bbs-board{background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
+                        .bbs-ship-name{color:#4f46e5;font-size:14px;font-weight:700;margin-top:8px}
+                        .bbs-board{background:#f8fafc;border-radius:16px;padding:20px;margin-top:16px}
                         .bbs-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
-                        .bbs-tab{color:#7ec8e3;font-size:13px;font-weight:700;padding:9px 22px;background:#0d1a40;border-radius:8px;cursor:pointer;transition:all .2s}
-                        .bbs-tab:hover{background:#132352}
-                        .bbs-tab.active{background:#00e5ff;color:#0a0e2e}
+                        .bbs-tab{color:#64748b;font-size:13px;font-weight:700;padding:9px 22px;background:#f1f5f9;border-radius:8px;cursor:pointer;transition:all .2s}
+                        .bbs-tab:hover{background:#e2e8f0}
+                        .bbs-tab.active{background:#4f46e5;color:#fff}
                         .bbs-board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-                        .bbs-board-title{color:#ffd700;font-size:16px;font-weight:700}
-                        .bbs-write-btn{background:#1a3a6e;color:#00e5ff;border:1px solid #00e5ff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
-                        .bbs-write-btn:hover{background:#00e5ff;color:#0a0e2e}
-                        .bbs-post{border-bottom:1px solid #1a2a5e;padding:12px 0;cursor:pointer}
-                        .bbs-post:hover .bbs-post-title{color:#00ffff}
-                        .bbs-post-title{color:#7ec8e3;font-size:14px;margin-bottom:4px}
-                        .bbs-post-meta{color:#4a6fa5;font-size:11px;display:flex;gap:12px;flex-wrap:wrap}
-                        .bbs-post-comments{color:#00e5ff}
-                        .bbs-loading{color:#4a6fa5;text-align:center;padding:30px;font-size:13px}
-                        .bbs-back{color:#4a6fa5;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;transition:color .2s}
-                        .bbs-back:hover{color:#00e5ff}
+                        .bbs-board-title{color:#1e293b;font-size:16px;font-weight:700}
+                        .bbs-write-btn{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+                        .bbs-write-btn:hover{background:#4f46e5;color:#fff}
+                        .bbs-post{border-bottom:1px solid #e2e8f0;padding:12px 0;cursor:pointer}
+                        .bbs-post:hover .bbs-post-title{color:#4f46e5}
+                        .bbs-post-title{color:#1e293b;font-size:14px;font-weight:700;margin-bottom:4px}
+                        .bbs-post-meta{color:#94a3b8;font-size:11px;display:flex;gap:12px;flex-wrap:wrap}
+                        .bbs-post-comments{color:#4f46e5}
+                        .bbs-loading{color:#94a3b8;text-align:center;padding:30px;font-size:13px}
+                        .bbs-back{color:#94a3b8;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;transition:color .2s}
+                        .bbs-back:hover{color:#4f46e5}
                         @media(max-width:640px){.bbs-menu-grid{grid-template-columns:1fr}}
                     </style>
                     <div class="bbs-wrap">
@@ -650,7 +642,7 @@
                                 <span>HOHO PLAY 커뮤니티</span>
                             </span>
                         </div>
-                        <div style="text-align:center;color:#7ec8e3;font-size:13px;line-height:1.7;max-width:640px;margin:0 auto 24px">
+                        <div style="text-align:center;color:#64748b;font-size:13px;line-height:1.7;max-width:640px;margin:0 auto 24px">
                             HOHO PLAY의 새 소식과 업데이트를 확인하고, 다른 이용자들과 자유롭게 이야기 나눌 수 있는 공간이에요.
                             공지사항에서는 사이트 소식을, 업데이트에서는 게임·기능 변경 내역을, 게임소개에서는 각 게임의 이야기를 만나보세요.
                         </div>
@@ -658,7 +650,6 @@
                             <div style="color:#94a3b8;font-size:12px;font-weight:900;letter-spacing:.05em;margin-bottom:10px;text-align:center">🆕 최근 게시글</div>
                             <div id="bbs-recent-list">
                                 <!-- COMMUNITY_STATIC_LIST_START -->
-                                <a href="/blog/posts/1.html" class="bbs-post" style="display:block;text-decoration:none"><div class="bbs-post-title">ㅋ</div><div class="bbs-post-meta"><span>게임소개</span><span>2026.09.03</span><span>👤 HOHO PLAY</span></div></a>
                                 <!-- COMMUNITY_STATIC_LIST_END -->
                             </div>
                         </div>
@@ -1159,7 +1150,6 @@
             document.querySelectorAll('.bbs-tab').forEach(t => {
                 t.classList.toggle('active', t.dataset.board === name);
             });
-            _bbsOpenPost = null; // 탭 전환 시 이전 게시판의 펼침 상태 초기화
             loadPosts(name, name);
         }
 
@@ -1197,33 +1187,25 @@
             el.innerHTML = pagePosts.map((p,i) => {
                 const d = new Date(p.created_at);
                 const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-                return '<div class="bbs-post" id="bbs-post-'+p.id+'" style="cursor:default">'+
-                    '<div class="bbs-post-title" onclick="togglePostAccordion('+p.id+',\''+boardType+'\')" style="cursor:pointer">'+String(start+i+1).padStart(2,'0')+'. '+p.title+'</div>'+
+                return '<a href="/blog/posts/'+p.id+'.html" class="bbs-post" style="display:block;text-decoration:none">'+
+                    '<div class="bbs-post-title">'+String(start+i+1).padStart(2,'0')+'. '+p.title+'</div>'+
                     '<div class="bbs-post-meta">'+
                         '<span>'+ds+'</span>'+
                         '<span>👤 '+p.author+'</span>'+
                     '</div>'+
-                    '<div class="bbs-post-body" id="bbs-post-body-'+p.id+'" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #1a2a5e"></div>'+
-                '</div>';
+                '</a>';
             }).join('');
 
             // 게시글이 페이지 크기 초과 시 페이지네이션 표시
             if (_bbsAllPosts.length > BBS_PAGE_SIZE) {
                 let pagerHtml = '<div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-top:18px;flex-wrap:wrap">';
-                pagerHtml += '<span onclick="'+(_bbsPage>1 ? "bbsGoPage("+(_bbsPage-1)+",'"+boardType+"')" : '')+'" style="cursor:'+(_bbsPage>1?'pointer':'default')+';color:'+(_bbsPage>1?'#00e5ff':'#2a3a6e')+';font-size:12px;padding:4px 8px">◀ 이전</span>';
+                pagerHtml += '<span onclick="'+(_bbsPage>1 ? "bbsGoPage("+(_bbsPage-1)+",'"+boardType+"')" : '')+'" style="cursor:'+(_bbsPage>1?'pointer':'default')+';color:'+(_bbsPage>1?'#4f46e5':'#cbd5e1')+';font-size:12px;padding:4px 8px">◀ 이전</span>';
                 for (let pn = 1; pn <= totalPages; pn++) {
-                    pagerHtml += '<span onclick="bbsGoPage('+pn+',\''+boardType+'\')" style="cursor:pointer;font-size:12px;padding:4px 10px;border-radius:6px;background:'+(pn===_bbsPage?'#00e5ff':'#0d1a40')+';color:'+(pn===_bbsPage?'#0a0e2e':'#7ec8e3')+';font-weight:700">'+pn+'</span>';
+                    pagerHtml += '<span onclick="bbsGoPage('+pn+',\''+boardType+'\')" style="cursor:pointer;font-size:12px;padding:4px 10px;border-radius:6px;background:'+(pn===_bbsPage?'#4f46e5':'#f1f5f9')+';color:'+(pn===_bbsPage?'#fff':'#64748b')+';font-weight:700">'+pn+'</span>';
                 }
-                pagerHtml += '<span onclick="'+(_bbsPage<totalPages ? "bbsGoPage("+(_bbsPage+1)+",'"+boardType+"')" : '')+'" style="cursor:'+(_bbsPage<totalPages?'pointer':'default')+';color:'+(_bbsPage<totalPages?'#00e5ff':'#2a3a6e')+';font-size:12px;padding:4px 8px">다음 ▶</span>';
+                pagerHtml += '<span onclick="'+(_bbsPage<totalPages ? "bbsGoPage("+(_bbsPage+1)+",'"+boardType+"')" : '')+'" style="cursor:'+(_bbsPage<totalPages?'pointer':'default')+';color:'+(_bbsPage<totalPages?'#4f46e5':'#cbd5e1')+';font-size:12px;padding:4px 8px">다음 ▶</span>';
                 pagerHtml += '</div>';
                 el.innerHTML += pagerHtml;
-            }
-
-            // 항상 최신 게시글(1페이지의 맨 위 글)은 기본으로 펼쳐진 상태로 보여줌
-            if (_bbsPage === 1 && pagePosts.length > 0) {
-                _bbsOpenPost = null; // 이전 열림 상태를 초기화해서 토글이 정확히 "열기"로 동작하게 함
-                const latest = pagePosts[0];
-                togglePostAccordion(latest.id, boardType);
             }
         }
 
@@ -1233,184 +1215,6 @@
             document.getElementById('bbs-board-area').scrollIntoView({behavior:'smooth', block:'start'});
         }
 
-        let _bbsOpenPost = null; // 현재 펼쳐진 게시글 번호(한 번에 하나만 열림)
-
-        // ── 게시글 댓글·공유 (기존 개별 포스트 페이지와 동일한 API·game_id 규칙 재사용) ──
-        const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
-        let _bbsPostTitles = {};
-
-        function bbsEscapeHtml(str) {
-            const d = document.createElement('div');
-            d.innerText = str;
-            return d.innerHTML;
-        }
-
-        function bbsFormatCmtTime(ts) {
-            const diff = Date.now() - ts;
-            const min = Math.floor(diff / 60000);
-            if (min < 1) return '방금 전';
-            if (min < 60) return min + '분 전';
-            const hr = Math.floor(min / 60);
-            if (hr < 24) return hr + '시간 전';
-            const day = Math.floor(hr / 24);
-            if (day < 7) return day + '일 전';
-            return new Date(ts).toLocaleDateString('ko-KR');
-        }
-
-        async function loadPostComments(id) {
-            const list = document.getElementById('cmt-list-' + id);
-            if (!list) return;
-            try {
-                const res = await fetch(COMMENTS_API + '?game_id=post-' + id);
-                const data = await res.json();
-                if (!data.comments || data.comments.length === 0) {
-                    list.innerHTML = '<div style="text-align:center;color:#4a6fa5;font-size:12px;padding:14px 0">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
-                    return;
-                }
-                list.innerHTML = data.comments.map(c =>
-                    '<div style="padding:10px 12px;background:#0d1a40;border-radius:10px">' +
-                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-                            '<span style="font-weight:800;font-size:12px;color:#7ec8e3">'+bbsEscapeHtml(c.nickname)+'</span>' +
-                            '<span style="font-size:11px;color:#4a6fa5">'+bbsFormatCmtTime(c.created_at)+'</span>' +
-                        '</div>' +
-                        '<div style="font-size:12px;color:#a8c5e8;line-height:1.6;white-space:pre-wrap">'+bbsEscapeHtml(c.content)+'</div>' +
-                    '</div>'
-                ).join('');
-            } catch (e) {
-                list.innerHTML = '<div style="text-align:center;color:#4a6fa5;font-size:12px;padding:14px 0">댓글을 불러오지 못했습니다.</div>';
-            }
-        }
-
-        async function submitPostComment(id) {
-            const nicknameEl = document.getElementById('cmt-nickname-' + id);
-            const contentEl = document.getElementById('cmt-content-' + id);
-            const status = document.getElementById('cmt-status-' + id);
-            const btn = document.getElementById('cmt-submit-' + id);
-            const nickname = nicknameEl.value.trim();
-            const content = contentEl.value.trim();
-            if (!nickname || !content) { status.textContent = '닉네임과 내용을 입력해주세요.'; return; }
-            btn.disabled = true;
-            status.textContent = '등록 중...';
-            try {
-                const res = await fetch(COMMENTS_API, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ game_id: 'post-' + id, nickname, content })
-                });
-                const data = await res.json();
-                if (!res.ok) {
-                    status.textContent = data.error || '등록에 실패했습니다.';
-                    btn.disabled = false;
-                    return;
-                }
-                contentEl.value = '';
-                status.textContent = '';
-                btn.disabled = false;
-                loadPostComments(id);
-            } catch (e) {
-                status.textContent = '네트워크 오류가 발생했습니다.';
-                btn.disabled = false;
-            }
-        }
-
-        function postSnsShare(type, id) {
-            const title = _bbsPostTitles[id] || document.title;
-            const pageUrl = 'https://hohoplaylab.com/blog/posts/' + id + '.html';
-            const url = encodeURIComponent(pageUrl);
-            const encTitle = encodeURIComponent(title);
-            const map = {
-                facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + url,
-                x: 'https://twitter.com/intent/tweet?url=' + url + '&text=' + encTitle,
-                naver: 'https://share.naver.com/web/shareView?url=' + url + '&title=' + encTitle,
-                band: 'https://band.us/plugin/share?body=' + encTitle + '&route=' + url,
-                line: 'https://social-plugins.line.me/lineit/share?url=' + url,
-            };
-            if (type === 'kakaot') {
-                if (window.Kakao && Kakao.isInitialized()) {
-                    Kakao.Share.sendDefault({
-                        objectType: 'feed',
-                        content: {
-                            title: title,
-                            description: 'HOHO PLAY 커뮤니티',
-                            imageUrl: 'https://hohoplaylab.com/data/banner.png',
-                            link: { mobileWebUrl: pageUrl, webUrl: pageUrl }
-                        }
-                    });
-                } else {
-                    navigator.clipboard.writeText(pageUrl);
-                    alert('링크가 복사되었습니다.');
-                }
-                return;
-            }
-            window.open(map[type], '_blank', 'width=600,height=500');
-        }
-
-        async function togglePostAccordion(id, boardType) {
-            const bodyEl = document.getElementById('bbs-post-body-'+id);
-            if (!bodyEl) return;
-
-            const isCurrentlyOpen = (_bbsOpenPost === id);
-
-            // 이전에 열려있던 다른 게시글은 닫기
-            if (_bbsOpenPost !== null && _bbsOpenPost !== id) {
-                const prevBody = document.getElementById('bbs-post-body-'+_bbsOpenPost);
-                if (prevBody) prevBody.style.display = 'none';
-            }
-
-            if (isCurrentlyOpen) {
-                // 같은 글을 다시 누르면 접기
-                bodyEl.style.display = 'none';
-                _bbsOpenPost = null;
-                return;
-            }
-
-            _bbsOpenPost = id;
-            bodyEl.style.display = 'block';
-
-            // 이미 한 번 불러온 내용이면 재요청 없이 그대로 보여줌
-            if (bodyEl.dataset.loaded === 'true') return;
-
-            bodyEl.innerHTML = '<div class="bbs-loading">⏳ 글 불러오는 중...</div>';
-            try {
-                const r = await fetch(POSTS_API + '/' + id);
-                const data = await r.json();
-                const post = data.post;
-                const body = post.content ? post.content.replace(/\n/g,'<br>') : '(내용 없음)';
-                _bbsPostTitles[id] = post.title;
-
-                bodyEl.innerHTML =
-                    '<div style="color:#7ec8e3;font-size:14px;line-height:1.9;margin-bottom:18px">'+body+'</div>' +
-                    '<div style="text-align:center;margin-bottom:18px">' +
-                        '<div style="font-size:11px;font-weight:800;color:#4a6fa5;margin-bottom:8px;letter-spacing:.05em">🔗 이 글을 공유해보세요</div>' +
-                        '<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap">' +
-                            '<button onclick="postSnsShare(\'facebook\','+id+')" aria-label="페이스북 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;font-weight:900;font-size:13px">f</button>' +
-                            '<button onclick="postSnsShare(\'x\','+id+')" aria-label="X 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;font-weight:900;font-size:12px">X</button>' +
-                            '<button onclick="postSnsShare(\'kakaot\','+id+')" aria-label="카카오톡 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;font-size:15px">💬</button>' +
-                            '<button onclick="postSnsShare(\'naver\','+id+')" aria-label="네이버 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;font-weight:900;font-size:13px">N</button>' +
-                            '<button onclick="postSnsShare(\'band\','+id+')" aria-label="밴드 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;font-weight:900;font-size:11px">밴드</button>' +
-                            '<button onclick="postSnsShare(\'line\','+id+')" aria-label="라인 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;font-weight:900;font-size:11px">라인</button>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div style="padding:14px;background:#060b20;border-radius:12px">' +
-                        '<div style="font-size:13px;font-weight:800;color:#94a3b8;margin-bottom:10px">💬 댓글</div>' +
-                        '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">' +
-                            '<input id="cmt-nickname-'+id+'" type="text" placeholder="닉네임" maxlength="20" style="padding:8px 10px;border:1px solid #1a2a5e;border-radius:8px;background:#0a0e2e;color:#e2e8f0;font-size:13px;outline:none;font-family:inherit">' +
-                            '<textarea id="cmt-content-'+id+'" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="2" style="padding:8px 10px;border:1px solid #1a2a5e;border-radius:8px;background:#0a0e2e;color:#e2e8f0;font-size:13px;resize:vertical;outline:none;font-family:inherit"></textarea>' +
-                            '<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px">' +
-                                '<span id="cmt-status-'+id+'" style="font-size:11px;color:#4a6fa5"></span>' +
-                                '<button id="cmt-submit-'+id+'" onclick="submitPostComment('+id+')" style="padding:7px 16px;border:none;border-radius:8px;background:#00e5ff;color:#0a0e2e;font-weight:800;font-size:12px;cursor:pointer">등록</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div id="cmt-list-'+id+'" style="display:flex;flex-direction:column;gap:8px">' +
-                            '<div style="text-align:center;color:#4a6fa5;font-size:12px;padding:14px 0">댓글을 불러오는 중...</div>' +
-                        '</div>' +
-                    '</div>';
-                bodyEl.dataset.loaded = 'true';
-                loadPostComments(id);
-            } catch(e) {
-                bodyEl.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
-            }
-        }
         // const 사용 금지 — fortune.html var와 충돌 방지
         window.BLOG_ID  = '5608603268556826697';
         window.API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
