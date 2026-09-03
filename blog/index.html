@@ -148,6 +148,13 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
+    <!-- ═══ Kakao SDK (커뮤니티 공유 기능) ═══ -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+      crossorigin="anonymous"></script>
+    <script>
+      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -325,7 +332,6 @@
                             <div style="color:#94a3b8;font-size:12px;font-weight:900;letter-spacing:.05em;margin-bottom:10px;text-align:center">🆕 최근 게시글</div>
                             <div id="bbs-recent-list">
                                 <!-- COMMUNITY_STATIC_LIST_START -->
-                                <div class="bbs-loading">아직 등록된 게시글이 없습니다.</div>
                                 <!-- COMMUNITY_STATIC_LIST_END -->
                             </div>
                         </div>
@@ -697,7 +703,6 @@
                             <div style="color:#94a3b8;font-size:12px;font-weight:900;letter-spacing:.05em;margin-bottom:10px;text-align:center">🆕 최근 게시글</div>
                             <div id="bbs-recent-list">
                                 <!-- COMMUNITY_STATIC_LIST_START -->
-                                <div class="bbs-loading">아직 등록된 게시글이 없습니다.</div>
                                 <!-- COMMUNITY_STATIC_LIST_END -->
                             </div>
                         </div>
@@ -1320,6 +1325,116 @@
 
         let _bbsOpenPost = null; // 현재 펼쳐진 게시글 번호(한 번에 하나만 열림)
 
+        // ── 게시글 댓글·공유 (기존 개별 포스트 페이지와 동일한 API·game_id 규칙 재사용) ──
+        const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+        let _bbsPostTitles = {};
+
+        function bbsEscapeHtml(str) {
+            const d = document.createElement('div');
+            d.innerText = str;
+            return d.innerHTML;
+        }
+
+        function bbsFormatCmtTime(ts) {
+            const diff = Date.now() - ts;
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return '방금 전';
+            if (min < 60) return min + '분 전';
+            const hr = Math.floor(min / 60);
+            if (hr < 24) return hr + '시간 전';
+            const day = Math.floor(hr / 24);
+            if (day < 7) return day + '일 전';
+            return new Date(ts).toLocaleDateString('ko-KR');
+        }
+
+        async function loadPostComments(id) {
+            const list = document.getElementById('cmt-list-' + id);
+            if (!list) return;
+            try {
+                const res = await fetch(COMMENTS_API + '?game_id=post-' + id);
+                const data = await res.json();
+                if (!data.comments || data.comments.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;color:#4a6fa5;font-size:12px;padding:14px 0">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
+                    return;
+                }
+                list.innerHTML = data.comments.map(c =>
+                    '<div style="padding:10px 12px;background:#0d1a40;border-radius:10px">' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+                            '<span style="font-weight:800;font-size:12px;color:#7ec8e3">'+bbsEscapeHtml(c.nickname)+'</span>' +
+                            '<span style="font-size:11px;color:#4a6fa5">'+bbsFormatCmtTime(c.created_at)+'</span>' +
+                        '</div>' +
+                        '<div style="font-size:12px;color:#a8c5e8;line-height:1.6;white-space:pre-wrap">'+bbsEscapeHtml(c.content)+'</div>' +
+                    '</div>'
+                ).join('');
+            } catch (e) {
+                list.innerHTML = '<div style="text-align:center;color:#4a6fa5;font-size:12px;padding:14px 0">댓글을 불러오지 못했습니다.</div>';
+            }
+        }
+
+        async function submitPostComment(id) {
+            const nicknameEl = document.getElementById('cmt-nickname-' + id);
+            const contentEl = document.getElementById('cmt-content-' + id);
+            const status = document.getElementById('cmt-status-' + id);
+            const btn = document.getElementById('cmt-submit-' + id);
+            const nickname = nicknameEl.value.trim();
+            const content = contentEl.value.trim();
+            if (!nickname || !content) { status.textContent = '닉네임과 내용을 입력해주세요.'; return; }
+            btn.disabled = true;
+            status.textContent = '등록 중...';
+            try {
+                const res = await fetch(COMMENTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: 'post-' + id, nickname, content })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    status.textContent = data.error || '등록에 실패했습니다.';
+                    btn.disabled = false;
+                    return;
+                }
+                contentEl.value = '';
+                status.textContent = '';
+                btn.disabled = false;
+                loadPostComments(id);
+            } catch (e) {
+                status.textContent = '네트워크 오류가 발생했습니다.';
+                btn.disabled = false;
+            }
+        }
+
+        function postSnsShare(type, id) {
+            const title = _bbsPostTitles[id] || document.title;
+            const pageUrl = 'https://hohoplaylab.com/blog/posts/' + id + '.html';
+            const url = encodeURIComponent(pageUrl);
+            const encTitle = encodeURIComponent(title);
+            const map = {
+                facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + url,
+                x: 'https://twitter.com/intent/tweet?url=' + url + '&text=' + encTitle,
+                naver: 'https://share.naver.com/web/shareView?url=' + url + '&title=' + encTitle,
+                band: 'https://band.us/plugin/share?body=' + encTitle + '&route=' + url,
+                line: 'https://social-plugins.line.me/lineit/share?url=' + url,
+            };
+            if (type === 'kakaot') {
+                if (window.Kakao && Kakao.isInitialized()) {
+                    Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: title,
+                            description: 'HOHO PLAY 커뮤니티',
+                            imageUrl: 'https://hohoplaylab.com/data/banner.png',
+                            link: { mobileWebUrl: pageUrl, webUrl: pageUrl }
+                        }
+                    });
+                } else {
+                    navigator.clipboard.writeText(pageUrl);
+                    alert('링크가 복사되었습니다.');
+                }
+                return;
+            }
+            window.open(map[type], '_blank', 'width=600,height=500');
+        }
+
         async function togglePostAccordion(id, boardType) {
             const bodyEl = document.getElementById('bbs-post-body-'+id);
             if (!bodyEl) return;
@@ -1351,9 +1466,37 @@
                 const data = await r.json();
                 const post = data.post;
                 const body = post.content ? post.content.replace(/\n/g,'<br>') : '(내용 없음)';
+                _bbsPostTitles[id] = post.title;
 
-                bodyEl.innerHTML = '<div style="color:#7ec8e3;font-size:14px;line-height:1.9">'+body+'</div>';
+                bodyEl.innerHTML =
+                    '<div style="color:#7ec8e3;font-size:14px;line-height:1.9;margin-bottom:18px">'+body+'</div>' +
+                    '<div style="text-align:center;margin-bottom:18px">' +
+                        '<div style="font-size:11px;font-weight:800;color:#4a6fa5;margin-bottom:8px;letter-spacing:.05em">🔗 이 글을 공유해보세요</div>' +
+                        '<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap">' +
+                            '<button onclick="postSnsShare(\'facebook\','+id+')" aria-label="페이스북 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;font-weight:900;font-size:13px">f</button>' +
+                            '<button onclick="postSnsShare(\'x\','+id+')" aria-label="X 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;font-weight:900;font-size:12px">X</button>' +
+                            '<button onclick="postSnsShare(\'kakaot\','+id+')" aria-label="카카오톡 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;font-size:15px">💬</button>' +
+                            '<button onclick="postSnsShare(\'naver\','+id+')" aria-label="네이버 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;font-weight:900;font-size:13px">N</button>' +
+                            '<button onclick="postSnsShare(\'band\','+id+')" aria-label="밴드 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;font-weight:900;font-size:11px">밴드</button>' +
+                            '<button onclick="postSnsShare(\'line\','+id+')" aria-label="라인 공유" style="width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;font-weight:900;font-size:11px">라인</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="padding:14px;background:#060b20;border-radius:12px">' +
+                        '<div style="font-size:13px;font-weight:800;color:#94a3b8;margin-bottom:10px">💬 댓글</div>' +
+                        '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">' +
+                            '<input id="cmt-nickname-'+id+'" type="text" placeholder="닉네임" maxlength="20" style="padding:8px 10px;border:1px solid #1a2a5e;border-radius:8px;background:#0a0e2e;color:#e2e8f0;font-size:13px;outline:none;font-family:inherit">' +
+                            '<textarea id="cmt-content-'+id+'" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="2" style="padding:8px 10px;border:1px solid #1a2a5e;border-radius:8px;background:#0a0e2e;color:#e2e8f0;font-size:13px;resize:vertical;outline:none;font-family:inherit"></textarea>' +
+                            '<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px">' +
+                                '<span id="cmt-status-'+id+'" style="font-size:11px;color:#4a6fa5"></span>' +
+                                '<button id="cmt-submit-'+id+'" onclick="submitPostComment('+id+')" style="padding:7px 16px;border:none;border-radius:8px;background:#00e5ff;color:#0a0e2e;font-weight:800;font-size:12px;cursor:pointer">등록</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div id="cmt-list-'+id+'" style="display:flex;flex-direction:column;gap:8px">' +
+                            '<div style="text-align:center;color:#4a6fa5;font-size:12px;padding:14px 0">댓글을 불러오는 중...</div>' +
+                        '</div>' +
+                    '</div>';
                 bodyEl.dataset.loaded = 'true';
+                loadPostComments(id);
             } catch(e) {
                 bodyEl.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
             }
