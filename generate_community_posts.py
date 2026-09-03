@@ -170,8 +170,7 @@ def update_blog_index_static_list(posts):
             f'</a>\n                                '
         )
 
-    if not items_html:
-        items_html = '<div class="bbs-loading">아직 등록된 게시글이 없습니다.</div>\n                                '
+    # 게시글이 하나도 없어도 별도 안내 문구 없이 빈 상태로 둔다 (요청에 따라 문구 삭제).
 
     start_marker = "<!-- COMMUNITY_STATIC_LIST_START -->"
     end_marker = "<!-- COMMUNITY_STATIC_LIST_END -->"
