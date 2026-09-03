@@ -25,6 +25,7 @@ import re
 import sys
 import html as html_lib
 from datetime import datetime, timezone, timedelta
+from urllib.parse import quote
 
 WORKER_API = "https://old-rain-16f7.lyh0929mm.workers.dev"
 SITE_ROOT = "https://hohoplaylab.com"
@@ -49,7 +50,7 @@ def fetch_all_posts():
     """카테고리별로 목록을 가져와 하나로 합친다 (id 기준 중복 제거)."""
     seen = {}
     for cat in CATEGORIES:
-        url = f"{WORKER_API}/posts?category={cat}"
+        url = f"{WORKER_API}/posts?category={quote(cat)}"
         try:
             data = fetch_json(url)
         except Exception as e:
