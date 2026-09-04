@@ -43,6 +43,7 @@
             background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-decoration: none; color: #333; font-size: 20px; line-height: 1;
+            border: none; padding: 0; cursor: pointer; font-family: inherit;
         }
         .remote-btn .label { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
 
@@ -63,6 +64,32 @@
         .today-addr { font-size: 11px; color: #666; }
         .today-empty { font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0; list-style: none; }
 
+        .today-panel-close { display: none; }
+        .today-panel-backdrop { display: none; }
+        .today-toggle-btn { display: none; }
+
+        @media (max-width: 768px) {
+            .today-panel {
+                position: fixed; top: 0; left: 0; z-index: 30;
+                height: 100vh; height: 100dvh; width: 85%; max-width: 320px;
+                overflow-y: auto; box-shadow: 2px 0 16px rgba(0,0,0,0.25);
+                transform: translateX(-100%); transition: transform 0.3s ease;
+            }
+            .today-panel.open { transform: translateX(0); }
+            .today-panel-close {
+                display: flex; align-items: center; justify-content: center;
+                position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+                border-radius: 50%; border: none; background: #f1f5f9; color: #333;
+                font-size: 15px; cursor: pointer; z-index: 1;
+            }
+            .today-panel-backdrop {
+                display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+                z-index: 25; opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+            }
+            .today-panel-backdrop.open { opacity: 1; visibility: visible; }
+            .today-toggle-btn { display: flex; }
+        }
+
         @media (min-width: 769px) {
             .page-flex { flex-direction: row; }
             .today-panel {
@@ -77,7 +104,9 @@
 <body>
 
 <div class="page-flex">
-    <aside class="today-panel">
+    <div class="today-panel-backdrop" id="todayBackdrop" onclick="closeTodayPanel()"></div>
+    <aside class="today-panel" id="todayPanel">
+        <button class="today-panel-close" onclick="closeTodayPanel()" aria-label="닫기">✕</button>
         <h2>🎪 오늘 축제가 열리는 곳</h2>
         <ul class="today-list">
             <!-- TODAY_FESTIVALS_START -->
@@ -111,6 +140,9 @@
         </div>
 
         <div class="remote-menu">
+            <button type="button" class="remote-btn today-toggle-btn" onclick="openTodayPanel()" aria-label="오늘의 축제 목록 열기">
+                <span>🎪</span><span class="label">축제</span>
+            </button>
             <a href="/" class="remote-btn" aria-label="홈으로 가기">
                 <span>🏠</span><span class="label">홈</span>
             </a>
@@ -146,6 +178,16 @@
         if (!lat || !lng) return;
         map.panTo(new kakao.maps.LatLng(lat, lng));
         map.setLevel(6);
+    }
+
+    // 모바일에서 좌측 슬라이드 패널 열고 닫기
+    function openTodayPanel() {
+        document.getElementById('todayPanel').classList.add('open');
+        document.getElementById('todayBackdrop').classList.add('open');
+    }
+    function closeTodayPanel() {
+        document.getElementById('todayPanel').classList.remove('open');
+        document.getElementById('todayBackdrop').classList.remove('open');
     }
 
     // 모바일에서 주소창이 접히고 펴지며 화면 높이가 바뀔 때, 그리고 PC에서 창 크기를
