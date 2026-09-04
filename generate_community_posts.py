@@ -141,17 +141,18 @@ def generate_post_pages(posts):
 
 # 커뮤니티 페이지가 처음 열렸을 때 기본으로 보여주는 탭(= window.onload의 switchBoard 기본값과
 # 반드시 일치시켜야, 정적 콘텐츠 → 자바스크립트 실시간 콘텐츠로 바뀔 때 내용이 안 튄다).
-DEFAULT_STATIC_CATEGORY = "공지사항"
-STATIC_LIST_SIZE = 5  # 실시간 게시판의 BBS_PAGE_SIZE(5)와 동일하게 맞춤
+PAST_LIST_SIZE = 10  # 실시간 화면의 PAST_LIST_SIZE와 동일하게 맞춤
 
 
 def update_blog_index_static_list(posts):
-    """blog/index.html의 커뮤니티 탭 안, 게시글 목록 자리를 정적 텍스트로 채워 넣는다.
+    """blog/index.html의 커뮤니티 피드 자리를 정적 텍스트로 채워 넣는다.
 
-    이 목록은 실시간 자바스크립트가 기본 탭(공지사항)의 글을 불러오기 '전'에 이미
-    페이지 소스에 존재하는 정적 텍스트라, 크롤러가 자바스크립트 실행 없이도 그대로
-    읽을 수 있다. 자바스크립트가 로드되면 이 자리를 최신 데이터로 다시 그려 넣는다
-    (내용은 이미 같으므로 화면이 튀지 않는다).
+    실시간 화면과 완전히 같은 모양(카테고리 배지 → 최신 글 1개는 본문까지 통째로
+    → 그 아래 지난 글 목록)으로 렌더링한다. 이건 자바스크립트가 데이터를 불러오기
+    '전'에 이미 페이지 소스에 존재하는 정적 텍스트라, 크롤러가 자바스크립트 실행
+    없이도 최신 글 본문을 그대로 읽을 수 있다. 자바스크립트가 로드되면 이 자리를
+    같은 모양으로 다시 그려 넣으며 공유·댓글 UI를 덧붙인다(내용이 이미 같으므로
+    화면이 튀지 않는다).
     """
     if not os.path.exists(BLOG_INDEX_PATH):
         print("⚠️ blog/index.html을 찾을 수 없어 정적 목록 갱신을 건너뜁니다.", file=sys.stderr)
@@ -159,22 +160,57 @@ def update_blog_index_static_list(posts):
 
     html_content = open(BLOG_INDEX_PATH, encoding="utf-8").read()
 
-    recent = [p for p in posts if p["category"] == DEFAULT_STATIC_CATEGORY][:STATIC_LIST_SIZE]
-    items_html = ""
-    for i, p in enumerate(recent):
-        title_escaped = html_lib.escape(p["title"])
-        author_escaped = html_lib.escape(p["author"])
-        items_html += (
-            f'<a href="/blog/posts/{p["id"]}.html" class="bbs-post" style="display:block;text-decoration:none">'
-            f'<div class="bbs-post-title">{i + 1:02d}. {title_escaped}</div>'
-            f'<div class="bbs-post-meta">'
-            f'<span>{format_date(p["created_at"])}</span>'
-            f'<span>👤 {author_escaped}</span>'
-            f'</div>'
-            f'</a>\n                                '
-        )
+    if not posts:
+        items_html = ""
+    else:
+        latest = posts[0]
+        detail = fetch_post_detail(latest["id"])
+        if detail:
+            content_escaped = html_lib.escape(detail["content"]).replace("\n", "<br>")
+            title_escaped = html_lib.escape(detail["title"])
+            author_escaped = html_lib.escape(detail["author"])
+            category_escaped = html_lib.escape(detail["category"])
+            latest_html = (
+                f'<span style="display:inline-block;background:#eef2ff;color:#4f46e5;'
+                f'font-size:11px;font-weight:800;padding:4px 12px;border-radius:9999px;'
+                f'margin-bottom:10px">{category_escaped}</span>'
+                f'<h2 style="font-size:22px;font-weight:900;color:#1e293b;margin:8px 0 6px">{title_escaped}</h2>'
+                f'<p style="color:#94a3b8;font-size:13px;margin-bottom:20px">'
+                f'{author_escaped} · {format_date(detail["created_at"])}</p>'
+                f'<div style="color:#334155;font-size:14px;line-height:1.9;margin-bottom:24px">'
+                f'{content_escaped}</div>'
+            )
+        else:
+            latest_html = ""
 
-    # 게시글이 하나도 없어도 별도 안내 문구 없이 빈 상태로 둔다 (요청에 따라 문구 삭제).
+        past = posts[1:1 + PAST_LIST_SIZE]
+        past_items = ""
+        for p in past:
+            p_title = html_lib.escape(p["title"])
+            p_author = html_lib.escape(p["author"])
+            p_category = html_lib.escape(p["category"])
+            past_items += (
+                f'<a href="/blog/posts/{p["id"]}.html" class="bbs-post" style="display:block;text-decoration:none">'
+                f'<div class="bbs-post-title">{p_title}</div>'
+                f'<div class="bbs-post-meta">'
+                f'<span>{p_category}</span>'
+                f'<span>{format_date(p["created_at"])}</span>'
+                f'<span>👤 {p_author}</span>'
+                f'</div>'
+                f'</a>\n                                '
+            )
+
+        past_html = ""
+        if past_items:
+            past_html = (
+                '<div style="margin-top:32px;padding-top:24px;border-top:1px solid #e2e8f0">'
+                '<div style="font-size:12px;font-weight:900;color:#94a3b8;letter-spacing:.05em;'
+                f'margin-bottom:12px">📋 지난 글</div>'
+                f'<div>{past_items}</div>'
+                '</div>'
+            )
+
+        items_html = latest_html + past_html
 
     start_marker = "<!-- COMMUNITY_STATIC_LIST_START -->"
     end_marker = "<!-- COMMUNITY_STATIC_LIST_END -->"
