@@ -8,7 +8,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; font-family: -apple-system, sans-serif; }
 
-        .map-wrapper { position: relative; width: 100%; height: 100vh; }
+        .map-wrapper { position: relative; width: 100%; height: 100vh; height: 100dvh; }
         #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
 
         .filter-container {
@@ -99,6 +99,18 @@
         map.setBounds(bounds);
     }
     fitKoreaBounds();
+
+    // 모바일에서 주소창이 접히고 펴지며 화면 높이가 바뀔 때 지도가 그 크기 변화를
+    // 자동으로 반영하지 못해 마커 위치가 어긋나는 문제를 막기 위한 재정렬 처리
+    setTimeout(function () { map.relayout(); }, 300);
+    let relayoutTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(relayoutTimer);
+        relayoutTimer = setTimeout(function () { map.relayout(); }, 200);
+    });
+    window.addEventListener('orientationchange', function () {
+        setTimeout(function () { map.relayout(); }, 300);
+    });
 
     let festivalData = [];
     let allMarkers = [];
