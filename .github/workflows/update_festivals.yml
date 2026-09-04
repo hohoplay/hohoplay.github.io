@@ -3,7 +3,9 @@ name: Update Festival Data
 
 on:
   schedule:
-    - cron: '0 20 * * *'  # UTC 20:00 = KST 다음날 05:00
+    - cron: '0 20 * * *'   # UTC 20:00 = KST 다음날 05:00
+    - cron: '0 2 * * *'    # UTC 02:00 = KST 11:00 (05시 실행이 IP 차단 등으로 실패했을 때 대비)
+    - cron: '0 8 * * *'    # UTC 08:00 = KST 17:00 (2차 재시도용)
   workflow_dispatch:      # 필요할 때 수동 실행 버튼도 제공
 
 permissions:
