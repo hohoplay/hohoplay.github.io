@@ -4729,8 +4729,8 @@ def _build_slug_title(labels):
         return None
 
     item_code = item_code or "00"  # 별과띠가만나는시간처럼 세부 항목이 없는 타입
-    date_part = now_kst().strftime("%Y%m%d")
-    return f"{type_code}{item_code}{date_part}"
+    date_part = now_kst().strftime("%Y-%m-%d")
+    return f"{type_code}{item_code}-{date_part}"
 
 
 def post_blogger(title, content, labels, idx, total):
