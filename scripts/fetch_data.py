@@ -14,8 +14,15 @@ SEARCH_FROM = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('
 API_KEY = os.environ.get("TOUR_API_KEY", "YOUR_TOUR_API_KEY")
 BASE_URL = "https://apis.data.go.kr/B551011/KorService2/searchFestival2"
 
+# 일부 공공기관 방화벽이 파이썬 requests 기본 User-Agent를 자동 차단하는 경우가 있어
+# 일반 브라우저처럼 보이도록 명시적으로 지정
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                  '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+}
 
-def fetch_page(page_no, num_of_rows=200, max_retries=3):
+
+def fetch_page(page_no, num_of_rows=200, max_retries=5):
     params = {
         'serviceKey': API_KEY,
         'numOfRows': num_of_rows,
@@ -30,13 +37,13 @@ def fetch_page(page_no, num_of_rows=200, max_retries=3):
     last_error = None
     for attempt in range(1, max_retries + 1):
         try:
-            res = requests.get(BASE_URL, params=params, timeout=20)
+            res = requests.get(BASE_URL, params=params, headers=HEADERS, timeout=20)
             res.raise_for_status()
             break
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout,
                 requests.exceptions.ConnectionError) as e:
             last_error = e
-            wait = 5 * attempt
+            wait = 8 * attempt
             print(f"연결 실패({attempt}/{max_retries}): {e} — {wait}초 후 재시도")
             if attempt < max_retries:
                 time.sleep(wait)
