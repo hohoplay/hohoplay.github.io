@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>실시간 전국 축제 지도</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; font-family: -apple-system, sans-serif; }
@@ -100,16 +101,20 @@
     }
     fitKoreaBounds();
 
-    // 모바일에서 주소창이 접히고 펴지며 화면 높이가 바뀔 때 지도가 그 크기 변화를
-    // 자동으로 반영하지 못해 마커 위치가 어긋나는 문제를 막기 위한 재정렬 처리
-    setTimeout(function () { map.relayout(); }, 300);
+    // 모바일에서 주소창이 접히고 펴지며 화면 높이가 바뀔 때, 그리고 PC에서 창 크기를
+    // 줄였다 늘렸다 할 때 지도가 그 변화를 자동으로 반영하지 못하는 문제를 막기 위한 재정렬 처리
+    function relayoutMap() {
+        map.relayout();
+        kakao.maps.event.trigger(map, 'resize');
+    }
+    setTimeout(relayoutMap, 300);
     let relayoutTimer;
     window.addEventListener('resize', function () {
         clearTimeout(relayoutTimer);
-        relayoutTimer = setTimeout(function () { map.relayout(); }, 200);
+        relayoutTimer = setTimeout(relayoutMap, 150);
     });
     window.addEventListener('orientationchange', function () {
-        setTimeout(function () { map.relayout(); }, 300);
+        setTimeout(relayoutMap, 300);
     });
 
     let festivalData = [];
