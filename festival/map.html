@@ -9,7 +9,9 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; font-family: -apple-system, sans-serif; }
 
-        .map-wrapper { position: relative; width: 100%; height: 100vh; height: 100dvh; }
+        .page-flex { display: flex; flex-direction: column; }
+
+        .map-wrapper { order: 1; position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; }
         #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
 
         .filter-container {
@@ -42,42 +44,79 @@
             text-decoration: none; color: #333; font-size: 20px; line-height: 1;
         }
         .remote-btn .label { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
+
+        /* 오늘의 축제 패널 (매일 자동 생성되는 정적 텍스트 — SEO용) */
+        .today-panel {
+            order: 2; width: 100%; background: #fff; padding: 24px 20px 32px;
+        }
+        .today-panel h2 { font-size: 17px; font-weight: 800; color: #111; margin-bottom: 14px; }
+        .today-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .today-item {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 12px 14px; cursor: pointer; transition: background 0.15s;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .today-item:hover { background: #eef2ff; }
+        .today-item strong { font-size: 14px; color: #111; }
+        .today-date { font-size: 12px; color: #ff5722; font-weight: 600; }
+        .today-addr { font-size: 11px; color: #666; }
+        .today-empty { font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0; list-style: none; }
+
+        @media (min-width: 769px) {
+            .page-flex { flex-direction: row; }
+            .today-panel {
+                order: 1; flex: 0 0 320px; width: 320px; height: 100vh; height: 100dvh;
+                overflow-y: auto; box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+            }
+            .map-wrapper { order: 2; flex: 1 1 auto; }
+        }
     </style>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=clusterer"></script>
 </head>
 <body>
 
-<div class="map-wrapper">
-    <div class="filter-container">
-        <select id="regionSelect" class="region-select" onchange="filterRegion(this.value)">
-            <option value="all">전국 전체보기</option>
-            <option value="seoul">서울 / 인천 / 경기도</option>
-            <option value="gangwon">강원특별자치도</option>
-            <option value="chungcheong">세종 / 대전 / 충청도</option>
-            <option value="gyeongsang">경상도 (대구/울산/부산)</option>
-            <option value="jeolla">광주 / 전라도</option>
-            <option value="jeju">제주특별자치도</option>
-        </select>
-    </div>
+<div class="page-flex">
+    <aside class="today-panel">
+        <h2>🎪 오늘 축제가 열리는 곳</h2>
+        <ul class="today-list">
+            <!-- TODAY_FESTIVALS_START -->
+            <li class="today-empty">축제 정보를 불러오는 중입니다...</li>
+            <!-- TODAY_FESTIVALS_END -->
+        </ul>
+    </aside>
 
-    <div id="map"></div>
-
-    <div id="festivalCard" class="festival-card">
-        <img id="cardImg" class="festival-thumb" src="" alt="축제 포스터">
-        <div>
-            <h4 id="cardTitle" style="font-size:15px; color:#111; margin-bottom:4px;">축제를 선택해주세요</h4>
-            <p id="cardDate" style="font-size:12px; color:#ff5722; font-weight:600;"></p>
-            <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;"></p>
+    <div class="map-wrapper">
+        <div class="filter-container">
+            <select id="regionSelect" class="region-select" onchange="filterRegion(this.value)">
+                <option value="all">전국 전체보기</option>
+                <option value="seoul">서울 / 인천 / 경기도</option>
+                <option value="gangwon">강원특별자치도</option>
+                <option value="chungcheong">세종 / 대전 / 충청도</option>
+                <option value="gyeongsang">경상도 (대구/울산/부산)</option>
+                <option value="jeolla">광주 / 전라도</option>
+                <option value="jeju">제주특별자치도</option>
+            </select>
         </div>
-    </div>
 
-    <div class="remote-menu">
-        <a href="/" class="remote-btn" aria-label="홈으로 가기">
-            <span>🏠</span><span class="label">홈</span>
-        </a>
-        <a href="/fortune/" class="remote-btn" aria-label="오늘의 운세로 가기">
-            <span>🔮</span><span class="label">운세</span>
-        </a>
+        <div id="map"></div>
+
+        <div id="festivalCard" class="festival-card">
+            <img id="cardImg" class="festival-thumb" src="" alt="축제 포스터">
+            <div>
+                <h4 id="cardTitle" style="font-size:15px; color:#111; margin-bottom:4px;">축제를 선택해주세요</h4>
+                <p id="cardDate" style="font-size:12px; color:#ff5722; font-weight:600;"></p>
+                <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;"></p>
+            </div>
+        </div>
+
+        <div class="remote-menu">
+            <a href="/" class="remote-btn" aria-label="홈으로 가기">
+                <span>🏠</span><span class="label">홈</span>
+            </a>
+            <a href="/fortune/" class="remote-btn" aria-label="오늘의 운세로 가기">
+                <span>🔮</span><span class="label">운세</span>
+            </a>
+        </div>
     </div>
 </div>
 
@@ -100,6 +139,13 @@
         map.setBounds(bounds);
     }
     fitKoreaBounds();
+
+    // "오늘의 축제" 패널에서 항목 클릭 시 해당 위치로 지도 이동
+    function focusFestival(lat, lng) {
+        if (!lat || !lng) return;
+        map.panTo(new kakao.maps.LatLng(lat, lng));
+        map.setLevel(6);
+    }
 
     // 모바일에서 주소창이 접히고 펴지며 화면 높이가 바뀔 때, 그리고 PC에서 창 크기를
     // 줄였다 늘렸다 할 때 지도가 그 변화를 자동으로 반영하지 못하는 문제를 막기 위한 재정렬 처리
