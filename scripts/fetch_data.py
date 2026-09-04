@@ -15,7 +15,7 @@ API_KEY = os.environ.get("TOUR_API_KEY", "YOUR_TOUR_API_KEY")
 BASE_URL = "https://apis.data.go.kr/B551011/KorService2/searchFestival2"
 
 
-def fetch_page(page_no, num_of_rows=200):
+def fetch_page(page_no, num_of_rows=200, max_retries=3):
     params = {
         'serviceKey': API_KEY,
         'numOfRows': num_of_rows,
@@ -26,8 +26,22 @@ def fetch_page(page_no, num_of_rows=200):
         'eventStartDate': SEARCH_FROM,
         'arrange': 'A'
     }
-    res = requests.get(BASE_URL, params=params, timeout=15)
-    res.raise_for_status()
+
+    last_error = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            res = requests.get(BASE_URL, params=params, timeout=20)
+            res.raise_for_status()
+            break
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError) as e:
+            last_error = e
+            wait = 5 * attempt
+            print(f"연결 실패({attempt}/{max_retries}): {e} — {wait}초 후 재시도")
+            if attempt < max_retries:
+                time.sleep(wait)
+    else:
+        raise last_error
 
     try:
         data = res.json()
@@ -81,7 +95,7 @@ def build_today_html(festivals, today):
         lng = f.get('lng') or ''
         date_label = f"{fmt_date(start)} ~ {fmt_date(end)}"
         items.append(
-            f'<li class="today-item" onclick="focusFestival({lat}, {lng})">'
+            f'<li class="today-item" onclick="focusFestival({lat}, {lng}); closeTodayPanel();">'
             f'<strong>{title}</strong>'
             f'<span class="today-date">📅 {date_label}</span>'
             f'<span class="today-addr">📍 {addr}</span>'
