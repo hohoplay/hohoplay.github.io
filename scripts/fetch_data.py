@@ -2,6 +2,7 @@ import os
 import datetime
 import json
 import time
+import html
 import requests
 
 TODAY = datetime.datetime.now().strftime('%Y%m%d')
@@ -55,6 +56,68 @@ def fetch_page(page_no, num_of_rows=200):
     return item_list, total_count
 
 
+def build_today_html(festivals, today):
+    """오늘 진행중인 축제 중 5곳을 골라 festival/map.html에 그대로 박아넣을 HTML 텍스트를 만든다."""
+    today_list = [
+        f for f in festivals
+        if f.get('startDate') and f.get('endDate') and f['startDate'] <= today <= f['endDate']
+    ]
+    today_list.sort(key=lambda f: f['endDate'])  # 마감 임박한 순
+    top5 = today_list[:5]
+
+    if not top5:
+        return '<li class="today-empty">오늘 진행 중인 축제가 없습니다. 곧 새로운 소식으로 찾아올게요!</li>'
+
+    def fmt_date(raw):
+        return f"{raw[:4]}.{raw[4:6]}.{raw[6:8]}" if len(raw) == 8 else raw
+
+    items = []
+    for f in top5:
+        title = html.escape(f.get('title') or '')
+        addr = html.escape(f.get('addr') or '')
+        start = f.get('startDate') or ''
+        end = f.get('endDate') or ''
+        lat = f.get('lat') or ''
+        lng = f.get('lng') or ''
+        date_label = f"{fmt_date(start)} ~ {fmt_date(end)}"
+        items.append(
+            f'<li class="today-item" onclick="focusFestival({lat}, {lng})">'
+            f'<strong>{title}</strong>'
+            f'<span class="today-date">📅 {date_label}</span>'
+            f'<span class="today-addr">📍 {addr}</span>'
+            f'</li>'
+        )
+    return ''.join(items)
+
+
+def update_map_html(festivals, today):
+    """festival/map.html 안의 TODAY_FESTIVALS 표시 구간을 오늘 날짜 기준으로 갱신한다."""
+    map_path = os.path.join('festival', 'map.html')
+    if not os.path.exists(map_path):
+        print(f"{map_path} 없음 — 오늘의 축제 패널 갱신 건너뜀")
+        return
+
+    with open(map_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    start_marker = '<!-- TODAY_FESTIVALS_START -->'
+    end_marker = '<!-- TODAY_FESTIVALS_END -->'
+    start_idx = content.find(start_marker)
+    end_idx = content.find(end_marker)
+
+    if start_idx == -1 or end_idx == -1:
+        print("map.html에서 TODAY_FESTIVALS 마커를 찾지 못해 패널 갱신 건너뜀")
+        return
+
+    new_html = build_today_html(festivals, today)
+    updated = content[:start_idx + len(start_marker)] + '\n' + new_html + '\n' + content[end_idx:]
+
+    with open(map_path, 'w', encoding='utf-8') as f:
+        f.write(updated)
+
+    print("festival/map.html의 '오늘의 축제' 패널 갱신 완료")
+
+
 def main():
     all_items = []
     page_no = 1
@@ -92,6 +155,8 @@ def main():
         json.dump(festivals, f, ensure_ascii=False, indent=2)
 
     print(f"총 수신 {len(all_items)}건, 진행중/예정 축제 {len(festivals)}건 data/festivals.json에 저장 완료.")
+
+    update_map_html(festivals, TODAY)
 
 
 if __name__ == '__main__':
