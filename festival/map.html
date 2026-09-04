@@ -6,8 +6,10 @@
     <title>실시간 전국 축제 지도</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { width: 100%; height: 100%; font-family: -apple-system, sans-serif; overflow: hidden; }
-        #map { width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        html, body { width: 100%; font-family: -apple-system, sans-serif; }
+
+        .map-wrapper { position: relative; width: 100%; height: 100vh; }
+        #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
 
         .filter-container {
             position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
@@ -27,33 +29,58 @@
         }
         .festival-card.active { bottom: 20px; }
         .festival-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+
+        .remote-menu {
+            position: fixed; bottom: 16px; right: 16px; z-index: 20;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .remote-btn {
+            width: 54px; height: 54px; border-radius: 50%;
+            background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-decoration: none; color: #333; font-size: 20px; line-height: 1;
+        }
+        .remote-btn .label { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
     </style>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=clusterer"></script>
 </head>
 <body>
 
-<div class="filter-container">
-    <select id="regionSelect" class="region-select" onchange="filterRegion(this.value)">
-        <option value="all">전국 전체보기</option>
-        <option value="seoul">서울 / 인천 / 경기도</option>
-        <option value="gangwon">강원특별자치도</option>
-        <option value="chungcheong">세종 / 대전 / 충청도</option>
-        <option value="gyeongsang">경상도 (대구/울산/부산)</option>
-        <option value="jeolla">광주 / 전라도</option>
-        <option value="jeju">제주특별자치도</option>
-    </select>
-</div>
+<div class="map-wrapper">
+    <div class="filter-container">
+        <select id="regionSelect" class="region-select" onchange="filterRegion(this.value)">
+            <option value="all">전국 전체보기</option>
+            <option value="seoul">서울 / 인천 / 경기도</option>
+            <option value="gangwon">강원특별자치도</option>
+            <option value="chungcheong">세종 / 대전 / 충청도</option>
+            <option value="gyeongsang">경상도 (대구/울산/부산)</option>
+            <option value="jeolla">광주 / 전라도</option>
+            <option value="jeju">제주특별자치도</option>
+        </select>
+    </div>
 
-<div id="map"></div>
+    <div id="map"></div>
 
-<div id="festivalCard" class="festival-card">
-    <img id="cardImg" class="festival-thumb" src="" alt="축제 포스터">
-    <div>
-        <h4 id="cardTitle" style="font-size:15px; color:#111; margin-bottom:4px;">축제를 선택해주세요</h4>
-        <p id="cardDate" style="font-size:12px; color:#ff5722; font-weight:600;"></p>
-        <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;"></p>
+    <div id="festivalCard" class="festival-card">
+        <img id="cardImg" class="festival-thumb" src="" alt="축제 포스터">
+        <div>
+            <h4 id="cardTitle" style="font-size:15px; color:#111; margin-bottom:4px;">축제를 선택해주세요</h4>
+            <p id="cardDate" style="font-size:12px; color:#ff5722; font-weight:600;"></p>
+            <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;"></p>
+        </div>
+    </div>
+
+    <div class="remote-menu">
+        <a href="/" class="remote-btn" aria-label="홈으로 가기">
+            <span>🏠</span><span class="label">홈</span>
+        </a>
+        <a href="/fortune/" class="remote-btn" aria-label="오늘의 운세로 가기">
+            <span>🔮</span><span class="label">운세</span>
+        </a>
     </div>
 </div>
+
+<div id="site-footer"></div>
 
 <script>
     const container = document.getElementById('map');
@@ -63,6 +90,15 @@
     const clusterer = new kakao.maps.MarkerClusterer({
         map: map, averageCenter: true, minLevel: 6
     });
+
+    // 대한민국 전체(제주·독도 포함)가 화면에 다 들어오도록 경계 좌표로 맞춤
+    function fitKoreaBounds() {
+        const bounds = new kakao.maps.LatLngBounds();
+        bounds.extend(new kakao.maps.LatLng(33.0, 124.5)); // 남서쪽 (제주 서쪽)
+        bounds.extend(new kakao.maps.LatLng(38.7, 131.9)); // 북동쪽 (독도 포함)
+        map.setBounds(bounds);
+    }
+    fitKoreaBounds();
 
     let festivalData = [];
     let allMarkers = [];
@@ -103,8 +139,7 @@
     function filterRegion(key) {
         if (key === 'all') {
             renderMarkers(festivalData);
-            map.setCenter(new kakao.maps.LatLng(36.3504, 127.3845));
-            map.setLevel(11);
+            fitKoreaBounds();
         } else {
             const keywords = {
                 'seoul': ['서울', '인천', '경기'],
@@ -119,6 +154,24 @@
             renderMarkers(filtered);
         }
     }
+</script>
+
+<script>
+    // 공용 footer.html을 fetch로 불러와 삽입 (innerHTML로 넣은 <script>는 자동실행 안 되므로
+    // 삽입된 script 태그를 새로 만들어 교체하는 방식으로 실제 실행되게 처리)
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 지도 기능엔 영향 없음 */ });
 </script>
 </body>
 </html>
