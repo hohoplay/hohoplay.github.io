@@ -226,7 +226,8 @@ def update_blog_index_static_list(posts):
 
     with open(BLOG_INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(new_html)
-    print(f"  ✓ blog/index.html 정적 목록 갱신 완료 ({len(recent)}개, {n_subs}곳 반영)")
+    shown_count = (1 if posts else 0) + (len(past) if posts else 0)
+    print(f"  ✓ blog/index.html 정적 목록 갱신 완료 (최신글+지난글 {shown_count}개, {n_subs}곳 반영)")
 
 
 def update_sitemap(posts):
