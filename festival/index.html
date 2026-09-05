@@ -258,25 +258,14 @@
         if (type === 'kakaot') {
             // navigator.share 지원 여부만으로는 PC/모바일이 안 갈린다(요즘 윈도우 크롬도
             // navigator.share를 지원함). 그래서 실제 기기 종류로 직접 나눈다:
-            // 모바일 기기 → OS 공유 시트(navigator.share), PC → 카카오톡 공유 카드.
+            // 모바일 기기 → OS 공유 시트(navigator.share), PC → 링크를 직접 보여주는 방식.
+            // (카카오 공유 카드는 편하지만 클릭 시 메인으로 새는 문제가 있어 PC에서는 쓰지 않는다)
             const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             if (isMobileDevice && navigator.share) {
                 navigator.share({ title: '실시간 전국 축제 지도', url: shareUrl }).catch(function () {});
                 return;
             }
-            if (window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()) {
-                Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '실시간 전국 축제 지도',
-                        description: '오늘 어디서 축제가 열리는지 지도에서 바로 확인하세요.',
-                        imageUrl: 'https://hohoplaylab.com/data/banner.png',
-                        link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
-                    }
-                });
-            } else {
-                prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', shareUrl);
-            }
+            prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', shareUrl);
             return;
         }
         if (type === 'facebook') popupUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
