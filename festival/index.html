@@ -194,14 +194,15 @@
     fitKoreaBounds();
 
     // "오늘의 축제" 패널에서 항목 클릭 시 해당 위치로 지도 이동.
-    // 페이지를 열자마자(사용자가 지도를 한 번도 조작하기 전) 바로 클릭하면 카카오맵이
-    // 컨테이너 크기를 아직 정확히 인식하지 못한 상태라 엉뚱한 위치로 이동하는 경우가 있어,
-    // 이동하기 직전에 항상 relayout으로 크기를 다시 동기화한다.
+    // panTo()는 부드럽게 이동하는 애니메이션인데, 페이지를 열자마자 우리가 직접 호출한
+    // fitKoreaBounds() 애니메이션이 아직 끝나기 전에 사용자가 바로 클릭하면 두 애니메이션이
+    // 겹쳐서 엉뚱한 위치에 멈추는 문제가 있었다. setCenter()는 애니메이션 없이 즉시 이동하므로
+    // 이런 충돌 자체가 생기지 않는다.
     function focusFestival(lat, lng) {
         if (!lat || !lng) return;
         map.relayout();
-        map.panTo(new kakao.maps.LatLng(lat, lng));
         map.setLevel(6);
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
     }
 
     // 모바일에서 좌측 슬라이드 패널 열고 닫기
