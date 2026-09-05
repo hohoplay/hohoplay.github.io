@@ -117,7 +117,10 @@
     <div class="today-panel-backdrop" id="todayBackdrop" onclick="closeTodayPanel()"></div>
     <aside class="today-panel" id="todayPanel">
         <button class="today-panel-close" onclick="closeTodayPanel()" aria-label="닫기">✕</button>
-        <h2>🎪 오늘 축제가 열리는 곳</h2>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+            <h2 style="margin-bottom:0;">🎪 오늘 축제가 열리는 곳</h2>
+            <button type="button" onclick="shareMapPage()" style="flex:0 0 auto; background:#1a73e8; color:#fff; border:none; border-radius:10px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer;">공유하기</button>
+        </div>
         <select id="regionSelectPanel" class="region-select panel-region-select" onchange="filterRegion(this.value)">
             <option value="all">전국 전체보기</option>
             <option value="seoul">서울 / 인천 / 경기도</option>
@@ -213,6 +216,21 @@
     function closeTodayPanel() {
         document.getElementById('todayPanel').classList.remove('open');
         document.getElementById('todayBackdrop').classList.remove('open');
+    }
+
+    // "오늘 축제가 열리는 곳" 패널 상단 공유 버튼. 상세페이지의 공유 버튼과 같은 방식으로,
+    // 카카오 SDK 등록 없이 브라우저 기본 공유 기능(모바일)이나 링크 복사(PC)로 동작한다.
+    function shareMapPage() {
+        const shareData = { title: document.title, url: window.location.origin + '/festival/' };
+        if (navigator.share) {
+            navigator.share(shareData).catch(function () {});
+        } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(shareData.url)
+                .then(function () { alert('링크가 복사되었습니다.'); })
+                .catch(function () { prompt('아래 링크를 복사하세요', shareData.url); });
+        } else {
+            prompt('아래 링크를 복사하세요', shareData.url);
+        }
     }
 
     // 모바일에서는 지도보다 "오늘 축제가 열리는 곳" 목록이 먼저 보이도록 기본으로 열어둔다.
