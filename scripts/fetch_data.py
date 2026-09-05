@@ -15,6 +15,26 @@ SEARCH_FROM = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('
 # 한국 위치인 이 프록시를 통해 대신 데이터를 받아온다.
 PROXY_URL = os.environ.get("FESTIVAL_PROXY_URL", "https://YOUR-PROJECT.vercel.app/api/festivals")
 
+# map.html의 지역 필터(filterRegion)와 반드시 동일하게 맞춰야 하는 지역 구분.
+# 순서가 곧 "전국 전체보기"에서 대표 축제가 나열되는 순서.
+REGION_KEYWORDS = [
+    ('seoul', ['서울', '인천', '경기']),
+    ('gangwon', ['강원']),
+    ('chungcheong', ['세종', '대전', '충북', '충남', '충청']),
+    ('gyeongsang', ['대구', '울산', '부산', '경북', '경남', '경상']),
+    ('jeolla', ['광주', '전북', '전남', '전라']),
+    ('jeju', ['제주']),
+]
+
+REGION_LABELS = {
+    'seoul': '서울·인천·경기',
+    'gangwon': '강원',
+    'chungcheong': '세종·대전·충청',
+    'gyeongsang': '경상도',
+    'jeolla': '광주·전라도',
+    'jeju': '제주',
+}
+
 
 def fetch_all_items(max_retries=3):
     """Vercel 프록시(서울 리전)를 통해 TourAPI 데이터를 한 번에 받아온다."""
@@ -75,23 +95,45 @@ def fetch_detail_overview(content_id, max_retries=2):
     return ''
 
 
+def pick_region_representatives(today_list):
+    """오늘 진행중인 축제 중, 지역별로 마감이 가장 임박한 축제 1개씩을 대표로 뽑는다
+    (지역마다 진행중인 축제가 없으면 그 지역은 건너뛰므로 결과는 최대 6개, 보통 5~6개)."""
+    reps = []
+    for key, keywords in REGION_KEYWORDS:
+        in_region = [f for f in today_list if f.get('addr') and any(kw in f['addr'] for kw in keywords)]
+        if not in_region:
+            continue
+        in_region.sort(key=lambda f: f['endDate'])
+        rep = dict(in_region[0])
+        rep['regionKey'] = key
+        reps.append(rep)
+    return reps
+
+
 def build_today_html(festivals, today):
-    """오늘 진행중인 축제 중 5곳을 골라 festival/map.html에 그대로 박아넣을 HTML 텍스트를 만든다."""
+    """오늘 진행중인 축제 중 지역별 대표 1곳씩(최대 6곳)을 골라
+    festival/map.html의 "전국 전체보기" 기본 화면에 그대로 박아넣을 HTML 텍스트를 만든다.
+    (특정 지역을 선택했을 때 보이는 목록은 map.html의 자바스크립트가 festivals.json을
+    직접 걸러서 클라이언트에서 렌더링한다 — 여기서는 기본 화면만 담당)"""
     today_list = [
         f for f in festivals
         if f.get('startDate') and f.get('endDate') and f['startDate'] <= today <= f['endDate']
     ]
-    today_list.sort(key=lambda f: f['endDate'])  # 마감 임박한 순
-    top5 = today_list[:5]
 
-    if not top5:
+    top_list = pick_region_representatives(today_list)
+    if not top_list:
+        # 지역별 대표를 하나도 못 뽑은 경우(데이터가 매우 적을 때)는 마감임박순 상위로 대체
+        today_list = sorted(today_list, key=lambda f: f['endDate'])
+        top_list = today_list[:5]
+
+    if not top_list:
         return '<li class="today-empty">오늘 진행 중인 축제가 없습니다. 곧 새로운 소식으로 찾아올게요!</li>'
 
     def fmt_date(raw):
         return f"{raw[:4]}.{raw[4:6]}.{raw[6:8]}" if len(raw) == 8 else raw
 
     items = []
-    for f in top5:
+    for f in top_list:
         title = html.escape(f.get('title') or '')
         addr = html.escape(f.get('addr') or '')
         start = f.get('startDate') or ''
@@ -107,6 +149,12 @@ def build_today_html(festivals, today):
             overview = overview[:160].rstrip() + '…'
         desc_html = f'<p class="today-desc">{overview}</p>' if overview else ''
 
+        region_key = f.get('regionKey')
+        region_html = (
+            f'<span class="today-region">{html.escape(REGION_LABELS.get(region_key, ""))}</span>'
+            if region_key else ''
+        )
+
         map_link_html = ''
         if lat and lng:
             map_url = f"https://map.kakao.com/link/map/{quote(f.get('title') or '축제')},{lat},{lng}"
@@ -116,7 +164,9 @@ def build_today_html(festivals, today):
             )
 
         items.append(
-            f'<li class="today-item" onclick="focusFestival({lat}, {lng}); closeTodayPanel();">'
+            f'<li class="today-item" data-cid="{content_id}" '
+            f'onclick="focusFestival({lat}, {lng}); closeTodayPanel();">'
+            f'{region_html}'
             f'<strong>{title}</strong>'
             f'<span class="today-date">📅 {date_label}</span>'
             f'<span class="today-addr">📍 {addr}</span>'
