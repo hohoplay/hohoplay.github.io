@@ -572,7 +572,54 @@
         }
 
 
-        let lgN = 0, lgRungs = [], lgLabels = [], lgRows = 10, lgDone = false;
+        let lgN = 0, lgRungs = [], lgLabels = [], lgRows = 10, lgAnimating = false, lgRevealed = new Set();
+
+        // 확률상 아주 드물게(특히 맨 끝 번호) 10줄 내내 가로선을 한 번도 못 만날 수 있는데,
+        // 그러면 그 번호는 세로줄 하나만 뚝 떨어진 것처럼 보여 어색함. 그런 번호가 있으면
+        // 다른 줄과 안 겹치는 자리를 찾아 마지막으로 한 번 강제로 이어준다.
+        function lgTouchedColumns() {
+            const touched = new Array(lgN).fill(false);
+            lgRungs.forEach(row => {
+                row.forEach((has, i) => { if (has) { touched[i] = true; touched[i + 1] = true; } });
+            });
+            return touched;
+        }
+
+        function lgEnsureEveryColumnConnected() {
+            let touched = lgTouchedColumns();
+            for (let col = 0; col < lgN; col++) {
+                if (touched[col]) continue;
+                const gapCandidates = [];
+                if (col > 0) gapCandidates.push(col - 1);
+                if (col < lgN - 1) gapCandidates.push(col);
+                gapCandidates.sort(() => Math.random() - 0.5);
+
+                let fixed = false;
+                for (const gapIdx of gapCandidates) {
+                    for (let r = 0; r < lgRows && !fixed; r++) {
+                        const row = lgRungs[r];
+                        const leftOk = gapIdx === 0 || !row[gapIdx - 1];
+                        const rightOk = gapIdx === row.length - 1 || !row[gapIdx + 1];
+                        if (!row[gapIdx] && leftOk && rightOk) {
+                            row[gapIdx] = true;
+                            fixed = true;
+                        }
+                    }
+                    if (fixed) break;
+                }
+                // 극히 드물게 10줄 전부가 이미 이웃 자리와 겹쳐서 자연스럽게 못 끼워 넣는 경우,
+                // 마지막 수단으로 임의의 한 줄을 골라 이웃 가로선을 정리하고서라도 반드시 이어준다.
+                if (!fixed) {
+                    const gapIdx = gapCandidates[0];
+                    const r = Math.floor(Math.random() * lgRows);
+                    const row = lgRungs[r];
+                    if (gapIdx > 0) row[gapIdx - 1] = false;
+                    if (gapIdx < row.length - 1) row[gapIdx + 1] = false;
+                    row[gapIdx] = true;
+                }
+                touched = lgTouchedColumns();
+            }
+        }
 
         function makeLadder() {
             lgN = Math.max(2, Math.min(10, parseInt(document.getElementById('lg-count').value) || 4));
@@ -589,18 +636,31 @@
             lgRungs = [];
             for (let r = 0; r < lgRows; r++) {
                 const row = new Array(lgN - 1).fill(false);
-                let i = 0;
-                while (i < lgN - 1) {
-                    if (Math.random() < 0.35) { row[i] = true; i += 2; }
-                    else i += 1;
+                // 매 줄마다 훑는 방향을 무작위로 뒤집음. 항상 왼쪽부터 훑으면 구조적으로
+                // 맨 오른쪽(마지막) 번호 쪽에 가로선이 덜 생기는 편향이 생기는데,
+                // 절반은 오른쪽부터 훑도록 해서 특정 번호가 계속 소외되지 않게 함.
+                if (Math.random() < 0.5) {
+                    let i = 0;
+                    while (i < lgN - 1) {
+                        if (Math.random() < 0.35) { row[i] = true; i += 2; }
+                        else i += 1;
+                    }
+                } else {
+                    let i = lgN - 2;
+                    while (i >= 0) {
+                        if (Math.random() < 0.35) { row[i] = true; i -= 2; }
+                        else i -= 1;
+                    }
                 }
                 lgRungs.push(row);
             }
+            lgEnsureEveryColumnConnected();
 
             document.getElementById('lg-setup').classList.add('hidden');
             document.getElementById('lg-board').classList.remove('hidden');
-            document.getElementById('lg-result').textContent = '';
-            lgDone = false;
+            document.getElementById('lg-result').innerHTML = '';
+            lgAnimating = false;
+            lgRevealed = new Set();
             drawLadder();
         }
 
@@ -627,6 +687,7 @@
                 numText.setAttribute('text-anchor', 'middle'); numText.setAttribute('font-size', '13');
                 numText.setAttribute('font-weight', '900'); numText.setAttribute('fill', '#4f46e5');
                 numText.setAttribute('cursor', 'pointer');
+                numText.setAttribute('id', 'lg-num-' + i);
                 numText.style.touchAction = 'manipulation';
                 numText.textContent = (i + 1);
                 numText.addEventListener('click', () => runLadder(i));
@@ -667,15 +728,67 @@
             return { end: pos, path };
         }
 
-        function runLadder(start) {
-            if (lgDone) return;
-            lgDone = true;
-            const { end } = traceLadder(start);
-            playSfx('reveal');
-            document.getElementById('lg-result').textContent = (start + 1) + '번 → ' + lgLabels[end];
-            const bottomEl = document.getElementById('lg-bottom-' + end);
-            if (bottomEl) { bottomEl.textContent = lgLabels[end]; bottomEl.setAttribute('fill', '#4f46e5'); }
+        // 사다리를 타고 내려가는 점을 애니메이션으로 그려준 뒤 완료 콜백을 실행
+        function animateLadderPath(path, onDone) {
+            const svg = document.getElementById('lg-svg');
+            const width = svg.clientWidth || 320;
+            const height = 320;
+            const topPad = 36, botPad = 20;
+            const spacing = width / (lgN + 1);
+            const steps = path.length;
+
+            const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            dot.setAttribute('r', 7);
+            dot.setAttribute('fill', '#f59e0b');
+            dot.setAttribute('stroke', '#fff');
+            dot.setAttribute('stroke-width', '2');
+            svg.appendChild(dot);
+
+            let i = 0;
+            (function step() {
+                const x = spacing * (path[i] + 1);
+                const y = topPad + (height - botPad - topPad) * (i / (steps - 1));
+                dot.setAttribute('cx', x);
+                dot.setAttribute('cy', y);
+                i++;
+                if (i < steps) {
+                    setTimeout(step, 90);
+                } else {
+                    setTimeout(() => {
+                        if (dot.parentNode) svg.removeChild(dot);
+                        onDone();
+                    }, 150);
+                }
+            })();
         }
+
+        // 여러 명이 각자 자기 번호를 눌러 확인하는 게임이라, 한 명이 확인했다고
+        // 다른 번호가 막히면 안 됨 — 애니메이션이 진행 중일 때만 잠깐 막고,
+        // 이미 확인한 번호를 또 누르면 애니메이션 없이 결과만 다시 보여줌.
+        function runLadder(start) {
+            if (lgAnimating) return;
+            if (lgRevealed.has(start)) return;
+
+            const { end, path } = traceLadder(start);
+            lgAnimating = true;
+            animateLadderPath(path, () => {
+                lgAnimating = false;
+                lgRevealed.add(start);
+                playSfx('reveal');
+
+                const numEl = document.getElementById('lg-num-' + start);
+                if (numEl) { numEl.setAttribute('fill', '#94a3b8'); numEl.setAttribute('cursor', 'default'); }
+
+                const line = document.createElement('div');
+                line.textContent = (start + 1) + '번 → ' + lgLabels[end];
+                line.style.marginTop = '4px';
+                document.getElementById('lg-result').appendChild(line);
+
+                const bottomEl = document.getElementById('lg-bottom-' + end);
+                if (bottomEl) { bottomEl.textContent = lgLabels[end]; bottomEl.setAttribute('fill', '#4f46e5'); }
+            });
+        }
+
 
         function resetLadder() {
             document.getElementById('lg-setup').classList.remove('hidden');
