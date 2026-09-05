@@ -52,6 +52,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
+                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
                         </div>
                     </div>
@@ -96,6 +97,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
@@ -525,5 +527,35 @@
         })();
     </script>
 
+    <script>
+        // 게임/가이드 페이지 공용 SNS 공유 함수 (검증된 최종 버전 — 축제 지도에서 발견/수정한
+        // 문제들 반영: 카카오톡 카드가 엉뚱한 페이지로 새는 문제, 밴드 본문에 링크 안 붙는 문제,
+        // 모바일 팝업 차단 문제. 이 페이지에는 원래 버튼만 있고 함수 정의가 누락되어 있었음.)
+        function snsShare(type) {
+            const pageUrl = location.href.split('?')[0].split('#')[0];
+            const title = document.title;
+            const url = encodeURIComponent(pageUrl);
+            const encTitle = encodeURIComponent(title);
+
+            if (type === 'kakaot') {
+                const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                if (isMobileDevice && navigator.share) {
+                    navigator.share({ title: title, url: pageUrl }).catch(function () {});
+                    return;
+                }
+                prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
+                return;
+            }
+
+            const map = {
+                facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + url,
+                x: 'https://twitter.com/intent/tweet?url=' + url + '&text=' + encTitle,
+                naver: 'https://share.naver.com/web/shareView?url=' + url + '&title=' + encTitle,
+                band: 'https://band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + url,
+                line: 'https://social-plugins.line.me/lineit/share?url=' + url,
+            };
+            if (map[type]) window.open(map[type], '_blank');
+        }
+    </script>
 </body>
 </html>
