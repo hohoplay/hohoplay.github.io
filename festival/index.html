@@ -455,6 +455,7 @@
             const keywords = REGION_KEYWORDS[key] || [];
             const filtered = festivalData.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
             renderMarkers(filtered);
+            fitToMarkers(allMarkers);
         }
         renderTodayPanel(key);
     }
