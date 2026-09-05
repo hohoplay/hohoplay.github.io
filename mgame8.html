@@ -143,6 +143,51 @@
             }
         }
     </script>
+    <script>
+        // ── 효과음 (Web Audio API로 즉석 생성, 외부 음원 파일 없음) ──
+        let _sfxCtx = null;
+        function _sfxGetCtx(){
+            if(!_sfxCtx){ _sfxCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if(_sfxCtx.state === 'suspended') _sfxCtx.resume();
+            return _sfxCtx;
+        }
+        function _sfxTone(freq, start, dur, type, vol){
+            const ctx = _sfxGetCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol || 0.15, ctx.currentTime + start);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + start);
+            osc.stop(ctx.currentTime + start + dur);
+        }
+        function playSfx(type){
+            try {
+                if(type === 'click'){
+                    _sfxTone(700, 0, 0.05, 'square', 0.06);
+                } else if(type === 'reveal'){
+                    _sfxTone(660, 0, 0.12, 'sine', 0.12);
+                    _sfxTone(880, 0.1, 0.15, 'sine', 0.12);
+                } else if(type === 'win'){
+                    _sfxTone(523, 0, 0.1, 'triangle', 0.14);
+                    _sfxTone(659, 0.09, 0.1, 'triangle', 0.14);
+                    _sfxTone(784, 0.18, 0.2, 'triangle', 0.14);
+                } else if(type === 'lose'){
+                    _sfxTone(300, 0, 0.15, 'sawtooth', 0.1);
+                    _sfxTone(220, 0.12, 0.2, 'sawtooth', 0.1);
+                } else if(type === 'draw'){
+                    _sfxTone(440, 0, 0.14, 'sine', 0.1);
+                } else if(type === 'record'){
+                    _sfxTone(659, 0, 0.08, 'triangle', 0.14);
+                    _sfxTone(784, 0.07, 0.08, 'triangle', 0.14);
+                    _sfxTone(988, 0.14, 0.08, 'triangle', 0.14);
+                    _sfxTone(1318, 0.21, 0.25, 'triangle', 0.16);
+                }
+            } catch(e) { /* 오디오 미지원 환경 등은 조용히 무시 */ }
+        }
+    </script>
 
     <main class="flex-grow max-w-3xl mx-auto w-full px-4 py-10">
         <div class="text-center mb-8">
@@ -152,10 +197,10 @@
         </div>
 
 
-        <div id="rt-box" onclick="rtClick()" style="height:280px;border-radius:20px;background:#94a3b8;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;cursor:pointer;text-align:center;padding:20px;box-sizing:border-box">
+        <div id="rt-box" onclick="rtClick()" style="height:280px;border-radius:20px;background:#94a3b8;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;cursor:pointer;touch-action:manipulation;text-align:center;padding:20px;box-sizing:border-box">
             시작 버튼을 눌러주세요
         </div>
-        <button onclick="rtStart()" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl">시작</button>
+        <button onclick="playSfx('click');rtStart()" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl" style="touch-action:manipulation">시작</button>
         <div id="rt-best" class="text-center text-sm font-bold text-slate-500 mt-3"></div>
     
 
@@ -509,7 +554,10 @@
 
 
         let rtState = 'idle'; // idle, waiting, ready
-        let rtTimeout = null, rtStartTime = 0, rtBest = null;
+        let rtTimeout = null, rtStartTime = 0;
+        const RT_BEST_KEY = 'hohoplay_mgame8_best';
+        let rtBest = parseInt(localStorage.getItem(RT_BEST_KEY) || '', 10) || null;
+        if (rtBest) document.getElementById('rt-best').textContent = '🏆 최고 기록: ' + rtBest + 'ms';
 
         function rtStart() {
             const box = document.getElementById('rt-box');
@@ -529,6 +577,7 @@
             const box = document.getElementById('rt-box');
             if (rtState === 'waiting') {
                 clearTimeout(rtTimeout);
+                playSfx('lose');
                 rtState = 'idle';
                 box.style.background = '#94a3b8';
                 box.textContent = '성급했습니다! 다시 "시작"을 눌러주세요';
@@ -541,7 +590,16 @@
                 box.textContent = elapsed + 'ms!';
                 if (rtBest === null || elapsed < rtBest) {
                     rtBest = elapsed;
-                    document.getElementById('rt-best').textContent = '🏆 최고 기록: ' + rtBest + 'ms';
+                    localStorage.setItem(RT_BEST_KEY, String(rtBest));
+                    playSfx('record');
+                    const bestEl = document.getElementById('rt-best');
+                    bestEl.textContent = '🏆 신기록! 최고 기록: ' + rtBest + 'ms';
+                    bestEl.style.color = '#4f46e5';
+                    bestEl.style.transform = 'scale(1.15)';
+                    bestEl.style.transition = 'transform .3s';
+                    setTimeout(() => { bestEl.style.transform = 'scale(1)'; }, 300);
+                } else {
+                    playSfx('reveal');
                 }
             }
         }
