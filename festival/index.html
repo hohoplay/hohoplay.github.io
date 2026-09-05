@@ -256,9 +256,13 @@
         const text = encodeURIComponent('오늘 어디서 축제가 열리는지 한눈에 — 실시간 전국 축제 지도');
         let popupUrl = '';
         if (type === 'kakaot') {
-            // Kakao.Share.sendDefault()의 피드 카드 링크가 실제 기기에서 엉뚱한 곳으로
-            // 연결되는 재현되지 않는 문제가 있어(URL/초기화 상태는 로그로 확인해도 정상),
-            // 이미 정상 작동이 검증된 OG 메타태그 기반 링크 붙여넣기 방식으로 대체한다.
+            // Kakao.Share.sendDefault()의 피드 카드가 엉뚱한 곳으로 연결되는 문제가 있어(URL/
+            // 초기화 상태는 정상인데도), 폰 자체의 공유 기능을 대신 쓴다. 이러면 카카오톡을
+            // 포함한 공유 목록이 바로 뜨고 대화상대만 골라 보낼 수 있어 복사·붙여넣기보다 편하다.
+            if (navigator.share) {
+                navigator.share({ title: '실시간 전국 축제 지도', url: shareUrl }).catch(function () {});
+                return;
+            }
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareUrl)
                     .then(function () { alert('링크가 복사되었습니다. 카카오톡에 붙여넣어 공유해주세요!'); })
@@ -271,7 +275,12 @@
         if (type === 'facebook') popupUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
         else if (type === 'x') popupUrl = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + text;
         else if (type === 'naver') popupUrl = 'https://share.naver.com/web/shareView?url=' + url + '&title=' + text;
-        else if (type === 'band') popupUrl = 'https://www.band.us/plugin/share?body=' + text + '&route=' + url;
+        else if (type === 'band') {
+            // Band 공유 팝업은 route만으로는 게시글 본문에 링크를 자동으로 넣어주지 않아,
+            // body 텍스트 안에 URL을 직접 포함시켜야 실제 글에 링크가 보인다.
+            const bandBody = encodeURIComponent('오늘 어디서 축제가 열리는지 한눈에 — 실시간 전국 축제 지도\n' + shareUrl);
+            popupUrl = 'https://www.band.us/plugin/share?body=' + bandBody + '&route=' + url;
+        }
         else if (type === 'line') popupUrl = 'https://social-plugins.line.me/lineit/share?url=' + url;
         if (popupUrl) window.open(popupUrl, '_blank');
     }
