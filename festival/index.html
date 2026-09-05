@@ -243,8 +243,10 @@
             fitToMarkers(allMarkers);
         }
     }
+    // 사용자가 페이지를 열자마자(300ms 타이머가 돌기도 전에) 바로 목록을 클릭할 수도 있으므로,
+    // 지도를 만든 직후에도 한 번 즉시 재정렬해서 첫 클릭부터 정확한 위치로 이동하게 한다.
+    relayoutMap();
     setTimeout(relayoutMap, 300);
-    let relayoutTimer;
     window.addEventListener('resize', function () {
         clearTimeout(relayoutTimer);
         relayoutTimer = setTimeout(relayoutMap, 150);
