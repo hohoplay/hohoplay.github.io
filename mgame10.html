@@ -143,6 +143,51 @@
             }
         }
     </script>
+    <script>
+        // ── 효과음 (Web Audio API로 즉석 생성, 외부 음원 파일 없음) ──
+        let _sfxCtx = null;
+        function _sfxGetCtx(){
+            if(!_sfxCtx){ _sfxCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if(_sfxCtx.state === 'suspended') _sfxCtx.resume();
+            return _sfxCtx;
+        }
+        function _sfxTone(freq, start, dur, type, vol){
+            const ctx = _sfxGetCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol || 0.15, ctx.currentTime + start);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + start);
+            osc.stop(ctx.currentTime + start + dur);
+        }
+        function playSfx(type){
+            try {
+                if(type === 'click'){
+                    _sfxTone(700, 0, 0.05, 'square', 0.06);
+                } else if(type === 'reveal'){
+                    _sfxTone(660, 0, 0.12, 'sine', 0.12);
+                    _sfxTone(880, 0.1, 0.15, 'sine', 0.12);
+                } else if(type === 'win'){
+                    _sfxTone(523, 0, 0.1, 'triangle', 0.14);
+                    _sfxTone(659, 0.09, 0.1, 'triangle', 0.14);
+                    _sfxTone(784, 0.18, 0.2, 'triangle', 0.14);
+                } else if(type === 'lose'){
+                    _sfxTone(300, 0, 0.15, 'sawtooth', 0.1);
+                    _sfxTone(220, 0.12, 0.2, 'sawtooth', 0.1);
+                } else if(type === 'draw'){
+                    _sfxTone(440, 0, 0.14, 'sine', 0.1);
+                } else if(type === 'record'){
+                    _sfxTone(659, 0, 0.08, 'triangle', 0.14);
+                    _sfxTone(784, 0.07, 0.08, 'triangle', 0.14);
+                    _sfxTone(988, 0.14, 0.08, 'triangle', 0.14);
+                    _sfxTone(1318, 0.21, 0.25, 'triangle', 0.16);
+                }
+            } catch(e) { /* 오디오 미지원 환경 등은 조용히 무시 */ }
+        }
+    </script>
 
     <main class="flex-grow max-w-3xl mx-auto w-full px-4 py-10">
         <div class="text-center mb-8">
@@ -159,7 +204,8 @@
                 <span>최고 <span id="wm-best" class="text-amber-500 text-lg">0</span></span>
             </div>
             <div id="wm-board" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:0 auto 20px"></div>
-            <button onclick="wmStart()" id="wm-start-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl">시작</button>
+            <button onclick="playSfx('click');wmStart()" id="wm-start-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl" style="touch-action:manipulation">시작</button>
+            <div id="wm-msg" class="font-black text-indigo-600 mt-4 min-h-[24px]"></div>
         </div>
     
 
@@ -512,7 +558,8 @@
         }
 
 
-        let wmScore = 0, wmBest = 0, wmTimeLeft = 30, wmActiveHole = -1, wmPlaying = false;
+        const WM_BEST_KEY = 'hohoplay_mgame10_best';
+        let wmScore = 0, wmBest = parseInt(localStorage.getItem(WM_BEST_KEY) || '0', 10) || 0, wmTimeLeft = 30, wmActiveHole = -1, wmPlaying = false;
         let wmMoleTimer = null, wmCountdownTimer = null;
 
         function wmRender() {
@@ -520,7 +567,7 @@
             board.innerHTML = '';
             for (let i = 0; i < 9; i++) {
                 const hole = document.createElement('div');
-                hole.style.cssText = 'aspect-ratio:1/1;border-radius:16px;background:#78350f;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;overflow:hidden';
+                hole.style.cssText = 'aspect-ratio:1/1;border-radius:16px;background:#78350f;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;touch-action:manipulation;overflow:hidden';
                 hole.textContent = i === wmActiveHole ? '🐹' : '';
                 hole.onclick = () => wmWhack(i);
                 board.appendChild(hole);
@@ -529,6 +576,7 @@
 
         function wmWhack(i) {
             if (!wmPlaying || i !== wmActiveHole) return;
+            playSfx('click');
             wmScore++;
             document.getElementById('wm-score').textContent = wmScore;
             wmActiveHole = -1;
@@ -553,6 +601,8 @@
             wmTimeLeft = 30;
             document.getElementById('wm-score').textContent = '0';
             document.getElementById('wm-time').textContent = '30';
+            document.getElementById('wm-best').textContent = wmBest;
+            document.getElementById('wm-msg').textContent = '';
             document.getElementById('wm-start-btn').disabled = true;
             wmPopMole();
             wmCountdownTimer = setInterval(() => {
@@ -569,11 +619,20 @@
             wmActiveHole = -1;
             wmRender();
             document.getElementById('wm-start-btn').disabled = false;
-            if (wmScore > wmBest) {
+            const isRecord = wmScore > wmBest;
+            if (isRecord) {
                 wmBest = wmScore;
+                localStorage.setItem(WM_BEST_KEY, String(wmBest));
                 document.getElementById('wm-best').textContent = wmBest;
             }
-            alert('종료! 최종 점수: ' + wmScore + '점');
+            playSfx(isRecord ? 'record' : 'win');
+            const msgEl = document.getElementById('wm-msg');
+            msgEl.textContent = (isRecord ? '🏆 신기록! ' : '⏱ 종료! ') + '최종 점수: ' + wmScore + '점';
+            if (isRecord) {
+                msgEl.style.transform = 'scale(1.1)';
+                msgEl.style.transition = 'transform .3s';
+                setTimeout(() => { msgEl.style.transform = 'scale(1)'; }, 300);
+            }
         }
 
         wmRender();
