@@ -3,6 +3,7 @@ import datetime
 import json
 import time
 import html
+from urllib.parse import quote
 import requests
 
 TODAY = datetime.datetime.now().strftime('%Y%m%d')
@@ -37,6 +38,29 @@ def fetch_all_items(max_retries=3):
     raise last_error
 
 
+def fetch_detail_overview(content_id, max_retries=2):
+    """오늘의 축제 카드용으로, 특정 축제의 상세 설명(overview)을 프록시를 통해 받아온다.
+    실패해도 전체 파이프라인을 막지 않도록 빈 문자열을 돌려준다."""
+    if not content_id:
+        return ''
+
+    detail_url = PROXY_URL.rsplit('/', 1)[0] + '/detail'
+    for attempt in range(1, max_retries + 1):
+        try:
+            res = requests.get(detail_url, params={'contentId': content_id}, timeout=20)
+            res.raise_for_status()
+            data = res.json()
+            if 'error' in data:
+                return ''
+            return (data.get('overview') or '').strip()
+        except Exception as e:
+            if attempt < max_retries:
+                time.sleep(3)
+            else:
+                print(f"상세 설명 조회 실패(contentId={content_id}): {e}")
+    return ''
+
+
 def build_today_html(festivals, today):
     """오늘 진행중인 축제 중 5곳을 골라 festival/map.html에 그대로 박아넣을 HTML 텍스트를 만든다."""
     today_list = [
@@ -60,12 +84,30 @@ def build_today_html(festivals, today):
         end = f.get('endDate') or ''
         lat = f.get('lat') or ''
         lng = f.get('lng') or ''
+        content_id = f.get('contentid') or ''
         date_label = f"{fmt_date(start)} ~ {fmt_date(end)}"
+
+        overview = fetch_detail_overview(content_id)
+        overview = html.escape(overview)
+        if len(overview) > 160:
+            overview = overview[:160].rstrip() + '…'
+        desc_html = f'<p class="today-desc">{overview}</p>' if overview else ''
+
+        map_link_html = ''
+        if lat and lng:
+            map_url = f"https://map.kakao.com/link/map/{quote(f.get('title') or '축제')},{lat},{lng}"
+            map_link_html = (
+                f'<a class="today-map-link" href="{map_url}" target="_blank" '
+                f'rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a>'
+            )
+
         items.append(
             f'<li class="today-item" onclick="focusFestival({lat}, {lng}); closeTodayPanel();">'
             f'<strong>{title}</strong>'
             f'<span class="today-date">📅 {date_label}</span>'
             f'<span class="today-addr">📍 {addr}</span>'
+            f'{desc_html}'
+            f'{map_link_html}'
             f'</li>'
         )
     return ''.join(items)
@@ -116,7 +158,8 @@ def main():
             'endDate': end_date,
             'addr': item.get('addr1', ''),
             'image': item.get('firstimage', ''),
-            'tel': item.get('tel', '')
+            'tel': item.get('tel', ''),
+            'contentid': item.get('contentid', '')
         })
 
     # repo 루트 기준 data/ 폴더에 저장 (workflow가 repo 루트에서 scripts/fetch_data.py로 실행하는 것을 전제)
