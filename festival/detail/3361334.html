@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연천고려인삼축제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="연천고려인삼축제 | 2026.10.02 ~ 2026.10.04 | 경기도 연천군 연천읍 연천로 275">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/25/4105525_image2_1.jpg" alt="연천고려인삼축제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">연천고려인삼축제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.02 ~ 2026.10.04</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">경기도 연천군 연천읍 연천로 275 · 연천역 앞 광장</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">연천군 인삼연구회</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">031-839-2314</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">연천 고려인삼 축제는 연천군에서 생산되는 고려인삼의 우수성을 널리 알리고, 지역 농업과 농산물 소비를 활성화하기 위한 축제이다. 북위 38도에 위치한 연천 지역은 위도, 기후, 토질 등 인삼 생육에 적합한 자연환경을 갖춘 곳으로서, 6년근 인삼 재배의 최적지로 평가되는 지역이다. 특히 연천에서 생산되는 개성인삼 계열의 고려인삼은 품질이 우수한 지역 특산물로 알려져 있다. 본 축제는 연천 인삼의 역사성과 상품성을 바탕으로 다양한 전시, 판매, 체험, 먹거리 프로그램을 운영하는 행사이다. 또한 지역 농업인과 소비자가 직접 만나 연천 농산물을 직거래하는 소통과 교류의 장이자, 연천 농업의 경쟁력과 가치를 대내외에 알리는 대표적인 농특산물 축제이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인프로그램 : 인삼 효능 홍보/체험, 각 읍·면 인삼연구회 직거래장터 등
+2. 부대프로그램 : 지역 농특산물 직거래장터, 인삼 시식 행사, 먹거리장터 등
+3. 소비자 참여 프로그램 : 인삼을 활용 다양한 체험프로그램
+4. 기타 내용 : 노래자랑, 특별 축하가수 공연, 지역문화 공연, 관람객 열린 무대 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%97%B0%EC%B2%9C%EA%B3%A0%EB%A0%A4%EC%9D%B8%EC%82%BC%EC%B6%95%EC%A0%9C,38.1007545889,127.0739927015" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

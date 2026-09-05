@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 목포해상W쇼 - 실시간 전국 축제 지도</title>
+<meta name="description" content="2026 목포해상W쇼 | 2026.05.09 ~ 2026.09.19 | 전남광주통합특별시 목포시 평화로 82 (상동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/45/4055545_image2_1.jpg" alt="2026 목포해상W쇼" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">2026 목포해상W쇼</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.05.09 ~ 2026.09.19</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">전남광주통합특별시 목포시 평화로 82 (상동) · 평화광장 해상무대</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">목포시</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">061-270-8431</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">대한민국 4대 관광거점도시 목포의 야간 상설 대표 콘텐츠 ‘목포해상W쇼’는 국내 유일 멀티미디어 융합 쇼 콘텐츠로서 해상무대 공연, 국내최대 해상분수, 불꽃쇼 등이 결합한 공연이다. 5년간 총 51회의 공연과 누적 관객수 105만명이 즐긴 대한민국 대표 체류형 야간문화 자산이다. 2026 목포해상W쇼는 더욱 풍성한 해상공연과 화려한 불꽃, 역동적인 바다분수가 연출된다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 시그니처 메인 불꽃쇼
+- 부대 행사 및 프로그램 :
+1. 퍼포먼스형 해상무대 공연
+2. 국내 최대규모 춤추는 바다 분수 &amp; 불꽃쇼 멀티미디어 콘텐츠 결합
+3. 사연소개와 함께 관람객이 직접 불꽃을 발사하는 참여형 이벤트
+4. 목포 밤바다를 흥과 낭만으로 가득 채울 바다 위 K-POP 공연</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/2026%20%EB%AA%A9%ED%8F%AC%ED%95%B4%EC%83%81W%EC%87%BC,34.79666213605975,126.43379088761164" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

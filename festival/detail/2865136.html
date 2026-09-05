@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 라온페스타 - 실시간 전국 축제 지도</title>
+<meta name="description" content="2026 라온페스타 | 2026.04.04 ~ 2026.11.07 | 전남광주통합특별시 동구 충장로 94 (충장로2가)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/01/4067301_image2_1.jpg" alt="2026 라온페스타" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">2026 라온페스타</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.04.04 ~ 2026.11.07</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">전남광주통합특별시 동구 충장로 94 (충장로2가) · 광주광역시 동구 충장상권일대</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">광주광역시 동구, 충장상권활성화 추진단 / ㈜상상오</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">062-413-1274</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">충장 라온페스타는 지난 2022년부터 충장상권활성화 사업 일환으로 충장로와 지하 상점가의 소비 촉진과 상권 내 방문객을 유도해 지역경제를 활성화 하기 위해 마련된 상권페스타이다. 남녀노소 누구나 함께 즐길 수 있는다양한 문화·체험 프로그램이 준비되어 있다. 라온페스타는 4월부터 매달 첫째 주 토요일에 진행되며 시간은 프로그램 별로 상이하다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">[상설]
+- 충장K스타 챌린지 (금남로 차 없는 거리)
+- 지하상가 문화의 날 (지하상가 만남의 광장)
+- 도깨비장터 (충장로4-5가)
+
+[특화]
+- 8월의 크리스마스 (충장우체국)
+- 온누리 페이백 이벤트 (충장우체국)
+
+[메인콘서트]
+- 라온락페스타 (금남로)</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/2026%20%EB%9D%BC%EC%98%A8%ED%8E%98%EC%8A%A4%ED%83%80,35.1474235264676,126.91694835998" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 부산바다도서관 - 실시간 전국 축제 지도</title>
+<meta name="description" content="2026 부산바다도서관 | 2026.09.19 ~ 2026.10.11 | 부산광역시 사하구 다대동 1674">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/07/4106907_image2_1.jpg" alt="2026 부산바다도서관" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">2026 부산바다도서관</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.19 ~ 2026.10.11</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">부산광역시 사하구 다대동 1674 · 다대포해변공원 일원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">부산광역시 / 부산문화재단</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">051-745-7286~8</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">부산바다도서관은 해양도시 부산을 대표하는 바다를 배경으로 야외에서 열리는 독서문화축제로, 책과 문화·예술이 하나로 어우러지는 특별한 경험을 제공하는 행사이다. 부산의 공공도서관, 서점, 출판사, 문화기관 등과 협력해 다양한 독서 체험과 문화 프로그램을 선보이며, 책과 함께하는 일상을 제안한다. 자세한 내용은 부산바다도서관 누리집 또는 인스타그램에서 확인할 수 있다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 커뮤니티존(B-북스팟)
+- 부대 행사 및 프로그램 : 리딩존(큐레이션, 멍독멍글, 북크닉키트) / 프로그램(북토크, 사이언스 라운지 특별 프로그램, 올해의 포커스온, 사람책, 멍독멍글)
+
+※ 회원제
+(1) 회원 혜택 : 프로그램 우선 예매 / 회원 전용 북토크 / 물품 렌탈 서비스 / B-북패스 제휴 혜택 제공 / 운영 일정 및 프로그램 관련 알림톡 서비스 제공
+(2) 부산바다도서관 여권 : 부산바다도서관 여권 발급 및 스탬프 미션</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/2026%20%EB%B6%80%EC%82%B0%EB%B0%94%EB%8B%A4%EB%8F%84%EC%84%9C%EA%B4%80,35.0460813236,128.9666251049" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

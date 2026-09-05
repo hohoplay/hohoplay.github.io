@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대전 중구 북페스티벌 - 실시간 전국 축제 지도</title>
+<meta name="description" content="대전 중구 북페스티벌 | 2026.09.12 ~ 2026.09.13 | 대전광역시 중구 중앙로 85 (선화동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/83/4081183_image2_1.jpg" alt="대전 중구 북페스티벌" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">대전 중구 북페스티벌</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.12 ~ 2026.09.13</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">대전광역시 중구 중앙로 85 (선화동) · 대전 중구 선리단길</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">입장료 무료 (체험 부분 유료 약 1,000원~5,000원)</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">대전광역시 중구청</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">042-825-6781</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">2026년 중구 북페스티벌은 2025년 축제에서 발견한 중구 안의 다양한 독서문화와 존재들을 바탕으로, 그 존재들을 서로 연결하고 도시 안의 관계를 확장하는 제2장을 연다. 제 2장 「서로의 연결」은 오랜 시간 이야기가 축적된 중구를 하나의 책처럼 읽어내는 축제이며, 골목에 쌓인 시간, 원도심에 남은 기억, 사람들의 삶, 지역이 품은 감정을 따라가며 중구 안에 이미 존재하는 이야기들을 새롭게 발견하고 연결한다.
+
+이번 축제는 책을 매개로 사람과 사람, 장소와 기억, 도시와 독서문화를 잇는 장을 마련하며, 중구가 가진 이야기의 깊이와 독서문화의 가능성을 함께 나누는 시간으로 구성된다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 북스킹 : 사람책도서관(강연)과 뮤지션이 함께 꾸미는 무대
+2. 공연 : 어린이 인형극
+3. 마켓 부스 : 북마켓, 중고마켓
+4. 체험 프로그램 
+5. 책골목 투어 : 책과 관련된 지역 골목, 공간을 떠나는 인문학 투어</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EB%8C%80%EC%A0%84%20%EC%A4%91%EA%B5%AC%20%EB%B6%81%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,36.3259454984,127.4202942759" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

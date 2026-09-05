@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제14회 부산국제항만컨퍼런스 - 실시간 전국 축제 지도</title>
+<meta name="description" content="제14회 부산국제항만컨퍼런스 | 2026.09.15 ~ 2026.09.16 | 부산광역시 동구 충장대로 206 (초량동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/79/4039679_image2_1.jpg" alt="제14회 부산국제항만컨퍼런스" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">제14회 부산국제항만컨퍼런스</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.15 ~ 2026.09.16</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">부산광역시 동구 충장대로 206 (초량동) · 부산항 국제전시컨벤션센터</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">부산항만공사 / 부산항만공사</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">051-711-0069</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">부산국제항만컨퍼런스(BIPC)는 급변하는 글로벌 해운·물류 환경 속에서 항만의 미래를 함께 모색하고 국제협력을 강화하기 위해 마련된 컨퍼런스이다. 세계 주요항만과 해운, 물류 분야의 전문가들이 한자리에 모여 글로벌 컨테이너 해운시장 전망을 공유하고, 항만 운영과 관련된 주요 이슈와 대응 전략을 논의한다. 특히 디지털 전환, 탈탄소화, 공급망 변화 등 항만 산업이 직면한 핵심 과제를 중심으로 각국 항만의 경험과 성과를 공유하며 실질적인 협력 방안을 모색하는 장으로 기능하고 있다. 이를 통해 BIPC는 글로벌 항만 간 교류와 협력의 네트워크를 확대하고, 지속가능한 항만 산업 발전과 미래 경쟁력 확보를 위한 국제 협력 플랫폼으로
+자리매김하고 있다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 세션
+- 부대 행사 및 프로그램 : 전시 / 개막식 / 특별강연 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%A0%9C14%ED%9A%8C%20%EB%B6%80%EC%82%B0%EA%B5%AD%EC%A0%9C%ED%95%AD%EB%A7%8C%EC%BB%A8%ED%8D%BC%EB%9F%B0%EC%8A%A4,35.1175129767,129.0493834405" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

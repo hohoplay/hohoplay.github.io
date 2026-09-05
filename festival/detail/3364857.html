@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>군산짬뽕페스티벌 - 실시간 전국 축제 지도</title>
+<meta name="description" content="군산짬뽕페스티벌 | 2026.10.09 ~ 2026.10.11 | 전북특별자치도 군산시 장미동 13-1">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/49/4107749_image2_1.jpg" alt="군산짬뽕페스티벌" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">군산짬뽕페스티벌</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.09 ~ 2026.10.11</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">전북특별자치도 군산시 장미동 13-1 · 군산시 백년광장 일원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료(일부 유료)</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">군산시</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">063-454-3912, 3913</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">군산짬뽕페스티벌은 군산의 대표 음식인 짬뽕을 활용한 대표 미식 축제로 바다의 신선한 해산물과 풍부한 지역 농산물이 가득 담긴 군산짬뽕의 맛을 즐길 수 있는 축제이다. 군산짬뽕은 1970년대 초까지 화교들이 돼지·소·닭 뼈 육수로 만들던 ‘초마면’이라는 음식에 항구도시 특유의 신선한 해산물과 한국인의 입맛에 맞는 얼큰한 고춧가루가 더해지면서 오늘날 우리가 즐기는 짬뽕이 되었다. 행사장에는 중식 부스, 먹거리 부스뿐만 아니라 짬뽕을 주제로 한 다양한 체험 프로그램, 다채로운 무대 공연까지 준비되어 있어 방문객들에게 특별한 맛과 즐거움을 선사할 예정이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인프로그램 : 중식 판매부스
+2. 부대프로그램 : 먹거리 부스
+3. 소비자 참여 프로그램 : 보글보글 소원 짬뽕탕, K-관광섬을 이겨라
+4. 기타 내용 : 초청 셰프 부스, 공연 프로그램(밴드, 마술 등)</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EA%B5%B0%EC%82%B0%EC%A7%AC%EB%BD%95%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,35.9896779000,126.7139462000" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

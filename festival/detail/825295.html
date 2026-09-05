@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>강릉커피축제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="강릉커피축제 | 2026.10.21 ~ 2026.10.25 | 강원특별자치도 강릉시 창해로14번길 20-1 (견소동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/24/3546224_image2_1.JPG" alt="강릉커피축제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">강릉커피축제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.21 ~ 2026.10.25</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">강원특별자치도 강릉시 창해로14번길 20-1 (견소동) · 강릉커피거리</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">일부유료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">문화체육관광부, 강원특별자치도, 강릉시 / 강릉문화재단</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">033-647-6802</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">*하기 축제 내용은 전년도(2025년) 축제 내용으로, 2026년도 축제 내용은 업데이트 중에 있습니다.*
+지방자치단체 중 최초로 개최된 커피축제로 매해 30만명이 넘는 관람객과 커피 업계 종사자 뿐만 아니라 커피 애호가들을 커피도시 강릉으로 불러 모으는 강릉 대표 축제이다. 이제 커피는 단순히 먹거리가 아닌 문화로 자리 잡았다. GCF는 커피문화를 이끄는 리더로서 그 역할을 하고 있다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 도심 축제- 웰컴커피숍- 스탬프랠리2. 커피거리축제- 별이빛나는밤에- 별의별강릉커피- 커피축제 Radio- 커피놀이터- 원두상점- 커피용품전시·판매-  커피크닉- 100人100味- 커피웨이브- 커피축제마켓- 수공예마켓- 커피버스킹- 커피와인문학- 커피체험존- 커피스타3. 부대프로그램- 불꽃놀이- 영수증이벤트-  대형케이크퍼포먼스축제장 내 먹거리 부스가 없으므로 인근 지역 식당 이용 바랍니다.</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EA%B0%95%EB%A6%89%EC%BB%A4%ED%94%BC%EC%B6%95%EC%A0%9C,37.7726104945,128.9473094259" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

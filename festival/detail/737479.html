@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>강남페스티벌 - 실시간 전국 축제 지도</title>
+<meta name="description" content="강남페스티벌 | 2026.10.03 ~ 2026.10.05 | 서울특별시 강남구 도산대로 320 (논현동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/43/4101843_image2_1.jpg" alt="강남페스티벌" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">강남페스티벌</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.03 ~ 2026.10.05</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">서울특별시 강남구 도산대로 320 (논현동) · 도산대로, 개포동 마루공원, 봉은사</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">강남구 / 강남구, 강남구체육회</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">02-3423-5543</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">10월 3일부터 10월 5일까지 도심 전역을 무대로 펼쳐지는 최대 규모의 도시형 축제 ‘2026 강남페스티벌’​이 개최된다. 개막을 알리는 화려한 거리 퍼레이드를 시작으로, K-POP 콘서트, 온 가족이 함께 즐기는 패밀리 콘서트, K-패션과 퍼포먼스가 결합된 패션·뷰티페스타, 다양한 미식을 경험할 수 있는 비어·푸드페스타까지 강남 전역이 하나의 거대한 축제 공간이 되어 국내외 관광객에게 밤하늘을 수놓는 빛과 음악, 거리 곳곳에서 펼쳐지는 공연과 체험, 그리고 문화와 미식이 어우러지는 특별한 시간을 선사 할 것이다. 도시의 에너지와 한류 콘텐츠가 결합된 글로벌 K-컬처 페스티벌, 강남페스티벌은 강남의 매력을 세계에 알리는 대표 문화관광 행사이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 그랜드 퍼레이드
+2. 패밀리 콘서트
+3. DJ 파티 
+4. K-POP콘서트
+5. 패션·뷰티페스타
+6. 비어·푸드페스타
+7. KBS 국악한마당(마루공원)
+8. 강남국제평화마라톤
+9. 봉은사 사찰음악회</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EA%B0%95%EB%82%A8%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,37.5221428648,127.0369343307" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

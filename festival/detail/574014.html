@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>목포항구축제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="목포항구축제 | 2026.10.16 ~ 2026.10.18 | 전남광주통합특별시 목포시 삼학로92번길 6 (산정동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/90/3498990_image2_1.JPG" alt="목포항구축제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">목포항구축제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.16 ~ 2026.10.18</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">전남광주통합특별시 목포시 삼학로92번길 6 (산정동) · 목포항&amp;삼학도 일원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">목포시 / 목포시축제추진위원회</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">061-270-8441</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">*하기 축제 내용은 전년도(2025년) 축제 내용으로, 2026년도 축제 내용은 업데이트 중에 있습니다.*목포는 1897년 개항하여 교역, 물류 교통의 중심지로서 과거 전국 3대항, 6대 도시의 영광을 누리면서, 지역경제의 부흥을 주도했으며 현재에는 서남해안의 배후 중심 도시이다. 목포항구축제는 설화가 공존하는 삼학도에서 항구 내음 가득한 목포항의 전통 파시(波市)를 전국에서 유일하게 축제로 재현하여 역사적인 가치를 널리 알린다. 또한 제철 수산물을 활용한 파시 경매, 경매 받은 수산물을 즉석해서 구워먹고 요리 해먹는 등 풍요로운 목포항의 낭만을 가득 담은 행사가 마련되어 있는 가을 축제이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인프로그램 : 파시 해상 퍼레이드, 파시장터, 파시 경매2. 부대프로그램 : 도깨비장터, 시민노젓기대회, 어등 터널3. 소비자 참여 프로그램 : 파시장터 구이터, 파시 수랏간, 1897 건맥, 낭만한끼, 범선 승선 체험, 노젓기 대회4. 공연 프로그램 : 난영가요제, 바다콘서트, 목포항구 문화공연, 항구 디스코파티, 파시 노래자랑</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EB%AA%A9%ED%8F%AC%ED%95%AD%EA%B5%AC%EC%B6%95%EC%A0%9C,34.7865334008,126.3936724331" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제24회 동강국제사진제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="제24회 동강국제사진제 | 2026.07.17 ~ 2026.10.11 | 강원특별자치도 영월군 영월읍 영월로 1909-10">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/56/4075256_image2_1.jpg" alt="제24회 동강국제사진제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">제24회 동강국제사진제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.07.17 ~ 2026.10.11</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">강원특별자치도 영월군 영월읍 영월로 1909-10 · 동강사진박물관</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">- 성인 3,000원- 청소년/군인 2,000원- 어린이 1,000원</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">동강사진마을운영위원회, 영월문화관광재단 / 동강사진마을운영위원회, 영월문화관광재단</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">033-375-6372</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">올해로 제24회를 맞이하는 동강국제사진제는 국내외 사진작가와 강원도민, 영월군민, 사진 애호가들이 함께 만들어 가는 대한민국 대표 사진 행사로 7월 17일(금)부터 10월 11일(일)까지 동강사진박물관을 비롯한 영월군 일원에서 개최된다. 올해 에서는 올해 동강 사진상 수상자 임안나 작가의 작품을 감상할 수 있다.
+또한, 전 세계 작가들이 온라인으로 참여한 에 선정된 19명의 작품도 만나볼 수 있다. 이 외에도 , , , , , ,  등 전 세계 사진인들이 기다리는 연례행사인만큼 다채로운 전시가 아름다운 강원도 영월군 일대에서 진행된다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 작품 전시 및 사진전</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%A0%9C24%ED%9A%8C%20%EB%8F%99%EA%B0%95%EA%B5%AD%EC%A0%9C%EC%82%AC%EC%A7%84%EC%A0%9C,37.1819133415,128.4614563757" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

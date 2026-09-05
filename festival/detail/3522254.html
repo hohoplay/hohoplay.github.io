@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>충청북도 정원박람회 in 영동 - 실시간 전국 축제 지도</title>
+<meta name="description" content="충청북도 정원박람회 in 영동 | 2026.10.15 ~ 2026.10.18 | 충청북도 영동군 영동읍 용두공원로 42">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/91/4104691_image2_1.jpg" alt="충청북도 정원박람회 in 영동" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">충청북도 정원박람회 in 영동</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.15 ~ 2026.10.18</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">충청북도 영동군 영동읍 용두공원로 42 · 용두공원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">충청북도 / 영동군</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">043-212-7893</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">국악과 과일의 고장 영동에서 펼쳐지는 제2회 충청북도 정원박람회 in 영동이 2026년 10월 15일부터 18일까지 4일간 영동 용두공원에서 펼쳐진다. 정원과 문화, 참여가 시작되는 정원박람회는 모두의 박람회, 국악이 흐르는 박람회, 지속 가능한 박람회 컨텐츠로 단순한 전시를 넘어 정원 문화가 펼쳐지는 충청북도 청원박람회만의 특색있는 행사로 진행된다. 영동 난계국악축제와 같은 기간에 박람회가 진행되며 주요 프로그램은 정원산업전, 정원체험존, 프리마켓존, 정원문화공연 프로그램으로 구성되며 참여 정원 연출로 도민 참여정원, 군민정원의 사전 공모전으로 행사장을 연출한다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 정원 전시 / 공연 / 정원 문화 체험 등
+- 부대 행사 및 프로그램 : 인형탈이벤트 / 드레스코드 이벤트 / 5초를 잡아라 / 보물찾기 이벤트 / 버블쇼 / 정원식물 이름맞추기 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%B6%A9%EC%B2%AD%EB%B6%81%EB%8F%84%20%EC%A0%95%EC%9B%90%EB%B0%95%EB%9E%8C%ED%9A%8C%20in%20%EC%98%81%EB%8F%99,36.1680656613,127.7856181933" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

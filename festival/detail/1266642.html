@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부평풍물대축제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="부평풍물대축제 | 2026.10.02 ~ 2026.10.04 | 인천광역시 부평구 부평대로 34-1 (부평동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/77/4067377_image2_1.jpg" alt="부평풍물대축제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">부평풍물대축제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.02 ~ 2026.10.04</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">인천광역시 부평구 부평대로 34-1 (부평동) · 부평대로 &amp; 부평일대</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">인천광역시 부평구 / 부평구 축제위원회, 부평구문화재단, 부평문화원</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">032-509-7516</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">제30회 부평풍물대축제는 도심 속에서 울려 퍼지는 서른 번째 신명과 화합의 장이다. 인천을 넘어 대한민국을 대표하는 전통문화 예술 축제인 부평풍물대축제가 어느덧 뜻깊은 30주년을 맞이했다. 1997년 첫발을 내디딘 이래, 부평풍물대축제는 삭막한 도심 한복판에 우리 고유의 전통장단을 불어넣으며 시민과 예술인이 하나 되는 거대한 소통의 장으로 성장해 왔다. 축제의 핵심인 22개 동풍물단이 만들어내는 신명 나는 장단은 구민 모두를 하나로 연결하는 축제의 든든한 근간이 되어왔다. 특히 2026년 10월 2일부터 4일까지 3일간 열리는 이번 제30회 축제는 지난 30년간 이어온 전통의 맥을 되짚어보고, 앞으로 다가올 새로운 미래를 축하하는 특별한 의미를 담아 그 어느 때보다 거대하고 화려한 규모로 펼쳐진다. 또한 부평 도시 재생의 상징인 굴포천 일대까지 축제 공간을 확장하여 새롭고 다채로운 콘텐츠를 선보일 예정이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인프로그램 : 개폐막공원, 부평대동퍼레이드 &amp; 부평만만세 등
+2. 부대프로그램 : 대한민국창작풍물대전, 부평생활문화축제, 풍물페스타, 전국학생풍물경연대회 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EB%B6%80%ED%8F%89%ED%92%8D%EB%AC%BC%EB%8C%80%EC%B6%95%EC%A0%9C,37.4944181127,126.7229954336" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>
