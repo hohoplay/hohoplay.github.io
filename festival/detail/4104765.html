@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제51회 강원축산경진대회 - 실시간 전국 축제 지도</title>
+<meta name="description" content="제51회 강원축산경진대회 | 2026.09.04 ~ 2026.09.05 | 강원특별자치도 강릉시 단오장길 1 (노암동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/68/4104768_image2_1.jpg" alt="제51회 강원축산경진대회" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">제51회 강원축산경진대회</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.04 ~ 2026.09.05</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">강원특별자치도 강릉시 단오장길 1 (노암동) · 단오행사장 일원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">농협경제지주㈜강원본부 / 농협경제지주㈜강원본부</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">010-9776-2721</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">제51회 강원축산경진대회는 도내 축산농가의 가축 개량 성과를 평가하고 강원 축산물의 우수성을 널리 알리기 위해 강원특별자치도와 농협 강원지역본부가 공동 주최하는 유서 깊은 행사이다. 1968년부터 시작되어 전국에서 가장 오랜 역사와 전통을 자랑하며, 한우 고급육 품평회 등을 통해 도내 최고 수준의 축산물 경쟁력을 입증하고 엄격한 심사로 강원 한우의 우수성을 대내외에 알리는 축산농가 화합의 장이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 한우 할인판매 및 한우 구이터 운영
+- 부대 행사 및 프로그램 : 강원축산경진대회 우수 축산 시상식 및 전시 / 18개 시군 홍보관 / 유관부스 / 체험부스 / 공연 / 플리마켓 / 푸드트럭 운영 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%A0%9C51%ED%9A%8C%20%EA%B0%95%EC%9B%90%EC%B6%95%EC%82%B0%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C,37.7482373527,128.8949156650" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

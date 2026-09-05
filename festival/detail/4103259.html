@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 DMZ PEACE FESTA - 실시간 전국 축제 지도</title>
+<meta name="description" content="2026 DMZ PEACE FESTA | 2026.09.12 ~ 2026.09.27 | 인천광역시 강화군 교동면 교동동로 471">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/60/4103260_image2_1.jpg" alt="2026 DMZ PEACE FESTA" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">2026 DMZ PEACE FESTA</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.12 ~ 2026.09.27</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">인천광역시 강화군 교동면 교동동로 471 · (강화) 교동도 화개정원 / (철원) 역사공원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">문화체육관광부 / 한국관광공사, 강화군, 철원군</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">033-738-3543</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">개별 지자체로 분절되었던 DMZ 접경지역의 관광 자원을 하나로 잇기 위해 기획된 DMZ PEACE FESTA는 강화와 철원이 참여하는 릴레이 축제이다. 각 지역이 가진 고유 콘텐츠를 자연(생태), 삶(주민의 스토리), 성찰·치유(웰니스)라는 3개의 공통된 테마를 중심으로 다양한 체험형 프로그램을 제공할 예정이다.
+※ 사전 예약이 필요한 프로그램 등 행사 상세 정보는 공식 홈페이지 참조</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : (강화) DMZ 함께 평화염원 걷기 및 버스킹 / (철원) DMZ 평화페스타(백패킹) 및 버스킹 관람
+- 부대 행사 및 프로그램 : 
+[강화]
+실향민 스토리 칵테일 제조 체험 / DMZ 소리 채집 걷기 / 즉흥 움직임 체험
+[철원]
+전통시장 탐방 및 DMZ 투어 / 미디어 아트 연계 행사 사일런트 디스코</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/2026%20DMZ%20PEACE%20FESTA,37.7837327580,126.2892126586" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

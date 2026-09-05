@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>팔색찬란 - 실시간 전국 축제 지도</title>
+<meta name="description" content="팔색찬란 | 2026.06.04 ~ 2026.12.31 | 서울특별시 종로구 효자로13길 45 (효자동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/70/4082670_image2_1.png" alt="팔색찬란" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">팔색찬란</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.06.04 ~ 2026.12.31</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">서울특별시 종로구 효자로13길 45 (효자동) · 청와대 사랑채 1층</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">문화체육관광부 / 지역문화진흥원</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">02-723-0300</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">문화체육관광부는 이달부터 12월까지 청와대 사랑채 1층에서 특별전 &#x27;팔색찬란 : K로 가득한 지역&#x27;을 개최한다. 이번 전시는 &#x27;우리가 이야기하는 케이(K)의 뿌리는 무엇인가?&#x27;라는 질문에서 출발한다. 한국의 역사와 문화예술, 지역 고유의 문화자산이 K-콘텐츠로 이어지고 확장되는 과정을 지역 콘텐츠 전시와 미디어아트를 통해 입체적으로 선보인다. 특히 대한민국의 다양한 지역에 축적된 문화적 자산이 오늘날 K-컬처의 기반이 됐음을 조명하는 데 초점을 맞췄다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 상설전시 / 기획전시 / 공연
+
+1. 상설전시 2026.06.04.~2026.12.31
+2. 기획전시 2026.07.15.~2026.12.31.
+3. 공연 매주 수요일 12:10</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%ED%8C%94%EC%83%89%EC%B0%AC%EB%9E%80,37.5825448754,126.9730592833" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

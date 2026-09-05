@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거제맥주축제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="거제맥주축제 | 2026.09.11 ~ 2026.09.12 | 경상남도 거제시 장승로 138 (장승포동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/11/4097611_image2_1.jpg" alt="거제맥주축제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">거제맥주축제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.11 ~ 2026.09.12</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">경상남도 거제시 장승로 138 (장승포동) · 장승포 수변공원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">유료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">거제해양관광개발공사</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">055-639-8193</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">2026 거제맥주축제는 아름다운 장승포항 밤바다를 배경으로 시원한 생맥주와 다채로운 공연을 함께 즐길 수 있는 거제의 대표 가을 축제이다. 무제한 생맥주와 지역 먹거리, 푸드트럭이 어우러진 미식 공간은 물론, EDM·K-POP·7080 등 다양한 장르의 공연과 시민 참여 이벤트로 남녀노소 모두가 함께 즐길 수 있는 특별한 시간을 선사한다. 또한 관광 홍보부스와 포토존, 지역 막걸리 전시·시음 체험, 베리어프리존 운영, 다회용기 사용 등 ESG 가치를 반영한 친환경·포용형 축제로, 누구나 안전하고 편안하게 즐길 수 있는 거제의 새로운 야간 관광 콘텐츠를 선보인다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인 공연 : 지역가수 및 전문팀 공연(EDM·댄스·7080·K-POP), 시민 참여 이벤트
+2. 맥주존 : 생맥주 무제한 제공
+3. 먹거리존 : 푸드트럭, 장승포동 주민자치회 먹거리 부스
+4. 체험 프로그램 : 지역 막걸리 전시·홍보·시음 체험, 거제 관광 홍보부스
+5. 부대행사 : 포토존, 외국인 통역 지원 부스, 베리어프리존, 무더위 쉼터, 친환경 캠페인
+
+[이용요금]
+- 1차 사전예매(8.7.~23.) 12,000원(20%할인)
+- 2차 사전예매(8.24~9.10.) 13,500원(10%할인)</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EA%B1%B0%EC%A0%9C%EB%A7%A5%EC%A3%BC%EC%B6%95%EC%A0%9C,34.8663308815,128.7245993248" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

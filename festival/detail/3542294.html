@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>진주의 수호자들 - 실시간 전국 축제 지도</title>
+<meta name="description" content="진주의 수호자들 | 2026.08.14 ~ 2026.09.06 | 경상남도 진주시 강남로 287 (강남동)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/79/4096279_image2_1.jpg" alt="진주의 수호자들" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">진주의 수호자들</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.08.14 ~ 2026.09.06</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">경상남도 진주시 강남로 287 (강남동) · 진주성</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">진주시, 한국관광공사 / 더가다</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">0507-1393-7113</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">진주의 수호자들은 진주성과 역사대첩문화공원 일원을 배경으로 한 미션투어 콘텐츠이다. 참가자는 별도의 앱 설치 없이 웹기반 플랫폼에 접속하며, 진주성 및 역사대첩문화공원 내 지정된 장소를 이동하며 미션을 수행한다. 행사 콘텐츠는 총 3편의 시리즈로 구성되어 있다. 1편은 진주성의 역사적 사건을 바탕으로 한 서사 중심 미션이며, 2편은 세명의 등장인물을 중심으로 전개되는 추리 형식의 미션이다. 3편은 판타지 콘셉트로 설계되어 있으며, 국문 영문판을 운영할 예정이다. 단서를 모아 최종 문장을 완성하는 방식으로 진행된다. 행사는 국가유산미디어아트 진주성 및 국가유산 문화재 야행기간과 연계해 야간에 진행되며, 진주성 내 조명과 유등이 밝혀진 야경을 배경으로 체험할 수 있다. 참가는 진주성 공북문 안 잔디광장에서 시작되며 참가자는 미션 완료 시 기념품을 수령할 수 있다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 야외 미션 투어
+- 부대 행사 및 프로그램 : 1편 - 유등 빛을 지켜라(역사 서사 미션) / 2편 - 사라진 공신록의 비밀(추리 미션) / 3편 - 잊혀진 수호문을 찾아라(판타지 협동 미션, 국문·영문판 운영) / 진주성 내 미션 투어 / 진주성 야간 경관 조명 및 미디어 아트 축제 연계 관람 / 기념품 수여 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%A7%84%EC%A3%BC%EC%9D%98%20%EC%88%98%ED%98%B8%EC%9E%90%EB%93%A4,35.1879338891,128.0858237357" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

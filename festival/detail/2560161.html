@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 헬로메이커 - 실시간 전국 축제 지도</title>
+<meta name="description" content="2026 헬로메이커 | 2026.09.05 ~ 2026.09.06 | 부산광역시 기장군 기장읍 동부산관광6로 59">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/37/4103837_image2_1.jpg" alt="2026 헬로메이커" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">2026 헬로메이커</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.05 ~ 2026.09.06</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">부산광역시 기장군 기장읍 동부산관광6로 59 · 국립부산과학관</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">입장료 무료※ 강연/메이킹워크숍 등 유료 3,000원~30,000원</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">국립부산과학관 / 국립부산과학관</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">1422-23</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">국립부산과학관의 개관 10주년을 기념하여 개최되는 &#x27;2026 헬로메이커&#x27;는 메이커와 시민이 함께 참여하는 대표적인 과학문화축제이다. 본 행사는 아이디어를 직접 실물로 구현해보며 메이커 문화를 경험하고 자유롭게 소통하는 기회를 제공하기 위해 기획되었다. 주요 프로그램은 연령대에 상관없이 즐길 수 있는 이색 창작 체험과 메이커 간의 아이디어 교류 및 네트워크 형성으로 구성된다. 참가자들은 다채로운 창작물을 관람하고 제작 과정에 직접 참여한다. 이번 축제는 창의성을 바탕으로 창작 생태계의 저변을 넓히는 행사이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 헬로, 메이커!(메이커 작품 전시 및 체험) / 놀자, 플레이커!(메이킹 체험존) / 나도, 메이커!(메이킹 워크숍) / 모여라, 크리에이터!(초청강연) / 즐겨라, 쇼타임!(야외공연)
+- 부대 행사 및 프로그램 : AI 창작 영화관</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/2026%20%ED%97%AC%EB%A1%9C%EB%A9%94%EC%9D%B4%EC%BB%A4,35.2045970007,129.2127018203" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

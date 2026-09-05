@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고창모양성제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="고창모양성제 | 2026.10.15 ~ 2026.10.19 | 전북특별자치도 고창군 고창읍 모양성로 11">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/30/3519730_image2_1.jpg" alt="고창모양성제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">고창모양성제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.15 ~ 2026.10.19</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">전북특별자치도 고창군 고창읍 모양성로 11</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">고창군</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">063-560-2949</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">고창모양성제는 국내에서 가장 원형이 잘 보존된 모양성을 주제로 한 역사문화축제이다. 대표프로그램은 답성놀이로서 한바퀴 돌면 다릿병이 낫고, 두바퀴돌면 무병장수하며, 세 바퀴돌면 극락승천 한다는 전설을 체험형 프로그램으로 개발했다. 이 외에도, 답성놀이와 강강술래를 혼합하여 군민과 관광객이 함께 어우러진 야간답성강강술래달밤, 과거현재미래를 표현한 주민 1,000여명이 참여하는 거리 퍼레이드, 과거로의 여행을 주제로 하여 고창읍성 내부를 누비며 즐길 수 있는 리턴즈1453, 그리고 고창지역의 특산물을 활용한 먹거리와 직거래장터 등을 운영한다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인프로그램
+- 답성놀이, 야간 답성놀이, 강강술래 달BAM, 거리퍼레이드, 리턴즈1453
+2. 부대프로그램
+- 플리마켓, 드론쇼, 패밀리존, 먹거리부스, 직거래장터, 주막
+3. 소비자 참여 프로그램
+- 어린이 당근마켓, 전통놀이 체험, 체험프로그램</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EA%B3%A0%EC%B0%BD%EB%AA%A8%EC%96%91%EC%84%B1%EC%A0%9C,35.43314793158578,126.70350182663505" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

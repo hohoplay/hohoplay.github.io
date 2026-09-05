@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>떡볶이 페스티벌 - 실시간 전국 축제 지도</title>
+<meta name="description" content="떡볶이 페스티벌 | 2026.10.23 ~ 2026.10.25 | 대구광역시 북구 고성로 191 (고성동3가)">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/94/4102394_image2_1.JPG" alt="떡볶이 페스티벌" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">떡볶이 페스티벌</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.23 ~ 2026.10.25</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">대구광역시 북구 고성로 191 (고성동3가) · 대구iM뱅크PARK</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">대구광역시 북구</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">053-665-2795</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">제6회 떡볶이 페스티벌은 대구광역시 북구가 주최하는 대한민국 대표 떡볶이 특화 축제이다. 2026년 10월 23일부터 25일까지 3일간 대구iM뱅크PARK 일원에서 개최되며, 매년 수만 명의 방문객이 찾는 대구의 대표 가을 축제로 자리매김하고 있다. 본 축제는 전국 유명 떡볶이 맛집 및 다양한 식음 업체가 참여하는 먹거리존을비롯해 공연·체험·이벤트 프로그램을 아우르는 복합 문화 축제이다. 주요 프로그램으로는 메인 무대 공연, 떡페 나이트, 빨간맛 럭키드로우, 완떡 챌린지 미션, 대만관광객 맞춤형 인바운드 투어, 사후 숏폼 공모전 등이 운영된다. 떡볶이를 중심으로 K-푸드 문화를 알리고 지역 경제 활성화에 기여하는 축제이다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인 프로그램 : 들떡들떡 무대 공연, 떡페 나이트, 빨간맛 럭키드로우
+2. 부대 프로그램 : 완떡 챌린지 미션, 대구 맛볼지도 도장깨기 챌린지, 대만 인바운드 투어, 사후 숏폼 공모전, 대구로 택시 연계 서비스
+3. 소비자 참여 프로그램 : K-떡볶이 콘테스트, 뽀기랜드 체험존, 글로벌 라운지 운영
+4. 기타 : 임시 주차장 운영(칠성동), 산격청사 셔틀버스 운행 (10. 23~25 / 13:00~21:00)</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EB%96%A1%EB%B3%B6%EC%9D%B4%20%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,35.8803997225,128.5867732233" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

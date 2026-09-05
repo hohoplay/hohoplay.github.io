@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성남동 커피페스티벌 - 실시간 전국 축제 지도</title>
+<meta name="description" content="성남동 커피페스티벌 | 2026.10.30 ~ 2026.11.01 | 울산광역시 중구 북정동">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/74/4078274_image2_1.JPG" alt="성남동 커피페스티벌" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">성남동 커피페스티벌</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.30 ~ 2026.11.01</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">울산광역시 중구 북정동 · 중구 문화의 거리</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">성남동 커피사업추진협의체</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">052-290-3541</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">과거 공업도시지구 지정 이후 청춘들이 모여들어 다방을 중심으로 문학과 낭만의 문화를 꽃피웠던 성남동에서, 커피를 주제로 한 특별한 축제가 열립니다. 성남동 커피페스티벌은 커피를 사랑하는 모든 이들을 위한 시민 참여형 문화축제이다. 매년 가을 개최되는 본 축제는 성남동 지역 상인과 커피 업계 종사자들이 함께 기획하고 운영하며, 핸드드립 시연, 라떼아트 체험, 브루잉 대회, 다양한 커피 브랜드 시음 행사 등 풍성한 프로그램을 제공한다. 또한 전국의 실력 있는 바리스타들이 참여하는 커피 퍼포먼스 대회를 비롯해, 가족 단위 방문객도 함께 즐길 수 있는 체험 부스, 라이브 공연, 먹거리 마켓 등 다채로운 즐길 거리가 마련되어 남녀노소 누구나 참여할 수 있는 열린 축제로 자리매김하고 있다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 커피대회(브루잉, 라떼아트)
+2. 커피 홍보 시음, 판매
+3. 추출, 로스팅, 라떼아트 등 커피 체험 행사
+4. 기타 체험 행사(페이스페인팅, 풍선아트, 커피박 등 참여형 이벤트)
+5. 경품행사 및 음악공연 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%84%B1%EB%82%A8%EB%8F%99%20%EC%BB%A4%ED%94%BC%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,35.5572230000,129.3214690000" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

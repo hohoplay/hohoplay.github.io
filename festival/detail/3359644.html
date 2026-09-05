@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>석계역 달빛야시장 - 실시간 전국 축제 지도</title>
+<meta name="description" content="석계역 달빛야시장 | 2026.09.19 ~ 2026.09.19 | 서울특별시 노원구 월계동">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/95/4105595_image2_1.jpg" alt="석계역 달빛야시장" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">석계역 달빛야시장</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.09.19 ~ 2026.09.19</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">서울특별시 노원구 월계동 · 석계역 문화공원</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">부스별로 상이함</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">노원구</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">02-2116-3487</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">지역상권 활성화를 위해 먹거리·야간 이벤트를 개최하여 골목상권의 자생력 강화와 매출 증가를 도모하고 상권 활성화에 기여하고자 하는 행사이다.
+다양한 먹거리 부스와 수제맥주, 막걸리, 추억의 즐길거리, 포토존, 프리마켓 등 다양한 볼거리가 가득하며, 초대가수 김완선 공연 등 무대공연과 버스킹 무대도 마련되어 있다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 초대가수 김완선 등 무대 공연
+- 부대 행사 및 프로그램 : 버스킹 공연 / 먹거리 / 추억의 골목 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%84%9D%EA%B3%84%EC%97%AD%20%EB%8B%AC%EB%B9%9B%EC%95%BC%EC%8B%9C%EC%9E%A5,37.6152910000,127.0642300000" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

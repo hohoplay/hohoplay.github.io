@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>김해 국가유산야행 - 실시간 전국 축제 지도</title>
+<meta name="description" content="김해 국가유산야행 | 2026.10.16 ~ 2026.10.18 | 경상남도 김해시 가락로93번길 26">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/17/4073617_image2_1.jpg" alt="김해 국가유산야행" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">김해 국가유산야행</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.16 ~ 2026.10.18</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">경상남도 김해시 가락로93번길 26 · 수로왕릉 및 수릉원 일대</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">국가유산청, 경상남도, 김해시 / (재)김해문화관광재단</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">070-8824-0347</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">김해국가유산야행은 가야의 숨결이 살아있는 대성동고분군, 수로왕릉, 수릉원 일원을 무대로 펼쳐지는 야간 체류형 문화축제로, 야경·공연·체험·먹거리로 ‘빛과 역사를’ 함께 즐기는 행사이다. 가야의 숨결이 닿아 있는 문화유산에서 역사 이야기를 따라 걷는 밤길과 더불어 익숙한 길을 걷는 즐거움을 함께 경험할 수 있다. 
+‘밤’을 주제로 한 8야(夜) 프로그램(야경·야로·야사·야화·야설·야식·야숙·야시)을 통해 방문객들은 김해의 찬란한 가야 역사와 문화유산을 색다르게 만나볼 수 있다. 각 프로그램은 공연, 전시, 체험, 먹거리, 야간 경관 등 다채로운 콘텐츠로 구성되어 있으며, 국가유산에 담긴 의미와 가치를 자연스럽게 느끼고 김해만의 역사·문화적 정체성을 직접 경험할 수 있는 특별한 시간을 제공한다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">1. 메인프로그램 : 미디어파사드, 드론 라이트쇼, 전통공연, 야시장 등
+2. 부대프로그램 : 8야프로그램 야경, 야로, 야사, 야화, 야설, 야식, 야시, 야숙 등
+3. 소비자 참여 프로그램 : 수로왕릉 바로알기, 비비단 별빛로드, 밤의 고고학자, 나만의 도자기 꾸미기, 손끝으로 만나는 가야 등
+4. 기타 내용 : 가꿈예술장터, 실크로드장시, 가치가게청년몰 등</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EA%B9%80%ED%95%B4%20%EA%B5%AD%EA%B0%80%EC%9C%A0%EC%82%B0%EC%95%BC%ED%96%89,35.2348642516,128.8772389826" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

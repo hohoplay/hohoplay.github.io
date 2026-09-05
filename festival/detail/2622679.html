@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제8회 예천국제스마트폰영화제 - 실시간 전국 축제 지도</title>
+<meta name="description" content="제8회 예천국제스마트폰영화제 | 2026.10.09 ~ 2026.10.11 | 경상북도 예천군 호명읍 산합리 73">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }
+  .detail-wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+  .detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }
+  .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { flex: 0 0 90px; font-weight: 700; color: #1a73e8; }
+  .detail-value { flex: 1; color: #334155; word-break: break-all; }
+  .detail-back { display: inline-block; margin-bottom: 16px; color: #1a73e8; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .detail-link { color: #1a73e8; font-weight: 700; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+  .detail-overview { font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="detail-wrap">
+  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/26/4059026_image2_1.jpeg" alt="제8회 예천국제스마트폰영화제" class="detail-image">
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">제8회 예천국제스마트폰영화제</h1>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 2026.10.09 ~ 2026.10.11</p>
+
+  <div class="detail-card">
+    <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">경상북도 예천군 호명읍 산합리 73 · 경북도서관 옆 임시공영주차장</div></div>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">예천군 / 사단법인예천국제스마프톤영화제조직위원회</div></div>
+    <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">054-655-8082</div></div>
+    <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">정보 없음</div></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-overview">예천국제스마트폰영화제는 올해 8회째 개최되는 영화제로서, 스마트폰으로 촬영된 영화 및 영상을 공모받아 심사를 거쳐 수상작을 선정하고 10월 9일(토) 현장에서 시상식 진행과 함께 주민들도 함께 즐길 수 있는 영화축제이다. 천혜의 자연 환경의 도시 경상북도 예천에서 2019년 첫 발을 내딛은 예천국제스마트폰 영화제 (이하 YISFF)는 예천을 상징하고, 경북을 넘어 전국에서 스마트폰 영화제로서 대표적인 영화제이다. ‘누구나’가지고 있는 스마트폰을 가지고 시대의 발자취에 맞추어 영화를 제작함으로서 신선하고 새로운 바람을 불러 일으켰다.</div>
+  </div>
+
+  <div class="detail-card"><div class="detail-label" style="margin-bottom:8px;">프로그램</div><div class="detail-overview">- 주요 프로그램 : 공모전 수상작, 국내·외 초청장 상영회
+- 부대 행사 및 프로그램 : 개막식 / 시상식 / 축하공연 / 레드카펫 행사 / 이벤트 부스 운영 외</div></div>
+
+  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EC%A0%9C8%ED%9A%8C%20%EC%98%88%EC%B2%9C%EA%B5%AD%EC%A0%9C%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0%EC%98%81%ED%99%94%EC%A0%9C,36.5715986793,128.4887513731" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+</div>
+<div id="site-footer"></div>
+<script>
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 상세페이지 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>
