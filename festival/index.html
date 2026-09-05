@@ -192,9 +192,13 @@
     }
     fitKoreaBounds();
 
-    // "오늘의 축제" 패널에서 항목 클릭 시 해당 위치로 지도 이동
+    // "오늘의 축제" 패널에서 항목 클릭 시 해당 위치로 지도 이동.
+    // 페이지를 열자마자(사용자가 지도를 한 번도 조작하기 전) 바로 클릭하면 카카오맵이
+    // 컨테이너 크기를 아직 정확히 인식하지 못한 상태라 엉뚱한 위치로 이동하는 경우가 있어,
+    // 이동하기 직전에 항상 relayout으로 크기를 다시 동기화한다.
     function focusFestival(lat, lng) {
         if (!lat || !lng) return;
+        map.relayout();
         map.panTo(new kakao.maps.LatLng(lat, lng));
         map.setLevel(6);
     }
