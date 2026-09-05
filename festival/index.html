@@ -263,12 +263,19 @@
                 navigator.share({ title: '실시간 전국 축제 지도', url: shareUrl }).catch(function () {});
                 return;
             }
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(shareUrl)
-                    .then(function () { alert('링크가 복사되었습니다. 카카오톡에 붙여넣어 공유해주세요!'); })
-                    .catch(function () { prompt('아래 링크를 복사해서 카카오톡에 붙여넣어 공유해주세요', shareUrl); });
+            // PC 등 navigator.share 미지원 환경: 카카오톡 공유 카드로 전송
+            if (window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()) {
+                Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '실시간 전국 축제 지도',
+                        description: '오늘 어디서 축제가 열리는지 지도에서 바로 확인하세요.',
+                        imageUrl: 'https://hohoplaylab.com/data/banner.png',
+                        link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+                    }
+                });
             } else {
-                prompt('아래 링크를 복사해서 카카오톡에 붙여넣어 공유해주세요', shareUrl);
+                prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', shareUrl);
             }
             return;
         }
