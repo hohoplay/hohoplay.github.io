@@ -179,7 +179,7 @@ def build_today_html(festivals, today):
 
 def update_map_html(festivals, today):
     """festival/map.html 안의 TODAY_FESTIVALS 표시 구간을 오늘 날짜 기준으로 갱신한다."""
-    map_path = os.path.join('festival', 'map.html')
+    map_path = os.path.join('festival', 'index.html')
     if not os.path.exists(map_path):
         print(f"{map_path} 없음 — 오늘의 축제 패널 갱신 건너뜀")
         return
