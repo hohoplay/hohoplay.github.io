@@ -261,8 +261,11 @@
                     ]
                 });
             } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(shareUrl);
-                alert('링크가 복사되었습니다. 카카오톡에 붙여넣어 공유해주세요!');
+                navigator.clipboard.writeText(shareUrl)
+                    .then(function () { alert('링크가 복사되었습니다. 카카오톡에 붙여넣어 공유해주세요!'); })
+                    .catch(function () { prompt('아래 링크를 복사해서 카카오톡에 붙여넣어 공유해주세요', shareUrl); });
+            } else {
+                prompt('아래 링크를 복사해서 카카오톡에 붙여넣어 공유해주세요', shareUrl);
             }
             return;
         }
