@@ -256,14 +256,14 @@
         const text = encodeURIComponent('오늘 어디서 축제가 열리는지 한눈에 — 실시간 전국 축제 지도');
         let popupUrl = '';
         if (type === 'kakaot') {
-            // Kakao.Share.sendDefault()의 피드 카드가 엉뚱한 곳으로 연결되는 문제가 있어(URL/
-            // 초기화 상태는 정상인데도), 폰 자체의 공유 기능을 대신 쓴다. 이러면 카카오톡을
-            // 포함한 공유 목록이 바로 뜨고 대화상대만 골라 보낼 수 있어 복사·붙여넣기보다 편하다.
-            if (navigator.share) {
+            // navigator.share 지원 여부만으로는 PC/모바일이 안 갈린다(요즘 윈도우 크롬도
+            // navigator.share를 지원함). 그래서 실제 기기 종류로 직접 나눈다:
+            // 모바일 기기 → OS 공유 시트(navigator.share), PC → 카카오톡 공유 카드.
+            const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            if (isMobileDevice && navigator.share) {
                 navigator.share({ title: '실시간 전국 축제 지도', url: shareUrl }).catch(function () {});
                 return;
             }
-            // PC 등 navigator.share 미지원 환경: 카카오톡 공유 카드로 전송
             if (window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()) {
                 Kakao.Share.sendDefault({
                     objectType: 'feed',
