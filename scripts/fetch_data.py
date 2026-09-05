@@ -38,15 +38,12 @@ def fetch_all_items(max_retries=3):
     raise last_error
 
 
-def fetch_detail_overview(content_id, content_type_id='15', max_retries=2):
+def fetch_detail_overview(content_id, max_retries=2):
     """오늘의 축제 카드용으로, 특정 축제의 상세 설명(overview)을 프록시를 통해 받아온다.
-    content_type_id는 searchFestival2가 실제로 응답에 담아준 값을 그대로 넘긴다.
 
     detail.js는 실패해도 항상 JSON({"error": "진짜 이유..."}) 형태로 응답하도록 짜여있다.
-    이전 버전은 res.raise_for_status()를 먼저 호출해서 502 같은 상태코드를 만나면
-    본문을 읽기도 전에 예외를 던졌고, 그 결과 detail.js가 담아준 진짜 에러 메시지가
-    항상 버려지고 있었다. 이제는 상태코드와 무관하게 항상 본문을 먼저 파싱해서
-    진짜 원인을 그대로 로그에 남긴다.
+    상태코드와 무관하게 항상 본문을 먼저 파싱해서 진짜 원인을 그대로 로그에 남긴다
+    (res.raise_for_status()를 먼저 부르면 502 등에서 본문이 버려져 원인을 알 수 없게 된다).
     실패해도 전체 파이프라인을 막지 않도록 빈 문자열을 돌려준다."""
     if not content_id:
         return ''
@@ -55,11 +52,7 @@ def fetch_detail_overview(content_id, content_type_id='15', max_retries=2):
     last_message = ''
     for attempt in range(1, max_retries + 1):
         try:
-            res = requests.get(
-                detail_url,
-                params={'contentId': content_id, 'contentTypeId': content_type_id or '15'},
-                timeout=20
-            )
+            res = requests.get(detail_url, params={'contentId': content_id}, timeout=20)
             try:
                 data = res.json()
             except ValueError:
@@ -78,7 +71,7 @@ def fetch_detail_overview(content_id, content_type_id='15', max_retries=2):
         if attempt < max_retries:
             time.sleep(3)
 
-    print(f"상세 설명 조회 실패(contentId={content_id}, contentTypeId={content_type_id}): {last_message}")
+    print(f"상세 설명 조회 실패(contentId={content_id}): {last_message}")
     return ''
 
 
@@ -106,10 +99,9 @@ def build_today_html(festivals, today):
         lat = f.get('lat') or ''
         lng = f.get('lng') or ''
         content_id = f.get('contentid') or ''
-        content_type_id = f.get('contenttypeid') or '15'
         date_label = f"{fmt_date(start)} ~ {fmt_date(end)}"
 
-        overview = fetch_detail_overview(content_id, content_type_id)
+        overview = fetch_detail_overview(content_id)
         overview = html.escape(overview)
         if len(overview) > 160:
             overview = overview[:160].rstrip() + '…'
@@ -181,8 +173,7 @@ def main():
             'addr': item.get('addr1', ''),
             'image': item.get('firstimage', ''),
             'tel': item.get('tel', ''),
-            'contentid': item.get('contentid', ''),
-            'contenttypeid': item.get('contenttypeid', '15')
+            'contentid': item.get('contentid', '')
         })
 
     # repo 루트 기준 data/ 폴더에 저장 (workflow가 repo 루트에서 scripts/fetch_data.py로 실행하는 것을 전제)
