@@ -40,14 +40,19 @@ def fetch_all_items(max_retries=3):
 
 def fetch_detail_overview(content_id, content_type_id='15', max_retries=2):
     """오늘의 축제 카드용으로, 특정 축제의 상세 설명(overview)을 프록시를 통해 받아온다.
-    content_type_id는 searchFestival2가 실제로 응답에 담아준 값을 그대로 넘긴다
-    (하드코딩된 값이 실제 콘텐츠 타입과 안 맞으면 TourAPI가 INVALID_REQUEST_PARAMETER_ERROR를
-    돌려주기 때문).
+    content_type_id는 searchFestival2가 실제로 응답에 담아준 값을 그대로 넘긴다.
+
+    detail.js는 실패해도 항상 JSON({"error": "진짜 이유..."}) 형태로 응답하도록 짜여있다.
+    이전 버전은 res.raise_for_status()를 먼저 호출해서 502 같은 상태코드를 만나면
+    본문을 읽기도 전에 예외를 던졌고, 그 결과 detail.js가 담아준 진짜 에러 메시지가
+    항상 버려지고 있었다. 이제는 상태코드와 무관하게 항상 본문을 먼저 파싱해서
+    진짜 원인을 그대로 로그에 남긴다.
     실패해도 전체 파이프라인을 막지 않도록 빈 문자열을 돌려준다."""
     if not content_id:
         return ''
 
     detail_url = PROXY_URL.rsplit('/', 1)[0] + '/detail'
+    last_message = ''
     for attempt in range(1, max_retries + 1):
         try:
             res = requests.get(
@@ -55,17 +60,25 @@ def fetch_detail_overview(content_id, content_type_id='15', max_retries=2):
                 params={'contentId': content_id, 'contentTypeId': content_type_id or '15'},
                 timeout=20
             )
-            res.raise_for_status()
-            data = res.json()
-            if 'error' in data:
-                print(f"상세 설명 조회 실패(contentId={content_id}, contentTypeId={content_type_id}): {data['error']}")
-                return ''
-            return (data.get('overview') or '').strip()
-        except Exception as e:
-            if attempt < max_retries:
-                time.sleep(3)
+            try:
+                data = res.json()
+            except ValueError:
+                data = None
+
+            if res.ok and isinstance(data, dict) and 'error' not in data:
+                return (data.get('overview') or '').strip()
+
+            if isinstance(data, dict) and 'error' in data:
+                last_message = f"HTTP {res.status_code} - {data['error']}"
             else:
-                print(f"상세 설명 조회 실패(contentId={content_id}, contentTypeId={content_type_id}): {e}")
+                last_message = f"HTTP {res.status_code} - {(res.text or '')[:200]}"
+        except requests.exceptions.RequestException as e:
+            last_message = str(e)
+
+        if attempt < max_retries:
+            time.sleep(3)
+
+    print(f"상세 설명 조회 실패(contentId={content_id}, contentTypeId={content_type_id}): {last_message}")
     return ''
 
 
