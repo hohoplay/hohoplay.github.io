@@ -197,6 +197,7 @@
 </div>
 
 <div id="site-footer"></div>
+<div id="shareDebugLog" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#111; color:#0f0; font-size:11px; font-family:monospace; padding:8px 10px; z-index:9999; max-height:140px; overflow-y:auto; word-break:break-all;"></div>
 
 <script>
     const container = document.getElementById('map');
@@ -241,8 +242,16 @@
     // "오늘 축제가 열리는 곳" 패널 상단 공유 버튼들 — 메인 사이트(index.html)의
     // mainSnsShare()와 완전히 동일한 방식. 카카오톡은 이미 도메인 등록된 Kakao SDK로
     // 실제 카카오톡 공유 카드를 띄우고, 나머지는 각 서비스의 공유 팝업을 연다.
+    function logShareDebug(msg) {
+        const el = document.getElementById('shareDebugLog');
+        if (!el) return;
+        el.style.display = 'block';
+        el.textContent = '[DEBUG ' + new Date().toLocaleTimeString() + '] ' + msg;
+    }
+
     function shareFestivalMap(type) {
         const shareUrl = location.origin + '/festival/';
+        logShareDebug('type=' + type + ' | shareUrl=' + shareUrl + ' | Kakao초기화=' + !!(window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()));
         const url = encodeURIComponent(shareUrl);
         const text = encodeURIComponent('오늘 어디서 축제가 열리는지 한눈에 — 실시간 전국 축제 지도');
         let popupUrl = '';
