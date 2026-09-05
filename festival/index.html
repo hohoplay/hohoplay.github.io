@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 전국 축제 지도</title>
+    <link rel="icon" href="/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 100%; font-family: -apple-system, sans-serif; }
+
+        .page-flex { display: flex; flex-direction: column; }
+
+        .map-wrapper { order: 1; position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; }
+        #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .filter-container {
+            position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+            z-index: 10; width: 90%; max-width: 360px;
+        }
+        .region-select {
+            width: 100%; padding: 12px 16px; font-size: 15px; font-weight: bold;
+            color: #333; background: #fff; border: 2px solid #1a73e8; border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); outline: none; cursor: pointer;
+        }
+        .panel-region-select { margin-bottom: 16px; box-shadow: none; }
+
+        .festival-card {
+            position: absolute; bottom: -180px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; background: #fff; border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 14px; z-index: 10;
+            transition: bottom 0.3s ease; display: flex; gap: 12px; align-items: center;
+        }
+        .festival-card.active { bottom: 20px; }
+        .festival-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+
+        .remote-menu {
+            position: fixed; bottom: 16px; right: 16px; z-index: 20;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .remote-btn {
+            width: 54px; height: 54px; border-radius: 50%;
+            background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-decoration: none; color: #333; font-size: 20px; line-height: 1;
+            border: none; padding: 0; cursor: pointer; font-family: inherit;
+        }
+        .remote-btn .label { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
+
+        /* 오늘의 축제 패널 (기본 화면은 매일 자동 생성되는 정적 텍스트 — SEO용.
+           지역을 선택하면 아래 스크립트가 festivals.json을 걸러서 다시 그려준다) */
+        .today-panel {
+            order: 2; width: 100%; background: #fff; padding: 24px 20px 32px;
+        }
+        .today-panel h2 { font-size: 17px; font-weight: 800; color: #111; margin-bottom: 14px; }
+        .today-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .today-item {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 12px 14px; cursor: pointer; transition: background 0.15s;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .today-item:hover { background: #eef2ff; }
+        .today-item strong { font-size: 14px; color: #111; }
+        .today-region {
+            font-size: 10px; font-weight: 700; color: #1a73e8; background: #eef2ff;
+            display: inline-block; padding: 2px 8px; border-radius: 999px; align-self: flex-start;
+        }
+        .today-date { font-size: 12px; color: #ff5722; font-weight: 600; }
+        .today-addr { font-size: 11px; color: #666; }
+        .today-empty { font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0; list-style: none; }
+        .today-desc { font-size: 12px; color: #444; line-height: 1.45; }
+        .today-desc-loading { display: none; }
+        .today-map-link { font-size: 11px; color: #1a73e8; font-weight: 700; text-decoration: none; }
+        .today-map-link:hover { text-decoration: underline; }
+
+        .today-panel-close { display: none; }
+        .today-panel-backdrop { display: none; }
+        .today-toggle-btn { display: none; }
+
+        @media (max-width: 768px) {
+            .today-panel {
+                position: fixed; top: 0; left: 0; z-index: 30;
+                height: 100vh; height: 100dvh; width: 85%; max-width: 320px;
+                overflow-y: auto; box-shadow: 2px 0 16px rgba(0,0,0,0.25);
+                transform: translateX(-100%); transition: transform 0.3s ease;
+            }
+            .today-panel.open { transform: translateX(0); }
+            .today-panel-close {
+                display: flex; align-items: center; justify-content: center;
+                position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+                border-radius: 50%; border: none; background: #f1f5f9; color: #333;
+                font-size: 15px; cursor: pointer; z-index: 1;
+            }
+            .today-panel-backdrop {
+                display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+                z-index: 25; opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+            }
+            .today-panel-backdrop.open { opacity: 1; visibility: visible; }
+            .today-toggle-btn { display: flex; }
+        }
+
+        @media (min-width: 769px) {
+            .page-flex { flex-direction: row; }
+            .today-panel {
+                order: 1; flex: 0 0 320px; width: 320px; height: 100vh; height: 100dvh;
+                overflow-y: auto; box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+            }
+            .map-wrapper { order: 2; flex: 1 1 auto; }
+        }
+    </style>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=clusterer"></script>
+</head>
+<body>
+
+<div class="page-flex">
+    <div class="today-panel-backdrop" id="todayBackdrop" onclick="closeTodayPanel()"></div>
+    <aside class="today-panel" id="todayPanel">
+        <button class="today-panel-close" onclick="closeTodayPanel()" aria-label="닫기">✕</button>
+        <h2>🎪 오늘 축제가 열리는 곳</h2>
+        <select id="regionSelectPanel" class="region-select panel-region-select" onchange="filterRegion(this.value)">
+            <option value="all">전국 전체보기</option>
+            <option value="seoul">서울 / 인천 / 경기도</option>
+            <option value="gangwon">강원특별자치도</option>
+            <option value="chungcheong">세종 / 대전 / 충청도</option>
+            <option value="gyeongsang">경상도 (대구/울산/부산)</option>
+            <option value="jeolla">광주 / 전라도</option>
+            <option value="jeju">제주특별자치도</option>
+        </select>
+        <ul class="today-list">
+            <!-- TODAY_FESTIVALS_START -->
+            <li class="today-empty">축제 정보를 불러오는 중입니다...</li>
+            <!-- TODAY_FESTIVALS_END -->
+        </ul>
+    </aside>
+
+    <div class="map-wrapper">
+        <div class="filter-container">
+            <select id="regionSelect" class="region-select" onchange="filterRegion(this.value)">
+                <option value="all">전국 전체보기</option>
+                <option value="seoul">서울 / 인천 / 경기도</option>
+                <option value="gangwon">강원특별자치도</option>
+                <option value="chungcheong">세종 / 대전 / 충청도</option>
+                <option value="gyeongsang">경상도 (대구/울산/부산)</option>
+                <option value="jeolla">광주 / 전라도</option>
+                <option value="jeju">제주특별자치도</option>
+            </select>
+        </div>
+
+        <div id="map"></div>
+
+        <div id="festivalCard" class="festival-card">
+            <img id="cardImg" class="festival-thumb" src="" alt="축제 포스터">
+            <div>
+                <h4 id="cardTitle" style="font-size:15px; color:#111; margin-bottom:4px;">축제를 선택해주세요</h4>
+                <p id="cardDate" style="font-size:12px; color:#ff5722; font-weight:600;"></p>
+                <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;"></p>
+            </div>
+        </div>
+
+        <div class="remote-menu">
+            <button type="button" class="remote-btn today-toggle-btn" onclick="openTodayPanel()" aria-label="오늘의 축제 목록 열기">
+                <span>🎪</span><span class="label">축제</span>
+            </button>
+            <a href="/" class="remote-btn" aria-label="홈으로 가기">
+                <span>🏠</span><span class="label">홈</span>
+            </a>
+            <a href="/fortune/" class="remote-btn" aria-label="오늘의 운세로 가기">
+                <span>🔮</span><span class="label">운세</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+    const container = document.getElementById('map');
+    const mapOption = { center: new kakao.maps.LatLng(36.3504, 127.3845), level: 11 };
+    const map = new kakao.maps.Map(container, mapOption);
+
+    const clusterer = new kakao.maps.MarkerClusterer({
+        map: map, averageCenter: true, minLevel: 6
+    });
+
+    // 대한민국 전체(제주·독도 포함)가 화면에 다 들어오도록 경계 좌표로 맞춤
+    function fitKoreaBounds() {
+        const bounds = new kakao.maps.LatLngBounds();
+        bounds.extend(new kakao.maps.LatLng(33.0, 124.5)); // 남서쪽 (제주 서쪽)
+        bounds.extend(new kakao.maps.LatLng(38.7, 131.9)); // 북동쪽 (독도 포함)
+        map.setBounds(bounds);
+    }
+    fitKoreaBounds();
+
+    // "오늘의 축제" 패널에서 항목 클릭 시 해당 위치로 지도 이동
+    function focusFestival(lat, lng) {
+        if (!lat || !lng) return;
+        map.panTo(new kakao.maps.LatLng(lat, lng));
+        map.setLevel(6);
+    }
+
+    // 모바일에서 좌측 슬라이드 패널 열고 닫기
+    function openTodayPanel() {
+        document.getElementById('todayPanel').classList.add('open');
+        document.getElementById('todayBackdrop').classList.add('open');
+    }
+    function closeTodayPanel() {
+        document.getElementById('todayPanel').classList.remove('open');
+        document.getElementById('todayBackdrop').classList.remove('open');
+    }
+
+    // 모바일에서는 지도보다 "오늘 축제가 열리는 곳" 목록이 먼저 보이도록 기본으로 열어둔다.
+    // (닫기 버튼(✕)이나 배경을 눌러 지도를 볼 수 있고, 다시 우측 하단 🎪 버튼으로 열 수 있다)
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        openTodayPanel();
+    }
+
+    // 현재 선택된 지역(전국 전체 / 특정 지역)을 기억해뒀다가, 창 크기가 바뀔 때도
+    // 같은 범위를 다시 화면에 딱 맞게 잡아주기 위해 사용한다.
+    let currentRegionKey = 'all';
+
+    function fitToMarkers(markers) {
+        if (!markers || markers.length === 0) { fitKoreaBounds(); return; }
+        const bounds = new kakao.maps.LatLngBounds();
+        markers.forEach(function (m) { bounds.extend(m.getPosition()); });
+        map.setBounds(bounds);
+    }
+
+    // 모바일에서 주소창이 접히고 펴지며 화면 높이가 바뀔 때, 그리고 PC에서 창 크기를
+    // 줄였다 늘렸다 할 때 지도가 그 변화를 자동으로 반영하지 못하는 문제를 막기 위한 재정렬 처리.
+    // relayout만 하면 지도 "크기"는 맞춰져도 이전에 잡아뒀던 확대/축소 범위가 새 크기에는
+    // 안 맞아서 엉뚱한 위치가 보일 수 있어, 매번 현재 선택된 범위로 다시 맞춰준다.
+    function relayoutMap() {
+        map.relayout();
+        kakao.maps.event.trigger(map, 'resize');
+        if (currentRegionKey === 'all') {
+            fitKoreaBounds();
+        } else {
+            fitToMarkers(allMarkers);
+        }
+    }
+    setTimeout(relayoutMap, 300);
+    let relayoutTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(relayoutTimer);
+        relayoutTimer = setTimeout(relayoutMap, 150);
+    });
+    window.addEventListener('orientationchange', function () {
+        setTimeout(relayoutMap, 300);
+    });
+
+    // ── 지역 구분: fetch_data.py의 REGION_KEYWORDS/REGION_LABELS와 반드시 동일하게 맞출 것 ──
+    const REGION_KEYWORDS = {
+        seoul: ['서울', '인천', '경기'],
+        gangwon: ['강원'],
+        chungcheong: ['세종', '대전', '충북', '충남', '충청'],
+        gyeongsang: ['대구', '울산', '부산', '경북', '경남', '경상'],
+        jeolla: ['광주', '전북', '전남', '전라'],
+        jeju: ['제주']
+    };
+    const REGION_ORDER = ['seoul', 'gangwon', 'chungcheong', 'gyeongsang', 'jeolla', 'jeju'];
+    const REGION_LABELS = {
+        seoul: '서울·인천·경기',
+        gangwon: '강원',
+        chungcheong: '세종·대전·충청',
+        gyeongsang: '경상도',
+        jeolla: '광주·전라도',
+        jeju: '제주'
+    };
+    // Vercel 프록시 주소를 브라우저에서 직접 호출 (지역 선택 시 설명 문구를 즉시 받아오기 위함)
+    const DETAIL_PROXY_URL = 'https://festival-api-proxy.vercel.app/api/detail';
+
+    const TODAY_STR = (function () {
+        const d = new Date();
+        const pad = function (n) { return String(n).padStart(2, '0'); };
+        return '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+    })();
+
+    let festivalData = [];
+    let allMarkers = [];
+
+    fetch('/data/festivals.json')
+        .then(res => res.json())
+        .then(data => {
+            festivalData = data;
+            renderMarkers(data);
+            // 기본 화면(전국 전체보기)의 "오늘의 축제" 목록은 서버가 미리 만들어둔 정적
+            // HTML을 그대로 두고(SEO용), 사용자가 지역을 바꿀 때만 아래 renderTodayPanel이 동작한다.
+        });
+
+    function renderMarkers(data) {
+        clusterer.clear();
+        allMarkers = [];
+
+        data.forEach(item => {
+            const lat = parseFloat(item.lat);
+            const lng = parseFloat(item.lng);
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            const marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(lat, lng)
+            });
+
+            kakao.maps.event.addListener(marker, 'click', function() {
+                document.getElementById('cardTitle').innerText = item.title;
+                document.getElementById('cardDate').innerText = `📅 ${item.startDate} ~ ${item.endDate}`;
+                document.getElementById('cardAddr').innerText = `📍 ${item.addr}`;
+                document.getElementById('cardImg').src = item.image || 'https://via.placeholder.com/70';
+                document.getElementById('festivalCard').classList.add('active');
+            });
+
+            allMarkers.push(marker);
+        });
+        clusterer.addMarkers(allMarkers);
+    }
+
+    // ── 오늘 진행중인 축제 판별 (fetch_data.py의 today_list 필터링과 동일한 기준) ──
+    function isOngoing(item) {
+        return item.startDate && item.endDate
+            && item.startDate <= TODAY_STR && TODAY_STR <= item.endDate;
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+
+    function formatDateRange(start, end) {
+        function fmt(raw) {
+            return raw && raw.length === 8 ? raw.slice(0, 4) + '.' + raw.slice(4, 6) + '.' + raw.slice(6, 8) : (raw || '');
+        }
+        return fmt(start) + ' ~ ' + fmt(end);
+    }
+
+    // "전국 전체보기": 지역별로 마감이 가장 임박한 축제 1개씩 대표로 뽑는다 (최대 6개)
+    function pickRegionReps(ongoingList) {
+        const reps = [];
+        REGION_ORDER.forEach(function (key) {
+            const kws = REGION_KEYWORDS[key];
+            const inRegion = ongoingList.filter(function (item) {
+                return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+            });
+            if (inRegion.length === 0) return;
+            inRegion.sort(function (a, b) { return a.endDate.localeCompare(b.endDate); });
+            const rep = Object.assign({}, inRegion[0]);
+            rep._regionKey = key;
+            reps.push(rep);
+        });
+        return reps;
+    }
+
+    // 특정 지역 선택: 그 지역의 오늘 진행중인 축제를 마감임박순으로 최대 5개
+    function pickRegionList(ongoingList, key) {
+        const kws = REGION_KEYWORDS[key] || [];
+        const inRegion = ongoingList.filter(function (item) {
+            return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+        });
+        inRegion.sort(function (a, b) { return a.endDate.localeCompare(b.endDate); });
+        return inRegion.slice(0, 5);
+    }
+
+    function buildTodayItemHtml(item, showRegionTag) {
+        const lat = item.lat || '';
+        const lng = item.lng || '';
+        const title = escapeHtml(item.title);
+        const addr = escapeHtml(item.addr);
+        const dateLabel = formatDateRange(item.startDate, item.endDate);
+        const regionTag = (showRegionTag && item._regionKey)
+            ? '<span class="today-region">' + escapeHtml(REGION_LABELS[item._regionKey] || '') + '</span>'
+            : '';
+        let mapLinkHtml = '';
+        if (lat && lng) {
+            const mapUrl = 'https://map.kakao.com/link/map/' + encodeURIComponent(item.title || '축제') + ',' + lat + ',' + lng;
+            mapLinkHtml = '<a class="today-map-link" href="' + mapUrl + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a>';
+        }
+        return '<li class="today-item" data-cid="' + escapeHtml(item.contentid || '') + '" '
+            + 'onclick="focusFestival(' + lat + ', ' + lng + '); closeTodayPanel();">'
+            + regionTag
+            + '<strong>' + title + '</strong>'
+            + '<span class="today-date">📅 ' + dateLabel + '</span>'
+            + '<span class="today-addr">📍 ' + addr + '</span>'
+            + '<p class="today-desc today-desc-loading"></p>'
+            + mapLinkHtml
+            + '</li>';
+    }
+
+    // 화면에 실제로 보이는 항목만 골라 설명(overview)을 비동기로 받아와 채워 넣는다.
+    function loadOverviewsFor(items) {
+        const listEl = document.querySelector('.today-list');
+        items.forEach(function (item) {
+            if (!item.contentid) return;
+            fetch(DETAIL_PROXY_URL + '?contentId=' + encodeURIComponent(item.contentid))
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data || data.error || !data.overview) return;
+                    const li = listEl.querySelector('li[data-cid="' + item.contentid + '"]');
+                    if (!li) return;
+                    const p = li.querySelector('.today-desc');
+                    let text = data.overview.trim();
+                    if (text.length > 160) text = text.slice(0, 160).trimEnd() + '…';
+                    p.textContent = text;
+                    p.classList.remove('today-desc-loading');
+                })
+                .catch(function () { /* 설명 로딩 실패해도 목록 표시엔 영향 없음 */ });
+        });
+    }
+
+    // 지역 선택에 따라 "오늘 축제가 열리는 곳" 패널을 클라이언트에서 다시 그린다.
+    function renderTodayPanel(key) {
+        const listEl = document.querySelector('.today-list');
+        if (!listEl || festivalData.length === 0) return;
+
+        const ongoing = festivalData.filter(isOngoing);
+        let items = [];
+        let showRegionTag = false;
+
+        if (key === 'all') {
+            items = pickRegionReps(ongoing);
+            showRegionTag = true;
+            if (items.length === 0) {
+                items = ongoing.slice().sort(function (a, b) { return a.endDate.localeCompare(b.endDate); }).slice(0, 5);
+            }
+        } else {
+            items = pickRegionList(ongoing, key);
+        }
+
+        if (items.length === 0) {
+            listEl.innerHTML = '<li class="today-empty">오늘 진행 중인 축제가 없습니다. 곧 새로운 소식으로 찾아올게요!</li>';
+            return;
+        }
+
+        listEl.innerHTML = items.map(function (item) { return buildTodayItemHtml(item, showRegionTag); }).join('');
+        loadOverviewsFor(items);
+    }
+
+    function syncRegionSelectors(key) {
+        const sel1 = document.getElementById('regionSelect');
+        const sel2 = document.getElementById('regionSelectPanel');
+        if (sel1 && sel1.value !== key) sel1.value = key;
+        if (sel2 && sel2.value !== key) sel2.value = key;
+    }
+
+    function filterRegion(key) {
+        currentRegionKey = key;
+        syncRegionSelectors(key);
+        if (key === 'all') {
+            renderMarkers(festivalData);
+            fitKoreaBounds();
+        } else {
+            const keywords = REGION_KEYWORDS[key] || [];
+            const filtered = festivalData.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
+            renderMarkers(filtered);
+        }
+        renderTodayPanel(key);
+    }
+</script>
+
+<script>
+    // 공용 footer.html을 fetch로 불러와 삽입 (innerHTML로 넣은 <script>는 자동실행 안 되므로
+    // 삽입된 script 태그를 새로 만들어 교체하는 방식으로 실제 실행되게 처리)
+    fetch('/footer.html')
+        .then(res => res.text())
+        .then(html => {
+            const footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                const newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 지도 기능엔 영향 없음 */ });
+</script>
+</body>
+</html>
