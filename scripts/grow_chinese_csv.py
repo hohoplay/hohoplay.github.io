@@ -160,7 +160,14 @@ def grow(target_chinese: list[str], count_per: int):
         print(f'\n✅ 완료: {len(df)}개 → {len(result)}개 (+{len(new_rows)}개)')
         print(f'띠당: {len(result) // 12}개 / 타입당: {len(result) // (12*7)}개')
     else:
-        print('\n⚠️  새로 추가된 문장 없음')
+        print('\n⚠️  새로 추가된 문장 없음 — 위 "⚠️ API 오류" 로그를 확인하세요.')
+        if df.empty:
+            # 최초 실행(파일이 아직 없던 상태)인데 전부 실패하면 커밋할 내용 자체가 없음.
+            # 이걸 조용히 넘기면 다음 "변경사항 커밋" 단계에서 git add가 존재하지 않는
+            # 파일을 찾다가 훨씬 헷갈리는 에러(pathspec did not match any files)를 낸다.
+            # 원인이 여기 있다는 걸 바로 알 수 있도록 이 단계에서 명확히 실패시킨다.
+            print('❌ 기존 데이터도 없는 상태에서 전부 실패 — 커밋할 내용이 없어 작업을 중단합니다.')
+            sys.exit(1)
 
 
 def main():
