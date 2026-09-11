@@ -40,6 +40,16 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// [ADD] 국가코드(예: 'KR')를 국기 이모지로 변환. 유니코드 지역 표시 문자를
+// 조합하는 방식이라 별도 이미지·라이브러리 없이 바로 표시된다.
+// 마이그레이션 전에 작성된 예전 댓글은 country가 없거나 'XX'일 수 있어 그 경우 빈 문자열.
+function countryFlag(code) {
+  if (!code || code.length !== 2 || code === 'XX') return '';
+  const upper = code.toUpperCase();
+  const codePoints = [...upper].map(c => 0x1F1E6 + (c.charCodeAt(0) - 65));
+  return String.fromCodePoint(...codePoints);
+}
+
 function loadFirstPage() {
   currentOffset = 0;
   load();
@@ -71,13 +81,19 @@ async function load() {
     return;
   }
 
-  list.innerHTML = data.comments.map(c => `
+  list.innerHTML = data.comments.map(c => {
+    const flag = countryFlag(c.country);
+    const countryLabel = flag ? `${flag} ${escapeHtml(c.country)}` : '국가 미상';
+    const ipLabel = c.ip_address ? escapeHtml(c.ip_address) : 'IP 없음(마이그레이션 이전 댓글)';
+    return `
     <div class="comment">
       <button class="del" onclick="del(${c.id})">삭제</button>
       <div class="meta">[${escapeHtml(c.game_id)}] ${escapeHtml(c.nickname)} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
+      <div class="meta">${countryLabel} · ${ipLabel}</div>
       <div class="content">${escapeHtml(c.content)}</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   renderPager();
 }
