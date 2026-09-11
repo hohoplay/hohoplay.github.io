@@ -52,12 +52,17 @@
         .theme-chip.active { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
 
         .festival-card {
-            position: absolute; bottom: -180px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translate(-50%, 150%);
             width: 90%; max-width: 400px; background: #fff; border-radius: 14px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 14px; z-index: 10;
-            transition: bottom 0.3s ease; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+            transition: transform 0.3s ease; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
         }
-        .festival-card.active { bottom: 20px; }
+        /* [FIX] 예전엔 bottom:-180px ↔ bottom:20px로 숨겼는데, 무더위쉼터처럼 목록이
+           길게 펼쳐져서 카드 높이가 180px을 넘으면 위쪽이 화면에 남아 "사라지는 게
+           아니라 줄어드는" 것처럼 보였다. translateY를 퍼센트(자기 높이 기준)로 주면
+           내용이 아무리 길어져도 항상 카드 높이만큼 통째로 화면 밖으로 나간다. */
+        .festival-card.active { transform: translate(-50%, 0); }
         .festival-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
         /* 이미지가 없는 항목(무더위쉼터 등)은 아예 안 보이게 — 예전엔 외부 플레이스홀더
            이미지 서비스로 대체했는데, 그 서비스가 자주 안 뜨면서 대체 텍스트("축제
@@ -438,6 +443,9 @@
     };
     let currentThemes = new Set(); // 비어있으면 "전체(공원 제외)"와 동일
     let currentPeriod = 'today'; // 'today' | 'month' | 'nextmonth'
+    // [ADD] 무더위쉼터 목록 fetch의 경쟁 상태(race condition) 방지용 — 자세한 설명은
+    // 마커 클릭 핸들러 안 주석 참고.
+    let activeShelterRequestId = null;
 
     function fitToMarkers(markers) {
         if (!markers || markers.length === 0) { fitKoreaBounds(); return; }
@@ -574,13 +582,23 @@
                 // 무더위쉼터는 지역 단위로 묶인 클러스터 마커라, 클릭했을 때만
                 // 그 지역의 개별 목록(data/shelters/{contentid}.json)을 따로 불러와 보여준다.
                 // (전국 9만 건을 festivals.json 하나에 다 담을 수 없어 이렇게 나눠둠)
+                //
+                // [FIX] 경쟁 상태(race condition) 방지: 쉼터 목록을 받아오는 도중에
+                // 다른 마커(예: 축제)를 클릭하면, 먼저 보낸 요청의 응답이 나중에 도착해서
+                // 방금 바꾼 화면을 다시 덮어써버리는 문제가 있었다("축제를 눌렀는데 쉼터
+                // 목록이 다시 나타남"). activeShelterRequestId로 "지금 화면에서 유효한
+                // 요청이 어느 것인지" 표시해두고, 응답이 왔을 때 그 사이 다른 걸 클릭해서
+                // 이미 무효해진 요청이면 화면을 건드리지 않고 그냥 버린다.
                 const shelterListEl = document.getElementById('cardShelterList');
                 if (item.type === 'shelter' && item.contentid) {
+                    const requestId = item.contentid + ':' + Date.now();
+                    activeShelterRequestId = requestId;
                     shelterListEl.style.display = 'block';
                     shelterListEl.innerHTML = '<li class="shelter-list-loading">목록을 불러오는 중...</li>';
                     fetch('/data/shelters/' + encodeURIComponent(item.contentid) + '.json')
                         .then(res => { if (!res.ok) throw new Error('not ok'); return res.json(); })
                         .then(list => {
+                            if (activeShelterRequestId !== requestId) return; // 그 사이 다른 마커 클릭됨 — 무시
                             if (!Array.isArray(list) || list.length === 0) {
                                 shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
                                 return;
@@ -602,9 +620,11 @@
                             });
                         })
                         .catch(function () {
+                            if (activeShelterRequestId !== requestId) return; // 그 사이 다른 마커 클릭됨 — 무시
                             shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
                         });
                 } else {
+                    activeShelterRequestId = null; // 진행 중이던 쉼터 목록 요청이 있어도 이후 응답을 무시하게
                     shelterListEl.style.display = 'none';
                     shelterListEl.innerHTML = '';
                 }
@@ -699,8 +719,10 @@
         });
     }
 
-    // [ADD] 카드 닫기 버튼
+    // [ADD] 카드 닫기 버튼 — 진행 중이던 쉼터 목록 요청도 함께 무효화해서, 닫은 뒤에
+    // 뒤늦게 응답이 와도 화면을 건드리지 않게 한다.
     function closeFestivalCard() {
+        activeShelterRequestId = null;
         document.getElementById('festivalCard').classList.remove('active');
     }
 
