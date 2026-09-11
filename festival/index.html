@@ -59,6 +59,21 @@
         }
         .festival-card.active { bottom: 20px; }
         .festival-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+        /* 이미지가 없는 항목(무더위쉼터 등)은 아예 안 보이게 — 예전엔 외부 플레이스홀더
+           이미지 서비스로 대체했는데, 그 서비스가 자주 안 뜨면서 대체 텍스트("축제
+           포스터")가 그대로 글자로 노출되는 문제가 있었음. */
+        .festival-thumb.no-image { display: none; }
+        #cardCloseBtn {
+            position: absolute; top: 8px; right: 10px; width: 26px; height: 26px;
+            border: none; background: #f1f5f9; color: #64748b; border-radius: 50%;
+            font-size: 14px; line-height: 1; cursor: pointer; z-index: 1;
+        }
+        #cardCloseBtn:hover { background: #e2e8f0; color: #1e293b; }
+        .copy-addr-btn {
+            border: none; background: none; cursor: pointer; font-size: 12px;
+            padding: 0 2px; vertical-align: middle; opacity: 0.7;
+        }
+        .copy-addr-btn:hover { opacity: 1; }
 
         /* 무더위쉼터처럼 클러스터로 묶인 항목을 클릭했을 때, 그 지역 개별 목록을
            카드 아래쪽에 펼쳐서 보여주는 영역. flex-basis:100%로 강제 줄바꿈해서
@@ -68,7 +83,8 @@
             overflow-y: auto; margin: 10px 0 0; padding: 8px 0 0;
             list-style: none; border-top: 1px solid #f1f5f9;
         }
-        .shelter-list-item { font-size: 11px; padding: 5px 0; border-bottom: 1px solid #f8fafc; }
+        .shelter-list-item { font-size: 11px; padding: 5px 0; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+        .shelter-list-item .shelter-list-text { flex: 1; min-width: 0; }
         .shelter-list-item strong { color: #0891b2; display: block; }
         .shelter-list-item span { color: #94a3b8; }
         .shelter-list-loading, .shelter-list-empty { font-size: 11px; color: #94a3b8; padding: 6px 0; }
@@ -218,8 +234,8 @@
         <div style="margin-bottom:14px;"></div>
         <ul class="today-list">
             <!-- TODAY_FESTIVALS_START -->
-<li class="today-item" data-cid="3354966" onclick="focusFestival(37.5445089972, 126.9618771947); closeTodayPanel();"><span class="today-region">서울·인천·경기</span><strong>용산 국가유산야행</strong><span class="today-date">📅 2026.09.11 ~ 2026.09.12</span><span class="today-addr">📍 서울특별시 용산구 효창원로 177-18 (효창동)</span><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3354966.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%9A%A9%EC%82%B0%20%EA%B5%AD%EA%B0%80%EC%9C%A0%EC%82%B0%EC%95%BC%ED%96%89,37.5445089972,126.9618771947" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="1409287" onclick="focusFestival(37.3368480903, 127.9436723245); closeTodayPanel();"><span class="today-region">강원</span><strong>삼토 페스티벌</strong><span class="today-date">📅 2026.09.11 ~ 2026.09.13</span><span class="today-addr">📍 강원특별자치도 원주시 서원대로 311 (명륜동)</span><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/1409287.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%82%BC%ED%86%A0%20%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,37.3368480903,127.9436723245" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4104786" onclick="focusFestival(36.3278680000, 127.4193445000); closeTodayPanel();"><span class="today-region">세종·대전·충청</span><strong>대전 중구 국가유산야행</strong><span class="today-date">📅 2026.09.11 ~ 2026.09.13</span><span class="today-addr">📍 대전광역시 중구 중앙로79번길</span><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4104786.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%8C%80%EC%A0%84%20%EC%A4%91%EA%B5%AC%20%EA%B5%AD%EA%B0%80%EC%9C%A0%EC%82%B0%EC%95%BC%ED%96%89,36.3278680000,127.4193445000" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2748395" onclick="focusFestival(35.8312933337, 128.5769703970); closeTodayPanel();"><span class="today-region">경상도</span><strong>남구청년예술제</strong><span class="today-date">📅 2026.09.01 ~ 2026.09.11</span><span class="today-addr">📍 대구광역시 남구 앞산순환로 478 (대명동)</span><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2748395.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%82%A8%EA%B5%AC%EC%B2%AD%EB%85%84%EC%98%88%EC%88%A0%EC%A0%9C,35.8312933337,128.5769703970" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="506523" onclick="focusFestival(36.0023418250, 127.6625749245); closeTodayPanel();"><span class="today-region">광주·전라도</span><strong>무주반딧불축제</strong><span class="today-date">📅 2026.09.04 ~ 2026.09.12</span><span class="today-addr">📍 전북특별자치도 무주군 무주읍 한풍루로 326-17</span><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/506523.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%AC%B4%EC%A3%BC%EB%B0%98%EB%94%A7%EB%B6%88%EC%B6%95%EC%A0%9C,36.0023418250,127.6625749245" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3512205" onclick="focusFestival(33.24708081676599, 126.56445889201075); closeTodayPanel();"><span class="today-region">제주</span><strong>2026 서귀포 원도심 문화페스티벌</strong><span class="today-date">📅 2026.04.11 ~ 2026.10.30</span><span class="today-addr">📍 제주특별자치도 서귀포시 이중섭로 11 (서귀동)</span><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3512205.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%84%9C%EA%B7%80%ED%8F%AC%20%EC%9B%90%EB%8F%84%EC%8B%AC%20%EB%AC%B8%ED%99%94%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,33.24708081676599,126.56445889201075" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li>
-<!-- TODAY_FESTIVALS_END -->
+            <li class="today-empty">축제 정보를 불러오는 중입니다...</li>
+            <!-- TODAY_FESTIVALS_END -->
         </ul>
         <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.6">
             축제 정보는 최신 데이터를 기준으로 하루 약 3회 업데이트됩니다.<br>
@@ -244,11 +260,15 @@
         <div id="map"></div>
 
         <div id="festivalCard" class="festival-card">
-            <img id="cardImg" class="festival-thumb" src="" alt="축제 포스터">
+            <button type="button" id="cardCloseBtn" onclick="closeFestivalCard()" aria-label="닫기">✕</button>
+            <img id="cardImg" class="festival-thumb" src="" alt="포스터">
             <div>
                 <h4 id="cardTitle" style="font-size:15px; color:#111; margin-bottom:4px;">축제를 선택해주세요</h4>
                 <p id="cardDate" style="font-size:12px; color:#ff5722; font-weight:600;"></p>
-                <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;"></p>
+                <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;">
+                    <span id="cardAddrText"></span>
+                    <button type="button" id="cardAddrCopyBtn" class="copy-addr-btn" title="주소 복사" style="display:none">📋</button>
+                </p>
                 <a id="cardDetailLink" href="#" style="font-size:11px; color:#1a73e8; font-weight:700; text-decoration:none; display:none; margin-top:4px;">상세보기 →</a>
             </div>
             <ul id="cardShelterList" class="shelter-list"></ul>
@@ -519,8 +539,29 @@
                 document.getElementById('cardDate').innerText = (item.startDate && item.endDate)
                     ? `📅 ${item.startDate} ~ ${item.endDate}`
                     : (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : '🌳 상시 개방');
-                document.getElementById('cardAddr').innerText = `📍 ${item.addr}`;
-                document.getElementById('cardImg').src = item.image || 'https://via.placeholder.com/70';
+
+                document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
+                const addrCopyBtn = document.getElementById('cardAddrCopyBtn');
+                if (item.addr) {
+                    addrCopyBtn.style.display = 'inline';
+                    addrCopyBtn.onclick = function () { copyToClipboard(item.addr, addrCopyBtn); };
+                } else {
+                    addrCopyBtn.style.display = 'none';
+                }
+
+                // 이미지가 없으면 아예 안 보이게 한다. 예전엔 외부 플레이스홀더 이미지
+                // 서비스(via.placeholder.com)로 대체했는데, 그 서비스가 요즘 잘 안 떠서
+                // 로딩 실패 시 대체 텍스트("포스터")가 그냥 글자로 노출되는 문제가 있었다
+                // (무더위쉼터처럼 원래 이미지가 없는 타입에서 특히 어색하게 보임).
+                const cardImg = document.getElementById('cardImg');
+                if (item.image) {
+                    cardImg.src = item.image;
+                    cardImg.classList.remove('no-image');
+                } else {
+                    cardImg.src = '';
+                    cardImg.classList.add('no-image');
+                }
+
                 const detailLink = document.getElementById('cardDetailLink');
                 if (item.contentid && item.hasDetail) {
                     detailLink.href = '/festival/detail/' + encodeURIComponent(item.contentid) + '.html';
@@ -544,10 +585,21 @@
                                 shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
                                 return;
                             }
-                            shelterListEl.innerHTML = list.map(function (s) {
-                                return '<li class="shelter-list-item"><strong>' + escapeHtml(s.title) + '</strong>'
-                                    + '<span>' + escapeHtml(s.addr) + '</span></li>';
+                            shelterListEl.innerHTML = list.map(function (s, idx) {
+                                return '<li class="shelter-list-item">'
+                                    + '<span class="shelter-list-text"><strong>' + escapeHtml(s.title) + '</strong>'
+                                    + '<span>' + escapeHtml(s.addr) + '</span></span>'
+                                    + '<button type="button" class="copy-addr-btn shelter-copy-btn" data-idx="' + idx + '" title="주소 복사">📋</button>'
+                                    + '</li>';
                             }).join('');
+                            // [ADD] 개별 쉼터 주소 복사 — onclick 문자열 안에 주소를 직접 끼워
+                            // 넣지 않고 버튼마다 리스너를 따로 붙인다(주소에 따옴표 등이 섞여도
+                            // 절대 깨지지 않도록). 목록이 커봐야 수백 건이라 성능 문제도 없다.
+                            shelterListEl.querySelectorAll('.shelter-copy-btn').forEach(function (btn) {
+                                btn.addEventListener('click', function () {
+                                    copyToClipboard(list[Number(btn.dataset.idx)].addr, btn);
+                                });
+                            });
                         })
                         .catch(function () {
                             shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
@@ -628,6 +680,28 @@
         const div = document.createElement('div');
         div.textContent = str || '';
         return div.innerHTML;
+    }
+
+    // [ADD] 주소 복사 버튼 — 복사 후 잠깐 체크 표시로 바꿔 성공했다는 걸 알려준다.
+    // 클립보드 API를 지원 안 하는(또는 HTTPS가 아닌) 아주 오래된 환경 대비용 안내도 넣음.
+    function copyToClipboard(text, btn) {
+        if (!navigator.clipboard) {
+            alert('이 브라우저에서는 자동 복사가 지원되지 않습니다. 주소를 직접 선택해서 복사해주세요.');
+            return;
+        }
+        navigator.clipboard.writeText(text).then(function () {
+            if (!btn) return;
+            const original = btn.textContent;
+            btn.textContent = '✅';
+            setTimeout(function () { btn.textContent = original; }, 1200);
+        }).catch(function () {
+            alert('복사에 실패했습니다. 주소를 직접 선택해서 복사해주세요.');
+        });
+    }
+
+    // [ADD] 카드 닫기 버튼
+    function closeFestivalCard() {
+        document.getElementById('festivalCard').classList.remove('active');
     }
 
     function formatDateRange(start, end) {
