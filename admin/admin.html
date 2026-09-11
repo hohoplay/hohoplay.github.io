@@ -10,7 +10,14 @@
   .comment { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; }
   .meta { font-size: 12px; color: #888; margin-bottom: 4px; }
   .content { font-size: 14px; color: #333; white-space: pre-wrap; word-break: break-word; }
-  button.del { background: #ef4444; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; }
+  button.del { background: #ef4444; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; margin-left: 6px; }
+  button.edit { background: #4f46e5; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; }
+  .edit-nickname { margin-bottom: 8px; }
+  .edit-content { width: 100%; min-height: 90px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font: inherit; box-sizing: border-box; resize: vertical; }
+  .edit-actions { margin-top: 8px; display: flex; gap: 8px; }
+  .edit-actions button { border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; }
+  .edit-save { background: #4f46e5; color: #fff; }
+  .edit-cancel { background: #e2e8f0; color: #1e293b; }
   .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; font-size: 13px; color: #555; }
   .pager button { padding: 6px 14px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
   .pager button:disabled { color: #bbb; cursor: not-allowed; }
@@ -18,6 +25,7 @@
 </head>
 <body>
 <h1>💬 댓글 관리</h1>
+<p style="font-size:13px;color:#64748b;margin-top:-8px">퀴즈·투표·게임·공략 등 사이트 전체 댓글을 한 곳에서 관리합니다. game_id를 비워두면 전체가 보입니다.</p>
 <input id="key" type="password" placeholder="관리자 키 입력">
 <input id="gameFilter" type="text" placeholder="game_id로 필터 (비우면 전체, 예: game1)">
 <button onclick="loadFirstPage()">불러오기</button>
@@ -29,6 +37,11 @@ const API = 'https://old-rain-16f7.lyh0929mm.workers.dev';
 const PAGE_SIZE = 50;
 let currentOffset = 0;
 let currentTotal = 0;
+// [ADD] 수정 버튼을 눌렀을 때 onclick 속성 문자열 안에 닉네임/내용을 직접 끼워 넣지
+// 않기 위해, 방금 불러온 원본 댓글 목록을 그대로 들고 있다가 id로 찾아 쓴다.
+// (문자열을 onclick="...('내용')" 식으로 직접 삽입하면 따옴표·역슬래시가 섞였을 때
+// JS 문자열이 깨지거나 스크립트 삽입으로 이어질 수 있어 이 방식이 더 안전하다.)
+let currentComments = [];
 
 // [FIX] 기존에는 content만 '<'를 문자열 치환으로 막고 있었고, nickname과
 // game_id는 아예 이스케이프가 없었다(관리자 화면에 그대로 삽입되는 구조라
@@ -38,6 +51,14 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str == null ? '' : String(str);
   return div.innerHTML;
+}
+
+// [ADD] escapeHtml()은 텍스트 위치(예: <div>여기</div>)에서만 안전하고, 큰따옴표는
+// 이스케이프하지 않는다(브라우저의 텍스트 노드 직렬화 규칙상 &, <, >만 변환됨).
+// 그래서 value="..." 처럼 속성값 안에 넣을 때는 큰따옴표까지 추가로 막아야
+// 값에 큰따옴표가 포함된 닉네임이 속성을 깨고 나오는 것을 막을 수 있다.
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/"/g, '&quot;');
 }
 
 // [ADD] 국가코드(예: 'KR')를 국기 이모지로 변환. 유니코드 지역 표시 문자를
@@ -74,6 +95,7 @@ async function load() {
   }
 
   currentTotal = data.total || 0;
+  currentComments = data.comments;
 
   if (!data.comments.length) {
     list.innerHTML = '<p>댓글이 없습니다.</p>';
@@ -86,8 +108,9 @@ async function load() {
     const countryLabel = flag ? `${flag} ${escapeHtml(c.country)}` : '국가 미상';
     const ipLabel = c.ip_address ? escapeHtml(c.ip_address) : 'IP 없음(마이그레이션 이전 댓글)';
     return `
-    <div class="comment">
+    <div class="comment" data-id="${c.id}">
       <button class="del" onclick="del(${c.id})">삭제</button>
+      <button class="edit" onclick="editComment(${c.id})">수정</button>
       <div class="meta">[${escapeHtml(c.game_id)}] ${escapeHtml(c.nickname)} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
       <div class="meta">${countryLabel} · ${ipLabel}</div>
       <div class="content">${escapeHtml(c.content)}</div>
@@ -96,6 +119,54 @@ async function load() {
   }).join('');
 
   renderPager();
+}
+
+// [ADD] 댓글 수정 — 신고·오타 등으로 관리자가 내용을 직접 고쳐야 할 때 쓴다.
+// 해당 카드만 입력폼으로 바꿔치기하고, 저장/취소 시 목록 전체를 다시 불러와
+// 화면을 새로 그린다(부분 갱신보다 단순하고, 페이지네이션 상태와도 항상 일치함).
+function editComment(id) {
+  const c = currentComments.find(x => x.id === id);
+  if (!c) return;
+  const div = document.querySelector('.comment[data-id="' + id + '"]');
+  if (!div) return;
+
+  div.innerHTML = `
+    <input class="edit-nickname" value="${escapeAttr(c.nickname)}" maxlength="20">
+    <textarea class="edit-content" maxlength="300">${escapeHtml(c.content)}</textarea>
+    <div class="edit-actions">
+      <button class="edit-save" onclick="saveEdit(${id})">저장</button>
+      <button class="edit-cancel" onclick="load()">취소</button>
+    </div>
+  `;
+}
+
+async function saveEdit(id) {
+  const div = document.querySelector('.comment[data-id="' + id + '"]');
+  if (!div) return;
+  const nickname = div.querySelector('.edit-nickname').value.trim();
+  const content = div.querySelector('.edit-content').value.trim();
+
+  if (!nickname || !content) {
+    alert('닉네임과 내용을 모두 입력해주세요.');
+    return;
+  }
+
+  const key = document.getElementById('key').value;
+  try {
+    const res = await fetch(API + '/admin/comments?key=' + encodeURIComponent(key), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, nickname, content }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('수정 실패: ' + (data.error || res.status));
+      return;
+    }
+    load();
+  } catch (e) {
+    alert('네트워크 오류: ' + e.message);
+  }
 }
 
 // [ADD] 페이지네이션 — 댓글이 많아지면서 한 번에 200건 다 보여주던 방식은
