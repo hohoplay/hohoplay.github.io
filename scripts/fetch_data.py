@@ -384,10 +384,12 @@ def generate_detail_pages(festivals):
     print(f"상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건 (festival/detail/)")
 
 
-def build_nature_page_html(spot, overview):
-    """수목원·공원·자연휴양림 1건에 대한 독립 상세페이지를 만든다.
-    축제와 달리 시작/종료일, 주최자, 이용요금 같은 축제 전용 필드가 없어서,
-    contentTypeId와 무관하게 항상 내려오는 공통 정보(개요·주소·전화·지도)만으로 구성한다."""
+def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
+    """수목원·공원·자연휴양림(및 캠핑장·수상레저 등 같은 방식으로 취급하는 상시 개방
+    장소) 1건에 대한 독립 상세페이지를 만든다. 축제와 달리 시작/종료일, 주최자,
+    이용요금 같은 축제 전용 필드가 없어서, contentTypeId와 무관하게 항상 내려오는
+    공통 정보(개요·주소·전화·지도)만으로 구성한다.
+    page_label만 종류별로 바꿔주면 자연관광지 외 다른 상시 개방 장소에도 그대로 쓸 수 있다."""
     title = html.escape(spot.get('title') or '')
     addr = html.escape(spot.get('addr') or '')
     lat = spot.get('lat') or ''
@@ -409,7 +411,7 @@ def build_nature_page_html(spot, overview):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title} - 전국 자연공원·수목원 지도</title>
+<title>{title} - 전국 {page_label} 지도</title>
 <meta name="description" content="{title} | {addr}">
 <link rel="icon" href="/favicon.svg">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
@@ -434,14 +436,16 @@ body{{font-family:'Noto Sans KR',sans-serif;max-width:640px;margin:0 auto;paddin
 </html>'''
 
 
-def generate_nature_detail_pages(spots, max_new=40):
-    """자연관광지 상세페이지를 생성한다. generate_detail_pages()와 동일한 원칙
-    (이미 있는 페이지는 재생성하지 않고, 애드센스 코드 누락만 보정)을 따른다.
+def generate_nature_detail_pages(spots, max_new=40, page_label='자연공원·수목원', log_label='자연관광지'):
+    """상시 개방 장소(자연관광지·캠핑장·수상레저 등)의 상세페이지를 생성한다.
+    generate_detail_pages()와 동일한 원칙(이미 있는 페이지는 재생성하지 않고,
+    애드센스 코드 누락만 보정)을 따른다.
 
     max_new: 이번 실행에서 새로 만들 상세페이지 개수 상한. 축제(searchFestival2)와
-    자연관광지(areaBasedList2+detailCommon2)가 같은 TourAPI 일일 할당량을 나눠 쓰기 때문에,
-    첫 실행처럼 한꺼번에 수백 건을 만들려고 하면 "일일 서비스 요청제한 초과"로 실패한다.
-    한 번에 조금씩만 만들고 나머지는 다음 실행(하루 3회)에서 이어서 만들도록 제한한다."""
+    이 함수를 쓰는 모든 종류(areaBasedList2+detailCommon2)가 같은 TourAPI 일일
+    할당량을 나눠 쓰기 때문에, 첫 실행처럼 한꺼번에 수백 건을 만들려고 하면
+    "일일 서비스 요청제한 초과"로 실패한다. 한 번에 조금씩만 만들고 나머지는
+    다음 실행(하루 3회)에서 이어서 만들도록 제한한다."""
     detail_dir = os.path.join('festival', 'detail')
     os.makedirs(detail_dir, exist_ok=True)
 
@@ -470,14 +474,14 @@ def generate_nature_detail_pages(spots, max_new=40):
             continue  # 이번 실행 할당량 소진 — 다음 실행에서 이어서 생성
 
         overview = fetch_detail_overview(content_id)
-        page_html = build_nature_page_html(spot, overview)
+        page_html = build_nature_page_html(spot, overview, page_label=page_label)
         with open(out_path, 'w', encoding='utf-8') as fp:
             fp.write(page_html)
         new_count += 1
         time.sleep(0.3)
 
     remaining_note = f", 다음 실행으로 이월: {skipped_for_quota}건" if skipped_for_quota else ""
-    print(f"자연관광지 상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건{remaining_note}")
+    print(f"{log_label} 상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건{remaining_note}")
 
 
 def _pick_field(item, candidates, default=''):
@@ -880,6 +884,49 @@ def main():
     except Exception as e:
         print(f"자연관광지 수집 실패, 이번 실행에서는 건너뜁니다: {e}")
 
+    # ── 캠핑장(야영장·오토캠핑장) — 자연관광지와 동일하게 상시 개방 장소로 취급.
+    # TourAPI contentTypeId=28(레포츠), cat2=A0302(육상레포츠) 중 cat3=A03021700만
+    # 콕 집어서, 같은 cat2 안의 골프연습장·스키장·서바이벌게임장 등은 걸러낸다.
+    camping_spots = []
+    try:
+        camping_items = fetch_all_items('camping')
+        for item in camping_items:
+            camping_spots.append({
+                'type': 'camping',
+                'title': item.get('title'),
+                'lat': item.get('mapy'),
+                'lng': item.get('mapx'),
+                'startDate': '',
+                'endDate': '',
+                'addr': item.get('addr1', ''),
+                'image': item.get('firstimage', ''),
+                'tel': item.get('tel', ''),
+                'contentid': item.get('contentid', '')
+            })
+    except Exception as e:
+        print(f"캠핑장 수집 실패, 이번 실행에서는 건너뜁니다: {e}")
+
+    # ── 수상레저(수상스키·래프팅·보트 등) — 위와 동일한 방식.
+    # cat2=A0301(수상레포츠) 하나로 충분히 좁혀져서 cat3까지는 지정하지 않았다.
+    watersports_spots = []
+    try:
+        watersports_items = fetch_all_items('watersports')
+        for item in watersports_items:
+            watersports_spots.append({
+                'type': 'watersports',
+                'title': item.get('title'),
+                'lat': item.get('mapy'),
+                'lng': item.get('mapx'),
+                'startDate': '',
+                'endDate': '',
+                'addr': item.get('addr1', ''),
+                'image': item.get('firstimage', ''),
+                'tel': item.get('tel', ''),
+                'contentid': item.get('contentid', '')
+            })
+    except Exception as e:
+        print(f"수상레저 수집 실패, 이번 실행에서는 건너뜁니다: {e}")
+
     # ── 무더위쉼터 — 폭염 대책기간(5.20~9.30)에만 수집한다.
     # 전국 규모가 9만3천여 곳(2026년 기준)이라 개별 항목을 festivals.json에 그대로
     # 넣을 수 없어(모든 방문자가 페이지 열 때마다 통째로 받아야 함), 지역(시/군/구)
@@ -903,16 +950,19 @@ def main():
     else:
         print("폭염 대책기간(5.20~9.30) 밖이라 무더위쉼터는 수집하지 않습니다.")
 
-    all_map_items = festivals + nature_spots + shelters
+    all_map_items = festivals + nature_spots + camping_spots + watersports_spots + shelters
 
     # ── 상세페이지 생성을 JSON 저장보다 먼저 한다 ──
-    # 자연관광지는 하루 40건씩만 새로 만들어지므로(API 할당량 보호), 아직 상세페이지가
-    # 없는 곳도 지도에는 항상 나온다. 그런 곳까지 "상세보기" 버튼을 보여주면 클릭 시
-    # 404가 나므로, 실제로 파일이 존재하는지 확인해서 hasDetail로 표시해둔다.
+    # 자연관광지·캠핑장·수상레저는 하루 40건씩만 새로 만들어지므로(API 할당량 보호),
+    # 아직 상세페이지가 없는 곳도 지도에는 항상 나온다. 그런 곳까지 "상세보기" 버튼을
+    # 보여주면 클릭 시 404가 나므로, 실제로 파일이 존재하는지 확인해서 hasDetail로
+    # 표시해둔다.
     # 무더위쉼터는 지역 클러스터라 개별 상세페이지 자체가 없음(클릭 시 지역 목록을
     # data/shelters/에서 바로 불러오는 방식이라 hasDetail은 항상 False로 계산됨 — 정상).
     generate_detail_pages(festivals)
     generate_nature_detail_pages(nature_spots)
+    generate_nature_detail_pages(camping_spots, page_label='캠핑장', log_label='캠핑장')
+    generate_nature_detail_pages(watersports_spots, page_label='수상레저', log_label='수상레저')
 
     detail_dir = os.path.join('festival', 'detail')
     for it in all_map_items:
@@ -924,7 +974,7 @@ def main():
     with open('data/festivals.json', 'w', encoding='utf-8') as f:
         json.dump(all_map_items, f, ensure_ascii=False, indent=2)
 
-    print(f"총 수신 {len(all_items)}건, 진행중/예정 축제 {len(festivals)}건 + 자연관광지 {len(nature_spots)}건 + 무더위쉼터 {len(shelters)}건 data/festivals.json에 저장 완료.")
+    print(f"총 수신 {len(all_items)}건, 진행중/예정 축제 {len(festivals)}건 + 자연관광지 {len(nature_spots)}건 + 캠핑장 {len(camping_spots)}건 + 수상레저 {len(watersports_spots)}건 + 무더위쉼터 {len(shelters)}건 data/festivals.json에 저장 완료.")
 
     update_map_html(all_map_items, TODAY)
 
@@ -953,8 +1003,9 @@ def main():
             'contentid': content_id,
         })
 
-    # 자연관광지는 상시 개방 장소라 기간 제한 없이 상세페이지가 존재하는 것만 그대로 포함
-    for spot in nature_spots:
+    # 자연관광지·캠핑장·수상레저는 상시 개방 장소라 기간 제한 없이 상세페이지가
+    # 존재하는 것만 그대로 포함 (셋 다 같은 방식으로 처리되어 한 루프로 묶음)
+    for spot in nature_spots + camping_spots + watersports_spots:
         content_id = spot.get('contentid', '')
         if not content_id:
             continue
