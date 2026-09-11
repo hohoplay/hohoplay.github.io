@@ -55,10 +55,23 @@
             position: absolute; bottom: -180px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 400px; background: #fff; border-radius: 14px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 14px; z-index: 10;
-            transition: bottom 0.3s ease; display: flex; gap: 12px; align-items: center;
+            transition: bottom 0.3s ease; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
         }
         .festival-card.active { bottom: 20px; }
         .festival-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+
+        /* 무더위쉼터처럼 클러스터로 묶인 항목을 클릭했을 때, 그 지역 개별 목록을
+           카드 아래쪽에 펼쳐서 보여주는 영역. flex-basis:100%로 강제 줄바꿈해서
+           이미지+제목 줄 아래에 전체 너비로 붙는다. */
+        .shelter-list {
+            display: none; flex-basis: 100%; width: 100%; max-height: 180px;
+            overflow-y: auto; margin: 10px 0 0; padding: 8px 0 0;
+            list-style: none; border-top: 1px solid #f1f5f9;
+        }
+        .shelter-list-item { font-size: 11px; padding: 5px 0; border-bottom: 1px solid #f8fafc; }
+        .shelter-list-item strong { color: #0891b2; display: block; }
+        .shelter-list-item span { color: #94a3b8; }
+        .shelter-list-loading, .shelter-list-empty { font-size: 11px; color: #94a3b8; padding: 6px 0; }
 
         .remote-menu {
             position: fixed; bottom: 16px; right: 16px; z-index: 20;
@@ -236,6 +249,7 @@
                 <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;"></p>
                 <a id="cardDetailLink" href="#" style="font-size:11px; color:#1a73e8; font-weight:700; text-decoration:none; display:none; margin-top:4px;">상세보기 →</a>
             </div>
+            <ul id="cardShelterList" class="shelter-list"></ul>
         </div>
 
         <div class="remote-menu">
@@ -513,6 +527,33 @@
                     detailLink.style.display = 'none';
                 }
                 document.getElementById('festivalCard').classList.add('active');
+
+                // 무더위쉼터는 지역 단위로 묶인 클러스터 마커라, 클릭했을 때만
+                // 그 지역의 개별 목록(data/shelters/{contentid}.json)을 따로 불러와 보여준다.
+                // (전국 9만 건을 festivals.json 하나에 다 담을 수 없어 이렇게 나눠둠)
+                const shelterListEl = document.getElementById('cardShelterList');
+                if (item.type === 'shelter' && item.contentid) {
+                    shelterListEl.style.display = 'block';
+                    shelterListEl.innerHTML = '<li class="shelter-list-loading">목록을 불러오는 중...</li>';
+                    fetch('/data/shelters/' + encodeURIComponent(item.contentid) + '.json')
+                        .then(res => { if (!res.ok) throw new Error('not ok'); return res.json(); })
+                        .then(list => {
+                            if (!Array.isArray(list) || list.length === 0) {
+                                shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
+                                return;
+                            }
+                            shelterListEl.innerHTML = list.map(function (s) {
+                                return '<li class="shelter-list-item"><strong>' + escapeHtml(s.title) + '</strong>'
+                                    + '<span>' + escapeHtml(s.addr) + '</span></li>';
+                            }).join('');
+                        })
+                        .catch(function () {
+                            shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
+                        });
+                } else {
+                    shelterListEl.style.display = 'none';
+                    shelterListEl.innerHTML = '';
+                }
             });
 
             // contentid를 키로 캐시(참조가 아니라 문자열 id 기준이라, GPS 검색처럼
