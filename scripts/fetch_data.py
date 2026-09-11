@@ -589,56 +589,78 @@ def get_region_key(addr):
 
 
 def build_festival_list_page(list_items):
-    """지도(JS 마커)는 검색봇이 발견하지 못하는 링크라, 축제 상세페이지 전체를
-    순수 텍스트 링크 목록으로 모아둔 크롤링 전용 페이지를 만든다.
-    지도는 사람용, 이 페이지(festival/list.html)는 검색봇용 목록이다."""
+    """지도(JS 마커)는 검색봇이 발견하지 못하는 링크라, 축제·자연관광지 등 상세페이지
+    전체를 순수 텍스트 링크 목록으로 모아둔 크롤링 전용 페이지를 만든다.
+    지도는 사람용, 이 페이지(festival/list.html)는 검색봇용 목록이다.
+
+    [수정] 예전엔 축제와 자연관광지·캠핑장·수상레저를 지역별로만 묶어서 한 목록에
+    섞어놨었는데, 페이지 제목·설명은 "OO월 전국 축제 목록"인데 실제 내용엔 산·계곡·
+    캠핑장까지 나와서 "제목과 내용이 안 맞는다"는 지적을 받았다. 이제 카테고리
+    (축제 / 자연관광지 / 캠핑장 / 수상레저)로 먼저 나누고, 그 안에서 지역별로
+    묶는다. 제목·설명도 실제로 들어있는 카테고리를 다 반영하도록 고쳤다."""
     now = datetime.datetime.now()
     month_label = f"{now.year}년 {now.month}월"
 
     def fmt_date(raw):
         return f"{raw[:4]}.{raw[4:6]}.{raw[6:8]}" if raw and len(raw) == 8 else (raw or '')
 
-    by_region = {key: [] for key, _ in REGION_KEYWORDS}
-    unclassified = []
-    for f in list_items:
-        key = get_region_key(f.get('addr', ''))
-        (by_region[key] if key else unclassified).append(f)
-
-    def render_group(label, items):
-        items = sorted(items, key=lambda x: x.get('endDate') or '')
-        lines = [f'<h2 class="region-heading">{html.escape(label)}</h2>', '<ul class="festival-list">']
+    def render_by_region(items):
+        by_region = {key: [] for key, _ in REGION_KEYWORDS}
+        unclassified = []
         for f in items:
-            title = html.escape(f.get('title') or '')
-            addr = html.escape(f.get('addr') or '')
-            start, end = f.get('startDate'), f.get('endDate')
-            date_part = f"{fmt_date(start)} ~ {fmt_date(end)} · " if start or end else ''
-            content_id = f.get('contentid')
-            link = f'/festival/detail/{content_id}.html' if content_id else '#'
-            lines.append(f'<li><a href="{link}">{title}</a> — {date_part}{addr}</li>')
-        lines.append('</ul>')
-        return '\n'.join(lines)
+            key = get_region_key(f.get('addr', ''))
+            (by_region[key] if key else unclassified).append(f)
 
-    sections = []
-    for key, _ in REGION_KEYWORDS:
-        if by_region[key]:
-            sections.append(render_group(REGION_LABELS[key], by_region[key]))
-    if unclassified:
-        sections.append(render_group('기타 지역', unclassified))
-    body = '\n'.join(sections) if sections else '<p>현재 등록된 축제 정보가 없습니다.</p>'
+        def render_group(label, group_items):
+            group_items = sorted(group_items, key=lambda x: x.get('endDate') or '')
+            lines = [f'<h3 class="region-heading">{html.escape(label)}</h3>', '<ul class="festival-list">']
+            for f in group_items:
+                title = html.escape(f.get('title') or '')
+                addr = html.escape(f.get('addr') or '')
+                start, end = f.get('startDate'), f.get('endDate')
+                date_part = f"{fmt_date(start)} ~ {fmt_date(end)} · " if start or end else ''
+                content_id = f.get('contentid')
+                link = f'/festival/detail/{content_id}.html' if content_id else '#'
+                lines.append(f'<li><a href="{link}">{title}</a> — {date_part}{addr}</li>')
+            lines.append('</ul>')
+            return '\n'.join(lines)
+
+        parts = []
+        for key, _ in REGION_KEYWORDS:
+            if by_region[key]:
+                parts.append(render_group(REGION_LABELS[key], by_region[key]))
+        if unclassified:
+            parts.append(render_group('기타 지역', unclassified))
+        return '\n'.join(parts) if parts else '<p>현재 등록된 정보가 없습니다.</p>'
+
+    festivals = [f for f in list_items if f.get('type') not in ('park', 'camping', 'watersports')]
+    parks = [f for f in list_items if f.get('type') == 'park']
+    campings = [f for f in list_items if f.get('type') == 'camping']
+    watersports = [f for f in list_items if f.get('type') == 'watersports']
+
+    sections = ['<h2 class="category-heading">🎪 축제</h2>', render_by_region(festivals)]
+    if parks:
+        sections += ['<h2 class="category-heading">🌳 자연관광지 (공원·수목원·자연휴양림)</h2>', render_by_region(parks)]
+    if campings:
+        sections += ['<h2 class="category-heading">🏕️ 캠핑장</h2>', render_by_region(campings)]
+    if watersports:
+        sections += ['<h2 class="category-heading">🚤 수상레저</h2>', render_by_region(watersports)]
+    body = '\n'.join(sections)
 
     page = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{month_label} 전국 축제 목록 - HOHO PLAY 축제 지도</title>
-<meta name="description" content="{month_label} 기준 전국에서 진행 중이거나 예정된 축제를 지역별로 모은 전체 목록입니다.">
+<title>{month_label} 전국 축제·자연관광지 목록 - HOHO PLAY 축제 지도</title>
+<meta name="description" content="{month_label} 기준 전국에서 진행 중이거나 예정된 축제, 그리고 상시 이용 가능한 자연관광지·캠핑장·수상레저 정보를 지역별로 모은 전체 목록입니다.">
 <link rel="canonical" href="https://hohoplaylab.com/festival/list.html">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <style>
 body{{font-family:'Noto Sans KR',sans-serif;max-width:720px;margin:0 auto;padding:24px 16px;color:#1e293b;line-height:1.7}}
 h1{{font-size:1.5rem;font-weight:900}}
-.region-heading{{font-size:1.1rem;font-weight:800;margin-top:28px;color:#4f46e5;border-bottom:2px solid #e0e7ff;padding-bottom:6px}}
+.category-heading{{font-size:1.3rem;font-weight:900;margin-top:36px;padding-bottom:8px;border-bottom:3px solid #1e293b}}
+.region-heading{{font-size:1.1rem;font-weight:800;margin-top:22px;color:#4f46e5;border-bottom:2px solid #e0e7ff;padding-bottom:6px}}
 .festival-list{{list-style:none;padding:0;margin:12px 0}}
 .festival-list li{{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px}}
 .festival-list a{{color:#1e293b;font-weight:700;text-decoration:none}}
@@ -647,8 +669,8 @@ h1{{font-size:1.5rem;font-weight:900}}
 </style>
 </head>
 <body>
-<h1>{month_label} 전국 축제 목록</h1>
-<p>현재 진행 중이거나 곧 시작하는 전국 축제를 지역별로 모았습니다. 지도에서 한눈에 보고 싶다면 <a href="/festival/">축제 지도</a>를 이용해보세요.</p>
+<h1>{month_label} 전국 축제·자연관광지 목록</h1>
+<p>현재 진행 중이거나 곧 시작하는 전국 축제, 그리고 상시 이용 가능한 자연관광지·캠핑장·수상레저 정보를 모았습니다. 지도에서 한눈에 보고 싶다면 <a href="/festival/">축제 지도</a>를 이용해보세요.</p>
 {body}
 <a class="back-link" href="/festival/">← 지도에서 보기</a>
 </body>
@@ -657,13 +679,21 @@ h1{{font-size:1.5rem;font-weight:900}}
     os.makedirs('festival', exist_ok=True)
     with open('festival/list.html', 'w', encoding='utf-8') as fp:
         fp.write(page)
-    print(f"festival/list.html 갱신 완료 (총 {len(list_items)}건 링크)")
+    print(f"festival/list.html 갱신 완료 (축제 {len(festivals)}건 + 자연관광지 {len(parks)}건 + 캠핑장 {len(campings)}건 + 수상레저 {len(watersports)}건)")
 
 
 def update_sitemap(list_items):
     """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목만 지우고,
-    현재 유효한(종료 후 유예기간 이내 포함) 주소로 새로 채운다.
-    다른 페이지(홈, 게임, 약관 등) 항목은 절대 건드리지 않는다."""
+    festival/list.html 하나만 다시 채운다. 다른 페이지(홈, 게임, 약관 등) 항목은
+    절대 건드리지 않는다.
+
+    [정책 변경] 예전에는 축제·자연관광지 상세페이지 하나하나를 전부 sitemap.xml에
+    등록했었다(1,130건 중 1,069건, 전체의 95%). 그런데 이 상세페이지들이 공공데이터
+    소개문을 거의 그대로 옮긴 짧은 페이지들이라, "직접 쓴 콘텐츠 몇 개 + 복사한 짧은
+    페이지 천 개"로 보여 애드센스 심사에 오히려 마이너스라는 지적을 받았다.
+    상세페이지 자체는 그대로 두고(URL로 직접 접근 가능하고 festival/list.html에서
+    링크도 걸려있어 검색봇이 링크를 타고 찾아갈 수 있음), sitemap.xml에는 그 목록
+    페이지 하나만 등록해서 제출 URL 대비 색인 품질 비율을 정상적으로 되돌린다."""
     import re
     sitemap_path = 'sitemap.xml'
     if not os.path.exists(sitemap_path):
@@ -680,23 +710,16 @@ def update_sitemap(list_items):
         flags=re.DOTALL
     )
 
-    new_blocks = [
-        f'  <url>\n    <loc>https://hohoplaylab.com/festival/detail/{f["contentid"]}.html</loc>\n'
-        f'    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
-        for f in list_items if f.get('contentid')
-    ]
-    new_blocks.append(
+    insertion = (
         '  <url>\n    <loc>https://hohoplaylab.com/festival/list.html</loc>\n'
         '    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
     )
-
-    insertion = ''.join(new_blocks)
     content = content.replace('</urlset>', insertion + '</urlset>') if '</urlset>' in content \
         else content.rstrip() + '\n' + insertion
 
     with open(sitemap_path, 'w', encoding='utf-8') as fp:
         fp.write(content)
-    print(f"sitemap.xml 갱신 완료 (축제 상세 {len(new_blocks) - 1}건 + 목록페이지 1건)")
+    print(f"sitemap.xml 갱신 완료 (상세페이지 {len(list_items)}건은 목록 페이지 링크로만 노출, 사이트맵엔 festival/list.html 1건만 등록)")
 
 
 def pick_region_representatives(today_list):
@@ -1001,6 +1024,7 @@ def main():
             'startDate': item.get('eventstartdate'),
             'endDate': end_date,
             'contentid': content_id,
+            'type': 'festival',
         })
 
     # 자연관광지·캠핑장·수상레저는 상시 개방 장소라 기간 제한 없이 상세페이지가
@@ -1017,6 +1041,7 @@ def main():
             'startDate': '',
             'endDate': '',
             'contentid': content_id,
+            'type': spot.get('type'),  # 'park' / 'camping' / 'watersports' — 목록 페이지에서 카테고리 구분에 씀
         })
 
     # 수동 등록 축제도 다른 축제와 동일한 유예기간 규칙으로 포함
@@ -1036,6 +1061,7 @@ def main():
                 'startDate': m.get('startDate'),
                 'endDate': end_date,
                 'contentid': content_id,
+                'type': 'festival',
             })
 
     # 무더위쉼터는 지역 클러스터라 개별 상세페이지가 없어 사이트맵/크롤러용 목록에는
