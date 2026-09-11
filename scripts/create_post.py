@@ -4808,17 +4808,32 @@ def post_blogger(title, content, labels, description, idx, total):
                   f"— data/quote_state.json을 확인해 다음 번호가 겹치지 않는지 점검 필요")
 
     # 영어 제목으로 만들었다면, 실제 한글 제목으로 수정 — URL(슬러그)은 그대로 유지됨
+    # (2026-09-11: 재시도 없이 1회만 시도하다 순간 실패로 제목이 숫자로 남는 사례 발견 →
+    #  POST와 동일하게 최대 2회까지 재시도하도록 보강)
     if slug_title:
-        try:
-            patch_resp = requests.patch(f"{url}{post_id}",
-                headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
-                json={"title": title}
-            )
-            if patch_resp.status_code != 200:
-                print(f"[{idx:02d}/{total}] ⚠️ 한글 제목으로 수정 실패({patch_resp.status_code}) "
-                      f"— URL은 영어로 정상이나 화면 제목이 영어로 남았을 수 있음")
-        except Exception as e:
-            print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류: {e}")
+        for patch_attempt in range(1, 3):
+            try:
+                patch_resp = requests.patch(f"{url}{post_id}",
+                    headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
+                    json={"title": title}
+                )
+                if patch_resp.status_code == 200:
+                    break
+                elif patch_resp.status_code == 429 and patch_attempt < 2:
+                    print(f"[{idx:02d}/{total}] ⏳ 제목 수정 429 — 30초 대기 후 재시도")
+                    time.sleep(30)
+                    continue
+                else:
+                    print(f"[{idx:02d}/{total}] ⚠️ 한글 제목으로 수정 실패({patch_resp.status_code}) "
+                          f"— URL은 정상이나 화면 제목이 숫자 슬러그로 남았을 수 있음, 수동 확인 필요")
+                    break
+            except Exception as e:
+                if patch_attempt < 2:
+                    print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류, 재시도: {e}")
+                    time.sleep(10)
+                    continue
+                print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류(재시도 후에도 실패): {e} "
+                      f"— URL은 정상이나 화면 제목이 숫자 슬러그로 남았을 수 있음, 수동 확인 필요")
 
     print(f"[{idx:02d}/{total}] ✅ {title[:45]}  →  200")
     _EXISTING_TITLES.add(title)
