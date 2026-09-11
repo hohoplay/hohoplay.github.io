@@ -369,6 +369,17 @@
         map.setCenter(new kakao.maps.LatLng(lat, lng));
     }
 
+    // [ADD] "오늘의 축제" 사이드 목록에서 항목을 클릭했을 때, 지도 이동만 하고 하단
+    // 팝업 카드는 안 뜨던 걸 통합했다. contentid로 festivalData에서 원본 항목을 찾아
+    // showFestivalCard()에 그대로 넘긴다(마커를 직접 클릭했을 때와 동일한 카드가 뜸).
+    // festivalData에서 못 찾는 경우(드묾)에도 지도 이동만큼은 그대로 되도록 방어한다.
+    function focusFestivalItem(lat, lng, contentid) {
+        focusFestival(lat, lng);
+        if (!contentid) return;
+        const item = festivalData.find(function (f) { return f.contentid === contentid; });
+        if (item) showFestivalCard(item);
+    }
+
     // 모바일에서 좌측 슬라이드 패널 열고 닫기
     function openTodayPanel() {
         document.getElementById('todayPanel').classList.add('open');
@@ -531,6 +542,98 @@
     // 마커를 보여줄지"만 다시 고르고 clusterer에 다시 addMarkers 하는 식으로 재사용한다.
     let allMarkersCache = null;
 
+    // [ADD] 마커 클릭이든, "오늘의 축제" 사이드 목록 클릭이든 하단 카드를 채우는
+    // 로직은 완전히 동일해야 해서 함수로 뺐다. 예전엔 마커를 직접 클릭했을 때만
+    // 카드가 떴고, 사이드 목록 항목을 클릭하면 지도만 이동하고 카드는 안 떠서
+    // "왼쪽 목록 눌렀는데 하단 팝업은 왜 안 뜨냐"는 지적을 받아 통합했다.
+    function showFestivalCard(item) {
+        document.getElementById('cardTitle').innerText = item.title;
+        document.getElementById('cardDate').innerText = (item.startDate && item.endDate)
+            ? `📅 ${item.startDate} ~ ${item.endDate}`
+            : (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : '🌳 상시 개방');
+
+        document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
+        const addrCopyBtn = document.getElementById('cardAddrCopyBtn');
+        if (item.addr) {
+            addrCopyBtn.style.display = 'inline';
+            addrCopyBtn.onclick = function () { copyToClipboard(item.addr, addrCopyBtn); };
+        } else {
+            addrCopyBtn.style.display = 'none';
+        }
+
+        // 이미지가 없으면 아예 안 보이게 한다. 예전엔 외부 플레이스홀더 이미지
+        // 서비스(via.placeholder.com)로 대체했는데, 그 서비스가 요즘 잘 안 떠서
+        // 로딩 실패 시 대체 텍스트("포스터")가 그냥 글자로 노출되는 문제가 있었다
+        // (무더위쉼터처럼 원래 이미지가 없는 타입에서 특히 어색하게 보임).
+        const cardImg = document.getElementById('cardImg');
+        if (item.image) {
+            cardImg.src = item.image;
+            cardImg.classList.remove('no-image');
+        } else {
+            cardImg.src = '';
+            cardImg.classList.add('no-image');
+        }
+
+        const detailLink = document.getElementById('cardDetailLink');
+        if (item.contentid && item.hasDetail) {
+            detailLink.href = '/festival/detail/' + encodeURIComponent(item.contentid) + '.html';
+            detailLink.style.display = 'inline-block';
+        } else {
+            detailLink.style.display = 'none';
+        }
+        document.getElementById('festivalCard').classList.add('active');
+
+        // 무더위쉼터는 지역 단위로 묶인 클러스터 마커라, 클릭했을 때만
+        // 그 지역의 개별 목록(data/shelters/{contentid}.json)을 따로 불러와 보여준다.
+        // (전국 9만 건을 festivals.json 하나에 다 담을 수 없어 이렇게 나눠둠)
+        //
+        // [FIX] 경쟁 상태(race condition) 방지: 쉼터 목록을 받아오는 도중에
+        // 다른 항목(예: 축제)을 클릭하면, 먼저 보낸 요청의 응답이 나중에 도착해서
+        // 방금 바꾼 화면을 다시 덮어써버리는 문제가 있었다("축제를 눌렀는데 쉼터
+        // 목록이 다시 나타남"). activeShelterRequestId로 "지금 화면에서 유효한
+        // 요청이 어느 것인지" 표시해두고, 응답이 왔을 때 그 사이 다른 걸 클릭해서
+        // 이미 무효해진 요청이면 화면을 건드리지 않고 그냥 버린다.
+        const shelterListEl = document.getElementById('cardShelterList');
+        if (item.type === 'shelter' && item.contentid) {
+            const requestId = item.contentid + ':' + Date.now();
+            activeShelterRequestId = requestId;
+            shelterListEl.style.display = 'block';
+            shelterListEl.innerHTML = '<li class="shelter-list-loading">목록을 불러오는 중...</li>';
+            fetch('/data/shelters/' + encodeURIComponent(item.contentid) + '.json')
+                .then(res => { if (!res.ok) throw new Error('not ok'); return res.json(); })
+                .then(list => {
+                    if (activeShelterRequestId !== requestId) return; // 그 사이 다른 항목 클릭됨 — 무시
+                    if (!Array.isArray(list) || list.length === 0) {
+                        shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
+                        return;
+                    }
+                    shelterListEl.innerHTML = list.map(function (s, idx) {
+                        return '<li class="shelter-list-item">'
+                            + '<span class="shelter-list-text"><strong>' + escapeHtml(s.title) + '</strong>'
+                            + '<span>' + escapeHtml(s.addr) + '</span></span>'
+                            + '<button type="button" class="copy-addr-btn shelter-copy-btn" data-idx="' + idx + '" title="주소 복사">📋</button>'
+                            + '</li>';
+                    }).join('');
+                    // [ADD] 개별 쉼터 주소 복사 — onclick 문자열 안에 주소를 직접 끼워
+                    // 넣지 않고 버튼마다 리스너를 따로 붙인다(주소에 따옴표 등이 섞여도
+                    // 절대 깨지지 않도록). 목록이 커봐야 수백 건이라 성능 문제도 없다.
+                    shelterListEl.querySelectorAll('.shelter-copy-btn').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            copyToClipboard(list[Number(btn.dataset.idx)].addr, btn);
+                        });
+                    });
+                })
+                .catch(function () {
+                    if (activeShelterRequestId !== requestId) return; // 그 사이 다른 항목 클릭됨 — 무시
+                    shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
+                });
+        } else {
+            activeShelterRequestId = null; // 진행 중이던 쉼터 목록 요청이 있어도 이후 응답을 무시하게
+            shelterListEl.style.display = 'none';
+            shelterListEl.innerHTML = '';
+        }
+    }
+
     function buildAllMarkersOnce(data) {
         allMarkersCache = new Map();
         data.forEach(item => {
@@ -543,91 +646,7 @@
             });
 
             kakao.maps.event.addListener(marker, 'click', function() {
-                document.getElementById('cardTitle').innerText = item.title;
-                document.getElementById('cardDate').innerText = (item.startDate && item.endDate)
-                    ? `📅 ${item.startDate} ~ ${item.endDate}`
-                    : (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : '🌳 상시 개방');
-
-                document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
-                const addrCopyBtn = document.getElementById('cardAddrCopyBtn');
-                if (item.addr) {
-                    addrCopyBtn.style.display = 'inline';
-                    addrCopyBtn.onclick = function () { copyToClipboard(item.addr, addrCopyBtn); };
-                } else {
-                    addrCopyBtn.style.display = 'none';
-                }
-
-                // 이미지가 없으면 아예 안 보이게 한다. 예전엔 외부 플레이스홀더 이미지
-                // 서비스(via.placeholder.com)로 대체했는데, 그 서비스가 요즘 잘 안 떠서
-                // 로딩 실패 시 대체 텍스트("포스터")가 그냥 글자로 노출되는 문제가 있었다
-                // (무더위쉼터처럼 원래 이미지가 없는 타입에서 특히 어색하게 보임).
-                const cardImg = document.getElementById('cardImg');
-                if (item.image) {
-                    cardImg.src = item.image;
-                    cardImg.classList.remove('no-image');
-                } else {
-                    cardImg.src = '';
-                    cardImg.classList.add('no-image');
-                }
-
-                const detailLink = document.getElementById('cardDetailLink');
-                if (item.contentid && item.hasDetail) {
-                    detailLink.href = '/festival/detail/' + encodeURIComponent(item.contentid) + '.html';
-                    detailLink.style.display = 'inline-block';
-                } else {
-                    detailLink.style.display = 'none';
-                }
-                document.getElementById('festivalCard').classList.add('active');
-
-                // 무더위쉼터는 지역 단위로 묶인 클러스터 마커라, 클릭했을 때만
-                // 그 지역의 개별 목록(data/shelters/{contentid}.json)을 따로 불러와 보여준다.
-                // (전국 9만 건을 festivals.json 하나에 다 담을 수 없어 이렇게 나눠둠)
-                //
-                // [FIX] 경쟁 상태(race condition) 방지: 쉼터 목록을 받아오는 도중에
-                // 다른 마커(예: 축제)를 클릭하면, 먼저 보낸 요청의 응답이 나중에 도착해서
-                // 방금 바꾼 화면을 다시 덮어써버리는 문제가 있었다("축제를 눌렀는데 쉼터
-                // 목록이 다시 나타남"). activeShelterRequestId로 "지금 화면에서 유효한
-                // 요청이 어느 것인지" 표시해두고, 응답이 왔을 때 그 사이 다른 걸 클릭해서
-                // 이미 무효해진 요청이면 화면을 건드리지 않고 그냥 버린다.
-                const shelterListEl = document.getElementById('cardShelterList');
-                if (item.type === 'shelter' && item.contentid) {
-                    const requestId = item.contentid + ':' + Date.now();
-                    activeShelterRequestId = requestId;
-                    shelterListEl.style.display = 'block';
-                    shelterListEl.innerHTML = '<li class="shelter-list-loading">목록을 불러오는 중...</li>';
-                    fetch('/data/shelters/' + encodeURIComponent(item.contentid) + '.json')
-                        .then(res => { if (!res.ok) throw new Error('not ok'); return res.json(); })
-                        .then(list => {
-                            if (activeShelterRequestId !== requestId) return; // 그 사이 다른 마커 클릭됨 — 무시
-                            if (!Array.isArray(list) || list.length === 0) {
-                                shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
-                                return;
-                            }
-                            shelterListEl.innerHTML = list.map(function (s, idx) {
-                                return '<li class="shelter-list-item">'
-                                    + '<span class="shelter-list-text"><strong>' + escapeHtml(s.title) + '</strong>'
-                                    + '<span>' + escapeHtml(s.addr) + '</span></span>'
-                                    + '<button type="button" class="copy-addr-btn shelter-copy-btn" data-idx="' + idx + '" title="주소 복사">📋</button>'
-                                    + '</li>';
-                            }).join('');
-                            // [ADD] 개별 쉼터 주소 복사 — onclick 문자열 안에 주소를 직접 끼워
-                            // 넣지 않고 버튼마다 리스너를 따로 붙인다(주소에 따옴표 등이 섞여도
-                            // 절대 깨지지 않도록). 목록이 커봐야 수백 건이라 성능 문제도 없다.
-                            shelterListEl.querySelectorAll('.shelter-copy-btn').forEach(function (btn) {
-                                btn.addEventListener('click', function () {
-                                    copyToClipboard(list[Number(btn.dataset.idx)].addr, btn);
-                                });
-                            });
-                        })
-                        .catch(function () {
-                            if (activeShelterRequestId !== requestId) return; // 그 사이 다른 마커 클릭됨 — 무시
-                            shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
-                        });
-                } else {
-                    activeShelterRequestId = null; // 진행 중이던 쉼터 목록 요청이 있어도 이후 응답을 무시하게
-                    shelterListEl.style.display = 'none';
-                    shelterListEl.innerHTML = '';
-                }
+                showFestivalCard(item);
             });
 
             // contentid를 키로 캐시(참조가 아니라 문자열 id 기준이라, GPS 검색처럼
@@ -786,7 +805,7 @@
             ? '<div style="display:flex; gap:12px; margin-top:2px;">' + linkParts.join('') + '</div>'
             : '';
         return '<li class="today-item" data-cid="' + escapeHtml(item.contentid || '') + '" '
-            + 'onclick="focusFestival(' + lat + ', ' + lng + '); closeTodayPanel();">'
+            + 'onclick="focusFestivalItem(' + lat + ', ' + lng + ', this.dataset.cid); closeTodayPanel();">'
             + regionTag
             + '<strong>' + title + '</strong>'
             + dateLine
