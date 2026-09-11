@@ -29,7 +29,7 @@
 
   #postList { display: flex; flex-direction: column; gap: 8px; }
   .post-item {
-    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px;
     border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px;
   }
   .post-item .cat {
@@ -43,6 +43,11 @@
   .post-item .deleteBtn { background: #fee2e2; color: #b91c1c; }
   #listMsg { font-size: 13px; color: #94a3b8; }
   #refreshBtn { background: #f1f5f9; color: #1e293b; font-size: 13px; padding: 8px 12px; margin-bottom: 12px; }
+  #searchRow { display: flex; gap: 8px; margin-bottom: 12px; }
+  #searchInput { flex: 1; margin-bottom: 0; }
+  #searchBtn { background: #4f46e5; color: #fff; font-size: 13px; padding: 8px 14px; white-space: nowrap; }
+  #searchHint { font-size: 12px; color: #94a3b8; margin: -6px 0 12px; }
+  mark { background: #fef08a; padding: 0 1px; border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -79,6 +84,11 @@
 <div id="msg"></div>
 
 <h2>📋 게시글 목록</h2>
+<div id="searchRow">
+  <input type="text" id="searchInput" placeholder="제목·내용·작성자로 검색 (예: github.io)">
+  <button id="searchBtn" onclick="searchPosts()">🔍 내용 검색</button>
+</div>
+<p id="searchHint">제목만 훑어봐선 안 보이는 것(예: 본문에 박힌 옛날 링크)을 찾을 때 씁니다. 검색엔 관리자 키가 필요합니다.</p>
 <button id="refreshBtn" onclick="loadPosts()">↻ 새로고침</button>
 <div id="postList"></div>
 <div id="listMsg"></div>
@@ -86,6 +96,10 @@
 <script>
 const WORKER_API = "https://old-rain-16f7.lyh0929mm.workers.dev";
 let editingId = null;
+// [ADD] 내용 검색용 캐시 — 검색을 누를 때마다 매번 전체 목록(본문 포함)을 다시
+// 받아오지 않도록, 한 번 받은 뒤 그 안에서 로컬로 필터링한다. 관리자 키를 바꾸거나
+// "새로고침"을 누르면 다시 받아오도록 null로 리셋한다.
+let fullPostsCache = null;
 
 // ── 관리자 키 기억하기 ──
 window.addEventListener('DOMContentLoaded', () => {
@@ -95,6 +109,10 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('rememberKey').checked = true;
   }
   loadPosts();
+  // [ADD] 검색창에서 Enter로도 검색되게
+  document.getElementById('searchInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') searchPosts();
+  });
 });
 
 function getAdminKey() {
@@ -116,6 +134,46 @@ function escapeHtml(str) {
 function formatDate(ms) {
   const d = new Date(ms);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// [ADD] 검색어가 포함된 부분을 <mark>로 감싸서 눈에 띄게 표시.
+// escapeHtml()로 먼저 이스케이프한 뒤에 그 결과 문자열 안에서 치환하므로, 검색어에
+// HTML 특수문자가 섞여 있어도 원본 텍스트가 그대로 안전하게 표시된다(정규식
+// 메타문자만 별도로 이스케이프해서 검색 자체가 깨지지 않게 처리).
+function highlightMatch(text, term) {
+  const escaped = escapeHtml(text == null ? '' : String(text));
+  if (!term) return escaped;
+  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(' + escapedTerm + ')', 'ig');
+  return escaped.replace(re, '<mark>$1</mark>');
+}
+
+// [ADD] 목록 렌더링을 공통 함수로 뺐다 — 평소 목록(loadPosts)과 검색 결과
+// (searchPosts)가 같은 카드 모양을 쓰되, 검색 결과에는 매칭된 본문 일부를
+// 강조해서 미리보기로 보여준다는 점만 다르다.
+function renderPostItems(posts, term) {
+  return posts.map(p => {
+    let snippet = '';
+    if (term && p.content) {
+      const idx = p.content.toLowerCase().indexOf(term.toLowerCase());
+      if (idx !== -1) {
+        const start = Math.max(0, idx - 25);
+        const end = Math.min(p.content.length, idx + term.length + 40);
+        const raw = (start > 0 ? '…' : '') + p.content.slice(start, end) + (end < p.content.length ? '…' : '');
+        snippet = `<div style="flex-basis:100%;font-size:12px;color:#64748b;margin-top:2px;padding-top:6px;border-top:1px dashed #e2e8f0">${highlightMatch(raw, term)}</div>`;
+      }
+    }
+    return `
+      <div class="post-item">
+        <span class="cat">${escapeHtml(p.category)}</span>
+        <span class="title">${highlightMatch(p.title, term)}</span>
+        <span class="date">${formatDate(p.created_at)}</span>
+        <button class="editBtn" onclick="editPost(${p.id})">수정</button>
+        <button class="deleteBtn" onclick="deletePost(${p.id})">삭제</button>
+        ${snippet}
+      </div>
+    `;
+  }).join('');
 }
 
 // ── 등록 / 수정 ──
@@ -190,6 +248,8 @@ async function loadPosts() {
   const listMsg = document.getElementById('listMsg');
   listMsg.textContent = '불러오는 중...';
   listEl.innerHTML = '';
+  fullPostsCache = null; // 새로고침하면 검색용 캐시도 다시 받아오도록 초기화
+  document.getElementById('searchInput').value = '';
 
   try {
     const res = await fetch(`${WORKER_API}/posts?_=${Date.now()}`, { cache: 'no-store' });
@@ -201,18 +261,62 @@ async function loadPosts() {
       return;
     }
     listMsg.textContent = '';
-
-    listEl.innerHTML = posts.map(p => `
-      <div class="post-item">
-        <span class="cat">${escapeHtml(p.category)}</span>
-        <span class="title">${escapeHtml(p.title)}</span>
-        <span class="date">${formatDate(p.created_at)}</span>
-        <button class="editBtn" onclick="editPost(${p.id})">수정</button>
-        <button class="deleteBtn" onclick="deletePost(${p.id})">삭제</button>
-      </div>
-    `).join('');
+    listEl.innerHTML = renderPostItems(posts, '');
   } catch (e) {
     listMsg.textContent = `목록을 불러오지 못했습니다: ${e.message}`;
+  }
+}
+
+// ── 내용 검색 ──
+// [ADD] 제목만 봐선 못 찾는 것(본문에 박힌 옛날 링크 등)을 찾기 위한 기능.
+// 공개용 /posts는 본문을 안 내려주므로, 검색 시에만 관리자 키로 /admin/posts를
+// 한 번 불러와 캐시해두고 그 안에서 로컬로 필터링한다(검색어 바뀔 때마다 매번
+// 서버에 다시 묻지 않음 — "새로고침"을 누르면 캐시가 비워져 다음 검색 때 새로 받음).
+async function searchPosts() {
+  const term = document.getElementById('searchInput').value.trim();
+  const listEl = document.getElementById('postList');
+  const listMsg = document.getElementById('listMsg');
+
+  if (!term) {
+    loadPosts();
+    return;
+  }
+
+  const adminKey = getAdminKey();
+  if (!adminKey) {
+    listMsg.textContent = '검색하려면 관리자 키를 먼저 입력해주세요.';
+    return;
+  }
+
+  listMsg.textContent = '검색 중...';
+  listEl.innerHTML = '';
+
+  try {
+    if (!fullPostsCache) {
+      const res = await fetch(`${WORKER_API}/admin/posts?key=${encodeURIComponent(adminKey)}&_=${Date.now()}`, { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) {
+        listMsg.textContent = `검색 실패: ${data.error || res.status}`;
+        return;
+      }
+      fullPostsCache = data.posts || [];
+    }
+
+    const lower = term.toLowerCase();
+    const matched = fullPostsCache.filter(p =>
+      (p.title || '').toLowerCase().includes(lower) ||
+      (p.content || '').toLowerCase().includes(lower) ||
+      (p.author || '').toLowerCase().includes(lower)
+    );
+
+    if (matched.length === 0) {
+      listMsg.textContent = `"${term}"이(가) 포함된 게시글이 없습니다.`;
+      return;
+    }
+    listMsg.textContent = `${matched.length}건 찾음`;
+    listEl.innerHTML = renderPostItems(matched, term);
+  } catch (e) {
+    listMsg.textContent = `네트워크 오류: ${e.message}`;
   }
 }
 
