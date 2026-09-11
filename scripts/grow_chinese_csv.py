@@ -98,9 +98,13 @@ JSON 배열로만 응답하세요. 다른 텍스트 없이:
 ["문장1", "문장2", ...]"""
 
     try:
+        # count가 커질수록 응답(JSON 배열)도 길어지므로 max_tokens를 비례해서 확보한다.
+        # 고정값 2000이었을 때 count=20 요청에서 응답이 중간에 잘려(Unterminated string)
+        # JSON 파싱이 전부 실패한 사례가 있었음 (2026-09-11) — 재발 방지.
+        safe_max_tokens = min(8000, max(2000, count * 350 + 800))
         msg = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=2000,
+            max_tokens=safe_max_tokens,
             messages=[{"role": "user", "content": prompt}]
         )
         raw = msg.content[0].text.strip()
