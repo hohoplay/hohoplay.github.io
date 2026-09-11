@@ -9,47 +9,104 @@
   input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 12px; }
   .comment { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; }
   .meta { font-size: 12px; color: #888; margin-bottom: 4px; }
-  .content { font-size: 14px; color: #333; }
+  .content { font-size: 14px; color: #333; white-space: pre-wrap; word-break: break-word; }
   button.del { background: #ef4444; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; }
+  .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; font-size: 13px; color: #555; }
+  .pager button { padding: 6px 14px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+  .pager button:disabled { color: #bbb; cursor: not-allowed; }
 </style>
 </head>
 <body>
 <h1>💬 댓글 관리</h1>
 <input id="key" type="password" placeholder="관리자 키 입력">
 <input id="gameFilter" type="text" placeholder="game_id로 필터 (비우면 전체, 예: game1)">
-<button onclick="load()">불러오기</button>
+<button onclick="loadFirstPage()">불러오기</button>
 <div id="list" style="margin-top:20px"></div>
+<div id="pager" class="pager" style="display:none"></div>
 
 <script>
 const API = 'https://old-rain-16f7.lyh0929mm.workers.dev';
+const PAGE_SIZE = 50;
+let currentOffset = 0;
+let currentTotal = 0;
+
+// [FIX] 기존에는 content만 '<'를 문자열 치환으로 막고 있었고, nickname과
+// game_id는 아예 이스케이프가 없었다(관리자 화면에 그대로 삽입되는 구조라
+// 닉네임에 <img onerror=...> 같은 걸 넣으면 그대로 실행될 수 있었음).
+// write.html/writer.html이 쓰는 것과 동일한 textContent 트릭으로 전부 안전하게 처리.
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function loadFirstPage() {
+  currentOffset = 0;
+  load();
+}
 
 async function load() {
   const key = document.getElementById('key').value;
   const gameId = document.getElementById('gameFilter').value.trim();
-  let url = API + '/admin/comments?key=' + encodeURIComponent(key);
+  let url = API + '/admin/comments?key=' + encodeURIComponent(key)
+    + '&limit=' + PAGE_SIZE + '&offset=' + currentOffset;
   if (gameId) url += '&game_id=' + encodeURIComponent(gameId);
 
   const res = await fetch(url);
   const data = await res.json();
   const list = document.getElementById('list');
+  const pager = document.getElementById('pager');
 
   if (!res.ok) {
-    list.innerHTML = '<p style="color:red">' + (data.error || '오류') + '</p>';
+    list.innerHTML = '<p style="color:red">' + escapeHtml(data.error || '오류') + '</p>';
+    pager.style.display = 'none';
     return;
   }
 
+  currentTotal = data.total || 0;
+
   if (!data.comments.length) {
     list.innerHTML = '<p>댓글이 없습니다.</p>';
+    pager.style.display = 'none';
     return;
   }
 
   list.innerHTML = data.comments.map(c => `
     <div class="comment">
       <button class="del" onclick="del(${c.id})">삭제</button>
-      <div class="meta">[${c.game_id}] ${c.nickname} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
-      <div class="content">${c.content.replace(/</g,'&lt;')}</div>
+      <div class="meta">[${escapeHtml(c.game_id)}] ${escapeHtml(c.nickname)} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
+      <div class="content">${escapeHtml(c.content)}</div>
     </div>
   `).join('');
+
+  renderPager();
+}
+
+// [ADD] 페이지네이션 — 댓글이 많아지면서 한 번에 200건 다 보여주던 방식은
+// 스크롤이 너무 길어져서, 50건씩 끊어서 이전/다음으로 넘기도록 바꿈.
+function renderPager() {
+  const pager = document.getElementById('pager');
+  const start = currentTotal === 0 ? 0 : currentOffset + 1;
+  const end = Math.min(currentOffset + PAGE_SIZE, currentTotal);
+  const hasPrev = currentOffset > 0;
+  const hasNext = currentOffset + PAGE_SIZE < currentTotal;
+
+  pager.style.display = 'flex';
+  pager.innerHTML = `
+    <button ${hasPrev ? '' : 'disabled'} onclick="goPrev()">← 이전</button>
+    <span>${start}–${end} / 총 ${currentTotal}건</span>
+    <button ${hasNext ? '' : 'disabled'} onclick="goNext()">다음 →</button>
+  `;
+}
+
+function goPrev() {
+  currentOffset = Math.max(0, currentOffset - PAGE_SIZE);
+  load();
+}
+
+function goNext() {
+  currentOffset = currentOffset + PAGE_SIZE;
+  load();
 }
 
 async function del(id) {
