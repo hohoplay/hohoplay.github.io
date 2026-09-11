@@ -2,1107 +2,1117 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>개인정보처리방침 - 호호플레이(HOHO PLAY)</title>
-    <meta name="description" content="호호플레이(HOHO PLAY)의 개인정보 수집·이용·보관 방침을 확인하세요. 광고 쿠키 사용, 이용자 권리 등을 안내합니다.">
-    <link rel="canonical" href="https://hohoplaylab.com/privacy/">
-    <!-- ═══ Open Graph / 소셜·검색 미리보기 ═══ -->
-    <meta property="og:site_name" content="HOHO PLAY">
+    <title>전국 축제 지도</title>
     <meta property="og:type" content="website">
-    <meta property="og:title" content="개인정보처리방침 - 호호플레이(HOHO PLAY)">
-    <meta property="og:description" content="호호플레이(HOHO PLAY)의 개인정보 수집·이용·보관 방침을 확인하세요. 광고 쿠키 사용, 이용자 권리 등을 안내합니다.">
-    <meta property="og:url" content="https://hohoplaylab.com/privacy/">
+    <meta property="og:title" content="전국 축제 지도">
+    <meta property="og:description" content="오늘 어디서 축제가 열리는지 지도에서 바로 확인하세요. 전국 축제 정보가 매일 자동으로 업데이트됩니다.">
+    <meta property="og:url" content="https://hohoplaylab.com/festival/">
     <meta property="og:image" content="https://hohoplaylab.com/data/banner.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="개인정보처리방침 - HOHO PLAY">
-    <meta name="twitter:description" content="HOHO PLAY의 개인정보 수집·이용·보관 방침을 확인하세요. 광고 쿠키 사용, 이용자 권리 등을 안내합니다.">
-    <meta name="twitter:image" content="https://hohoplaylab.com/data/banner.png">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VGTXTM4R91');
-    </script>
-    <!-- 캐시 방지: 제작자가 파일 수정 시 항상 최신 버전 로드 -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <script src="https://cdn.tailwindcss.com"></script>
     <!-- ═══ Google AdSense ═══ -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
-    <style>
-        /* ── 로딩 중 광고 슬롯 ── */
-        .loading-ad-slot {
-            width: 100%;
-            max-width: 360px;
-            margin: 16px auto 0;
-            background: #f1f5f9;
-            border: 1px dashed #cbd5e1;
-            border-radius: 12px;
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            font-size: 11px;
-            gap: 6px;
-            padding: 12px;
-            box-sizing: border-box;
-        }
-        .loading-ad-slot .ad-label {
-            font-size: 10px;
-            color: #cbd5e1;
-            letter-spacing: .05em;
-        }
-        /* 실제 애드센스 ins 태그 */
-        .loading-ad-slot ins {
-            display: block;
-            width: 100%;
-        }
-        /* ── 띠운세 카드 내부 텍스트 가시성 보장 ── */
-        #ccard-full * { color: inherit !important; }
-        #ccard-full { color: #fff; }
-    </style>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans KR', sans-serif; }
-        .page-transition { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .game-card:hover { transform: translateY(-5px); transition: all 0.3s ease; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
-        .scroll-section { scroll-margin-top: 80px; }
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4338ca; }
-        /* 게임 카드 터치 피드백 (모바일) */
-        .game-card.touch-active {
-            border-color: #818cf8 !important;
-            box-shadow: 0 10px 25px -5px rgba(99,102,241,0.25) !important;
-            transform: translateY(-2px);
-        }
-        .game-card.touch-active h3 {
-            color: #4f46e5;
-        }
-        @media (hover: none) and (pointer: coarse) {
-            .game-card:active {
-                border-color: #818cf8;
-                box-shadow: 0 10px 25px -5px rgba(99,102,241,0.25);
-                transform: translateY(-2px);
-            }
-        }
-        /* ── 버튼 로딩 스피너 ── */
-        @keyframes btnSpin { to { transform: rotate(360deg); } }
-        .btn-loading { position:relative; pointer-events:none; opacity:.75; }
-        .btn-loading .btn-spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:btnSpin .7s linear infinite; vertical-align:middle; margin-right:7px; }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- ═══ 캐시 버스팅 & 자동 업데이트 감지 ═══ -->
+    <!-- ═══ Kakao SDK (메인 사이트와 동일한, 이미 도메인 등록된 앱키 재사용) ═══ -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+      crossorigin="anonymous"></script>
     <script>
-    (function() {
-        var CHECK_INTERVAL = 2 * 60 * 1000; // 2분마다 체크 (기존 5분 → 2분)
-        var _lastChecked = 0;
+      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
+    </script>
+    <link rel="icon" href="/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 100%; font-family: -apple-system, sans-serif; }
 
-        function checkVersion(force) {
-            var now = Date.now();
-            // 10초 이내 중복 호출 방지
-            if (!force && now - _lastChecked < 10000) return;
-            _lastChecked = now;
+        .page-flex { display: flex; flex-direction: column; }
 
-            fetch('/version.json?_=' + now, {
-                cache: 'no-store',
-                headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
-            })
-            .then(function(r) {
-                if (!r.ok) throw new Error('fetch fail');
-                return r.json();
-            })
-            .then(function(data) {
-                var stored = sessionStorage.getItem('_app_version');
-                if (!stored) {
-                    sessionStorage.setItem('_app_version', data.version);
-                } else if (stored !== data.version) {
-                    sessionStorage.setItem('_app_version', data.version);
-                    var banner = document.getElementById('_update_banner');
-                    if (banner) banner.style.display = 'flex';
-                }
-            })
-            .catch(function() { /* 로컬/오프라인 무시 */ });
+        .map-wrapper { order: 1; position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; }
+        #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .filter-container {
+            position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+            z-index: 10; width: 90%; max-width: 360px;
+        }
+        .region-select {
+            width: 100%; padding: 12px 16px; font-size: 15px; font-weight: bold;
+            color: #333; background: #fff; border: 2px solid #1a73e8; border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); outline: none; cursor: pointer;
+        }
+        .panel-region-select { margin-bottom: 16px; box-shadow: none; }
+        .period-btn {
+            border: none; background: transparent; padding: 5px 10px; border-radius: 8px;
+            font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; white-space: nowrap;
+        }
+        .period-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+        .theme-chip {
+            border: 1.5px solid #e2e8f0; background: #fff; color: #64748b;
+            padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .theme-chip.active { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
+
+        .festival-card {
+            position: absolute; bottom: -180px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; background: #fff; border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 14px; z-index: 10;
+            transition: bottom 0.3s ease; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+        }
+        .festival-card.active { bottom: 20px; }
+        .festival-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+        /* 이미지가 없는 항목(무더위쉼터 등)은 아예 안 보이게 — 예전엔 외부 플레이스홀더
+           이미지 서비스로 대체했는데, 그 서비스가 자주 안 뜨면서 대체 텍스트("축제
+           포스터")가 그대로 글자로 노출되는 문제가 있었음. */
+        .festival-thumb.no-image { display: none; }
+        #cardCloseBtn {
+            position: absolute; top: 8px; right: 10px; width: 26px; height: 26px;
+            border: none; background: #f1f5f9; color: #64748b; border-radius: 50%;
+            font-size: 14px; line-height: 1; cursor: pointer; z-index: 1;
+        }
+        #cardCloseBtn:hover { background: #e2e8f0; color: #1e293b; }
+        .copy-addr-btn {
+            border: none; background: none; cursor: pointer; font-size: 12px;
+            padding: 0 2px; vertical-align: middle; opacity: 0.7;
+        }
+        .copy-addr-btn:hover { opacity: 1; }
+
+        /* 무더위쉼터처럼 클러스터로 묶인 항목을 클릭했을 때, 그 지역 개별 목록을
+           카드 아래쪽에 펼쳐서 보여주는 영역. flex-basis:100%로 강제 줄바꿈해서
+           이미지+제목 줄 아래에 전체 너비로 붙는다. */
+        .shelter-list {
+            display: none; flex-basis: 100%; width: 100%; max-height: 180px;
+            overflow-y: auto; margin: 10px 0 0; padding: 8px 0 0;
+            list-style: none; border-top: 1px solid #f1f5f9;
+        }
+        .shelter-list-item { font-size: 11px; padding: 5px 0; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+        .shelter-list-item .shelter-list-text { flex: 1; min-width: 0; }
+        .shelter-list-item strong { color: #0891b2; display: block; }
+        .shelter-list-item span { color: #94a3b8; }
+        .shelter-list-loading, .shelter-list-empty { font-size: 11px; color: #94a3b8; padding: 6px 0; }
+
+        .remote-menu {
+            position: fixed; bottom: 16px; right: 16px; z-index: 20;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .remote-btn {
+            width: 54px; height: 54px; border-radius: 50%;
+            background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-decoration: none; color: #333; font-size: 20px; line-height: 1;
+            border: none; padding: 0; cursor: pointer; font-family: inherit;
+        }
+        .remote-btn .label { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
+
+        /* 오늘의 축제 패널 (기본 화면은 매일 자동 생성되는 정적 텍스트 — SEO용.
+           지역을 선택하면 아래 스크립트가 festivals.json을 걸러서 다시 그려준다) */
+        .today-panel {
+            order: 2; width: 100%; background: #fff; padding: 24px 20px 32px;
+        }
+        .today-panel h2 { font-size: 17px; font-weight: 800; color: #111; margin-bottom: 14px; }
+        .today-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .today-item {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 12px 14px; cursor: pointer; transition: background 0.15s;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .today-item:hover { background: #eef2ff; }
+        .today-item strong { font-size: 14px; color: #111; }
+        .today-region {
+            font-size: 10px; font-weight: 700; color: #1a73e8; background: #eef2ff;
+            display: inline-block; padding: 2px 8px; border-radius: 999px; align-self: flex-start;
+        }
+        .today-date { font-size: 12px; color: #ff5722; font-weight: 600; }
+        .today-addr { font-size: 11px; color: #666; }
+        .today-empty { font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0; list-style: none; }
+        .today-desc { font-size: 12px; color: #444; line-height: 1.45; }
+        .today-desc-loading { display: none; }
+        .today-map-link { font-size: 11px; color: #1a73e8; font-weight: 700; text-decoration: none; }
+        .today-map-link:hover { text-decoration: underline; }
+
+        .today-panel-close { display: none; }
+        .today-panel-backdrop { display: none; }
+        .today-toggle-btn { display: none; }
+
+        @media (max-width: 768px) {
+            .today-panel {
+                position: fixed; top: 0; left: 0; z-index: 30;
+                height: 100vh; height: 100dvh; width: 85%; max-width: 320px;
+                overflow-y: auto; box-shadow: 2px 0 16px rgba(0,0,0,0.25);
+                transform: translateX(-100%); transition: transform 0.3s ease;
+            }
+            .today-panel.open { transform: translateX(0); }
+            .today-panel-close {
+                display: flex; align-items: center; justify-content: center;
+                position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+                border-radius: 50%; border: none; background: #f1f5f9; color: #333;
+                font-size: 15px; cursor: pointer; z-index: 1;
+            }
+            .today-panel-backdrop {
+                display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+                z-index: 25; opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+            }
+            .today-panel-backdrop.open { opacity: 1; visibility: visible; }
+            .today-toggle-btn { display: flex; }
+
+            /* 100dvh는 모바일에서 앱 전환 후 주소창 애니메이션 중 값이 불안정하게 계산되며
+               푸터 위치가 흔들리는 원인이 될 수 있어, 모바일에서는 화면의 70%로 고정한다. */
+            .map-wrapper { height: 70vh; }
         }
 
-        window.addEventListener('load', function() {
-            // 로드 직후 1초 뒤 첫 체크
-            setTimeout(function(){ checkVersion(true); }, 1000);
-            setInterval(function(){ checkVersion(false); }, CHECK_INTERVAL);
-        });
-
-        // 탭 전환 복귀 시 즉시 체크 (오래 열어둔 탭 대응)
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') checkVersion(true);
-        });
-
-        // 창 포커스 복귀 시도 즉시 체크
-        window.addEventListener('focus', function() { checkVersion(true); });
-    })();
-    </script>
+        @media (min-width: 769px) {
+            .page-flex { flex-direction: row; }
+            .today-panel {
+                order: 1; flex: 0 0 320px; width: 320px; height: 100vh; height: 100dvh;
+                overflow-y: auto; box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+            }
+            .map-wrapper { order: 2; flex: 1 1 auto; }
+        }
+    </style>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=clusterer,services"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+<body>
 
-    <!-- 업데이트 감지 배너 (평소엔 숨김) -->
-    <div id="_update_banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
-         background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;
-         padding:10px 20px;align-items:center;justify-content:space-between;
-         font-size:13px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.3)">
-        <span>🔄 새 버전이 업데이트되었습니다!</span>
-        <div style="display:flex;gap:8px">
-            <button onclick="location.reload(true)"
-                style="background:#fff;color:#4f46e5;border:none;padding:5px 14px;
-                       border-radius:8px;font-weight:900;cursor:pointer;font-size:13px">
-                지금 새로고침
+<div class="page-flex">
+    <div class="today-panel-backdrop" id="todayBackdrop" onclick="closeTodayPanel()"></div>
+    <aside class="today-panel" id="todayPanel">
+        <button class="today-panel-close" onclick="closeTodayPanel()" aria-label="닫기">✕</button>
+        <div style="margin-bottom:10px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                <h2 style="margin-bottom:0;">🎪 축제가 열리는 곳</h2>
+                <div style="display:flex; gap:2px; background:#f1f5f9; padding:3px; border-radius:10px; flex-shrink:0;">
+                    <button type="button" class="period-btn active" data-period="today" onclick="setPeriod('today')">오늘</button>
+                    <button type="button" class="period-btn" data-period="month" onclick="setPeriod('month')">이번달</button>
+                    <button type="button" class="period-btn" data-period="nextmonth" onclick="setPeriod('nextmonth')">다음달</button>
+                    <button type="button" class="period-btn" data-period="all" onclick="setPeriod('all')">전체 예정</button>
+                </div>
+            </div>
+            <div style="display:flex; gap:6px;">
+                <button type="button" onclick="shareFestivalMap('facebook')" aria-label="페이스북 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;">f</button>
+                <button type="button" onclick="shareFestivalMap('x')" aria-label="X 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;">X</button>
+                <button type="button" onclick="shareFestivalMap('kakaot')" aria-label="카카오톡 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:13px;">💬</button>
+                <button type="button" onclick="shareFestivalMap('naver')" aria-label="네이버 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;">N</button>
+                <button type="button" onclick="shareFestivalMap('line')" aria-label="라인 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;">L</button>
+                <button type="button" onclick="shareFestivalMap('band')" aria-label="밴드 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:9px;">밴드</button>
+            </div>
+        </div>
+        <div style="margin-bottom:10px;">
+            <select id="regionSelectPanel" class="region-select panel-region-select" style="width:100%; margin-bottom:8px;" onchange="filterRegion(this.value)">
+                <option value="all">전국 전체보기</option>
+                <option value="seoul">서울 / 인천 / 경기도</option>
+                <option value="gangwon">강원특별자치도</option>
+                <option value="chungcheong">세종 / 대전 / 충청도</option>
+                <option value="gyeongsang">경상도 (대구/울산/부산)</option>
+                <option value="jeolla">광주 / 전라도</option>
+                <option value="jeju">제주특별자치도</option>
+            </select>
+            <div id="themeChips" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+                <button type="button" class="theme-chip" data-theme="cherry" onclick="toggleTheme('cherry')">🌸 벚꽃</button>
+                <button type="button" class="theme-chip" data-theme="foliage" onclick="toggleTheme('foliage')">🍁 단풍</button>
+                <button type="button" class="theme-chip" data-theme="seafood" onclick="toggleTheme('seafood')">🦐 특산물</button>
+                <button type="button" class="theme-chip" data-theme="fireworks" onclick="toggleTheme('fireworks')">🎆 불꽃</button>
+                <button type="button" class="theme-chip" data-theme="winter" onclick="toggleTheme('winter')">❄️ 겨울/눈</button>
+                <button type="button" class="theme-chip" data-theme="flower" onclick="toggleTheme('flower')">🌷 꽃</button>
+                <button type="button" class="theme-chip" data-theme="park" onclick="toggleTheme('park')">🌳 수목원/공원</button>
+                <button type="button" class="theme-chip" data-theme="shelter" onclick="toggleTheme('shelter')">🧊 무더위쉼터</button>
+                <button type="button" class="theme-chip" data-theme="camping" onclick="toggleTheme('camping')">🏕️ 캠핑장</button>
+                <button type="button" class="theme-chip" data-theme="watersports" onclick="toggleTheme('watersports')">🚤 수상레저</button>
+            </div>
+        </div>
+        <button type="button" id="gpsBtn" onclick="useMyLocation()" style="width:100%; margin-bottom:8px; padding:9px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#334155; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+            📍 내 주변으로 보기
+        </button>
+        <div style="display:flex; gap:4px; background:#f1f5f9; padding:3px; border-radius:10px; margin-bottom:6px;">
+            <button type="button" class="search-mode-btn active" data-mode="location" onclick="setSearchMode('location')" style="flex:1; border:none; background:#fff; color:#334155; padding:6px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.08);">📍 위치</button>
+            <button type="button" class="search-mode-btn" data-mode="title" onclick="setSearchMode('title')" style="flex:1; border:none; background:transparent; color:#64748b; padding:6px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;">🔍 이름</button>
+        </div>
+        <div style="display:flex; gap:6px;">
+            <input type="text" id="unifiedSearchInput" placeholder="위치가 안 맞으면 지역명 직접 입력 (예: 인천 계양구)" style="flex:1; padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12px; box-sizing:border-box;" onkeydown="if(event.key==='Enter'){runUnifiedSearch();}">
+            <button type="button" onclick="runUnifiedSearch()" style="padding:8px 14px; border:none; border-radius:10px; background:#334155; color:#fff; font-weight:700; font-size:12px; cursor:pointer; white-space:nowrap;">검색</button>
+        </div>
+        <div id="titleSearchActive" style="display:none; margin-top:6px; font-size:12px; color:#4f46e5; font-weight:700;">
+            검색 중: "<span id="titleSearchTerm"></span>" <button type="button" onclick="clearTitleSearch()" style="border:none; background:none; color:#94a3b8; cursor:pointer; font-size:12px; text-decoration:underline; padding:0; margin-left:4px;">지우기</button>
+        </div>
+        <div style="margin-bottom:14px;"></div>
+        <ul class="today-list">
+            <!-- TODAY_FESTIVALS_START -->
+            <li class="today-empty">축제 정보를 불러오는 중입니다...</li>
+            <!-- TODAY_FESTIVALS_END -->
+        </ul>
+        <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.6">
+            축제 정보는 최신 데이터를 기준으로 하루 약 3회 업데이트됩니다.<br>
+            축제 정보 출처: 한국관광공사 TourAPI / 공공데이터포털
+        </p>
+    </aside>
+
+
+    <div class="map-wrapper">
+        <div class="filter-container">
+            <select id="regionSelect" class="region-select" onchange="filterRegion(this.value)">
+                <option value="all">전국 전체보기</option>
+                <option value="seoul">서울 / 인천 / 경기도</option>
+                <option value="gangwon">강원특별자치도</option>
+                <option value="chungcheong">세종 / 대전 / 충청도</option>
+                <option value="gyeongsang">경상도 (대구/울산/부산)</option>
+                <option value="jeolla">광주 / 전라도</option>
+                <option value="jeju">제주특별자치도</option>
+            </select>
+        </div>
+
+        <div id="map"></div>
+
+        <div id="festivalCard" class="festival-card">
+            <button type="button" id="cardCloseBtn" onclick="closeFestivalCard()" aria-label="닫기">✕</button>
+            <img id="cardImg" class="festival-thumb" src="" alt="포스터">
+            <div>
+                <h4 id="cardTitle" style="font-size:15px; color:#111; margin-bottom:4px;">축제를 선택해주세요</h4>
+                <p id="cardDate" style="font-size:12px; color:#ff5722; font-weight:600;"></p>
+                <p id="cardAddr" style="font-size:11px; color:#666; margin-top:2px;">
+                    <span id="cardAddrText"></span>
+                    <button type="button" id="cardAddrCopyBtn" class="copy-addr-btn" title="주소 복사" style="display:none">📋</button>
+                </p>
+                <a id="cardDetailLink" href="#" style="font-size:11px; color:#1a73e8; font-weight:700; text-decoration:none; display:none; margin-top:4px;">상세보기 →</a>
+            </div>
+            <ul id="cardShelterList" class="shelter-list"></ul>
+        </div>
+
+        <div class="remote-menu">
+            <button type="button" class="remote-btn today-toggle-btn" onclick="openTodayPanel()" aria-label="오늘의 축제 목록 열기">
+                <span>🎪</span><span class="label">축제</span>
             </button>
-            <button onclick="document.getElementById('_update_banner').style.display='none'"
-                style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:5px 10px;
-                       border-radius:8px;cursor:pointer;font-size:12px">
-                나중에
-            </button>
+            <a href="/" class="remote-btn" aria-label="홈으로 가기">
+                <span>🏠</span><span class="label">홈</span>
+            </a>
+            <a href="/fortune/" class="remote-btn" aria-label="오늘의 운세로 가기">
+                <span>🔮</span><span class="label">운세</span>
+            </a>
         </div>
     </div>
+</div>
 
-    <!-- 상단 네비게이션 -->
-    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('index')">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
-                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                </div>
-                <div class="hidden md:flex space-x-2 items-center">
-                    <div class="relative group">
-                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">🏢 회사 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="absolute left-0 top-full mt-2 w-36 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <button onclick="navigateTo('about')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">소개</button>
-                            <button onclick="navigateTo('guide')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">고객지원</button>
-                        </div>
-                    </div>
-                    <div class="relative group">
-                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="absolute left-0 top-full mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <button onclick="navigateTo('index')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</button>
-                            <a href="/vote/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
-                            <a href="/quiz/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
-                            <a href="/festival/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 지도</a>
-                            <a href="/guides/index.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
-                        </div>
-                    </div>
-                    <div class="relative group">
-                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">💬 소통 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="absolute left-0 top-full mt-2 w-36 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <button onclick="navigateTo('blog')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</button>
-                            <button onclick="navigateTo('partner')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</button>
-                        </div>
-                    </div>
-                    <div class="relative group">
-                        <button class="text-slate-400 hover:text-slate-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <button onclick="navigateTo('terms')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">이용약관</button>
-                            <button onclick="navigateTo('privacy')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">개인정보처리방침</button>
-                            <button onclick="navigateTo('copyright')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">저작권·콘텐츠 정책</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <!-- 오늘의 운세 CTA (PC: 텍스트 버튼 / 모바일: 아이콘 버튼) -->
-                    <button onclick="navigateTo('fortune')" class="hidden md:flex items-center gap-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold text-sm px-4 py-2.5 rounded-full transition">
-                        <span>🔮</span> 오늘의 운세
-                    </button>
-                    <button onclick="navigateTo('fortune')" aria-label="오늘의 운세" class="md:hidden flex items-center justify-center w-10 h-10 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full transition text-base">
-                        🔮
-                    </button>
-
-                    <!-- 햄버거 버튼 (모바일) -->
-                    <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
-                        <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
-                        <span id="bar2" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
-                        <span id="bar3" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
-                    </button>
-                </div>
+<footer class="bg-slate-900 text-slate-400 py-16">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+        <div class="col-span-1 md:col-span-2">
+            <h4 class="font-black text-2xl mb-6 uppercase tracking-wider"><span class="text-indigo-400">HOHO</span><span class="text-violet-400"> PLAY</span></h4>
+            <p class="text-lg leading-relaxed mb-6">로그인 없이 즐기는 무한한 즐거움, HOHO PLAY은 웹 표준 기술을 이용한 고성능 브라우저 게임 플랫폼입니다.</p>
+            <p class="text-sm text-slate-500 mb-6">개인 운영 서비스 · Since 2026 · 문의: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a></p>
+            <div class="flex justify-center md:justify-start gap-4">
+                <a href="https://www.threads.com/@hohoplay.io" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 쓰레드" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 192 192"><path d="M141.537 88.988a66.667 66.667 0 0 0-2.518-1.143c-1.482-27.307-16.403-42.94-41.457-43.1h-.34c-14.986 0-27.449 6.396-35.12 18.036l13.779 9.452c5.73-8.695 14.724-10.548 21.348-10.548h.229c8.249.053 14.474 2.452 18.503 7.129 2.932 3.405 4.893 8.111 5.864 14.05-7.314-1.243-15.224-1.626-23.68-1.14-23.82 1.371-39.134 15.264-38.105 34.568.522 9.792 5.4 18.216 13.735 23.719 7.047 4.652 16.124 6.927 25.557 6.412 12.458-.683 22.231-5.436 29.049-14.127 5.178-6.6 8.452-15.153 9.899-25.93 5.937 3.583 10.337 8.298 12.767 13.966 4.132 9.635 4.373 25.468-8.546 38.376-11.319 11.308-24.925 16.2-45.488 16.351-22.809-.169-40.06-7.484-51.275-21.741C35.232 139.966 29.522 120.682 29.3 96c.222-24.682 5.932-43.966 16.981-57.317C57.496 24.425 74.747 17.11 97.556 16.94c22.976.17 40.56 7.52 52.256 21.845 5.75 7.09 10.093 16.016 12.94 26.402l16.345-4.363c-3.43-12.682-8.856-23.716-16.232-32.927C147.036 9.972 125.202.195 97.688 0h-.384C69.866.195 48.284 10.012 33.536 29.19 20.395 46.081 13.528 69.513 13.301 95.932L13.3 96v.068c.228 26.419 7.095 49.851 20.236 66.742 14.748 19.178 36.33 28.995 64.112 29.19h.384c24.737-.173 42.135-6.662 56.416-20.931 18.459-18.423 18.131-40.974 11.97-55.049-4.598-10.724-13.263-19.5-25.881-25.032zm-37.45 44.31c-10.458.588-21.286-5.192-21.82-14.121-.392-6.872 4.89-14.536 20.683-15.468 1.807-.104 3.583-.155 5.328-.155 6.195 0 11.988.601 17.286 1.748-1.968 24.48-11.151 27.435-21.477 27.996z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/hohoplay.io" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 인스타그램" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.975.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.851s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.975.975-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.975-.975-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.975-.975 2.242-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.014 7.052.072 5.197.157 3.355.673 2.014 2.014.673 3.355.157 5.197.072 7.052.014 8.332 0 8.741 0 12c0 3.259.014 3.668.072 4.948.085 1.855.601 3.697 1.942 5.038 1.341 1.341 3.183 1.857 5.038 1.942C8.332 23.986 8.741 24 12 24s3.668-.014 4.948-.072c1.855-.085 3.697-.601 5.038-1.942 1.341-1.341 1.857-3.183 1.942-5.038.058-1.28.072-1.689.072-4.948s-.014-3.668-.072-4.948c-.085-1.855-.601-3.697-1.942-5.038C20.645.673 18.803.157 16.948.072 15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@HOHOPLAY2026" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 유튜브" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-red-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                </a>
+                <a href="https://naver.me/GXFVLneY" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 네이버클립" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-green-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5z"/></svg>
+                </a>
+                <a href="https://blog.naver.com/hohologtv/" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 네이버블로그" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-green-600 transition cursor-pointer text-white">
+                    <span style="font-weight:900;font-size:16px;line-height:1">N</span>
+                </a>
             </div>
         </div>
-        <!-- 모바일 드롭다운 메뉴 -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t shadow-lg">
-            <div class="px-4 py-4 space-y-1">
-                
-                <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">🏢 회사</div>
-                <button onclick="mobileNav('about')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">소개</button>
-                <button onclick="mobileNav('guide')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">고객지원</button>
-
-                <div class="border-t my-2"></div><div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">🎮 플레이하기</div>
-                <button onclick="mobileNav('index')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</button>
-                <a href="/vote/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
-                <a href="/quiz/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
-                <a href="/festival/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 지도</a>
-                <a href="/guides/index.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
-
-                <div class="border-t my-2"></div>
-                <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">💬 소통</div>
-                <button onclick="mobileNav('blog')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</button>
-                <button onclick="mobileNav('partner')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</button>
-
-                <div class="border-t my-2"></div>
-                <button onclick="mobileNav('terms')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">이용약관</button>
-                <button onclick="mobileNav('privacy')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">개인정보처리방침</button>
-                <button onclick="mobileNav('copyright')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">저작권·콘텐츠 정책</button>
-            </div>
-        </div>
-    </nav>
-    <!-- 모바일 메뉴 오버레이 (햄버거 열릴 때 게임 클릭 방지) -->
-    <div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
-
-    <!-- 메인 콘텐츠 영역 -->
-    <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">🔒</div>
-                        <div>
-                            <h1 class="text-3xl font-black text-slate-900">개인정보처리방침</h1>
-                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.2 &nbsp;|&nbsp; 최종 수정: 2026년 4월 (AdSense 광고 쿠키 조항 추가)</p>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-50 border border-indigo-100 rounded-3xl p-8 mb-8 text-indigo-800 font-bold text-lg leading-relaxed">
-                        HOHO PLAY은 사용자의 개인정보를 최소한으로 수집하며, 수집된 정보를 외부에 판매하거나 제3자에게 제공하지 않습니다.
-                    </div>
-                    <div class="space-y-8 text-slate-600 leading-loose">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">1. 수집하는 정보 및 수집 방법</h3>
-                            <p class="mb-4">HOHO PLAY은 회원가입을 요구하지 않으며, 별도의 개인정보를 직접 수집하지 않습니다. 다만, 서비스 운영 과정에서 아래와 같은 정보가 자동으로 처리될 수 있습니다.</p>
-                            <ul class="list-disc list-inside space-y-2 text-slate-600">
-                                <li><strong>브라우저 로컬 스토리지:</strong> 게임 점수, 진행 상황, 환경설정 등 사용자의 기기 내에만 저장되며 서버로 전송되지 않습니다.</li>
-                                <li><strong>Cloudflare Workers(커뮤니티·댓글 서비스):</strong> 커뮤니티(BBS) 게시글 열람 및 댓글 작성 시 Cloudflare Workers와 D1 데이터베이스를 통해 처리됩니다. 이 과정에서 Cloudflare 서버에 IP 주소가 전달되며, 부정 이용 방지 목적으로 복호화 불가능한 해시 값으로 변환되어 저장됩니다.</li>
-                                <li><strong>운세 서비스:</strong> 사주·타로 등 운세 기능은 입력하신 생년월일, 이름, 질문 내용을 브라우저 내에서 계산 로직으로 처리하며, 외부 서버로 전송되지 않습니다.</li>
-                                <li><strong>Google AdSense (광고 서비스):</strong> 본 서비스는 Google AdSense를 통해 광고를 제공합니다. Google은 쿠키 및 광고 식별자를 사용하여 사용자의 관심사에 맞는 맞춤형 광고를 표시할 수 있습니다. Google이 수집하는 데이터에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a>을 참고하시기 바랍니다. 사용자는 <a href="https://adssettings.google.com/" target="_blank" class="text-indigo-600 underline">Google 광고 설정</a>에서 맞춤 광고를 거부하거나 관심사 기반 광고를 비활성화할 수 있습니다.</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">2. 개인정보의 이용 목적</h3>
-                            <p>수집 또는 처리되는 정보는 오직 다음의 목적으로만 사용됩니다.</p>
-                            <ul class="list-disc list-inside space-y-2 mt-3">
-                                <li>게임 서비스 제공 및 이용자 환경 유지</li>
-                                <li>커뮤니티 서비스 운영(게시글 표시)</li>
-                                <li>운세 콘텐츠 제공</li>
-                                <li>서비스 품질 개선 및 오류 분석</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">3. 개인정보의 보유 및 파기</h3>
-                            <p>HOHO PLAY이 직접 수집하는 개인정보는 없으며, 브라우저 로컬 스토리지에 저장된 데이터는 사용자가 직접 브라우저 설정에서 삭제할 수 있습니다. 운세 기능에 입력하신 정보는 서버로 전송되지 않고 브라우저 내에서만 처리됩니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">4. 제3자 서비스</h3>
-                            <p class="mb-3">본 서비스는 아래 제3자 서비스를 활용합니다. 각 서비스의 개인정보처리방침을 별도로 확인하시기 바랍니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>Cloudflare (커뮤니티·댓글 서비스): <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" class="text-indigo-600 underline">Cloudflare 개인정보처리방침</a></li>
-                                <li>Google AdSense (광고): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a> · <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a></li>
-                                <li>Google Fonts (웹폰트): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a></li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">5. 이용자의 권리</h3>
-                            <p class="mb-4">이용자는 언제든지 브라우저 로컬 스토리지를 직접 삭제하여 저장된 게임 데이터를 제거할 수 있습니다. 기타 개인정보 관련 문의 및 삭제 요청은 아래 연락처로 문의해 주세요.</p>
-                            <div class="mt-4 bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-2 text-sm">
-                                <p class="font-bold text-amber-800">📢 광고 관련 이용자 권리</p>
-                                <ul class="list-disc list-inside space-y-1 text-amber-700">
-                                    <li><a href="https://adssettings.google.com/" target="_blank" class="underline font-semibold">Google 광고 설정</a>에서 맞춤형 광고를 거부할 수 있습니다.</li>
-                                    <li>브라우저 설정에서 서드파티 쿠키를 차단하면 관심사 기반 광고가 표시되지 않습니다.</li>
-                                    <li>유럽 사용자의 경우 페이지 하단 쿠키 동의 배너를 통해 광고 쿠키 동의를 철회할 수 있습니다.</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">6. 개인정보 보호책임자 및 문의</h3>
-                            <p>개인정보 처리에 관한 문의, 불만, 피해구제 등은 아래로 연락해 주세요.</p>
-                            <div class="mt-4 bg-slate-50 rounded-2xl p-5">
-                                <p class="font-bold text-slate-700">개인정보 보호책임자: HOHO PLAY 운영팀</p>
-                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
-                            </div>
-                            <p class="mt-4 text-sm text-slate-400">개인정보 침해로 인한 구제를 받기 위하여 개인정보분쟁조정위원회, 한국인터넷진흥원 개인정보침해신고센터 등에도 분쟁해결이나 상담 등을 신청할 수 있습니다.</p>
-                        </div>
-                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
-                            본 방침은 2026년 1월 1일부터 시행되며, 내용 변경 시 서비스 내 공지를 통해 안내합니다. (최종 수정: 2026년 4월 — Google AdSense 광고 쿠키 조항 추가)
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-    <!-- 푸터 -->
-    
-    <div id="inquiry-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:20px;overflow-y:auto">
-        <div style="background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);max-width:520px;width:100%;padding:32px;position:relative;margin:auto">
-            <button onclick="closeInquiryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;line-height:1">×</button>
-            <div style="text-align:center;margin-bottom:24px">
-                <span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:8px">Contact</span>
-                <h2 style="font-size:1.4rem;font-weight:900;color:#1e293b;margin:8px 0 4px">문의하기</h2>
-                <p style="font-size:13px;color:#94a3b8;margin:0">호호플레이에 대한 의견·제안·오류를 남겨주세요</p>
-            </div>
-            <div style="margin-bottom:16px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">이메일 <span style="color:#f87171">*</span></label>
-                <input id="iq-email" type="email" placeholder="example@email.com"
-                    style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box">
-            </div>
-            <div style="margin-bottom:16px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">문의 유형 <span style="color:#f87171">*</span></label>
-                <select id="iq-type"
-                    style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box">
-                    <option value="">선택해 주세요</option>
-                    <option value="bug">버그 신고</option>
-                    <option value="idea">개선 제안·아이디어</option>
-                    <option value="other">기타 문의</option>
-                </select>
-            </div>
-            <div style="margin-bottom:8px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">내용 <span style="color:#f87171">*</span></label>
-                <textarea id="iq-msg" rows="5" placeholder="어떤 기기·브라우저에서 발생했는지 함께 적어주시면 더 빠르게 확인할 수 있어요."
-                    style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;resize:vertical;min-height:100px"></textarea>
-            </div>
-            <div id="iq-error" style="display:none;margin-top:10px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600"></div>
-            <div id="iq-success" style="display:none;margin-top:10px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center">
-                메일 앱이 열립니다. 내용을 확인하고 전송해 주세요!
-            </div>
-            <button id="iq-btn" onclick="submitInquiry()"
-                style="margin-top:18px;width:100%;background:#4f46e5;color:#fff;padding:14px;border-radius:14px;font-weight:900;font-size:15px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-                <span id="iq-btn-text">문의 보내기</span>
-                <span id="iq-spin" style="display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:iqSpin .7s linear infinite"></span>
-            </button>
+        <div>
+            <h4 class="text-white font-bold mb-4">고객 센터</h4>
+            <p class="text-sm">이메일: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a></p>
         </div>
     </div>
-    <style>@keyframes iqSpin { to { transform:rotate(360deg); } }</style>
-    <script>
-        const INQUIRY_GAME_NAME = "호호플레이";
+    <div class="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-slate-800 text-center text-sm font-medium tracking-wide">
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 text-slate-500">
+            <a href="/terms/" class="hover:text-white transition">이용약관</a>
+            <span>·</span>
+            <a href="/about/" class="hover:text-white transition">소개</a>
+            <span>·</span>
+            <a href="/privacy/" class="hover:text-white transition font-bold text-slate-300">개인정보처리방침</a>
+            <span>·</span>
+            <a href="/copyright/" class="hover:text-white transition">저작권·콘텐츠 정책</a>
+            <span>·</span>
+            <a href="#" onclick="openInquiryModal();return false;" class="hover:text-white transition">문의</a>
+        </div>
+        &copy; 2026 HOHO PLAY. All rights reserved.
+    </div>
+</footer>
+<div id="shareDebugLog" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#111; color:#0f0; font-size:11px; font-family:monospace; padding:8px 10px; z-index:9999; max-height:140px; overflow-y:auto; word-break:break-all;"></div>
 
-        function openInquiryModal() { document.getElementById('inquiry-modal').style.display = 'flex'; }
-        function closeInquiryModal() { document.getElementById('inquiry-modal').style.display = 'none'; }
-        function submitInquiry() {
-            const email = document.getElementById('iq-email').value.trim();
-            const type = document.getElementById('iq-type').value;
-            const msg = document.getElementById('iq-msg').value.trim();
-            const err = document.getElementById('iq-error');
-            const suc = document.getElementById('iq-success');
-            const btn = document.getElementById('iq-btn');
-            const tx = document.getElementById('iq-btn-text');
-            const sp = document.getElementById('iq-spin');
-            err.style.display = 'none';
-            suc.style.display = 'none';
-            if (!email || !type || !msg) {
-                err.textContent = '필수 항목(*)을 모두 입력해 주세요.';
-                err.style.display = 'block';
+<script>
+    const container = document.getElementById('map');
+    const mapOption = { center: new kakao.maps.LatLng(36.3504, 127.3845), level: 11 };
+    const map = new kakao.maps.Map(container, mapOption);
+
+    const clusterer = new kakao.maps.MarkerClusterer({
+        map: map, averageCenter: true, minLevel: 6
+    });
+
+    // 대한민국 전체(제주·독도 포함)가 화면에 다 들어오도록 경계 좌표로 맞춤
+    function fitKoreaBounds() {
+        const bounds = new kakao.maps.LatLngBounds();
+        bounds.extend(new kakao.maps.LatLng(33.0, 124.5)); // 남서쪽 (제주 서쪽)
+        bounds.extend(new kakao.maps.LatLng(38.7, 131.9)); // 북동쪽 (독도 포함)
+        map.setBounds(bounds);
+    }
+    fitKoreaBounds();
+
+    // "오늘의 축제" 패널에서 항목 클릭 시 해당 위치로 지도 이동.
+    // panTo()는 부드럽게 이동하는 애니메이션인데, 페이지를 열자마자 우리가 직접 호출한
+    // fitKoreaBounds() 애니메이션이 아직 끝나기 전에 사용자가 바로 클릭하면 두 애니메이션이
+    // 겹쳐서 엉뚱한 위치에 멈추는 문제가 있었다. setCenter()는 애니메이션 없이 즉시 이동하므로
+    // 이런 충돌 자체가 생기지 않는다.
+    function focusFestival(lat, lng) {
+        if (!lat || !lng) return;
+        map.relayout();
+        map.setLevel(6);
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+    }
+
+    // 모바일에서 좌측 슬라이드 패널 열고 닫기
+    function openTodayPanel() {
+        document.getElementById('todayPanel').classList.add('open');
+        document.getElementById('todayBackdrop').classList.add('open');
+    }
+    function closeTodayPanel() {
+        document.getElementById('todayPanel').classList.remove('open');
+        document.getElementById('todayBackdrop').classList.remove('open');
+    }
+
+    // "오늘 축제가 열리는 곳" 패널 상단 공유 버튼들 — 메인 사이트(index.html)의
+    // mainSnsShare()와 완전히 동일한 방식. 카카오톡은 이미 도메인 등록된 Kakao SDK로
+    // 실제 카카오톡 공유 카드를 띄우고, 나머지는 각 서비스의 공유 팝업을 연다.
+    function logShareDebug(msg) {
+        const el = document.getElementById('shareDebugLog');
+        if (!el) return;
+        el.style.display = 'block';
+        el.textContent = '[DEBUG ' + new Date().toLocaleTimeString() + '] ' + msg;
+    }
+
+    function shareFestivalMap(type) {
+        const shareUrl = location.origin + '/festival/';
+        logShareDebug('type=' + type + ' | shareUrl=' + shareUrl + ' | Kakao초기화=' + !!(window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()));
+        const url = encodeURIComponent(shareUrl);
+        const text = encodeURIComponent('오늘 어디서 축제가 열리는지 한눈에 — 전국 축제 지도');
+        let popupUrl = '';
+        if (type === 'kakaot') {
+            // navigator.share 지원 여부만으로는 PC/모바일이 안 갈린다(요즘 윈도우 크롬도
+            // navigator.share를 지원함). 그래서 실제 기기 종류로 직접 나눈다:
+            // 모바일 기기 → OS 공유 시트(navigator.share), PC → 링크를 직접 보여주는 방식.
+            // (카카오 공유 카드는 편하지만 클릭 시 메인으로 새는 문제가 있어 PC에서는 쓰지 않는다)
+            const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            if (isMobileDevice && navigator.share) {
+                navigator.share({ title: '전국 축제 지도', url: shareUrl }).catch(function () {});
                 return;
             }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                err.textContent = '올바른 이메일 주소를 입력해 주세요.';
-                err.style.display = 'block';
-                return;
-            }
-            btn.disabled = true;
-            tx.textContent = '전송 중...';
-            sp.style.display = 'inline-block';
-            const typeLabel = { bug: '버그 신고', idea: '개선 제안·아이디어', other: '기타 문의' }[type] || type;
-            const body = '[' + INQUIRY_GAME_NAME + ' 문의]\n답장받을 이메일: ' + email + '\n유형: ' + typeLabel + '\n\n' + msg;
-            window.location.href = 'mailto:lyh0929mm@gmail.com?subject=' + encodeURIComponent('[' + INQUIRY_GAME_NAME + ' 문의] ' + typeLabel) + '&body=' + encodeURIComponent(body);
-            setTimeout(() => {
-                btn.disabled = false;
-                tx.textContent = '문의 보내기';
-                sp.style.display = 'none';
-                suc.style.display = 'block';
-                document.getElementById('iq-email').value = '';
-                document.getElementById('iq-type').value = '';
-                document.getElementById('iq-msg').value = '';
-            }, 1200);
+            prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', shareUrl);
+            return;
         }
-    </script>
-
-    <div id="footer-placeholder"></div>
-    <script>
-        fetch('/footer.html')
-            .then(r => r.text())
-            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
-    </script>
-
-    <script>
-        // 모바일 감지
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-
-        const gameData = [
-            { id: 'g1', name: '호호타자rpg',    genre: '타이핑 액션', version: 'v1.0.0', file: 'game1.html', img: 'data/game1.png' },
-            { id: 'g2', name: '호호속담',        genre: '타이핑',      version: 'v1.0.0', file: 'game2.html', img: 'data/game2.png' },
-            { id: 'g3', name: '호호벚꽃타자',  genre: '타이핑',      version: 'v1.0.0', file: 'game3.html', img: 'data/game3.png' },
-            { id: 'g4',  name: '호호타자FPS', genre: '타이핑 슈터', version: 'v1.0.0', file: 'game4.html', img: 'data/game4.png' },
-            { id: 'g5',  name: '호호레이싱', genre: '레이싱', version: 'v1.0.0', file: 'game5.html', img: 'data/game5.png' },
-            { id: 'g6',  name: 'HOHO RUN', genre: '러닝 액션', version: 'v1.0.0', file: 'game6.html', img: 'data/game6.png' },
-            { id: 'g7',  name: '호호사천성', genre: '퍼즐', version: 'v1.0.0', file: 'game7.html', img: 'data/game7.png' },
-            { id: 'g8',  name: 'JELLY POP 7', genre: '퍼즐', version: 'v1.0.0', file: 'game8.html', img: 'data/game8.png' },
-            { id: 'g9',  name: 'HOHO DASH', genre: '러닝 액션', version: 'v1.0.0', file: 'game9.html', img: 'data/game9.png' },
-            { id: 'g10', name: '준비중', genre: '-', version: '준비중', file: null, img: '' }
-        ];
-        // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
-        const bannerConfig = {
-            img: '/data/banner.png',
-            link: 'fortune-adventure.html',  // 독립 파일로 이동
-            alt: '오늘의 운세 모험 시작하기'
-        };
-
-        // 게임 목록 페이지 HTML 생성
-        function buildIndexPage() {
-            var cards = gameData.map(function(game) {
-                var badge = '';
-                if (game.id === 'g1') {
-                    var cls = isMobile
-                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
-                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
-                    badge = '<span id="pc-badge-g1" class="' + cls + '">PC</span>';
-                } else if (game.id === 'g2') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500">ALL</span>';
-                } else if (game.id === 'g3') {
-                    var cls3 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
-                    badge = '<span class="' + cls3 + '">PC</span>';
-                } else if (game.id === 'g4') {
-                    var cls4 = isMobile ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400' : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
-                    badge = '<span class="' + cls4 + '">PC</span>';
-                } else if (game.id === 'g5') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g6') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g7') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g8') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                } else if (game.id === 'g9') {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                }
-                var hasImg = game.img && game.img.trim() !== '';
-                var isReal = (game.id === 'g1' || game.id === 'g2' || game.id === 'g3' || game.id === 'g4' || game.id === 'g5' || game.id === 'g6' || game.id === 'g7' || game.id === 'g8' || game.id === 'g9');
-                var thumbBg = isReal ? '#eef2ff' : '#f8fafc';
-                var thumbColor = isReal ? '#4f46e5' : '#94a3b8';
-                var icon = isReal ? '\uD83C\uDFAE' : '\u23F3';
-                var thumb = hasImg
-                    ? '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:10px;"><img src="' + game.img + '" alt="' + game.name + '" style="width:100%;height:100%;object-fit:cover;"></div>'
-                    : '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:' + thumbBg + ';color:' + thumbColor + ';">' + icon + '</div>';
-                var onclick = "handleGameClick('" + game.id + "')";
-                return '<button onclick="' + onclick + '" class="game-card group bg-white p-3 rounded-2xl border border-slate-100 hover:border-indigo-400 hover:shadow-lg transition-all flex flex-col items-center text-center relative w-full">'
-                    + badge
-                    + thumb
-                    + '<h3 class="font-bold text-sm text-slate-800 mb-1 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight">' + game.name + '</h3>'
-                    + '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full uppercase tracking-tighter">' + game.genre + '</span>'
-                    + '</button>';
-            }).join('');
-
-            var hasBanner = bannerConfig.img && bannerConfig.img.trim() !== '';
-            var bannerInner = hasBanner
-                ? '<img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;">'
-                : '<div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">'
-                  + '<span style="font-size:32px;">\uD83D\uDDBC\uFE0F</span>'
-                  + '<span style="font-size:12px;font-weight:800;color:#a5b4fc;letter-spacing:.07em;">BANNER &nbsp;\u00B7&nbsp; \uAD8C\uC7A5 \uC0AC\uC774\uC988: 1200 \u00D7 240 px</span>'
-                  + '<span style="font-size:11px;color:#c4b5fd;">bannerConfig.img \uC5D0 \uC774\uBBF8\uC9C0 \uACBD\uB85C, bannerConfig.link \uC5D0 URL\uC744 \uC785\uB825\uD558\uC138\uC694</span>'
-                  + '</div>';
-
-            return '<div class="page-transition">'
-                + '<style>'
-                + '.top-mobile-banner{display:none;margin-bottom:20px;}'
-                + '.game-icon-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:48px;}'
-                + '@media(max-width:767px){.top-mobile-banner{display:block;}.game-icon-grid{grid-template-columns:1fr;}}'
-                + '@media(min-width:768px) and (max-width:1023px){.game-icon-grid{grid-template-columns:repeat(3,1fr);}}'
-                + '@media(min-width:1024px) and (max-width:1279px){.game-icon-grid{grid-template-columns:repeat(4,1fr);}}'
-                + '@media(min-width:1280px){.game-icon-grid{grid-template-columns:repeat(5,1fr);}}'
-                + '</style>'
-                + '<div class="text-center mb-6">'
-                + '<h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight">\uD50C\uB808\uC774\uD558\uACE0 \uC2F6\uC740 \uAC8C\uC784\uC744 \uC120\uD0DD\uD558\uC138\uC694</h1>'
-                + '<p class="text-base md:text-xl text-slate-500">\uBCC4\uB3C4\uC758 \uC124\uCE58 \uC5C6\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C \uC989\uC2DC \uC2E4\uD589\uB418\uB294 \uD504\uB9AC\uBBF8\uC5C4 \uAC8C\uC784</p>'
-                + '</div>'
-                + '<section class="top-mobile-banner"><a href="' + bannerConfig.link + '" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);"><img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;"></a></section>'
-                + '<div class="game-icon-grid" id="game-icon-grid">' + cards + '</div>'                + '<script>(function(){var grid=document.getElementById("game-icon-grid");if(!grid)return;grid.addEventListener("touchstart",function(e){var c=e.target.closest(".game-card");if(c)c.classList.add("touch-active");},{passive:true});grid.addEventListener("touchend",function(e){var c=e.target.closest(".game-card");if(c)setTimeout(function(){c.classList.remove("touch-active");},200);},{passive:true});grid.addEventListener("touchcancel",function(e){var c=e.target.closest(".game-card");if(c)c.classList.remove("touch-active");},{passive:true});})();<\/script>'
-                + '<section style="margin-bottom:40px;">'
-                + '<a href="' + bannerConfig.link + '" id="banner-link" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform=\'scale(1.01)\';this.style.boxShadow=\'0 12px 48px rgba(99,102,241,.28)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 40px rgba(99,102,241,.18)\'">'
-                + bannerInner
-                + '</a>'
-                + '</section>'
-                + '</div>';
+        if (type === 'facebook') popupUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
+        else if (type === 'x') popupUrl = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + text;
+        else if (type === 'naver') popupUrl = 'https://share.naver.com/web/shareView?url=' + url + '&title=' + text;
+        else if (type === 'band') {
+            // Band 공유 팝업은 route만으로는 게시글 본문에 링크를 자동으로 넣어주지 않아,
+            // body 텍스트 안에 URL을 직접 포함시켜야 실제 글에 링크가 보인다.
+            const bandBody = encodeURIComponent('오늘 어디서 축제가 열리는지 한눈에 — 전국 축제 지도\n' + shareUrl);
+            popupUrl = 'https://www.band.us/plugin/share?body=' + bandBody + '&route=' + url;
         }
+        else if (type === 'line') popupUrl = 'https://social-plugins.line.me/lineit/share?url=' + url;
+        if (popupUrl) window.open(popupUrl, '_blank');
+    }
 
-        const pages = {
-            get index() { return buildIndexPage(); },
-            about: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-10">
-                        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-indigo-200 shadow-xl">H</div>
-                        <div>
-                            <h1 class="text-4xl font-black"><span class="text-indigo-600">About HOHO</span><span class="text-violet-500"> PLAY</span></h1>
-                            <p class="text-slate-400 mt-1">로그인 없이 즐기는 브라우저 게임 플랫폼</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 leading-relaxed text-slate-700 space-y-6 text-lg mb-8">
-                        <p class="font-bold text-slate-900 text-xl">HOHO PLAY은 설치의 번거로움과 복잡한 가입 절차를 완전히 제거했습니다.</p>
-                        <p>우리는 브라우저 기술의 한계를 시험하며, 단순한 도구 모음 이상의 고품질 웹 게임 라이브러리를 구축하고 있습니다. 누구나 링크 하나로 즉시 게임을 시작할 수 있습니다.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                            <div class="p-8 bg-indigo-50 rounded-3xl border border-indigo-100">
-                                <h4 class="font-black text-indigo-700 mb-3 text-xl">⚡ Lightning Fast</h4>
-                                <p class="text-base font-medium opacity-80">최적화된 엔진으로 어떤 환경에서도 즉시 로딩됩니다.</p>
-                            </div>
-                            <div class="p-8 bg-emerald-50 rounded-3xl border border-emerald-100">
-                                <h4 class="font-black text-emerald-700 mb-3 text-xl">🛡️ Privacy First</h4>
-                                <p class="text-base font-medium opacity-80">사용자 데이터를 서버에 저장하지 않아 안전합니다.</p>
-                            </div>
-                            <div class="p-8 bg-purple-50 rounded-3xl border border-purple-100">
-                                <h4 class="font-black text-purple-700 mb-3 text-xl">🎮 No Login</h4>
-                                <p class="text-base font-medium opacity-80">회원가입 없이 바로 플레이. 기억해야 할 비밀번호가 없습니다.</p>
-                            </div>
-                            <div class="p-8 bg-amber-50 rounded-3xl border border-amber-100">
-                                <h4 class="font-black text-amber-700 mb-3 text-xl">🔮 무료 운세</h4>
-                                <p class="text-base font-medium opacity-80">타로, 사주, 별자리 운세 서비스도 함께 제공합니다.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                        <h3 class="font-black text-2xl mb-6 text-slate-800">운영 정보</h3>
-                        <div class="space-y-4 text-slate-600">
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">서비스명</span>
-                                <span class="font-black"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                            </div>
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">운영 형태</span>
-                                <span>개인 운영 (1인 개발·운영)</span>
-                            </div>
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">서비스 시작</span>
-                                <span>2026년</span>
-                            </div>
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">주요 서비스</span>
-                                <span>브라우저 웹게임, 운세, 커뮤니티</span>
-                            </div>
-                            <div class="flex gap-4 py-3">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">문의</span>
-                                <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a>
-                            </div>
-                        </div>
-                    </div>
+    // 모바일에서는 지도보다 "오늘 축제가 열리는 곳" 목록이 먼저 보이도록 기본으로 열어둔다.
+    // (닫기 버튼(✕)이나 배경을 눌러 지도를 볼 수 있고, 다시 우측 하단 🎪 버튼으로 열 수 있다)
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        openTodayPanel();
+    }
 
-                    <!-- 만든 사람 -->
-                    <div class="bg-gradient-to-br from-indigo-50 to-violet-50 p-10 rounded-[2.5rem] border border-indigo-100 mt-8">
-                        <div class="flex items-center gap-4 mb-8">
-                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">호</div>
-                            <div>
-                                <h3 class="font-black text-2xl text-slate-800">👤 만든 사람</h3>
-                                <p class="text-slate-400 text-sm mt-0.5">호야 · HOHO PLAY 운영자</p>
-                            </div>
-                        </div>
-                        <div class="space-y-5 text-slate-700 text-base leading-relaxed">
-                            <p>게임학교를 졸업하고 게임기획 자격증을 취득했습니다. 게임회사에서 4년을 보내며 직접 만든 게임을 처음으로 세상에 내놓았지만, 회사는 문을 닫았고 저는 다른 길을 선택했습니다.</p>
-                            <p>자영업을 하는 사이, AI가 세상을 바꾸기 시작했습니다. 손님은 줄고, 동네는 점점 조용해졌습니다. 그 시간 속에서 조용히 제 블로그를 다듬었습니다. 호호로그TV에서 시작해, 지금의 HOHO PLAY가 되었습니다.</p>
-                            <div class="bg-white rounded-2xl p-6 border border-indigo-100 mt-2">
-                                <p class="text-slate-500 text-sm font-bold mb-2 uppercase tracking-wider">HOHO PLAY 라는 이름은</p>
-                                <p><span class="font-black text-indigo-600">HOHO</span>는 제 이름 끝 글자 '호'와 별명 '호야'를 합쳤습니다. <span class="font-black text-violet-500">PLAY</span>는 언제 어디서나, 가볍게 즐기자는 마음입니다.</p>
-                            </div>
-                            <p>다른 서비스를 따라 만들고 싶지 않았습니다. 제가 직접 꾸민 놀이터 — 그게 HOHO PLAY입니다.</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-                        fortune: `
-                <div class="page-transition">
-                    <div class="mb-8" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
-                        <button onclick="showFortune('today')"       id="tab-today"       class="ftab active-ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">오늘운세</button>
-                        <button onclick="showFortune('saju')"        id="tab-saju"        class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">사주</button>
-                        <button onclick="showFortune('zodiac')"      id="tab-zodiac"      class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">별자리</button>
-                        <button onclick="showFortune('chinese')"     id="tab-chinese"     class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">띠운세</button>
-                        <button onclick="showFortune('weekly')"      id="tab-weekly"      class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">별자리주간</button>
-                        <button onclick="showFortune('monthly')"     id="tab-monthly"     class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">띠별월간</button>
-                        <button onclick="showFortune('tarot')"       id="tab-tarot"       class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">타로</button>
-                        <button onclick="showFortune('mbti-tarot')"  id="tab-mbti-tarot"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+타로</button>
-                        <button onclick="showFortune('mbti-dream')"  id="tab-mbti-dream"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+꿈해몽</button>
-                    </div>
-                    <div id="fortune-content"></div>
-                </div>
-            `,
-                        guide: `
-                <div class="page-transition max-w-4xl mx-auto">
-                    <h1 class="text-4xl font-black mb-12 text-center">전체 서비스 가이드</h1>
-                    <div class="grid gap-6">
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-2xl mb-4 text-indigo-600">1. 게임 플레이 환경</h3>
-                            <p class="text-slate-600 text-lg">HOHO PLAY은 크롬(Chrome), 웨일 브라우저에 최적화되어 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-2xl mb-4 text-indigo-600">2. 데이터 저장 방식</h3>
-                            <p class="text-slate-600 text-lg">대부분의 게임은 브라우저의 'Local Storage'를 사용하여 진행 상황을 저장합니다.</p>
-                        </div>
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-2xl mb-4 text-indigo-600">3. 문의</h3>
-                            <p class="text-slate-600 text-lg">전문적인 피드백이나 비즈니스 문의는 '파트너' 메뉴를 이용해 주세요.</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-            contact: `
-                <div class="page-transition max-w-3xl mx-auto">
-                    <div class="text-center mb-12">
-                        <h1 class="text-4xl font-black mb-4">제휴 및 문의</h1>
-                        <p class="text-slate-500">전문적인 피드백이나 비즈니스 문의는 아래 양식을 이용해 주세요.</p>
-                    </div>
-                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-slate-50">
-                        <div class="space-y-8">
-                            <div>
-                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Name / Organization</label>
-                                <input type="text" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="성함 또는 기업명을 입력하세요">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Email Address</label>
-                                <input type="email" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="회신받을 이메일을 입력하세요">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Message</label>
-                                <textarea rows="6" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="문의 내용을 자유롭게 작성해 주세요."></textarea>
-                            </div>
-                            <button class="w-full bg-indigo-600 text-white font-black py-6 rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-100 text-xl transition transform active:scale-[0.98]" onclick="alert('전송되었습니다. 24시간 내 회신드리겠습니다.')">문의 전송하기</button>
-                        </div>
-                    </div>
-                </div>
-            `,
-            privacy: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">🔒</div>
-                        <div>
-                            <h1 class="text-3xl font-black text-slate-900">개인정보처리방침</h1>
-                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.2 &nbsp;|&nbsp; 최종 수정: 2026년 4월 (AdSense 광고 쿠키 조항 추가)</p>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-50 border border-indigo-100 rounded-3xl p-8 mb-8 text-indigo-800 font-bold text-lg leading-relaxed">
-                        HOHO PLAY은 사용자의 개인정보를 최소한으로 수집하며, 수집된 정보를 외부에 판매하거나 제3자에게 제공하지 않습니다.
-                    </div>
-                    <div class="space-y-8 text-slate-600 leading-loose">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">1. 수집하는 정보 및 수집 방법</h3>
-                            <p class="mb-4">HOHO PLAY은 회원가입을 요구하지 않으며, 별도의 개인정보를 직접 수집하지 않습니다. 다만, 서비스 운영 과정에서 아래와 같은 정보가 자동으로 처리될 수 있습니다.</p>
-                            <ul class="list-disc list-inside space-y-2 text-slate-600">
-                                <li><strong>브라우저 로컬 스토리지:</strong> 게임 점수, 진행 상황, 환경설정 등 사용자의 기기 내에만 저장되며 서버로 전송되지 않습니다.</li>
-                                <li><strong>Cloudflare Workers(커뮤니티·댓글 서비스):</strong> 커뮤니티(BBS) 게시글 열람 및 댓글 작성 시 Cloudflare Workers와 D1 데이터베이스를 통해 처리됩니다. 이 과정에서 Cloudflare 서버에 IP 주소가 전달되며, 부정 이용 방지 목적으로 복호화 불가능한 해시 값으로 변환되어 저장됩니다.</li>
-                                <li><strong>운세 서비스:</strong> 사주·타로 등 운세 기능은 입력하신 생년월일, 이름, 질문 내용을 브라우저 내에서 계산 로직으로 처리하며, 외부 서버로 전송되지 않습니다.</li>
-                                <li><strong>Google AdSense (광고 서비스):</strong> 본 서비스는 Google AdSense를 통해 광고를 제공합니다. Google은 쿠키 및 광고 식별자를 사용하여 사용자의 관심사에 맞는 맞춤형 광고를 표시할 수 있습니다. Google이 수집하는 데이터에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a>을 참고하시기 바랍니다. 사용자는 <a href="https://adssettings.google.com/" target="_blank" class="text-indigo-600 underline">Google 광고 설정</a>에서 맞춤 광고를 거부하거나 관심사 기반 광고를 비활성화할 수 있습니다.</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">2. 개인정보의 이용 목적</h3>
-                            <p>수집 또는 처리되는 정보는 오직 다음의 목적으로만 사용됩니다.</p>
-                            <ul class="list-disc list-inside space-y-2 mt-3">
-                                <li>게임 서비스 제공 및 이용자 환경 유지</li>
-                                <li>커뮤니티 서비스 운영(게시글 표시)</li>
-                                <li>운세 콘텐츠 제공</li>
-                                <li>서비스 품질 개선 및 오류 분석</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">3. 개인정보의 보유 및 파기</h3>
-                            <p>HOHO PLAY이 직접 수집하는 개인정보는 없으며, 브라우저 로컬 스토리지에 저장된 데이터는 사용자가 직접 브라우저 설정에서 삭제할 수 있습니다. 운세 기능에 입력하신 정보는 서버로 전송되지 않고 브라우저 내에서만 처리됩니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">4. 제3자 서비스</h3>
-                            <p class="mb-3">본 서비스는 아래 제3자 서비스를 활용합니다. 각 서비스의 개인정보처리방침을 별도로 확인하시기 바랍니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>Cloudflare (커뮤니티·댓글 서비스): <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" class="text-indigo-600 underline">Cloudflare 개인정보처리방침</a></li>
-                                <li>Google AdSense (광고): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a> · <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a></li>
-                                <li>Google Fonts (웹폰트): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a></li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">5. 이용자의 권리</h3>
-                            <p class="mb-4">이용자는 언제든지 브라우저 로컬 스토리지를 직접 삭제하여 저장된 게임 데이터를 제거할 수 있습니다. 기타 개인정보 관련 문의 및 삭제 요청은 아래 연락처로 문의해 주세요.</p>
-                            <div class="mt-4 bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-2 text-sm">
-                                <p class="font-bold text-amber-800">📢 광고 관련 이용자 권리</p>
-                                <ul class="list-disc list-inside space-y-1 text-amber-700">
-                                    <li><a href="https://adssettings.google.com/" target="_blank" class="underline font-semibold">Google 광고 설정</a>에서 맞춤형 광고를 거부할 수 있습니다.</li>
-                                    <li>브라우저 설정에서 서드파티 쿠키를 차단하면 관심사 기반 광고가 표시되지 않습니다.</li>
-                                    <li>유럽 사용자의 경우 페이지 하단 쿠키 동의 배너를 통해 광고 쿠키 동의를 철회할 수 있습니다.</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">6. 개인정보 보호책임자 및 문의</h3>
-                            <p>개인정보 처리에 관한 문의, 불만, 피해구제 등은 아래로 연락해 주세요.</p>
-                            <div class="mt-4 bg-slate-50 rounded-2xl p-5">
-                                <p class="font-bold text-slate-700">개인정보 보호책임자: HOHO PLAY 운영팀</p>
-                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
-                            </div>
-                            <p class="mt-4 text-sm text-slate-400">개인정보 침해로 인한 구제를 받기 위하여 개인정보분쟁조정위원회, 한국인터넷진흥원 개인정보침해신고센터 등에도 분쟁해결이나 상담 등을 신청할 수 있습니다.</p>
-                        </div>
-                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
-                            본 방침은 2026년 1월 1일부터 시행되며, 내용 변경 시 서비스 내 공지를 통해 안내합니다. (최종 수정: 2026년 4월 — Google AdSense 광고 쿠키 조항 추가)
-                        </div>
-                    </div>
-                </div>
-            `,
-            terms: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
-                        <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">📋</div>
-                        <div>
-                            <h1 class="text-3xl font-black text-slate-900">이용약관</h1>
-                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.0</p>
-                        </div>
-                    </div>
-                    <div class="bg-emerald-50 border border-emerald-100 rounded-3xl p-8 mb-8 text-emerald-800 font-bold text-lg leading-relaxed">
-                        HOHO PLAY 서비스를 이용하시면 본 약관에 동의하신 것으로 간주합니다.
-                    </div>
-                    <div class="space-y-8 text-slate-600 leading-loose">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제1조 (목적)</h3>
-                            <p>본 약관은 HOHO PLAY(이하 "서비스")이 제공하는 웹 게임 플랫폼 및 부가 서비스의 이용 조건과 절차, 이용자와 서비스 운영자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제2조 (서비스의 제공)</h3>
-                            <p class="mb-3">서비스는 이용자에게 다음과 같은 기능을 제공합니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>브라우저 기반 웹 게임 플레이 (로그인 불필요)</li>
-                                <li>운세 서비스</li>
-                                <li>커뮤니티 게시판(BBS)</li>
-                                <li>기타 운영자가 추가로 정하는 서비스</li>
-                            </ul>
-                            <p class="mt-4">서비스는 연중무휴 제공을 원칙으로 하나, 시스템 점검·서버 장애·기타 운영상 사유로 일시 중단될 수 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제3조 (이용자의 의무)</h3>
-                            <p class="mb-3">이용자는 서비스 이용 시 다음 행위를 해서는 안 됩니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>타인의 개인정보, 계정을 도용하는 행위</li>
-                                <li>서비스의 정상적인 운영을 방해하는 행위(해킹, DDoS 등)</li>
-                                <li>서비스 내 게임 코드, 콘텐츠를 무단으로 복제·배포·판매하는 행위</li>
-                                <li>커뮤니티에 음란물, 허위정보, 타인 비방, 광고성 스팸 게시물을 올리는 행위</li>
-                                <li>관련 법령에 위반되는 행위</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제4조 (서비스 이용 제한)</h3>
-                            <p>운영자는 이용자가 제3조의 금지 행위를 하거나 서비스의 정상적인 운영을 방해할 경우 사전 통보 없이 해당 이용자의 서비스 접근을 제한할 수 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제5조 (면책 조항)</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>서비스는 무료로 제공되며, 서비스 이용으로 발생한 직간접적 손해에 대해 운영자는 법령상 고의·중과실이 없는 한 책임을 지지 않습니다.</li>
-                                <li>운세 서비스의 결과는 오락 목적으로만 제공되며, 실제 의사결정의 근거로 사용해서는 안 됩니다.</li>
-                                <li>이용자가 커뮤니티에 게시한 내용에 대한 책임은 해당 이용자에게 있습니다.</li>
-                                <li>서비스 중단, 데이터 손실 등 불가항력적 사유로 인한 손해에 대해 운영자는 책임을 지지 않습니다.</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제6조 (저작권)</h3>
-                            <p>서비스 내 게임, 디자인, 코드, 텍스트 등 모든 콘텐츠의 저작권은 HOHO PLAY 또는 해당 저작권자에게 있습니다. 이용자는 운영자의 명시적 동의 없이 서비스 콘텐츠를 복제·수정·배포·판매할 수 없습니다. (자세한 내용은 <span class="text-indigo-600 cursor-pointer underline" onclick="navigateTo('copyright')">저작권 및 콘텐츠 정책</span> 참조)</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제7조 (약관의 변경)</h3>
-                            <p>운영자는 필요한 경우 본 약관을 변경할 수 있으며, 변경 시 서비스 내 공지를 통해 7일 전 사전 고지합니다. 변경 후 서비스를 계속 이용하는 경우 변경된 약관에 동의한 것으로 간주합니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제8조 (문의)</h3>
-                            <div class="bg-slate-50 rounded-2xl p-5">
-                                <p class="font-bold text-slate-700">이용약관 관련 문의</p>
-                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
-                            본 약관은 2026년 1월 1일부터 시행됩니다.
-                        </div>
-                    </div>
-                </div>
-            `,
-            copyright: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
-                        <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl">©️</div>
-                        <div>
-                            <h1 class="text-3xl font-black text-slate-900">저작권 및 콘텐츠 정책</h1>
-                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.0</p>
-                        </div>
-                    </div>
-                    <div class="bg-amber-50 border border-amber-100 rounded-3xl p-8 mb-8 text-amber-800 font-bold text-lg leading-relaxed">
-                        HOHO PLAY의 모든 콘텐츠는 저작권법의 보호를 받습니다.
-                    </div>
-                    <div class="space-y-8 text-slate-600 leading-loose">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">1. 서비스 콘텐츠의 저작권</h3>
-                            <p class="mb-3">서비스 내 다음 콘텐츠의 저작권은 HOHO PLAY 또는 원저작권자에게 귀속됩니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>웹 게임 소스코드 및 게임 로직</li>
-                                <li>서비스 UI 디자인, 레이아웃, 그래픽 요소</li>
-                                <li>서비스 내 텍스트, 설명문, 게임 내 스토리</li>
-                                <li>HOHO PLAY 로고 및 브랜드 아이덴티티</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">2. 허용되는 이용</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>개인적, 비상업적 목적의 서비스 이용 및 게임 플레이</li>
-                                <li>서비스 소개 목적의 스크린샷 공유 (출처 표기 필수)</li>
-                                <li>학습 목적의 코드 구조 참고 (재배포 금지)</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">3. 금지되는 이용</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>게임 소스코드의 무단 복제, 수정, 재배포</li>
-                                <li>서비스 콘텐츠의 상업적 이용</li>
-                                <li>HOHO PLAY 브랜드명, 로고의 무단 사용</li>
-                                <li>서비스를 통째로 모방한 파생 서비스 제작·운영</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">4. 오픈소스 및 제3자 라이선스</h3>
-                            <p class="mb-3">본 서비스는 다음 오픈소스 및 제3자 서비스를 사용합니다.</p>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm border-collapse">
-                                    <thead><tr class="bg-slate-50"><th class="text-left p-3 border border-slate-100 font-bold text-slate-700">라이브러리/서비스</th><th class="text-left p-3 border border-slate-100 font-bold text-slate-700">라이선스</th></tr></thead>
-                                    <tbody>
-                                        <tr><td class="p-3 border border-slate-100">Tailwind CSS</td><td class="p-3 border border-slate-100">MIT License</td></tr>
-                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">Noto Sans KR (Google Fonts)</td><td class="p-3 border border-slate-100">SIL Open Font License 1.1</td></tr>
-                                        <tr><td class="p-3 border border-slate-100">html2canvas</td><td class="p-3 border border-slate-100">MIT License</td></tr>
-                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">Cloudflare Workers / D1</td><td class="p-3 border border-slate-100">Cloudflare Terms of Service</td></tr>
-                                        <tr><td class="p-3 border border-slate-100">Kakao Maps SDK / Kakao JS SDK</td><td class="p-3 border border-slate-100">Kakao Developers 이용약관</td></tr>
-                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">한국관광공사 TourAPI (공공데이터포털)</td><td class="p-3 border border-slate-100">공공데이터포털 이용약관</td></tr>
-                                        <tr><td class="p-3 border border-slate-100">Google Analytics</td><td class="p-3 border border-slate-100">Google Analytics 서비스 약관</td></tr>
-                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">Google AdSense</td><td class="p-3 border border-slate-100">Google AdSense 프로그램 정책</td></tr>
-                                                                            </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">5. 커뮤니티 게시물의 저작권</h3>
-                            <p>이용자가 커뮤니티(BBS)에 게시한 글의 저작권은 해당 이용자에게 있습니다. 다만, 이용자는 해당 게시물을 서비스 내에서 표시·공유하는 것에 동의합니다. 타인의 저작물을 무단으로 게시하는 행위는 금지되며, 저작권 침해 게시물은 신고 접수 후 삭제 처리될 수 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">6. 저작권 침해 신고</h3>
-                            <p>본 서비스에서 저작권 침해가 발생했다고 판단되는 경우 아래 연락처로 신고해 주세요. 신고 접수 후 검토를 거쳐 조치합니다.</p>
-                            <div class="mt-4 bg-slate-50 rounded-2xl p-5">
-                                <p class="font-bold text-slate-700">저작권 침해 신고</p>
-                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
-                            © 2026 HOHO PLAY. All rights reserved. 본 정책은 2026년 1월 1일부터 시행됩니다.
-                        </div>
-                    </div>
-                </div>
-            `
-        };
+    // 현재 선택된 지역(전국 전체 / 특정 지역)을 기억해뒀다가, 창 크기가 바뀔 때도
+    // 같은 범위를 다시 화면에 딱 맞게 잡아주기 위해 사용한다.
+    let currentRegionKey = 'all';
 
-        // 게임 클릭: g1은 game1.html로 이동, 나머지는 준비중 알림
-        function handleGameClick(gameId) {
-            const game = gameData.find(g => g.id === gameId);
-            if (game && game.file) {
-                loadGamePage(game.file, game.name);
-            } else {
-                alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
-            }
+    // 테마는 축제 "제목"에 특정 키워드가 있는지로 판정한다(주소 기반 지역 분류와 같은 방식).
+    // 지도 마커는 지역으로만 거르고, 이 테마/기간 필터는 "오늘 축제가 열리는 곳" 패널에만 적용한다.
+    const THEME_KEYWORDS = {
+        cherry: ['벚꽃'],
+        foliage: ['단풍', '억새'],
+        seafood: ['대하', '새우', '전어', '굴', '수산물', '대게', '전복', '멸치', '인삼', '한우', '사과', '포도', '딸기', '곶감', '메밀', '고구마', '감자', '마늘', '고추', '멜론', '수박'],
+        fireworks: ['불꽃'],
+        winter: ['눈꽃', '빙어', '얼음'],
+        flower: ['꽃축제', '꽃박람회', '튤립', '코스모스', '유채꽃', '장미', '국화', '수국', '철쭉', '진달래', '메밀꽃', '핑크뮬리', '구절초', '라벤더', '해바라기', '연꽃']
+    };
+    let currentThemes = new Set(); // 비어있으면 "전체(공원 제외)"와 동일
+    let currentPeriod = 'today'; // 'today' | 'month' | 'nextmonth'
+
+    function fitToMarkers(markers) {
+        if (!markers || markers.length === 0) { fitKoreaBounds(); return; }
+        const bounds = new kakao.maps.LatLngBounds();
+        markers.forEach(function (m) { bounds.extend(m.getPosition()); });
+        map.setBounds(bounds);
+    }
+
+    // 모바일에서 주소창이 접히고 펴지며 화면 높이가 바뀔 때, 그리고 PC에서 창 크기를
+    // 줄였다 늘렸다 할 때 지도가 그 변화를 자동으로 반영하지 못하는 문제를 막기 위한 재정렬 처리.
+    // relayout만 하면 지도 "크기"는 맞춰져도 이전에 잡아뒀던 확대/축소 범위가 새 크기에는
+    // 안 맞아서 엉뚱한 위치가 보일 수 있어, 매번 현재 선택된 범위로 다시 맞춰준다.
+    function relayoutMap() {
+        map.relayout();
+        kakao.maps.event.trigger(map, 'resize');
+        if (currentRegionKey === 'all') {
+            fitKoreaBounds();
+        } else {
+            fitToMarkers(allMarkers);
         }
+    }
+    // 사용자가 페이지를 열자마자(300ms 타이머가 돌기도 전에) 바로 목록을 클릭할 수도 있으므로,
+    // 지도를 만든 직후에도 한 번 즉시 재정렬해서 첫 클릭부터 정확한 위치로 이동하게 한다.
+    relayoutMap();
+    setTimeout(relayoutMap, 300);
+    let relayoutTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(relayoutTimer);
+        relayoutTimer = setTimeout(relayoutMap, 150);
+    });
+    window.addEventListener('orientationchange', function () {
+        setTimeout(relayoutMap, 300);
+    });
 
-        async function loadGamePage(file, name) {
-            const contentDiv = document.getElementById('content');
-            // [FIX] 게임 → 다른 게임으로 바로 이동할 때도 이전 게임의 오디오를 정리
-            if (typeof window.stopAllGameAudio === 'function') {
-                try { window.stopAllGameAudio(); } catch (e) {}
-            }
-            contentDiv.innerHTML =
-                '<div class="flex flex-col items-center justify-center py-32 text-slate-400">' +
-                '<div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>' +
-                '<p class="font-bold text-sm">' + name + ' 불러오는 중...</p>' +
-                '</div>';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            try {
-                const r = await fetch('/' + file + '?v=' + Date.now(), { cache: 'no-store' });
-                const html = await r.text();
-                const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
-                contentDiv.innerHTML = mainMatch
-                    ? '<div class="page-transition">' + mainMatch[1] + '</div>'
-                    : '<div class="page-transition py-20 text-center text-slate-400">게임을 불러올 수 없습니다.</div>';
-                contentDiv.querySelectorAll('script').forEach(function(oldScript) {
-                    const s = document.createElement('script');
-                    s.textContent = oldScript.textContent;
-                    document.body.appendChild(s);
-                });
-            } catch(e) {
-                contentDiv.innerHTML = '<div class="page-transition py-20 text-center text-slate-400">게임을 불러올 수 없습니다.</div>';
-            }
-        }
+    // ── 지역 구분: fetch_data.py의 REGION_KEYWORDS/REGION_LABELS와 반드시 동일하게 맞출 것 ──
+    const REGION_KEYWORDS = {
+        seoul: ['서울', '인천', '경기'],
+        gangwon: ['강원'],
+        chungcheong: ['세종', '대전', '충북', '충남', '충청'],
+        gyeongsang: ['대구', '울산', '부산', '경북', '경남', '경상'],
+        jeolla: ['광주', '전북', '전남', '전라'],
+        jeju: ['제주']
+    };
+    const REGION_ORDER = ['seoul', 'gangwon', 'chungcheong', 'gyeongsang', 'jeolla', 'jeju'];
+    const REGION_LABELS = {
+        seoul: '서울·인천·경기',
+        gangwon: '강원',
+        chungcheong: '세종·대전·충청',
+        gyeongsang: '경상도',
+        jeolla: '광주·전라도',
+        jeju: '제주'
+    };
+    // Vercel 프록시 주소를 브라우저에서 직접 호출 (지역 선택 시 설명 문구를 즉시 받아오기 위함)
+    const DETAIL_PROXY_URL = 'https://festival-api-proxy.vercel.app/api/detail';
 
-        async function navigateTo(page) {
-            // ── URL 분리 마이그레이션: 실제 폴더 URL이 있는 페이지는 진짜 이동 ──
-            // (about/ 부터 시작, 이후 폴더 만들 때마다 이 목록에 추가)
-            const REAL_URL_PAGES = ['index', 'about', 'fortune', 'guide', 'blog', 'terms', 'privacy', 'copyright', 'partner'];
-            if (REAL_URL_PAGES.includes(page)) {
-                const targetPath = (page === 'index') ? '/' : ('/' + page + '/');
-                if (location.pathname !== targetPath) {
-                    location.href = targetPath;
-                    return;
-                }
-            }
-
-            const contentDiv = document.getElementById('content');
-
-            // [FIX] game9(hohoDash) 등 게임 페이지에서 벗어날 때 배경음악/효과음이
-            // 계속 재생되는 문제 해결. 게임 스크립트가 window.stopAllGameAudio를
-            // 정의해두면(있을 때만) 페이지 전환 직전에 호출해서 AudioContext를 정리한다.
-            if (typeof window.stopAllGameAudio === 'function') {
-                try { window.stopAllGameAudio(); } catch (e) {}
-            }
-
-            // ── partner: partner.html을 fetch해서 <main> 영역만 삽입 ──
-            if (page === 'partner') {
-                contentDiv.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-32 text-slate-400">
-                        <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                        <p class="font-bold text-sm">파트너 페이지 불러오는 중...</p>
-                    </div>`;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                try {
-                   const r = await fetch('/partner.html?v=' + Date.now(), { cache: 'no-store' });
-                    const html = await r.text();
-                    // partner.html의 <main>...</main> 내용만 추출
-                    const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
-                    contentDiv.innerHTML = mainMatch
-                        ? `<div class="page-transition">${mainMatch[1]}</div>`
-                        : `<div class="page-transition py-20 text-center text-slate-400">파트너 페이지를 불러올 수 없습니다.</div>`;
-                    // partner.html의 인라인 <script> 실행
-                    contentDiv.querySelectorAll('script').forEach(oldScript => {
-                        const s = document.createElement('script');
-                        s.textContent = oldScript.textContent;
-                        document.body.appendChild(s);
-                    });
-                    // .p-fade 요소들: IntersectionObserver 대신 즉시 visible 적용
-                    // (innerHTML 삽입 직후엔 뷰포트 감지가 불안정하므로 강제 처리)
-                    requestAnimationFrame(() => {
-                        contentDiv.querySelectorAll('.p-fade').forEach(el => {
-                            el.classList.add('visible');
-                        });
-                    });
-                } catch(e) {
-                    contentDiv.innerHTML = `<div class="page-transition py-20 text-center text-slate-400">파트너 페이지를 불러올 수 없습니다.</div>`;
-                }
-                return;
-            }
-
-            if (!pages[page]) return;
-            // 매번 DOM 새로 생성 → 메뉴/H마크 재클릭 시 항상 fresh fetch
-            contentDiv.innerHTML = pages[page];
-            // URL은 항상 깔끔하게 유지 (hash 표시 안 함)
-            history.replaceState(null, '', location.pathname);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            if (page === 'fortune') {
-                if(window.fortuneReady) {
-                    showFortune('today');
-                } else {
-                    var _fc = document.getElementById('fortune-content');
-                    if (_fc) _fc.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세 모듈 로딩 중...</div>';
-                    window._pendingFortune = function(){ showFortune('today'); };
-                    setTimeout(function(){
-                        if(!window.fortuneReady){
-                            var fc2 = document.getElementById('fortune-content');
-                            if(fc2 && fc2.innerHTML.includes('로딩 중'))
-                                fc2.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa">⚠️ 운세 모듈을 불러오지 못했습니다. 페이지를 새로고침해 주세요.</div>';
-                        }
-                    }, 5000);
-                }
-            }
-        }
-
-        // 푸터 사이트맵 링크
-        // ※ outerHTML 삽입된 footer.html의 <script>는 브라우저가 실행하지 않으므로
-        //    index.html 자체에 footerNav를 반드시 정의해야 함
-        function footerNav(page) {
-            navigateTo(page);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function toggleMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const overlay = document.getElementById('menu-overlay');
-            const bar1 = document.getElementById('bar1');
-            const bar2 = document.getElementById('bar2');
-            const bar3 = document.getElementById('bar3');
-            const isOpen = !menu.classList.contains('hidden');
-            if (isOpen) {
-                menu.classList.add('hidden');
-                if(overlay) overlay.style.display = 'none';
-                bar1.style.transform = '';
-                bar2.style.opacity = '1';
-                bar3.style.transform = '';
-            } else {
-                menu.classList.remove('hidden');
-                if(overlay) overlay.style.display = 'block';
-                bar1.style.transform = 'translateY(8px) rotate(45deg)';
-                bar2.style.opacity = '0';
-                bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
-            }
-        }
-
-        function mobileNav(page) {
-            toggleMenu();
-            navigateTo(page);
-        }
-
-        window.onload = () => {
-            const pendingPage = sessionStorage.getItem('page');
-            if (pendingPage) {
-                sessionStorage.removeItem('page');
-                navigateTo(pendingPage);
-            } else {
-                navigateTo('privacy');
-            }
-        };
-
-        // 현재 활성 페이지에 nav 강조 표시
-        function updateActiveNav(page) {
-            document.querySelectorAll('nav button[onclick]').forEach(btn => {
-                btn.classList.remove('text-indigo-600', 'text-purple-800');
-            });
-        }
-
-    </script>
-
-    <!-- 운세·타로·MBTI 모듈 동적 로드 -->
-    <script>
-    window.fortuneReady = false;
-    (function(){
-        fetch('/fortune.html?' + Date.now(), { cache: 'no-store' })
-            .then(function(r){ return r.text(); })
-            .then(function(html){
-                var tmp = document.createElement('div');
-                tmp.innerHTML = html;
-                var scripts = tmp.querySelectorAll('script');
-                scripts.forEach(function(s){
-                    var ns = document.createElement('script');
-                    if(s.src) { ns.src = s.src; ns.async = false; }
-                    else { ns.textContent = s.textContent; }
-                    document.body.appendChild(ns);
-                });
-                window.fortuneReady = true;
-                // 대기 중인 운세 페이지 요청 처리
-                if(window._pendingFortune) {
-                    window._pendingFortune();
-                    window._pendingFortune = null;
-                }
-            })
-            .catch(function(e){ console.warn('fortune.html 로드 실패:', e); });
+    const TODAY_STR = (function () {
+        const d = new Date();
+        const pad = function (n) { return String(n).padStart(2, '0'); };
+        return '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
     })();
-    </script>
-    <script>
-    // ── 보안: 게임 캔버스 영역에서만 우클릭/개발자도구 차단 ──
-    // (전체 페이지 차단은 AdSense 정책 위반 소지 + UX 저하)
 
-    // 게임 페이지(game1.html, game2.html)는 별도 파일이므로 여기선 처리 불필요.
-    // index.html SPA 내에서는 게임이 iframe/별도 창으로 열리므로
-    // 아래 코드는 현재 아무 영향도 주지 않도록 제거합니다.
+    let festivalData = [];
+    let allMarkers = [];
 
-    // ── 대신: 게임 iframe 내 캔버스에서만 우클릭 차단이 필요하다면
-    //    game1.html / game2.html 내부의 <canvas> 요소에 직접 아래를 추가하세요:
-    //    canvas.addEventListener('contextmenu', e => e.preventDefault());
+    fetch('/data/festivals.json')
+        .then(res => res.json())
+        .then(data => {
+            festivalData = data;
+            renderMarkers(data);
+            // 기본 화면(전국 전체보기)의 "오늘의 축제" 목록은 서버가 미리 만들어둔 정적
+            // HTML을 그대로 두고(SEO용), 사용자가 지역을 바꿀 때만 아래 renderTodayPanel이 동작한다.
+            // 다만 서버 쪽 갱신이 그날 실패해서 "불러오는 중..." 자리표시가 그대로 남아있는
+            // 경우를 대비해, 그 상태를 감지하면 지금 받은 데이터로 즉시 한 번 더 그려준다.
+            const listEl = document.querySelector('.today-list');
+            if (listEl && listEl.textContent.includes('불러오는 중')) {
+                renderTodayPanel('all');
+            }
+        });
+
+    // [성능] 필터를 바꿀 때마다 마커를 전부 새로 만들면(생성 + 이벤트 등록), 데이터가
+    // 수백~천 건 단위로 늘어난 지금(축제+자연관광지) 필터 전환마다 눈에 띄게 느려진다.
+    // 그래서 마커는 최초 1회만 만들어 contentid 기준으로 캐시해두고, 이후에는 "어떤
+    // 마커를 보여줄지"만 다시 고르고 clusterer에 다시 addMarkers 하는 식으로 재사용한다.
+    let allMarkersCache = null;
+
+    function buildAllMarkersOnce(data) {
+        allMarkersCache = new Map();
+        data.forEach(item => {
+            const lat = parseFloat(item.lat);
+            const lng = parseFloat(item.lng);
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            const marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(lat, lng)
+            });
+
+            kakao.maps.event.addListener(marker, 'click', function() {
+                document.getElementById('cardTitle').innerText = item.title;
+                document.getElementById('cardDate').innerText = (item.startDate && item.endDate)
+                    ? `📅 ${item.startDate} ~ ${item.endDate}`
+                    : (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : '🌳 상시 개방');
+
+                document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
+                const addrCopyBtn = document.getElementById('cardAddrCopyBtn');
+                if (item.addr) {
+                    addrCopyBtn.style.display = 'inline';
+                    addrCopyBtn.onclick = function () { copyToClipboard(item.addr, addrCopyBtn); };
+                } else {
+                    addrCopyBtn.style.display = 'none';
+                }
+
+                // 이미지가 없으면 아예 안 보이게 한다. 예전엔 외부 플레이스홀더 이미지
+                // 서비스(via.placeholder.com)로 대체했는데, 그 서비스가 요즘 잘 안 떠서
+                // 로딩 실패 시 대체 텍스트("포스터")가 그냥 글자로 노출되는 문제가 있었다
+                // (무더위쉼터처럼 원래 이미지가 없는 타입에서 특히 어색하게 보임).
+                const cardImg = document.getElementById('cardImg');
+                if (item.image) {
+                    cardImg.src = item.image;
+                    cardImg.classList.remove('no-image');
+                } else {
+                    cardImg.src = '';
+                    cardImg.classList.add('no-image');
+                }
+
+                const detailLink = document.getElementById('cardDetailLink');
+                if (item.contentid && item.hasDetail) {
+                    detailLink.href = '/festival/detail/' + encodeURIComponent(item.contentid) + '.html';
+                    detailLink.style.display = 'inline-block';
+                } else {
+                    detailLink.style.display = 'none';
+                }
+                document.getElementById('festivalCard').classList.add('active');
+
+                // 무더위쉼터는 지역 단위로 묶인 클러스터 마커라, 클릭했을 때만
+                // 그 지역의 개별 목록(data/shelters/{contentid}.json)을 따로 불러와 보여준다.
+                // (전국 9만 건을 festivals.json 하나에 다 담을 수 없어 이렇게 나눠둠)
+                const shelterListEl = document.getElementById('cardShelterList');
+                if (item.type === 'shelter' && item.contentid) {
+                    shelterListEl.style.display = 'block';
+                    shelterListEl.innerHTML = '<li class="shelter-list-loading">목록을 불러오는 중...</li>';
+                    fetch('/data/shelters/' + encodeURIComponent(item.contentid) + '.json')
+                        .then(res => { if (!res.ok) throw new Error('not ok'); return res.json(); })
+                        .then(list => {
+                            if (!Array.isArray(list) || list.length === 0) {
+                                shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
+                                return;
+                            }
+                            shelterListEl.innerHTML = list.map(function (s, idx) {
+                                return '<li class="shelter-list-item">'
+                                    + '<span class="shelter-list-text"><strong>' + escapeHtml(s.title) + '</strong>'
+                                    + '<span>' + escapeHtml(s.addr) + '</span></span>'
+                                    + '<button type="button" class="copy-addr-btn shelter-copy-btn" data-idx="' + idx + '" title="주소 복사">📋</button>'
+                                    + '</li>';
+                            }).join('');
+                            // [ADD] 개별 쉼터 주소 복사 — onclick 문자열 안에 주소를 직접 끼워
+                            // 넣지 않고 버튼마다 리스너를 따로 붙인다(주소에 따옴표 등이 섞여도
+                            // 절대 깨지지 않도록). 목록이 커봐야 수백 건이라 성능 문제도 없다.
+                            shelterListEl.querySelectorAll('.shelter-copy-btn').forEach(function (btn) {
+                                btn.addEventListener('click', function () {
+                                    copyToClipboard(list[Number(btn.dataset.idx)].addr, btn);
+                                });
+                            });
+                        })
+                        .catch(function () {
+                            shelterListEl.innerHTML = '<li class="shelter-list-empty">목록을 불러오지 못했습니다.</li>';
+                        });
+                } else {
+                    shelterListEl.style.display = 'none';
+                    shelterListEl.innerHTML = '';
+                }
+            });
+
+            // contentid를 키로 캐시(참조가 아니라 문자열 id 기준이라, GPS 검색처럼
+            // 원본을 복사·가공한 객체가 넘어와도 같은 마커를 정확히 찾아낼 수 있다).
+            allMarkersCache.set(item.contentid || `${lat},${lng}`, marker);
+        });
+    }
+
+    function renderMarkers(data) {
+        if (!allMarkersCache) buildAllMarkersOnce(festivalData);
+        clusterer.clear();
+        allMarkers = data
+            .map(item => allMarkersCache.get(item.contentid || `${item.lat},${item.lng}`))
+            .filter(Boolean);
+        clusterer.addMarkers(allMarkers);
+    }
+
+
+    // 축제처럼 기간(startDate/endDate)이 있는 게 아니라 항상 이용 가능한 장소 타입.
+    // 자연관광지(park)에 이어 무더위쉼터(shelter)도 같은 성격이라 함께 묶어서 판정한다.
+    const ALWAYS_OPEN_TYPES = ['park', 'shelter', 'camping', 'watersports'];
+    function isAlwaysOpenType(type) {
+        return ALWAYS_OPEN_TYPES.indexOf(type) !== -1;
+    }
+
+    // 기간 판정: 'today'는 오늘 진행중인지, 'month'/'nextmonth'는 그 달과 축제 기간이
+    // 겹치는지로 본다 (기존 fetch_data.py의 today_list 필터링과 동일한 today 기준 유지).
+    function matchesPeriod(item, period) {
+        if (isAlwaysOpenType(item.type)) return true; // 상시 개방 장소는 기간 필터 대상이 아님
+        if (!item.startDate || !item.endDate) return false;
+        if (period === 'all') {
+            return item.endDate >= TODAY_STR; // 아직 끝나지 않은 것 전부 (오늘/이번달/다음달 범위와 무관)
+        }
+        if (period === 'today') {
+            return item.startDate <= TODAY_STR && TODAY_STR <= item.endDate;
+        }
+        const base = new Date();
+        if (period === 'nextmonth') base.setMonth(base.getMonth() + 1);
+        const y = base.getFullYear();
+        const m = base.getMonth(); // 0-indexed
+        const pad2 = function (n) { return String(n).padStart(2, '0'); };
+        const firstDay = '' + y + pad2(m + 1) + '01';
+        const lastDateNum = new Date(y, m + 1, 0).getDate();
+        const lastDay = '' + y + pad2(m + 1) + pad2(lastDateNum);
+        return item.startDate <= lastDay && item.endDate >= firstDay;
+    }
+
+    // 테마 판정: 축제 제목에 해당 테마의 키워드가 있는지로 본다.
+    // themeSet이 비어있으면 "전체 보기"(공원 제외)와 같다.
+    // 하나 이상 체크되어 있으면, 그중 하나라도 맞는 항목을 전부 보여준다(OR 조건).
+    function matchesOneTheme(item, themeKey) {
+        if (themeKey === 'park') return item.type === 'park';
+        if (themeKey === 'shelter') return item.type === 'shelter';
+        if (themeKey === 'camping') return item.type === 'camping';
+        if (themeKey === 'watersports') return item.type === 'watersports';
+        const kws = THEME_KEYWORDS[themeKey];
+        if (!kws) return true;
+        return !!(item.title && kws.some(function (kw) { return item.title.includes(kw); }));
+    }
+
+    function matchesTheme(item, themeSet) {
+        if (!themeSet || themeSet.size === 0) return !isAlwaysOpenType(item.type);
+        for (const key of themeSet) {
+            if (matchesOneTheme(item, key)) return true;
+        }
+        return false;
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+
+    // [ADD] 주소 복사 버튼 — 복사 후 잠깐 체크 표시로 바꿔 성공했다는 걸 알려준다.
+    // 클립보드 API를 지원 안 하는(또는 HTTPS가 아닌) 아주 오래된 환경 대비용 안내도 넣음.
+    function copyToClipboard(text, btn) {
+        if (!navigator.clipboard) {
+            alert('이 브라우저에서는 자동 복사가 지원되지 않습니다. 주소를 직접 선택해서 복사해주세요.');
+            return;
+        }
+        navigator.clipboard.writeText(text).then(function () {
+            if (!btn) return;
+            const original = btn.textContent;
+            btn.textContent = '✅';
+            setTimeout(function () { btn.textContent = original; }, 1200);
+        }).catch(function () {
+            alert('복사에 실패했습니다. 주소를 직접 선택해서 복사해주세요.');
+        });
+    }
+
+    // [ADD] 카드 닫기 버튼
+    function closeFestivalCard() {
+        document.getElementById('festivalCard').classList.remove('active');
+    }
+
+    function formatDateRange(start, end) {
+        function fmt(raw) {
+            return raw && raw.length === 8 ? raw.slice(0, 4) + '.' + raw.slice(4, 6) + '.' + raw.slice(6, 8) : (raw || '');
+        }
+        return fmt(start) + ' ~ ' + fmt(end);
+    }
+
+    // "전국 전체보기": 지역별로 마감이 가장 임박한 축제 1개씩 대표로 뽑는다 (최대 6개)
+    // list는 이미 기간/테마로 걸러진 상태로 넘어온다.
+    function pickRegionReps(list) {
+        const reps = [];
+        REGION_ORDER.forEach(function (key) {
+            const kws = REGION_KEYWORDS[key];
+            const inRegion = list.filter(function (item) {
+                return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+            });
+            if (inRegion.length === 0) return;
+            inRegion.sort(function (a, b) { return a.endDate.localeCompare(b.endDate); });
+            const rep = Object.assign({}, inRegion[0]);
+            rep._regionKey = key;
+            reps.push(rep);
+        });
+        return reps;
+    }
+
+    // 특정 지역 선택: 그 지역의(이미 기간/테마로 걸러진) 축제를 마감임박순으로 최대 5개
+    function pickRegionList(list, key) {
+        const kws = REGION_KEYWORDS[key] || [];
+        const inRegion = list.filter(function (item) {
+            return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+        });
+        inRegion.sort(function (a, b) { return a.endDate.localeCompare(b.endDate); });
+        return inRegion.slice(0, 5);
+    }
+
+    function buildTodayItemHtml(item, showRegionTag, distanceKm) {
+        const lat = item.lat || '';
+        const lng = item.lng || '';
+        const title = escapeHtml(item.title);
+        const addr = escapeHtml(item.addr);
+        const dateLine = (item.startDate && item.endDate)
+            ? '<span class="today-date">📅 ' + formatDateRange(item.startDate, item.endDate) + '</span>'
+            : '<span class="today-date">' + (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : '🌳 상시 개방') + '</span>';
+        const regionTag = (typeof distanceKm === 'number')
+            ? '<span class="today-region">📍 ' + distanceKm.toFixed(1) + 'km</span>'
+            : (showRegionTag && item._regionKey)
+                ? '<span class="today-region">' + escapeHtml(REGION_LABELS[item._regionKey] || '') + '</span>'
+                : '';
+        const linkParts = [];
+        if (item.contentid && item.hasDetail) {
+            linkParts.push('<a class="today-map-link" href="/festival/detail/' + encodeURIComponent(item.contentid) + '.html">상세보기 →</a>');
+        }
+        if (lat && lng) {
+            const mapUrl = 'https://map.kakao.com/link/map/' + encodeURIComponent(item.title || '축제') + ',' + lat + ',' + lng;
+            linkParts.push('<a class="today-map-link" href="' + mapUrl + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a>');
+        }
+        const linksHtml = linkParts.length
+            ? '<div style="display:flex; gap:12px; margin-top:2px;">' + linkParts.join('') + '</div>'
+            : '';
+        return '<li class="today-item" data-cid="' + escapeHtml(item.contentid || '') + '" '
+            + 'onclick="focusFestival(' + lat + ', ' + lng + '); closeTodayPanel();">'
+            + regionTag
+            + '<strong>' + title + '</strong>'
+            + dateLine
+            + '<span class="today-addr">📍 ' + addr + '</span>'
+            + '<p class="today-desc today-desc-loading"></p>'
+            + linksHtml
+            + '</li>';
+    }
+
+    // 화면에 실제로 보이는 항목만 골라 설명(overview)을 비동기로 받아와 채워 넣는다.
+    function loadOverviewsFor(items) {
+        const listEl = document.querySelector('.today-list');
+        items.forEach(function (item) {
+            if (!item.contentid) return;
+            fetch(DETAIL_PROXY_URL + '?contentId=' + encodeURIComponent(item.contentid))
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data || data.error || !data.overview) return;
+                    const li = listEl.querySelector('li[data-cid="' + item.contentid + '"]');
+                    if (!li) return;
+                    const p = li.querySelector('.today-desc');
+                    let text = data.overview.trim();
+                    if (text.length > 160) text = text.slice(0, 160).trimEnd() + '…';
+                    p.textContent = text;
+                    p.classList.remove('today-desc-loading');
+                })
+                .catch(function () { /* 설명 로딩 실패해도 목록 표시엔 영향 없음 */ });
+        });
+    }
+
+    // 지역·테마·기간 선택에 따라 "오늘 축제가 열리는 곳" 패널을 클라이언트에서 다시 그린다.
+    function renderTodayPanel(key) {
+        const listEl = document.querySelector('.today-list');
+        if (!listEl || festivalData.length === 0) return;
+
+        // 기간만 우선 적용(지역은 아래에서 key에 따라 별도 처리).
+        const periodFiltered = festivalData.filter(function (item) {
+            return matchesPeriod(item, currentPeriod);
+        });
+
+        let items = [];
+        let showRegionTag = false;
+
+        if (currentThemes.size > 0) {
+            // 테마를 하나 이상 골랐을 때: 제외하지 않고, 매칭되는 것을 위로 정렬만 한다.
+            let regionScoped = periodFiltered;
+            if (key !== 'all') {
+                const keywords = REGION_KEYWORDS[key] || [];
+                regionScoped = regionScoped.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
+            } else {
+                showRegionTag = true;
+            }
+            items = regionScoped.slice().sort(function (a, b) {
+                const aMatch = matchesTheme(a, currentThemes) ? 0 : 1;
+                const bMatch = matchesTheme(b, currentThemes) ? 0 : 1;
+                if (aMatch !== bMatch) return aMatch - bMatch;
+                // 매칭 여부가 같으면, 기간이 정해진 축제를 상시 개방 장소(공원·무더위쉼터 등)보다 먼저 보여준다
+                const aIsAlwaysOpen = isAlwaysOpenType(a.type) ? 1 : 0;
+                const bIsAlwaysOpen = isAlwaysOpenType(b.type) ? 1 : 0;
+                if (aIsAlwaysOpen !== bIsAlwaysOpen) return aIsAlwaysOpen - bIsAlwaysOpen;
+                return (a.endDate || '').localeCompare(b.endDate || '');
+            }).slice(0, 15);
+        } else if (key === 'all') {
+            items = pickRegionReps(periodFiltered.filter(item => !isAlwaysOpenType(item.type)));
+            showRegionTag = true;
+            if (items.length === 0) {
+                items = periodFiltered.filter(item => !isAlwaysOpenType(item.type)).slice().sort(function (a, b) { return a.endDate.localeCompare(b.endDate); }).slice(0, 5);
+            }
+        } else {
+            items = pickRegionList(periodFiltered.filter(item => !isAlwaysOpenType(item.type)), key);
+        }
+
+        if (items.length === 0) {
+            const periodLabel = currentPeriod === 'today' ? '오늘 진행 중인' : (currentPeriod === 'month' ? '이번 달에 열리는' : (currentPeriod === 'nextmonth' ? '다음 달에 열리는' : '예정된'));
+            listEl.innerHTML = '<li class="today-empty">' + periodLabel + ' 축제가 없습니다. 다른 조건으로 찾아보세요!</li>';
+            return;
+        }
+
+        listEl.innerHTML = items.map(function (item) { return buildTodayItemHtml(item, showRegionTag); }).join('');
+        loadOverviewsFor(items);
+    }
+
+    function setPeriod(period) {
+        currentPeriod = period;
+        document.querySelectorAll('.period-btn').forEach(function (btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-period') === period);
+        });
+        if (gpsModeActive) {
+            renderNearbyPanel();
+        } else {
+            renderTodayPanel(currentRegionKey);
+        }
+    }
+
+    function toggleTheme(theme) {
+        if (currentThemes.has(theme)) {
+            currentThemes.delete(theme);
+        } else {
+            currentThemes.add(theme);
+        }
+        document.querySelectorAll('.theme-chip').forEach(function (chip) {
+            chip.classList.toggle('active', currentThemes.has(chip.getAttribute('data-theme')));
+        });
+        if (gpsModeActive) {
+            renderNearbyPanel();
+        } else {
+            applyRegionAndThemeToMarkers(currentRegionKey);
+            renderTodayPanel(currentRegionKey);
+        }
+    }
+
+    // ── 축제 이름 자유 검색 ──────────────────────────────────────
+    // 벚꽃·단풍처럼 미리 정해둔 테마에 없는 단어("머드", "불빛축제" 등)도
+    // 전국 어디서든 제목에 포함되어 있으면 바로 찾아준다. 지역·테마·기간 필터와는
+    // 별개로, 검색이 활성화되어 있는 동안은 검색 결과만 보여준다.
+    let titleSearchTerm = '';
+
+    let searchMode = 'location'; // 'location' | 'title'
+
+    function setSearchMode(mode) {
+        searchMode = mode;
+        const input = document.getElementById('unifiedSearchInput');
+        document.querySelectorAll('.search-mode-btn').forEach(function (btn) {
+            const isActive = btn.getAttribute('data-mode') === mode;
+            btn.style.background = isActive ? '#fff' : 'transparent';
+            btn.style.color = isActive ? '#334155' : '#64748b';
+            btn.style.boxShadow = isActive ? '0 1px 2px rgba(0,0,0,.08)' : 'none';
+        });
+        input.placeholder = mode === 'location'
+            ? '위치가 안 맞으면 지역명 직접 입력 (예: 인천 계양구)'
+            : '🔍 축제 이름으로 검색 (예: 머드, 불빛)';
+    }
+
+    function runUnifiedSearch() {
+        if (searchMode === 'location') searchByLocationName();
+        else searchByTitle();
+    }
+
+    function searchByTitle() {
+        const input = document.getElementById('unifiedSearchInput');
+        const term = input.value.trim();
+        if (!term) return;
+        titleSearchTerm = term;
+
+        document.getElementById('titleSearchActive').style.display = 'block';
+        document.getElementById('titleSearchTerm').textContent = term;
+
+        const matched = festivalData.filter(function (item) {
+            return item.title && item.title.includes(term);
+        });
+
+        renderMarkers(matched);
+        if (matched.length > 0) fitToMarkers(allMarkers); else fitKoreaBounds();
+
+        const listEl = document.querySelector('.today-list');
+        if (matched.length === 0) {
+            listEl.innerHTML = '<li class="today-empty">"' + escapeHtml(term) + '"이(가) 포함된 축제를 찾지 못했습니다.</li>';
+            return;
+        }
+        const sorted = matched.slice().sort(function (a, b) { return (a.endDate || '').localeCompare(b.endDate || ''); }).slice(0, 30);
+        listEl.innerHTML = sorted.map(function (item) { return buildTodayItemHtml(item, true); }).join('');
+        loadOverviewsFor(sorted);
+    }
+
+    function clearTitleSearch() {
+        titleSearchTerm = '';
+        document.getElementById('unifiedSearchInput').value = '';
+        document.getElementById('titleSearchActive').style.display = 'none';
+        if (gpsModeActive) {
+            renderNearbyPanel();
+        } else {
+            applyRegionAndThemeToMarkers(currentRegionKey);
+            renderTodayPanel(currentRegionKey);
+        }
+    }
+
+    function syncRegionSelectors(key) {
+        const sel1 = document.getElementById('regionSelect');
+        const sel2 = document.getElementById('regionSelectPanel');
+        if (sel1 && sel1.value !== key) sel1.value = key;
+        if (sel2 && sel2.value !== key) sel2.value = key;
+    }
+
+    // 지역 + 테마를 함께 적용해서 지도 마커를 다시 그린다.
+    // (기간은 마커에 적용하지 않는다 — "이번달에 열리는 축제"를 골라도 지도에서
+    // 위치를 미리 둘러보는 용도이므로, 마커까지 기간으로 좁히면 오히려 불편하다.)
+    function applyRegionAndThemeToMarkers(key) {
+        let filtered = festivalData;
+        if (key !== 'all') {
+            const keywords = REGION_KEYWORDS[key] || [];
+            filtered = filtered.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
+        }
+        filtered = filtered.filter(item => matchesTheme(item, currentThemes));
+        renderMarkers(filtered);
+        if (key === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
+    }
+
+    function filterRegion(key) {
+        currentRegionKey = key;
+        syncRegionSelectors(key);
+        if (gpsModeActive) {
+            gpsModeActive = false;
+            myLocation = null;
+            const btn = document.getElementById('gpsBtn');
+            if (btn) { btn.textContent = '📍 내 주변으로 보기'; btn.style.background = '#fff'; btn.style.color = '#334155'; }
+        }
+        applyRegionAndThemeToMarkers(key);
+        renderTodayPanel(key);
+    }
+
+    // ── 내 주변으로 보기 (GPS) ──────────────────────────────────────
+    let myLocation = null;
+    let gpsModeActive = false;
+
+    function haversineDistanceKm(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const toRad = function (deg) { return deg * Math.PI / 180; };
+        const dLat = toRad(lat2 - lat1);
+        const dLng = toRad(lng2 - lng1);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+            + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function useMyLocation() {
+        const btn = document.getElementById('gpsBtn');
+        if (gpsModeActive) {
+            // 다시 누르면 해제하고 일반 지역 보기로 복귀
+            deactivateNearbyMode();
+            return;
+        }
+        if (!navigator.geolocation) {
+            alert('이 브라우저는 위치 정보를 지원하지 않습니다.');
+            return;
+        }
+        btn.textContent = '📍 위치 확인 중...';
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                btn.disabled = false;
+                activateNearbyMode(pos.coords.latitude, pos.coords.longitude);
+            },
+            function () {
+                btn.disabled = false;
+                btn.textContent = '📍 내 주변으로 보기';
+                alert('위치 정보를 가져올 수 없습니다. 브라우저의 위치 권한을 허용해주세요.');
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
+
+    // 지역명을 직접 입력해서 위치를 찾는다 (GPS 정확도가 떨어질 때의 대안).
+    // 카카오맵 services 라이브러리의 주소 검색(Geocoder)과 키워드 검색을 함께 시도해서,
+    // "인천 계양구"처럼 정확한 주소든 "코엑스"처럼 장소명이든 웬만하면 찾히게 한다.
+    const geocoder = (typeof kakao !== 'undefined' && kakao.maps.services) ? new kakao.maps.services.Geocoder() : null;
+    const placesSearch = (typeof kakao !== 'undefined' && kakao.maps.services) ? new kakao.maps.services.Places() : null;
+
+    function searchByLocationName() {
+        const input = document.getElementById('unifiedSearchInput');
+        const keyword = input.value.trim();
+        if (!keyword) { input.focus(); return; }
+        if (!geocoder || !placesSearch) {
+            alert('위치 검색 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
+            return;
+        }
+
+        geocoder.addressSearch(keyword, function (result, status) {
+            if (status === kakao.maps.services.Status.OK && result[0]) {
+                activateNearbyMode(parseFloat(result[0].y), parseFloat(result[0].x));
+                return;
+            }
+            // 주소로 못 찾으면 장소명(키워드) 검색으로 한 번 더 시도
+            placesSearch.keywordSearch(keyword, function (data, status2) {
+                if (status2 === kakao.maps.services.Status.OK && data[0]) {
+                    activateNearbyMode(parseFloat(data[0].y), parseFloat(data[0].x));
+                } else {
+                    alert('"' + keyword + '"의 위치를 찾지 못했습니다. 다른 지역명으로 다시 시도해주세요.');
+                }
+            });
+        });
+    }
+
+    // GPS든 지역명 검색이든, 위치가 확정되면 이 함수로 "내 주변 보기" 상태를 켠다.
+    function activateNearbyMode(lat, lng) {
+        myLocation = { lat: lat, lng: lng };
+        gpsModeActive = true;
+        const btn = document.getElementById('gpsBtn');
+        btn.textContent = '✕ 내 주변 보기 해제';
+        btn.style.background = '#eef2ff';
+        btn.style.color = '#4f46e5';
+        document.getElementById('regionSelectPanel').value = 'all';
+        currentRegionKey = 'all';
+        renderNearbyPanel();
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+        map.setLevel(7);
+    }
+
+    function deactivateNearbyMode() {
+        gpsModeActive = false;
+        myLocation = null;
+        const btn = document.getElementById('gpsBtn');
+        btn.textContent = '📍 내 주변으로 보기';
+        btn.style.background = '#fff';
+        btn.style.color = '#334155';
+        filterRegion(currentRegionKey);
+    }
+
+    // 현재 선택된 테마·기간에 맞는 항목 중, 내 위치에서 가까운 순으로 최대 10개를 보여준다.
+    function renderNearbyPanel() {
+        const listEl = document.querySelector('.today-list');
+        if (!listEl || !myLocation) return;
+
+        const nearby = festivalData
+            .filter(function (item) {
+                return matchesPeriod(item, currentPeriod) && matchesTheme(item, currentThemes) && item.lat && item.lng;
+            })
+            .map(function (item) {
+                const d = haversineDistanceKm(myLocation.lat, myLocation.lng, parseFloat(item.lat), parseFloat(item.lng));
+                return Object.assign({}, item, { _distanceKm: d });
+            })
+            .sort(function (a, b) { return a._distanceKm - b._distanceKm; })
+            .slice(0, 10);
+
+        if (nearby.length === 0) {
+            listEl.innerHTML = '<li class="today-empty">내 주변에서 조건에 맞는 결과를 찾지 못했습니다. 다른 테마·기간으로 찾아보세요!</li>';
+            renderMarkers([]);
+            return;
+        }
+
+        listEl.innerHTML = nearby.map(function (item) { return buildTodayItemHtml(item, false, item._distanceKm); }).join('');
+        loadOverviewsFor(nearby);
+        renderMarkers(nearby);
+        fitToMarkers(allMarkers);
+    }
+</script>
+
+<script>
+    // 푸터는 이제 페이지에 직접 포함되어 있어(더 이상 fetch로 불러오지 않음) 로딩 문제가
+    // 없지만, 모바일에서 다른 앱을 쓰다가 돌아올 때 지도 레이아웃이 틀어지는 경우가 있어
+    // 화면이 다시 보일 때마다 지도를 재정렬한다.
+    window.addEventListener('pageshow', function () {
+        relayoutMap();
+    });
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+            relayoutMap();
+        }
+    });
 </script>
 </body>
+</html>
