@@ -74,6 +74,92 @@ def fetch_all_items(mode='festival', max_retries=3):
     raise last_error
 
 
+def fetch_shelter_page(page_no, num_of_rows=1000, max_retries=3):
+    """무더위쉼터 프록시(festivals.js, mode=shelter)에서 딱 한 페이지만 받아온다.
+    전국 데이터가 9만3천여 건(2026년 기준)이라, 프록시가 내부에서 전체 페이지를
+    다 모아 한 번에 돌려주는 방식은 Vercel 함수 실행시간을 넘겨 타임아웃이 난다
+    (실제로 발생함). 그래서 페이지네이션은 여기(파이썬)에서 직접 돌고, 프록시는
+    한 페이지 처리만 담당한다 — 왕복 하나하나는 항상 짧게 끝나 안전하다."""
+    last_error = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            res = requests.get(
+                PROXY_URL,
+                params={'mode': 'shelter', 'pageNo': page_no, 'numOfRows': num_of_rows},
+                timeout=30
+            )
+            try:
+                data = res.json()
+            except ValueError:
+                data = None
+
+            if res.ok and isinstance(data, dict) and 'error' not in data:
+                return data.get('items', []), int(data.get('totalCount') or 0)
+
+            if isinstance(data, dict) and 'error' in data:
+                last_error = RuntimeError(f"HTTP {res.status_code} - {data['error']}")
+            else:
+                last_error = RuntimeError(f"HTTP {res.status_code} - {(res.text or '')[:200]}")
+        except requests.exceptions.RequestException as e:
+            last_error = e
+
+        wait = 3 * attempt
+        print(f"무더위쉼터 페이지 호출 실패({page_no}페이지, {attempt}/{max_retries}): {last_error} — {wait}초 후 재시도")
+        if attempt < max_retries:
+            time.sleep(wait)
+    raise last_error
+
+
+def fetch_all_shelter_items_paginated(num_of_rows=1000, max_pages=150):
+    """전국 무더위쉼터(9만 건 이상)를 여러 페이지로 나눠 순차적으로 전부 받아온다.
+    max_pages는 totalCount를 잘못 읽는 경우 등에 대비한 안전장치일 뿐이고
+    (numOfRows=1000 기준 최대 15만 건까지 커버, 현재 알려진 전국 규모 9만3천여 건보다
+    넉넉하게 잡아둔 값), 정상적으로는 totalCount에 도달하면 그 전에 끝난다."""
+    all_items = []
+    page_no = 1
+    while True:
+        items, total_count = fetch_shelter_page(page_no, num_of_rows)
+        if not items:
+            break
+        all_items.extend(items)
+        if page_no * num_of_rows >= total_count:
+            break
+        if page_no >= max_pages:
+            print(f"무더위쉼터 페이지 수집이 안전 한도({max_pages}페이지)에 도달해 중단합니다. "
+                  f"지금까지 {len(all_items)}건 / 전체 {total_count}건")
+            break
+        page_no += 1
+    return all_items
+
+
+SHELTER_CACHE_PATH = os.path.join('data', 'shelter_raw_cache.json')
+SHELTER_CACHE_MAX_AGE_DAYS = 3  # safemap.go.kr 원본 데이터의 갱신주기가 1년이라, 매 실행마다 다시 받을 필요가 없음
+
+
+def load_shelter_cache():
+    """최근에 받아둔 무더위쉼터 원본 데이터가 있으면 재사용한다. 원본 갱신주기가
+    1년이라, 실행(하루 3회)마다 9만 건 넘는 데이터를 매번 다시 받는 건 API에
+    불필요한 부담을 주고 실행 시간도 늘어난다. 캐시가 없거나 오래됐으면 None을 반환."""
+    if not os.path.exists(SHELTER_CACHE_PATH):
+        return None
+    try:
+        with open(SHELTER_CACHE_PATH, 'r', encoding='utf-8') as fp:
+            cache = json.load(fp)
+        fetched_at = datetime.datetime.strptime(cache.get('fetched_at', ''), '%Y%m%d')
+        age_days = (datetime.datetime.now() - fetched_at).days
+        if age_days > SHELTER_CACHE_MAX_AGE_DAYS:
+            return None
+        return cache.get('items', [])
+    except (ValueError, KeyError, json.JSONDecodeError):
+        return None
+
+
+def save_shelter_cache(items):
+    os.makedirs('data', exist_ok=True)
+    with open(SHELTER_CACHE_PATH, 'w', encoding='utf-8') as fp:
+        json.dump({'fetched_at': TODAY, 'items': items}, fp, ensure_ascii=False)
+
+
 def fetch_detail_overview(content_id, max_retries=2):
     """특정 축제의 상세 설명(overview)을 프록시(detail.js / detailCommon2)를 통해 받아온다.
 
@@ -417,75 +503,69 @@ def webmercator_to_wgs84(x, y):
     return lat, lon
 
 
-def build_shelter_page_html(shelter):
-    """무더위쉼터 1건에 대한 독립 상세페이지를 만든다."""
-    title = html.escape(shelter.get('title') or '')
-    addr = html.escape(shelter.get('addr') or '')
-    tel = html.escape(shelter.get('tel') or '')
-    lat = shelter.get('lat') or ''
-    lng = shelter.get('lng') or ''
-
-    map_link_html = ''
-    if lat and lng:
-        map_url = f"https://map.kakao.com/link/map/{quote(shelter.get('title') or '무더위쉼터')},{lat},{lng}"
-        map_link_html = f'<a href="{map_url}" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a>'
-    tel_html = f'<p class="detail-row"><strong>전화</strong> {tel}</p>' if tel else ''
-
-    return f'''<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title} - 무더위쉼터 안내</title>
-<meta name="description" content="{title} | {addr}">
-<link rel="icon" href="/favicon.svg">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-body{{font-family:'Noto Sans KR',sans-serif;max-width:640px;margin:0 auto;padding:20px 16px;color:#1e293b}}
-.detail-row{{margin:6px 0;font-size:14px;color:#475569}}
-.detail-link{{display:inline-block;margin-top:14px;color:#0891b2;font-weight:700;text-decoration:underline}}
-.back-link{{display:inline-block;margin-top:24px;color:#0891b2;font-weight:700;text-decoration:none}}
-</style>
-</head>
-<body>
-<span style="display:inline-block;background:#ecfeff;color:#0891b2;font-size:11px;font-weight:800;padding:4px 12px;border-radius:9999px;margin-bottom:10px">🧊 무더위쉼터</span>
-<h1 style="font-size:1.4rem;font-weight:900;margin-bottom:6px">{title}</h1>
-<p class="detail-row"><strong>주소</strong> {addr}</p>
-{tel_html}
-{map_link_html}
-<p style="margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:13px;color:#94a3b8">폭염 대책기간(5.20~9.30) 중 무더위를 피해 쉬어갈 수 있는 곳입니다. 운영시간은 현지 사정에 따라 다를 수 있어 방문 전 확인을 권장합니다.</p>
-<a class="back-link" href="/festival/">← 지도에서 보기</a>
-</body>
-</html>'''
+def extract_region_label(addr):
+    """주소 앞 두 토큰(시/도 + 시/군/구)을 클러스터 묶음 단위로 쓴다.
+    예: '경기도 부천시 원미구 ...' → '경기도 부천시', '전라남도 신안군 ...' → '전라남도 신안군'."""
+    if not addr:
+        return '기타'
+    parts = addr.strip().split()
+    if len(parts) >= 2:
+        return f"{parts[0]} {parts[1]}"
+    return parts[0]
 
 
-def generate_shelter_detail_pages(shelters, max_new=40):
-    """무더위쉼터 상세페이지를 생성한다. 자연관광지와 동일하게 한 번에 조금씩만
-    새로 만들어 TourAPI 일일 할당량을 같이 쓰는 축제 수집에 영향이 없게 한다."""
-    detail_dir = os.path.join('festival', 'detail')
-    os.makedirs(detail_dir, exist_ok=True)
-
-    new_count = 0
-    skipped_for_quota = 0
-    for shelter in shelters:
-        content_id = shelter.get('contentid')
-        if not content_id:
+def build_shelter_clusters(shelter_items):
+    """개별 무더위쉼터(전국 9만 건 이상)를 지역(시/군/구) 단위로 묶어서, 지도에는
+    지역당 마커 1개('경기도 부천시 무더위쉼터 (87곳)')만 찍히도록 만든다.
+    festivals.json에 9만 건을 통째로 넣으면 모든 방문자가 페이지를 열 때마다
+    그 용량을 다 받아야 하고 지도에 마커 9만 개를 그리는 것도 무리라 반드시 필요한 처리.
+    지역별 개별 목록은 data/shelters/{contentid}.json에 따로 저장해두고, 프론트엔드가
+    그 지역 마커를 클릭했을 때만 해당 파일을 불러와 보여준다."""
+    groups = {}
+    for item in shelter_items:
+        title = (item.get('cc_nm') or '').strip()
+        addr = (item.get('rn_adres') or item.get('adres') or '').strip()
+        raw_x = item.get('x')
+        raw_y = item.get('y')
+        if not title or not raw_x or not raw_y:
             continue
-        out_path = os.path.join(detail_dir, f'{content_id}.html')
-        if os.path.exists(out_path):
-            continue
-        if new_count >= max_new:
-            skipped_for_quota += 1
+        try:
+            lat, lng = webmercator_to_wgs84(float(raw_x), float(raw_y))
+        except (TypeError, ValueError):
             continue
 
-        page_html = build_shelter_page_html(shelter)
-        with open(out_path, 'w', encoding='utf-8') as fp:
-            fp.write(page_html)
-        new_count += 1
+        label = extract_region_label(addr)
+        groups.setdefault(label, []).append({'title': title, 'addr': addr, 'lat': lat, 'lng': lng})
 
-    remaining_note = f", 다음 실행으로 이월: {skipped_for_quota}건" if skipped_for_quota else ""
-    print(f"무더위쉼터 상세페이지 신규 생성: {new_count}건{remaining_note}")
+    shelter_dir = os.path.join('data', 'shelters')
+    os.makedirs(shelter_dir, exist_ok=True)
+
+    clusters = []
+    for i, label in enumerate(sorted(groups.keys())):
+        members = groups[label]
+        content_id = f"shelter-cluster-{i:04d}"
+        avg_lat = sum(m['lat'] for m in members) / len(members)
+        avg_lng = sum(m['lng'] for m in members) / len(members)
+
+        with open(os.path.join(shelter_dir, f'{content_id}.json'), 'w', encoding='utf-8') as fp:
+            json.dump(members, fp, ensure_ascii=False)
+
+        clusters.append({
+            'type': 'shelter',
+            'title': f"{label} 무더위쉼터 ({len(members)}곳)",
+            'lat': avg_lat,
+            'lng': avg_lng,
+            'startDate': '',
+            'endDate': '',
+            'addr': label,
+            'image': '',
+            'tel': '',
+            'contentid': content_id,
+            'count': len(members)
+        })
+
+    print(f"무더위쉼터 {len(shelter_items)}건을 {len(clusters)}개 지역 클러스터로 묶어 data/shelters/에 저장 완료")
+    return clusters
 
 
 def is_heatwave_season(today_str):
@@ -496,7 +576,7 @@ def is_heatwave_season(today_str):
     return '0520' <= md <= '0930'
 
 
-
+def get_region_key(addr):
     """주소로부터 지역 키를 판정한다 (map.html의 필터 로직과 동일한 기준)."""
     for key, keywords in REGION_KEYWORDS:
         if addr and any(kw in addr for kw in keywords):
@@ -801,45 +881,23 @@ def main():
         print(f"자연관광지 수집 실패, 이번 실행에서는 건너뜁니다: {e}")
 
     # ── 무더위쉼터 — 폭염 대책기간(5.20~9.30)에만 수집한다.
-    # safemap.go.kr(생활안전지도) 무더위쉼터 API(IF_0001)의 실제 응답 필드로 확정됨
-    # (cc_nm=쉼터명, rn_adres/adres=주소, x/y=좌표, buld_sn=시설고유ID, 전화번호 필드는 없음).
-    # x/y는 위경도가 아니라 웹 메르카토르(EPSG:3857) 좌표라 webmercator_to_wgs84()로
-    # 반드시 변환해야 지도에 정확한 위치로 찍힌다.
+    # 전국 규모가 9만3천여 곳(2026년 기준)이라 개별 항목을 festivals.json에 그대로
+    # 넣을 수 없어(모든 방문자가 페이지 열 때마다 통째로 받아야 함), 지역(시/군/구)
+    # 단위로 묶어서 지도에는 클러스터 마커만 찍고 개별 목록은 클릭 시에만
+    # data/shelters/{contentid}.json으로 따로 불러오게 한다.
+    # 원본 데이터 자체의 갱신주기가 1년이라, 최근에 받아둔 캐시가 있으면 재사용해서
+    # 실행 시간과 API 호출량을 아낀다.
     shelters = []
     if is_heatwave_season(TODAY):
         try:
-            shelter_items = fetch_all_items('shelter')
-            if shelter_items:
-                print("무더위쉼터 원본 샘플 1건(필드명 확인용):", json.dumps(shelter_items[0], ensure_ascii=False)[:500])
-            for item in shelter_items:
-                title = (item.get('cc_nm') or '').strip()
-                addr = (item.get('rn_adres') or item.get('adres') or '').strip()
-                content_id = (item.get('buld_sn') or '').strip() or f"shelter-{hash((title, addr)) & 0xffffffff}"
-
-                raw_x = item.get('x')
-                raw_y = item.get('y')
-                lat, lng = None, None
-                if raw_x and raw_y:
-                    try:
-                        lat, lng = webmercator_to_wgs84(float(raw_x), float(raw_y))
-                    except (TypeError, ValueError):
-                        lat, lng = None, None
-
-                if not lat or not lng or not title:
-                    continue
-
-                shelters.append({
-                    'type': 'shelter',
-                    'title': title,
-                    'lat': lat,
-                    'lng': lng,
-                    'startDate': '',
-                    'endDate': '',
-                    'addr': addr,
-                    'image': '',
-                    'tel': '',  # 무더위쉼터 API에는 전화번호 필드가 없음
-                    'contentid': str(content_id)
-                })
+            shelter_items = load_shelter_cache()
+            if shelter_items is not None:
+                print(f"무더위쉼터 캐시 재사용 ({len(shelter_items)}건, 최근 {SHELTER_CACHE_MAX_AGE_DAYS}일 이내 수집분이라 재수집 생략)")
+            else:
+                shelter_items = fetch_all_shelter_items_paginated()
+                save_shelter_cache(shelter_items)
+                print(f"무더위쉼터 신규 수집 완료: {len(shelter_items)}건")
+            shelters = build_shelter_clusters(shelter_items)
         except Exception as e:
             print(f"무더위쉼터 수집 실패, 이번 실행에서는 건너뜁니다: {e}")
     else:
@@ -851,9 +909,10 @@ def main():
     # 자연관광지는 하루 40건씩만 새로 만들어지므로(API 할당량 보호), 아직 상세페이지가
     # 없는 곳도 지도에는 항상 나온다. 그런 곳까지 "상세보기" 버튼을 보여주면 클릭 시
     # 404가 나므로, 실제로 파일이 존재하는지 확인해서 hasDetail로 표시해둔다.
+    # 무더위쉼터는 지역 클러스터라 개별 상세페이지 자체가 없음(클릭 시 지역 목록을
+    # data/shelters/에서 바로 불러오는 방식이라 hasDetail은 항상 False로 계산됨 — 정상).
     generate_detail_pages(festivals)
     generate_nature_detail_pages(nature_spots)
-    generate_shelter_detail_pages(shelters)
 
     detail_dir = os.path.join('festival', 'detail')
     for it in all_map_items:
@@ -928,20 +987,8 @@ def main():
                 'contentid': content_id,
             })
 
-    # 무더위쉼터도 상시 개방 장소와 같은 방식으로 포함 (시즌 밖이면 shelters 자체가 비어있음)
-    for shelter in shelters:
-        content_id = shelter.get('contentid', '')
-        if not content_id:
-            continue
-        if not os.path.exists(os.path.join('festival', 'detail', f'{content_id}.html')):
-            continue
-        sitemap_items.append({
-            'title': shelter.get('title'),
-            'addr': shelter.get('addr', ''),
-            'startDate': '',
-            'endDate': '',
-            'contentid': content_id,
-        })
+    # 무더위쉼터는 지역 클러스터라 개별 상세페이지가 없어 사이트맵/크롤러용 목록에는
+    # 넣지 않는다(검색엔진이 색인할 개별 페이지 자체가 존재하지 않음).
 
     build_festival_list_page(sitemap_items)
     update_sitemap(sitemap_items)
