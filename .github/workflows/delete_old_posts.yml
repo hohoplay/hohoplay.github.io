@@ -1,0 +1,49 @@
+name: 🗑️ 오래된 운세 게시물 정리
+
+on:
+  workflow_dispatch:
+    inputs:
+      cutoff:
+        description: '이 날짜(YYYY-MM-DD) 이전 발행 글만 삭제 (이 날짜 포함 이후는 유지)'
+        required: true
+        default: '2026-08-31'
+      confirm:
+        description: '⚠️ 정확히 DELETE 를 입력해야 실제 삭제됩니다. 그 외(빈 값 포함)는 항상 목록만 확인(DRY RUN)'
+        required: false
+        default: ''
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v5
+
+      - name: 🐍 Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: 📦 패키지 설치
+        run: pip install requests
+
+      - name: 🔍 삭제 대상 조회 및 (확인 시) 삭제 실행
+        env:
+          BLOG_ID: ${{ secrets.BLOG_ID }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          DATA_DIR: ${{ github.workspace }}/data
+        run: |
+          python scripts/delete_old_posts.py \
+            --cutoff "${{ github.event.inputs.cutoff }}" \
+            --confirm "${{ github.event.inputs.confirm }}"
+
+      - name: 📄 목록 파일을 실행 결과에 첨부
+        uses: actions/upload-artifact@v4
+        with:
+          name: delete-preview
+          path: data/delete_preview.json
+          if-no-files-found: ignore
