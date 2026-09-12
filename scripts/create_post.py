@@ -4776,7 +4776,7 @@ def post_blogger(title, content, labels, description, idx, total):
     for attempt in range(1, 4):  # 최대 3회 재시도
         resp = requests.post(url,
             headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
-            json={"title":insert_title,"content":content,"labels":labels,"searchDescription":description}
+            json={"title":insert_title,"content":content,"labels":labels}
         )
         if resp.status_code == 200:
             post_id = resp.json().get("id")
