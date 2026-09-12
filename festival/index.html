@@ -1074,13 +1074,19 @@
 
         geocoder.addressSearch(keyword, function (result, status) {
             if (status === kakao.maps.services.Status.OK && result[0]) {
-                activateNearbyMode(parseFloat(result[0].y), parseFloat(result[0].x));
+                // [FIX] GPS 버튼(내 위치 반경 보기)과 같은 함수를 쓰다 보니 줌 레벨이
+                // 항상 7로 고정되어 있었다. "부평"처럼 특정 지역명을 검색하는 건 GPS
+                // 반경 보기보다 더 가깝게 확대해서 보여주는 게 자연스러운데, 사용자가
+                // 방금 마커를 클릭해서 더 가까이(레벨 6 등) 보고 있던 상태였다면 검색 후
+                // 오히려 "축소된 것처럼" 느껴지는 문제가 있었다. 지역명 검색은 5로 더
+                // 가깝게 확대한다.
+                activateNearbyMode(parseFloat(result[0].y), parseFloat(result[0].x), 5, true);
                 return;
             }
             // 주소로 못 찾으면 장소명(키워드) 검색으로 한 번 더 시도
             placesSearch.keywordSearch(keyword, function (data, status2) {
                 if (status2 === kakao.maps.services.Status.OK && data[0]) {
-                    activateNearbyMode(parseFloat(data[0].y), parseFloat(data[0].x));
+                    activateNearbyMode(parseFloat(data[0].y), parseFloat(data[0].x), 5, true);
                 } else {
                     alert('"' + keyword + '"의 위치를 찾지 못했습니다. 다른 지역명으로 다시 시도해주세요.');
                 }
@@ -1089,7 +1095,14 @@
     }
 
     // GPS든 지역명 검색이든, 위치가 확정되면 이 함수로 "내 주변 보기" 상태를 켠다.
-    function activateNearbyMode(lat, lng) {
+    // zoomLevel 기본값 7은 GPS 버튼(내 실제 위치 반경 보기) 기준 — 생략하면 그대로 쓰인다.
+    //
+    // [ADD] autoSelectShelter — 무더위쉼터는 지역 클러스터라 정확한 개별 주소로 검색해도
+    // 그 지점에 마커가 없다(마커는 그 지역 평균 위치에 하나만 있음). "쉼터 주소를 복사해서
+    // 검색했는데 위치가 잘 안 보인다"는 지적을 받아, 검색한 위치에서 가까운 쉼터 클러스터가
+    // 있으면 자동으로 찾아 팝업까지 띄워주도록 했다. GPS 버튼(실제 내 위치)에는 이 동작이
+    // 없어도 되므로 위치 검색(searchByLocationName)에서만 true로 넘긴다.
+    function activateNearbyMode(lat, lng, zoomLevel, autoSelectShelter) {
         myLocation = { lat: lat, lng: lng };
         gpsModeActive = true;
         const btn = document.getElementById('gpsBtn');
@@ -1100,7 +1113,34 @@
         currentRegionKey = 'all';
         renderNearbyPanel();
         map.setCenter(new kakao.maps.LatLng(lat, lng));
-        map.setLevel(7);
+        map.setLevel(zoomLevel || 7);
+
+        if (autoSelectShelter) {
+            // 시/군 단위 하나가 넓으면 20km 안팎이라, 그 정도까지는 "이 지역"으로 보고
+            // 자동으로 띄워준다. 그보다 멀면 관련 없는 클러스터를 잘못 띄우는 게 되므로
+            // 그냥 아무것도 안 띄운다(사용자가 직접 지도에서 클러스터 마커를 찾아야 함).
+            const cluster = findNearestShelterCluster(lat, lng, 20);
+            if (cluster) showFestivalCard(cluster);
+        }
+    }
+
+    // [ADD] festivalData 안의 무더위쉼터 클러스터 중 (lat,lng)에서 가장 가까운 것을 찾는다.
+    // maxKm보다 멀면 "관련 없는 지역"으로 보고 null을 반환한다.
+    function findNearestShelterCluster(lat, lng, maxKm) {
+        let nearest = null;
+        let nearestDist = Infinity;
+        festivalData.forEach(function (item) {
+            if (item.type !== 'shelter') return;
+            const itemLat = parseFloat(item.lat);
+            const itemLng = parseFloat(item.lng);
+            if (isNaN(itemLat) || isNaN(itemLng)) return;
+            const d = haversineDistanceKm(lat, lng, itemLat, itemLng);
+            if (d < nearestDist) {
+                nearestDist = d;
+                nearest = item;
+            }
+        });
+        return (nearest && nearestDist <= maxKm) ? nearest : null;
     }
 
     function deactivateNearbyMode() {
