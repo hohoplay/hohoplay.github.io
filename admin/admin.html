@@ -12,6 +12,7 @@
   .content { font-size: 14px; color: #333; white-space: pre-wrap; word-break: break-word; }
   button.del { background: #ef4444; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; margin-left: 6px; }
   button.edit { background: #4f46e5; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; }
+  button.block { background: #7c2d12; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; float: right; margin-right: 6px; }
   .edit-nickname { margin-bottom: 8px; }
   .edit-content { width: 100%; min-height: 90px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font: inherit; box-sizing: border-box; resize: vertical; }
   .edit-actions { margin-top: 8px; display: flex; gap: 8px; }
@@ -21,6 +22,10 @@
   .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; font-size: 13px; color: #555; }
   .pager button { padding: 6px 14px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
   .pager button:disabled { color: #bbb; cursor: not-allowed; }
+  .section-divider { margin-top: 28px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+  .toggle-btn { background: #f1f5f9; color: #1e293b; border: none; border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
+  .blocked-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .unblock-btn { background: #e2e8f0; color: #1e293b; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -31,6 +36,11 @@
 <button onclick="loadFirstPage()">불러오기</button>
 <div id="list" style="margin-top:20px"></div>
 <div id="pager" class="pager" style="display:none"></div>
+
+<div class="section-divider">
+  <button class="toggle-btn" onclick="toggleBlockedList()">🚫 차단된 IP 목록 보기</button>
+  <div id="blockedList" style="display:none; margin-top:12px"></div>
+</div>
 
 <script>
 const API = 'https://old-rain-16f7.lyh0929mm.workers.dev';
@@ -107,10 +117,15 @@ async function load() {
     const flag = countryFlag(c.country);
     const countryLabel = flag ? `${flag} ${escapeHtml(c.country)}` : '국가 미상';
     const ipLabel = c.ip_address ? escapeHtml(c.ip_address) : 'IP 없음(마이그레이션 이전 댓글)';
+    // IP가 없는(마이그레이션 이전) 댓글은 차단할 대상 자체가 없어 버튼을 안 보여준다.
+    const blockBtn = c.ip_address
+      ? `<button class="block" onclick="blockIp(${c.id})">🚫 차단</button>`
+      : '';
     return `
     <div class="comment" data-id="${c.id}">
       <button class="del" onclick="del(${c.id})">삭제</button>
       <button class="edit" onclick="editComment(${c.id})">수정</button>
+      ${blockBtn}
       <div class="meta">[${escapeHtml(c.game_id)}] ${escapeHtml(c.nickname)} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
       <div class="meta">${countryLabel} · ${ipLabel}</div>
       <div class="content">${escapeHtml(c.content)}</div>
@@ -201,6 +216,100 @@ async function del(id) {
   const key = document.getElementById('key').value;
   await fetch(API + '/admin/comments?key=' + encodeURIComponent(key) + '&id=' + id, { method: 'DELETE' });
   load();
+}
+
+// [ADD] IP 차단 — 댓글의 id로 currentComments에서 ip_address를 찾아 쓴다(수정 기능과
+// 같은 이유로, onclick 문자열 안에 IP를 직접 끼워 넣지 않기 위함). 차단과 동시에
+// 이 댓글도 같이 지운다 — 실무에서는 "이 댓글 때문에 차단한다"는 흐름이 대부분이라
+// 둘을 한 번의 확인으로 같이 처리하는 게 더 편하다.
+async function blockIp(id) {
+  const c = currentComments.find(x => x.id === id);
+  if (!c || !c.ip_address) return;
+
+  if (!confirm(`이 IP(${c.ip_address})를 차단하고 이 댓글도 함께 삭제할까요?\n이후 이 IP로는 댓글 작성이 안 됩니다.`)) return;
+
+  const key = document.getElementById('key').value;
+  try {
+    const blockRes = await fetch(API + '/admin/blocked-ips?key=' + encodeURIComponent(key), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip_address: c.ip_address, reason: '관리자 차단' }),
+    });
+    const blockData = await blockRes.json();
+    if (!blockRes.ok) {
+      alert('차단 실패: ' + (blockData.error || blockRes.status));
+      return;
+    }
+    await fetch(API + '/admin/comments?key=' + encodeURIComponent(key) + '&id=' + id, { method: 'DELETE' });
+    load();
+  } catch (e) {
+    alert('네트워크 오류: ' + e.message);
+  }
+}
+
+// [ADD] 차단된 IP 목록 보기/해제
+let blockedListVisible = false;
+
+async function toggleBlockedList() {
+  blockedListVisible = !blockedListVisible;
+  const el = document.getElementById('blockedList');
+  el.style.display = blockedListVisible ? 'block' : 'none';
+  if (blockedListVisible) await loadBlockedList();
+}
+
+async function loadBlockedList() {
+  const el = document.getElementById('blockedList');
+  el.innerHTML = '불러오는 중...';
+  const key = document.getElementById('key').value;
+
+  try {
+    const res = await fetch(API + '/admin/blocked-ips?key=' + encodeURIComponent(key));
+    const data = await res.json();
+    if (!res.ok) {
+      el.innerHTML = '<p style="color:red">' + escapeHtml(data.error || '오류') + '</p>';
+      return;
+    }
+    if (!data.blocked.length) {
+      el.innerHTML = '<p style="font-size:13px;color:#94a3b8">차단된 IP가 없습니다.</p>';
+      return;
+    }
+    el.innerHTML = data.blocked.map(b => `
+      <div class="comment blocked-row" data-ip="${escapeAttr(b.ip_address)}">
+        <div>
+          <strong>${escapeHtml(b.ip_address)}</strong>
+          <div class="meta">${escapeHtml(b.reason || '')} · ${new Date(b.blocked_at).toLocaleString('ko-KR')}</div>
+        </div>
+        <button class="unblock-btn">차단 해제</button>
+      </div>
+    `).join('');
+    // 차단 해제 버튼은 이벤트 리스너로 붙인다 — data-ip 속성에서 안전하게 값을 읽어오므로
+    // IP 문자열을 onclick 안에 직접 끼워 넣을 필요가 없다.
+    el.querySelectorAll('.unblock-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        unblockIp(btn.closest('.blocked-row').dataset.ip);
+      });
+    });
+  } catch (e) {
+    el.innerHTML = '네트워크 오류: ' + e.message;
+  }
+}
+
+async function unblockIp(ipAddress) {
+  if (!confirm(`${ipAddress}의 차단을 해제할까요?`)) return;
+  const key = document.getElementById('key').value;
+  try {
+    const res = await fetch(API + '/admin/blocked-ips?key=' + encodeURIComponent(key) + '&ip_address=' + encodeURIComponent(ipAddress), {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      alert('차단 해제 실패: ' + (data.error || res.status));
+      return;
+    }
+    loadBlockedList();
+  } catch (e) {
+    alert('네트워크 오류: ' + e.message);
+  }
 }
 </script>
 </body>
