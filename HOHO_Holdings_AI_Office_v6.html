@@ -19,22 +19,22 @@
         @keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
         @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
         @keyframes pulse2  { 0%,100%{opacity:1;} 50%{opacity:.4;} }
-        @keyframes float   { 0%,100%{transform:translate(-50%,-50%) translateY(0);} 50%{transform:translate(-50%,-50%) translateY(-5px);} }
-        @keyframes walkX   { 0%,100%{transform:translate(-50%,-50%) scaleX(1);} 49%{transform:translate(-50%,-50%) scaleX(1);} 50%{transform:translate(-50%,-50%) scaleX(-1);} 99%{transform:translate(-50%,-50%) scaleX(-1);} }
-        @keyframes bugShake{ 0%,100%{transform:translate(-50%,-50%) rotate(0deg);} 25%{transform:translate(-50%,-50%) rotate(-8deg);} 75%{transform:translate(-50%,-50%) rotate(8deg);} }
-        @keyframes meetingBounce { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
+        /* 애니메이션 최소화 - 거의 정지 상태 */
+        @keyframes float   { 0%,100%{transform:translate(-50%,-50%) translateY(0);} 50%{transform:translate(-50%,-50%) translateY(-1px);} }
+        @keyframes bugShake{ 0%,100%{transform:translate(-50%,-50%);} 25%{transform:translate(-51%,-50%);} 75%{transform:translate(-49%,-50%);} }
+        @keyframes meetingBounce { 0%,100%{opacity:1;} 50%{opacity:0.88;} }
         @keyframes typingBounce { 0%,80%,100%{transform:scaleY(0.4);} 40%{transform:scaleY(1);} }
-        @keyframes errorPulse { 0%,100%{box-shadow:0 0 18px rgba(239,68,68,0.6);} 50%{box-shadow:0 0 4px rgba(239,68,68,0.1);} }
-        @keyframes workPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.6;transform:scale(0.92);} }
+        @keyframes errorPulse { 0%,100%{box-shadow:0 0 12px rgba(239,68,68,0.5);} 50%{box-shadow:0 0 3px rgba(239,68,68,0.1);} }
+        @keyframes workPulse { 0%,100%{opacity:1;} 50%{opacity:0.92;} }
         @keyframes progressGlow { 0%,100%{box-shadow:0 0 8px #6366f1;} 50%{box-shadow:0 0 20px #818cf8;} }
 
         .bubble-anim    { animation: slideUp .3s ease-out forwards; }
         .fade-in        { animation: fadeIn .4s ease-out forwards; }
-        .char-float     { animation: float 3s ease-in-out infinite; }
-        .char-bug       { animation: bugShake .4s infinite; }
-        .char-meeting   { animation: meetingBounce .6s ease-in-out infinite; }
-        .char-work      { animation: workPulse 2s ease-in-out infinite; }
-        .error-border   { animation: errorPulse 1.8s infinite; }
+        .char-float     { /* 고정 - 애니메이션 없음 */ }
+        .char-bug       { animation: bugShake .6s infinite; }
+        .char-meeting   { /* 고정 - 애니메이션 없음 */ }
+        .char-work      { /* 고정 - 애니메이션 없음 */ }
+        .error-border   { animation: errorPulse 2s infinite; }
         .progress-glow  { animation: progressGlow 2s infinite; }
 
         .typing-dot { display:inline-block; width:5px; height:5px; background:#6366f1; border-radius:50%; animation:typingBounce 1.4s infinite ease-in-out; }
@@ -96,16 +96,38 @@
         <div class="p-1.5 bg-indigo-600 rounded-lg shrink-0">
             <i data-lucide="briefcase" class="w-4 h-4 text-white"></i>
         </div>
-        <div class="min-w-0">
-            <h1 class="text-sm font-black text-white flex items-center gap-2">
-                HOHO Holdings
-                <span class="text-[10px] text-indigo-400/70 font-normal hidden md:inline">AI 가상오피스</span>
-            </h1>
+        <h1 class="text-sm font-black text-white hidden sm:block">HOHO Holdings</h1>
+    </div>
+
+    <!-- PIN 연결 영역 (항상 표시) -->
+    <div class="flex items-center gap-2 flex-1 justify-center mx-3">
+        <!-- 기본: setup 표시 (JS 로드 후 initPinSystem이 적절히 전환) -->
+        <div id="pin-setup-area" class="flex items-center gap-1.5">
+            <input type="password" id="api-key-input" placeholder="API Key (sk-ant-...)"
+                class="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[10px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-36 mono" />
+            <input type="password" id="pin-setup-input" placeholder="PIN 6자리" maxlength="6"
+                class="bg-slate-800 border border-amber-700 rounded-lg px-2 py-1 text-[10px] text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-20 mono text-center tracking-widest" />
+            <button onclick="saveApiKeyWithPin()" id="api-key-btn"
+                class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg font-bold shrink-0">저장</button>
+        </div>
+        <div id="pin-unlock-area" class="hidden items-center gap-1.5">
+            <span class="text-[10px] text-amber-400 font-bold shrink-0 hidden sm:block">🔒 PIN</span>
+            <input type="password" id="pin-input" placeholder="6자리 PIN" maxlength="6"
+                class="bg-slate-800 border border-amber-700 rounded-lg px-2 py-1 text-[10px] text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-24 mono text-center tracking-widest" />
+            <button onclick="unlockWithPin()"
+                class="bg-amber-700 hover:bg-amber-600 text-white text-[10px] px-2 py-1 rounded-lg font-bold shrink-0">🔓 해제</button>
+            <button onclick="resetPinSystem()"
+                class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors shrink-0 hidden sm:block">초기화</button>
+        </div>
+        <div id="pin-connected-area" class="hidden items-center gap-1.5">
+            <span class="text-[10px] text-emerald-400 font-bold">🔓 연결됨</span>
+            <button onclick="lockPinSystem()" class="text-[10px] text-slate-500 hover:text-amber-400 transition-colors">🔒 잠금</button>
+            <button onclick="resetPinSystem()" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors hidden sm:block">재설정</button>
         </div>
     </div>
-    <!-- API 상태 + 토큰 사용량 -->
-    <div class="flex items-center gap-2">
-        <!-- 토큰 사용량 (API 연결 후 표시) -->
+
+    <!-- API 상태 + 토큰 -->
+    <div class="flex items-center gap-2 shrink-0">
         <div id="token-usage-bar" class="hidden items-center gap-1.5 bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-700/60">
             <span class="text-[9px] text-slate-500 mono hidden md:inline">토큰</span>
             <div class="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden">
@@ -182,57 +204,20 @@
             <!-- 배경 그리드 -->
             <div class="absolute inset-0 pointer-events-none" style="background-image:radial-gradient(circle,#1e293b 1px,transparent 1px);background-size:22px 22px;opacity:0.35;"></div>
 
-            <!-- ── 팀별 구역 점선 박스 ── -->
+            <!-- ── 팀별 구역 점선 박스 (텍스트 없음) ── -->
 
-            <!-- 📋 기획 구역 (좌상단) -->
-            <div class="absolute rounded-xl pointer-events-none" style="left:2%;top:4%;width:30%;height:42%;border:1.5px dashed rgba(99,102,241,0.35);background:rgba(49,46,129,0.07);">
-                <div class="absolute top-1.5 left-2 flex items-center gap-1">
-                    <span class="text-[8px] font-bold tracking-widest" style="color:rgba(129,140,248,0.7)">📋 기획 구역</span>
-                </div>
-                <div class="absolute bottom-2 right-2 text-[10px] opacity-30">🖥️</div>
-            </div>
+            <!-- 기획 구역 (좌상단) -->
+            <div class="absolute rounded-xl pointer-events-none" style="left:2%;top:4%;width:30%;height:42%;border:1.5px dashed rgba(99,102,241,0.35);background:rgba(49,46,129,0.07);"></div>
 
-            <!-- ✍️ 제작 구역 (중상단) -->
-            <div class="absolute rounded-xl pointer-events-none" style="left:34%;top:4%;width:32%;height:42%;border:1.5px dashed rgba(245,158,11,0.35);background:rgba(120,53,15,0.07);">
-                <div class="absolute top-1.5 left-2 flex items-center gap-1">
-                    <span class="text-[8px] font-bold tracking-widest" style="color:rgba(251,191,36,0.7)">✍️ 제작 구역</span>
-                </div>
-                <div class="absolute bottom-2 right-2 text-[10px] opacity-30">📝</div>
-            </div>
+            <!-- 제작 구역 (중상단) -->
+            <div class="absolute rounded-xl pointer-events-none" style="left:34%;top:4%;width:32%;height:42%;border:1.5px dashed rgba(245,158,11,0.35);background:rgba(120,53,15,0.07);"></div>
 
-            <!-- 📡 분석 구역 (우상단) -->
-            <div class="absolute rounded-xl pointer-events-none" style="left:66%;top:4%;width:33%;height:42%;border:1.5px dashed rgba(236,72,153,0.35);background:rgba(131,24,67,0.07);">
-                <div class="absolute top-1.5 left-2 flex items-center gap-1">
-                    <span class="text-[8px] font-bold tracking-widest" style="color:rgba(244,114,182,0.7)">📡 분석 구역</span>
-                </div>
-                <div class="absolute bottom-2 right-2 text-[10px] opacity-30">📊</div>
-            </div>
+            <!-- 분석 구역 (우상단) -->
+            <div class="absolute rounded-xl pointer-events-none" style="left:66%;top:4%;width:33%;height:42%;border:1.5px dashed rgba(236,72,153,0.35);background:rgba(131,24,67,0.07);"></div>
 
-            <!-- 🤝 협업·회의실 (하단 전체) -->
-            <div class="absolute rounded-xl pointer-events-none" style="left:2%;top:50%;width:96%;height:44%;border:1.5px dashed rgba(16,185,129,0.35);background:rgba(6,78,59,0.07);">
-                <div class="absolute top-1.5 left-2 flex items-center gap-1">
-                    <span class="text-[8px] font-bold tracking-widest" style="color:rgba(52,211,153,0.7)">🤝 협업 &amp; 회의실</span>
-                </div>
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span class="text-3xl opacity-10">🪑</span>
-                </div>
-            </div>
+            <!-- 협업 회의실 (하단 전체) -->
+            <div class="absolute rounded-xl pointer-events-none" style="left:2%;top:50%;width:96%;height:44%;border:1.5px dashed rgba(16,185,129,0.35);background:rgba(6,78,59,0.07);"></div>
 
-            <!-- ── 모서리 시설 아이콘 ── -->
-            <!-- 탕비실 (좌상 모서리) -->
-            <div class="absolute" style="left:1.5%;top:1%;transform:none;">
-                <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style="background:rgba(15,23,42,0.8);border:1px solid rgba(51,65,85,0.5);">
-                    <span class="text-[11px]">☕</span>
-                    <span class="text-[8px] font-bold" style="color:rgba(100,116,139,0.8)">탕비실</span>
-                </div>
-            </div>
-            <!-- 서버실 (우상 모서리) -->
-            <div class="absolute" style="right:1.5%;top:1%;transform:none;">
-                <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style="background:rgba(15,23,42,0.8);border:1px solid rgba(51,65,85,0.5);">
-                    <span class="text-[11px]">💾</span>
-                    <span class="text-[8px] font-bold" style="color:rgba(100,116,139,0.8)">서버실</span>
-                </div>
-            </div>
             <!-- 중간 복도 구분선 -->
             <div class="absolute pointer-events-none" style="left:1%;top:48%;width:98%;height:1px;background:linear-gradient(90deg,transparent,rgba(51,65,85,0.4),transparent);"></div>
 
@@ -314,11 +299,6 @@
                         class="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left border-b-2 border-transparent">
                         📊 포트폴리오
                     </button>
-                    <button onclick="switchTab('hohoplay'); closeMoreTabs();" id="tab-btn-hohoplay"
-                        class="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left border-b-2 border-transparent">
-                        🎮 hohoplay 분석
-                    </button>
-                    <!-- 사이트 분석 숨김 (파일 분석 미사용) -->
                     <span id="tab-btn-site" class="hidden"></span>
                     <span id="site-badge" class="hidden"></span>
                     <button onclick="fetchExternalTrends(); closeMoreTabs();"
@@ -347,40 +327,9 @@
 
             <!-- ── 탭1: AI 채팅 ── -->
             <div id="tab-content-control" class="flex-1 flex flex-col overflow-hidden relative">
-                <!-- 파일 연동 헤더 -->
-                <div class="bg-slate-950 border-b border-slate-800 px-2 md:px-4 py-2 flex items-center justify-between shrink-0 flex-wrap gap-2">
-                    <div class="hidden md:flex items-center gap-2">
-                        <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i>
-                        <span class="text-[11px] font-bold text-slate-300">API 연결</span>
-                    </div>
-                    <div class="flex items-center gap-2 w-full md:w-auto">
-                        <!-- PIN 잠금 시스템 -->
-                        <div id="pin-setup-area" class="flex items-center gap-2 w-full md:w-auto hidden">
-                            <input type="password" id="api-key-input" placeholder="Claude API Key (sk-ant-...)" 
-                                class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 flex-1 md:w-44 mono min-w-0" />
-                            <input type="password" id="pin-setup-input" placeholder="PIN 6자리" maxlength="6"
-                                class="bg-slate-900 border border-amber-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-24 mono text-center tracking-widest" />
-                            <button onclick="saveApiKeyWithPin()" id="api-key-btn" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">저장</button>
-                        </div>
-                        <div id="pin-unlock-area" class="flex items-center gap-2 w-full md:w-auto hidden">
-                            <span class="text-[10px] text-amber-400 font-bold shrink-0">🔒 PIN 입력</span>
-                            <input type="password" id="pin-input" placeholder="6자리 PIN" maxlength="6"
-                                class="bg-slate-900 border border-amber-700 rounded-lg px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-28 mono text-center tracking-widest" />
-                            <button onclick="unlockWithPin()" class="bg-amber-700 hover:bg-amber-600 text-white text-[10px] px-2 py-1 rounded-lg transition-all font-bold shrink-0">🔓 해제</button>
-                            <button onclick="resetPinSystem()" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors shrink-0" title="PIN 초기화">초기화</button>
-                        </div>
-                        <div id="pin-connected-area" class="flex items-center gap-2 hidden">
-                            <span class="text-[10px] text-emerald-400 font-bold">🔓 연결됨</span>
-                            <button onclick="lockPinSystem()" class="text-[10px] text-slate-500 hover:text-amber-400 transition-colors" title="잠금">🔒 잠금</button>
-                            <button onclick="resetPinSystem()" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors" title="PIN 초기화">재설정</button>
-                        </div>
-                        <!-- 파일 투하 숨김 -->
-                        <input type="file" id="file-input" class="hidden" multiple />
-                    </div>
-                </div>
-
-                <!-- GitHub 저장소 연동 숨김 -->
+                <!-- 숨겨진 기능용 input (기능 유지용) -->
                 <div class="hidden">
+                    <input type="file" id="file-input" multiple />
                     <input type="text" id="github-url-input" />
                     <button id="github-fetch-btn"></button>
                     <button id="github-browse-btn"></button>
@@ -546,8 +495,8 @@
                             </h3>
                             <p class="text-[11px] text-slate-400 mt-0.5">지시를 처리할수록 경험치 획득 및 레벨 상승. 카드를 클릭하면 상세 정보를 볼 수 있습니다.</p>
                         </div>
-                        <button onclick="openHireInternModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 font-bold transition-colors shrink-0">
-                            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>인턴 채용
+                        <button onclick="openAddBrandModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 font-bold transition-colors shrink-0">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>브랜드 팀장 추가
                         </button>
                     </div>
                     <div>
@@ -719,10 +668,10 @@
                         <div class="space-y-1">
                             <div class="flex justify-between text-[10px] text-slate-400">
                                 <span>💇 샵콜 by hoho</span>
-                                <span id="stat-unmanned-count" class="mono">3건</span>
+                                <span id="stat-shopcall-count" class="mono">3건</span>
                             </div>
                             <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-                                <div id="bar-unmanned" class="bg-orange-500 h-full rounded-full transition-all duration-1000" style="width:15%"></div>
+                                <div id="bar-shopcall" class="bg-orange-500 h-full rounded-full transition-all duration-1000" style="width:15%"></div>
                             </div>
                         </div>
                     </div>
@@ -874,28 +823,41 @@
     </section>
 </main>
 
-<!-- ══════ 인턴 채용 모달 ══════ -->
+<!-- ══════ 브랜드 팀장 추가 모달 ══════ -->
 <div id="hire-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[110] items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
         <div class="flex items-center gap-3 text-indigo-400">
-            <i data-lucide="user-plus" class="w-5 h-5"></i>
-            <h4 class="text-sm font-bold text-white">신규 인턴 비서 스카우트</h4>
+            <i data-lucide="briefcase" class="w-5 h-5"></i>
+            <h4 class="text-sm font-bold text-white">브랜드 팀장 추가</h4>
         </div>
         <div class="space-y-3">
-            <label class="block text-[11px] text-slate-400">인턴 이름을 지정하세요.</label>
-            <input type="text" id="intern-name-input" placeholder="예: 인턴 길동" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500" />
-            <label class="block text-[11px] text-slate-400">캐릭터 이모지</label>
-            <select id="intern-emoji-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                <option value="🐣">🐣 병아리 인턴</option>
-                <option value="🐥">🐥 짹짹이 비서</option>
-                <option value="👶">👶 새내기 사원</option>
-                <option value="⚡">⚡ 엘리트 인턴</option>
-                <option value="🔥">🔥 열정 신입</option>
-            </select>
+            <div>
+                <label class="block text-[11px] text-slate-400 mb-1">브랜드 이름</label>
+                <input type="text" id="intern-name-input" placeholder="예: 새브랜드 팀장" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+                <label class="block text-[11px] text-slate-400 mb-1">브랜드 역할 설명</label>
+                <input type="text" id="brand-role-input" placeholder="예: 🏪 새브랜드 총괄" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+                <label class="block text-[11px] text-slate-400 mb-1">이모지</label>
+                <select id="intern-emoji-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <option value="🏪">🏪 매장/서비스</option>
+                    <option value="🎯">🎯 마케팅</option>
+                    <option value="🛒">🛒 이커머스</option>
+                    <option value="🏥">🏥 헬스케어</option>
+                    <option value="🎓">🎓 교육</option>
+                    <option value="🍽️">🍽️ 푸드</option>
+                    <option value="✈️">✈️ 여행</option>
+                    <option value="💻">💻 IT/개발</option>
+                    <option value="🎨">🎨 크리에이티브</option>
+                    <option value="🏋️">🏋️ 피트니스</option>
+                </select>
+            </div>
         </div>
         <div class="flex items-center justify-end gap-2">
             <button onclick="closeHireInternModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-colors">취소</button>
-            <button onclick="confirmHireIntern()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors">채용 승인</button>
+            <button onclick="confirmHireIntern()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors">팀장 추가</button>
         </div>
     </div>
 </div>
@@ -956,12 +918,12 @@
 // 데이터 정의
 // ═══════════════════════════════════════════════
 const DEFAULT_STAFF = {
-    collector:   { id:'collector',   name:'hohoplay 팀장', role:'🎮 hohoplay 브랜드 총괄',      status:'팀장', level:1, xp:0, color:'bg-blue-500',    emoji:'🎮', initialPos:{x:20, y:26} },
-    writer:      { id:'writer',      name:'샵콜 팀장',     role:'💇 샵콜 by hoho 브랜드 총괄',  status:'팀장', level:1, xp:0, color:'bg-amber-500',   emoji:'💇', initialPos:{x:50, y:26} },
-    sns:         { id:'sns',         name:'부모돌봄 팀장', role:'👨‍👩‍👧 부모돌봄 길잡이 브랜드 총괄', status:'팀장', level:1, xp:0, color:'bg-pink-500',    emoji:'👨‍👩‍👧', initialPos:{x:78, y:26} },
-    coordinator: { id:'coordinator', name:'또다른 나',     role:'업무 종합 및 최종 조율(대표)',   status:'정직원', level:1, xp:0, color:'bg-emerald-500', emoji:'👑', initialPos:{x:50, y:70} },
-    presenter:   { id:'presenter',   name:'비서',          role:'요약 브리핑 및 일정/잡무 보조', status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:26, y:70} },
-    intern:      { id:'intern',      name:'인턴 사원',     role:'잡무 처리 및 피드백 서포트',    status:'인턴',   level:1, xp:0, color:'bg-slate-500',   emoji:'☕', initialPos:{x:76, y:70} }
+    collector:   { id:'collector',   name:'hohoplay 팀장', role:'🎮 hohoplay 브랜드 총괄',      status:'팀장', level:1, xp:0, color:'bg-blue-500',    emoji:'🎮', initialPos:{x:17, y:28} },
+    writer:      { id:'writer',      name:'샵콜 팀장',     role:'💇 샵콜 by hoho 브랜드 총괄',  status:'팀장', level:1, xp:0, color:'bg-amber-500',   emoji:'💇', initialPos:{x:50, y:28} },
+    sns:         { id:'sns',         name:'부모돌봄 팀장', role:'👨‍👩‍👧 부모돌봄 길잡이 브랜드 총괄', status:'팀장', level:1, xp:0, color:'bg-pink-500',    emoji:'👨‍👩‍👧', initialPos:{x:80, y:28} },
+    coordinator: { id:'coordinator', name:'또다른 나',     role:'업무 종합 및 최종 조율(대표)',   status:'정직원', level:1, xp:0, color:'bg-emerald-500', emoji:'👑', initialPos:{x:50, y:72} },
+    presenter:   { id:'presenter',   name:'비서',          role:'💰 세무·재무·일정 총괄',        status:'정직원', level:1, xp:0, color:'bg-indigo-500',  emoji:'📢', initialPos:{x:28, y:72} },
+    intern:      { id:'intern',      name:'기획 대리',     role:'📊 자료조사·아이디어·기획 총괄',   status:'대리',   level:1, xp:0, color:'bg-slate-500',   emoji:'📋', initialPos:{x:72, y:72} }
 };
 
 const STAFF_SPEECHES = {
@@ -984,6 +946,16 @@ let staffMemories = {};
 let memories = [];
 let staffPositions = {};
 let activeWorkflow = null;
+
+// ─── 직원 고정 위치 (절대 변경 불가 상수) ───
+const FIXED_POSITIONS = {
+    collector:   { x:17, y:28 },
+    writer:      { x:50, y:28 },
+    sns:         { x:80, y:28 },
+    coordinator: { x:50, y:72 },
+    presenter:   { x:28, y:72 },
+    intern:      { x:72, y:72 },
+};
 let activeBug = null;
 let localFilesData = [];
 let activeMemorySubTab = 'reports';
@@ -1028,10 +1000,6 @@ const TOPIC_STAFF_MAP = [
         staffIds: ['sns','presenter','coordinator'], label:'고객/CS'
     },
     {
-        keywords: /연습실|임대|공간|무인|예약|대여|시설|인테리어|매장/i,
-        staffIds: ['presenter','coordinator'], label:'공간/임대'
-    },
-    {
         keywords: /기획|아이디어|신규|새로운|제안|프로젝트|방향|로드맵|계획/i,
         staffIds: ['writer','collector','coordinator'], label:'기획/아이디어'
     },
@@ -1039,6 +1007,14 @@ const TOPIC_STAFF_MAP = [
     {
         keywords: /정리|일정|스케줄|보고|요약|회의록|메모|파일|문서|업무/i,
         staffIds: ['presenter','intern','coordinator'], label:'업무/정리'
+    },
+    {
+        keywords: /세무|세금|부가세|종소세|소득세|경비|재무|회계|장부|세금계산서|손익|매출|수익|지출|비용|절세/i,
+        staffIds: ['presenter','coordinator'], label:'세무/재무'
+    },
+    {
+        keywords: /아이디어|기획안|신규서비스|레퍼런스|벤치마킹|경쟁사|사례|조사해|찾아봐|분석해/i,
+        staffIds: ['intern','collector','coordinator'], label:'자료조사/기획'
     },
     {
         keywords: /조사|수집|찾아|검색|알아봐|리서치|자료|참고|사례|벤치마크/i,
@@ -1180,8 +1156,8 @@ const LOCAL_STAFF_LINES = {
     writer:      ['샵콜 브랜드 관점에서 미용실 원장님들에게 맞는 메시지가 필요합니다.','샵콜 QR 시스템의 편의성을 강조하면 효과적입니다.','샵콜 홍보 문구를 다듬으면 가입률이 올라갈 것 같습니다.'],
     sns:         ['부모돌봄 사용자 피드백을 보면 정보 접근성이 핵심입니다.','돌봄 정보 콘텐츠는 실용적이고 간결해야 반응이 좋습니다.','부모돌봄 길잡이 서비스 개선을 위해 기관 연계를 강화해야 합니다.'],
     coordinator: ['전체 흐름은 맞습니다. 실행이 중요합니다.','팀 의견을 종합하면 단계적 접근이 필요합니다.','우선순위를 정리하고 바로 착수하겠습니다.'],
-    presenter:   ['일정 고려하면 핵심부터 처리하는 게 좋겠습니다.','보고 사항을 정리하면 주요 포인트는 세 가지입니다.','회의 자료로 준비해 두겠습니다.'],
-    intern:      ['조사해본 바로는 비슷한 사례들이 있었습니다!','선배님들 의견 들으면서 배우고 있습니다. 저도 한 마디 드리자면...','열심히 서포트하겠습니다! 🌱']
+    presenter:   ['세무 일정상 이번 달 처리해야 할 항목이 있습니다.','재무 현황을 보면 수익 구조 개선이 필요합니다.','일정과 비용을 종합하면 우선순위는 이렇습니다.'],
+    intern:      ['시장 조사 결과 차별화 포인트를 정리했습니다.','3개 브랜드 벤치마킹 분석 결과 개선 방향을 제안드립니다.','기획안 초안을 작성했으니 검토 부탁드립니다.']
 };
 
 async function localAllStaffSpeak(msg) {
@@ -1369,61 +1345,69 @@ function sleep(ms) {
 // 초기화
 // ═══════════════════════════════════════════════
 window.onload = function() {
-    loadAll();
+    // ① 위치 초기화 최우선 실행 (렌더 전에 반드시)
     initStaffPositions();
-    renderCharacters();
-    renderHRStaffList();
-    renderMemoryList();
-    renderAIHarddiskMemories();
-    updateStatsUI();
-    setupFileHandlers();
-    startAutonomousMovement();
-    startRandomBubbles();
-    addLog('🟢 HOHO Holdings 가상 오피스 v6.0 정상 시동.');
-    addLog('🔑 Claude API Key를 입력하여 AI 채팅을 활성화하세요.');
-    loadSiteCache();
-    loadDashCache(); // 대시보드 캐시 복원
-    startWorkTimers(); // 직원 작업 타이머 시작
-    safeCreateIcons();
 
-    const inp = document.getElementById('chat-input');
-    inp.addEventListener('keydown', e => {
-        if(e.key==='Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendChatMessage();
+    try {
+        loadAll();
+        // loadAll 후 위치 재초기화 (staffState 변경 반영)
+        initStaffPositions();
+        renderCharacters();
+        renderHRStaffList();
+        renderMemoryList();
+        renderAIHarddiskMemories();
+        updateStatsUI();
+        setupFileHandlers();
+        startAutonomousMovement();
+        startRandomBubbles();
+        addLog('🟢 HOHO Holdings 가상 오피스 v6.0 정상 시동.');
+        addLog('🔑 Claude API Key를 입력하여 AI 채팅을 활성화하세요.');
+        loadSiteCache();
+        loadDashCache();
+        startWorkTimers();
+        safeCreateIcons();
+    } catch(e) {
+        console.error('초기화 오류:', e);
+        // 오류 나도 직원 위치는 재초기화
+        initStaffPositions();
+        renderCharacters();
+    }
+
+    try {
+        const inp = document.getElementById('chat-input');
+        if(inp) {
+            inp.addEventListener('keydown', e => {
+                if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+            });
+            inp.addEventListener('input', () => {
+                inp.style.height = 'auto';
+                inp.style.height = Math.min(inp.scrollHeight, 128) + 'px';
+            });
         }
-    });
-    inp.addEventListener('input', () => {
-        inp.style.height = 'auto';
-        inp.style.height = Math.min(inp.scrollHeight, 128) + 'px';
-    });
+    } catch(e) {}
 
-    renderStaffCallToggles();
+    try { renderStaffCallToggles(); } catch(e) {}
 
-    // 업무 진행 모드 복원
-    const savedWorkMode = localStorage.getItem('hohoplay_workmode_v6');
-    setWorkMode(savedWorkMode || 'basic');
+    try {
+        const savedWorkMode = localStorage.getItem('hohoplay_workmode_v6');
+        setWorkMode(savedWorkMode || 'basic');
+        const savedApiMode = localStorage.getItem('hohoplay_apimode_v6');
+        if(savedApiMode === 'true') { apiModeOn = true; }
+        updateApiModeBtn();
+    } catch(e) {}
 
-    // API 모드 복원
-    const savedApiMode = localStorage.getItem('hohoplay_apimode_v6');
-    if(savedApiMode === 'true') { apiModeOn = true; }
-    // 저장값 없거나 'false'면 기본 로컬 모드 유지
-    updateApiModeBtn();
+    try {
+        const ghInp = document.getElementById('github-url-input');
+        if(ghInp) ghInp.addEventListener('keydown', e => { if(e.key==='Enter') fetchGithubFile(); });
+        const pinUnlockInp = document.getElementById('pin-input');
+        if(pinUnlockInp) pinUnlockInp.addEventListener('keydown', e => { if(e.key==='Enter') unlockWithPin(); });
+        const pinSetupInp = document.getElementById('pin-setup-input');
+        if(pinSetupInp) pinSetupInp.addEventListener('keydown', e => { if(e.key==='Enter') saveApiKeyWithPin(); });
+        const ghRepoInp = document.getElementById('github-repo-input');
+        if(ghRepoInp) ghRepoInp.addEventListener('keydown', e => { if(e.key==='Enter') loadGithubRepoTree(); });
+    } catch(e) {}
 
-    const ghInp = document.getElementById('github-url-input');
-    ghInp.addEventListener('keydown', e => { if(e.key==='Enter') fetchGithubFile(); });
-
-    // PIN 입력란 Enter 처리
-    const pinUnlockInp = document.getElementById('pin-input');
-    if(pinUnlockInp) pinUnlockInp.addEventListener('keydown', e => { if(e.key==='Enter') unlockWithPin(); });
-    const pinSetupInp = document.getElementById('pin-setup-input');
-    if(pinSetupInp) pinSetupInp.addEventListener('keydown', e => { if(e.key==='Enter') saveApiKeyWithPin(); });
-
-    const ghRepoInp = document.getElementById('github-repo-input');
-    if(ghRepoInp) ghRepoInp.addEventListener('keydown', e => { if(e.key==='Enter') loadGithubRepoTree(); });
-
-    // PIN 시스템 초기화
-    initPinSystem();
+    try { initPinSystem(); } catch(e) {}
 };
 
 function loadAll() {
@@ -1432,15 +1416,26 @@ function loadAll() {
     catch(e) { staffState = {...DEFAULT_STAFF}; }
 
     // 직원 이름/역할/이모지를 항상 DEFAULT_STAFF 기준으로 강제 업데이트
-    // (회사명 변경 등으로 구버전 이름이 localStorage에 남아있을 경우 대비)
     Object.keys(DEFAULT_STAFF).forEach(id => {
         if(staffState[id]) {
-            staffState[id].name  = DEFAULT_STAFF[id].name;
-            staffState[id].role  = DEFAULT_STAFF[id].role;
-            staffState[id].emoji = DEFAULT_STAFF[id].emoji;
+            staffState[id].name   = DEFAULT_STAFF[id].name;
+            staffState[id].role   = DEFAULT_STAFF[id].role;
+            staffState[id].emoji  = DEFAULT_STAFF[id].emoji;
             staffState[id].status = DEFAULT_STAFF[id].status;
         } else {
             staffState[id] = {...DEFAULT_STAFF[id]};
+        }
+    });
+
+    // 추가 팀장(brand_xxx) FIXED_POSITIONS 복원
+    const extraBrands = Object.keys(staffState).filter(k => k.startsWith('brand_'));
+    const posOptions = [
+        {x:17, y:44}, {x:50, y:44}, {x:80, y:44},
+        {x:17, y:58}, {x:50, y:58}, {x:80, y:58},
+    ];
+    extraBrands.forEach((id, i) => {
+        if(!FIXED_POSITIONS[id]) {
+            FIXED_POSITIONS[id] = posOptions[i] || {x:50, y:44};
         }
     });
     // 직원 기억
@@ -1526,9 +1521,21 @@ function initPinSystem() {
 }
 
 function showPinArea(mode) {
-    document.getElementById('pin-setup-area').classList.toggle('hidden', mode!=='setup');
-    document.getElementById('pin-unlock-area').classList.toggle('hidden', mode!=='unlock');
-    document.getElementById('pin-connected-area').classList.toggle('hidden', mode!=='connected');
+    const areas = {
+        setup:     document.getElementById('pin-setup-area'),
+        unlock:    document.getElementById('pin-unlock-area'),
+        connected: document.getElementById('pin-connected-area'),
+    };
+    Object.entries(areas).forEach(([key, el]) => {
+        if(!el) return;
+        if(key === mode) {
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        } else {
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        }
+    });
 }
 
 function saveApiKeyWithPin() {
@@ -1829,12 +1836,7 @@ async function runDebateWorkflow(msg, mode, wMode) {
         renderCharacters();
     };
     const resetChar = (id) => {
-        if(!staffPositions[id]) return;
-        const s = staffState[id];
-        staffPositions[id].x = s.initialPos?.x ?? 45;
-        staffPositions[id].y = s.initialPos?.y ?? 50;
-        staffPositions[id].anim = 'float';
-        staffPositions[id].bubble = '';
+        resetToInitialPos(id);
         renderCharacters();
     };
 
@@ -1882,7 +1884,17 @@ async function runDebateWorkflow(msg, mode, wMode) {
 3~5문장으로 간결하게 발언하세요.`;
             }
 
+            const roleSpecific = {
+                collector:   '당신은 hohoplay 브랜드 팀장입니다. 게시글·댓글 반응, hohoplay 게임/운세 현황, 인턴사원과 협업하는 시각으로 말하세요.',
+                writer:      '당신은 샵콜 by hoho 브랜드 팀장입니다. 미용실 QR시스템, 샵콜 서비스 관점, 인턴사원과 개선안을 의논하는 시각으로 말하세요.',
+                sns:         '당신은 부모돌봄 길잡이 브랜드 팀장입니다. 돌봄 정보 서비스, 사용자 피드백, 인턴사원과 발전 방향을 의논하는 시각으로 말하세요.',
+                coordinator: '당신은 대표이자 총괄 조율자입니다. 모든 브랜드를 아우르는 전략적 시각으로 최종 결론을 내리세요.',
+                presenter:   '당신은 세무·재무·일정 담당 비서입니다. 세금, 경비, 손익, 일정 관리 관점에서 실무적인 의견을 제시하세요.',
+                intern:      '당신은 기획 대리입니다. 3개 브랜드(hohoplay·샵콜·부모돌봄)의 시장조사·벤치마킹·기획안을 담당합니다. 전문적이고 근거 있는 의견을 제시하세요.',
+            }[staffId] || '';
+
             const sysPrompt = `당신은 HOHO Holdings 가상 오피스의 "${staff.name}" (${staff.emoji}, ${staff.role}, Lv.${staff.level} · ${getSeniorityLabel(staff.level)})입니다.
+${roleSpecific}
 ${getSeniorityGuide(staff.level)}
 지금 팀 전체가 대표님의 지시에 대해 실시간으로 토론 중입니다.
 ${roleGuide}
@@ -2291,8 +2303,7 @@ async function runMultistepWorkflow(msg, mode) {
 
     const moveStaffToCenter = (id, bubbleText) => {
         if(!staffPositions[id]) return;
-        staffPositions[id].x = 44;
-        staffPositions[id].y = 50;
+        // 위치는 고정, 애니메이션과 말풍선만 변경
         staffPositions[id].anim = 'work';
         staffPositions[id].bubble = bubbleText;
         renderCharacters();
@@ -2300,8 +2311,7 @@ async function runMultistepWorkflow(msg, mode) {
     const resetStaffPos = (id) => {
         if(!staffPositions[id]) return;
         const s = staffState[id];
-        staffPositions[id].x = s.initialPos?.x ?? 45;
-        staffPositions[id].y = s.initialPos?.y ?? 50;
+        resetToInitialPos(id);
         staffPositions[id].anim = 'float';
         staffPositions[id].bubble = '';
         renderCharacters();
@@ -2560,9 +2570,6 @@ function toggleStaffDropdown() {
 }
 function closeStaffDropdown() {
     document.getElementById('staff-dropdown-menu')?.classList.add('hidden');
-    const ids = [...selectedStaffIds];
-    if(isAllSelected || ids.length === 0) addLog('📌 대화 상대: 전체 직원');
-    else addLog(`📌 대화 상대: ${ids.map(id=>staffState[id]?.name).filter(Boolean).join(', ')}`);
 }
 
 // detectChatMode가 참조하는 함수들 - 다중 선택 지원
@@ -2689,9 +2696,7 @@ function triggerDirectCallAnim(staffId) {
     const staff = staffState[staffId];
     if(!staffPositions[staffId]) return;
 
-    // 해당 직원을 업무 데스크(중앙)로 이동
-    staffPositions[staffId].x = 44;
-    staffPositions[staffId].y = 50;
+    // 위치 고정 - 애니메이션과 말풍선만 변경
     staffPositions[staffId].anim = 'work';
     staffPositions[staffId].bubble = '대표님이 부르셨다! 🙋';
     renderCharacters();
@@ -2702,8 +2707,7 @@ function stopDirectCallAnim(staffId) {
     activeWorkflow = null;
     if(!staffPositions[staffId]) return;
     const s = staffState[staffId];
-    staffPositions[staffId].x = s.initialPos?.x ?? 45;
-    staffPositions[staffId].y = s.initialPos?.y ?? 50;
+    resetToInitialPos(staffId);
     staffPositions[staffId].anim = 'float';
     staffPositions[staffId].bubble = '';
     renderCharacters();
@@ -2754,9 +2758,16 @@ function buildSystemPrompt(mode, isContinue) {
     ).join('\n');
 
     let sys = `당신은 HOHO Holdings 가상 오피스의 AI 비서 시스템입니다.
-산하 브랜드: 🎮 hohoplay(게임/운세) · 💇 샵콜(미용실QR) · 👨‍👩‍👧 부모돌봄 길잡이
 HOHO Holdings는 한국의 1인 대표가 운영하는 지주회사입니다.
 산하 브랜드: 🎮 hohoplay (hohoplaylab.com · 모바일게임/운세) · 💇 샵콜 by hoho(미용실 QR시스템) · 👨‍👩‍👧 부모돌봄 길잡이.
+
+[사내 AI 직원 역할]
+- 🎮 hohoplay 팀장(collector): hohoplay 브랜드 총괄, 게시글·댓글 관리, 인턴과 함께 콘텐츠·기획 의논
+- 💇 샵콜 팀장(writer): 샵콜 by hoho 브랜드 총괄, 미용실 QR시스템 운영, 인턴과 함께 개선안 의논
+- 👨‍👩‍👧 부모돌봄 팀장(sns): 부모돌봄 길잡이 브랜드 총괄, 돌봄 정보 콘텐츠, 인턴과 함께 서비스 발전 의논
+- 👑 또다른 나(coordinator): 대표 역할, 전체 조율 및 최종 결론
+- 💰 비서(presenter): 세무·재무·일정 총괄 (세금, 경비, 손익, 일정 관리)
+- ☕ 인턴 사원(intern): 자료조사·아이디어·기획 서포트 (3개 브랜드 팀장들과 의논하며 성장)
 
 [사내 AI 직원 명단]
 ${staffListText}
@@ -2907,7 +2918,6 @@ function detectCategory(text) {
     if(/게임|game|html|canvas|js/i.test(text)) return '게임개발';
     if(/타로|운세|점|별자리/i.test(text)) return '운세/타로';
     if(/마케팅|sns|블로그|광고/i.test(text)) return '마케팅';
-    if(/연습실|임대|무인/i.test(text)) return '공간/임대';
     if(/코드|python|css|api/i.test(text)) return '개발';
     return '기획/전략';
 }
@@ -2915,16 +2925,22 @@ function detectCategory(text) {
 // ═══════════════════════════════════════════════
 // 오피스 캐릭터 & 애니메이션
 // ═══════════════════════════════════════════════
+// ─── 직원 초기 위치 상수 (절대 변경 불가) ───
 function initStaffPositions() {
-    Object.keys(staffState).forEach(id => {
-        const s = staffState[id];
+    staffPositions = {};
+    Object.keys(DEFAULT_STAFF).forEach(id => {
         staffPositions[id] = {
-            x: s.initialPos?.x ?? 45,
-            y: s.initialPos?.y ?? 50,
             bubble: '',
             anim: 'float'
         };
     });
+}
+
+// 특정 직원을 초기 위치로 복귀
+function resetToInitialPos(id) {
+    if(!staffPositions[id]) staffPositions[id] = {};
+    staffPositions[id].bubble = '';
+    staffPositions[id].anim   = 'float';
 }
 
 // 직원별 애니메이션 딜레이 고정값 (매 렌더마다 바뀌지 않도록)
@@ -2985,76 +3001,64 @@ function renderMobileStaffBar() {
 }
 
 function renderOneChar(id, container) {
+    const staff = staffState[id];
+    if(!staff) return;
 
-    Object.keys(staffState).forEach(id => {
-        const staff = staffState[id];
-        const pos   = staffPositions[id];
-        if(!pos) return;
+    // 좌표는 항상 FIXED_POSITIONS 사용 - staffPositions 무시
+    const fx = FIXED_POSITIONS[id]?.x ?? 50;
+    const fy = FIXED_POSITIONS[id]?.y ?? 50;
+    const safePos = staffPositions[id] || { anim:'float', bubble:'' };
 
-        const animClass = {
-            bug:     'char-bug',
-            meeting: 'char-meeting',
-            work:    'char-work'
-        }[pos.anim] || 'char-float';
+    const animClass = 'char-float'; // 모든 상태 동일 (이동 없음)
+    const dot      = getStatusDot(safePos.anim);
+    const taskText = staffCurrentTask[id] || getRandomTask(id);
+    const timeStr  = secsToTimeStr(staffWorkSeconds[id] || 0);
+    const delay    = getStaffAnimDelay(id);
 
-        const dot = getStatusDot(pos.anim);
-        const taskText = staffCurrentTask[id] || getRandomTask(id);
-        const timeStr  = secsToTimeStr(staffWorkSeconds[id] || 0);
-        const delay    = getStaffAnimDelay(id);
+    const bubbleHTML = safePos.bubble
+        ? `<div class="bubble-speech">${safePos.bubble}</div>`
+        : '';
 
-        const bubbleHTML = pos.bubble
-            ? `<div class="bubble-speech">${pos.bubble}</div>`
-            : '';
+    const el = document.createElement('div');
+    el.id = 'char-' + id;
+    el.className = 'absolute z-20';
+    // 좌표 완전 고정
+    el.style.cssText = `left:${fx}%;top:${fy}%;transform:translate(-50%,-50%);`;
 
-        const el = document.createElement('div');
-        el.id = 'char-' + id;
-        el.className = 'absolute z-20';
-        // 카드 너비 ~110px, 높이 ~80px 고려
-        // x: 10%~82% (왼쪽 카드 반쪽 + 오른쪽 카드 반쪽 여백)
-        // y: 12%~85%
-        const clampedX = Math.max(16, Math.min(82, pos.x));
-        const clampedY = Math.max(12, Math.min(85, pos.y));
-        el.style.cssText = `left:${clampedX}%;top:${clampedY}%;transform:translate(-50%,-50%);`;
-
-        el.innerHTML = `
-        <div class="flex flex-col items-center ${animClass}" style="animation-delay:${delay}s;">
-            ${bubbleHTML}
-            <div onclick="openStaffDetail('${id}')"
-                class="cursor-pointer rounded-xl p-2 hover:scale-105 active:scale-95 transition-all duration-200"
-                style="
-                    min-width:108px;
-                    background:rgba(15,23,42,0.92);
-                    border:1px solid rgba(51,65,85,0.7);
-                    box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 0 0.5px rgba(99,102,241,0.1);
-                    backdrop-filter:blur(8px);
-                ">
-                <!-- 아바타 + 이름 행 -->
-                <div class="flex items-center gap-1.5">
-                    <div class="relative shrink-0">
-                        <div class="w-8 h-8 rounded-full ${staff.color} flex items-center justify-center text-[15px] border-2 shadow-md" style="border-color:#0f172a;">
-                            ${staff.emoji}
-                        </div>
-                        <!-- 상태 점 - 고정 위치, 실제 글로우 -->
-                        <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 ${dot.cls}"
-                              style="border-color:#0f172a;box-shadow:0 0 6px 2px ${dot.glow};"></span>
+    el.innerHTML = `
+    <div class="flex flex-col items-center ${animClass}" style="animation-delay:${delay}s;">
+        ${bubbleHTML}
+        <div onclick="openStaffDetail('${id}')"
+            class="cursor-pointer rounded-xl p-2 hover:scale-105 active:scale-95 transition-all duration-200"
+            style="
+                min-width:108px;
+                background:rgba(15,23,42,0.92);
+                border:1px solid rgba(51,65,85,0.7);
+                box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 0 0.5px rgba(99,102,241,0.1);
+                backdrop-filter:blur(8px);
+            ">
+            <div class="flex items-center gap-1.5">
+                <div class="relative shrink-0">
+                    <div class="w-8 h-8 rounded-full ${staff.color} flex items-center justify-center text-[15px] border-2 shadow-md" style="border-color:#0f172a;">
+                        ${staff.emoji}
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-[10px] font-bold text-white leading-tight truncate">${staff.name}</div>
-                        <div class="text-[8px] mono" style="color:rgba(100,116,139,0.9);">Lv.${staff.level} · ${staff.status}</div>
-                    </div>
+                    <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 ${dot.cls}"
+                          style="border-color:#0f172a;box-shadow:0 0 6px 2px ${dot.glow};"></span>
                 </div>
-                <!-- 구분선 -->
-                <div style="margin:5px 0 4px;height:1px;background:rgba(51,65,85,0.6);"></div>
-                <!-- 작업 내용 + 타이머 -->
-                <div class="flex items-center justify-between gap-1">
-                    <span class="text-[9px] leading-tight truncate flex-1" style="color:rgba(148,163,184,0.9);">${taskText}</span>
-                    <span class="text-[8px] mono shrink-0 tabular-nums timer-text" style="color:rgba(71,85,105,0.9);">⏱${timeStr}</span>
+                <div class="flex-1 min-w-0">
+                    <div class="text-[10px] font-bold text-white leading-tight truncate">${staff.name}</div>
+                    <div class="text-[8px] mono" style="color:rgba(100,116,139,0.9);">Lv.${staff.level} · ${staff.status}</div>
                 </div>
             </div>
-        </div>`;
+            <div style="margin:5px 0 4px;height:1px;background:rgba(51,65,85,0.6);"></div>
+            <div class="flex items-center justify-between gap-1">
+                <span class="text-[9px] leading-tight truncate flex-1" style="color:rgba(148,163,184,0.9);">${taskText}</span>
+                <span class="text-[8px] mono shrink-0 tabular-nums timer-text" style="color:rgba(71,85,105,0.9);">⏱${timeStr}</span>
+            </div>
+        </div>
+    </div>`;
 
-        container.appendChild(el);
-    });
+    container.appendChild(el);
 }
 
 // 작업 시간 타이머 시작
@@ -3069,11 +3073,11 @@ function getNextChangeAt(currentSecs) {
 }
 
 function startWorkTimers() {
-    // 각 직원 초기 설정 (랜덤 시작 시간으로 자연스럽게)
+    // 초기 설정 - seconds는 0부터 시작 (위치 안정화 후 카운팅)
     Object.keys(staffState).forEach(id => {
-        staffWorkSeconds[id] = Math.floor(Math.random() * 180);
+        staffWorkSeconds[id] = 0;
         staffCurrentTask[id] = getRandomTask(id);
-        staffTaskChangeAt[id] = getNextChangeAt(staffWorkSeconds[id]);
+        staffTaskChangeAt[id] = getNextChangeAt(0);
     });
 
     let tickCount = 0;
@@ -3152,7 +3156,7 @@ function startRandomBubbles() {
                 renderCharacters();
             }, 3000);
         }
-    }, 4000);
+    }, 15000);
 }
 
 // ═══════════════════════════════════════════════
@@ -3175,12 +3179,10 @@ function triggerWorkflowAnim(command, stepInterval) {
     bar.style.width  = '0%';
     steps.forEach(s=>{ s.className='flex flex-col items-center gap-1'; });
 
-    // 모든 직원을 회의실로 이동
+    // 직원들은 제자리에서 애니메이션만 변경 (이동 없음)
     Object.keys(staffState).forEach((id,i) => {
         setTimeout(()=>{
             if(staffPositions[id]) {
-                staffPositions[id].x = 18 + (i%4) * 18;  // 18~72% 범위
-                staffPositions[id].y = 60 + (Math.floor(i/4) * 14); // 60~74% 범위
                 staffPositions[id].anim = 'meeting';
                 staffPositions[id].bubble = BUBBLE_MESSAGES.meeting[Math.floor(Math.random()*3)];
             }
@@ -3215,14 +3217,9 @@ function finishWorkflowAnim() {
 function stopWorkflowAnim() {
     activeWorkflow = null;
     document.getElementById('workflow-panel').classList.add('hidden');
+    // 모든 직원 원래 자리로 복귀
     Object.keys(staffState).forEach(id => {
-        if(staffPositions[id]) {
-            const s = staffState[id];
-            staffPositions[id].x = s.initialPos?.x ?? 45;
-            staffPositions[id].y = s.initialPos?.y ?? 50;
-            staffPositions[id].anim = 'float';
-            staffPositions[id].bubble = '';
-        }
+        resetToInitialPos(id);
     });
     renderCharacters();
 }
@@ -3247,12 +3244,10 @@ function triggerSimulatedBug() {
     }
     addLog(`🐛 버그 감지: ${staffState[bugId].name} 시스템 충돌!`);
 
-    // 나머지 직원들이 모여서 디버깅
+    // 나머지 직원들 - 위치 고정, 애니메이션만 변경
     keys.filter(k=>k!==bugId).forEach((id,i)=>{
         setTimeout(()=>{
             if(staffPositions[id]) {
-                staffPositions[id].x = 40 + (i%2)*12;
-                staffPositions[id].y = 55 + Math.floor(i/2)*10;
                 staffPositions[id].anim = 'meeting';
                 staffPositions[id].bubble = ['디버깅 중!','코드 점검!','핫패치!'][i%3];
             }
@@ -3278,8 +3273,7 @@ function triggerSimulatedBug() {
         keys.forEach(id=>{
             if(staffPositions[id]) {
                 const s = staffState[id];
-                staffPositions[id].x = s.initialPos?.x??45;
-                staffPositions[id].y = s.initialPos?.y??50;
+                resetToInitialPos(id);
                 staffPositions[id].anim = 'float';
                 staffPositions[id].bubble = '수리 완료! 🎉';
             }
@@ -3459,7 +3453,6 @@ function renderStaffDetail(staffId) {
         '운세/게임':'bg-pink-900/50 text-pink-400 border-pink-800/60',
         '운세/타로':'bg-pink-900/50 text-pink-400 border-pink-800/60',
         '마케팅'   :'bg-emerald-900/50 text-emerald-400 border-emerald-800/60',
-        '공간/임대':'bg-amber-900/50 text-amber-400 border-amber-800/60',
         '샵콜':'bg-orange-900/50 text-orange-400 border-orange-800/60',
         '개발'     :'bg-cyan-900/50 text-cyan-400 border-cyan-800/60',
         '기획/전략' :'bg-violet-900/50 text-violet-400 border-violet-800/60'
@@ -3557,6 +3550,7 @@ function renderHohoplayPanel() {
     container.appendChild(panel);
 }
 
+function openAddBrandModal() { openHireInternModal(); }
 function openHireInternModal() {
     document.getElementById('hire-modal').classList.remove('hidden');
     document.getElementById('hire-modal').classList.add('flex');
@@ -3566,30 +3560,55 @@ function closeHireInternModal() {
     document.getElementById('hire-modal').classList.add('hidden');
 }
 function confirmHireIntern() {
-    const name  = document.getElementById('intern-name-input').value.trim();
-    const emoji = document.getElementById('intern-emoji-select').value;
-    if(!name) { alert('이름을 입력하세요!'); return; }
+    const name      = document.getElementById('intern-name-input').value.trim();
+    const emoji     = document.getElementById('intern-emoji-select').value;
+    const brandRole = document.getElementById('brand-role-input')?.value.trim();
+    if(!name) { showToast('브랜드 이름을 입력하세요!', 'warning', 2000); return; }
 
-    const colors = ['bg-violet-500','bg-cyan-500','bg-lime-500','bg-orange-500','bg-teal-500'];
-    const id = 'intern_'+Date.now();
+    const colors = ['bg-violet-500','bg-cyan-500','bg-lime-500','bg-orange-500','bg-teal-500','bg-rose-500','bg-sky-500'];
+    const id = 'brand_'+Date.now();
+
+    // 추가 팀장 위치
+    const extraBrands = Object.keys(staffState).filter(k => k.startsWith('brand_'));
+    const posOptions = [
+        {x:17, y:44}, {x:50, y:44}, {x:80, y:44},
+        {x:17, y:58}, {x:50, y:58}, {x:80, y:58},
+    ];
+    const pos = posOptions[extraBrands.length] || {x:50, y:44};
+    FIXED_POSITIONS[id] = pos;
+
     staffState[id] = {
-        id, name, role:'인턴 업무 보조', status:'인턴', level:1, xp:0,
-        color: colors[Math.floor(Math.random()*colors.length)],
-        emoji, initialPos:{ x:20+Math.random()*60, y:30+Math.random()*50 }
+        id, name,
+        role: brandRole || `🏢 ${name} 브랜드 총괄`,
+        status:'팀장', level:1, xp:0,
+        color: colors[extraBrands.length % colors.length],
+        emoji,
     };
-    staffPositions[id] = { x:staffState[id].initialPos.x, y:staffState[id].initialPos.y, bubble:'신규 입사!🎉', anim:'float' };
+    staffPositions[id] = { bubble:`${name} 합류!🎉`, anim:'float' };
     staffWorkSeconds[id] = 0;
-    staffCurrentTask[id] = '첫 출근 중 🌱';
+    staffCurrentTask[id] = '브랜드 전략 수립 중 🚀';
     staffTaskChangeAt[id] = getNextChangeAt(0);
     staffMemories[id] = generateDefaultAICores()[Object.keys(DEFAULT_STAFF)[0]];
 
+    // 키워드 자동 감지에 추가
+    const brandKeyword = name.replace(/팀장|브랜드/g,'').trim();
+    if(brandKeyword) {
+        TOPIC_STAFF_MAP.push({
+            keywords: new RegExp(brandKeyword, 'i'),
+            staffIds: [id, 'intern', 'coordinator'],
+            label: brandKeyword
+        });
+    }
+
     document.getElementById('intern-name-input').value = '';
+    if(document.getElementById('brand-role-input')) document.getElementById('brand-role-input').value = '';
     closeHireInternModal();
-    addLog(`🎉 신규 인턴 "${name}" 채용 완료!`);
+    addLog(`✅ "${name}" 추가! ${brandRole || name} 담당`);
     renderCharacters();
     renderHRStaffList();
     renderStaffCallToggles();
     saveAll();
+    safeCreateIcons();
     setTimeout(()=>{ if(staffPositions[id]) staffPositions[id].bubble=''; renderCharacters(); }, 3000);
 }
 
@@ -3610,7 +3629,6 @@ function renderMemoryList() {
         '운세/게임':'bg-pink-900/50 text-pink-400 border-pink-800/60',
         '운세/타로':'bg-pink-900/50 text-pink-400 border-pink-800/60',
         '마케팅'   :'bg-emerald-900/50 text-emerald-400 border-emerald-800/60',
-        '공간/임대':'bg-amber-900/50 text-amber-400 border-amber-800/60',
         '샵콜':'bg-orange-900/50 text-orange-400 border-orange-800/60',
         '개발'     :'bg-cyan-900/50 text-cyan-400 border-cyan-800/60',
         '기획/전략' :'bg-violet-900/50 text-violet-400 border-violet-800/60'
@@ -3804,11 +3822,11 @@ function updateStatsUI() {
     const barGame = document.getElementById('bar-game');
     const barTarot= document.getElementById('bar-tarot');
     const barMkt  = document.getElementById('bar-marketing');
-    const barUnm  = document.getElementById('bar-unmanned');
+    const barUnm  = null; // 무인연습실 삭제됨
     const statGame= document.getElementById('stat-game-count');
     const statTarot=document.getElementById('stat-tarot-count');
     const statMkt = document.getElementById('stat-marketing-count');
-    const statUnm = document.getElementById('stat-unmanned-count');
+    const statUnm = null; // 무인연습실 삭제됨
     if(barGame)  barGame.style.width  = (stats.gameProjectCount/total*100)+'%';
     if(barTarot) barTarot.style.width = (stats.tarotProjectCount/total*100)+'%';
     if(barMkt)   barMkt.style.width   = (stats.marketingCount/total*100)+'%';
@@ -4207,15 +4225,17 @@ function setupFileHandlers() {
     const overlay  = document.getElementById('drop-overlay');
     const fileInp  = document.getElementById('file-input');
     const trigBtn  = document.getElementById('folder-trigger-btn');
-    trigBtn.addEventListener('click', ()=>fileInp.click());
-    fileInp.addEventListener('change', e=>handleFiles(Array.from(e.target.files)));
-    window.addEventListener('dragover', e=>{ e.preventDefault(); overlay.classList.remove('opacity-0','pointer-events-none'); });
-    window.addEventListener('dragleave', e=>{ if(!e.relatedTarget) overlay.classList.add('opacity-0','pointer-events-none'); });
-    window.addEventListener('drop', e=>{
-        e.preventDefault();
-        overlay.classList.add('opacity-0','pointer-events-none');
-        handleFiles(Array.from(e.dataTransfer.files));
-    });
+    if(trigBtn && fileInp) trigBtn.addEventListener('click', ()=>fileInp.click());
+    if(fileInp) fileInp.addEventListener('change', e=>handleFiles(Array.from(e.target.files)));
+    if(overlay) {
+        window.addEventListener('dragover', e=>{ e.preventDefault(); overlay.classList.remove('opacity-0','pointer-events-none'); });
+        window.addEventListener('dragleave', e=>{ if(!e.relatedTarget) overlay.classList.add('opacity-0','pointer-events-none'); });
+        window.addEventListener('drop', e=>{
+            e.preventDefault();
+            overlay.classList.add('opacity-0','pointer-events-none');
+            handleFiles(Array.from(e.dataTransfer.files));
+        });
+    }
 }
 
 function handleFiles(files) {
