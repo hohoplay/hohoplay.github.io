@@ -26,6 +26,10 @@
   .toggle-btn { background: #f1f5f9; color: #1e293b; border: none; border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
   .blocked-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .unblock-btn { background: #e2e8f0; color: #1e293b; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; white-space: nowrap; }
+  .stats-row { margin-bottom: 10px; }
+  .stats-row-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px; }
+  .stats-bar-track { background: #f1f5f9; border-radius: 4px; height: 10px; overflow: hidden; }
+  .stats-bar-fill { background: #4f46e5; height: 100%; }
 </style>
 </head>
 <body>
@@ -40,6 +44,11 @@
 <div class="section-divider">
   <button class="toggle-btn" onclick="toggleBlockedList()">🚫 차단된 IP 목록 보기</button>
   <div id="blockedList" style="display:none; margin-top:12px"></div>
+</div>
+
+<div class="section-divider">
+  <button class="toggle-btn" onclick="toggleStats()">🌍 국가별 통계 보기</button>
+  <div id="statsPanel" style="display:none; margin-top:12px"></div>
 </div>
 
 <script>
@@ -309,6 +318,61 @@ async function unblockIp(ipAddress) {
     loadBlockedList();
   } catch (e) {
     alert('네트워크 오류: ' + e.message);
+  }
+}
+
+// [ADD] 국가별 통계 — 화면에 보이는 페이지(최대 50건)가 아니라 DB 전체(또는
+// game_id로 좁힌 범위)를 서버에서 GROUP BY로 정확히 집계해온 값을 그대로 쓴다.
+// 막대그래프는 라이브러리 없이 순수 CSS 너비(%)로 그린다 — 어차피 몇 줄 안 되는
+// 단순한 막대라 별도 차트 라이브러리를 불러올 필요가 없다.
+let statsVisible = false;
+
+async function toggleStats() {
+  statsVisible = !statsVisible;
+  const el = document.getElementById('statsPanel');
+  el.style.display = statsVisible ? 'block' : 'none';
+  if (statsVisible) await loadStats();
+}
+
+async function loadStats() {
+  const el = document.getElementById('statsPanel');
+  el.innerHTML = '불러오는 중...';
+  const key = document.getElementById('key').value;
+  const gameId = document.getElementById('gameFilter').value.trim();
+  let url = API + '/admin/comments/stats?key=' + encodeURIComponent(key);
+  if (gameId) url += '&game_id=' + encodeURIComponent(gameId);
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!res.ok) {
+      el.innerHTML = '<p style="color:red">' + escapeHtml(data.error || '오류') + '</p>';
+      return;
+    }
+    if (!data.stats.length) {
+      el.innerHTML = '<p style="font-size:13px;color:#94a3b8">통계를 낼 댓글이 없습니다.</p>';
+      return;
+    }
+
+    const total = data.stats.reduce((sum, s) => sum + s.cnt, 0);
+    const maxCnt = Math.max(...data.stats.map(s => s.cnt));
+
+    el.innerHTML = '<p style="font-size:13px;color:#64748b;margin-bottom:10px">'
+      + (gameId ? `[${escapeHtml(gameId)}] ` : '전체 · ') + `총 ${total}건</p>`
+      + data.stats.map(function (s) {
+        const flag = countryFlag(s.country);
+        const label = flag ? `${flag} ${escapeHtml(s.country)}` : '국가 미상';
+        const pct = total ? Math.round((s.cnt / total) * 100) : 0;
+        const barPct = maxCnt ? Math.round((s.cnt / maxCnt) * 100) : 0;
+        return `
+          <div class="stats-row">
+            <div class="stats-row-head"><span>${label}</span><span>${s.cnt}건 (${pct}%)</span></div>
+            <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${barPct}%"></div></div>
+          </div>
+        `;
+      }).join('');
+  } catch (e) {
+    el.innerHTML = '네트워크 오류: ' + e.message;
   }
 }
 </script>
