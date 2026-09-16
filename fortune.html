@@ -362,6 +362,12 @@ ${info.usage}`;
             }, 400);
         }
         function renderHeroSpotlight(){
+            // 2026-09-16: 별자리월간/띠별주간 탭을 숨긴 동안은 이 배너도 같이 끈다 —
+            // 이 배너를 누르면 showFortune('weekly')/('monthly')로 바로 이동해서, 탭
+            // 버튼만 숨긴 게 무의미해지는 우회 경로였다(애드센스 Low Value/Replicated
+            // Content 재대응). 별자리/띠 탭을 index.html에서 복원할 때 이 return 줄만
+            // 지우면 배너도 같이 원래대로 돌아온다.
+            return;
             _spotlightItems = [spotlightZodiacItem(), spotlightChineseItem()];
             _spotlightIdx = 0;
             paintSpotlight();
