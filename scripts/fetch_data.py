@@ -279,6 +279,12 @@ def build_detail_page_html(festival, overview, intro):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title} - 전국 축제 지도</title>
 <meta name="description" content="{title} | {date_label} | {addr}">
+<!-- [ADD] 애드센스 심사에서 "가치가 별로 없는 콘텐츠"로 지적받음 — 공공데이터
+     소개문을 거의 그대로 옮긴 짧은 페이지가 1,000건 넘게 있어 사이트 전체가
+     "복사한 페이지 모음"처럼 보인 것. 검색 결과·크롤러 평가에서 이 페이지들을
+     주요 콘텐츠로 안 치도록 noindex 처리(링크는 계속 따라가게 follow는 유지).
+     지도 자체(사람이 보는 화면)는 그대로다 — 크롤링/색인 신호만 바꾸는 것. -->
+<meta name="robots" content="noindex, follow">
 <link rel="icon" href="/favicon.svg">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -413,6 +419,9 @@ def build_nature_page_html(spot, overview, page_label='자연공원·수목원')
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title} - 전국 {page_label} 지도</title>
 <meta name="description" content="{title} | {addr}">
+<!-- [ADD] 애드센스 "가치가 별로 없는 콘텐츠" 지적 대응 — 자연관광지/캠핑장/수상레저
+     상세페이지도 축제 상세페이지와 같은 이유로 noindex 처리. -->
+<meta name="robots" content="noindex, follow">
 <link rel="icon" href="/favicon.svg">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <script src="https://cdn.tailwindcss.com"></script>
