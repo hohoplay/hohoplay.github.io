@@ -408,6 +408,50 @@ async function searchPosts() {
 }
 
 // ── 수정 시작 (폼에 기존 내용 채우기) ──
+// [ADD] convertContentToHtml()의 반대 방향 — 저장된 HTML을 다시 "## 소제목" 같은
+// 편집하기 쉬운 표기로 되돌린다. "수정" 버튼을 눌렀을 때, 이미 HTML로 변환되어
+// 저장된 글이 <h1>...</h1> 같은 태그가 그대로 노출된 채로 보이던 문제를 해결한다.
+//
+// 안전장치: <h1>/<h2>/<h3>/<p>/<ul> 중 하나도 못 찾으면(=이 변환 시스템이 생기기
+// 전에 평문으로 저장된 예전 글) 원본을 건드리지 않고 그대로 돌려준다 — 잘못
+// "빈 글"로 되돌려버려서 내용이 통째로 날아가는 사고를 막기 위함.
+function unescapeInline(html) {
+  return html
+    .replace(/<strong>([\s\S]*?)<\/strong>/g, '**$1**')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&');
+}
+
+function convertHtmlToMarkdown(html) {
+  if (!html) return '';
+  const blockRegex = /<(h1|h2|h3|p|ul)>([\s\S]*?)<\/\1>/g;
+  const blocks = [];
+  let match;
+  while ((match = blockRegex.exec(html)) !== null) {
+    blocks.push({ tag: match[1], inner: match[2] });
+  }
+  if (blocks.length === 0) return html; // 예전 평문 글 — 그대로 둔다
+
+  return blocks.map(function (b) {
+    if (b.tag === 'h1') return '# ' + unescapeInline(b.inner);
+    if (b.tag === 'h2') return '## ' + unescapeInline(b.inner);
+    if (b.tag === 'h3') return '### ' + unescapeInline(b.inner);
+    if (b.tag === 'ul') {
+      const items = [];
+      const liRegex = /<li>([\s\S]*?)<\/li>/g;
+      let liMatch;
+      while ((liMatch = liRegex.exec(b.inner)) !== null) {
+        items.push('* ' + unescapeInline(liMatch[1]));
+      }
+      return items.join('\n');
+    }
+    return unescapeInline(b.inner).replace(/<br\s*\/?>/g, '\n');
+  }).join('\n\n');
+}
+
 async function editPost(id) {
   const msg = document.getElementById('msg');
   msg.className = '';
@@ -426,7 +470,7 @@ async function editPost(id) {
     document.getElementById('category').value = post.category;
     document.getElementById('author').value = post.author;
     document.getElementById('title').value = post.title;
-    document.getElementById('content').value = post.content;
+    document.getElementById('content').value = convertHtmlToMarkdown(post.content);
     document.getElementById('submitBtn').textContent = '수정 완료';
     document.getElementById('cancelBtn').style.display = 'block';
     msg.textContent = '';
