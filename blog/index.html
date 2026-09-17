@@ -1137,7 +1137,15 @@
                 const ddata = await dr.json();
                 const post = ddata.post;
                 _communityLatestTitle = post.title;
-                const body = post.content ? cfEscapeHtml(post.content).replace(/\n/g,'<br>') : '';
+                // [FIX] 예전엔 post.content를 cfEscapeHtml()로 감싸서 "안전한 글자"로만
+                // 넣었는데, 그러면 <h2>/<h3>/<p> 같은 태그가 실제 제목·문단으로 안 먹히고
+                // 화면에 꺾쇠괄호까지 그대로 글자로 보이는 문제가 있었다(호호 매거진처럼
+                // 진짜 HTML 구조로 글을 쓰려는 목적과 정면으로 충돌). 이 글쓰기 도구는
+                // 관리자 키로 보호된 대표님 전용 도구라 공개 사용자가 임의로 글을 못 올리므로,
+                // 여기서는 이스케이프 없이 그대로 HTML로 해석해서 넣는다.
+                // (댓글(c.content)은 익명 방문자가 직접 쓰는 거라 반드시 계속 이스케이프해야
+                // 하며, 그 부분은 그대로 손대지 않았다.)
+                const body = post.content ? post.content.replace(/\n/g,'<br>') : '';
                 // URL을 ?post=ID로 맞춰둬서, 지금 이 화면을 그대로 공유·새로고침해도 같은 글이 보이게 한다.
                 history.replaceState(null, '', location.pathname + '?post=' + id);
                 const past = _allCommunityPosts.filter(p => p.id !== post.id).slice(0, PAST_LIST_SIZE);
