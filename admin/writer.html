@@ -51,7 +51,10 @@
   #contentPreview h2 { font-size: 20px; font-weight: 900; margin: 18px 0 8px; color: #1e293b; }
   #contentPreview h3 { font-size: 16px; font-weight: 800; margin: 14px 0 6px; color: #334155; }
   #contentPreview p { font-size: 14px; line-height: 1.7; margin: 0 0 10px; color: #334155; }
-  #contentPreview h2:first-child, #contentPreview h3:first-child, #contentPreview p:first-child { margin-top: 0; }
+  #contentPreview ul { margin: 0 0 10px; padding-left: 20px; }
+  #contentPreview li { font-size: 14px; line-height: 1.7; color: #334155; margin-bottom: 4px; }
+  #contentPreview strong { font-weight: 800; color: #1e293b; }
+  #contentPreview h2:first-child, #contentPreview h3:first-child, #contentPreview p:first-child, #contentPreview ul:first-child { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -80,11 +83,11 @@
 <input type="text" id="title" placeholder="글 제목 (특수문자·이모지 모두 가능)">
 
 <label>내용</label>
-<textarea id="content" placeholder="일반 문단은 그냥 쓰시면 됩니다.&#10;&#10;소제목을 넣고 싶으면 줄 맨 앞에 ## 을 붙이세요 (예: ## 소제목)&#10;더 작은 소제목은 ### 을 붙이세요 (예: ### 세부 소제목)&#10;&#10;문단과 문단 사이는 꼭 빈 줄로 구분해주세요."></textarea>
+<textarea id="content" placeholder="일반 문단은 그냥 쓰시면 됩니다.&#10;&#10;소제목을 넣고 싶으면 줄 맨 앞에 ## 을 붙이세요 (예: ## 소제목)&#10;더 작은 소제목은 ### 을 붙이세요 (예: ### 세부 소제목)&#10;굵게 강조하고 싶은 부분은 **이렇게** 별표 두 개로 감싸세요&#10;목록은 줄 맨 앞에 * 을 붙이세요 (예: * 첫 번째 항목)&#10;&#10;문단과 문단 사이는 꼭 빈 줄로 구분해주세요."></textarea>
 <p style="font-size:12px;color:#94a3b8;margin-top:4px">호호 매거진 글은 1,500자 이상을 권장합니다. 지금까지 입력한 글자 수: <span id="contentCount">0</span>자</p>
 <div class="row" style="margin-top:0">
   <button type="button" id="previewBtn" onclick="previewContent()" style="background:#f1f5f9;color:#1e293b;font-size:13px;padding:8px 12px;">👁 미리보기</button>
-  <span style="font-size:12px;color:#94a3b8;">## 소제목 / ### 세부소제목 / 빈 줄=문단 구분 — 실제 등록 시 이 규칙대로 HTML로 자동 변환됩니다</span>
+  <span style="font-size:12px;color:#94a3b8;">## 소제목 / ### 세부소제목 / **굵게** / * 목록 / 빈 줄=문단 구분 — 실제 등록 시 이 규칙대로 HTML로 자동 변환됩니다</span>
 </div>
 <div id="contentPreview" style="display:none;margin-top:10px;padding:16px;border:1px dashed #cbd5e1;border-radius:8px;background:#fafafa;"></div>
 
@@ -153,25 +156,46 @@ function updateContentCount() {
 
 // [ADD] 호호 매거진의 "## 소제목" 표기를 실제 HTML(h1/h2/h3/p)로 변환.
 // 빈 줄(\n\n)로 나뉜 덩어리 하나하나를 문단으로 보고, 그 덩어리가 #/##/###로
-// 시작하면 그만큼의 소제목 태그로 바꾼다. 굵게·기울임·링크 같은 인라인 마크다운은
-// 지원하지 않는다(범위를 좁혀서 이스케이프 관련 실수 위험을 줄임). escapeHtml()을
-// 먼저 적용한 뒤에 필요한 태그(h2/h3/p/br)만 그 바깥에 직접 붙이는 방식이라, 사용자가
-// 입력한 텍스트 자체에 <, >, & 같은 게 섞여 있어도 안전하게 처리된다.
+// 시작하면 그만큼의 소제목 태그로 바꾼다. escapeHtml()을 먼저 적용한 뒤에 필요한
+// 태그(h1~3/p/br/ul·li/strong)만 그 바깥에 직접 붙이는 방식이라, 사용자가 입력한
+// 텍스트 자체에 <, >, & 같은 게 섞여 있어도 안전하게 처리된다.
 //
 // [FIX] "### 소제목"(띄어쓰기 있음)만 인식하던 걸 "###소제목"(띄어쓰기 없이 바로
 // 붙여 쓴 경우)도 소제목으로 인식하도록 완화 — 실제로 "###1. 웹브라우저..."처럼
 // 띄어쓰기 없이 쓰다가 그냥 문단으로 처리되어버린 사례가 있었음. 정규식의 \s*는
 // "0개 이상의 공백"이라 띄어쓰기가 있든 없든 둘 다 소제목으로 인식한다.
+//
+// [ADD] 실제로 쓰시는 글에 "* 항목" 불릿과 "**굵게**" 표시가 많이 섞여 있어서
+// (원래는 지원 범위 밖이라 별표가 글자 그대로 노출되고 있었음) 두 가지를 추가 지원한다.
+// - 한 덩어리 안의 모든 줄이 "* " 또는 "- "로 시작하면 통째로 <ul><li>...</li></ul>로 변환
+// - 그 외 텍스트(소제목·문단·목록 항목 전부) 안의 "**텍스트**"는 <strong>텍스트</strong>로 변환
+function inlineFormat(text) {
+  // escapeHtml을 먼저 적용해 원본 텍스트를 안전한 문자열로 만든 뒤, 그 결과 안에서
+  // **...** 패턴만 찾아 <strong> 태그로 바꾼다 — 사용자가 입력한 원문 자체는 항상
+  // 이스케이프를 거치므로, 굳이 <strong>이라고 직접 타이핑해도 태그로 해석되지 않는다.
+  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+
 function convertContentToHtml(text) {
   const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b);
   return blocks.map(function (block) {
     let m = block.match(/^###\s*([\s\S]*)$/);
-    if (m) return '<h3>' + escapeHtml(m[1].trim()) + '</h3>';
+    if (m) return '<h3>' + inlineFormat(m[1].trim()) + '</h3>';
     m = block.match(/^##\s*([\s\S]*)$/);
-    if (m) return '<h2>' + escapeHtml(m[1].trim()) + '</h2>';
+    if (m) return '<h2>' + inlineFormat(m[1].trim()) + '</h2>';
     m = block.match(/^#\s*([\s\S]*)$/);
-    if (m) return '<h1>' + escapeHtml(m[1].trim()) + '</h1>';
-    return '<p>' + escapeHtml(block).replace(/\n/g, '<br>') + '</p>';
+    if (m) return '<h1>' + inlineFormat(m[1].trim()) + '</h1>';
+
+    const lines = block.split('\n').map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+    const isList = lines.length > 0 && lines.every(function (l) { return /^[*\-]\s+/.test(l); });
+    if (isList) {
+      const items = lines.map(function (l) {
+        return '<li>' + inlineFormat(l.replace(/^[*\-]\s+/, '')) + '</li>';
+      }).join('');
+      return '<ul>' + items + '</ul>';
+    }
+
+    return '<p>' + inlineFormat(block).replace(/\n/g, '<br>') + '</p>';
   }).join('\n');
 }
 
@@ -295,6 +319,11 @@ function cancelEdit() {
   document.getElementById('submitBtn').textContent = '등록하기';
   document.getElementById('cancelBtn').style.display = 'none';
   updateContentCount();
+  // [FIX] 등록/수정 완료 후(또는 취소 시) 제목·내용은 비워지는데 미리보기 박스는
+  // 그대로 남아있어서, 방금 등록한 게 맞는지 헷갈리게 만들던 문제. 폼이 비워질 때
+  // 미리보기도 같이 숨긴다.
+  const previewEl = document.getElementById('contentPreview');
+  if (previewEl) previewEl.style.display = 'none';
 }
 
 // ── 목록 ──
