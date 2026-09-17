@@ -48,6 +48,10 @@
   #searchBtn { background: #4f46e5; color: #fff; font-size: 13px; padding: 8px 14px; white-space: nowrap; }
   #searchHint { font-size: 12px; color: #94a3b8; margin: -6px 0 12px; }
   mark { background: #fef08a; padding: 0 1px; border-radius: 2px; }
+  #contentPreview h2 { font-size: 20px; font-weight: 900; margin: 18px 0 8px; color: #1e293b; }
+  #contentPreview h3 { font-size: 16px; font-weight: 800; margin: 14px 0 6px; color: #334155; }
+  #contentPreview p { font-size: 14px; line-height: 1.7; margin: 0 0 10px; color: #334155; }
+  #contentPreview h2:first-child, #contentPreview h3:first-child, #contentPreview p:first-child { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -76,8 +80,13 @@
 <input type="text" id="title" placeholder="글 제목 (특수문자·이모지 모두 가능)">
 
 <label>내용</label>
-<textarea id="content" placeholder="글 내용을 입력하세요 (특수문자·이모지 모두 가능)"></textarea>
+<textarea id="content" placeholder="일반 문단은 그냥 쓰시면 됩니다.&#10;&#10;소제목을 넣고 싶으면 줄 맨 앞에 ## 을 붙이세요 (예: ## 소제목)&#10;더 작은 소제목은 ### 을 붙이세요 (예: ### 세부 소제목)&#10;&#10;문단과 문단 사이는 꼭 빈 줄로 구분해주세요."></textarea>
 <p style="font-size:12px;color:#94a3b8;margin-top:4px">호호 매거진 글은 1,500자 이상을 권장합니다. 지금까지 입력한 글자 수: <span id="contentCount">0</span>자</p>
+<div class="row" style="margin-top:0">
+  <button type="button" id="previewBtn" onclick="previewContent()" style="background:#f1f5f9;color:#1e293b;font-size:13px;padding:8px 12px;">👁 미리보기</button>
+  <span style="font-size:12px;color:#94a3b8;">## 소제목 / ### 세부소제목 / 빈 줄=문단 구분 — 실제 등록 시 이 규칙대로 HTML로 자동 변환됩니다</span>
+</div>
+<div id="contentPreview" style="display:none;margin-top:10px;padding:16px;border:1px dashed #cbd5e1;border-radius:8px;background:#fafafa;"></div>
 
 <div class="btn-group">
   <button id="submitBtn" onclick="submitPost()">등록하기</button>
@@ -142,6 +151,31 @@ function updateContentCount() {
   if (el) el.textContent = document.getElementById('content').value.length;
 }
 
+// [ADD] 호호 매거진의 "## 소제목" 표기를 실제 HTML(h1/h2/h3/p)로 변환.
+// 빈 줄(\n\n)로 나뉜 덩어리 하나하나를 문단으로 보고, 그 덩어리가 "## "/"### "/"# "로
+// 시작하면 그만큼의 소제목 태그로 바꾼다. 굵게·기울임·링크 같은 인라인 마크다운은
+// 지원하지 않는다(범위를 좁혀서 이스케이프 관련 실수 위험을 줄임). escapeHtml()을
+// 먼저 적용한 뒤에 필요한 태그(h2/h3/p/br)만 그 바깥에 직접 붙이는 방식이라, 사용자가
+// 입력한 텍스트 자체에 <, >, & 같은 게 섞여 있어도 안전하게 처리된다.
+function convertContentToHtml(text) {
+  const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b);
+  return blocks.map(function (block) {
+    if (block.startsWith('### ')) return '<h3>' + escapeHtml(block.slice(4).trim()) + '</h3>';
+    if (block.startsWith('## ')) return '<h2>' + escapeHtml(block.slice(3).trim()) + '</h2>';
+    if (block.startsWith('# ')) return '<h1>' + escapeHtml(block.slice(2).trim()) + '</h1>';
+    return '<p>' + escapeHtml(block).replace(/\n/g, '<br>') + '</p>';
+  }).join('\n');
+}
+
+// [ADD] 실제로 등록하기 전에, 변환된 HTML이 어떻게 보이는지 미리 확인.
+function previewContent() {
+  const text = document.getElementById('content').value;
+  const html = convertContentToHtml(text);
+  const previewEl = document.getElementById('contentPreview');
+  previewEl.innerHTML = html || '<p style="color:#94a3b8">미리볼 내용이 없습니다.</p>';
+  previewEl.style.display = 'block';
+}
+
 function formatDate(ms) {
   const d = new Date(ms);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
@@ -198,13 +232,17 @@ async function submitPost() {
   const category = document.getElementById('category').value;
   const author = document.getElementById('author').value.trim();
   const title = document.getElementById('title').value.trim();
-  const content = document.getElementById('content').value.trim();
+  const rawContent = document.getElementById('content').value.trim();
 
-  if (!adminKey || !author || !title || !content) {
+  if (!adminKey || !author || !title || !rawContent) {
     msg.className = 'err';
     msg.textContent = '관리자 키, 작성자, 제목, 내용을 모두 입력해주세요.';
     return;
   }
+
+  // [ADD] "## 소제목" 같은 표기를 실제 h2/h3/p 태그로 변환한 뒤 서버로 보낸다 —
+  // 저장되는 content 자체가 진짜 HTML이 되어야, 화면에 제목처럼 진짜로 렌더링된다.
+  const content = convertContentToHtml(rawContent);
 
   btn.disabled = true;
   btn.textContent = editingId ? '수정 중...' : '등록 중...';
