@@ -152,17 +152,25 @@ function updateContentCount() {
 }
 
 // [ADD] 호호 매거진의 "## 소제목" 표기를 실제 HTML(h1/h2/h3/p)로 변환.
-// 빈 줄(\n\n)로 나뉜 덩어리 하나하나를 문단으로 보고, 그 덩어리가 "## "/"### "/"# "로
+// 빈 줄(\n\n)로 나뉜 덩어리 하나하나를 문단으로 보고, 그 덩어리가 #/##/###로
 // 시작하면 그만큼의 소제목 태그로 바꾼다. 굵게·기울임·링크 같은 인라인 마크다운은
 // 지원하지 않는다(범위를 좁혀서 이스케이프 관련 실수 위험을 줄임). escapeHtml()을
 // 먼저 적용한 뒤에 필요한 태그(h2/h3/p/br)만 그 바깥에 직접 붙이는 방식이라, 사용자가
 // 입력한 텍스트 자체에 <, >, & 같은 게 섞여 있어도 안전하게 처리된다.
+//
+// [FIX] "### 소제목"(띄어쓰기 있음)만 인식하던 걸 "###소제목"(띄어쓰기 없이 바로
+// 붙여 쓴 경우)도 소제목으로 인식하도록 완화 — 실제로 "###1. 웹브라우저..."처럼
+// 띄어쓰기 없이 쓰다가 그냥 문단으로 처리되어버린 사례가 있었음. 정규식의 \s*는
+// "0개 이상의 공백"이라 띄어쓰기가 있든 없든 둘 다 소제목으로 인식한다.
 function convertContentToHtml(text) {
   const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b);
   return blocks.map(function (block) {
-    if (block.startsWith('### ')) return '<h3>' + escapeHtml(block.slice(4).trim()) + '</h3>';
-    if (block.startsWith('## ')) return '<h2>' + escapeHtml(block.slice(3).trim()) + '</h2>';
-    if (block.startsWith('# ')) return '<h1>' + escapeHtml(block.slice(2).trim()) + '</h1>';
+    let m = block.match(/^###\s*([\s\S]*)$/);
+    if (m) return '<h3>' + escapeHtml(m[1].trim()) + '</h3>';
+    m = block.match(/^##\s*([\s\S]*)$/);
+    if (m) return '<h2>' + escapeHtml(m[1].trim()) + '</h2>';
+    m = block.match(/^#\s*([\s\S]*)$/);
+    if (m) return '<h1>' + escapeHtml(m[1].trim()) + '</h1>';
     return '<p>' + escapeHtml(block).replace(/\n/g, '<br>') + '</p>';
   }).join('\n');
 }
