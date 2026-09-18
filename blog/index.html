@@ -1252,10 +1252,18 @@
                 // (댓글(c.content)은 익명 방문자가 직접 쓰는 거라 반드시 계속 이스케이프해야
                 // 하며, 그 부분은 그대로 손대지 않았다.)
                 const body = post.content ? post.content.replace(/\n/g,'<br>') : '';
-                // URL을 ?post=ID(&board=카테고리)로 맞춰둬서, 지금 이 화면을 그대로
-                // 공유·새로고침해도 같은 글(같은 필터 범위)이 보이게 한다.
-                const qs = 'post=' + id + (_currentBoard ? '&board=' + encodeURIComponent(boardToSlug(_currentBoard)) : '');
-                history.replaceState(null, '', location.pathname + '?' + qs);
+                // [FIX] 처음 페이지가 열릴 때(scroll===false)는 사용자가 실제로 입력한
+                // 주소를 그대로 존중해서 건드리지 않는다 — "/blog/?board=magazine"으로
+                // 들어왔는데 뒤에서 "/blog/?post=10"으로 몰래 바뀌는 게, 사용자가 직접
+                // 입력한 주소가 이유 없이 바뀌는 것처럼 보여 혼란스럽다는 지적을 반영.
+                // "다른 글"을 직접 클릭해서 옮겨갈 때(scroll===true)만 진짜로 다른 글을
+                // 보고 있는 게 맞으니 그때는 주소를 그 글에 맞게 갱신한다.
+                // 캐노니컬 태그(구글에게 주는 신호)는 화면에 안 보이는 부분이라 이
+                // 구분과 무관하게 항상 정확한 값으로 맞춰둔다.
+                if (scroll) {
+                    const qs = 'post=' + id + (_currentBoard ? '&board=' + encodeURIComponent(boardToSlug(_currentBoard)) : '');
+                    history.replaceState(null, '', location.pathname + '?' + qs);
+                }
                 setCanonicalTag(id);
                 const past = getBoardFilteredPosts().filter(p => p.id !== post.id).slice(0, PAST_LIST_SIZE);
 
