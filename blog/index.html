@@ -6,7 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>커뮤니티 - 호호플레이(HOHO PLAY) | 공지사항 및 게임소개</title>
     <meta name="description" content="호호플레이(HOHO PLAY) 커뮤니티에서 공지사항, 업데이트 소식을 확인하고 게임소개에서 각 게임 이야기를 만나보세요.">
-    <link rel="canonical" href="https://hohoplaylab.com/blog/">
+    <!-- [FIX] 원래 여기 <link rel="canonical" href=".../blog/"> 정적 태그가 있었는데,
+         이 페이지는 ?post=ID로 어떤 글을 보여줄지 자바스크립트가 나중에 정하는 구조라,
+         정적 태그가 항상 "/blog/"만 가리키는 게 실제 보여주는 글과 안 맞는 경우가
+         많았다(구글 최신 가이드: 이런 경우 처음부터 정적 캐노니컬을 아예 빼두고
+         자바스크립트가 렌더링 시점에 넣게 하는 게 "틀린 신호를 먼저 주는 것"보다
+         낫다고 권장함). setCanonicalTag()가 이제 이 역할을 대신한다. -->
     <!-- ═══ Open Graph / 소셜·검색 미리보기 ═══ -->
     <meta property="og:site_name" content="HOHO PLAY">
     <meta property="og:type" content="website">
@@ -1133,6 +1138,22 @@
             return BOARD_SLUG_MAP[param] || param;
         }
 
+        // [ADD] /blog/?post=10 과 /blog/?post=10&board=magazine 이 같은 글을 보여주는데
+        // 주소가 2개라 검색엔진이 "중복 콘텐츠"로 헷갈릴 수 있다는 지적을 반영 —
+        // board 파라미터는 빼고 post만 남긴 주소를 "대표 주소"로 못박아 알려준다.
+        // 구글 공식 문서(developers.google.com/webmasters/ajax-crawling)와 동일한
+        // 패턴: 기존 canonical 태그를 지우고 새로 만들어 <head>에 넣는다.
+        function setCanonicalTag(postId) {
+            const existing = document.querySelector('link[rel="canonical"]');
+            if (existing) existing.remove();
+            const link = document.createElement('link');
+            link.rel = 'canonical';
+            link.href = postId
+                ? location.protocol + '//' + location.host + location.pathname + '?post=' + postId
+                : location.protocol + '//' + location.host + location.pathname;
+            document.head.appendChild(link);
+        }
+
         let _allCommunityPosts = [];
         let _currentBoard = null; // [ADD] ?board=카테고리 로 들어왔을 때만 값이 들어감(없으면 전체 글)
 
@@ -1181,6 +1202,20 @@
 
                 const params = new URLSearchParams(location.search);
                 _currentBoard = resolveBoardFromParam(params.get('board'));
+
+                // [ADD] board 파라미터 없이 post=ID로 특정 글에 직접 들어온 경우, 그
+                // 글 자체의 카테고리를 기준으로 자동으로 범위를 맞춘다 — 소통 메뉴를
+                // 거쳐 왔든 링크를 직접 받았든 같은 카테고리 글이면 같은 경험(안내
+                // 배너, "다른 글" 목록, 그리고 아래 viewCommunityPost가 주소창에
+                // 자동으로 붙여주는 &board=)을 보여주기 위함. 글 번호 없이 그냥
+                // /blog/로 들어온 기본 화면(커뮤니티 첫 진입)은 이 블록을 안 타서
+                // 그대로 전체 글이 섞여서 보인다.
+                if (!_currentBoard) {
+                    const requestedIdForBoard = parseInt(params.get('post'), 10);
+                    const requestedPost = _allCommunityPosts.find(p => p.id === requestedIdForBoard);
+                    if (requestedPost) _currentBoard = requestedPost.category;
+                }
+
                 applyBoardMeta(_currentBoard);
                 const scoped = getBoardFilteredPosts();
 
@@ -1221,6 +1256,7 @@
                 // 공유·새로고침해도 같은 글(같은 필터 범위)이 보이게 한다.
                 const qs = 'post=' + id + (_currentBoard ? '&board=' + encodeURIComponent(boardToSlug(_currentBoard)) : '');
                 history.replaceState(null, '', location.pathname + '?' + qs);
+                setCanonicalTag(id);
                 const past = getBoardFilteredPosts().filter(p => p.id !== post.id).slice(0, PAST_LIST_SIZE);
 
                 // [ADD] "호호 매거진"처럼 특정 카테고리로 들어온 경우, 지금 그 카테고리만
