@@ -1253,6 +1253,25 @@
                 // 있을 때만), 아니면 그 범위 안에서 최신 글을 보여준다.
                 const requestedId = parseInt(params.get('post'), 10);
                 const startId = scoped.some(p => p.id === requestedId) ? requestedId : scoped[0].id;
+
+                // [FIX] 2026-09-21: 네이버/구글 검색결과나 예전에 공유된 링크가 아직
+                // "/blog/?post=2" 같은 옛날 쿼리스트링 주소로 남아있는 경우가 있다.
+                // 화면에는 그 글이 잘 나오지만 주소창은 옛날 그대로라, 거기서 다시
+                // 북마크하거나 공유하면 또 옛날 주소가 퍼진다. 그래서 처음 들어왔을
+                // 때라도 주소가 "옛날 쿼리스트링 형태"라면 이제는 실제로 존재하는
+                // 정적 주소(/blog/posts/{id}.html, 매거진은 /blog/magazine/{id}.html)로
+                // 조용히 바꿔치기한다. 반대로 쿼리스트링 없이 그냥 "/blog/"로 들어온
+                // 정상적인 경우는 손대지 않는다.
+                if (params.get('post')) {
+                    const startPost = scoped.find(p => p.id === startId);
+                    if (startPost) {
+                        const startSlug = (startPost.category === '호호 매거진') ? 'magazine' : 'posts';
+                        history.replaceState(null, '', '/blog/' + startSlug + '/' + startId + '.html');
+                    }
+                } else if (params.get('board') && _currentBoard === '호호 매거진') {
+                    history.replaceState(null, '', '/blog/magazine/');
+                }
+
                 await viewCommunityPost(startId, false);
             } catch (e) {
                 wrap.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패. 잠시 후 다시 시도해주세요.</div>';
@@ -1277,17 +1296,20 @@
                 // (댓글(c.content)은 익명 방문자가 직접 쓰는 거라 반드시 계속 이스케이프해야
                 // 하며, 그 부분은 그대로 손대지 않았다.)
                 const body = post.content ? post.content.replace(/\n/g,'<br>') : '';
-                // [FIX] 처음 페이지가 열릴 때(scroll===false)는 사용자가 실제로 입력한
-                // 주소를 그대로 존중해서 건드리지 않는다 — "/blog/?board=magazine"으로
-                // 들어왔는데 뒤에서 "/blog/?post=10"으로 몰래 바뀌는 게, 사용자가 직접
-                // 입력한 주소가 이유 없이 바뀌는 것처럼 보여 혼란스럽다는 지적을 반영.
-                // "다른 글"을 직접 클릭해서 옮겨갈 때(scroll===true)만 진짜로 다른 글을
-                // 보고 있는 게 맞으니 그때는 주소를 그 글에 맞게 갱신한다.
+                // [FIX] 처음 페이지가 열릴 때(scroll===false)는 주소를 여기서 손대지
+                // 않는다 — 옛날 쿼리스트링 주소를 실제 정적 주소로 바꿔치기하는 처리는
+                // loadCommunityFeed()에서 이미 한 번에 처리했다(순수 "/blog/"로 들어온
+                // 정상 진입은 그대로 유지). "다른 글"을 직접 클릭해서 옮겨갈 때
+                // (scroll===true)는 진짜로 다른 글을 보고 있는 게 맞으니, 주소도
+                // "?post=id" 같은 쿼리스트링이 아니라 그 글의 실제 정적 주소
+                // (공지/업데이트/게임소개는 /blog/posts/{id}.html, 호호 매거진은
+                // /blog/magazine/{id}.html)로 갱신한다 — 여기서 다시 공유하거나
+                // 북마크해도 항상 진짜 주소가 남도록 하기 위함.
                 // 캐노니컬 태그(구글에게 주는 신호)는 화면에 안 보이는 부분이라 이
                 // 구분과 무관하게 항상 정확한 값으로 맞춰둔다.
                 if (scroll) {
-                    const qs = 'post=' + id + (_currentBoard ? '&board=' + encodeURIComponent(boardToSlug(_currentBoard)) : '');
-                    history.replaceState(null, '', location.pathname + '?' + qs);
+                    const slug = (post.category === '호호 매거진') ? 'magazine' : 'posts';
+                    history.replaceState(null, '', '/blog/' + slug + '/' + id + '.html');
                 }
                 setCanonicalTag(id);
                 const past = getBoardFilteredPosts().filter(p => p.id !== post.id).slice(0, PAST_LIST_SIZE);
