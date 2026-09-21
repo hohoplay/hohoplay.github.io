@@ -3454,14 +3454,21 @@ def _zodiac_weekly_title_keyword(total, money, health, love):
 
 def build_zodiac_weekly_post(today_str):
     """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성"""
-    kst_now    = now_kst()
-    dow        = kst_now.weekday()
-    mon_date   = (kst_now - timedelta(days=dow)).date()
+    # ── 기준 날짜: today_str(=발행 기준일, FORCE_DATE 반영)을 우선 사용 ──
+    # 이전에는 now_kst()를 다시 호출해 today_str을 무시했기 때문에,
+    # FORCE_DATE/FORCE_WEEKLY로 수동 재실행하거나 실행 시각이 자정 경계를
+    # 넘길 경우 주차/날짜 범위가 실제 발행 기준일과 어긋날 수 있었다.
+    try:
+        ref_date = datetime.strptime(today_str, "%Y년 %m월 %d일").date()
+    except (ValueError, TypeError):
+        ref_date = now_kst().date()
+    dow        = ref_date.weekday()
+    mon_date   = ref_date - timedelta(days=dow)
     sun_date   = mon_date + timedelta(days=6)
-    month_str  = f"{mon_date.month:02d}월"
+    month_str  = f"{mon_date.month}월"
     week_num   = (mon_date.day - 1) // 7 + 1
     week_label = f"{month_str} {week_num}주차"
-    week_range = f"{mon_date.month:02d}/{mon_date.day:02d} ~ {sun_date.month:02d}/{sun_date.day:02d}"
+    week_range = f"{mon_date.month}/{mon_date.day} ~ {sun_date.month}/{sun_date.day}"
 
     # 별자리별 4영역 주간 내용 풀
     _W_AREAS = {
@@ -3568,11 +3575,11 @@ def build_zodiac_weekly_post(today_str):
             if score >= 50: return "잔잔하게 흘러가는 주간입니다."
             return "신중하게 움직여야 하는 주간입니다."
 
-        _we  = _W_ENDINGS[kst_now.day % len(_W_ENDINGS)]
-        # 별자리별 속담 — 오늘 날짜 시드 기반
-        _wq  = pick_proverb_for(z['kr'], kst_now.day, mode='weekly')
+        _we  = _W_ENDINGS[ref_date.day % len(_W_ENDINGS)]
+        # 별자리별 속담 — 기준 날짜(ref_date) 시드 기반
+        _wq  = pick_proverb_for(z['kr'], ref_date.day, mode='weekly')
         _wq_html = _proverb_bridge_html(_wq, color="#7c3aed", light="#faf5ff")
-        kst_day = kst_now.day
+        kst_day = ref_date.day
 
         # 공감층
         _W_EMPATHY_LOCAL = {
@@ -3617,6 +3624,9 @@ def build_zodiac_weekly_post(today_str):
             f"{z['kr']} {month_str}", "주간운세", "별자리운세",
             f"{z['kr']} 특징", f"{z['kr']} 성격", f"{z['kr']} 궁합",
             f"{z['kr']} 관계운", f"{z['kr']} 금전운", f"{z['kr']} 건강운",
+            # ── 날짜 다양성 강화: 주차 라벨 하나뿐이던 것을 실제 날짜 범위·연도까지 확장 ──
+            f"{z['kr']} {week_range}", f"{z['kr']} {mon_date.year}년 {week_label}",
+            f"{mon_date.year}년 {month_str} 별자리 주간운세", f"{week_range} 주간운세",
         ]
         kw_list += pick_seo_keywords(z['kr'], kst_day)
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
@@ -4776,7 +4786,7 @@ def post_blogger(title, content, labels, description, idx, total):
     for attempt in range(1, 4):  # 최대 3회 재시도
         resp = requests.post(url,
             headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
-            json={"title":insert_title,"content":content,"labels":labels}
+            json={"title":insert_title,"content":content,"labels":labels,"searchDescription":description}
         )
         if resp.status_code == 200:
             post_id = resp.json().get("id")
