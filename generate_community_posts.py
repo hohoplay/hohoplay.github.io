@@ -239,6 +239,30 @@ function goPartner() {
 KST = timezone(timedelta(hours=9))
 
 
+# [ADD] 2026-09-21: "매거진 글 개별 주소도 /blog/posts/{id}.html이 아니라
+# /blog/magazine/{id}.html 처럼 매거진 밑에 있어야 하지 않냐"는 요청을 반영.
+# 카테고리에 따라 글이 저장되는 폴더·주소가 갈라진다: 매거진 글은
+# blog/magazine/{id}.html, 그 외(공지사항/업데이트/게임소개)는 기존과 동일하게
+# blog/posts/{id}.html. 한 글의 카테고리가 나중에 바뀔 수도 있으므로(writer.html
+# 수정 기능), generate_post_pages()는 "지금 카테고리 기준 정답 위치"에 없으면 새로
+# 만들고, "틀린(예전) 위치"에 파일이 남아있으면 정리한다 — 그래야 카테고리를
+# 매거진 ↔ 다른 카테고리로 바꿔도 주소가 계속 맞게 따라간다.
+def post_output_dir(post):
+    return MAGAZINE_ARCHIVE_DIR if post.get("category") == MAGAZINE_CATEGORY else POSTS_DIR
+
+
+def post_output_rel(post):
+    """로그·설명용 상대 경로 문자열 (예: 'blog/magazine/10.html')."""
+    slug = MAGAZINE_ARCHIVE_SLUG if post.get("category") == MAGAZINE_CATEGORY else "posts"
+    return f"blog/{slug}/{post['id']}.html"
+
+
+def post_output_url(post):
+    """사이트맵·canonical 등에 쓰는 전체 URL."""
+    slug = MAGAZINE_ARCHIVE_SLUG if post.get("category") == MAGAZINE_CATEGORY else "posts"
+    return f"{SITE_ROOT}/blog/{slug}/{post['id']}.html"
+
+
 def fetch_json(url):
     import urllib.request
     # Cloudflare가 기본 파이썬 User-Agent(Python-urllib/x.x)를 자동으로 봇 요청으로
@@ -314,43 +338,76 @@ def render_post_html(template, post):
     html_out = html_out.replace("{{DATE}}", format_date(post["created_at"]))
     html_out = html_out.replace("{{EXCERPT}}", html_lib.escape(excerpt))
     html_out = html_out.replace("{{CONTENT_HTML}}", content_html)
+    # [ADD] 2026-09-21: 글 카테고리에 따라 실제 파일 위치(주소)가 blog/posts/ 또는
+    # blog/magazine/ 로 갈라지게 되어, 템플릿이 canonical/og:url 태그에 쓸 수 있도록
+    # 이 글의 "진짜 전체 주소"를 넘겨준다. (템플릿에 {{POST_URL}}이 없으면 그냥
+    # 무시되니 안전함 — 아직 실제 템플릿 파일을 못 받아서, 있다면 이걸로 채워질
+    # 자리를 미리 준비만 해둔 것.)
+    html_out = html_out.replace("{{POST_URL}}", post_output_url(post))
     return html_out
 
 
 def generate_post_pages(posts):
     os.makedirs(POSTS_DIR, exist_ok=True)
+    os.makedirs(MAGAZINE_ARCHIVE_DIR, exist_ok=True)
     template = open(TEMPLATE_PATH, encoding="utf-8").read()
 
-    existing_ids = {
-        int(f.replace(".html", ""))
-        for f in os.listdir(POSTS_DIR)
-        if f.endswith(".html")
-    }
+    def collect_ids(directory):
+        ids = set()
+        if not os.path.isdir(directory):
+            return ids
+        for f in os.listdir(directory):
+            if f == "index.html" or not f.endswith(".html"):
+                continue  # index.html(아카이브 목록)이나 .html이 아닌 파일은 글 파일이 아니므로 제외
+            stem = f[: -len(".html")]
+            if stem.isdigit():
+                ids.add(int(stem))
+        return ids
+
+    existing_posts_ids = collect_ids(POSTS_DIR)
+    existing_magazine_ids = collect_ids(MAGAZINE_ARCHIVE_DIR)
     current_ids = {p["id"] for p in posts}
 
     new_count = 0
     for p in posts:
-        path = os.path.join(POSTS_DIR, f"{p['id']}.html")
-        if os.path.exists(path):
+        target_dir = post_output_dir(p)
+        target_path = os.path.join(target_dir, f"{p['id']}.html")
+        # [ADD] 카테고리가 바뀐 글 처리: "지금 카테고리 기준으로는 틀린" 예전 위치에
+        # 파일이 남아있으면(예: 매거진 → 다른 카테고리로 바뀌었는데 blog/magazine/에
+        # 옛 파일이 남아있는 경우, 또는 그 반대) 지워서 주소가 카테고리를 계속
+        # 따라가게 한다.
+        other_dir = MAGAZINE_ARCHIVE_DIR if target_dir is POSTS_DIR else POSTS_DIR
+        other_path = os.path.join(other_dir, f"{p['id']}.html")
+        if os.path.exists(other_path):
+            os.remove(other_path)
+            other_rel = "blog/posts" if other_dir is POSTS_DIR else f"blog/{MAGAZINE_ARCHIVE_SLUG}"
+            print(f"  - {other_rel}/{p['id']}.html 삭제 (카테고리 변경으로 주소 이동됨)")
+
+        if os.path.exists(target_path):
             continue  # 게시글 내용은 불변이므로 이미 있으면 재생성하지 않음
         detail = fetch_post_detail(p["id"])
         if not detail:
             continue
         html_out = render_post_html(template, detail)
-        with open(path, "w", encoding="utf-8") as f:
+        with open(target_path, "w", encoding="utf-8") as f:
             f.write(html_out)
         new_count += 1
-        print(f"  + blog/posts/{p['id']}.html 생성 ({detail['title']})")
+        print(f"  + {post_output_rel(p)} 생성 ({detail['title']})")
 
-    # 삭제된 게시글의 정적 파일 정리
-    removed_ids = existing_ids - current_ids
+    # 삭제된 게시글의 정적 파일 정리 (두 폴더 다 확인)
     removed_count = 0
-    for rid in removed_ids:
+    for rid in existing_posts_ids - current_ids:
         path = os.path.join(POSTS_DIR, f"{rid}.html")
         if os.path.exists(path):
             os.remove(path)
             removed_count += 1
             print(f"  - blog/posts/{rid}.html 삭제 (원본 게시글 삭제됨)")
+    for rid in existing_magazine_ids - current_ids:
+        path = os.path.join(MAGAZINE_ARCHIVE_DIR, f"{rid}.html")
+        if os.path.exists(path):
+            os.remove(path)
+            removed_count += 1
+            print(f"  - blog/{MAGAZINE_ARCHIVE_SLUG}/{rid}.html 삭제 (원본 게시글 삭제됨)")
 
     return new_count, removed_count
 
@@ -478,7 +535,7 @@ def build_magazine_archive_page(posts):
             title = html_lib.escape(p["title"])
             author = html_lib.escape(p["author"])
             rows.append(
-                f'<li><a class="post-item" href="/blog/posts/{p["id"]}.html">'
+                f'<li><a class="post-item" href="/blog/{MAGAZINE_ARCHIVE_SLUG}/{p["id"]}.html">'
                 f'<div class="post-title">{title}</div>'
                 f'<div class="post-meta"><span>{format_date(p["created_at"])}</span>'
                 f'<span>👤 {author}</span></div>'
@@ -559,6 +616,20 @@ def build_magazine_archive_redirect():
     print(f"  ✓ blog/{OLD_MAGAZINE_ARCHIVE_SLUG}/index.html → {MAGAZINE_ARCHIVE_URL} 리다이렉트 페이지 생성")
 
 
+def _remove_sitemap_url(content, url):
+    """sitemap.xml 문자열(content)에서 <loc>이 url인 <url>...</url> 블록 하나를 제거한다.
+    없으면 그대로(변경 없음, removed=False) 돌려준다. 여러 마이그레이션(슬러그 변경,
+    카테고리 변경에 따른 개별 글 주소 이동)에서 공통으로 쓰는 헬퍼."""
+    if url not in content:
+        return content, False
+    pattern = re.compile(
+        r"[ \t]*<url>\s*<loc>" + re.escape(url) + r"</loc>.*?</url>\n?",
+        re.DOTALL,
+    )
+    new_content, n = pattern.subn("", content)
+    return new_content, n > 0
+
+
 def migrate_magazine_sitemap_entry():
     """[ADD] 2026-09-21: sitemap.xml에 이미 등록돼 있을 수 있는 예전 슬러그
     (board-magazine-260921) 항목을 제거한다. 새 슬러그(magazine) 등록은
@@ -567,14 +638,8 @@ def migrate_magazine_sitemap_entry():
     if not os.path.exists(SITEMAP_PATH):
         return
     content = open(SITEMAP_PATH, encoding="utf-8").read()
-    if OLD_MAGAZINE_ARCHIVE_URL not in content:
-        return
-    pattern = re.compile(
-        r"[ \t]*<url>\s*<loc>" + re.escape(OLD_MAGAZINE_ARCHIVE_URL) + r"</loc>.*?</url>\n?",
-        re.DOTALL,
-    )
-    new_content, n = pattern.subn("", content)
-    if n > 0:
+    new_content, removed = _remove_sitemap_url(content, OLD_MAGAZINE_ARCHIVE_URL)
+    if removed:
         with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
             f.write(new_content)
         print(f"  ✓ sitemap.xml에서 예전 매거진 주소({OLD_MAGAZINE_ARCHIVE_URL}) 항목 제거")
@@ -587,9 +652,21 @@ def update_sitemap(posts):
 
     content = open(SITEMAP_PATH, encoding="utf-8").read()
     added = 0
+    removed = 0
 
     for p in posts:
-        url = f"{SITE_ROOT}/blog/posts/{p['id']}.html"
+        url = post_output_url(p)
+        # [ADD] 2026-09-21: 이 글이 예전엔(카테고리가 지금과 달라서) 다른 주소로
+        # sitemap에 등록돼 있었을 수 있다 — 특히 매거진 글은 이번에 /blog/posts/{id}.html
+        # → /blog/magazine/{id}.html 로 주소가 바뀌었으므로, 그 예전 주소가 남아있으면
+        # 지운다. 카테고리가 안 바뀐 대다수 글은 old_url == url 이라 그냥 아무 일도 없다.
+        old_url = f"{SITE_ROOT}/blog/posts/{p['id']}.html" if post_output_dir(p) is MAGAZINE_ARCHIVE_DIR else f"{SITE_ROOT}/blog/{MAGAZINE_ARCHIVE_SLUG}/{p['id']}.html"
+        if old_url != url:
+            content, did_remove = _remove_sitemap_url(content, old_url)
+            if did_remove:
+                removed += 1
+                print(f"  ✓ sitemap.xml에서 예전 글 주소({old_url}) 항목 제거 → {url}")
+
         if url in content:
             continue
         entry = (
@@ -615,10 +692,10 @@ def update_sitemap(posts):
         content = content.replace("</urlset>", entry + "</urlset>")
         added += 1
 
-    if added > 0:
+    if added > 0 or removed > 0:
         with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
             f.write(content)
-        print(f"  ✓ sitemap.xml에 {added}개 URL 추가")
+        print(f"  ✓ sitemap.xml 갱신: {added}개 추가, {removed}개 예전 주소 제거")
     else:
         print("  · sitemap.xml 변경 없음 (신규 게시글 없음)")
 
