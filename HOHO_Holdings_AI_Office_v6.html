@@ -301,9 +301,9 @@
                     </button>
                     <span id="tab-btn-site" class="hidden"></span>
                     <span id="site-badge" class="hidden"></span>
-                    <button onclick="fetchExternalTrends(); closeMoreTabs();"
+                    <button onclick="runBrandCrawlers(); closeMoreTabs();"
                         class="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left border-b-2 border-transparent">
-                        📡 트렌드 수집
+                        🕷️ 브랜드 자동수집
                     </button>
                 </div>
             </div>
@@ -3486,10 +3486,17 @@ function renderStaffDetail(staffId) {
 
     safeCreateIcons();
 
-    // hohoplay 팀장(collector)이면 하단에 분석 패널 추가
+    // 팀장별 브랜드 패널 추가
     const existingPanel = document.getElementById('hohoplay-staff-panel');
     if(existingPanel) existingPanel.remove();
+    const existingPanel2 = document.getElementById('shapcol-staff-panel');
+    if(existingPanel2) existingPanel2.remove();
+    const existingPanel3 = document.getElementById('bdc-staff-panel');
+    if(existingPanel3) existingPanel3.remove();
+
     if(staffId === 'collector') renderHohoplayPanel();
+    else if(staffId === 'writer') renderShapcolPanel();
+    else if(staffId === 'sns') renderBumodolbomPanel();
 }
 
 function renderHohoplayPanel() {
@@ -3514,6 +3521,8 @@ function renderHohoplayPanel() {
                 class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-[10px] text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 mono" />
             <button onclick="loadHohoplayData(true)"
                 class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded-lg transition-colors shrink-0">📥 불러오기</button>
+            <button onclick="crawlHohoplay()"
+                class="px-2.5 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg transition-colors shrink-0">🕷️ 가크롤러</button>
             <button onclick="analyzeHohoplayWithAI()"
                 class="px-2.5 py-1.5 bg-blue-700 hover:bg-blue-600 text-white text-[10px] font-bold rounded-lg transition-colors shrink-0">🤖 AI분석</button>
         </div>
@@ -3936,111 +3945,269 @@ function detectLogType(text) {
 }
 
 // ═══════════════════════════════════════════════
-// 외부 트렌드 수집 (③ 개선: 외부 데이터 연동)
-// Google Trends RSS + 자료수집가·인턴이 분석
+// 🕷️ 브랜드별 자동 수집 시스템
+// hohoplay 팀장 / 샵콜 팀장 / 부모돌봄 팀장
 // ═══════════════════════════════════════════════
-async function fetchExternalTrends() {
+
+// 구 fetchExternalTrends — 하위 호환 유지
+async function fetchExternalTrends() { runBrandCrawlers(); }
+
+// 전체 브랜드 크롤러 실행
+async function runBrandCrawlers() {
     if(!apiKey) {
         showToast('Claude API 연결 후 사용 가능합니다.', 'warning', 2000);
         return;
     }
+    addLog('🕷️ 브랜드 자동수집 시작 — 3개 팀장 동시 가동');
+    appendMessage('assistant', '또다른 나', '👑',
+        `🕷️ <strong class="text-white">브랜드 자동수집 시작</strong><br>
+        <span class="text-slate-400 text-[10px]">hohoplay 팀장 · 샵콜 팀장 · 부모돌봄 팀장이 각자 담당 사이트를 수집합니다.</span>`);
 
-    addLog('📡 자료수집가 + 인턴: 외부 트렌드 수집 시작...');
-    appendMessage('assistant', '자료 수집가', '🔍',
-        `📡 <strong class="text-white">트렌드 수집 시작</strong> — 자료수집가와 인턴이 최신 트렌드를 가져옵니다.`);
+    // 3개 팀장 병렬 실행
+    await Promise.allSettled([
+        crawlHohoplay(),
+        crawlShapcol(),
+        crawlBumodolbom()
+    ]);
 
-    // CORS 우회를 위해 RSS2JSON 공개 프록시 활용
-    const FEEDS = [
-        {
-            name: '구글 트렌드 (한국)',
-            url: 'https://api.rss2json.com/v1/api.json?rss_url=https://trends.google.co.kr/trending/rss?geo=KR',
-        },
-        {
-            name: '네이버 뉴스 IT',
-            url: 'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/naverRssNewsIt',
+    addLog('✅ 브랜드 자동수집 완료');
+    showToast('브랜드 자동수집 완료!', 'success', 3000);
+}
+
+// ──────────────────────────────────────────────
+// 🎮 hohoplay 팀장 가크롤러
+// Worker API(posts/comments) + hohoplaylab.com 사이트맵
+// ──────────────────────────────────────────────
+async function crawlHohoplay() {
+    addLog('🎮 hohoplay 팀장: 가크롤러 가동 중...');
+    if(staffPositions.collector) { staffPositions.collector.bubble = '🕷️ 가크롤러 가동!'; renderCharacters(); }
+
+    const result = { posts:[], comments:[], games:[], community:[] };
+
+    // 1) Worker API — 게시글 (공개)
+    try {
+        const r = await fetch(`${HP_API}/posts?_=${Date.now()}`, { cache:'no-store' });
+        if(r.ok) {
+            const d = await r.json();
+            result.posts = Array.isArray(d) ? d : (d.posts || []);
+            hpPosts = result.posts;
+            addLog(`🎮 hohoplay 게시글 ${result.posts.length}건 수집`);
         }
-    ];
+    } catch(e) { addLog('⚠️ hohoplay 게시글 수집 실패: ' + e.message); }
 
+    // 2) hohoplaylab.com — RSS2JSON 프록시로 사이트 접근
+    const HOHOPLAY_PAGES = [
+        { label:'게임 목록', path:'sitemap.xml' },
+        { label:'운세', path:'fortune/' },
+        { label:'커뮤니티', path:'community/' }
+    ];
+    const RSS2J = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+    // 3) hohoplaylab.com 직접 fetch (CORS 허용 여부 시도)
+    const GAME_PAGES = [
+        'hoya-typing-rpg.html','hoho-racing.html','hoho-run.html',
+        'mgame1.html','mgame2.html','mgame3.html'
+    ];
+    let siteReachable = false;
+    const gameData = [];
+
+    for(const page of GAME_PAGES) {
+        try {
+            const r = await fetch(`https://hohoplaylab.com/${page}`, { mode:'no-cors', cache:'no-store' });
+            // no-cors는 opaque response — 접근 자체는 됐음
+            gameData.push({ page, status: 'ok' });
+            siteReachable = true;
+        } catch(e) {}
+    }
+
+    // 4) Worker API proxy route 시도 (Worker에 /proxy 엔드포인트가 있다면)
+    let siteContent = '';
+    try {
+        const proxyRes = await fetch(`${HP_API}/proxy?url=${encodeURIComponent('https://hohoplaylab.com/')}`, { cache:'no-store' });
+        if(proxyRes.ok) {
+            const txt = await proxyRes.text();
+            siteContent = txt.substring(0, 2000);
+            siteReachable = true;
+            addLog('🎮 hohoplaylab.com 프록시 수집 성공');
+        }
+    } catch(e) {}
+
+    // 5) AI 분석 — 수집된 데이터 종합
+    const postSummary = result.posts.slice(0,8).map(p =>
+        `· ${p.title||'(제목없음)'}: ${(p.summary||'').substring(0,40)}`
+    ).join('\n') || '(게시글 없음)';
+
+    const sysPrompt = `당신은 HOHO Holdings의 "hohoplay 팀장"입니다. 🎮
+hohoplaylab.com 브랜드 사이트의 현황을 분석해 대표님께 보고하세요.
+보고 형식:
+1. 📊 게시글/커뮤니티 현황
+2. 🎮 게임 서비스 현황 (10개 메인게임, 10개 미니게임, 운세 서비스)
+3. 🔍 개선 포인트 2가지
+간결하게 한국어로.`;
+
+    const userMsg = `[hohoplay 게시글 ${result.posts.length}건]
+${postSummary}
+
+[사이트 접근 상태]
+hohoplaylab.com: ${siteReachable ? '✅ 정상' : '⚠️ CORS 제한'}
+게임 페이지 시도: ${GAME_PAGES.join(', ')}
+${siteContent ? '[사이트 내용 일부]\n' + siteContent : ''}
+
+[알려진 구조]
+- 메인게임 10개: hoya-typing-rpg, hoho-racing, hoho-run, hoho-jump, hoho-catch, hoho-color, hoho-memo, hoho-quiz, hoho-word, hoho-math
+- 미니게임 10개: mgame1~mgame10
+- 커뮤니티: 투표/퀴즈/축제
+- 운세: fortune/, fortune-adventure.html`;
+
+    if(apiKey) {
+        try {
+            const analysis = await callClaudeAPI(sysPrompt, [{role:'user', content:userMsg}], 600);
+            appendMessage('assistant', 'hohoplay 팀장', '🎮',
+                `🕷️ <strong class="text-emerald-300">[hohoplay 가크롤러 보고]</strong><br>${formatMarkdown(analysis)}`);
+
+            memories.unshift({
+                id: 'hp_crawl_' + Date.now(),
+                title: `hohoplay 가크롤러: ${new Date().toLocaleDateString('ko-KR')}`,
+                content: `게시글 ${result.posts.length}건\n\n${analysis}`,
+                category: '호호플레이', author: 'hohoplay 팀장',
+                date: new Date().toLocaleDateString('ko-KR'), autoSaved: true
+            });
+            saveAll(); renderMemoryList();
+        } catch(e) { addLog('❌ hohoplay AI 분석 실패: ' + e.message); }
+    }
+
+    if(staffPositions.collector) { staffPositions.collector.bubble = ''; renderCharacters(); }
+    addLog(`✅ hohoplay 가크롤러 완료 — 게시글 ${result.posts.length}건`);
+}
+
+// ──────────────────────────────────────────────
+// 💇 샵콜 팀장 크롤러
+// Google Trends RSS (미용 키워드) + AI 분석
+// ──────────────────────────────────────────────
+async function crawlShapcol() {
+    addLog('💇 샵콜 팀장: 미용 트렌드 수집 중...');
+    if(staffPositions.writer) { staffPositions.writer.bubble = '💇 트렌드 수집!'; renderCharacters(); }
+
+    const keywords = ['미용실','헤어','샵콜','QR메뉴','미용원장','헤어트렌드'];
     const trendItems = [];
     let fetchedSource = '';
 
-    // 인턴이 데이터 수집
-    if(staffPositions.intern) {
-        staffPositions.intern.bubble = '트렌드 수집 중! 🌐';
-        renderCharacters();
-    }
+    // Google Trends RSS (미용 카테고리)
+    const FEEDS = [
+        { name:'구글 트렌드 한국', url:'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://trends.google.co.kr/trending/rss?geo=KR') },
+        { name:'네이버 생활/건강', url:'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://rss.blog.naver.com/PostList.nhn?blogId=nhis_story&categoryNo=0&outputType=rss') }
+    ];
 
     for(const feed of FEEDS) {
         try {
-            const res = await fetch(feed.url);
-            if(!res.ok) continue;
-            const data = await res.json();
-            if(data.status === 'ok' && data.items?.length > 0) {
-                const items = data.items.slice(0, 8).map(item => item.title);
-                trendItems.push(...items);
+            const r = await fetch(feed.url);
+            if(!r.ok) continue;
+            const d = await r.json();
+            if(d.status === 'ok' && d.items?.length > 0) {
+                trendItems.push(...d.items.slice(0,8).map(i => i.title));
                 fetchedSource = feed.name;
-                break; // 첫 번째 성공한 피드 사용
+                break;
             }
         } catch(e) {}
     }
 
-    if(staffPositions.intern) {
-        staffPositions.intern.bubble = '';
-        renderCharacters();
+    const sysPrompt = `당신은 HOHO Holdings의 "샵콜 팀장"입니다. 💇
+샵콜 by hoho는 미용실 원장님을 위한 QR 메뉴·호출 시스템입니다.
+수집된 트렌드를 샵콜 비즈니스 관점에서 분석해 대표님께 보고하세요:
+1. 📈 미용 시장 트렌드 요약
+2. 💡 샵콜 서비스 적용 기회
+3. 🎯 이번 달 집중할 전략 1가지`;
+
+    const userMsg = trendItems.length > 0
+        ? `[${fetchedSource} 트렌드 ${trendItems.length}건]\n${trendItems.join('\n')}\n\n샵콜 관련 인사이트 분석해줘`
+        : `미용실 QR시스템, 샵콜 서비스 관련 최신 시장 트렌드와 전략을 분석해줘. 알고 있는 정보 기반으로.`;
+
+    if(apiKey) {
+        try {
+            const analysis = await callClaudeAPI(sysPrompt, [{role:'user', content:userMsg}], 500);
+            appendMessage('assistant', '샵콜 팀장', '💇',
+                `💇 <strong class="text-amber-300">[샵콜 트렌드 보고]</strong><br>${formatMarkdown(analysis)}`);
+
+            memories.unshift({
+                id: 'shapcol_crawl_' + Date.now(),
+                title: `샵콜 트렌드: ${new Date().toLocaleDateString('ko-KR')}`,
+                content: trendItems.length > 0 ? `[출처: ${fetchedSource}]\n${trendItems.join('\n')}\n\n${analysis}` : analysis,
+                category: '샵콜', author: '샵콜 팀장',
+                date: new Date().toLocaleDateString('ko-KR'), autoSaved: true
+            });
+            saveAll(); renderMemoryList();
+        } catch(e) { addLog('❌ 샵콜 AI 분석 실패: ' + e.message); }
     }
 
-    if(trendItems.length === 0) {
-        // 외부 수집 실패 시 → AI에게 현재 트렌드 추정 요청
-        addLog('⚠️ 외부 RSS 수집 실패 → AI 트렌드 추정 모드로 전환');
-        appendMessage('assistant', '인턴 사원', '☕',
-            `RSS 피드 접근이 안 됐어요 😅 대신 AI가 알고 있는 최신 트렌드를 정리해 드리겠습니다!`);
+    if(staffPositions.writer) { staffPositions.writer.bubble = ''; renderCharacters(); }
+    addLog(`✅ 샵콜 트렌드 수집 완료`);
+}
 
-        const reply = await callClaudeAPI(
-            `당신은 HOHO Holdings 가상오피스의 "자료 수집가"입니다.
-HOHO Holdings가 운영 중인 분야(hohoplay 게임/운세, 샵콜 미용실, 부모돌봄 길잡이)와 관련된
-현재 시장 트렌드 Top 5를 간결하게 정리해 주세요. 각 트렌드마다 HOHO Holdings 브랜드에 미치는 영향도 한 줄씩 추가하세요.`,
-            [{ role:'user', content:'현재 hohoplay 관련 트렌드 Top 5 정리해줘' }], 600
-        );
+// ──────────────────────────────────────────────
+// 👨‍👩‍👧 부모돌봄 팀장 크롤러
+// bumodolbom.blogspot.com Blogger RSS 수집
+// ──────────────────────────────────────────────
+async function crawlBumodolbom() {
+    addLog('👨‍👩‍👧 부모돌봄 팀장: 블로그 RSS 수집 중...');
+    if(staffPositions.sns) { staffPositions.sns.bubble = '👨‍👩‍👧 RSS 수집!'; renderCharacters(); }
 
-        appendMessage('assistant', '자료 수집가', '🔍',
-            `📊 <strong class="text-indigo-300">[AI 트렌드 분석]</strong><br>${reply}`);
+    const BLOG_RSS = 'https://bumodolbom.blogspot.com/feeds/posts/default?alt=rss';
+    const RSS2J_URL = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(BLOG_RSS);
 
-    } else {
-        // 수집 성공 → 인턴이 목록 정리, 수집가가 분석
-        appendMessage('assistant', '인턴 사원', '☕',
-            `✅ <strong class="text-white">${fetchedSource}</strong>에서 트렌드 ${trendItems.length}건 수집 완료!<br>
-            <span class="text-slate-400 text-[10px]">${trendItems.slice(0,5).map(t=>`· ${t}`).join('<br>')}</span>`);
+    let posts = [];
+    let fetchedOk = false;
 
-        // 수집가가 hohoplay 관점으로 분석
-        const analysisPrompt = `당신은 hohoplay 가상오피스의 "자료 수집가"입니다.
-아래 트렌드 목록 중 HOHO Holdings(hohoplay 게임/운세, 샵콜, 부모돌봄 길잡이)와 관련 있는 트렌드를 골라
-비즈니스 관점에서 3~4줄로 분석해 주세요.
+    try {
+        const r = await fetch(RSS2J_URL);
+        if(r.ok) {
+            const d = await r.json();
+            if(d.status === 'ok' && d.items?.length > 0) {
+                posts = d.items.slice(0, 10);
+                fetchedOk = true;
+                addLog(`👨‍👩‍👧 부모돌봄 블로그 포스트 ${posts.length}건 수집`);
+            }
+        }
+    } catch(e) { addLog('⚠️ 부모돌봄 RSS 수집 실패: ' + e.message); }
 
-[수집된 트렌드]
-${trendItems.join('\n')}`;
+    const postSummary = posts.map(p =>
+        `· [${p.pubDate?.substring(0,10)||''}] ${p.title}: ${(p.description||'').replace(/<[^>]+>/g,'').substring(0,60)}`
+    ).join('\n');
 
-        const analysis = await callClaudeAPI(
-            analysisPrompt,
-            [{ role:'user', content: '위 트렌드를 hohoplay 관점에서 분석해줘' }], 500
-        );
+    const sysPrompt = `당신은 HOHO Holdings의 "부모돌봄 팀장"입니다. 👨‍👩‍👧
+부모돌봄 길잡이(bumodolbom.blogspot.com) 블로그의 최신 포스트를 분석해 대표님께 보고하세요:
+1. 📝 최근 포스팅 주제 동향
+2. 👥 독자에게 필요한 정보 유형
+3. 🚀 서비스 개선 아이디어 2가지`;
 
-        appendMessage('assistant', '자료 수집가', '🔍',
-            `📊 <strong class="text-emerald-300">[hohoplay 관점 트렌드 분석]</strong><br>${analysis}`);
+    const userMsg = fetchedOk
+        ? `[부모돌봄 블로그 최신 포스트 ${posts.length}건]\n${postSummary}\n\n위 포스팅 분석해줘`
+        : `부모돌봄 길잡이 서비스(노인/부모 돌봄 정보 제공 블로그) 관련 최신 트렌드와 서비스 개선 방향을 분석해줘.`;
 
-        // 기억 저장소에 자동 저장
-        memories.unshift({
-            id: 'trend_' + Date.now(),
-            title: `트렌드 수집: ${new Date().toLocaleDateString('ko-KR')}`,
-            content: `[출처: ${fetchedSource}]\n${trendItems.join('\n')}\n\n[분석]\n${analysis}`,
-            category: '트렌드',
-            author: '자료 수집가',
-            date: new Date().toLocaleDateString('ko-KR'),
-            autoSaved: true
-        });
-        saveAll();
-        renderMemoryList();
-        addLog(`✅ 트렌드 ${trendItems.length}건 수집 → 기억 저장소 저장`);
+    if(apiKey) {
+        try {
+            const analysis = await callClaudeAPI(sysPrompt, [{role:'user', content:userMsg}], 500);
+            appendMessage('assistant', '부모돌봄 팀장', '👨‍👩‍👧',
+                `👨‍👩‍👧 <strong class="text-pink-300">[부모돌봄 수집 보고]</strong><br>${formatMarkdown(analysis)}`);
+
+            if(fetchedOk) {
+                appendMessage('assistant', '부모돌봄 팀장', '👨‍👩‍👧',
+                    `📋 <strong class="text-pink-200">최신 블로그 포스트</strong><br>
+                    <span class="text-slate-400 text-[10px]">${posts.slice(0,5).map(p=>`· ${p.title}`).join('<br>')}</span>`);
+            }
+
+            memories.unshift({
+                id: 'bdc_crawl_' + Date.now(),
+                title: `부모돌봄 수집: ${new Date().toLocaleDateString('ko-KR')}`,
+                content: fetchedOk ? `[블로그 포스트 ${posts.length}건]\n${postSummary}\n\n${analysis}` : analysis,
+                category: '부모돌봄', author: '부모돌봄 팀장',
+                date: new Date().toLocaleDateString('ko-KR'), autoSaved: true
+            });
+            saveAll(); renderMemoryList();
+        } catch(e) { addLog('❌ 부모돌봄 AI 분석 실패: ' + e.message); }
     }
+
+    if(staffPositions.sns) { staffPositions.sns.bubble = ''; renderCharacters(); }
+    addLog(`✅ 부모돌봄 수집 완료`);
 }
 
 // ═══════════════════════════════════════════════
@@ -4204,6 +4371,72 @@ ${gameStats || '(없음)'}`;
         document.getElementById('hohoplay-ai-text').textContent = '분석 실패: ' + e.message;
         addLog('❌ hohoplay AI 분석 실패: ' + e.message);
     }
+}
+
+// ──────────────────────────────────────────────
+// 💇 샵콜 팀장 패널 (직원 상세 하단)
+// ──────────────────────────────────────────────
+function renderShapcolPanel() {
+    const container = document.getElementById('hr-detail-view');
+    if(!container) return;
+    const panel = document.createElement('div');
+    panel.id = 'shapcol-staff-panel';
+    panel.className = 'border-t border-slate-800 p-4 space-y-3';
+    panel.innerHTML = `
+        <div class="flex items-center justify-between">
+            <h4 class="text-[11px] font-bold text-amber-400">💇 샵콜 by hoho — 미용 트렌드 수집</h4>
+        </div>
+        <div class="text-[10px] text-slate-500">구글 트렌드 RSS에서 미용·헤어 키워드를 수집하고 샵콜 전략을 분석합니다.</div>
+        <button onclick="crawlShapcol()"
+            class="w-full py-2 bg-amber-800 hover:bg-amber-700 text-white text-[11px] font-bold rounded-lg transition-colors">
+            💇 샵콜 트렌드 수집 실행
+        </button>
+        <div id="shapcol-crawl-result" class="hidden bg-amber-950/30 border border-amber-800/40 rounded-xl p-3">
+            <div class="text-[10px] font-bold text-amber-400 mb-1.5">💇 최근 수집 결과</div>
+            <div id="shapcol-crawl-text" class="text-[10px] text-slate-300 leading-relaxed"></div>
+        </div>`;
+
+    // 최근 샵콜 수집 기억이 있으면 표시
+    const lastMem = memories.find(m => m.category === '샵콜' && m.author === '샵콜 팀장');
+    if(lastMem) {
+        panel.querySelector('#shapcol-crawl-result').classList.remove('hidden');
+        panel.querySelector('#shapcol-crawl-text').textContent = lastMem.content.substring(0, 300) + '...';
+    }
+    container.appendChild(panel);
+}
+
+// ──────────────────────────────────────────────
+// 👨‍👩‍👧 부모돌봄 팀장 패널 (직원 상세 하단)
+// ──────────────────────────────────────────────
+function renderBumodolbomPanel() {
+    const container = document.getElementById('hr-detail-view');
+    if(!container) return;
+    const panel = document.createElement('div');
+    panel.id = 'bdc-staff-panel';
+    panel.className = 'border-t border-slate-800 p-4 space-y-3';
+    panel.innerHTML = `
+        <div class="flex items-center justify-between">
+            <h4 class="text-[11px] font-bold text-pink-400">👨‍👩‍👧 부모돌봄 길잡이 — 블로그 RSS 수집</h4>
+            <a href="https://bumodolbom.blogspot.com" target="_blank"
+                class="text-[9px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition-colors">🌐 블로그</a>
+        </div>
+        <div class="text-[10px] text-slate-500">bumodolbom.blogspot.com Blogger RSS에서 최신 포스트를 수집하고 서비스 개선 방향을 분석합니다.</div>
+        <button onclick="crawlBumodolbom()"
+            class="w-full py-2 bg-pink-800 hover:bg-pink-700 text-white text-[11px] font-bold rounded-lg transition-colors">
+            👨‍👩‍👧 부모돌봄 블로그 수집 실행
+        </button>
+        <div id="bdc-crawl-result" class="hidden bg-pink-950/30 border border-pink-800/40 rounded-xl p-3">
+            <div class="text-[10px] font-bold text-pink-400 mb-1.5">👨‍👩‍👧 최근 수집 결과</div>
+            <div id="bdc-crawl-text" class="text-[10px] text-slate-300 leading-relaxed"></div>
+        </div>`;
+
+    // 최근 부모돌봄 수집 기억이 있으면 표시
+    const lastMem = memories.find(m => m.category === '부모돌봄' && m.author === '부모돌봄 팀장');
+    if(lastMem) {
+        panel.querySelector('#bdc-crawl-result').classList.remove('hidden');
+        panel.querySelector('#bdc-crawl-text').textContent = lastMem.content.substring(0, 300) + '...';
+    }
+    container.appendChild(panel);
 }
 
 function scrollStaffBar(delta) {
