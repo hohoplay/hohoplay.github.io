@@ -103,9 +103,27 @@ def format_date(ms_timestamp):
     return dt.strftime("%Y.%m.%d")
 
 
+_TAG_RE = re.compile(r"<[^>]+>")
+
+
 def render_post_html(template, post):
-    content_escaped = html_lib.escape(post["content"])
-    excerpt = post["content"].strip().splitlines()[0][:80] if post["content"].strip() else post["title"]
+    # [FIX] 2026-09-21: post["content"]를 html_lib.escape()로 감싸고 있었음 — writer.html이
+    # 실제 <h1>/<h2>/<p>/<ul><li>/<strong> 등 진짜 HTML 태그로 저장한 본문을 여기서 다시
+    # 이스케이프하면, 브라우저에는 제목·문단·목록이 아니라 "<h1>...</h1>" 글자가 그대로
+    # 노출된다(실제로 blog/posts/10.html에서 이 증상이 확인됨). blog/index.html의 실시간
+    # 화면(viewCommunityPost)은 이미 예전에 같은 이유로 이스케이프를 제거했는데, 정적 페이지를
+    # 만드는 이 함수는 그때 같이 안 고쳐져 있었음. writer.html은 관리자 키로 보호된 대표님
+    # 전용 도구라 공개 사용자가 임의로 글을 못 올리므로, 여기서도 이스케이프 없이 그대로
+    # HTML로 해석해서 넣는다.
+    content_html = post["content"]
+
+    # excerpt(메타 설명 등에 쓰임)는 원래 raw content의 첫 줄을 그대로 잘라 썼는데, 그 줄이
+    # "<h1>...</h1>" 같은 태그째로 시작하는 경우가 많아 메타 설명에 "&lt;h1&gt;..."이 그대로
+    # 노출되는 문제가 있었음 — 태그를 먼저 제거하고, 문단 사이 줄바꿈도 공백 하나로 합친
+    # 순수 텍스트에서 잘라낸다(줄바꿈을 안 합치면 자른 80자 안에 실제 개행문자가 섞여
+    # <meta ... content="..."> 속성값 한 줄이 깨지는 문제가 있었음).
+    plain_text = re.sub(r"\s+", " ", _TAG_RE.sub("", post["content"])).strip()
+    excerpt = plain_text[:80] if plain_text else post["title"]
 
     html_out = template
     html_out = html_out.replace("{{POST_ID}}", str(post["id"]))
@@ -114,7 +132,7 @@ def render_post_html(template, post):
     html_out = html_out.replace("{{AUTHOR}}", html_lib.escape(post["author"]))
     html_out = html_out.replace("{{DATE}}", format_date(post["created_at"]))
     html_out = html_out.replace("{{EXCERPT}}", html_lib.escape(excerpt))
-    html_out = html_out.replace("{{CONTENT_HTML}}", content_escaped)
+    html_out = html_out.replace("{{CONTENT_HTML}}", content_html)
     return html_out
 
 
@@ -183,7 +201,13 @@ def update_blog_index_static_list(posts):
         latest = posts[0]
         detail = fetch_post_detail(latest["id"])
         if detail:
-            content_escaped = html_lib.escape(detail["content"]).replace("\n", "<br>")
+            # [FIX] 2026-09-21: html_lib.escape()로 감싸고 있었음 — render_post_html()과 같은
+            # 이유로, writer.html이 진짜 HTML 태그로 저장한 본문을 여기서 다시 이스케이프하면
+            # blog/index.html 정적 폴백(크롤러가 보는 첫 화면)에 "<h1>...</h1>" 글자가 그대로
+            # 노출된다. 실시간 화면(viewCommunityPost, blog/index.html 안의 JS)은 이미
+            # 이스케이프 없이 post.content.replace(/\n/g,'<br>')만 쓰고 있으므로, 여기서도
+            # 그것과 완전히 동일하게 맞춘다(정적 폴백 → JS 렌더링 전환 시 내용이 안 튀어야 함).
+            content_html = detail["content"].replace("\n", "<br>")
             title_escaped = html_lib.escape(detail["title"])
             author_escaped = html_lib.escape(detail["author"])
             category_escaped = html_lib.escape(detail["category"])
@@ -195,7 +219,7 @@ def update_blog_index_static_list(posts):
                 f'<p style="color:#94a3b8;font-size:13px;margin-bottom:20px">'
                 f'{author_escaped} · {format_date(detail["created_at"])}</p>'
                 f'<div style="color:#334155;font-size:14px;line-height:1.9;margin-bottom:24px">'
-                f'{content_escaped}</div>'
+                f'{content_html}</div>'
             )
         else:
             latest_html = ""
