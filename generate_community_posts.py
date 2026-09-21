@@ -36,7 +36,24 @@ TEMPLATE_PATH = os.path.join(REPO_ROOT, "templates", "community_post_template.ht
 BLOG_INDEX_PATH = os.path.join(REPO_ROOT, "blog", "index.html")
 SITEMAP_PATH = os.path.join(REPO_ROOT, "sitemap.xml")
 
-CATEGORIES = ["공지사항", "업데이트", "게임소개"]
+# [FIX] 2026-09-21: "호호 매거진" 카테고리가 이 목록에 없어서, 매거진 글들이
+# blog/posts/{id}.html 정적 페이지도, sitemap.xml 등록도, blog/index.html
+# 정적 폴백 목록 반영도 전혀 안 되고 있었음(Worker API 조회 자체가 카테고리별로
+# 이 목록을 순회하는 방식이라, 목록에 없으면 애초에 안 불러와짐). "매거진 글도
+# 커뮤니티 전체 목록에 섞여서 노출되는 게 의도"라는 기존 설계와도 어긋나던
+# 상태라 추가함.
+CATEGORIES = ["공지사항", "업데이트", "게임소개", "호호 매거진"]
+
+# [ADD] 2026-09-21: 매거진 카테고리 전체 글 목록을, ?board=magazine 같은
+# 쿼리스트링이 아니라 실제 정적 파일이 있는 주소로도 제공하기 위해 추가.
+# 이 슬러그는 "이 페이지를 처음 만든 날짜"(260921 = 2026년 9월 21일)를 한 번만
+# 못박아 둔 것 — 이후 매거진 글이 계속 늘어나도 파일 안의 목록 내용만 매 실행마다
+# 최신화될 뿐, 주소(파일 경로) 자체는 절대 바뀌지 않는다. 공유 링크나 구글
+# 색인이 계속 유효하게 쌓이도록 하기 위함.
+MAGAZINE_CATEGORY = "호호 매거진"
+MAGAZINE_ARCHIVE_SLUG = "board-magazine-260921"
+MAGAZINE_ARCHIVE_DIR = os.path.join(REPO_ROOT, "blog", MAGAZINE_ARCHIVE_SLUG)
+MAGAZINE_ARCHIVE_URL = f"{SITE_ROOT}/blog/{MAGAZINE_ARCHIVE_SLUG}/"
 
 KST = timezone(timedelta(hours=9))
 
@@ -230,6 +247,74 @@ def update_blog_index_static_list(posts):
     print(f"  ✓ blog/index.html 정적 목록 갱신 완료 (최신글+지난글 {shown_count}개, {n_subs}곳 반영)")
 
 
+def build_magazine_archive_page(posts):
+    """호호 매거진 카테고리 글 전체를 모은 정적 목록 페이지(blog/board-magazine-260921/index.html)를
+    만든다. blog/posts/{id}.html(개별 글, 내용이 안 바뀌므로 이미 있으면 건드리지 않음)과 달리,
+    이 페이지는 "목록"이라 새 매거진 글이 올라올 때마다 내용이 계속 바뀌어야 하므로 매 실행마다
+    통째로 다시 써서 덮어쓴다. 파일 경로(=주소)는 MAGAZINE_ARCHIVE_SLUG로 고정되어 있어 안 바뀐다."""
+    os.makedirs(MAGAZINE_ARCHIVE_DIR, exist_ok=True)
+
+    magazine_posts = [p for p in posts if p.get("category") == MAGAZINE_CATEGORY]
+    magazine_posts.sort(key=lambda p: p["created_at"], reverse=True)
+
+    if not magazine_posts:
+        items_html = '<li class="empty">아직 등록된 호호 매거진 글이 없습니다.</li>'
+    else:
+        rows = []
+        for p in magazine_posts:
+            title = html_lib.escape(p["title"])
+            author = html_lib.escape(p["author"])
+            rows.append(
+                f'<li><a class="post-item" href="/blog/posts/{p["id"]}.html">'
+                f'<div class="post-title">{title}</div>'
+                f'<div class="post-meta"><span>{format_date(p["created_at"])}</span>'
+                f'<span>👤 {author}</span></div>'
+                f'</a></li>'
+            )
+        items_html = "\n".join(rows)
+
+    page = f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티</title>
+<meta name="description" content="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.">
+<link rel="canonical" href="{MAGAZINE_ARCHIVE_URL}">
+<meta property="og:title" content="호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티">
+<meta property="og:description" content="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.">
+<meta property="og:url" content="{MAGAZINE_ARCHIVE_URL}">
+<link rel="icon" href="/favicon.svg">
+<style>
+* {{ box-sizing: border-box; }}
+body {{ font-family: 'Noto Sans KR', sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; color: #1e293b; background: #fff; }}
+h1 {{ font-size: 1.6rem; font-weight: 900; margin-bottom: 6px; }}
+.intro {{ color: #64748b; font-size: 14px; margin-bottom: 24px; }}
+.post-list {{ list-style: none; padding: 0; margin: 0; }}
+.post-item {{ display: block; padding: 16px 0; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit; }}
+.post-title {{ font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }}
+.post-meta {{ font-size: 12px; color: #94a3b8; }}
+.post-meta span {{ margin-right: 10px; }}
+.empty {{ color: #94a3b8; font-size: 14px; padding: 40px 0; text-align: center; list-style: none; }}
+.back-link {{ display: inline-block; margin-top: 28px; color: #4f46e5; font-weight: 700; text-decoration: none; font-size: 14px; }}
+</style>
+</head>
+<body>
+<h1>📖 호호 매거진</h1>
+<p class="intro">호호플레이(HOHO PLAY)의 호호 매거진 게시글을 모아봅니다.</p>
+<ul class="post-list">
+{items_html}
+</ul>
+<a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>
+</body>
+</html>"""
+
+    out_path = os.path.join(MAGAZINE_ARCHIVE_DIR, "index.html")
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(page)
+    print(f"  ✓ blog/{MAGAZINE_ARCHIVE_SLUG}/index.html 갱신 완료 (매거진 글 {len(magazine_posts)}개)")
+
+
 def update_sitemap(posts):
     if not os.path.exists(SITEMAP_PATH):
         print("⚠️ sitemap.xml을 찾을 수 없어 건너뜁니다.", file=sys.stderr)
@@ -252,6 +337,19 @@ def update_sitemap(posts):
         content = content.replace("</urlset>", entry + "</urlset>")
         added += 1
 
+    # [ADD] 2026-09-21: 호호 매거진 목록 페이지(고정 주소) 등록. 이미 등록돼 있으면
+    # (재실행 시) 위 게시글 URL과 동일한 패턴으로 중복 추가하지 않는다.
+    if MAGAZINE_ARCHIVE_URL not in content:
+        entry = (
+            f"  <url>\n"
+            f"    <loc>{MAGAZINE_ARCHIVE_URL}</loc>\n"
+            f"    <changefreq>weekly</changefreq>\n"
+            f"    <priority>0.6</priority>\n"
+            f"  </url>\n"
+        )
+        content = content.replace("</urlset>", entry + "</urlset>")
+        added += 1
+
     if added > 0:
         with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
             f.write(content)
@@ -267,6 +365,7 @@ def main():
 
     new_count, removed_count = generate_post_pages(posts)
     update_blog_index_static_list(posts)
+    build_magazine_archive_page(posts)
     update_sitemap(posts)
 
     print(f"완료: 신규 {new_count}개, 삭제 {removed_count}개")
