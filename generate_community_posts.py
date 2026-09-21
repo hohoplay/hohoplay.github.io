@@ -46,12 +46,26 @@ CATEGORIES = ["공지사항", "업데이트", "게임소개", "호호 매거진"
 
 # [ADD] 2026-09-21: 매거진 카테고리 전체 글 목록을, ?board=magazine 같은
 # 쿼리스트링이 아니라 실제 정적 파일이 있는 주소로도 제공하기 위해 추가.
-# 이 슬러그는 "이 페이지를 처음 만든 날짜"(260921 = 2026년 9월 21일)를 한 번만
-# 못박아 둔 것 — 이후 매거진 글이 계속 늘어나도 파일 안의 목록 내용만 매 실행마다
-# 최신화될 뿐, 주소(파일 경로) 자체는 절대 바뀌지 않는다. 공유 링크나 구글
-# 색인이 계속 유효하게 쌓이도록 하기 위함.
+# 이 슬러그는 한 번 정해지면 이후 매거진 글이 계속 늘어나도 파일 안의 목록
+# 내용만 매 실행마다 최신화될 뿐, 주소(파일 경로) 자체는 절대 바뀌지 않는다.
+# 공유 링크나 구글 색인이 계속 유효하게 쌓이도록 하기 위함.
+#
+# [FIX] 2026-09-21(같은 날 두 번째 수정): 처음엔 슬러그에 "만든 날짜"(260921)를
+# 그대로 못박아 board-magazine-260921 로 만들었는데, 이러면 방문자가 사이트
+# 메뉴로 "호호 매거진"을 클릭했을 때도 주소창에 이 날짜 붙은 기술적인 문자열이
+# 그대로 보이게 된다 — 일반 방문자에게는 부자연스러움. 운영 첫날이라 색인/공유가
+# 거의 없는 지금 시점에, 사람이 봐도 자연스러운 슬러그(magazine)로 교체한다.
+# (참고: blog/index.html의 라이브 화면에서 쓰는 board slug 매핑도 이미
+# BOARD_NAME_TO_SLUG = {'호호 매거진': 'magazine'} 로 되어 있어서 일치시킴.)
+# 예전 주소(OLD_MAGAZINE_ARCHIVE_SLUG)로 들어오는 기존 링크/북마크/색인이
+# 갑자기 404가 되지 않도록, build_magazine_archive_redirect()가 그 자리에
+# 새 주소로 안내하는 정적 리다이렉트 페이지를 남겨둔다.
 MAGAZINE_CATEGORY = "호호 매거진"
-MAGAZINE_ARCHIVE_SLUG = "board-magazine-260921"
+OLD_MAGAZINE_ARCHIVE_SLUG = "board-magazine-260921"
+OLD_MAGAZINE_ARCHIVE_DIR = os.path.join(REPO_ROOT, "blog", OLD_MAGAZINE_ARCHIVE_SLUG)
+OLD_MAGAZINE_ARCHIVE_URL = f"{SITE_ROOT}/blog/{OLD_MAGAZINE_ARCHIVE_SLUG}/"
+
+MAGAZINE_ARCHIVE_SLUG = "magazine"
 MAGAZINE_ARCHIVE_DIR = os.path.join(REPO_ROOT, "blog", MAGAZINE_ARCHIVE_SLUG)
 MAGAZINE_ARCHIVE_URL = f"{SITE_ROOT}/blog/{MAGAZINE_ARCHIVE_SLUG}/"
 
@@ -339,6 +353,55 @@ h1 {{ font-size: 1.6rem; font-weight: 900; margin-bottom: 6px; }}
     print(f"  ✓ blog/{MAGAZINE_ARCHIVE_SLUG}/index.html 갱신 완료 (매거진 글 {len(magazine_posts)}개)")
 
 
+def build_magazine_archive_redirect():
+    """[ADD] 2026-09-21: 매거진 아카이브 슬러그를 board-magazine-260921 → magazine 으로
+    바꾸면서, 예전 주소로 들어오는 기존 링크/북마크/검색 색인이 갑자기 404가 되지
+    않도록 옛 주소 자리에 정적 리다이렉트 페이지를 남겨둔다. GitHub Pages는 정적
+    호스팅이라 서버 단에서 진짜 301 리다이렉트를 걸 방법이 없으므로, 대신
+    meta refresh(방문자용)와 canonical 태그(검색엔진용)로 "진짜 주소는 여기"라고
+    알려주는 방식을 쓴다."""
+    os.makedirs(OLD_MAGAZINE_ARCHIVE_DIR, exist_ok=True)
+    page = f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티</title>
+<link rel="canonical" href="{MAGAZINE_ARCHIVE_URL}">
+<meta http-equiv="refresh" content="0; url={MAGAZINE_ARCHIVE_URL}">
+<meta name="robots" content="noindex">
+</head>
+<body>
+<p>이 페이지는 <a href="{MAGAZINE_ARCHIVE_URL}">{MAGAZINE_ARCHIVE_URL}</a>(으)로 주소가 바뀌었습니다.</p>
+</body>
+</html>"""
+    out_path = os.path.join(OLD_MAGAZINE_ARCHIVE_DIR, "index.html")
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(page)
+    print(f"  ✓ blog/{OLD_MAGAZINE_ARCHIVE_SLUG}/index.html → {MAGAZINE_ARCHIVE_URL} 리다이렉트 페이지 생성")
+
+
+def migrate_magazine_sitemap_entry():
+    """[ADD] 2026-09-21: sitemap.xml에 이미 등록돼 있을 수 있는 예전 슬러그
+    (board-magazine-260921) 항목을 제거한다. 새 슬러그(magazine) 등록은
+    update_sitemap()이 기존 로직 그대로(MAGAZINE_ARCHIVE_URL 기준) 처리한다.
+    이미 제거된 상태에서 다시 실행해도(멱등) 아무 일도 하지 않는다."""
+    if not os.path.exists(SITEMAP_PATH):
+        return
+    content = open(SITEMAP_PATH, encoding="utf-8").read()
+    if OLD_MAGAZINE_ARCHIVE_URL not in content:
+        return
+    pattern = re.compile(
+        r"[ \t]*<url>\s*<loc>" + re.escape(OLD_MAGAZINE_ARCHIVE_URL) + r"</loc>.*?</url>\n?",
+        re.DOTALL,
+    )
+    new_content, n = pattern.subn("", content)
+    if n > 0:
+        with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        print(f"  ✓ sitemap.xml에서 예전 매거진 주소({OLD_MAGAZINE_ARCHIVE_URL}) 항목 제거")
+
+
 def update_sitemap(posts):
     if not os.path.exists(SITEMAP_PATH):
         print("⚠️ sitemap.xml을 찾을 수 없어 건너뜁니다.", file=sys.stderr)
@@ -390,6 +453,8 @@ def main():
     new_count, removed_count = generate_post_pages(posts)
     update_blog_index_static_list(posts)
     build_magazine_archive_page(posts)
+    build_magazine_archive_redirect()
+    migrate_magazine_sitemap_entry()
     update_sitemap(posts)
 
     print(f"완료: 신규 {new_count}개, 삭제 {removed_count}개")
