@@ -209,6 +209,14 @@ def update_blog_index_static_list(posts):
 
     html_content = open(BLOG_INDEX_PATH, encoding="utf-8").read()
 
+    # [FIX] 2026-09-21: 커뮤니티 정적 목록(크롤러가 보는 첫 화면 + JS 로드 전 화면)에는
+    # "호호 매거진" 글을 안 섞는다. 매거진은 /blog/magazine/ 라는 자기 전용 목록
+    # 페이지가 따로 있어서, 여기 커뮤니티 목록에도 똑같이 섞여 나오면 같은 글이
+    # 두 군데(커뮤니티의 짧은 미리보기 vs 매거진 전용 목록)에 다른 모습으로 중복
+    # 노출된다는 지적을 반영. (blog/index.html의 실시간 화면 쪽 getBoardFilteredPosts()도
+    # 같은 날 같은 이유로 동일하게 고쳐서, 정적 폴백 → 실시간 전환 시 내용이 안 튄다.)
+    posts = [p for p in posts if p.get("category") != MAGAZINE_CATEGORY]
+
     if not posts:
         items_html = ""
     else:
