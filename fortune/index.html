@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <!-- [FIX] 콘텐츠 교체 전 정적 폴백 텍스트가 화면에 노출되는 것을 막기 위해,
-         그 어떤 스크립트보다도 먼저 파싱되는 이 자리에서 #content를 즉시 숨김.
-         실제 콘텐츠 교체가 끝나는 순간 다시 보이게 처리(아래 스크립트에서). -->
-    <style>#content{opacity:0}</style>
-    <noscript><style>#content{opacity:1!important}</style></noscript>
+    <!-- [FIX-2] 이전에는 #content를 opacity:0으로 숨겨뒀다가 자바스크립트가
+         실제 콘텐츠로 교체한 뒤에야 opacity:1로 되돌리는 방식이었으나,
+         이 교체 스크립트가 어떤 이유로든 실패/지연되면(자바스크립트 오류,
+         크롤러의 렌더링 타임아웃 등) 페이지가 최대 3초, 심하면 계속 완전히
+         빈 화면으로 보이는 문제가 있었음. 검색엔진·SNS 미리보기·애드센스
+         심사 크롤러가 이 빈 화면 상태를 그대로 캡처할 위험이 있어 제거함.
+         이제 #content는 항상 기본 상태(보임)로 시작하고, 아래
+         <noscript-fallback> 정적 텍스트가 즉시 보이다가 자바스크립트가
+         정상 동작하면 실제 인터랙티브 콘텐츠로 순간적으로 교체된다. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 운세 - 호호플레이(HOHO PLAY) | 무료 타로·MBTI 운세</title>
     <meta name="description" content="오늘의 운세, 타로, MBTI+타로, MBTI+꿈해몽까지 한 번에. 호호플레이(HOHO PLAY)에서 무료로 확인하는 매일 업데이트되는 운세 서비스.">
