@@ -2761,7 +2761,7 @@ def build_zodiac_post(z, today_str):
 
     kst_now    = now_kst()
     today_dot  = kst_now.strftime("%Y년 %-m월 %-d일")
-    today_sync = kst_now.strftime("%Y년 %m월 %d일")
+    today_sync = today_dot  # 0 없는 표기로 통일 (기존엔 %m월 %d일로 0이 붙었음)
 
     raw_total, raw_money, raw_health, raw_love = pick_score(z['kr'])
     total, money, health, love, calc_html = _apply_adjustments(
@@ -3018,7 +3018,7 @@ def build_zodiac_post(z, today_str):
 <div class="wrap">
   <div class="hero">
     <h1>{z['emoji']} {z['kr']} 오늘의 운세</h1>
-    <p>{today_str} · {z['date']}</p>
+    <p>{today_sync} · {z['date']}</p>
     <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">
       {signal_kw}
@@ -3086,7 +3086,7 @@ def build_chinese_post(c, today_str):
     fortune = chinese_fortune(c['en'])
 
     kst_now  = now_kst()
-    today_sync = kst_now.strftime("%Y년 %m월 %d일")
+    today_sync = kst_now.strftime("%Y년 %-m월 %-d일")  # 0 없는 표기 ("9월 26일")
     kst_day  = kst_now.day
 
     # peak_tip, low_tip — 시간대 제외하고 내용(tip)만 활용
@@ -3394,7 +3394,7 @@ def build_chinese_post(c, today_str):
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
     <h1>{c['emoji']} {c['kr']} 오늘의 운세</h1>
-    <p>{today_str} · {', '.join(map(str, c['years']))}</p>
+    <p>{today_sync} · {', '.join(map(str, c['years']))}</p>
     <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">
       {signal}
