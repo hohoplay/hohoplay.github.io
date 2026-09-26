@@ -27,6 +27,13 @@
   #msg.ok { color: #16a34a; }
   #msg.err { color: #dc2626; }
 
+  #pollMsg { margin-top: 8px; font-size: 13px; white-space: pre-wrap; }
+  #pollMsg.ok { color: #16a34a; }
+  #pollMsg.err { color: #dc2626; }
+  #pollOptions { min-height: 100px; }
+  #pollOutput { min-height: 140px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px; background: #f8fafc; white-space: pre; }
+  #pollCopyBtn { background: #e0e7ff; color: #3730a3; font-size: 13px; padding: 8px 12px; }
+
   #postList { display: flex; flex-direction: column; gap: 8px; }
   .post-item {
     display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px;
@@ -106,6 +113,31 @@
 <button id="refreshBtn" onclick="loadPosts()">↻ 새로고침</button>
 <div id="postList"></div>
 <div id="listMsg"></div>
+
+<h2>📊 투표 주제 만들기</h2>
+<p style="font-size:12px;color:#94a3b8;margin:-6px 0 12px">
+  투표(익명투표) 주제는 게시글과 달리 서버에 바로 저장되지 않고, vote-index.html 파일 안의
+  POLL_POOL 배열에 직접 코드를 추가하는 방식입니다. 아래에 입력하고 "코드 생성"을 누르면
+  그 배열 끝에 그대로 붙여넣을 수 있는 코드가 만들어집니다 — 생성된 코드를 복사해서
+  vote-index.html 파일을 열어 POLL_POOL 배열 맨 끝(마지막 `},` 다음, `];` 앞)에
+  붙여넣고 다시 배포해주셔야 실제 사이트에 반영됩니다.
+</p>
+
+<label>투표 ID (영문 소문자·숫자·언더바만, 예: poll_lunch_menu)</label>
+<input type="text" id="pollId" placeholder="poll_...">
+
+<label>질문</label>
+<input type="text" id="pollQuestion" placeholder="예: 오늘 점심 뭐 드셨어요?">
+
+<label>선택지 (한 줄에 하나씩, 2~5개 권장)</label>
+<textarea id="pollOptions" placeholder="한식&#10;중식&#10;일식&#10;양식"></textarea>
+
+<div class="btn-group">
+  <button type="button" onclick="generatePollCode()" style="flex:1;background:#4f46e5;color:#fff">코드 생성</button>
+</div>
+<div id="pollMsg"></div>
+<textarea id="pollOutput" readonly style="display:none;margin-top:10px"></textarea>
+<button type="button" id="pollCopyBtn" onclick="copyPollCode()" style="display:none;margin-top:8px">📋 복사</button>
 
 <script>
 const WORKER_API = "https://old-rain-16f7.lyh0929mm.workers.dev";
@@ -505,6 +537,85 @@ async function deletePost(id) {
     loadPosts();
   } catch (e) {
     alert(`네트워크 오류: ${e.message}`);
+  }
+}
+
+// ── 투표 주제 코드 생성 ──
+// [ADD] 투표(POLL_POOL)는 게시글과 달리 서버 DB가 아니라 vote-index.html 안의
+// 고정 배열이라, 여기서 직접 서버로 등록할 수는 없다. 대신 질문·선택지를 입력하면
+// 그 배열에 그대로 붙여넣을 수 있는 코드 조각을 만들어주기만 한다 — 실제 반영은
+// 생성된 코드를 vote-index.html에 붙여넣고 재배포해야 완료된다.
+function jsStringLiteral(s) {
+  return "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+}
+
+function generatePollCode() {
+  const msg = document.getElementById('pollMsg');
+  const outputEl = document.getElementById('pollOutput');
+  const copyBtn = document.getElementById('pollCopyBtn');
+  msg.className = '';
+  msg.textContent = '';
+  outputEl.style.display = 'none';
+  copyBtn.style.display = 'none';
+
+  const id = document.getElementById('pollId').value.trim();
+  const question = document.getElementById('pollQuestion').value.trim();
+  const options = document.getElementById('pollOptions').value
+    .split('\n')
+    .map(function (s) { return s.trim(); })
+    .filter(function (s) { return s; });
+
+  if (!id || !question || options.length < 2) {
+    msg.className = 'err';
+    msg.textContent = 'ID, 질문, 선택지 2개 이상을 모두 입력해주세요.';
+    return;
+  }
+  if (!/^[a-z][a-z0-9_]*$/.test(id)) {
+    msg.className = 'err';
+    msg.textContent = 'ID는 영문 소문자로 시작하고, 영문 소문자·숫자·언더바(_)만 사용해주세요. 예: poll_lunch_menu';
+    return;
+  }
+  if (options.length > 5) {
+    msg.className = 'err';
+    msg.textContent = '선택지는 5개 이하를 권장합니다. 너무 많으면 화면이 복잡해질 수 있어요.';
+    return;
+  }
+
+  const optsCode = options.map(jsStringLiteral).join(', ');
+  const code =
+    '            {\n' +
+    '                id: ' + jsStringLiteral(id) + ',\n' +
+    '                question: ' + jsStringLiteral(question) + ',\n' +
+    '                options: [' + optsCode + '],\n' +
+    '            },';
+
+  outputEl.value = code;
+  outputEl.style.display = 'block';
+  copyBtn.style.display = 'inline-block';
+  msg.className = 'ok';
+  msg.textContent = '코드가 생성됐습니다. 복사해서 vote-index.html의 POLL_POOL 배열 끝에 붙여넣어 주세요.';
+}
+
+function copyPollCode() {
+  const outputEl = document.getElementById('pollOutput');
+  const msg = document.getElementById('pollMsg');
+  const text = outputEl.value;
+
+  function showCopied() {
+    msg.className = 'ok';
+    msg.textContent = '복사되었습니다! vote-index.html에 붙여넣어 주세요.';
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+      outputEl.select();
+      document.execCommand('copy');
+      showCopied();
+    });
+  } else {
+    outputEl.select();
+    document.execCommand('copy');
+    showCopied();
   }
 }
 </script>
