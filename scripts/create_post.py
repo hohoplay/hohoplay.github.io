@@ -1672,6 +1672,8 @@ def comment_prompt(post_type='general'):
         'monthly':  "이달의 흐름이 어떠셨는지, 댓글로 남겨주시면 다음 달도 함께 살펴보겠습니다.",
         'quote':    "오늘 이 문장이 마음에 닿으셨다면, 댓글로 조용히 알려주시면 감사하겠습니다.",
         'omnibus':  "오늘 별과 띠의 조합이 어떻게 느껴지셨는지, 댓글로 남겨주시면 내일도 함께 살펴보겠습니다.",
+        'zodiac_combined':  "오늘 열두 별자리 이야기가 어떠셨는지, 댓글로 남겨주시면 내일도 함께 살펴보겠습니다.",
+        'chinese_combined': "오늘 열두 띠 이야기가 어떠셨는지, 댓글로 남겨주시면 내일도 함께 살펴보겠습니다.",
     }
     sentence = _sentences.get(post_type, _sentences['zodiac'])
     return f'<p style="font-size:13px;color:#9ca3af;margin:1.2rem 0 0;word-break:keep-all">{sentence}</p>'
@@ -1913,11 +1915,17 @@ _LABEL_URL = {
     "별과띠가만나는시간": ("✨ 별과 띠가 만나는 시간", "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EA%B3%BC%EB%9D%A0%EA%B0%80%EB%A7%8C%EB%82%98%EB%8A%94%EC%8B%9C%EA%B0%84", "#4c1d95,#7c3aed"),
     "오늘의명언":         ("💬 오늘의 명언",         "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%98%A4%EB%8A%98%EC%9D%98%EB%AA%85%EC%96%B8",       "#374151,#6b7280"),
     "운세상식":          ("📚 운세 상식",           "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9A%B4%EC%84%B8%EC%83%81%EC%8B%9D",               "#5b21b6,#8b5cf6"),
+    "별자리통합운세":     ("🌌 오늘의 별자리 이야기", "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%ED%86%B5%ED%95%A9%EC%9A%B4%EC%84%B8", "#1e3a5f,#2563eb"),
+    "띠통합운세":        ("🐾 오늘의 띠 이야기",     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%9D%A0%ED%86%B5%ED%95%A9%EC%9A%B4%EC%84%B8",       "#7c2d12,#ea580c"),
 }
 
-# create_post.py가 매일/매주/매달 발행하는 6개 포스팅 타입 — related_content_links()가
+# create_post.py가 매일/매주/매달 발행하는 포스팅 타입 — related_content_links()가
 # 이 목록에서 "자기 자신 타입"만 뺀 나머지 전부를 보여준다(운세상식은 항상 별도로 추가됨)
-_ALL_TYPES = ["별자리운세", "띠운세", "별자리주간", "띠별월간", "별과띠가만나는시간", "오늘의명언"]
+# ── 2026-09-27: 개별 12개씩 나가던 별자리/띠 운세를 매일 1개로 통합한 "이야기"형
+#    포스트(별자리통합운세/띠통합운세)를 추가 — 기존 개별 발행은 그대로 유지하면서
+#    발행량을 늘리지 않는 대안 접근 경로로 신설.
+_ALL_TYPES = ["별자리운세", "띠운세", "별자리주간", "띠별월간", "별과띠가만나는시간", "오늘의명언",
+              "별자리통합운세", "띠통합운세"]
 
 def related_content_links(own_type):
     """관련 콘텐츠 링크 카드 — own_type(지금 발행 중인 포스트 자신의 카테고리) 하나만
@@ -4550,6 +4558,280 @@ def build_omnibus_post(today_str: str) -> tuple:
     return title, content_html, labels, search_description
 
 
+# ═══════════════════════════════════════════════════════════════════
+# 별자리 통합운세 / 띠 통합운세 — "이야기"형 통합 포스트 (2026-09-27 신설)
+# ───────────────────────────────────────────────────────────────────
+# 배경: 지금까지 별자리 12개 + 띠 12개가 매일 각각 별도 포스트로 발행되어
+# 하루 발행량이 과도했음(애드센스 "가치가 별로 없는 콘텐츠" 반려의 원인 중 하나로 추정).
+# 기존 개별 포스트(build_zodiac_post/build_chinese_post, 검색 유입·URL)는 그대로 살려두고,
+# "열두 별자리/열두 띠를 한 번에 훑어보고 싶은" 독자를 위한 통합본을 카테고리당 1개씩
+# 추가로 발행한다 — main()의 예전 플레이스홀더(⑥ 운세SNS — 별자리 통합 1개 / ⑦ 운세SNS
+# — 띠 통합 1개)를 실제로 구현한 것.
+# 별과띠가만나는시간(build_omnibus_post)과 달리 별자리×띠 교차 조합은 다루지 않고,
+# 카테고리 하나만 다루는 "열두 챕터"짜리 짧은 이야기 형식이다.
+# ═══════════════════════════════════════════════════════════════════
+
+_ZODIAC_STORY_OPENINGS = [
+    "오늘 하늘에는 열두 개의 별이 각자 다른 목소리로 이야기를 건넵니다.",
+    "별자리 열두 개가 오늘 하루, 저마다의 속도로 이야기를 시작합니다.",
+    "오늘 밤, 열두 별자리가 들려주는 짧은 이야기를 한 자리에 모았습니다.",
+    "하루를 열기 전, 별들이 먼저 오늘의 흐름을 살짝 알려줍니다.",
+    "오늘은 어떤 별이 당신의 이야기와 닮아 있을까요. 열두 편의 이야기를 펼쳐봅니다.",
+]
+
+_ZODIAC_STORY_CLOSINGS = [
+    "오늘 하루도, 당신의 별이 함께합니다.",
+    "내일은 또 다른 별의 이야기가 펼쳐집니다. 오늘도 좋은 하루가 되시기 바랍니다.",
+    "열두 별이 전하는 이야기는 여기까지입니다. 편안한 하루를 보내시기 바랍니다.",
+    "오늘의 이야기가 작은 힌트가 되었기를 바랍니다.",
+    "당신의 오늘을, 별이 조용히 응원합니다.",
+]
+
+_CHINESE_STORY_OPENINGS = [
+    "오늘 오솔길에는 열두 띠가 저마다 다른 걸음으로 하루를 시작합니다.",
+    "열두 띠가 오늘 하루, 각자의 속도로 이야기를 펼쳐놓습니다.",
+    "오늘 밤, 열두 띠가 들려주는 짧은 이야기를 한 자리에 모았습니다.",
+    "하루를 열기 전, 열두 띠가 먼저 오늘의 흐름을 살짝 알려줍니다.",
+    "오늘은 어떤 띠의 이야기가 당신과 닮아 있을까요. 열두 편의 이야기를 펼쳐봅니다.",
+]
+
+_CHINESE_STORY_CLOSINGS = [
+    "오늘 하루도, 당신의 띠가 함께합니다.",
+    "내일은 또 다른 띠의 이야기가 펼쳐집니다. 오늘도 좋은 하루가 되시기 바랍니다.",
+    "열두 띠가 전하는 이야기는 여기까지입니다. 편안한 하루를 보내시기 바랍니다.",
+    "오늘의 이야기가 작은 힌트가 되었기를 바랍니다.",
+    "당신의 오늘을, 열두 띠가 조용히 응원합니다.",
+]
+
+_STORY_CONNECTORS = [
+    "이어서,", "그다음 이야기는,", "한편,", "같은 시각,", "조금 다른 결로,",
+    "또 다른 하늘 아래에서는,", "시선을 옮기면,", "바로 옆 이야기에서는,",
+    "이번에는,", "그리고 지금,", "다음 장에서는,", "잠시 후,",
+]
+
+_STORY_CSS = """<style>
+.novel-page{max-width:100%;margin:0 auto;padding:0 4px;font-family:'Noto Serif KR',Georgia,serif}
+.novel-date{font-size:11px;letter-spacing:0.12em;color:#9ca3af;text-align:center;margin-bottom:0.6rem}
+.novel-title{font-size:19px;font-weight:600;color:#1f2937;text-align:center;line-height:1.45;margin-bottom:0.2rem}
+.novel-subtitle{font-size:12px;text-align:center;color:#9ca3af;margin-bottom:1.2rem}
+.novel-part{font-size:10px;text-align:center;color:#c4b5fd;letter-spacing:0.1em;margin-top:0;margin-bottom:0.7rem;font-weight:600}
+.novel-rule{text-align:center;color:#d1d5db;letter-spacing:0.4em;margin:1.1rem 0;font-size:12px}
+.novel-opening{font-size:14px;line-height:1.85;color:#6b7280;margin-bottom:1rem;font-style:italic;padding:0 2px;word-break:keep-all}
+.novel-footer{margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid #f3f4f6;font-size:13px;color:#9ca3af;text-align:center;line-height:1.9;font-style:italic}
+</style>"""
+
+
+def _story_card(card_id, icon_title, subtitle, part_label, part_name, today_str, season,
+                 story_html, opening='', ending_insight='', ending_bridge='', ending_action='',
+                 closing='', save_slug='', show_opening=False, show_ending=False):
+    """별자리/띠 통합운세 공용 '한 장(novel-page)' 렌더러 — build_omnibus_post의
+    내부 클로저 _novel_card와 동일한 마크업을 카테고리 단일형으로 일반화한 버전."""
+    opening_html = f'<p class="novel-opening">{opening}</p>' if show_opening else ''
+    ending_html = f"""
+    <div style="margin:2.8rem 0 0 0">
+      <p style="font-size:12px;font-weight:700;color:#7c3aed;letter-spacing:0.12em;margin:0 0 0.8rem 0;">{icon_title}</p>
+      <p style="font-size:15.5px;line-height:2.05;color:#374151;margin:0 0 1.1rem 0;word-break:keep-all;font-weight:500;">{ending_insight}</p>
+      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.6rem 0;word-break:keep-all;">{ending_bridge}</p>
+      <p style="font-size:11px;color:#9ca3af;letter-spacing:0.14em;margin:0 0 0.5rem 0;font-weight:600;">오늘 단 하나만 한다면</p>
+      <p style="font-size:17px;font-weight:800;color:#4c1d95;word-break:keep-all;line-height:1.6;margin:0 0 1.6rem 0;">❝ {ending_action} ❞</p>
+    </div>
+    <div class="novel-footer">{closing}</div>
+""" if show_ending else ''
+    save_btn_html = (
+        f'<button id="savebtn-{card_id}" class="save-btn"'
+        f' onclick="saveFortuneCard(\'{card_id}\', \'{save_slug}_{part_label}_{today_str}\')">📸 이미지 저장</button>'
+    ) if (show_ending or show_opening) else ''
+
+    return f"""
+  <div class="novel-page" id="{card_id}">
+    <div class="novel-date">{today_str} · {season}</div>
+    <h1 class="novel-title">{icon_title}</h1>
+    <p class="novel-subtitle">{subtitle}</p>
+    <h2 class="novel-part">{part_label} · {part_name}</h2>
+    <div class="novel-rule">&middot; &middot; &middot;</div>
+    {opening_html}
+    <div style="font-size:14.5px;line-height:1.95;color:#374151;word-break:keep-all;background:none">
+{story_html}
+    </div>
+    <div class="novel-rule">&middot; &middot; &middot;</div>
+    {ending_html}
+  </div>
+  {save_btn_html}
+  <div style="margin:24px 0 8px 0"></div>
+"""
+
+
+def build_zodiac_combined_post(today_str):
+    """
+    "오늘의 별자리 이야기" — 열두 별자리 운세를 하루 1개, 스토리텔링 형식으로 통합.
+    기존 build_zodiac_post(개별 12개)는 그대로 유지 — 이 함수는 추가 발행분이다.
+    라벨: 별자리통합운세
+    """
+    kst_dt  = now_kst()
+    season  = _season_backdrop(kst_dt)
+    opening = random.choice(_ZODIAC_STORY_OPENINGS)
+    closing = random.choice(_ZODIAC_STORY_CLOSINGS)
+
+    _day_idx = kst_dt.day % len(_COMMON_ENDINGS)
+    _ending  = _COMMON_ENDINGS[_day_idx]
+
+    title = f"🌌 오늘의 별자리 이야기 {today_str} — 열두 별자리가 전하는 하루"
+
+    paragraphs = []
+    for i, z in enumerate(ZODIACS):
+        raw       = zodiac_fortune(z['kr'])
+        core      = _extract_core_sentence(raw)
+        item      = pick_lucky_item(z['kr'])
+        color     = pick_color()
+        number    = pick_number()
+        connector = _STORY_CONNECTORS[(kst_dt.day + i) % len(_STORY_CONNECTORS)]
+        para = (
+            f'{connector} <b>{z["kr"]}</b>입니다. {core} '
+            f'오늘의 행운의 아이템은 {item}, 행운의 색은 {color}, 행운의 숫자는 {number}입니다.'
+        )
+        paragraphs.append(f'<p style="margin:0 0 1.2em 0;text-indent:0">{para}</p>')
+
+    paras_1, paras_2 = paragraphs[0:6], paragraphs[6:12]
+    for paras in (paras_1, paras_2):
+        paras[0] = paras[0].replace(
+            '<p style="margin:0 0 1.2em 0;text-indent:0">',
+            '<p style="margin:0 0 1.2em 0;text-indent:0" class="drop-cap-p">', 1
+        )
+    story_1, story_2 = "\n".join(paras_1), "\n".join(paras_2)
+
+    z_names     = [z['kr'] for z in ZODIACS]
+    part_names  = ["·".join(z_names[0:6]), "·".join(z_names[6:12])]
+    part_labels = ["첫 번째 이야기", "마지막 이야기"]
+
+    date_slug = today_str.replace(' ','').replace('년','').replace('월','').replace('일','')
+    card_ids  = [f"zodiaccombo-{i+1}-{date_slug}" for i in range(2)]
+
+    quote_clean = _plain(str(pick_quote()[0]), 120)
+    kw_tags = (
+        ["오늘의별자리이야기", "별자리운세", "오늘운세", today_str,
+         "별자리통합운세", "열두별자리", "무료운세", "운세2026"] + z_names
+    )
+    tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_tags)
+
+    content_html = f"""{style()}
+{_STORY_CSS}
+
+<div class="wrap">
+
+{_story_card(card_ids[0], "🌌 오늘의 별자리 이야기", "열두 별자리가 전하는 하루",
+             part_labels[0], part_names[0], today_str, season, story_1,
+             opening=opening, save_slug="오늘의별자리이야기", show_opening=True)}
+{_story_card(card_ids[1], "🌌 오늘 열두 별자리가 전하는 말", "열두 별자리가 전하는 하루",
+             part_labels[1], part_names[1], today_str, season, story_2,
+             ending_insight=_ending["insight"], ending_bridge=_ending["bridge"],
+             ending_action=_ending["action"], closing=closing,
+             save_slug="오늘의별자리이야기", show_ending=True)}
+
+  <div class="card" style="margin-top:12px">
+    <span class="badge">💬 오늘의 한 마디</span>
+    <p style="font-size:14px;line-height:1.85;color:#6b7280;margin-top:8px">{quote_clean}</p>
+  </div>
+
+  <div class="card">
+    <span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html}</div>
+  </div>
+
+  {related_content_links("별자리통합운세")}
+
+  {comment_prompt("zodiac_combined")}
+  {site_link()}
+  <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매일 업데이트</div>
+</div>"""
+    labels = ["별자리통합운세", "별자리운세", "운세", "오늘운세"]
+    search_description = _plain(f"{today_str} 열두 별자리가 전하는 오늘의 이야기 — {quote_clean}", 155)
+    return title, content_html, labels, search_description
+
+
+def build_chinese_combined_post(today_str):
+    """
+    "오늘의 띠 이야기" — 열두 띠 운세를 하루 1개, 스토리텔링 형식으로 통합.
+    기존 build_chinese_post(개별 12개)는 그대로 유지 — 이 함수는 추가 발행분이다.
+    라벨: 띠통합운세
+    """
+    kst_dt  = now_kst()
+    season  = _season_backdrop(kst_dt)
+    opening = random.choice(_CHINESE_STORY_OPENINGS)
+    closing = random.choice(_CHINESE_STORY_CLOSINGS)
+
+    _day_idx = kst_dt.day % len(_COMMON_ENDINGS)
+    _ending  = _COMMON_ENDINGS[_day_idx]
+
+    title = f"🐾 오늘의 띠 이야기 {today_str} — 열두 띠가 전하는 하루"
+
+    paragraphs = []
+    for i, c in enumerate(CHINESE):
+        raw       = chinese_fortune(c['en'])
+        core      = _extract_core_sentence(raw)
+        compat    = get_compat(c['en'])
+        best_kr   = compat.get('best', ('', '', ''))[1]
+        connector = _STORY_CONNECTORS[(kst_dt.day + i) % len(_STORY_CONNECTORS)]
+        compat_txt = f' 오늘은 {best_kr}와(과)의 궁합이 특히 좋습니다.' if best_kr else ''
+        para = f'{connector} <b>{c["kr"]}</b>입니다. {core}{compat_txt}'
+        paragraphs.append(f'<p style="margin:0 0 1.2em 0;text-indent:0">{para}</p>')
+
+    paras_1, paras_2 = paragraphs[0:6], paragraphs[6:12]
+    for paras in (paras_1, paras_2):
+        paras[0] = paras[0].replace(
+            '<p style="margin:0 0 1.2em 0;text-indent:0">',
+            '<p style="margin:0 0 1.2em 0;text-indent:0" class="drop-cap-p">', 1
+        )
+    story_1, story_2 = "\n".join(paras_1), "\n".join(paras_2)
+
+    c_names     = [c['kr'] for c in CHINESE]
+    part_names  = ["·".join(c_names[0:6]), "·".join(c_names[6:12])]
+    part_labels = ["첫 번째 이야기", "마지막 이야기"]
+
+    date_slug = today_str.replace(' ','').replace('년','').replace('월','').replace('일','')
+    card_ids  = [f"chinesecombo-{i+1}-{date_slug}" for i in range(2)]
+
+    quote_clean = _plain(str(pick_quote()[0]), 120)
+    kw_tags = (
+        ["오늘의띠이야기", "띠운세", "오늘운세", today_str,
+         "띠통합운세", "열두띠", "무료운세", "운세2026"] + c_names
+    )
+    tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_tags)
+
+    content_html = f"""{style()}
+{_STORY_CSS}
+
+<div class="wrap">
+
+{_story_card(card_ids[0], "🐾 오늘의 띠 이야기", "열두 띠가 전하는 하루",
+             part_labels[0], part_names[0], today_str, season, story_1,
+             opening=opening, save_slug="오늘의띠이야기", show_opening=True)}
+{_story_card(card_ids[1], "🐾 오늘 열두 띠가 전하는 말", "열두 띠가 전하는 하루",
+             part_labels[1], part_names[1], today_str, season, story_2,
+             ending_insight=_ending["insight"], ending_bridge=_ending["bridge"],
+             ending_action=_ending["action"], closing=closing,
+             save_slug="오늘의띠이야기", show_ending=True)}
+
+  <div class="card" style="margin-top:12px">
+    <span class="badge">💬 오늘의 한 마디</span>
+    <p style="font-size:14px;line-height:1.85;color:#6b7280;margin-top:8px">{quote_clean}</p>
+  </div>
+
+  <div class="card">
+    <span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html}</div>
+  </div>
+
+  {related_content_links("띠통합운세")}
+
+  {comment_prompt("chinese_combined")}
+  {site_link()}
+  <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매일 업데이트</div>
+</div>"""
+    labels = ["띠통합운세", "띠운세", "운세", "오늘운세"]
+    search_description = _plain(f"{today_str} 열두 띠가 전하는 오늘의 이야기 — {quote_clean}", 155)
+    return title, content_html, labels, search_description
+
+
 # ─────────────────────────────────────────
 # Blogger API 인증 설정
 # ─────────────────────────────────────────
@@ -4716,6 +4998,8 @@ _LABEL_TYPE_CODE = {
     "별자리주간":         "03",
     "띠별월간":          "04",
     "별과띠가만나는시간": "05",
+    "별자리통합운세":     "06",
+    "띠통합운세":        "07",
 }
 
 QUOTE_STATE_PATH = os.path.join(DATA, "quote_state.json")
@@ -4856,7 +5140,9 @@ def post_blogger(title, content, labels, description, idx, total):
 # ─────────────────────────────────────────
 
 # ─────────────────────────────────────────
-# ⑥ 운세SNS — 별자리 12개 통합 (간결 카드형)
+# ⑥⑦ 운세SNS — 별자리/띠 통합 1개씩 (스토리텔링형)
+#     실제 구현: build_zodiac_combined_post() / build_chinese_combined_post()
+#     (2026-09-27 신설, main() 안 ⑥⑦ 자리에서 호출)
 # ─────────────────────────────────────────
 
 def main():
@@ -4973,9 +5259,11 @@ def main():
     for c in CHINESE:
         posts.append(build_chinese_post(c, today_str))
 
-    # ⑥ 운세SNS — 별자리 통합 1개 (매일)
+    # ⑥ 운세SNS — 별자리 통합 1개 (매일, 기존 개별 12개는 그대로 유지)
+    posts.append(build_zodiac_combined_post(today_str))
 
-    # ⑦ 운세SNS — 띠 통합 1개 (매일)
+    # ⑦ 운세SNS — 띠 통합 1개 (매일, 기존 개별 12개는 그대로 유지)
+    posts.append(build_chinese_combined_post(today_str))
 
     # ⑧ 별자리가 만나는 시간 — 옴니버스 스토리텔링 1개 (매일)
     posts.append(build_omnibus_post(today_str))
@@ -5012,7 +5300,7 @@ def main():
     weekly  = "별자리주간 12 + " if kst_now.weekday() == 0 else ""
     monthly = "띠별월간 12 + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
-    print(f"구성: {quote}별자리 12 + 띠 12 + 별과띠가만나는시간 1 + {weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
+    print(f"구성: {quote}별자리 12 + 띠 12 + 별자리통합 1 + 띠통합 1 + 별과띠가만나는시간 1 + {weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
 
     success = 0
     for i, (title, content, labels, description) in enumerate(posts, 1):
