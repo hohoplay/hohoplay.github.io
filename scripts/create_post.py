@@ -3061,6 +3061,17 @@ def build_zodiac_post(z, today_str):
         f"{z['kr']} {today_dot} 오늘의 운세 — {signal_kw}. "
         f"애정 {love}점·금전 {money}점·업무 {work_score}점. {action}", 155
     )
+    try:
+        _yyyy, _mm, _dd = kst_now.strftime("%Y"), kst_now.strftime("%m"), kst_now.strftime("%d")
+        _slug = f"02{_ZODIAC_CODE.get(z['kr'], '00')}-{_yyyy}-{_mm}-{_dd}"
+        _FORTUNE_FEED["star"][z['kr']] = {
+            "text": search_description,
+            "luckyItem": lucky_item,
+            "luckyColor": lucky_color,
+            "url": f"https://www.dailyhoroblog.com/{_yyyy}/{_mm}/{_slug}.html",
+        }
+    except Exception:
+        pass
     return title, content, ["별자리운세", z['kr'], "운세", "오늘운세", "noindex-daily"], search_description
 
 
@@ -3434,6 +3445,15 @@ def build_chinese_post(c, today_str):
         f"{c['kr']} {today_sync} 오늘의 운세 — {signal}. "
         f"애정 {love}점·금전 {money}점·건강 {health}점. {action}", 155
     )
+    try:
+        _yyyy, _mm, _dd = kst_now.strftime("%Y"), kst_now.strftime("%m"), kst_now.strftime("%d")
+        _slug = f"01{_ANIMAL_CODE.get(c['kr'], '00')}-{_yyyy}-{_mm}-{_dd}"
+        _FORTUNE_FEED["zodiac"][c['kr'].replace('띠', '')] = {
+            "text": search_description,
+            "url": f"https://www.dailyhoroblog.com/{_yyyy}/{_mm}/{_slug}.html",
+        }
+    except Exception:
+        pass
     return title, content, ["띠운세", c['kr'], "운세", "오늘운세", "noindex-daily"], search_description
 
 
@@ -5145,6 +5165,27 @@ def post_blogger(title, content, labels, description, idx, total):
 #     (2026-09-27 신설, main() 안 ⑥⑦ 자리에서 호출)
 # ─────────────────────────────────────────
 
+# ─────────────────────────────────────────
+# 오늘의 띠운세/별자리운세 요약 피드 (샵콜 등 외부 서비스 연동용)
+#   build_zodiac_post()/build_chinese_post()가 실제 발행 문구를 만들 때
+#   같은 값(행운의 아이템/색, 요약문, 실제 게시글 URL)을 여기에도 채워두고,
+#   main() 끝에서 data/fortune_feed.json으로 저장한다.
+#   raw.githubusercontent.com/hohoplay/hohoplay.github.io/main/data/fortune_feed.json
+#   로 CORS 문제 없이 외부에서 바로 fetch 가능 (이미지 URL과 같은 방식).
+#   실패해도 기존 포스팅 로직에는 영향 없음(전부 try/except로 무시).
+# ─────────────────────────────────────────
+_FORTUNE_FEED = {"date": "", "zodiac": {}, "star": {}}
+
+def _save_fortune_feed():
+    try:
+        _FORTUNE_FEED["date"] = now_kst().strftime("%Y-%m-%d")
+        os.makedirs(DATA, exist_ok=True)
+        with open(os.path.join(DATA, "fortune_feed.json"), "w", encoding="utf-8") as f:
+            json.dump(_FORTUNE_FEED, f, ensure_ascii=False, indent=2)
+        print(f"🔮 fortune_feed.json 저장 완료 (zodiac {len(_FORTUNE_FEED['zodiac'])}개 · star {len(_FORTUNE_FEED['star'])}개)")
+    except Exception as e:
+        print(f"⚠️  fortune_feed.json 저장 실패(무시): {e}")
+
 def main():
     global _EXISTING_TITLES
     today_str = now_kst().strftime("%Y년 %m월 %d일")
@@ -5307,6 +5348,7 @@ def main():
         if post_blogger(title, content, labels, description, i, total):
             success += 1
 
+    _save_fortune_feed()
     print(f"\n✅ 완료: {success}/{total}개 게시 성공")
 
 if __name__ == "__main__":
