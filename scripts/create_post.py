@@ -1162,6 +1162,64 @@ def _plain_paragraphs(html_str):
     return '\n\n'.join(paragraphs)
 
 
+def _extract_fortune_message(html_str):
+    """story_html에서 "💭 오늘의 핵심 메시지" 박스(z-today/c-today)의 본문 한 줄만 뽑는다."""
+    if not html_str:
+        return ""
+    m = _re.search(r'<div class="[zc]-today">(.*?)</div>', str(html_str), _re.DOTALL)
+    if not m:
+        return ""
+    p_m = _re.search(r'<p>(.*?)</p>', m.group(1), _re.DOTALL)
+    return _plain(p_m.group(1)) if p_m else ""
+
+
+def _extract_fortune_sections(html_str):
+    """story_html의 각 "z-section ●●●"/"c-section ●●●" 박스(총운·애정운·금전운·업무운·
+    운세흐름·궁합 등)를 {icon, title, text} 리스트로 뽑는다. 출생연도별 표(years)는
+    팝업에 넣기엔 너무 길어서 제외한다. 이 박스들은 안에 다른 div가 중첩되지 않는다는
+    전제로 정규식만으로 안전하게 자를 수 있다(story_html 자체를 건드리지 않으므로
+    블로그에 실제로 올라가는 글에는 아무 영향이 없다)."""
+    if not html_str:
+        return []
+    s = str(html_str)
+    sections = []
+    for m in _re.finditer(r'<div class="[zc]-section (\w+)">(.*?)</div>', s, _re.DOTALL):
+        name, body = m.group(1), m.group(2)
+        if name == 'years':
+            continue
+        h2_m = _re.search(r'<h2>(.*?)</h2>', body, _re.DOTALL)
+        icon_m = _re.search(r'<span class="z-icon">(.*?)</span>', body)
+        icon = icon_m.group(1) if icon_m else ""
+        title = _plain(h2_m.group(1)) if h2_m else ""
+        if icon and title.startswith(icon):
+            title = title[len(icon):].strip()
+        rest = _re.sub(r'<h2>.*?</h2>', '', body, count=1, flags=_re.DOTALL)
+        text = _plain_paragraphs(rest)
+        if title or text:
+            sections.append({"icon": icon, "title": title, "text": text})
+    return sections
+
+
+def _extract_fortune_quote(html_str):
+    """story_html의 "📖 오늘 이 흐름에 어울리는 말" 인용 박스(z-quote-block/c-quote-block)를
+    {text, author, profession} 딕셔너리로 뽑는다. 없으면 None."""
+    if not html_str:
+        return None
+    m = _re.search(r'<div class="[zc]-quote-block">(.*?)</div>', str(html_str), _re.DOTALL)
+    if not m:
+        return None
+    block = m.group(1)
+    q_m = _re.search(r'<p class="[zc]-quote-text">"(.*?)"</p>', block, _re.DOTALL)
+    a_m = _re.search(r'<p class="[zc]-quote-author">—\s*(.*?)\s*\((.*?)\)</p>', block, _re.DOTALL)
+    if not q_m:
+        return None
+    return {
+        "text": _plain(q_m.group(1)),
+        "author": _plain(a_m.group(1)) if a_m else "",
+        "profession": _plain(a_m.group(2)) if a_m else "",
+    }
+
+
 def _extract_core_sentence(raw, max_len=90):
     """운세 원문에서 핵심 문장 한 개를 추출 (HTML 제거 후 첫 문단의 첫 문장)"""
     if not raw:
@@ -3095,6 +3153,9 @@ def build_zodiac_post(z, today_str):
         _FORTUNE_FEED["star"][z['kr']] = {
             "text": search_description,
             "full": _plain_paragraphs(story_html),
+            "message": _extract_fortune_message(story_html),
+            "sections": _extract_fortune_sections(story_html),
+            "quote": _extract_fortune_quote(story_html),
             "luckyItem": lucky_item,
             "luckyColor": lucky_color,
             "url": f"https://www.dailyhoroblog.com/{_yyyy}/{_mm}/{_slug}.html",
@@ -3480,6 +3541,9 @@ def build_chinese_post(c, today_str):
         _FORTUNE_FEED["zodiac"][c['kr'].replace('띠', '')] = {
             "text": search_description,
             "full": _plain_paragraphs(story_html),
+            "message": _extract_fortune_message(story_html),
+            "sections": _extract_fortune_sections(story_html),
+            "quote": _extract_fortune_quote(story_html),
             "url": f"https://www.dailyhoroblog.com/{_yyyy}/{_mm}/{_slug}.html",
         }
     except Exception:
