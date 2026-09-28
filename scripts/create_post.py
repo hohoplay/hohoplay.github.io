@@ -1134,6 +1134,34 @@ def _plain(text, max_len=None):
     return clean
 
 
+def _plain_paragraphs(html_str):
+    """story_html(스타일 붙은 HTML)을 샵콜 팝업에 넣기 좋은 문단 단위 평문으로 변환.
+    <br>/</p>/</div>/<h2> 등 블록 경계를 문단 구분(빈 줄)으로 바꾼 뒤 태그를 전부 제거한다."""
+    if not html_str:
+        return ""
+    s = str(html_str)
+    s = _re.sub(r'<br\s*/?>', '\n', s)
+    s = _re.sub(r'</span>', '\n', s)
+    s = _re.sub(r'</(p|div|h1|h2|h3|h4|li)>', '\n\n', s)
+    s = _re.sub(r'<[^>]+>', '', s)
+    s = (s.replace('&nbsp;', ' ').replace('&amp;', '&')
+           .replace('&quot;', '"').replace('&#39;', "'"))
+    paragraphs, buf = [], []
+    for raw_line in s.split('\n'):
+        ln = raw_line.strip()
+        if ln == '':
+            if buf:
+                paragraphs.append(' '.join(buf).strip())
+                buf = []
+        else:
+            buf.append(ln)
+    if buf:
+        paragraphs.append(' '.join(buf).strip())
+    # 숨김 마커/빈 문단 제거
+    paragraphs = [p for p in paragraphs if p and p != '오늘의 흐름']
+    return '\n\n'.join(paragraphs)
+
+
 def _extract_core_sentence(raw, max_len=90):
     """운세 원문에서 핵심 문장 한 개를 추출 (HTML 제거 후 첫 문단의 첫 문장)"""
     if not raw:
@@ -3066,6 +3094,7 @@ def build_zodiac_post(z, today_str):
         _slug = f"02{_ZODIAC_CODE.get(z['kr'], '00')}-{_yyyy}-{_mm}-{_dd}"
         _FORTUNE_FEED["star"][z['kr']] = {
             "text": search_description,
+            "full": _plain_paragraphs(story_html),
             "luckyItem": lucky_item,
             "luckyColor": lucky_color,
             "url": f"https://www.dailyhoroblog.com/{_yyyy}/{_mm}/{_slug}.html",
@@ -3450,6 +3479,7 @@ def build_chinese_post(c, today_str):
         _slug = f"01{_ANIMAL_CODE.get(c['kr'], '00')}-{_yyyy}-{_mm}-{_dd}"
         _FORTUNE_FEED["zodiac"][c['kr'].replace('띠', '')] = {
             "text": search_description,
+            "full": _plain_paragraphs(story_html),
             "url": f"https://www.dailyhoroblog.com/{_yyyy}/{_mm}/{_slug}.html",
         }
     except Exception:
