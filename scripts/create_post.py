@@ -5118,6 +5118,10 @@ _LABEL_TYPE_CODE = {
 
 QUOTE_STATE_PATH = os.path.join(DATA, "quote_state.json")
 
+# 한글 제목 PATCH가 재시도 끝에도 실패한 포스트들 — (post_id, 실제 제목, idx) 기록.
+# main() 끝에서 한 번 더 여유를 두고 복구를 시도한다.
+_FAILED_TITLE_PATCHES = []
+
 def _load_quote_state():
     """오늘의명언 슬러그 순차번호 상태 로드 — 파일이 없으면 1로 시작하는 10001부터."""
     if os.path.exists(QUOTE_STATE_PATH):
@@ -5218,30 +5222,42 @@ def post_blogger(title, content, labels, description, idx, total):
     # 영어 제목으로 만들었다면, 실제 한글 제목으로 수정 — URL(슬러그)은 그대로 유지됨
     # (2026-09-11: 재시도 없이 1회만 시도하다 순간 실패로 제목이 숫자로 남는 사례 발견 →
     #  POST와 동일하게 최대 2회까지 재시도하도록 보강)
+    # (2026-09-28: 429가 아닌 다른 실패(순간적인 5xx 등)는 재시도 없이 바로 포기하던
+    #  구멍 발견 — "0500-2026-09-28"처럼 숫자 슬러그가 화면 제목으로 남는 사례 재발.
+    #  → 상태코드 종류 상관없이 4회까지, 대기시간도 점점 늘려가며 재시도하도록 보강.
+    #  그래도 끝내 실패하면 _FAILED_TITLE_PATCHES에 기록해 main() 끝에서 한 번 더 복구 시도.)
     if slug_title:
-        for patch_attempt in range(1, 3):
+        patch_backoffs = [10, 20, 40, 60]
+        patch_ok = False
+        for patch_attempt in range(1, 5):
             try:
                 patch_resp = requests.patch(f"{url}{post_id}",
                     headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
                     json={"title": title}
                 )
                 if patch_resp.status_code == 200:
+                    patch_ok = True
                     break
-                elif patch_resp.status_code == 429 and patch_attempt < 2:
-                    print(f"[{idx:02d}/{total}] ⏳ 제목 수정 429 — 30초 대기 후 재시도")
-                    time.sleep(30)
+                elif patch_attempt < 4:
+                    wait = patch_backoffs[patch_attempt - 1]
+                    print(f"[{idx:02d}/{total}] ⏳ 제목 수정 실패({patch_resp.status_code}) "
+                          f"— {wait}초 대기 후 재시도 ({patch_attempt}/4)")
+                    time.sleep(wait)
                     continue
                 else:
-                    print(f"[{idx:02d}/{total}] ⚠️ 한글 제목으로 수정 실패({patch_resp.status_code}) "
-                          f"— URL은 정상이나 화면 제목이 숫자 슬러그로 남았을 수 있음, 수동 확인 필요")
-                    break
+                    print(f"[{idx:02d}/{total}] ⚠️ 한글 제목으로 수정 실패({patch_resp.status_code}, 4회 재시도 후) "
+                          f"— URL은 정상이나 화면 제목이 숫자 슬러그로 남음, 복구 재시도 예약")
             except Exception as e:
-                if patch_attempt < 2:
-                    print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류, 재시도: {e}")
-                    time.sleep(10)
+                if patch_attempt < 4:
+                    wait = patch_backoffs[patch_attempt - 1]
+                    print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류, {wait}초 후 재시도: {e}")
+                    time.sleep(wait)
                     continue
-                print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류(재시도 후에도 실패): {e} "
-                      f"— URL은 정상이나 화면 제목이 숫자 슬러그로 남았을 수 있음, 수동 확인 필요")
+                print(f"[{idx:02d}/{total}] ⚠️ 제목 수정 요청 중 오류(4회 재시도 후에도 실패): {e} "
+                      f"— URL은 정상이나 화면 제목이 숫자 슬러그로 남음, 복구 재시도 예약")
+
+        if not patch_ok:
+            _FAILED_TITLE_PATCHES.append((post_id, title, idx))
 
     print(f"[{idx:02d}/{total}] ✅ {title[:45]}  →  200")
     _EXISTING_TITLES.add(title)
@@ -5444,6 +5460,34 @@ def main():
 
     _save_fortune_feed()
     print(f"\n✅ 완료: {success}/{total}개 게시 성공")
+
+    # 한글 제목 PATCH가 끝내 실패해 숫자 슬러그가 화면 제목으로 남은 포스트가 있으면,
+    # 전체 발행이 끝난 뒤 한 번 더(쿼터/일시 장애가 풀렸을 수 있으니) 넉넉하게 재시도한다.
+    if _FAILED_TITLE_PATCHES and BLOG_ID and ACCESS_TOKEN:
+        print(f"\n🔧 제목 복구 재시도 — {len(_FAILED_TITLE_PATCHES)}건")
+        url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
+        still_broken = []
+        for post_id, real_title, idx in _FAILED_TITLE_PATCHES:
+            fixed = False
+            for attempt in range(1, 4):
+                try:
+                    resp = requests.patch(f"{url}{post_id}",
+                        headers={"Authorization": f"Bearer {ACCESS_TOKEN}", "Content-Type": "application/json"},
+                        json={"title": real_title}
+                    )
+                    if resp.status_code == 200:
+                        print(f"   ✅ [{idx:02d}] 제목 복구 성공 — {real_title[:45]}")
+                        fixed = True
+                        break
+                    time.sleep(30)
+                except Exception:
+                    time.sleep(30)
+            if not fixed:
+                still_broken.append((post_id, real_title))
+        if still_broken:
+            print(f"\n⚠️ 끝내 복구 못 한 제목 {len(still_broken)}건 — Blogger에서 직접 수정 필요:")
+            for post_id, real_title in still_broken:
+                print(f"   post_id={post_id}  →  {real_title}")
 
 if __name__ == "__main__":
     main()
