@@ -258,6 +258,27 @@
             </div>
 
 </div>
+
+<div id="hoho-pick-guide-placeholder" style="margin-top:24px;"></div>
+<script>
+(function(){
+    var ph = document.getElementById('hoho-pick-guide-placeholder');
+    if (!ph) return;
+    fetch('/hoho-pick-guide.html').then(function(r){ return r.text(); }).then(function(html){
+        ph.innerHTML = html;
+        var scripts = ph.querySelectorAll('script');
+        for (var i = 0; i < scripts.length; i++) {
+            var old = scripts[i];
+            var s = document.createElement('script');
+            for (var j = 0; j < old.attributes.length; j++) {
+                s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+            }
+            s.textContent = old.textContent;
+            old.parentNode.replaceChild(s, old);
+        }
+    }).catch(function(){});
+})();
+</script>
     </main>
 
     <div id="footer-placeholder"></div>
