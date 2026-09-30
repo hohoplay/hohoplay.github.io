@@ -156,6 +156,7 @@
         </div>
 
         <div id="polls-container" class="flex flex-col gap-6"></div>
+        <div id="polls-pager" class="flex flex-wrap justify-center gap-2 mt-8"></div>
 
     <section style="max-width:56rem;margin:24px auto 0;padding:0 16px">
         <div style="padding:16px;background:#f8fafc;border-radius:16px;text-align:center">
@@ -523,16 +524,11 @@
     <script>
         // [FIX] 투표 주제는 더 이상 이 파일 안에 하드코딩하지 않습니다. writer.html의
         // "📊 투표 주제 관리" 화면에서 등록하면 서버(D1)에 저장되고, 이 페이지는 매번
-        // /polls 목록을 받아와서 아래의 주간 순환 로직(POLLS_PER_WEEK)을 그대로 적용합니다.
-        const POLLS_PER_WEEK = 3;
-
-        function getWeekIndex() {
-            const d = new Date();
-            const start = new Date(d.getFullYear(), 0, 1);
-            const days = Math.floor((d - start) / 86400000);
-            const week = Math.ceil((days + start.getDay() + 1) / 7);
-            return d.getFullYear() * 100 + week;
-        }
+        // /polls 목록을 받아옵니다.
+        // [FIX] 예전엔 매주 3개씩만 순환해서 보여줬는데, 등록된 투표 전체를 다 보여주는
+        // 방식으로 바꿨습니다. 대신 5개가 넘어가면 화면이 너무 길어지지 않도록 페이지를
+        // 나눠서 보여줍니다(관리자 화면인 writer.html의 투표 목록과 같은 방식).
+        const POLLS_PAGE_SIZE = 5;
 
         const VOTE_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/polls';
 
@@ -606,7 +602,7 @@
         }
 
         async function submitVote(pollId, optionIndex) {
-            const poll = POLLS.find(p => p.id === pollId);
+            const poll = allPolls.find(p => p.id === pollId);
             const body = document.querySelector('#poll-' + pollId + ' .poll-body');
             body.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:10px 0">투표 중...</div>';
             try {
@@ -622,35 +618,64 @@
             }
         }
 
-        // [FIX] 예전에는 POLL_POOL(하드코딩 배열)을 바로 잘라서 썼지만, 이제는 서버에서
-        // 등록된 목록을 받아온 뒤 같은 방식(주간 순환)으로 자릅니다.
-        let POLLS = [];
+        // [FIX] 예전에는 POLL_POOL(하드코딩 배열)에서 매주 3개만 잘라서 보여줬지만,
+        // 이제는 서버에 등록된 투표 전체를 보여줍니다. 5개가 넘으면 아래쪽에 페이지
+        // 번호가 생기고, 한 페이지엔 최대 5개까지만 표시됩니다.
+        let allPolls = [];
+        let currentPage = 1;
 
         async function initPolls() {
             const container = document.getElementById('polls-container');
             try {
                 const res = await fetch(VOTE_API + '?_=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
-                const pool = data.polls || [];
+                allPolls = data.polls || [];
 
-                if (pool.length === 0) {
+                if (allPolls.length === 0) {
                     container.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:14px;padding:20px 0">등록된 투표가 없습니다.</div>';
                     return;
                 }
 
-                const totalSets = Math.max(1, Math.floor(pool.length / POLLS_PER_WEEK));
-                const weekIdx = getWeekIndex() % totalSets;
-                POLLS = pool.slice(weekIdx * POLLS_PER_WEEK, weekIdx * POLLS_PER_WEEK + POLLS_PER_WEEK);
-                if (POLLS.length === 0) POLLS = pool.slice(0, POLLS_PER_WEEK);
-
-                POLLS.forEach(poll => {
-                    const card = renderPollCard(poll);
-                    container.appendChild(card);
-                    loadPoll(poll);
-                });
+                renderPollsPage();
             } catch (e) {
                 container.innerHTML = '<div style="text-align:center;color:#f87171;font-size:14px;padding:20px 0">투표 목록을 불러오지 못했어요.</div>';
             }
+        }
+
+        function renderPollsPage() {
+            const container = document.getElementById('polls-container');
+            const pagerEl = document.getElementById('polls-pager');
+            const totalPages = Math.max(1, Math.ceil(allPolls.length / POLLS_PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * POLLS_PAGE_SIZE;
+            const pagePolls = allPolls.slice(start, start + POLLS_PAGE_SIZE);
+
+            container.innerHTML = '';
+            pagePolls.forEach(poll => {
+                const card = renderPollCard(poll);
+                container.appendChild(card);
+                loadPoll(poll);
+            });
+
+            if (allPolls.length <= POLLS_PAGE_SIZE) {
+                pagerEl.innerHTML = '';
+                return;
+            }
+
+            let buttons = '';
+            for (let p = 1; p <= totalPages; p++) {
+                const isActive = p === currentPage;
+                buttons += `<button onclick="goToPage(${p})" class="${isActive ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}" style="padding:8px 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">${p}</button>`;
+            }
+            pagerEl.innerHTML = buttons;
+        }
+
+        function goToPage(p) {
+            currentPage = p;
+            renderPollsPage();
+            document.getElementById('polls-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         initPolls();
