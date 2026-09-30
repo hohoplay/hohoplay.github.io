@@ -107,6 +107,7 @@ body { font-family: 'Noto Sans KR', sans-serif; }
 <h1 style="font-size:1.6rem;font-weight:900;margin-bottom:6px">📖 호호 매거진</h1>
 <p class="intro">호호플레이(HOHO PLAY)의 호호 매거진 게시글을 모아봅니다.</p>
 <ul class="post-list">
+<li><a class="post-item" href="/blog/magazine/20.html"><div class="post-title">[게임 상식] 2048부터 스도쿠까지: 조합 숫자 퍼즐 게임의 역사와 규칙의 진화</div><div class="post-meta"><span>2026.09.30</span><span>👤 HOHO PLAY</span></div></a></li>
 <li><a class="post-item" href="/blog/magazine/16.html"><div class="post-title">[게임 상식] 마작 패에서 PC·모바일 국민 게임으로: 사천성(Shisen-Sho) 게임의 역사와 발전</div><div class="post-meta"><span>2026.09.28</span><span>👤 HOHO PLAY</span></div></a></li>
 <li><a class="post-item" href="/blog/magazine/15.html"><div class="post-title">[게임 상식] 동키콩부터 점프킹까지: 점프 게임(Platformer)의 역사와 가로·세로 스크롤의 진화</div><div class="post-meta"><span>2026.09.26</span><span>👤 HOHO PLAY</span></div></a></li>
 <li><a class="post-item" href="/blog/magazine/14.html"><div class="post-title">[게임 상식] 오락실에서 콘솔까지: 레트로 레이싱 게임의 역사와 명작들의 매력</div><div class="post-meta"><span>2026.09.25</span><span>👤 HOHO PLAY</span></div></a></li>
@@ -117,28 +118,6 @@ body { font-family: 'Noto Sans KR', sans-serif; }
 </ul>
 <a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>
 </main>
-
-    <div id="hoho-pick-placeholder" data-exclude="magazine" style="max-width:56rem;margin:0 auto 24px;padding:0 16px;"></div>
-    <script>
-    (function(){
-        var ph = document.getElementById('hoho-pick-placeholder');
-        if (!ph) return;
-        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
-            ph.innerHTML = html;
-            var scripts = ph.querySelectorAll('script');
-            for (var i = 0; i < scripts.length; i++) {
-                var old = scripts[i];
-                var s = document.createElement('script');
-                for (var j = 0; j < old.attributes.length; j++) {
-                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
-                }
-                s.textContent = old.textContent;
-                old.parentNode.replaceChild(s, old);
-            }
-        }).catch(function(){});
-    })();
-    </script>
-
 <footer class="bg-slate-900 text-slate-400 py-16">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
         <div class="col-span-1 md:col-span-2">
