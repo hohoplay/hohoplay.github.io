@@ -31,28 +31,8 @@
   #pollMsg.ok { color: #16a34a; }
   #pollMsg.err { color: #dc2626; }
   #pollOptions { min-height: 100px; }
-  #pollSubmitBtn { flex: 1; background: #1e293b; color: #fff; }
-  #pollSubmitBtn:disabled { background: #94a3b8; cursor: not-allowed; }
-  #pollCancelBtn { background: #e2e8f0; color: #1e293b; display: none; }
-  #pollList { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-  .poll-item {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px;
-    border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px;
-  }
-  .poll-item .pid {
-    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
-    background: #f1f5f9; color: #64748b; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, monospace;
-  }
-  .poll-item .q { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .poll-item .opts { flex-basis: 100%; font-size: 12px; color: #94a3b8; }
-  .poll-item button { padding: 6px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; }
-  .poll-item .editBtn { background: #e0e7ff; color: #3730a3; }
-  .poll-item .deleteBtn { background: #fee2e2; color: #b91c1c; }
-  #pollListMsg { font-size: 13px; color: #94a3b8; }
-  #pollRefreshBtn { background: #f1f5f9; color: #1e293b; font-size: 13px; padding: 8px 12px; margin: 12px 0; }
-  #pollPager { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  #pollPager button { padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; background: #f1f5f9; color: #1e293b; }
-  #pollPager button.active { background: #1e293b; color: #fff; }
+  #pollOutput { min-height: 140px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px; background: #f8fafc; white-space: pre; }
+  #pollCopyBtn { background: #e0e7ff; color: #3730a3; font-size: 13px; padding: 8px 12px; }
 
   #postList { display: flex; flex-direction: column; gap: 8px; }
   .post-item {
@@ -134,11 +114,13 @@
 <div id="postList"></div>
 <div id="listMsg"></div>
 
-<h2>📊 투표 주제 관리</h2>
+<h2>📊 투표 주제 만들기</h2>
 <p style="font-size:12px;color:#94a3b8;margin:-6px 0 12px">
-  등록하기를 누르면 서버에 바로 저장되어 vote-index.html에 자동 반영됩니다 — 파일을 따로 열어 코드를
-  붙여넣거나 재배포할 필요가 없습니다. 투표 ID는 득표 기록과 연결되는 값이니, 이미 등록된 투표를
-  수정할 땐 ID를 되도록 바꾸지 마세요.
+  투표(익명투표) 주제는 게시글과 달리 서버에 바로 저장되지 않고, vote-index.html 파일 안의
+  POLL_POOL 배열에 직접 코드를 추가하는 방식입니다. 아래에 입력하고 "코드 생성"을 누르면
+  그 배열 끝에 그대로 붙여넣을 수 있는 코드가 만들어집니다 — 생성된 코드를 복사해서
+  vote-index.html 파일을 열어 POLL_POOL 배열 맨 끝(마지막 `},` 다음, `];` 앞)에
+  붙여넣고 다시 배포해주셔야 실제 사이트에 반영됩니다.
 </p>
 
 <label>투표 ID (영문 소문자·숫자·언더바만, 예: poll_lunch_menu)</label>
@@ -147,24 +129,19 @@
 <label>질문</label>
 <input type="text" id="pollQuestion" placeholder="예: 오늘 점심 뭐 드셨어요?">
 
-<label>선택지 (한 줄에 하나씩, 2~5개)</label>
+<label>선택지 (한 줄에 하나씩, 2~5개 권장)</label>
 <textarea id="pollOptions" placeholder="한식&#10;중식&#10;일식&#10;양식"></textarea>
 
 <div class="btn-group">
-  <button id="pollSubmitBtn" onclick="submitPoll()">등록하기</button>
-  <button id="pollCancelBtn" onclick="cancelPollEdit()">취소</button>
+  <button type="button" onclick="generatePollCode()" style="flex:1;background:#4f46e5;color:#fff">코드 생성</button>
 </div>
 <div id="pollMsg"></div>
-
-<button id="pollRefreshBtn" onclick="loadPolls()">↻ 새로고침</button>
-<div id="pollList"></div>
-<div id="pollPager"></div>
-<div id="pollListMsg"></div>
+<textarea id="pollOutput" readonly style="display:none;margin-top:10px"></textarea>
+<button type="button" id="pollCopyBtn" onclick="copyPollCode()" style="display:none;margin-top:8px">📋 복사</button>
 
 <script>
 const WORKER_API = "https://old-rain-16f7.lyh0929mm.workers.dev";
 let editingId = null;
-let pollEditingId = null;
 // [ADD] 내용 검색용 캐시 — 검색을 누를 때마다 매번 전체 목록(본문 포함)을 다시
 // 받아오지 않도록, 한 번 받은 뒤 그 안에서 로컬로 필터링한다. 관리자 키를 바꾸거나
 // "새로고침"을 누르면 다시 받아오도록 null로 리셋한다.
@@ -178,7 +155,6 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('rememberKey').checked = true;
   }
   loadPosts();
-  loadPolls();
   // [ADD] 검색창에서 Enter로도 검색되게
   document.getElementById('searchInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') searchPosts();
@@ -564,235 +540,82 @@ async function deletePost(id) {
   }
 }
 
-// ── 투표 주제 관리 ──
-// [FIX] "코드 생성 → 복사 → vote-index.html에 붙여넣고 재배포"하던 수동 방식을
-// 없애고, 게시글(/admin/posts) 관리와 완전히 동일한 패턴으로 서버(D1)에 직접
-// 등록·수정·삭제한다. poll_id는 poll_votes 테이블과 연결되는 값이라 형식 검증을
-// 그대로 유지한다.
-function renderPollItems(polls) {
-  return polls.map(p => {
-    const optsText = (p.options || []).join(' · ');
-    return `
-      <div class="poll-item">
-        <span class="pid">${escapeHtml(p.poll_id)}</span>
-        <span class="q">${escapeHtml(p.question)}</span>
-        <button class="editBtn" onclick="editPoll(${p.id})">수정</button>
-        <button class="deleteBtn" onclick="deletePoll(${p.id})">삭제</button>
-        <div class="opts">${escapeHtml(optsText)}</div>
-      </div>
-    `;
-  }).join('');
+// ── 투표 주제 코드 생성 ──
+// [ADD] 투표(POLL_POOL)는 게시글과 달리 서버 DB가 아니라 vote-index.html 안의
+// 고정 배열이라, 여기서 직접 서버로 등록할 수는 없다. 대신 질문·선택지를 입력하면
+// 그 배열에 그대로 붙여넣을 수 있는 코드 조각을 만들어주기만 한다 — 실제 반영은
+// 생성된 코드를 vote-index.html에 붙여넣고 재배포해야 완료된다.
+function jsStringLiteral(s) {
+  return "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
 }
 
-// [ADD] 등록된 투표가 많아지면 한 화면에 다 나열하기보다 5개씩 페이지로 나눠서
-// 보여준다. 목록은 서버에서 이미 최신순(created_at DESC)으로 내려주므로, 방금
-// 등록한 항목은 항상 1페이지 맨 위에 나타난다.
-const POLLS_PAGE_SIZE = 5;
-let allPollsCache = [];
-let currentPollPage = 1;
-
-async function loadPolls() {
-  const adminKey = getAdminKey();
-  const listEl = document.getElementById('pollList');
-  const pagerEl = document.getElementById('pollPager');
-  const listMsg = document.getElementById('pollListMsg');
-
-  if (!adminKey) {
-    listEl.innerHTML = '';
-    pagerEl.innerHTML = '';
-    listMsg.textContent = '투표 목록을 보려면 관리자 키를 먼저 입력해주세요.';
-    return;
-  }
-
-  listMsg.textContent = '불러오는 중...';
-  listEl.innerHTML = '';
-  pagerEl.innerHTML = '';
-
-  try {
-    const res = await fetch(`${WORKER_API}/admin/polls?key=${encodeURIComponent(adminKey)}&_=${Date.now()}`, { cache: 'no-store' });
-    const data = await res.json();
-    if (!res.ok) {
-      listMsg.textContent = `목록을 불러오지 못했습니다: ${data.error || res.status}`;
-      return;
-    }
-    allPollsCache = data.polls || [];
-    if (allPollsCache.length === 0) {
-      listMsg.textContent = '등록된 투표 주제가 없습니다.';
-      return;
-    }
-    listMsg.textContent = '';
-    currentPollPage = 1;
-    renderPollPage();
-  } catch (e) {
-    listMsg.textContent = `네트워크 오류: ${e.message}`;
-  }
-}
-
-function renderPollPage() {
-  const listEl = document.getElementById('pollList');
-  const pagerEl = document.getElementById('pollPager');
-  const totalPages = Math.max(1, Math.ceil(allPollsCache.length / POLLS_PAGE_SIZE));
-  if (currentPollPage > totalPages) currentPollPage = totalPages;
-  if (currentPollPage < 1) currentPollPage = 1;
-
-  const start = (currentPollPage - 1) * POLLS_PAGE_SIZE;
-  const pagePolls = allPollsCache.slice(start, start + POLLS_PAGE_SIZE);
-  listEl.innerHTML = renderPollItems(pagePolls);
-
-  if (allPollsCache.length <= POLLS_PAGE_SIZE) {
-    pagerEl.innerHTML = '';
-    return;
-  }
-
-  let buttons = '';
-  for (let p = 1; p <= totalPages; p++) {
-    buttons += `<button class="${p === currentPollPage ? 'active' : ''}" onclick="goToPollPage(${p})">${p}</button>`;
-  }
-  pagerEl.innerHTML = buttons;
-}
-
-function goToPollPage(p) {
-  currentPollPage = p;
-  renderPollPage();
-}
-
-async function submitPoll() {
-  const btn = document.getElementById('pollSubmitBtn');
+function generatePollCode() {
   const msg = document.getElementById('pollMsg');
+  const outputEl = document.getElementById('pollOutput');
+  const copyBtn = document.getElementById('pollCopyBtn');
   msg.className = '';
   msg.textContent = '';
+  outputEl.style.display = 'none';
+  copyBtn.style.display = 'none';
 
-  const adminKey = getAdminKey();
-  const pollId = document.getElementById('pollId').value.trim();
+  const id = document.getElementById('pollId').value.trim();
   const question = document.getElementById('pollQuestion').value.trim();
   const options = document.getElementById('pollOptions').value
     .split('\n')
     .map(function (s) { return s.trim(); })
     .filter(function (s) { return s; });
 
-  if (!adminKey) {
-    msg.className = 'err';
-    msg.textContent = '관리자 키를 먼저 입력해주세요.';
-    return;
-  }
-  if (!pollId || !question || options.length < 2) {
+  if (!id || !question || options.length < 2) {
     msg.className = 'err';
     msg.textContent = 'ID, 질문, 선택지 2개 이상을 모두 입력해주세요.';
     return;
   }
-  if (!/^[a-z][a-z0-9_]*$/.test(pollId)) {
+  if (!/^[a-z][a-z0-9_]*$/.test(id)) {
     msg.className = 'err';
     msg.textContent = 'ID는 영문 소문자로 시작하고, 영문 소문자·숫자·언더바(_)만 사용해주세요. 예: poll_lunch_menu';
     return;
   }
   if (options.length > 5) {
     msg.className = 'err';
-    msg.textContent = '선택지는 5개 이하로 입력해주세요.';
+    msg.textContent = '선택지는 5개 이하를 권장합니다. 너무 많으면 화면이 복잡해질 수 있어요.';
     return;
   }
 
-  btn.disabled = true;
-  btn.textContent = pollEditingId ? '수정 중...' : '등록 중...';
+  const optsCode = options.map(jsStringLiteral).join(', ');
+  const code =
+    '            {\n' +
+    '                id: ' + jsStringLiteral(id) + ',\n' +
+    '                question: ' + jsStringLiteral(question) + ',\n' +
+    '                options: [' + optsCode + '],\n' +
+    '            },';
 
-  try {
-    const isEdit = pollEditingId !== null;
-    const url = `${WORKER_API}/admin/polls?key=${encodeURIComponent(adminKey)}`;
-    const payload = isEdit
-      ? { id: pollEditingId, poll_id: pollId, question, options }
-      : { poll_id: pollId, question, options };
+  outputEl.value = code;
+  outputEl.style.display = 'block';
+  copyBtn.style.display = 'inline-block';
+  msg.className = 'ok';
+  msg.textContent = '코드가 생성됐습니다. 복사해서 vote-index.html의 POLL_POOL 배열 끝에 붙여넣어 주세요.';
+}
 
-    const res = await fetch(url, {
-      method: isEdit ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+function copyPollCode() {
+  const outputEl = document.getElementById('pollOutput');
+  const msg = document.getElementById('pollMsg');
+  const text = outputEl.value;
+
+  function showCopied() {
+    msg.className = 'ok';
+    msg.textContent = '복사되었습니다! vote-index.html에 붙여넣어 주세요.';
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+      outputEl.select();
+      document.execCommand('copy');
+      showCopied();
     });
-    const data = await res.json();
-
-    if (!res.ok) {
-      msg.className = 'err';
-      msg.textContent = `${isEdit ? '수정' : '등록'} 실패: ${data.error || res.status}`;
-    } else {
-      msg.className = 'ok';
-      msg.textContent = isEdit ? '수정 완료!' : `등록 완료! (${pollId})`;
-      cancelPollEdit();
-      loadPolls();
-    }
-  } catch (e) {
-    msg.className = 'err';
-    msg.textContent = `네트워크 오류: ${e.message}`;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = pollEditingId ? '수정 완료' : '등록하기';
-  }
-}
-
-function cancelPollEdit() {
-  pollEditingId = null;
-  document.getElementById('pollId').value = '';
-  document.getElementById('pollQuestion').value = '';
-  document.getElementById('pollOptions').value = '';
-  document.getElementById('pollSubmitBtn').textContent = '등록하기';
-  document.getElementById('pollCancelBtn').style.display = 'none';
-  document.getElementById('pollMsg').className = '';
-  document.getElementById('pollMsg').textContent = '';
-}
-
-async function editPoll(id) {
-  const adminKey = getAdminKey();
-  if (!adminKey) {
-    alert('관리자 키를 먼저 입력해주세요.');
-    return;
-  }
-  try {
-    // [ADD] 방금 목록에서 불러온 캐시에 이미 있으면 그걸 바로 쓰고, 없을 때만
-    // (캐시가 비어있거나 오래됐을 때) 서버에서 다시 받아온다 — 수정 버튼 누를 때마다
-    // 매번 전체 목록을 다시 요청할 필요는 없어서.
-    let poll = allPollsCache.find(function (p) { return p.id === id; });
-    if (!poll) {
-      const res = await fetch(`${WORKER_API}/admin/polls?key=${encodeURIComponent(adminKey)}&_=${Date.now()}`, { cache: 'no-store' });
-      const data = await res.json();
-      poll = (data.polls || []).find(function (p) { return p.id === id; });
-    }
-    if (!poll) {
-      alert('투표 주제를 불러오지 못했습니다.');
-      return;
-    }
-    pollEditingId = poll.id;
-    document.getElementById('pollId').value = poll.poll_id;
-    document.getElementById('pollQuestion').value = poll.question;
-    document.getElementById('pollOptions').value = (poll.options || []).join('\n');
-    document.getElementById('pollSubmitBtn').textContent = '수정 완료';
-    document.getElementById('pollCancelBtn').style.display = 'block';
-    document.getElementById('pollMsg').className = '';
-    document.getElementById('pollMsg').textContent = '';
-    document.getElementById('pollId').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } catch (e) {
-    alert(`네트워크 오류: ${e.message}`);
-  }
-}
-
-async function deletePoll(id) {
-  if (!confirm('이 투표 주제를 삭제할까요? 관련된 투표 기록도 함께 삭제되며, 되돌릴 수 없습니다.')) return;
-
-  const adminKey = getAdminKey();
-  if (!adminKey) {
-    alert('관리자 키를 먼저 입력해주세요.');
-    return;
-  }
-
-  try {
-    const res = await fetch(`${WORKER_API}/admin/polls?key=${encodeURIComponent(adminKey)}&id=${id}`, {
-      method: 'DELETE',
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      alert(`삭제 실패: ${data.error || res.status}`);
-      return;
-    }
-    if (pollEditingId === id) cancelPollEdit();
-    loadPolls();
-  } catch (e) {
-    alert(`네트워크 오류: ${e.message}`);
+  } else {
+    outputEl.select();
+    document.execCommand('copy');
+    showCopied();
   }
 }
 </script>

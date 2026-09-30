@@ -117,28 +117,6 @@ body { font-family: 'Noto Sans KR', sans-serif; }
 </ul>
 <a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>
 </main>
-
-    <div id="hoho-pick-placeholder" data-exclude="magazine" style="max-width:56rem;margin:0 auto 24px;padding:0 16px;"></div>
-    <script>
-    (function(){
-        var ph = document.getElementById('hoho-pick-placeholder');
-        if (!ph) return;
-        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
-            ph.innerHTML = html;
-            var scripts = ph.querySelectorAll('script');
-            for (var i = 0; i < scripts.length; i++) {
-                var old = scripts[i];
-                var s = document.createElement('script');
-                for (var j = 0; j < old.attributes.length; j++) {
-                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
-                }
-                s.textContent = old.textContent;
-                old.parentNode.replaceChild(s, old);
-            }
-        }).catch(function(){});
-    })();
-    </script>
-
 <footer class="bg-slate-900 text-slate-400 py-16">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
         <div class="col-span-1 md:col-span-2">
