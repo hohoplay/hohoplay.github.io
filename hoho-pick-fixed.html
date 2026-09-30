@@ -28,7 +28,7 @@
 
 <section id="hoho-pick-guide" class="curated-board" style="margin-bottom:24px;">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">📖 게임공략</h2><a href="/guides/index.html" class="curated-more">전체 공략 보기 →</a></div>
-    <div class="curated-board-body">
+    <div id="hoho-pick-guide-body" class="curated-board-body">
         <a href="/guides/hoya-typing-rpg-guide.html" class="curated-item">
             <span class="curated-badge" style="background:#eef2ff;color:#4f46e5">게임공략</span>
             <div class="curated-title">호호타자RPG</div>
@@ -64,7 +64,7 @@
 
 <section id="hoho-pick-community" class="curated-board" style="margin-bottom:24px;">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">💬 커뮤니티</h2><a href="/blog/" class="curated-more">전체 글 보기 →</a></div>
-    <div class="curated-board-body">
+    <div id="hoho-pick-community-body" class="curated-board-body">
         <a href="/blog/posts/6.html" class="curated-item">
             <span class="curated-badge" style="background:#fee2e2;color:#dc2626">공지사항</span>
             <div class="curated-title">🎪 전국 축제 지도가 열렸어요!</div>
@@ -94,7 +94,7 @@
 
 <section id="hoho-pick-magazine" class="curated-board">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">✨ 호호 매거진</h2><a href="/blog/magazine/" class="curated-more">매거진 전체 보기 →</a></div>
-    <div class="curated-board-body">
+    <div id="hoho-pick-magazine-body" class="curated-board-body">
         <a href="/blog/magazine/16.html" class="curated-item">
             <span class="curated-badge" style="background:#fef3c7;color:#b45309">호호 매거진</span>
             <div class="curated-title">[게임 상식] 마작 패에서 PC·모바일 국민 게임으로: 사천성 게임의 역사와 발전</div>
@@ -154,6 +154,36 @@
     var taglineEl = document.getElementById('hoho-pick-tagline');
     if (taglineEl) taglineEl.textContent = visibleLabels.join('·') + ', 호호플레이가 골라봤어요';
 
+    // ── 게임공략·커뮤니티·매거진: 매주(7일마다) 카드 순서를 자동으로 랜덤하게 바꾼다.
+    //    서버/자동화 없이, 현재 보이는 카드들만 그대로 두고 순서만 섞는다.
+    //    같은 주(week)에는 누가 언제 방문하든 항상 같은 순서 — 주가 바뀌면 자동으로 새 순서.
+    function weekIndex() {
+        return Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+    }
+    function mulberry32(seed) {
+        return function () {
+            seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+            var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+            t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+    }
+    function shuffleChildrenWeekly(containerId, seedOffset) {
+        var body = document.getElementById(containerId);
+        if (!body) return;
+        var items = Array.prototype.slice.call(body.children);
+        if (items.length < 2) return;
+        var rand = mulberry32(weekIndex() + seedOffset);
+        for (var i = items.length - 1; i > 0; i--) {
+            var j = Math.floor(rand() * (i + 1));
+            var tmp = items[i]; items[i] = items[j]; items[j] = tmp;
+        }
+        items.forEach(function (el) { body.appendChild(el); });
+    }
+    if (excludeList.indexOf('guide') === -1) shuffleChildrenWeekly('hoho-pick-guide-body', 11);
+    if (excludeList.indexOf('community') === -1) shuffleChildrenWeekly('hoho-pick-community-body', 22);
+    if (excludeList.indexOf('magazine') === -1) shuffleChildrenWeekly('hoho-pick-magazine-body', 33);
+
     // 축제 섹션이 제외 목록에 있으면 데이터도 불러올 필요 없음
     if (excludeList.indexOf('festival') !== -1) return;
 
@@ -167,7 +197,8 @@
             list = list.filter(function(f){ return f && f.type === 'festival' && f.startDate && f.endDate; });
             var today = new Date();
             var todayStr = '' + today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
-            var ongoing = list.filter(function(f){ return f.startDate <= todayStr && f.endDate >= todayStr; }).sort(function(a,b){ return a.endDate.localeCompare(b.endDate); });
+            // 진행중인 축제는 '가장 최근에 시작된(=가장 신선한)' 축제가 대표로 맨 앞에 오도록 시작일 내림차순 정렬
+            var ongoing = list.filter(function(f){ return f.startDate <= todayStr && f.endDate >= todayStr; }).sort(function(a,b){ return b.startDate.localeCompare(a.startDate); });
             var upcoming = list.filter(function(f){ return f.startDate > todayStr; }).sort(function(a,b){ return a.startDate.localeCompare(b.startDate); });
             var picks = ongoing.concat(upcoming).slice(0, 4);
             if (!picks.length) { if (section) section.style.display = 'none'; return; }
