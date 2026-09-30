@@ -162,7 +162,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20260930114139_5b76bf53">
+  <meta name="build-version" content="20260930114948_ddbeb9f0">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -443,14 +443,15 @@
         };
 
         // ═══════════════════════════════
-        //  메인 페이지 "게임공략 · 커뮤니티 · 호호 매거진" 3섹션
+        //  "호호픽(HOHO PICK)" — 메인 페이지 게임공략 · 커뮤니티 · 호호 매거진 3섹션
+        //  (축제 섹션은 festival-board-section, /data/festivals.json 라이브 연동이라 별도)
         //  ─ /posts API는 제목만 주고 본문 내용이 없어서, 각 글을 직접 확인하고
         //    짧은 소개글(발췌)을 사람이 써서 아래 배열에 넣어두는 방식으로 만듦.
         //  ─ 새 글이 올라올 때마다: 아래 3개 배열(guides/community/magazine) 중
         //    맞는 곳에 새 글 정보를 맨 앞에 한 줄 추가하고, 오래된 글은 지워서
         //    각 섹션이 4~6개만 보이게 유지하면 됨. (본문 전체를 넣지 않아도 됨)
         // ═══════════════════════════════
-        const curatedBoards = [
+        const hohoPickBoards = [
             {
                 icon: '📖', label: '게임공략', more: '/guides/index.html', moreText: '전체 공략 보기',
                 items: [
@@ -482,8 +483,8 @@
             }
         ];
 
-        function buildCuratedBoardsHtml() {
-            return curatedBoards.map(function (board) {
+        function buildHohoPickHtml() {
+            return hohoPickBoards.map(function (board) {
                 var rows = board.items.map(function (it) {
                     var badge = it.tag ? '<span class="curated-badge" style="background:' + it.bg + ';color:' + it.fg + '">' + it.tag + '</span>' : '';
                     var meta = it.meta ? '<div class="curated-meta">' + it.meta + '</div>' : '';
@@ -641,6 +642,10 @@
                     }).join('')
                 + '</div>'
                 + '</section>'
+                + '<div style="text-align:center;margin-bottom:20px;">'
+                + '<span style="display:inline-block;background:#eef2ff;color:#4f46e5;font-size:12px;font-weight:900;padding:5px 14px;border-radius:999px;letter-spacing:.05em;">🎯 HOHO PICK</span>'
+                + '<p style="font-size:13px;color:#94a3b8;margin-top:8px;">축제·게임공략·커뮤니티·매거진, 호호플레이가 골라봤어요</p>'
+                + '</div>'
                 + '<section id="festival-board-section" class="curated-board" style="margin-bottom:40px;">'
                 + '<div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">🎪 오늘 어디 갈까요</h2><a href="/festival/" class="curated-more">지도에서 보기 →</a></div>'
                 + '<div id="festival-board-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>'
@@ -685,7 +690,7 @@
                 +   '})'
                 +   '.catch(function(){ section.style.display="none"; });'
                 + '})();<\/script>'
-                + buildCuratedBoardsHtml()
+                + buildHohoPickHtml()
                 + '<section style="margin-bottom:40px;">'
                 + '<a href="' + bannerConfig.link + '" id="banner-link" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform=\'scale(1.01)\';this.style.boxShadow=\'0 12px 48px rgba(99,102,241,.28)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 40px rgba(99,102,241,.18)\'">'
                 + bannerInner
