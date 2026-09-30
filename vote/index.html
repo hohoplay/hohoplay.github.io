@@ -521,43 +521,9 @@
     </script>
 
     <script>
-        // ⚠️ 투표 주제는 이 배열만 고치면 됩니다. id는 한번 배포한 뒤엔 바꾸지 마세요(기존 투표 기록과 끊어짐).
-        // ⚠️ 투표 주제 창고 — 여기에 계속 추가만 하면 됩니다(순서 상관없이 뒤에 붙이면 됨).
-        // 한 주에 POLLS_PER_WEEK개씩 순서대로 자동 노출되고, 끝까지 가면 처음부터 다시 순환합니다.
-        // id는 한번 쓴 뒤엔 절대 바꾸지 마세요(그 투표의 득표 기록과 연결되는 값입니다).
-        const POLL_POOL = [
-            {
-                id: 'poll_next_genre',
-                question: '다음 신작 게임, 어떤 장르가 제일 궁금하세요?',
-                options: ['타이핑 액션', '퍼즐', '레이싱', '방탈출·추리'],
-            },
-            {
-                id: 'poll_device',
-                question: '게임 하실 때 주로 어떤 기기를 쓰세요?',
-                options: ['PC', '스마트폰', '태블릿'],
-            },
-            {
-                id: 'poll_today_mood',
-                question: '오늘 컨디션은 어떠세요?',
-                options: ['최고예요 😄', '그냥 그래요 😐', '피곤해요 😴', '별로예요 😩'],
-            },
-            {
-                id: 'poll_play_time',
-                question: '게임은 주로 언제 하세요?',
-                options: ['출퇴근·등하교길', '점심시간', '자기 전', '주말에 몰아서'],
-            },
-            {
-                id: 'poll_difficulty',
-                question: '게임 난이도, 어느 정도가 좋으세요?',
-                options: ['쉬운 게 최고', '적당히 도전적으로', '어려워야 재밌음'],
-            },
-            {
-                id: 'poll_comeback',
-                question: '다음에 또 하고 싶은 장르는?',
-                options: ['타이핑', '퍼즐', '러닝 액션', '레이싱'],
-            },
-        ];
-
+        // [FIX] 투표 주제는 더 이상 이 파일 안에 하드코딩하지 않습니다. writer.html의
+        // "📊 투표 주제 관리" 화면에서 등록하면 서버(D1)에 저장되고, 이 페이지는 매번
+        // /polls 목록을 받아와서 아래의 주간 순환 로직(POLLS_PER_WEEK)을 그대로 적용합니다.
         const POLLS_PER_WEEK = 3;
 
         function getWeekIndex() {
@@ -567,10 +533,6 @@
             const week = Math.ceil((days + start.getDay() + 1) / 7);
             return d.getFullYear() * 100 + week;
         }
-
-        const totalSets = Math.max(1, Math.floor(POLL_POOL.length / POLLS_PER_WEEK));
-        const weekIdx = getWeekIndex() % totalSets;
-        const POLLS = POLL_POOL.slice(weekIdx * POLLS_PER_WEEK, weekIdx * POLLS_PER_WEEK + POLLS_PER_WEEK);
 
         const VOTE_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/polls';
 
@@ -660,12 +622,38 @@
             }
         }
 
-        const container = document.getElementById('polls-container');
-        POLLS.forEach(poll => {
-            const card = renderPollCard(poll);
-            container.appendChild(card);
-            loadPoll(poll);
-        });
+        // [FIX] 예전에는 POLL_POOL(하드코딩 배열)을 바로 잘라서 썼지만, 이제는 서버에서
+        // 등록된 목록을 받아온 뒤 같은 방식(주간 순환)으로 자릅니다.
+        let POLLS = [];
+
+        async function initPolls() {
+            const container = document.getElementById('polls-container');
+            try {
+                const res = await fetch(VOTE_API + '?_=' + Date.now(), { cache: 'no-store' });
+                const data = await res.json();
+                const pool = data.polls || [];
+
+                if (pool.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:14px;padding:20px 0">등록된 투표가 없습니다.</div>';
+                    return;
+                }
+
+                const totalSets = Math.max(1, Math.floor(pool.length / POLLS_PER_WEEK));
+                const weekIdx = getWeekIndex() % totalSets;
+                POLLS = pool.slice(weekIdx * POLLS_PER_WEEK, weekIdx * POLLS_PER_WEEK + POLLS_PER_WEEK);
+                if (POLLS.length === 0) POLLS = pool.slice(0, POLLS_PER_WEEK);
+
+                POLLS.forEach(poll => {
+                    const card = renderPollCard(poll);
+                    container.appendChild(card);
+                    loadPoll(poll);
+                });
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center;color:#f87171;font-size:14px;padding:20px 0">투표 목록을 불러오지 못했어요.</div>';
+            }
+        }
+
+        initPolls();
     </script>
 </body>
 </html>
