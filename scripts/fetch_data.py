@@ -306,7 +306,10 @@ def build_detail_page_html(festival, overview, intro):
 </head>
 <body>
 <div class="detail-wrap">
-  <a href="/festival/" class="detail-back">← 지도로 돌아가기</a>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <a href="/festival/" class="detail-back" style="margin-bottom:0;">← 지도로 돌아가기</a>
+    <a href="/" style="color:#1a73e8; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>
+  </div>
   {image_html}
   <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">{title}</h1>
   <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 {date_label}</p>
@@ -360,8 +363,23 @@ def generate_detail_pages(festivals):
 
     ADSENSE_TAG = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>'
 
+    # [ADD] "지도로 돌아가기"만 있던 상단에 "🏠 홈" 버튼을 추가하면서, 이미 생성된
+    # 수천 건의 상세페이지를 전부 다시 만들 수는 없었다(TourAPI 호출이 불필요하게
+    # 늘어남 + 이미 있는 페이지는 안 건드린다는 원칙과도 맞지 않음). 그래서 애드센스
+    # 코드 보정과 똑같은 방식으로, 기존 파일 안의 옛 상단 링크 문자열을 찾아 그
+    # 자리에서 새 상단(지도로 돌아가기 + 홈)으로 바꿔치기만 한다 — API 재호출 없이
+    # 파일 내용만 치환하는 것이라 몇천 건이어도 순식간에 끝난다.
+    OLD_HEADER = '<a href="/festival/" class="detail-back">← 지도로 돌아가기</a>'
+    NEW_HEADER = (
+        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">\n'
+        '    <a href="/festival/" class="detail-back" style="margin-bottom:0;">← 지도로 돌아가기</a>\n'
+        '    <a href="/" style="color:#1a73e8; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>\n'
+        '  </div>'
+    )
+
     new_count = 0
     patched_count = 0
+    header_patched_count = 0
     for f in festivals:
         content_id = f.get('contentid')
         if not content_id:
@@ -370,12 +388,19 @@ def generate_detail_pages(festivals):
         if os.path.exists(out_path):
             with open(out_path, 'r', encoding='utf-8') as fp:
                 existing = fp.read()
+            changed = False
             if ADSENSE_TAG not in existing and '</head>' in existing:
                 existing = existing.replace('</head>', f'{ADSENSE_TAG}\n</head>')
+                changed = True
+                patched_count += 1
+            if OLD_HEADER in existing:
+                existing = existing.replace(OLD_HEADER, NEW_HEADER)
+                changed = True
+                header_patched_count += 1
+            if changed:
                 with open(out_path, 'w', encoding='utf-8') as fp:
                     fp.write(existing)
-                patched_count += 1
-            continue  # 애드센스 보정 외에는 이미 생성된 페이지를 건드리지 않음
+            continue  # 보정 외에는 이미 생성된 페이지를 건드리지 않음
 
         overview = f.get('overview')  # 수동 등록 축제는 이미 설명이 주어져 있어 TourAPI를 안 부름
         if overview is None:
@@ -387,7 +412,7 @@ def generate_detail_pages(festivals):
         new_count += 1
         time.sleep(0.3)  # TourAPI에 과도하게 연속 호출하지 않도록 약간의 간격
 
-    print(f"상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건 (festival/detail/)")
+    print(f"상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건, 상단 홈 버튼 보정: {header_patched_count}건 (festival/detail/)")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
