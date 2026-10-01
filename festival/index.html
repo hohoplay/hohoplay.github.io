@@ -45,11 +45,6 @@
             font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; white-space: nowrap;
         }
         .period-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
-        .theme-chip {
-            border: 1.5px solid #e2e8f0; background: #fff; color: #64748b;
-            padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
-        }
-        .theme-chip.active { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
 
         .festival-card {
             position: absolute; bottom: 20px; left: 50%;
@@ -209,18 +204,23 @@
                 <option value="jeolla">광주 / 전라도</option>
                 <option value="jeju">제주특별자치도</option>
             </select>
-            <div id="themeChips" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
-                <button type="button" class="theme-chip" data-theme="cherry" onclick="toggleTheme('cherry')">🌸 벚꽃</button>
-                <button type="button" class="theme-chip" data-theme="foliage" onclick="toggleTheme('foliage')">🍁 단풍</button>
-                <button type="button" class="theme-chip" data-theme="seafood" onclick="toggleTheme('seafood')">🦐 특산물</button>
-                <button type="button" class="theme-chip" data-theme="fireworks" onclick="toggleTheme('fireworks')">🎆 불꽃</button>
-                <button type="button" class="theme-chip" data-theme="winter" onclick="toggleTheme('winter')">❄️ 겨울/눈</button>
-                <button type="button" class="theme-chip" data-theme="flower" onclick="toggleTheme('flower')">🌷 꽃</button>
-                <button type="button" class="theme-chip" data-theme="park" onclick="toggleTheme('park')">🌳 수목원/공원</button>
-                <button type="button" class="theme-chip" data-theme="shelter" onclick="toggleTheme('shelter')">🧊 무더위쉼터</button>
-                <button type="button" class="theme-chip" data-theme="camping" onclick="toggleTheme('camping')">🏕️ 캠핑장</button>
-                <button type="button" class="theme-chip" data-theme="watersports" onclick="toggleTheme('watersports')">🚤 수상레저</button>
-            </div>
+            <!-- [FIX] 아이콘 칩 여러 개를 가로로 늘어놓던 방식이 지저분해 보인다는 의견이 있어,
+                 지역 선택(위 select)과 똑같은 드롭다운 형식으로 바꿨다. 다만 드롭다운은
+                 한 번에 하나만 고를 수 있어서, 이전처럼 "벚꽃+단풍 동시에" 같은 다중 선택은
+                 더 이상 안 된다(한 번에 한 테마씩만 보기). -->
+            <select id="themeSelect" class="region-select panel-region-select" style="margin-bottom:8px;" onchange="selectTheme(this.value)">
+                <option value="">🗂️ 전체 테마 보기</option>
+                <option value="cherry">🌸 벚꽃</option>
+                <option value="foliage">🍁 단풍</option>
+                <option value="seafood">🦐 특산물</option>
+                <option value="fireworks">🎆 불꽃</option>
+                <option value="winter">❄️ 겨울/눈</option>
+                <option value="flower">🌷 꽃</option>
+                <option value="park">🌳 수목원/공원</option>
+                <option value="shelter" id="themeOptionShelter">🧊 무더위쉼터</option>
+                <option value="camping">🏕️ 캠핑장</option>
+                <option value="watersports">🚤 수상레저</option>
+            </select>
         </div>
         <button type="button" id="gpsBtn" onclick="useMyLocation()" style="width:100%; margin-bottom:8px; padding:9px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#334155; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
             📍 내 주변으로 보기
@@ -341,6 +341,21 @@
 <div id="shareDebugLog" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#111; color:#0f0; font-size:11px; font-family:monospace; padding:8px 10px; z-index:9999; max-height:140px; overflow-y:auto; word-break:break-all;"></div>
 
 <script>
+    // [ADD] 무더위쉼터는 폭염기간(매년 7/1~9/30)에만 운영되는 시설이라, 그 기간이 아닐 땐
+    // "무더위쉼터" 칩을 자동으로 숨긴다. 예전엔 계절이 바뀔 때마다 버튼을 수동으로
+    // 주석 처리/해제했는데, 이젠 날짜만 보고 매년 자동으로 켜지고 꺼진다(코드 수정 불필요).
+    (function hideShelterChipOutOfSeason() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const seasonStart = new Date(y, 6, 1);       // 7월 1일 (month는 0부터 시작하므로 6)
+        const seasonEnd = new Date(y, 8, 30, 23, 59, 59); // 9월 30일 23:59:59
+        const inSeason = now >= seasonStart && now <= seasonEnd;
+        if (!inSeason) {
+            const shelterOption = document.getElementById('themeOptionShelter');
+            if (shelterOption) shelterOption.remove();
+        }
+    })();
+
     const container = document.getElementById('map');
     const mapOption = { center: new kakao.maps.LatLng(36.3504, 127.3845), level: 11 };
     const map = new kakao.maps.Map(container, mapOption);
@@ -901,15 +916,11 @@
         }
     }
 
-    function toggleTheme(theme) {
-        if (currentThemes.has(theme)) {
-            currentThemes.delete(theme);
-        } else {
-            currentThemes.add(theme);
-        }
-        document.querySelectorAll('.theme-chip').forEach(function (chip) {
-            chip.classList.toggle('active', currentThemes.has(chip.getAttribute('data-theme')));
-        });
+    // [FIX] 칩 여러 개를 토글하던 방식(toggleTheme, 다중 선택)에서 드롭다운 단일 선택
+    // 방식으로 바뀌면서, 매번 Set을 비우고 선택된 값 하나만 새로 넣는 식으로 단순화했다.
+    // "전체 테마 보기"는 value=""로 넘어오며, 이땐 Set을 비워서 기존 "전체 보기" 동작과 동일하게 맞춘다.
+    function selectTheme(theme) {
+        currentThemes = theme ? new Set([theme]) : new Set();
         if (gpsModeActive) {
             renderNearbyPanel();
         } else {
