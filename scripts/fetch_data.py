@@ -363,23 +363,8 @@ def generate_detail_pages(festivals):
 
     ADSENSE_TAG = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>'
 
-    # [ADD] "지도로 돌아가기"만 있던 상단에 "🏠 홈" 버튼을 추가하면서, 이미 생성된
-    # 수천 건의 상세페이지를 전부 다시 만들 수는 없었다(TourAPI 호출이 불필요하게
-    # 늘어남 + 이미 있는 페이지는 안 건드린다는 원칙과도 맞지 않음). 그래서 애드센스
-    # 코드 보정과 똑같은 방식으로, 기존 파일 안의 옛 상단 링크 문자열을 찾아 그
-    # 자리에서 새 상단(지도로 돌아가기 + 홈)으로 바꿔치기만 한다 — API 재호출 없이
-    # 파일 내용만 치환하는 것이라 몇천 건이어도 순식간에 끝난다.
-    OLD_HEADER = '<a href="/festival/" class="detail-back">← 지도로 돌아가기</a>'
-    NEW_HEADER = (
-        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">\n'
-        '    <a href="/festival/" class="detail-back" style="margin-bottom:0;">← 지도로 돌아가기</a>\n'
-        '    <a href="/" style="color:#1a73e8; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>\n'
-        '  </div>'
-    )
-
     new_count = 0
     patched_count = 0
-    header_patched_count = 0
     for f in festivals:
         content_id = f.get('contentid')
         if not content_id:
@@ -388,19 +373,12 @@ def generate_detail_pages(festivals):
         if os.path.exists(out_path):
             with open(out_path, 'r', encoding='utf-8') as fp:
                 existing = fp.read()
-            changed = False
             if ADSENSE_TAG not in existing and '</head>' in existing:
                 existing = existing.replace('</head>', f'{ADSENSE_TAG}\n</head>')
-                changed = True
-                patched_count += 1
-            if OLD_HEADER in existing:
-                existing = existing.replace(OLD_HEADER, NEW_HEADER)
-                changed = True
-                header_patched_count += 1
-            if changed:
                 with open(out_path, 'w', encoding='utf-8') as fp:
                     fp.write(existing)
-            continue  # 보정 외에는 이미 생성된 페이지를 건드리지 않음
+                patched_count += 1
+            continue  # 애드센스 보정 외에는 이미 생성된 페이지를 건드리지 않음
 
         overview = f.get('overview')  # 수동 등록 축제는 이미 설명이 주어져 있어 TourAPI를 안 부름
         if overview is None:
@@ -412,7 +390,49 @@ def generate_detail_pages(festivals):
         new_count += 1
         time.sleep(0.3)  # TourAPI에 과도하게 연속 호출하지 않도록 약간의 간격
 
-    print(f"상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건, 상단 홈 버튼 보정: {header_patched_count}건 (festival/detail/)")
+    print(f"상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건 (festival/detail/)")
+
+
+def patch_existing_detail_pages():
+    """festival/detail/ 폴더 안에 이미 만들어진 상세페이지 전체(누적 수천 건)를
+    대상으로, 상단 "🏠 홈" 버튼이 빠진 옛 버전을 찾아 새 버전으로 바꿔치기한다.
+
+    [FIX] 처음엔 generate_detail_pages() 안에서, 이번 실행에서 새로 받아온 festivals
+    목록(= 아직 끝나지 않은 "진행중/예정" 축제만 담김, 예: 278건)에 대해서만 보정했다.
+    그런데 festival/detail/에는 이미 종료되어 더 이상 그 목록에 없는 과거 축제의
+    상세페이지도 수천 건 그대로 남아있어서(디자인상 일부러 안 지움 — SEO/이미 색인된
+    페이지 보존 목적), 실제로 돌려보니 3,456건 중 278건만 보정되고 나머지는
+    "진행중/예정 목록에 없다"는 이유로 그냥 건너뛰어졌다. 그래서 festivals 목록을
+    거치지 않고 festival/detail/ 디렉터리 자체를 직접 훑어서, 종료된 지 오래된
+    페이지까지 포함해 전부 빠짐없이 보정하도록 따로 뺐다. TourAPI 재호출은 전혀
+    없고 파일 내용 치환만 하는 것이라, 수천 건이어도 몇 초 안에 끝난다."""
+    detail_dir = os.path.join('festival', 'detail')
+    if not os.path.isdir(detail_dir):
+        print(f"{detail_dir} 폴더가 없어 전체 보정을 건너뜁니다.")
+        return
+
+    OLD_HEADER = '<a href="/festival/" class="detail-back">← 지도로 돌아가기</a>'
+    NEW_HEADER = (
+        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">\n'
+        '    <a href="/festival/" class="detail-back" style="margin-bottom:0;">← 지도로 돌아가기</a>\n'
+        '    <a href="/" style="color:#1a73e8; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>\n'
+        '  </div>'
+    )
+
+    filenames = [fn for fn in os.listdir(detail_dir) if fn.endswith('.html')]
+    header_patched = 0
+    for fn in filenames:
+        path = os.path.join(detail_dir, fn)
+        with open(path, 'r', encoding='utf-8') as fp:
+            content = fp.read()
+        if OLD_HEADER not in content:
+            continue  # 이미 보정됐거나(새 버전), 애초에 자연관광지류 템플릿이라 이 문자열이 없는 페이지
+        content = content.replace(OLD_HEADER, NEW_HEADER)
+        with open(path, 'w', encoding='utf-8') as fp:
+            fp.write(content)
+        header_patched += 1
+
+    print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — 상단 홈 버튼 보정: {header_patched}건")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
@@ -1020,6 +1040,12 @@ def main():
     generate_nature_detail_pages(nature_spots)
     generate_nature_detail_pages(camping_spots, page_label='캠핑장', log_label='캠핑장')
     generate_nature_detail_pages(watersports_spots, page_label='수상레저', log_label='수상레저')
+    # [ADD] 위 generate_* 호출들의 "애드센스 코드 보정"은 이번 실행에서 받아온 활성
+    # 목록(festivals/nature_spots 등)에 있는 것만 훑는다. 상단 홈 버튼 보정은 이미
+    # 종료된 과거 페이지까지 포함해 festival/detail/ 전체를 빠짐없이 훑어야 해서
+    # 별도 함수로 한 번 더 돈다 — 1회성 보정이 끝나면(모든 파일이 새 버전이 되면)
+    # 이후 실행부터는 OLD_HEADER가 안 남아있어 금방 끝난다.
+    patch_existing_detail_pages()
 
     detail_dir = os.path.join('festival', 'detail')
     for it in all_map_items:
