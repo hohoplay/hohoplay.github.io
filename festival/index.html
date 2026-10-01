@@ -29,6 +29,16 @@
 
         .map-wrapper { order: 1; position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; }
         #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        /* [FIX] "위치를 선택하면 핀이 없음" 원인 — Tailwind CDN이 모든 <img>에 전역으로
+           max-width:100%; height:auto 를 적용한다(프리플라이트 리셋). 카카오맵은 마커
+           핀 아이콘을 <img> 태그로 그리는데, 그 핀을 담는 div가 폭을 따로 지정하지 않다 보니
+           이 전역 규칙에 걸려 핀 이미지가 0 크기로 쪼그라들어 "보이지 않게" 된다.
+           지도가 넓게 보일 때는 여러 지점이 뭉쳐 숫자 원(클러스터, div+텍스트라 안 깨짐)으로
+           보여서 문제가 안 드러났지만, 지역을 선택해 특정 위치로 확대하면 뭉치지 않은
+           "핀 하나"가 바로 이 버그에 걸려 안 보였던 것. #map 안의 이미지만 리셋을
+           무시하도록 되돌려서 고친다(페이지의 다른 이미지에는 영향 없음).
+           */
+        #map img { max-width: none !important; }
 
         .filter-container {
             position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
