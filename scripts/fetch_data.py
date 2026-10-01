@@ -411,6 +411,8 @@ def patch_existing_detail_pages():
         print(f"{detail_dir} 폴더가 없어 전체 보정을 건너뜁니다.")
         return
 
+    # 축제 상세페이지(build_detail_page_html) 템플릿 — 기존 "지도로 돌아가기"
+    # 한 줄을 "지도로 돌아가기 + 홈" 두 줄짜리로 바꿔치기한다.
     OLD_HEADER = '<a href="/festival/" class="detail-back">← 지도로 돌아가기</a>'
     NEW_HEADER = (
         '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">\n'
@@ -419,20 +421,46 @@ def patch_existing_detail_pages():
         '  </div>'
     )
 
+    # [ADD] 자연관광지/캠핑장/수상레저 상세페이지(build_nature_page_html) 템플릿은
+    # 원래 상단에 아무 링크도 없이(바로 사진/제목부터 시작) 맨 아래에만
+    # "← 지도에서 보기"(class="back-link")가 있던 구조라, 위 OLD_HEADER 문자열 자체가
+    # 없다 — "바꿔치기"가 아니라 <body> 바로 뒤에 새로 "끼워넣기"가 필요하다.
+    # class="back-link"는 이 템플릿에서만 쓰는 고유 표식이라 이걸로 "아직 홈 버튼이
+    # 없는 자연관광지류 페이지"를 구분한다(이미 끼워넣은 페이지는 "🏠 홈" 문자열로
+    # 판별해 건너뛰므로 재실행해도 중복으로 끼워넣지 않는다).
+    NATURE_MARKER = 'class="back-link"'
+    NATURE_HEADER = (
+        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">\n'
+        '  <a href="/festival/" style="color:#059669; font-weight:700; text-decoration:none; font-size:14px;">← 지도로 돌아가기</a>\n'
+        '  <a href="/" style="color:#059669; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>\n'
+        '</div>\n'
+    )
+
     filenames = [fn for fn in os.listdir(detail_dir) if fn.endswith('.html')]
     header_patched = 0
+    nature_header_patched = 0
     for fn in filenames:
         path = os.path.join(detail_dir, fn)
         with open(path, 'r', encoding='utf-8') as fp:
             content = fp.read()
-        if OLD_HEADER not in content:
-            continue  # 이미 보정됐거나(새 버전), 애초에 자연관광지류 템플릿이라 이 문자열이 없는 페이지
-        content = content.replace(OLD_HEADER, NEW_HEADER)
-        with open(path, 'w', encoding='utf-8') as fp:
-            fp.write(content)
-        header_patched += 1
+        changed = False
 
-    print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — 상단 홈 버튼 보정: {header_patched}건")
+        if OLD_HEADER in content:
+            content = content.replace(OLD_HEADER, NEW_HEADER)
+            changed = True
+            header_patched += 1
+        elif NATURE_MARKER in content and '🏠 홈' not in content and '<body>' in content:
+            content = content.replace('<body>', '<body>\n' + NATURE_HEADER, 1)
+            changed = True
+            nature_header_patched += 1
+        # 둘 다 해당 없으면 이미 보정된 페이지(새 버전)이거나 알 수 없는 템플릿 — 건드리지 않음
+
+        if changed:
+            with open(path, 'w', encoding='utf-8') as fp:
+                fp.write(content)
+
+    print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — "
+          f"축제 상단 홈 버튼 보정: {header_patched}건, 자연관광지류 홈 버튼 보정: {nature_header_patched}건")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
@@ -479,6 +507,10 @@ body{{font-family:'Noto Sans KR',sans-serif;max-width:640px;margin:0 auto;paddin
 </style>
 </head>
 <body>
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+  <a href="/festival/" style="color:#059669; font-weight:700; text-decoration:none; font-size:14px;">← 지도로 돌아가기</a>
+  <a href="/" style="color:#059669; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>
+</div>
 {image_html}
 <h1 style="font-size:1.4rem;font-weight:900;margin-bottom:6px">{title}</h1>
 <p class="detail-row"><strong>주소</strong> {addr}</p>
