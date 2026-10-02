@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -21,7 +22,18 @@
          인식조차 못 하고 "본문 없음"으로 판정할 수 있음(실제로 이렇게
          "완전히 빈 페이지"로 보이는 게 확인됨 — 어쩌면 그동안의 애드센스
          Low Value Content 판정에도 영향을 줬을 수 있음). 내용은 그대로 두고
-         태그만 표준 <div>로 교체. -->
+         태그만 표준 <div>로 교체.
+
+         [FIX-4] FIX-3 배포 후에도 /fortune/ 가 여전히 "완전히 빈 페이지"로
+         보이는 현상이 재현됨 — 진짜 원인은 태그 이름이 아니라, 아래 본문의
+         navigateTo('fortune')가 페이지 로드 즉시(동기적으로) #content의
+         내용을 이 정적 텍스트에서 "오늘운세/타로 등 탭 버튼 + 아직 비어있는
+         #fortune-content" 로 통째로 바꿔버린다는 것이었음. 실제 운세 계산
+         로직(/fortune.html, 약 600KB)은 비동기로 그 뒤에 별도 로드되므로,
+         그 사이의 짧은 순간엔 탭 버튼 몇 글자 말고는 정말로 내용이 없었고,
+         자바스크립트를 실행해서 스냅샷을 찍는 크롤러가 하필 이 순간을
+         캡처하면 "본문 없음"으로 판정됨. 자세한 수정 내용은 본문의
+         "#fortune-content" 관련 두 지점에 [FIX-4] 주석으로 표시해 둠. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 운세 - 호호플레이(HOHO PLAY) | 무료 타로·MBTI 운세</title>
     <meta name="description" content="오늘의 운세, 타로, MBTI+타로, MBTI+꿈해몽까지 한 번에. 호호플레이(HOHO PLAY)에서 무료로 확인하는 매일 업데이트되는 운세 서비스.">
@@ -610,7 +622,37 @@
                         <button onclick="showFortune('wisdom')"      id="tab-wisdom"      class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">별빛오솔길의 밤</button>
                         -->
                     </div>
-                    <div id="fortune-content"></div>
+                    <div id="fortune-content">
+                    <!-- [FIX-4] 실제 운세 계산 로직(/fortune.html, 약 600KB)은 비동기로
+                         별도 로드되므로, 로드가 끝나기 전까지는 이 칸이 비어 있었음.
+                         사람 눈에는 아주 짧은 순간이라 문제없지만, 자바스크립트를 실행해서
+                         스냅샷을 찍는 크롤러/콘텐츠 품질 분석 도구가 하필 "탭 버튼 몇 개 +
+                         빈 칸"만 있는 이 짧은 순간을 캡처하면 페이지 전체가 내용 없는 것으로
+                         판정될 수 있었음(실제로 /fortune/ 가 그렇게 "완전히 빈 페이지"로
+                         보이는 현상이 배포 후에도 재현됨 — FIX-3만으로는 해결되지 않았음).
+                         그래서 로딩이 끝나기 전까지 아래 정적 설명 텍스트를 기본값으로
+                         채워두고, 실제 운세 결과가 준비되면(showFortune 실행 시 해당 함수가
+                         이 div의 innerHTML을 덮어씀) 자동으로 교체된다. 아래 setTimeout
+                         분기(로드 실패 시 안내)도 이제 이 칸을 임의로 비우지 않는다. -->
+                    <div class="seo-fallback" style="display:block">
+                        <h1 style="font-size:1.75rem;font-weight:900;margin-bottom:.75rem">오늘의 운세 — 무료 타로·MBTI 운세</h1>
+                        <p style="line-height:1.8;margin-bottom:1rem">
+                            호호플레이의 운세 서비스는 AI가 임의로 문장을 지어내는 방식이 아니라,
+                            사주 명리학과 정해진 계산 로직을 바탕으로 결과를 만들어냅니다.
+                            입력하신 이름·생년월일 등의 정보는 외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
+                        </p>
+                        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">제공 중인 운세 콘텐츠</h2>
+                        <ul style="line-height:2;padding-left:1.25rem">
+                            <li><strong>오늘의 운세</strong> — 이름과 생년월일로 보는 오늘 하루의 종합 운세</li>
+                            <li><strong>타로</strong> — 궁금한 주제를 고르고 카드 세 장을 뽑아 과거·현재·미래를 살펴보는 타로 리딩</li>
+                            <li><strong>MBTI+타로</strong> — MBTI 성격 유형을 반영한 타로 리딩</li>
+                            <li><strong>MBTI+꿈해몽</strong> — MBTI 성격 유형을 반영한 꿈 해몽</li>
+                        </ul>
+                        <p style="line-height:1.8;margin-top:1rem">
+                            잠시 후 실제 계산 로직으로 만든 오늘의 운세 결과가 이 자리에 자동으로 나타납니다.
+                        </p>
+                    </div>
+                    </div>
                 </div>
             `,
                         guide: `
@@ -1018,8 +1060,11 @@
                 if(window.fortuneReady) {
                     _enterFortune();
                 } else {
-                    var _fc = document.getElementById('fortune-content');
-                    if (_fc) _fc.innerHTML = '';
+                    // [FIX-4] 예전에는 여기서 #fortune-content 를 innerHTML = '' 로
+                    // 비워버렸음. 운세 모듈(/fortune.html)이 로드되는 짧은 순간 동안
+                    // 화면(그리고 크롤러가 찍는 스냅샷)이 완전히 빈 칸이 되는 문제가 있어
+                    // 제거함 — 위 fortune 템플릿에 기본값으로 넣어둔 정적 안내 텍스트가
+                    // 그대로 유지되다가, 아래에서 실제 콘텐츠로 교체된다.
                     window._pendingFortune = _enterFortune;
                     setTimeout(function(){
                         if(!window.fortuneReady){
