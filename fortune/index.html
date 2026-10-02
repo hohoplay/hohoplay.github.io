@@ -296,37 +296,47 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
-        <div class="seo-fallback page-transition max-w-3xl mx-auto py-6" style="display:block">
-        <div class="text-center mb-8">
-            <div class="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-5"></div>
-            <h1 class="text-2xl md:text-3xl font-black text-slate-900 mb-3">오늘의 운세 — 무료 타로·MBTI 운세</h1>
-            <p class="text-slate-500 leading-relaxed max-w-xl mx-auto">
-                호호플레이의 운세 서비스는 AI가 임의로 문장을 지어내는 방식이 아니라, 사주 명리학과
-                정해진 계산 로직을 바탕으로 결과를 만들어냅니다. 입력하신 이름·생년월일 등의
-                정보는 외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
+        <!-- [FIX-5] 사용자 요청으로 로딩 중 화면을 "눈에 보이는 화면"으로 두지 않기로 함.
+             아래 sr-only 클래스(Tailwind 기본 유틸리티)는 요소를 화면에서는 완전히
+             안 보이게 만들지만(실제 사람 눈에는 아무것도 안 보임 — 이전처럼 즉시 비어있다가
+             바로 실제 콘텐츠로 바뀌는 것처럼 느껴짐), display:none과 달리 DOM/접근성
+             트리에는 그대로 남아있어서 텍스트를 읽는 크롤러·스크린리더에게는 계속 보인다.
+             즉 FIX-4가 해결한 "크롤러가 빈 페이지로 보는" 문제는 그대로 유지하면서,
+             화면에 보이던 로딩 카드/스피너는 제거함. -->
+        <div class="seo-fallback sr-only">
+            <h1>오늘의 운세 — 무료 타로·MBTI 운세</h1>
+            <p>
+                호호플레이의 운세 서비스는 AI가 임의로 문장을 지어내는 방식이 아니라,
+                사주 명리학과 정해진 계산 로직을 바탕으로 결과를 만들어냅니다.
+                입력하신 이름·생년월일 등의 정보는 외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
             </p>
-        </div>
-        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8 mb-6">
-            <h2 class="font-black text-lg text-slate-800 mb-4">제공 중인 운세 콘텐츠</h2>
-            <ul class="space-y-3 text-slate-600">
-                <li><strong class="text-slate-800">오늘의 운세</strong> — 이름과 생년월일로 보는 오늘 하루의 종합 운세</li>
-                <li><strong class="text-slate-800">타로</strong> — 궁금한 주제를 고르고 카드 세 장을 뽑아 과거·현재·미래를 살펴보는 타로 리딩</li>
-                <li><strong class="text-slate-800">MBTI+타로</strong> — MBTI 성격 유형을 반영한 타로 리딩</li>
-                <li><strong class="text-slate-800">MBTI+꿈해몽</strong> — MBTI 성격 유형을 반영한 꿈 해몽</li>
+            <h2>제공 중인 운세 콘텐츠</h2>
+            <ul>
+                <li><strong>오늘의 운세</strong> — 이름과 생년월일로 보는 오늘 하루의 종합 운세</li>
+                <li><strong>타로</strong> — 궁금한 주제를 고르고 카드 세 장을 뽑아 과거·현재·미래를 살펴보는 타로 리딩</li>
+                <li><strong>MBTI+타로</strong> — MBTI 성격 유형을 반영한 타로 리딩</li>
+                <li><strong>MBTI+꿈해몽</strong> — MBTI 성격 유형을 반영한 꿈 해몽</li>
             </ul>
-        </div>
-        <p class="text-center text-slate-400 text-sm mb-8">잠시 후 실제 계산 로직으로 만든 오늘의 운세 결과가 이 자리에 자동으로 나타납니다.</p>
-        <div class="bg-slate-50 rounded-[2rem] border border-slate-100 p-8">
-            <h2 class="font-black text-base text-slate-700 mb-3">다른 코너도 둘러보세요</h2>
-            <ul class="space-y-2 text-sm text-slate-500">
-                <li><a href="/index.html" class="text-indigo-600 underline">전체게임</a> — 타이핑·퍼즐·러닝·레이싱 게임 10종</li>
-                <li><a href="/vote/" class="text-indigo-600 underline">익명투표</a> — 로그인 없이 바로 참여하는 매주 새 주제 투표</li>
-                <li><a href="/quiz/" class="text-indigo-600 underline">상식테스트</a> — 매주 바뀌는 5문제 상식 퀴즈</li>
-                <li><a href="/festival/" class="text-indigo-600 underline">축제 지도</a> — 전국 축제를 지도에서 바로 찾아보는 전국 축제 지도</li>
-                <li><a href="/game1.html" class="text-indigo-600 underline">호호타자RPG</a> 외 게임 9종</li>
-                <li><a href="/mgame1.html" class="text-indigo-600 underline">사다리게임</a> 외 초간단 미니게임 9종</li>
+            <p>각 탭에서 이름·생년월일 등을 입력하면 나만의 운세를 확인할 수 있고, 입력 전에도 실제 계산 로직으로 만든 샘플 결과를 미리 볼 수 있습니다.</p>
+            <h2>오늘의 운세 예시 (실제 계산 로직이 만든 샘플)</h2>
+            <p>생년월일을 입력하면 아래 6개 영역으로 결과가 나옵니다. 아래는 그 형식을 보여주는 예시이며, 실제 결과는 입력한 생년월일과 날짜에 따라 매일 달라집니다.</p>
+            <ul>
+                <li><strong>총운</strong> — 오늘 당신의 전체적인 기운은 따뜻하고 안정적입니다. 지금까지 묵묵히 걸어온 당신의 발걸음이 드디어 빛을 발하기 시작하는 시기입니다.</li>
+                <li><strong>애정운</strong> — 오늘 애정운이 따뜻하게 빛납니다. 솔직한 마음을 표현하는 것이 관계를 더욱 깊게 만들어줄 것입니다.</li>
+                <li><strong>금전운</strong> — 오늘 재물 흐름이 서서히 안정되어 가고 있습니다. 충동적인 소비보다는 계획적인 지출이 장기적으로 더 큰 여유를 만들어줍니다.</li>
+                <li><strong>직장운</strong> — 오늘 직장에서 당신의 능력이 빛을 발하는 날입니다. 그동안 쌓아온 경험과 실력이 인정받을 수 있는 기회가 생깁니다.</li>
+                <li><strong>학업운</strong> — 오늘 집중력이 높아지는 날입니다. 어렵게 느껴지던 내용도 오늘은 이해가 잘 될 것입니다.</li>
+                <li><strong>건강운</strong> — 오늘 몸과 마음의 균형에 신경 써주세요. 충분한 수면과 규칙적인 식사가 오늘의 활력을 높여줍니다.</li>
             </ul>
-        </div>
+            <h2>다른 코너도 둘러보세요</h2>
+            <ul>
+                <li><a href="/index.html">전체게임</a> — 타이핑·퍼즐·러닝·레이싱 게임 10종</li>
+                <li><a href="/vote/">익명투표</a> — 로그인 없이 바로 참여하는 매주 새 주제 투표</li>
+                <li><a href="/quiz/">상식테스트</a> — 매주 바뀌는 5문제 상식 퀴즈</li>
+                <li><a href="/festival/">축제 지도</a> — 전국 축제를 지도에서 바로 찾아보는 전국 축제 지도</li>
+                <li><a href="/game1.html">호호타자RPG</a> 외 게임 9종</li>
+                <li><a href="/mgame1.html">사다리게임</a> 외 초간단 미니게임 9종</li>
+            </ul>
         </div>
     </main>
 
@@ -638,24 +648,31 @@
                          채워두고, 실제 운세 결과가 준비되면(showFortune 실행 시 해당 함수가
                          이 div의 innerHTML을 덮어씀) 자동으로 교체된다. 아래 setTimeout
                          분기(로드 실패 시 안내)도 이제 이 칸을 임의로 비우지 않는다. -->
-                    <div class="seo-fallback page-transition max-w-2xl mx-auto py-8 text-center" style="display:block">
-                        <div class="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
-                        <p class="text-purple-700 font-bold text-sm mb-6">오늘의 운세 불러오는 중...</p>
-                        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8 text-left">
-                            <h1 class="text-xl font-black text-slate-900 mb-3">오늘의 운세 — 무료 타로·MBTI 운세</h1>
-                            <p class="text-slate-500 leading-relaxed mb-5">
-                                호호플레이의 운세 서비스는 AI가 임의로 문장을 지어내는 방식이 아니라, 사주 명리학과
-                                정해진 계산 로직을 바탕으로 결과를 만들어냅니다. 입력하신 이름·생년월일 등의 정보는
-                                외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
-                            </p>
-                            <h2 class="font-black text-base text-slate-800 mb-3">제공 중인 운세 콘텐츠</h2>
-                            <ul class="space-y-2 text-slate-600 text-sm">
-                                <li><strong class="text-slate-800">오늘의 운세</strong> — 이름과 생년월일로 보는 오늘 하루의 종합 운세</li>
-                                <li><strong class="text-slate-800">타로</strong> — 궁금한 주제를 고르고 카드 세 장을 뽑아 과거·현재·미래를 살펴보는 타로 리딩</li>
-                                <li><strong class="text-slate-800">MBTI+타로</strong> — MBTI 성격 유형을 반영한 타로 리딩</li>
-                                <li><strong class="text-slate-800">MBTI+꿈해몽</strong> — MBTI 성격 유형을 반영한 꿈 해몽</li>
-                            </ul>
-                        </div>
+                    <div class="seo-fallback sr-only">
+                        <h1>오늘의 운세 — 무료 타로·MBTI 운세</h1>
+                        <p>
+                            호호플레이의 운세 서비스는 AI가 임의로 문장을 지어내는 방식이 아니라,
+                            사주 명리학과 정해진 계산 로직을 바탕으로 결과를 만들어냅니다.
+                            입력하신 이름·생년월일 등의 정보는 외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
+                        </p>
+                        <h2>제공 중인 운세 콘텐츠</h2>
+                        <ul>
+                            <li><strong>오늘의 운세</strong> — 이름과 생년월일로 보는 오늘 하루의 종합 운세</li>
+                            <li><strong>타로</strong> — 궁금한 주제를 고르고 카드 세 장을 뽑아 과거·현재·미래를 살펴보는 타로 리딩</li>
+                            <li><strong>MBTI+타로</strong> — MBTI 성격 유형을 반영한 타로 리딩</li>
+                            <li><strong>MBTI+꿈해몽</strong> — MBTI 성격 유형을 반영한 꿈 해몽</li>
+                        </ul>
+                <h2>오늘의 운세 예시 (실제 계산 로직이 만든 샘플)</h2>
+                <p>생년월일을 입력하면 아래 6개 영역으로 결과가 나옵니다. 아래는 그 형식을 보여주는 예시이며, 실제 결과는 입력한 생년월일과 날짜에 따라 매일 달라집니다.</p>
+                <ul>
+                    <li><strong>총운</strong> — 오늘 당신의 전체적인 기운은 따뜻하고 안정적입니다. 지금까지 묵묵히 걸어온 당신의 발걸음이 드디어 빛을 발하기 시작하는 시기입니다.</li>
+                    <li><strong>애정운</strong> — 오늘 애정운이 따뜻하게 빛납니다. 솔직한 마음을 표현하는 것이 관계를 더욱 깊게 만들어줄 것입니다.</li>
+                    <li><strong>금전운</strong> — 오늘 재물 흐름이 서서히 안정되어 가고 있습니다. 충동적인 소비보다는 계획적인 지출이 장기적으로 더 큰 여유를 만들어줍니다.</li>
+                    <li><strong>직장운</strong> — 오늘 직장에서 당신의 능력이 빛을 발하는 날입니다. 그동안 쌓아온 경험과 실력이 인정받을 수 있는 기회가 생깁니다.</li>
+                    <li><strong>학업운</strong> — 오늘 집중력이 높아지는 날입니다. 어렵게 느껴지던 내용도 오늘은 이해가 잘 될 것입니다.</li>
+                    <li><strong>건강운</strong> — 오늘 몸과 마음의 균형에 신경 써주세요. 충분한 수면과 규칙적인 식사가 오늘의 활력을 높여줍니다.</li>
+                </ul>
+                        <p>잠시 후 실제 계산 로직으로 만든 오늘의 운세 결과가 이 자리에 자동으로 나타납니다.</p>
                     </div>
                     </div>
                 </div>
