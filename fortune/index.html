@@ -10,8 +10,18 @@
          빈 화면으로 보이는 문제가 있었음. 검색엔진·SNS 미리보기·애드센스
          심사 크롤러가 이 빈 화면 상태를 그대로 캡처할 위험이 있어 제거함.
          이제 #content는 항상 기본 상태(보임)로 시작하고, 아래
-         <noscript-fallback> 정적 텍스트가 즉시 보이다가 자바스크립트가
-         정상 동작하면 실제 인터랙티브 콘텐츠로 순간적으로 교체된다. -->
+         정적 텍스트가 즉시 보이다가 자바스크립트가
+         정상 동작하면 실제 인터랙티브 콘텐츠로 순간적으로 교체된다.
+
+         [FIX-3] 위 정적 텍스트를 감싸던 태그가 실제 HTML 표준 태그가 아닌
+         <noscript-fallback>(지어낸 이름)이었음 — 사람 브라우저는 모르는
+         태그도 그냥 보여주므로 화면엔 문제없었지만, "본문만 추출"하는
+         크롤러/콘텐츠 품질 분석 도구는 보통 div·p·article 같은 표준 태그
+         기준으로 본문 후보를 찾기 때문에, 생소한 태그 안의 텍스트는 후보로
+         인식조차 못 하고 "본문 없음"으로 판정할 수 있음(실제로 이렇게
+         "완전히 빈 페이지"로 보이는 게 확인됨 — 어쩌면 그동안의 애드센스
+         Low Value Content 판정에도 영향을 줬을 수 있음). 내용은 그대로 두고
+         태그만 표준 <div>로 교체. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 운세 - 호호플레이(HOHO PLAY) | 무료 타로·MBTI 운세</title>
     <meta name="description" content="오늘의 운세, 타로, MBTI+타로, MBTI+꿈해몽까지 한 번에. 호호플레이(HOHO PLAY)에서 무료로 확인하는 매일 업데이트되는 운세 서비스.">
@@ -274,7 +284,7 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
-        <noscript-fallback style="display:block">
+        <div class="seo-fallback" style="display:block">
         <h1 style="font-size:1.75rem;font-weight:900;margin-bottom:.75rem">오늘의 운세 — 무료 타로·MBTI 운세</h1>
         <p style="line-height:1.8;margin-bottom:1rem">
             호호플레이의 운세 서비스는 AI가 임의로 문장을 지어내는 방식이 아니라,
@@ -301,7 +311,7 @@
             <li><a href="/game1.html" style="color:#4f46e5;text-decoration:underline">호호타자RPG</a> 외 게임 9종</li>
             <li><a href="/mgame1.html" style="color:#4f46e5;text-decoration:underline">사다리게임</a> 외 초간단 미니게임 9종</li>
         </ul>
-        </noscript-fallback>
+        </div>
     </main>
 
     <!-- 푸터 -->
