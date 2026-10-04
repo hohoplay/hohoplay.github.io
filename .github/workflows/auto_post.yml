@@ -1,4 +1,4 @@
-name: 🌟 Daily Fortune 27 Posts
+name: 🌟 Daily Fortune Posts
 
 on:
   schedule:
@@ -39,7 +39,7 @@ on:
           - 'false'
           - 'true'
       force_chinese_daily:
-        description: '🐉 띠별 일간운세만 단독 발행 (12개)'
+        description: '🐉 [주의] 띠별 일간운세 12개 단독 발행 — 2026-10-04부터 정규 발행에서는 빠졌음(샵콜 전용 전환). 비상용 수동 트리거만 남겨둠'
         required: false
         default: 'false'
         type: choice
@@ -247,8 +247,11 @@ jobs:
 
       # ─────────────────────────────────────────────────────────
       # 케이스 C: 띠별 일간운세 단독 발행 (force_chinese_daily=true)
+      # [주의] 2026-10-04부터 정규 발행(아래 케이스 B)에서는 띠운세/별자리운세
+      # 개별 12개씩이 빠졌음(샵콜 전용 전환). 이 케이스는 그 결정과 별개로
+      # 남겨둔 수동 비상 트리거이니, 필요할 때만 의도적으로 켜서 쓸 것.
       # ─────────────────────────────────────────────────────────
-      - name: 🐉 띠별 일간운세 단독 발행 (12개)
+      - name: 🐉 [수동 전용] 띠별 일간운세 단독 발행 (12개)
         if: github.event.inputs.force_chinese_daily == 'true'
         env:
           BLOG_ID: ${{ secrets.BLOG_ID }}
@@ -262,9 +265,13 @@ jobs:
         run: python scripts/create_post.py
 
       # ─────────────────────────────────────────────────────────
-      # 케이스 B: 정규 27개 포스팅 (스케줄 / 일반 수동 실행)
+      # 케이스 B: 정규 포스팅 (스케줄 / 일반 수동 실행)
+      # 2026-10-04부터 띠운세/별자리운세 개별 12개씩은 Blogger에 발행하지 않음
+      # (fortune_feed.json 계산만 수행 — 샵콜 전용). 평일엔 별자리통합/띠통합/
+      # 별과띠가만나는시간 3개, 월요일엔 +오늘의명언 1+별자리주간 12,
+      # 매달 마지막 월요일엔 +띠별월간 12가 추가됨 — create_post.py 참고.
       # ─────────────────────────────────────────────────────────
-      - name: 🌟 27개 운세 포스팅 실행
+      - name: 🌟 운세 포스팅 실행
         if: github.event.inputs.force_monthly != 'true' && github.event.inputs.force_chinese_daily != 'true' && github.event.inputs.force_monthly_test != 'true' && github.event.inputs.force_weekly_test != 'true' && github.event.inputs.force_weekly != 'true' && github.event.inputs.force_zodiac_test != 'true' && github.event.inputs.force_chinese_test != 'true' && steps.check.outputs.skip != 'true'
         env:
           BLOG_ID: ${{ secrets.BLOG_ID }}
