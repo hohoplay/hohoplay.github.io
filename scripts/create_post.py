@@ -5402,13 +5402,17 @@ def main():
     else:
         print("💬 오늘의 명언 스킵 (월요일 아님)")
 
-    # ② 별자리 운세 12개
+    # ② 별자리 운세 12개 — 2026-10-04: 구글 블로그(Blogger) 발행은 중단하고,
+    #    build_zodiac_post() 호출 자체는 그대로 유지한다. 이 함수 안에서 오늘의
+    #    요약·행운아이템/색·링크를 _FORTUNE_FEED에 채워 넣는 부수효과가 일어나므로,
+    #    샵콜(salon-system)이 쓰는 data/fortune_feed.json은 지금과 동일하게 계속 생성된다.
+    #    반환된 (title, content, labels, description)는 posts에 넣지 않아 Blogger에는 올라가지 않는다.
     for z in ZODIACS:
-        posts.append(build_zodiac_post(z, today_str))
+        build_zodiac_post(z, today_str)
 
-    # ③ 띠 운세 12개
+    # ③ 띠 운세 12개 — 위와 동일한 이유로 Blogger 발행만 중단, fortune_feed 계산은 유지
     for c in CHINESE:
-        posts.append(build_chinese_post(c, today_str))
+        build_chinese_post(c, today_str)
 
     # ⑥ 운세SNS — 별자리 통합 1개 (매일, 기존 개별 12개는 그대로 유지)
     posts.append(build_zodiac_combined_post(today_str))
@@ -5451,7 +5455,9 @@ def main():
     weekly  = "별자리주간 12 + " if kst_now.weekday() == 0 else ""
     monthly = "띠별월간 12 + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
-    print(f"구성: {quote}별자리 12 + 띠 12 + 별자리통합 1 + 띠통합 1 + 별과띠가만나는시간 1 + {weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
+    print(f"구성: {quote}별자리통합 1 + 띠통합 1 + 별과띠가만나는시간 1 + {weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
+    print("ℹ️  별자리운세·띠운세 개별 12개씩은 2026-10-04부터 Blogger 발행 중단(샵콜 전용 운영) — "
+          "fortune_feed.json용 계산만 수행하고 블로그에는 올리지 않음\n")
 
     success = 0
     for i, (title, content, labels, description) in enumerate(posts, 1):
