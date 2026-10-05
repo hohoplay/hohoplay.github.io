@@ -383,7 +383,21 @@ def generate_detail_pages(festivals):
         overview = f.get('overview')  # 수동 등록 축제는 이미 설명이 주어져 있어 TourAPI를 안 부름
         if overview is None:
             overview = fetch_detail_overview(content_id)
-        intro = {} if f.get('overview') is not None else fetch_intro_fields(content_id)
+        if f.get('overview') is not None:
+            # 수동 등록 축제: TourAPI 부가정보(intro)를 부르지 않는 대신,
+            # manual_festivals.json에 적어둔 이용요금/주최주관/프로그램/홈페이지를
+            # TourAPI와 같은 모양(intro dict)으로 바꿔서 그대로 사용한다.
+            # 비워둔 항목은 build_detail_page_html()이 기존처럼 '정보 없음'으로 보여준다.
+            intro = {
+                'usetimefestival': f.get('fee', ''),
+                'sponsor1': f.get('sponsor1', ''),
+                'sponsor2': f.get('sponsor2', ''),
+                'program': f.get('program', ''),
+                'eventplace': f.get('eventplace', ''),
+                'eventhomepage': f.get('homepage', ''),
+            }
+        else:
+            intro = fetch_intro_fields(content_id)
         page_html = build_detail_page_html(f, overview, intro)
         with open(out_path, 'w', encoding='utf-8') as fp:
             fp.write(page_html)
@@ -966,7 +980,15 @@ def main():
                 'image': m.get('image', ''),
                 'tel': m.get('tel', ''),
                 'contentid': m.get('contentid'),
-                'overview': m.get('overview', '')
+                'overview': m.get('overview', ''),
+                # 이용요금/주최·주관/프로그램/행사장/홈페이지 — 적어두면 상세페이지에
+                # 그대로 표시되고, 비워두면 TourAPI 축제처럼 '정보 없음'으로 나온다.
+                'fee': m.get('fee', ''),
+                'sponsor1': m.get('sponsor1', ''),
+                'sponsor2': m.get('sponsor2', ''),
+                'program': m.get('program', ''),
+                'eventplace': m.get('eventplace', ''),
+                'homepage': m.get('homepage', '')
             }
             festivals.append(entry)
         print(f"수동 등록 축제 {len(manual_list)}건 확인, 이 중 유효 기간 내: {sum(1 for m in manual_list if not m.get('endDate') or m.get('endDate') >= TODAY)}건 반영")
