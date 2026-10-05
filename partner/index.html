@@ -268,6 +268,27 @@
     <!-- 메인 콘텐츠 영역 -->
     <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8"></main>
 
+    <div id="hoho-pick-placeholder" style="max-width:56rem;margin:0 auto 24px;padding:0 16px;"></div>
+    <script>
+    (function(){
+        var ph = document.getElementById('hoho-pick-placeholder');
+        if (!ph) return;
+        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+            ph.innerHTML = html;
+            var scripts = ph.querySelectorAll('script');
+            for (var i = 0; i < scripts.length; i++) {
+                var old = scripts[i];
+                var s = document.createElement('script');
+                for (var j = 0; j < old.attributes.length; j++) {
+                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+                }
+                s.textContent = old.textContent;
+                old.parentNode.replaceChild(s, old);
+            }
+        }).catch(function(){});
+    })();
+    </script>
+
     <!-- 푸터 -->
     
     <div id="inquiry-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:20px;overflow-y:auto">
