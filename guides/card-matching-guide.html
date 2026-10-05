@@ -54,6 +54,7 @@
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
                             <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
+                    <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -100,6 +101,7 @@
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
                 <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
+            <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -259,27 +261,6 @@
         </div>
     </div>
     </div>
-
-<div id="hoho-pick-guide-placeholder" style="margin-top:24px;"></div>
-<script>
-(function(){
-    var ph = document.getElementById('hoho-pick-guide-placeholder');
-    if (!ph) return;
-    fetch('/hoho-pick-guide.html').then(function(r){ return r.text(); }).then(function(html){
-        ph.innerHTML = html;
-        var scripts = ph.querySelectorAll('script');
-        for (var i = 0; i < scripts.length; i++) {
-            var old = scripts[i];
-            var s = document.createElement('script');
-            for (var j = 0; j < old.attributes.length; j++) {
-                s.setAttribute(old.attributes[j].name, old.attributes[j].value);
-            }
-            s.textContent = old.textContent;
-            old.parentNode.replaceChild(s, old);
-        }
-    }).catch(function(){});
-})();
-</script>
     </main>    </main>
 
     <div id="footer-placeholder"></div>
