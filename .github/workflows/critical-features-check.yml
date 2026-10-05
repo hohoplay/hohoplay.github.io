@@ -1,0 +1,26 @@
+name: Critical features check
+
+# 예전 백업 파일로 덮어쓰다가 다른 기능(예: HOHO PICK 로더)이
+# 같이 지워지는 사고를 push 시점에 바로 잡기 위한 체크입니다.
+# 실패해도 자동으로 고치지는 않습니다(잘못 고치면 더 위험해서) —
+# 대신 Actions 화면에 어떤 파일의 어떤 기능이 빠졌는지 바로 보여줍니다.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 핵심 기능 마커 확인
+        run: python3 scripts/check_critical_features.py
