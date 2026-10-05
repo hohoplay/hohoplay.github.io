@@ -1,0 +1,52 @@
+name: Sync sitemap.xml
+
+# 글(블로그 포스트)이 추가/삭제/이동될 때마다 sitemap.xml이 실제 파일
+# 상태와 어긋나는 문제를 자동으로 잡아줍니다.
+#
+# - push로 blog/ 또는 sitemap.xml이 바뀔 때마다 실행
+# - 매주 월요일 03:00(UTC, 한국시간 정오)에도 한 번 더 실행 (안전망 —
+#   파일을 지우기만 하고 sitemap은 안 건드린 경우도 잡아내기 위함)
+# - scripts/sync_sitemap.py 가 실제로 고칠 게 있으면 sitemap.xml을
+#   고쳐서 자동으로 커밋·푸시합니다. 고칠 게 없으면 아무 것도 안 합니다.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "blog/**"
+      - "sitemap.xml"
+      - "scripts/sync_sitemap.py"
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: sitemap.xml 동기화
+        id: sync
+        run: |
+          set +e
+          python3 scripts/sync_sitemap.py --root .
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: 변경된 sitemap.xml 커밋
+        if: steps.sync.outputs.exit_code == '2'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sitemap.xml
+          git commit -m "chore: auto-sync sitemap.xml (삭제/이동된 글 정리)"
+          git push
