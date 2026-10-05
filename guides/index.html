@@ -313,6 +313,24 @@
 </div>
     </main>
 
+    <div id="hoho-pick-placeholder" data-exclude="guide" style="max-width:56rem;margin:0 auto 24px;padding:0 16px;"></div>
+    <script>
+    (function(){
+        var ph = document.getElementById('hoho-pick-placeholder');
+        if (!ph) return;
+        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+            ph.innerHTML = html;
+            var scripts = ph.querySelectorAll('script');
+            scripts.forEach(function(oldScript){
+                var newScript = document.createElement('script');
+                if (oldScript.src) { newScript.src = oldScript.src; }
+                else { newScript.textContent = oldScript.textContent; }
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }).catch(function(){});
+    })();
+    </script>
+
     <div id="footer-placeholder"></div>
     <script>
         fetch('/footer.html')
