@@ -195,6 +195,7 @@
                             <a href="/quiz/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
                             <a href="/festival/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 지도</a>
                             <a href="/guides/index.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
+                            <a href="/dream/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div class="relative group">
@@ -246,6 +247,7 @@
                 <a href="/quiz/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
                 <a href="/festival/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 지도</a>
                 <a href="/guides/index.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
+                <a href="/dream/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
 
                 <div class="border-t my-2"></div>
                 <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">💬 소통</div>
@@ -265,27 +267,6 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8"></main>
-
-    <div id="hoho-pick-placeholder" style="max-width:56rem;margin:0 auto 24px;padding:0 16px;"></div>
-    <script>
-    (function(){
-        var ph = document.getElementById('hoho-pick-placeholder');
-        if (!ph) return;
-        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
-            ph.innerHTML = html;
-            var scripts = ph.querySelectorAll('script');
-            for (var i = 0; i < scripts.length; i++) {
-                var old = scripts[i];
-                var s = document.createElement('script');
-                for (var j = 0; j < old.attributes.length; j++) {
-                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
-                }
-                s.textContent = old.textContent;
-                old.parentNode.replaceChild(s, old);
-            }
-        }).catch(function(){});
-    })();
-    </script>
 
     <!-- 푸터 -->
     
