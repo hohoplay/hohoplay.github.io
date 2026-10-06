@@ -44,6 +44,12 @@ SITEMAP_PATH = os.path.join(REPO_ROOT, "sitemap.xml")
 # 상태라 추가함.
 CATEGORIES = ["공지사항", "업데이트", "게임소개", "호호 매거진"]
 
+# [ADD] 2026-10-06: 공지사항/업데이트는 운영 알림성 글로 보통 분량이 짧고 반복적이라,
+# AdSense 품질 심사에서 "얇은 콘텐츠"로 잡히기 쉬움(실제로 blog/posts/2,3,4,6,17,18,19.html
+# 7개가 이 문제로 수동으로 noindex 처리된 적 있음). 앞으로는 이 스크립트가 글을 생성하는
+# 시점에 카테고리만 보고 자동으로 noindex를 넣어서, 매번 수동으로 찾아 고칠 필요가 없게 한다.
+NOINDEX_CATEGORIES = {"공지사항", "업데이트"}
+
 # [ADD] 2026-09-21: 매거진 카테고리 전체 글 목록을, ?board=magazine 같은
 # 쿼리스트링이 아니라 실제 정적 파일이 있는 주소로도 제공하기 위해 추가.
 # 이 슬러그는 한 번 정해지면 이후 매거진 글이 계속 늘어나도 파일 안의 목록
@@ -344,6 +350,26 @@ def render_post_html(template, post):
     # 무시되니 안전함 — 아직 실제 템플릿 파일을 못 받아서, 있다면 이걸로 채워질
     # 자리를 미리 준비만 해둔 것.)
     html_out = html_out.replace("{{POST_URL}}", post_output_url(post))
+
+    # [ADD] 2026-10-06: 공지사항/업데이트 글은 생성 시점에 canonical 태그 바로 다음 줄에
+    # noindex 메타 태그를 자동으로 끼워넣는다. follow는 유지해서(noindex,follow) 검색엔진이
+    # 이 페이지 자체는 색인하지 않지만, 페이지 안의 다른 링크(다른 글, 메뉴 등)는 계속
+    # 따라가게 한다. canonical 줄을 못 찾으면(템플릿 변경 등) 조용히 건너뛰지 않고 로그를
+    # 남겨서 Actions 화면에서 바로 알 수 있게 한다.
+    if post.get("category") in NOINDEX_CATEGORIES:
+        canonical_line = f'<link rel="canonical" href="{post_output_url(post)}">'
+        if canonical_line in html_out:
+            html_out = html_out.replace(
+                canonical_line,
+                canonical_line + '\n    <meta name="robots" content="noindex,follow">',
+                1,
+            )
+        else:
+            print(
+                f"⚠️ {post['id']}: canonical 태그를 못 찾아 noindex를 추가하지 못했습니다 (템플릿 확인 필요).",
+                file=sys.stderr,
+            )
+
     return html_out
 
 
@@ -666,6 +692,17 @@ def update_sitemap(posts):
             if did_remove:
                 removed += 1
                 print(f"  ✓ sitemap.xml에서 예전 글 주소({old_url}) 항목 제거 → {url}")
+
+        # [ADD] 2026-10-06: 공지사항/업데이트(noindex 대상)는 sitemap에 올리지 않는다.
+        # 이미 올라가 있던 과거 항목(blog/posts/2,3,4,6,17,18,19.html 등 수동으로 noindex만
+        # 처리하고 sitemap 정리는 미처 못했던 글들)도 다음 실행 때 자동으로 제거되어, 더
+        # 이상 수동으로 sitemap을 손볼 필요가 없어진다.
+        if p.get("category") in NOINDEX_CATEGORIES:
+            content, did_remove = _remove_sitemap_url(content, url)
+            if did_remove:
+                removed += 1
+                print(f"  ✓ sitemap.xml에서 비색인 대상 글 주소({url}) 제거 (category={p['category']})")
+            continue
 
         if url in content:
             continue
