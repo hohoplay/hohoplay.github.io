@@ -58,6 +58,16 @@
         }
         .period-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 
+        /* [ADD] 2026-10-08: 메인 화면을 "아이랑 갈만한 곳"으로, 축제는 보조 탭으로 전환하기
+           위한 모드 전환 버튼. 기존 지역/테마/기간/GPS/검색 기능은 전부 그대로 두고,
+           JS에서 festival-only 컨트롤의 style.display만 모드에 따라 토글한다. */
+        .mode-toggle-row { display: flex; gap: 6px; margin-bottom: 10px; }
+        .mode-toggle-btn {
+            flex: 1; border: none; padding: 10px 8px; border-radius: 10px;
+            font-size: 13px; font-weight: 800; color: #64748b; background: #f1f5f9; cursor: pointer;
+        }
+        .mode-toggle-btn.active { background: #1a73e8; color: #fff; }
+
         .festival-card {
             position: absolute; bottom: 20px; left: 50%;
             transform: translate(-50%, 150%);
@@ -187,10 +197,14 @@
     <div class="today-panel-backdrop" id="todayBackdrop" onclick="closeTodayPanel()"></div>
     <aside class="today-panel" id="todayPanel">
         <button class="today-panel-close" onclick="closeTodayPanel()" aria-label="닫기">✕</button>
+        <div class="mode-toggle-row">
+            <button type="button" id="modeBtnKids" class="mode-toggle-btn active" onclick="switchMode('kids')">🧒 아이랑 갈만한 곳</button>
+            <button type="button" id="modeBtnFestival" class="mode-toggle-btn" onclick="switchMode('festival')">🎪 축제</button>
+        </div>
         <div style="margin-bottom:10px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-                <h2 style="margin-bottom:0;">🎪 축제가 열리는 곳</h2>
-                <div style="display:flex; gap:2px; background:#f1f5f9; padding:3px; border-radius:10px; flex-shrink:0;">
+                <h2 id="panelTitle" style="margin-bottom:0;">🎪 축제가 열리는 곳</h2>
+                <div id="periodBtnRow" style="display:flex; gap:2px; background:#f1f5f9; padding:3px; border-radius:10px; flex-shrink:0;">
                     <button type="button" class="period-btn active" data-period="today" onclick="setPeriod('today')">오늘</button>
                     <button type="button" class="period-btn" data-period="month" onclick="setPeriod('month')">이번달</button>
                     <button type="button" class="period-btn" data-period="nextmonth" onclick="setPeriod('nextmonth')">다음달</button>
@@ -234,6 +248,7 @@
                 <option value="watersports">🚤 수상레저</option>
             </select>
         </div>
+        <div id="festivalSearchControls">
         <button type="button" id="gpsBtn" onclick="useMyLocation()" style="width:100%; margin-bottom:8px; padding:9px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#334155; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
             📍 내 주변으로 보기
         </button>
@@ -249,10 +264,11 @@
             검색 중: "<span id="titleSearchTerm"></span>" <button type="button" onclick="clearTitleSearch()" style="border:none; background:none; color:#94a3b8; cursor:pointer; font-size:12px; text-decoration:underline; padding:0; margin-left:4px;">지우기</button>
         </div>
         <div style="margin-bottom:14px;"></div>
+        </div>
         <ul class="today-list">
             <!-- TODAY_FESTIVALS_START -->
-<li class="today-item" data-cid="2751090" onclick="focusFestival(37.2855120000, 127.0096730000); closeTodayPanel();"><span class="today-region">서울·인천·경기</span><strong>수원화성 미디어아트</strong><span class="today-date">📅 2026.09.19 ~ 2026.10.06</span><span class="today-addr">📍 경기도 수원시 팔달구 장안동</span><p class="today-desc">세계문화유산 수원화성을 배경으로 2021년부터 개최하고 있는 수원화성 미디어아트는 2021~2025년 만천명월:정조의 꿈, 빛이되다 시즌을 끝내고
-2026년 「새빛동락(同樂) : 수원화성(華城), 빛으로 피어나다」 &#x27;[새빛]으로 손님을 맞이하고, [동락]으로 함께 즐기는 수원화…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2751090.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%88%98%EC%9B%90%ED%99%94%EC%84%B1%20%EB%AF%B8%EB%94%94%EC%96%B4%EC%95%84%ED%8A%B8,37.2855120000,127.0096730000" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4114329" onclick="focusFestival(38.2552009442, 127.2020009670); closeTodayPanel();"><span class="today-region">강원</span><strong>국가유산 미디어아트 철원 노동당사</strong><span class="today-date">📅 2026.09.11 ~ 2026.10.11</span><span class="today-addr">📍 강원특별자치도 철원군 철원읍 금강산로 265</span><p class="today-desc">2026 국가유산 미디어아트 철원 노동당사는 한국전쟁과 분단의 역사를 간직한 철원 노동당사와 철원역사문화공원 일원을 무대로 국가유산의 역사적 가치와 장소성을 미디어아트로 재해석하는 야간 문화예술 행사이다. 행사 주제는 ‘평화비상: 기억에서 공감으로, 치유를 넘어 미래로!’이며 과거의 기…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4114329.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B5%AD%EA%B0%80%EC%9C%A0%EC%82%B0%20%EB%AF%B8%EB%94%94%EC%96%B4%EC%95%84%ED%8A%B8%20%EC%B2%A0%EC%9B%90%20%EB%85%B8%EB%8F%99%EB%8B%B9%EC%82%AC,38.2552009442,127.2020009670" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="506465" onclick="focusFestival(36.1001535022, 127.5005221346); closeTodayPanel();"><span class="today-region">세종·대전·충청</span><strong>금산세계인삼축제</strong><span class="today-date">📅 2026.10.02 ~ 2026.10.11</span><span class="today-addr">📍 충청남도 금산군 금산읍 인삼광장로 30</span><p class="today-desc">1,500여년의 역사가 깃든 인삼의 본고장 충남 금산에서 개최되는 금산세계인삼축제에서는 인삼캐기체험과 홍삼팩 마사지, 홍삼족욕, 국제인삼교역전, 전통인삼문화체험 등 온 계층이 즐기는 다채로운 체험과 볼거리, 알뜰 쇼핑으로 관광객 만족도를 높여가고 있으며, 행사장 곳곳에서는 인삼과 약초를…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/506465.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B8%88%EC%82%B0%EC%84%B8%EA%B3%84%EC%9D%B8%EC%82%BC%EC%B6%95%EC%A0%9C,36.1001535022,127.5005221346" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3006246" onclick="focusFestival(35.1730461533, 129.1276550014); closeTodayPanel();"><span class="today-region">경상도</span><strong>2026 부산국제공연예술마켓(BPAM)</strong><span class="today-date">📅 2026.10.01 ~ 2026.10.07</span><span class="today-addr">📍 부산광역시 해운대구 센텀중앙로 55 (우동)</span><p class="today-desc">부산국제공연예술마켓(Busan International Performing Arts Market·BPAM·비팜)은 2023년 첫 개최를 시작으로 올해 4회차를 맞이한, 글로벌 허브도시 부산에서 열리는 축제형 공연예술마켓이다. 예술가, 기획자, 프로듀서 등 국내외 공연예술 전문가들이 한자…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3006246.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EB%B6%80%EC%82%B0%EA%B5%AD%EC%A0%9C%EA%B3%B5%EC%97%B0%EC%98%88%EC%88%A0%EB%A7%88%EC%BC%93%28BPAM%29,35.1730461533,129.1276550014" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4114185" onclick="focusFestival(35.1470573042, 126.9200314350); closeTodayPanel();"><span class="today-region">광주·전라도</span><strong>2026 광주미식주간</strong><span class="today-date">📅 2026.10.02 ~ 2026.10.11</span><span class="today-addr">📍 전남광주통합특별시 동구 문화전당로 38 (광산동)</span><p class="today-desc">2026 광주미식주간은 전남광주의 풍부한 음식문화와 지역 미식자원을 생생한 관광 콘텐츠로 연결하는 미식 축제이다. 식재료와 음식, 사람과 공간, 그리고 문화가 하나의 선으로 이어지며 광주만의 독창적인 미식 생태계를 입체적으로 경험할 수 있다. 오랜 시간 지역의 맛을 지켜온 명인과 장인부…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4114185.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EA%B4%91%EC%A3%BC%EB%AF%B8%EC%8B%9D%EC%A3%BC%EA%B0%84,35.1470573042,126.9200314350" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3512205" onclick="focusFestival(33.24708081676599, 126.56445889201075); closeTodayPanel();"><span class="today-region">제주</span><strong>2026 서귀포 원도심 문화페스티벌</strong><span class="today-date">📅 2026.04.11 ~ 2026.10.30</span><span class="today-addr">📍 제주특별자치도 서귀포시 이중섭로 11 (서귀동)</span><p class="today-desc">2026 서귀포 원도심 문화페스티벌’은 서귀포 이중섭로에서 펼쳐지는 야간 문화공연이다. 화려한 조명 아래 음악, 댄스, 퍼포먼스 등 다양한 장르의 공연이 관객들들에게 다양한 볼거리를 제공한다. 일상에서 벗어나 예술과 여유가 어우러진 특별한 추억을 남기고 싶은 이들에게 적극 추천하는 행사…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3512205.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%84%9C%EA%B7%80%ED%8F%AC%20%EC%9B%90%EB%8F%84%EC%8B%AC%20%EB%AC%B8%ED%99%94%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,33.24708081676599,126.56445889201075" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li>
+<li class="today-item" data-cid="2666388" onclick="focusFestival(37.5137129859, 127.1043018292); closeTodayPanel();"><span class="today-region">서울·인천·경기</span><strong>아이가 행복입니다 S9</strong><span class="today-date">📅 2026.10.08 ~ 2026.10.09</span><span class="today-addr">📍 서울특별시 송파구 올림픽로 300 (신천동)</span><p class="today-desc">조선일보가 주최하는 &#x27;아이가 행복입니다&#x27;는 저출생 극복과 양육 친화적 사회 환경 조성을 목표로 개최되는 사회공헌 행사이다. 본 행사는 출산과 육아의 가치를 확산하고 가족이 함께 즐길 수 있는 교류의 장을 제공하기 위해 기획되었다.
+행사는 방문객이 무료로 이용할 수 있는…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2666388.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%95%84%EC%9D%B4%EA%B0%80%20%ED%96%89%EB%B3%B5%EC%9E%85%EB%8B%88%EB%8B%A4%20S9,37.5137129859,127.1043018292" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4116722" onclick="focusFestival(37.2207131882, 128.8167643240); closeTodayPanel();"><span class="today-region">강원</span><strong>탄광문화축제</strong><span class="today-date">📅 2026.10.07 ~ 2026.10.10</span><span class="today-addr">📍 강원특별자치도 정선군 사북읍 사북리 392-1</span><p class="today-desc">올해로 1회를 맞은 &#x27;2026 탄광문화축제&#x27;는 M650 박물관 개관을 기념하여 강원특별자치도 정선군 사북읍 일원에서 개최되는 복합 문화 축제이다. 이 축제는 과거 대한민국 산업화를 이끈 광부들의 삶과 탄광의 역사를 현대적인 문화예술 프로그램으로 선보인다. 행사의 주요…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4116722.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%ED%83%84%EA%B4%91%EB%AC%B8%ED%99%94%EC%B6%95%EC%A0%9C,37.2207131882,128.8167643240" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="506465" onclick="focusFestival(36.1001535022, 127.5005221346); closeTodayPanel();"><span class="today-region">세종·대전·충청</span><strong>금산세계인삼축제</strong><span class="today-date">📅 2026.10.02 ~ 2026.10.11</span><span class="today-addr">📍 충청남도 금산군 금산읍 인삼광장로 30</span><p class="today-desc">1,500여년의 역사가 깃든 인삼의 본고장 충남 금산에서 개최되는 금산세계인삼축제에서는 인삼캐기체험과 홍삼팩 마사지, 홍삼족욕, 국제인삼교역전, 전통인삼문화체험 등 온 계층이 즐기는 다채로운 체험과 볼거리, 알뜰 쇼핑으로 관광객 만족도를 높여가고 있으며, 행사장 곳곳에서는 인삼과 약초를…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/506465.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B8%88%EC%82%B0%EC%84%B8%EA%B3%84%EC%9D%B8%EC%82%BC%EC%B6%95%EC%A0%9C,36.1001535022,127.5005221346" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2746930" onclick="focusFestival(35.5896217023, 127.9175083031); closeTodayPanel();"><span class="today-region">경상도</span><strong>감악산 꽃별 여행</strong><span class="today-date">📅 2026.09.18 ~ 2026.10.11</span><span class="today-addr">📍 경상남도 거창군 신원면 연수사길 452</span><p class="today-desc">제6회 감악산 꽃별여행은 2026년 9월 18일부터 10월 11일까지 거창군 신원면 감악산 정상 별바람언덕 일원에서 열리는 가을 대표 축제다. 올해 주제는 ‘나를 위한 보라색 쉼표 하나’로, 가을의 정취와 감악산의 자연 풍광을 배경으로 다양한 공연과 체험, 먹거리가 어우러진다. 축제는…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2746930.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B0%90%EC%95%85%EC%82%B0%20%EA%BD%83%EB%B3%84%20%EC%97%AC%ED%96%89,35.5896217023,127.9175083031" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="506838" onclick="focusFestival(35.8208421818, 127.1480103010); closeTodayPanel();"><span class="today-region">광주·전라도</span><strong>전주한지문화축제</strong><span class="today-date">📅 2026.10.08 ~ 2026.10.10</span><span class="today-addr">📍 전북특별자치도 전주시 완산구 현무1길 20 (경원동3가)</span><p class="today-desc">전주한지문화축제는 1997년 출범한 이래 오늘에 이르기까지 전주한지의 산업화와 세계화를 선도하며, 천년 전주한지의 우수성을 널리 알리는 데 앞장서고 있다. 또한 한지가 지닌 다양한 기능과 가치를 문화적으로 재해석하여, 오랜 세월 사람과 함께해 온 한지의 아름다움과 가치를 축제를 통해 표…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/506838.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%A0%84%EC%A3%BC%ED%95%9C%EC%A7%80%EB%AC%B8%ED%99%94%EC%B6%95%EC%A0%9C,35.8208421818,127.1480103010" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3512205" onclick="focusFestival(33.24708081676599, 126.56445889201075); closeTodayPanel();"><span class="today-region">제주</span><strong>2026 서귀포 원도심 문화페스티벌</strong><span class="today-date">📅 2026.04.11 ~ 2026.10.30</span><span class="today-addr">📍 제주특별자치도 서귀포시 이중섭로 11 (서귀동)</span><p class="today-desc">2026 서귀포 원도심 문화페스티벌’은 서귀포 이중섭로에서 펼쳐지는 야간 문화공연이다. 화려한 조명 아래 음악, 댄스, 퍼포먼스 등 다양한 장르의 공연이 관객들들에게 다양한 볼거리를 제공한다. 일상에서 벗어나 예술과 여유가 어우러진 특별한 추억을 남기고 싶은 이들에게 적극 추천하는 행사…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3512205.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%84%9C%EA%B7%80%ED%8F%AC%20%EC%9B%90%EB%8F%84%EC%8B%AC%20%EB%AC%B8%ED%99%94%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,33.24708081676599,126.56445889201075" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li>
 <!-- TODAY_FESTIVALS_END -->
         </ul>
         <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.6">
@@ -287,14 +303,15 @@
                     <span id="cardAddrText"></span>
                     <button type="button" id="cardAddrCopyBtn" class="copy-addr-btn" title="주소 복사" style="display:none">📋</button>
                 </p>
+                <p id="cardDesc" style="font-size:12px; color:#444; line-height:1.45; margin-top:4px; display:none;"></p>
                 <a id="cardDetailLink" href="#" style="font-size:11px; color:#1a73e8; font-weight:700; text-decoration:none; display:none; margin-top:4px;">상세보기 →</a>
             </div>
             <ul id="cardShelterList" class="shelter-list"></ul>
         </div>
 
         <div class="remote-menu">
-            <button type="button" class="remote-btn today-toggle-btn" onclick="openTodayPanel()" aria-label="오늘의 축제 목록 열기">
-                <span>🎪</span><span class="label">축제</span>
+            <button type="button" class="remote-btn today-toggle-btn" onclick="openTodayPanel()" aria-label="목록 열기">
+                <span id="todayToggleIcon">🧒</span><span class="label" id="todayToggleLabel">장소</span>
             </button>
             <a href="/" class="remote-btn" aria-label="홈으로 가기">
                 <span>🏠</span><span class="label">홈</span>
@@ -549,20 +566,120 @@
     let festivalData = [];
     let allMarkers = [];
 
-    fetch('/data/festivals.json')
-        .then(res => res.json())
-        .then(data => {
-            festivalData = data;
-            renderMarkers(data);
-            // 기본 화면(전국 전체보기)의 "오늘의 축제" 목록은 서버가 미리 만들어둔 정적
-            // HTML을 그대로 두고(SEO용), 사용자가 지역을 바꿀 때만 아래 renderTodayPanel이 동작한다.
-            // 다만 서버 쪽 갱신이 그날 실패해서 "불러오는 중..." 자리표시가 그대로 남아있는
-            // 경우를 대비해, 그 상태를 감지하면 지금 받은 데이터로 즉시 한 번 더 그려준다.
+    // [ADD] 2026-10-08: 메인(기본) 화면 모드. 'kids' = 아이랑 갈만한 곳(기본), 'festival' = 축제(보조).
+    let currentMode = 'kids';
+
+    // 모드에 따라 화면의 틀(제목/버튼/축제 전용 컨트롤 표시여부)만 바꾼다 — 실제 목록/마커를
+    // 다시 그리는 건 renderForCurrentMode()가 담당한다. festivalData가 아직 안 받아진
+    // 상태(페이지를 막 열었을 때)라면 목록만 "불러오는 중" 상태로 비워, 서버가 미리 그려둔
+    // 정적 축제 목록(SEO용)이 "아이랑 갈만한 곳" 제목 아래에 잠깐 보이는 걸 막는다.
+    function applyModeUI(mode) {
+        const btnKids = document.getElementById('modeBtnKids');
+        const btnFestival = document.getElementById('modeBtnFestival');
+        if (btnKids) btnKids.classList.toggle('active', mode === 'kids');
+        if (btnFestival) btnFestival.classList.toggle('active', mode === 'festival');
+
+        const panelTitle = document.getElementById('panelTitle');
+        if (panelTitle) panelTitle.textContent = mode === 'kids' ? '🧒 아이랑 갈만한 곳' : '🎪 축제가 열리는 곳';
+
+        const isFestival = mode === 'festival';
+        const periodBtnRow = document.getElementById('periodBtnRow');
+        if (periodBtnRow) periodBtnRow.style.display = isFestival ? 'flex' : 'none';
+        const themeSelectEl = document.getElementById('themeSelect');
+        if (themeSelectEl) themeSelectEl.style.display = isFestival ? '' : 'none';
+        const festivalSearchControls = document.getElementById('festivalSearchControls');
+        if (festivalSearchControls) festivalSearchControls.style.display = isFestival ? '' : 'none';
+
+        const toggleIcon = document.getElementById('todayToggleIcon');
+        const toggleLabel = document.getElementById('todayToggleLabel');
+        if (toggleIcon) toggleIcon.textContent = mode === 'kids' ? '🧒' : '🎪';
+        if (toggleLabel) toggleLabel.textContent = mode === 'kids' ? '장소' : '축제';
+
+        if (festivalData.length === 0) {
+            const listEl = document.querySelector('.today-list');
+            if (listEl) listEl.innerHTML = '<li class="today-empty">불러오는 중...</li>';
+        }
+    }
+    applyModeUI(currentMode); // 데이터 도착 전에도 먼저 "아이랑 갈만한 곳" 모드로 화면을 맞춰둔다
+
+    // "아이랑 갈만한 곳" 목록 — v1은 지역 필터만 지원한다(테마/기간/GPS/검색은 축제 모드 전용).
+    // 사진으로 장소를 받아 data/kids_places.json을 채워나갈 예정이라 처음엔 0건일 수 있고,
+    // 그 경우엔 "아직 등록된 장소가 없습니다" 안내만 보여준다.
+    function pickKidsList(key) {
+        const kidsItems = festivalData.filter(function (item) { return item.type === 'kids'; });
+        if (key === 'all') return kidsItems;
+        const kws = REGION_KEYWORDS[key] || [];
+        return kidsItems.filter(function (item) {
+            return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+        });
+    }
+
+    function renderKidsPanel(key) {
+        const listEl = document.querySelector('.today-list');
+        if (!listEl) return;
+        const items = pickKidsList(key);
+        if (items.length === 0) {
+            listEl.innerHTML = '<li class="today-empty">아직 등록된 장소가 없습니다. 조금만 기다려주세요!</li>';
+            return;
+        }
+        listEl.innerHTML = items.map(function (item) { return buildTodayItemHtml(item, false); }).join('');
+    }
+
+    function applyKidsFiltersToMarkers(key) {
+        const filtered = pickKidsList(key);
+        renderMarkers(filtered);
+        if (key === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
+    }
+
+    // 현재 모드(currentMode)에 맞는 목록/마커를 다시 그린다. 지역 선택(filterRegion)이든
+    // 모드 전환(switchMode)이든 전부 이 함수로 모아서, 두 군데서 같은 분기를 중복해서
+    // 쓰지 않게 했다.
+    function renderForCurrentMode() {
+        if (currentMode === 'kids') {
+            applyKidsFiltersToMarkers(currentRegionKey);
+            renderKidsPanel(currentRegionKey);
+        } else {
+            applyRegionAndThemeToMarkers(currentRegionKey);
+            renderTodayPanel(currentRegionKey);
+        }
+    }
+
+    function switchMode(mode) {
+        if (currentMode === mode) return;
+        currentMode = mode;
+        applyModeUI(mode);
+        if (gpsModeActive) {
+            deactivateNearbyMode(); // 내부에서 filterRegion → renderForCurrentMode까지 다시 그려줌
+        } else if (festivalData.length > 0) {
+            renderForCurrentMode();
+        }
+    }
+
+    Promise.all([
+        fetch('/data/festivals.json').then(res => res.json()).catch(() => []),
+        fetch('/data/kids_places.json').then(res => res.json()).catch(() => [])
+    ]).then(function (results) {
+        const festivals = results[0];
+        const kidsPlaces = results[1];
+        const kidsTagged = (Array.isArray(kidsPlaces) ? kidsPlaces : []).map(function (p) {
+            return Object.assign({}, p, { type: 'kids' });
+        });
+        festivalData = festivals.concat(kidsTagged);
+        renderForCurrentMode();
+
+        // 기본 화면(축제 모드 + 전국 전체보기)의 "오늘의 축제" 목록은 서버가 미리 만들어둔
+        // 정적 HTML을 그대로 두고(SEO용), 사용자가 지역을 바꿀 때만 renderTodayPanel이 동작한다.
+        // 다만 서버 쪽 갱신이 그날 실패해서 "불러오는 중..." 자리표시가 그대로 남아있는 경우를
+        // 대비해, 그 상태를 감지하면 지금 받은 데이터로 즉시 한 번 더 그려준다. (기본 모드는
+        // 이제 kids라 renderForCurrentMode가 이미 화면을 그렸으므로, 이 보정은 festival 모드일
+        // 때만 의미가 있다.)
+        if (currentMode === 'festival') {
             const listEl = document.querySelector('.today-list');
             if (listEl && listEl.textContent.includes('불러오는 중')) {
                 renderTodayPanel('all');
             }
-        });
+        }
+    });
 
     // [성능] 필터를 바꿀 때마다 마커를 전부 새로 만들면(생성 + 이벤트 등록), 데이터가
     // 수백~천 건 단위로 늘어난 지금(축제+자연관광지) 필터 전환마다 눈에 띄게 느려진다.
@@ -578,9 +695,23 @@
         document.getElementById('cardTitle').innerText = item.title;
         document.getElementById('cardDate').innerText = (item.startDate && item.endDate)
             ? `📅 ${item.startDate} ~ ${item.endDate}`
-            : (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : '🌳 상시 개방');
+            : (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : (item.type === 'kids' ? '🧒 상시 이용 가능' : '🌳 상시 개방'));
 
         document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
+
+        // [ADD] 2026-10-08: "아이랑 갈만한 곳" 데이터에만 있는 한줄 설명(desc) — 있으면 보여주고,
+        // 없으면(기존 축제 항목 등) 숨긴다.
+        const cardDescEl = document.getElementById('cardDesc');
+        if (cardDescEl) {
+            if (item.desc) {
+                cardDescEl.textContent = item.desc;
+                cardDescEl.style.display = 'block';
+            } else {
+                cardDescEl.textContent = '';
+                cardDescEl.style.display = 'none';
+            }
+        }
+
         const addrCopyBtn = document.getElementById('cardAddrCopyBtn');
         if (item.addr) {
             addrCopyBtn.style.display = 'inline';
@@ -695,7 +826,10 @@
 
     // 축제처럼 기간(startDate/endDate)이 있는 게 아니라 항상 이용 가능한 장소 타입.
     // 자연관광지(park)에 이어 무더위쉼터(shelter)도 같은 성격이라 함께 묶어서 판정한다.
-    const ALWAYS_OPEN_TYPES = ['park', 'shelter', 'camping', 'watersports'];
+    // [ADD] 2026-10-08: "아이랑 갈만한 곳"(kids)도 기간 개념이 없는 상시 장소라 포함시킨다.
+    // 이렇게 하면 축제 모드(기본 테마/지역 보기)에서는 kids 항목이 기존 로직 그대로
+    // 자동 제외되어, 축제 쪽 동작에는 전혀 영향이 없다.
+    const ALWAYS_OPEN_TYPES = ['park', 'shelter', 'camping', 'watersports', 'kids'];
     function isAlwaysOpenType(type) {
         return ALWAYS_OPEN_TYPES.indexOf(type) !== -1;
     }
@@ -815,7 +949,7 @@
         const addr = escapeHtml(item.addr);
         const dateLine = (item.startDate && item.endDate)
             ? '<span class="today-date">📅 ' + formatDateRange(item.startDate, item.endDate) + '</span>'
-            : '<span class="today-date">' + (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : '🌳 상시 개방') + '</span>';
+            : '<span class="today-date">' + (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : (item.type === 'kids' ? '🧒 상시 이용 가능' : '🌳 상시 개방')) + '</span>';
         const regionTag = (typeof distanceKm === 'number')
             ? '<span class="today-region">📍 ' + distanceKm.toFixed(1) + 'km</span>'
             : (showRegionTag && item._regionKey)
@@ -832,13 +966,20 @@
         const linksHtml = linkParts.length
             ? '<div style="display:flex; gap:12px; margin-top:2px;">' + linkParts.join('') + '</div>'
             : '';
+        // [ADD] 2026-10-08: "아이랑 갈만한 곳" 데이터는 축제처럼 나중에 비동기로 설명을 받아오지
+        // 않고(loadOverviewsFor는 contentid로 공공API를 조회하는 축제 전용 로직), item.desc를
+        // 바로 가지고 있으므로 처음부터 채워서 보여준다. desc가 없으면(축제 항목) 기존처럼
+        // "today-desc-loading" 빈 자리만 두고 loadOverviewsFor가 나중에 채운다.
+        const descHtml = item.desc
+            ? '<p class="today-desc">' + escapeHtml(item.desc) + '</p>'
+            : '<p class="today-desc today-desc-loading"></p>';
         return '<li class="today-item" data-cid="' + escapeHtml(item.contentid || '') + '" '
             + 'onclick="focusFestivalItem(' + lat + ', ' + lng + ', this.dataset.cid); closeTodayPanel();">'
             + regionTag
             + '<strong>' + title + '</strong>'
             + dateLine
             + '<span class="today-addr">📍 ' + addr + '</span>'
-            + '<p class="today-desc today-desc-loading"></p>'
+            + descHtml
             + linksHtml
             + '</li>';
     }
@@ -1036,8 +1177,7 @@
             const btn = document.getElementById('gpsBtn');
             if (btn) { btn.textContent = '📍 내 주변으로 보기'; btn.style.background = '#fff'; btn.style.color = '#334155'; }
         }
-        applyRegionAndThemeToMarkers(key);
-        renderTodayPanel(key);
+        renderForCurrentMode();
     }
 
     // ── 내 주변으로 보기 (GPS) ──────────────────────────────────────
