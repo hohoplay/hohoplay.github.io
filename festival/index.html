@@ -223,11 +223,22 @@
         <div style="margin-bottom:10px;">
             <select id="regionSelectPanel" class="region-select panel-region-select" style="width:100%; margin-bottom:8px;" onchange="filterRegion(this.value)">
                 <option value="all">전국 전체보기</option>
-                <option value="seoul">서울 / 인천 / 경기도</option>
+                <option value="seoul">서울</option>
+                <option value="busan">부산</option>
+                <option value="daegu">대구</option>
+                <option value="incheon">인천</option>
+                <option value="gwangju">광주</option>
+                <option value="daejeon">대전</option>
+                <option value="ulsan">울산</option>
+                <option value="sejong">세종</option>
+                <option value="gyeonggi">경기도</option>
                 <option value="gangwon">강원특별자치도</option>
-                <option value="chungcheong">세종 / 대전 / 충청도</option>
-                <option value="gyeongsang">경상도 (대구/울산/부산)</option>
-                <option value="jeolla">광주 / 전라도</option>
+                <option value="chungbuk">충청북도</option>
+                <option value="chungnam">충청남도</option>
+                <option value="jeonbuk">전라북도</option>
+                <option value="jeonnam">전라남도</option>
+                <option value="gyeongbuk">경상북도</option>
+                <option value="gyeongnam">경상남도</option>
                 <option value="jeju">제주특별자치도</option>
             </select>
             <!-- [FIX] 아이콘 칩 여러 개를 가로로 늘어놓던 방식이 지저분해 보인다는 의견이 있어,
@@ -282,11 +293,22 @@
         <div class="filter-container">
             <select id="regionSelect" class="region-select" onchange="filterRegion(this.value)">
                 <option value="all">전국 전체보기</option>
-                <option value="seoul">서울 / 인천 / 경기도</option>
+                <option value="seoul">서울</option>
+                <option value="busan">부산</option>
+                <option value="daegu">대구</option>
+                <option value="incheon">인천</option>
+                <option value="gwangju">광주</option>
+                <option value="daejeon">대전</option>
+                <option value="ulsan">울산</option>
+                <option value="sejong">세종</option>
+                <option value="gyeonggi">경기도</option>
                 <option value="gangwon">강원특별자치도</option>
-                <option value="chungcheong">세종 / 대전 / 충청도</option>
-                <option value="gyeongsang">경상도 (대구/울산/부산)</option>
-                <option value="jeolla">광주 / 전라도</option>
+                <option value="chungbuk">충청북도</option>
+                <option value="chungnam">충청남도</option>
+                <option value="jeonbuk">전라북도</option>
+                <option value="jeonnam">전라남도</option>
+                <option value="gyeongbuk">경상북도</option>
+                <option value="gyeongnam">경상남도</option>
                 <option value="jeju">제주특별자치도</option>
             </select>
         </div>
@@ -536,22 +558,49 @@
         setTimeout(relayoutMap, 300);
     });
 
-    // ── 지역 구분: fetch_data.py의 REGION_KEYWORDS/REGION_LABELS와 반드시 동일하게 맞출 것 ──
+    // ── 지역 구분: 17개 시/도 단위로 분리(기존엔 서울·인천·경기 등을 한 그룹으로 묶었었음).
+    //    ⚠️ fetch_data.py가 서버에서 미리 그려두는 정적 "오늘의 축제" 목록도 같은 REGION_KEYWORDS/
+    //    REGION_LABELS 구조를 쓰고 있다면, 그 쪽도 이 구조로 맞춰야 자동화 스크립트가 다시 돌 때
+    //    지역 표시가 서로 어긋나지 않는다 ──
     const REGION_KEYWORDS = {
-        seoul: ['서울', '인천', '경기'],
-        gangwon: ['강원'],
-        chungcheong: ['세종', '대전', '충북', '충남', '충청'],
-        gyeongsang: ['대구', '울산', '부산', '경북', '경남', '경상'],
-        jeolla: ['광주', '전북', '전남', '전라'],
+        seoul: ['서울'],
+        busan: ['부산'],
+        daegu: ['대구'],
+        incheon: ['인천'],
+        gwangju: ['광주'],
+        daejeon: ['대전'],
+        ulsan: ['울산'],
+        sejong: ['세종'],
+        // [FIX] kids_places.json의 addr는 "수원 영통구"처럼 시/도 없이 도시명만 적힌 경우가
+        // 많아서, 도시명도 같이 키워드로 넣어야 해당 지역 필터에서 안 빠진다.
+        gyeonggi: ['경기', '수원', '용인', '파주', '화성'],
+        gangwon: ['강원', '강릉'],
+        chungbuk: ['충청북도', '충북', '청주'],
+        chungnam: ['충청남도', '충남'],
+        jeonbuk: ['전라북도', '전북'],
+        jeonnam: ['전라남도', '전남'],
+        gyeongbuk: ['경상북도', '경북'],
+        gyeongnam: ['경상남도', '경남'],
         jeju: ['제주']
     };
-    const REGION_ORDER = ['seoul', 'gangwon', 'chungcheong', 'gyeongsang', 'jeolla', 'jeju'];
+    const REGION_ORDER = ['seoul', 'busan', 'daegu', 'incheon', 'gwangju', 'daejeon', 'ulsan', 'sejong', 'gyeonggi', 'gangwon', 'chungbuk', 'chungnam', 'jeonbuk', 'jeonnam', 'gyeongbuk', 'gyeongnam', 'jeju'];
     const REGION_LABELS = {
-        seoul: '서울·인천·경기',
+        seoul: '서울',
+        busan: '부산',
+        daegu: '대구',
+        incheon: '인천',
+        gwangju: '광주',
+        daejeon: '대전',
+        ulsan: '울산',
+        sejong: '세종',
+        gyeonggi: '경기',
         gangwon: '강원',
-        chungcheong: '세종·대전·충청',
-        gyeongsang: '경상도',
-        jeolla: '광주·전라도',
+        chungbuk: '충북',
+        chungnam: '충남',
+        jeonbuk: '전북',
+        jeonnam: '전남',
+        gyeongbuk: '경북',
+        gyeongnam: '경남',
         jeju: '제주'
     };
     // Vercel 프록시 주소를 브라우저에서 직접 호출 (지역 선택 시 설명 문구를 즉시 받아오기 위함)
@@ -914,7 +963,7 @@
         return fmt(start) + ' ~ ' + fmt(end);
     }
 
-    // "전국 전체보기": 지역별로 마감이 가장 임박한 축제 1개씩 대표로 뽑는다 (최대 6개)
+    // "전국 전체보기": 지역별로 마감이 가장 임박한 축제 1개씩 대표로 뽑는다 (지역마다 1개, 최대 17개)
     // list는 이미 기간/테마로 걸러진 상태로 넘어온다.
     function pickRegionReps(list) {
         const reps = [];
