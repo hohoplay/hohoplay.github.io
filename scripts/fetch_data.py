@@ -16,23 +16,51 @@ SEARCH_FROM = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('
 # 한국 위치인 이 프록시를 통해 대신 데이터를 받아온다.
 PROXY_URL = os.environ.get("FESTIVAL_PROXY_URL", "https://YOUR-PROJECT.vercel.app/api/festivals")
 
-# map.html의 지역 필터(filterRegion)와 반드시 동일하게 맞춰야 하는 지역 구분.
-# 순서가 곧 "전국 전체보기"에서 대표 축제가 나열되는 순서.
+# map.html(festival/index.html)의 지역 필터(filterRegion)와 반드시 동일하게 맞춰야 하는 지역 구분.
+# [수정] 예전엔 서울·인천·경기처럼 여러 시/도를 한 그룹으로 묶었었는데, 지도 쪽을 17개
+# 시/도 단위로 전부 분리했으므로 여기도 똑같이 맞춘다. 순서가 곧 "전국 전체보기"에서
+# 대표 축제가 나열되는 순서(지역마다 1개, 최대 17개).
+# 수원/용인/파주/화성/강릉/청주는 kids_places.json처럼 시/도명 없이 도시명만 적힌
+# 데이터가 섞여도 해당 지역으로 잡히도록 넣어둔 보조 키워드 — TourAPI 주소(addr1)는
+# 보통 전체 행정구역명을 쓰므로 실제로는 거의 안 쓰이지만, map.html과 같은 구조를
+# 유지해 두 파일이 어긋나지 않게 한다.
 REGION_KEYWORDS = [
-    ('seoul', ['서울', '인천', '경기']),
-    ('gangwon', ['강원']),
-    ('chungcheong', ['세종', '대전', '충북', '충남', '충청']),
-    ('gyeongsang', ['대구', '울산', '부산', '경북', '경남', '경상']),
-    ('jeolla', ['광주', '전북', '전남', '전라']),
+    ('seoul', ['서울']),
+    ('busan', ['부산']),
+    ('daegu', ['대구']),
+    ('incheon', ['인천']),
+    ('gwangju', ['광주']),
+    ('daejeon', ['대전']),
+    ('ulsan', ['울산']),
+    ('sejong', ['세종']),
+    ('gyeonggi', ['경기', '수원', '용인', '파주', '화성']),
+    ('gangwon', ['강원', '강릉']),
+    ('chungbuk', ['충청북도', '충북', '청주']),
+    ('chungnam', ['충청남도', '충남']),
+    ('jeonbuk', ['전라북도', '전북']),
+    ('jeonnam', ['전라남도', '전남']),
+    ('gyeongbuk', ['경상북도', '경북']),
+    ('gyeongnam', ['경상남도', '경남']),
     ('jeju', ['제주']),
 ]
 
 REGION_LABELS = {
-    'seoul': '서울·인천·경기',
+    'seoul': '서울',
+    'busan': '부산',
+    'daegu': '대구',
+    'incheon': '인천',
+    'gwangju': '광주',
+    'daejeon': '대전',
+    'ulsan': '울산',
+    'sejong': '세종',
+    'gyeonggi': '경기',
     'gangwon': '강원',
-    'chungcheong': '세종·대전·충청',
-    'gyeongsang': '경상도',
-    'jeolla': '광주·전라도',
+    'chungbuk': '충북',
+    'chungnam': '충남',
+    'jeonbuk': '전북',
+    'jeonnam': '전남',
+    'gyeongbuk': '경북',
+    'gyeongnam': '경남',
     'jeju': '제주',
 }
 
@@ -824,7 +852,7 @@ def update_sitemap(list_items):
 
 def pick_region_representatives(today_list):
     """오늘 진행중인 축제 중, 지역별로 마감이 가장 임박한 축제 1개씩을 대표로 뽑는다
-    (지역마다 진행중인 축제가 없으면 그 지역은 건너뛰므로 결과는 최대 6개, 보통 5~6개)."""
+    (지역마다 진행중인 축제가 없으면 그 지역은 건너뛰므로 결과는 최대 17개, REGION_KEYWORDS 참고)."""
     reps = []
     for key, keywords in REGION_KEYWORDS:
         in_region = [f for f in today_list if f.get('addr') and any(kw in f['addr'] for kw in keywords)]
@@ -838,7 +866,7 @@ def pick_region_representatives(today_list):
 
 
 def build_today_html(festivals, today):
-    """오늘 진행중인 축제 중 지역별 대표 1곳씩(최대 6곳)을 골라
+    """오늘 진행중인 축제 중 지역별 대표 1곳씩(최대 17곳)을 골라
     festival/index.html의 "전국 전체보기" 기본 화면에 그대로 박아넣을 HTML 텍스트를 만든다.
     (특정 지역을 선택했을 때 보이는 목록은 index.html의 자바스크립트가 festivals.json을
     직접 걸러서 클라이언트에서 렌더링한다 — 여기서는 기본 화면만 담당)"""
