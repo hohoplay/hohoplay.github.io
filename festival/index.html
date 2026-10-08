@@ -58,16 +58,6 @@
         }
         .period-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 
-        /* [ADD] 2026-10-08: 메인 화면을 "아이랑 갈만한 곳"으로, 축제는 보조 탭으로 전환하기
-           위한 모드 전환 버튼. 기존 지역/테마/기간/GPS/검색 기능은 전부 그대로 두고,
-           JS에서 festival-only 컨트롤의 style.display만 모드에 따라 토글한다. */
-        .mode-toggle-row { display: flex; gap: 6px; margin-bottom: 10px; }
-        .mode-toggle-btn {
-            flex: 1; border: none; padding: 10px 8px; border-radius: 10px;
-            font-size: 13px; font-weight: 800; color: #64748b; background: #f1f5f9; cursor: pointer;
-        }
-        .mode-toggle-btn.active { background: #1a73e8; color: #fff; }
-
         .festival-card {
             position: absolute; bottom: 20px; left: 50%;
             transform: translate(-50%, 150%);
@@ -197,13 +187,9 @@
     <div class="today-panel-backdrop" id="todayBackdrop" onclick="closeTodayPanel()"></div>
     <aside class="today-panel" id="todayPanel">
         <button class="today-panel-close" onclick="closeTodayPanel()" aria-label="닫기">✕</button>
-        <div class="mode-toggle-row">
-            <button type="button" id="modeBtnKids" class="mode-toggle-btn active" onclick="switchMode('kids')">🧒 아이랑 갈만한 곳</button>
-            <button type="button" id="modeBtnFestival" class="mode-toggle-btn" onclick="switchMode('festival')">🎪 축제</button>
-        </div>
         <div style="margin-bottom:10px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-                <h2 id="panelTitle" style="margin-bottom:0;">🎪 축제가 열리는 곳</h2>
+                <h2 id="panelTitle" style="margin-bottom:0;">🧒🎪 아이랑 갈만한 곳·축제</h2>
                 <div id="periodBtnRow" style="display:flex; gap:2px; background:#f1f5f9; padding:3px; border-radius:10px; flex-shrink:0;">
                     <button type="button" class="period-btn active" data-period="today" onclick="setPeriod('today')">오늘</button>
                     <button type="button" class="period-btn" data-period="month" onclick="setPeriod('month')">이번달</button>
@@ -220,8 +206,10 @@
                 <button type="button" onclick="shareFestivalMap('band')" aria-label="밴드 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:9px;">밴드</button>
             </div>
         </div>
-        <div style="margin-bottom:10px;">
-            <select id="regionSelectPanel" class="region-select panel-region-select" style="width:100%; margin-bottom:8px;" onchange="filterRegion(this.value)">
+        <!-- [FIX] 지역 선택과 테마 선택을 각각 한 줄씩 차지하던 걸, 한 줄(가로)에 나란히
+             배치하도록 바꿨다 — 기능은 그대로(필터 두 개는 여전히 따로 동작), 레이아웃만 변경. -->
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <select id="regionSelectPanel" class="region-select panel-region-select" style="flex:1; min-width:0; padding:10px 8px; font-size:13px;" onchange="filterRegion(this.value)">
                 <option value="all">전국 전체보기</option>
                 <option value="seoul">서울</option>
                 <option value="busan">부산</option>
@@ -245,7 +233,7 @@
                  지역 선택(위 select)과 똑같은 드롭다운 형식으로 바꿨다. 다만 드롭다운은
                  한 번에 하나만 고를 수 있어서, 이전처럼 "벚꽃+단풍 동시에" 같은 다중 선택은
                  더 이상 안 된다(한 번에 한 테마씩만 보기). -->
-            <select id="themeSelect" class="region-select panel-region-select" style="margin-bottom:8px;" onchange="selectTheme(this.value)">
+            <select id="themeSelect" class="region-select panel-region-select" style="flex:1; min-width:0; padding:10px 8px; font-size:13px;" onchange="selectTheme(this.value)">
                 <option value="">🗂️ 전체 테마 보기</option>
                 <option value="cherry">🌸 벚꽃</option>
                 <option value="foliage">🍁 단풍</option>
@@ -333,7 +321,7 @@
 
         <div class="remote-menu">
             <button type="button" class="remote-btn today-toggle-btn" onclick="openTodayPanel()" aria-label="목록 열기">
-                <span id="todayToggleIcon">🧒</span><span class="label" id="todayToggleLabel">장소</span>
+                <span id="todayToggleIcon">🗺️</span><span class="label" id="todayToggleLabel">목록</span>
             </button>
             <a href="/" class="remote-btn" aria-label="홈으로 가기">
                 <span>🏠</span><span class="label">홈</span>
@@ -615,93 +603,17 @@
     let festivalData = [];
     let allMarkers = [];
 
-    // [ADD] 2026-10-08: 메인(기본) 화면 모드. 'kids' = 아이랑 갈만한 곳(기본), 'festival' = 축제(보조).
-    let currentMode = 'kids';
-
-    // 모드에 따라 화면의 틀(제목/버튼/축제 전용 컨트롤 표시여부)만 바꾼다 — 실제 목록/마커를
-    // 다시 그리는 건 renderForCurrentMode()가 담당한다. festivalData가 아직 안 받아진
-    // 상태(페이지를 막 열었을 때)라면 목록만 "불러오는 중" 상태로 비워, 서버가 미리 그려둔
-    // 정적 축제 목록(SEO용)이 "아이랑 갈만한 곳" 제목 아래에 잠깐 보이는 걸 막는다.
-    function applyModeUI(mode) {
-        const btnKids = document.getElementById('modeBtnKids');
-        const btnFestival = document.getElementById('modeBtnFestival');
-        if (btnKids) btnKids.classList.toggle('active', mode === 'kids');
-        if (btnFestival) btnFestival.classList.toggle('active', mode === 'festival');
-
-        const panelTitle = document.getElementById('panelTitle');
-        if (panelTitle) panelTitle.textContent = mode === 'kids' ? '🧒 아이랑 갈만한 곳' : '🎪 축제가 열리는 곳';
-
-        const isFestival = mode === 'festival';
-        const periodBtnRow = document.getElementById('periodBtnRow');
-        if (periodBtnRow) periodBtnRow.style.display = isFestival ? 'flex' : 'none';
-        const themeSelectEl = document.getElementById('themeSelect');
-        if (themeSelectEl) themeSelectEl.style.display = isFestival ? '' : 'none';
-        const festivalSearchControls = document.getElementById('festivalSearchControls');
-        if (festivalSearchControls) festivalSearchControls.style.display = isFestival ? '' : 'none';
-
-        const toggleIcon = document.getElementById('todayToggleIcon');
-        const toggleLabel = document.getElementById('todayToggleLabel');
-        if (toggleIcon) toggleIcon.textContent = mode === 'kids' ? '🧒' : '🎪';
-        if (toggleLabel) toggleLabel.textContent = mode === 'kids' ? '장소' : '축제';
-
-        if (festivalData.length === 0) {
-            const listEl = document.querySelector('.today-list');
-            if (listEl) listEl.innerHTML = '<li class="today-empty">불러오는 중...</li>';
-        }
-    }
-    applyModeUI(currentMode); // 데이터 도착 전에도 먼저 "아이랑 갈만한 곳" 모드로 화면을 맞춰둔다
-
-    // "아이랑 갈만한 곳" 목록 — v1은 지역 필터만 지원한다(테마/기간/GPS/검색은 축제 모드 전용).
-    // 사진으로 장소를 받아 data/kids_places.json을 채워나갈 예정이라 처음엔 0건일 수 있고,
-    // 그 경우엔 "아직 등록된 장소가 없습니다" 안내만 보여준다.
-    function pickKidsList(key) {
-        const kidsItems = festivalData.filter(function (item) { return item.type === 'kids'; });
-        if (key === 'all') return kidsItems;
-        const kws = REGION_KEYWORDS[key] || [];
-        return kidsItems.filter(function (item) {
-            return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
-        });
-    }
-
-    function renderKidsPanel(key) {
-        const listEl = document.querySelector('.today-list');
-        if (!listEl) return;
-        const items = pickKidsList(key);
-        if (items.length === 0) {
-            listEl.innerHTML = '<li class="today-empty">아직 등록된 장소가 없습니다. 조금만 기다려주세요!</li>';
-            return;
-        }
-        listEl.innerHTML = items.map(function (item) { return buildTodayItemHtml(item, false); }).join('');
-    }
-
-    function applyKidsFiltersToMarkers(key) {
-        const filtered = pickKidsList(key);
-        renderMarkers(filtered);
-        if (key === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
-    }
-
-    // 현재 모드(currentMode)에 맞는 목록/마커를 다시 그린다. 지역 선택(filterRegion)이든
-    // 모드 전환(switchMode)이든 전부 이 함수로 모아서, 두 군데서 같은 분기를 중복해서
-    // 쓰지 않게 했다.
-    function renderForCurrentMode() {
-        if (currentMode === 'kids') {
-            applyKidsFiltersToMarkers(currentRegionKey);
-            renderKidsPanel(currentRegionKey);
-        } else {
-            applyRegionAndThemeToMarkers(currentRegionKey);
-            renderTodayPanel(currentRegionKey);
-        }
-    }
-
-    function switchMode(mode) {
-        if (currentMode === mode) return;
-        currentMode = mode;
-        applyModeUI(mode);
-        if (gpsModeActive) {
-            deactivateNearbyMode(); // 내부에서 filterRegion → renderForCurrentMode까지 다시 그려줌
-        } else if (festivalData.length > 0) {
-            renderForCurrentMode();
-        }
+    // [FIX] 2026-10-08: "아이랑 갈만한 곳"과 "축제"를 더 이상 별도 모드로 전환하지 않고,
+    // 하나의 목록/지도에 함께 보여주도록 합쳤다. festivalData에 축제+아이랑 장소가
+    // 전부 섞여 들어가고, 지역·테마·기간·GPS·검색은 기존 축제 쪽 로직(아래
+    // applyRegionAndThemeToMarkers/renderTodayPanel 등) 그대로 전체 데이터에 적용된다.
+    // "아이랑" 장소(type:'kids')는 기간 개념이 없는 상시 장소라 ALWAYS_OPEN_TYPES에 들어있고,
+    // matchesPeriod가 항상 통과시켜 기간 탭을 바꿔도 사라지지 않는다. 다만 공원·캠핑장처럼
+    // "테마를 직접 골라야만 보이는" 항목과는 달리, 아이랑 장소는 테마를 안 골라도(=전체 테마
+    // 보기) 항상 노출되어야 하므로 그 구분은 THEME_GATED_TYPES(아래)가 따로 담당한다.
+    function renderMainPanel() {
+        applyRegionAndThemeToMarkers(currentRegionKey);
+        renderTodayPanel(currentRegionKey);
     }
 
     Promise.all([
@@ -714,20 +626,7 @@
             return Object.assign({}, p, { type: 'kids' });
         });
         festivalData = festivals.concat(kidsTagged);
-        renderForCurrentMode();
-
-        // 기본 화면(축제 모드 + 전국 전체보기)의 "오늘의 축제" 목록은 서버가 미리 만들어둔
-        // 정적 HTML을 그대로 두고(SEO용), 사용자가 지역을 바꿀 때만 renderTodayPanel이 동작한다.
-        // 다만 서버 쪽 갱신이 그날 실패해서 "불러오는 중..." 자리표시가 그대로 남아있는 경우를
-        // 대비해, 그 상태를 감지하면 지금 받은 데이터로 즉시 한 번 더 그려준다. (기본 모드는
-        // 이제 kids라 renderForCurrentMode가 이미 화면을 그렸으므로, 이 보정은 festival 모드일
-        // 때만 의미가 있다.)
-        if (currentMode === 'festival') {
-            const listEl = document.querySelector('.today-list');
-            if (listEl && listEl.textContent.includes('불러오는 중')) {
-                renderTodayPanel('all');
-            }
-        }
+        renderMainPanel();
     });
 
     // [성능] 필터를 바꿀 때마다 마커를 전부 새로 만들면(생성 + 이벤트 등록), 데이터가
@@ -874,13 +773,24 @@
 
 
     // 축제처럼 기간(startDate/endDate)이 있는 게 아니라 항상 이용 가능한 장소 타입.
-    // 자연관광지(park)에 이어 무더위쉼터(shelter)도 같은 성격이라 함께 묶어서 판정한다.
-    // [ADD] 2026-10-08: "아이랑 갈만한 곳"(kids)도 기간 개념이 없는 상시 장소라 포함시킨다.
-    // 이렇게 하면 축제 모드(기본 테마/지역 보기)에서는 kids 항목이 기존 로직 그대로
-    // 자동 제외되어, 축제 쪽 동작에는 전혀 영향이 없다.
+    // 자연관광지(park)·무더위쉼터(shelter)·캠핑장(camping)·수상레저(watersports)·
+    // "아이랑 갈만한 곳"(kids) 전부 기간 개념이 없는 상시 장소라, matchesPeriod가
+    // 기간 탭(오늘/이번달/다음달/전체 예정)과 무관하게 항상 통과시킨다.
     const ALWAYS_OPEN_TYPES = ['park', 'shelter', 'camping', 'watersports', 'kids'];
     function isAlwaysOpenType(type) {
         return ALWAYS_OPEN_TYPES.indexOf(type) !== -1;
+    }
+
+    // [FIX] 2026-10-08: 위 ALWAYS_OPEN_TYPES는 전부 "테마를 직접 선택해야만 목록/마커에
+    // 나타나는" 항목들이었다(예: "수목원/공원" 테마를 골라야 park가 보임). 그런데 이제
+    // "아이랑 갈만한 곳"은 축제와 합쳐진 메인 목록이라 테마를 아무것도 안 골라도(="전체
+    // 테마 보기") 항상 보여야 한다 — 그래서 kids는 이 "테마를 골라야만 노출" 그룹에서
+    // 빼고, 나머지 네 가지(공원·쉼터·캠핑장·수상레저)만 여기 남겨뒀다. 기간 필터 통과
+    // 여부(matchesPeriod)는 위 ALWAYS_OPEN_TYPES 그대로 유지 — kids도 기간 개념이 없는
+    // 건 똑같으므로.
+    const THEME_GATED_TYPES = ['park', 'shelter', 'camping', 'watersports'];
+    function isThemeGatedType(type) {
+        return THEME_GATED_TYPES.indexOf(type) !== -1;
     }
 
     // 기간 판정: 'today'는 오늘 진행중인지, 'month'/'nextmonth'는 그 달과 축제 기간이
@@ -919,7 +829,7 @@
     }
 
     function matchesTheme(item, themeSet) {
-        if (!themeSet || themeSet.size === 0) return !isAlwaysOpenType(item.type);
+        if (!themeSet || themeSet.size === 0) return !isThemeGatedType(item.type);
         for (const key of themeSet) {
             if (matchesOneTheme(item, key)) return true;
         }
@@ -963,6 +873,17 @@
         return fmt(start) + ' ~ ' + fmt(end);
     }
 
+    // [FIX] 2026-10-08: 아이랑 장소가 섞여 들어오면서 endDate가 없는 항목(undefined)이
+    // 축제 목록과 같은 배열에 함께 담기게 됐다. 예전처럼 a.endDate.localeCompare(...)를
+    // 그대로 쓰면 undefined에서 TypeError가 난다. 날짜가 있는 축제를 항상 먼저(마감임박순)
+    // 보여주고, 날짜가 없는 상시 장소(아이랑 등)는 그 뒤에 덧붙이는 공통 정렬 기준.
+    function compareByUrgency(a, b) {
+        const aOpen = isAlwaysOpenType(a.type) ? 1 : 0;
+        const bOpen = isAlwaysOpenType(b.type) ? 1 : 0;
+        if (aOpen !== bOpen) return aOpen - bOpen;
+        return (a.endDate || '').localeCompare(b.endDate || '');
+    }
+
     // "전국 전체보기": 지역별로 마감이 가장 임박한 축제 1개씩 대표로 뽑는다 (지역마다 1개, 최대 17개)
     // list는 이미 기간/테마로 걸러진 상태로 넘어온다.
     function pickRegionReps(list) {
@@ -973,7 +894,7 @@
                 return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
             });
             if (inRegion.length === 0) return;
-            inRegion.sort(function (a, b) { return a.endDate.localeCompare(b.endDate); });
+            inRegion.sort(compareByUrgency);
             const rep = Object.assign({}, inRegion[0]);
             rep._regionKey = key;
             reps.push(rep);
@@ -987,7 +908,7 @@
         const inRegion = list.filter(function (item) {
             return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
         });
-        inRegion.sort(function (a, b) { return a.endDate.localeCompare(b.endDate); });
+        inRegion.sort(compareByUrgency);
         return inRegion.slice(0, 5);
     }
 
@@ -1034,10 +955,13 @@
     }
 
     // 화면에 실제로 보이는 항목만 골라 설명(overview)을 비동기로 받아와 채워 넣는다.
+    // [FIX] 2026-10-08: 아이랑 장소(item.desc가 이미 있음)는 TourAPI contentid가 아니라서
+    // 이 프록시로 조회해봐야 결과가 없다 — 합쳐진 목록에 자주 섞여 나오므로 불필요한
+    // 네트워크 호출을 아예 건너뛴다.
     function loadOverviewsFor(items) {
         const listEl = document.querySelector('.today-list');
         items.forEach(function (item) {
-            if (!item.contentid) return;
+            if (!item.contentid || item.desc) return;
             fetch(DETAIL_PROXY_URL + '?contentId=' + encodeURIComponent(item.contentid))
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
@@ -1087,13 +1011,16 @@
                 return (a.endDate || '').localeCompare(b.endDate || '');
             }).slice(0, 15);
         } else if (key === 'all') {
-            items = pickRegionReps(periodFiltered.filter(item => !isAlwaysOpenType(item.type)));
+            // [FIX] 2026-10-08: isAlwaysOpenType → isThemeGatedType로 변경 — 공원·쉼터·캠핑장·
+            // 수상레저는 기존처럼 테마를 직접 골라야만 나오고, 아이랑 장소는 축제와 함께
+            // 항상 노출된다(합치기 요청 반영).
+            items = pickRegionReps(periodFiltered.filter(item => !isThemeGatedType(item.type)));
             showRegionTag = true;
             if (items.length === 0) {
-                items = periodFiltered.filter(item => !isAlwaysOpenType(item.type)).slice().sort(function (a, b) { return a.endDate.localeCompare(b.endDate); }).slice(0, 5);
+                items = periodFiltered.filter(item => !isThemeGatedType(item.type)).slice().sort(compareByUrgency).slice(0, 5);
             }
         } else {
-            items = pickRegionList(periodFiltered.filter(item => !isAlwaysOpenType(item.type)), key);
+            items = pickRegionList(periodFiltered.filter(item => !isThemeGatedType(item.type)), key);
         }
 
         if (items.length === 0) {
@@ -1226,7 +1153,7 @@
             const btn = document.getElementById('gpsBtn');
             if (btn) { btn.textContent = '📍 내 주변으로 보기'; btn.style.background = '#fff'; btn.style.color = '#334155'; }
         }
-        renderForCurrentMode();
+        renderMainPanel();
     }
 
     // ── 내 주변으로 보기 (GPS) ──────────────────────────────────────
