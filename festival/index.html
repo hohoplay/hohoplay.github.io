@@ -147,6 +147,22 @@
             background: #eef2ff; color: #4338ca; font-weight: 700; font-size: 13px; cursor: pointer;
         }
         .course-mode-btn.active { background: #4338ca; color: #fff; border-color: #4338ca; }
+        /* [ADD] 2026-10-10: "아이랑 갈만한 곳" 무료만 보기 토글. 코스 보기 버튼과 같은
+           줄에 나란히 놓되, 켜졌을 때 눈에 띄는 녹색 계열로 구분했다. */
+        .kids-free-row { display: flex; gap: 6px; margin-bottom: 12px; }
+        .kids-free-row .course-mode-btn { flex: 1; }
+        .kids-free-btn {
+            flex-shrink: 0; padding: 10px 12px; border: 1.5px solid #bbf7d0; border-radius: 10px;
+            background: #f0fdf4; color: #15803d; font-weight: 700; font-size: 13px; cursor: pointer;
+            white-space: nowrap;
+        }
+        .kids-free-btn.active { background: #16a34a; color: #fff; border-color: #16a34a; }
+        .cost-badge {
+            display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+            border-radius: 20px; margin-left: 6px; vertical-align: middle;
+        }
+        .cost-badge.free { background: #dcfce7; color: #15803d; }
+        .cost-badge.paid { background: #fef3c7; color: #92400e; }
         .course-card { cursor: default; }
         .course-place-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin: 2px 0 0; padding: 0; }
         .course-place-item {
@@ -256,8 +272,9 @@
         <!-- [ADD] 2026-10-10: 지역별 추천 코스(1단계) 토글. 누르면 아래 목록이 "오늘의
              축제/장소" 개별 목록 대신, 같은 구/군에 모인 아이랑 장소를 묶은 코스 카드로
              바뀐다. 지역 선택(위/아래 select)은 코스 모드에서도 그대로 재사용된다. -->
-        <div class="course-mode-row">
+        <div class="kids-free-row">
             <button type="button" id="courseModeBtn" class="course-mode-btn" onclick="toggleCourseMode()">🗺️ 지역별 추천 코스 보기</button>
+            <button type="button" id="kidsFreeOnlyBtn" class="kids-free-btn" onclick="toggleKidsFreeOnly()" title="아이랑 갈만한 곳 중 완전무료인 곳만 보기">💰 무료만</button>
         </div>
         <!-- [FIX] 지역 선택과 테마 선택을 각각 한 줄씩 차지하던 걸, 한 줄(가로)에 나란히
              배치하도록 바꿨다 — 기능은 그대로(필터 두 개는 여전히 따로 동작), 레이아웃만 변경. -->
@@ -567,6 +584,29 @@
     // 클릭 시 몇 번째 코스인지 되찾기 위한 용도(이름이 겹칠 수 있어 인덱스로 참조).
     let courseModeActive = false;
     let currentCourses = [];
+    // [ADD] 2026-10-10: "아이랑 갈만한 곳" 무료만 보기 필터. kids_places.json에 미리
+    // 매겨둔 costTag(완전무료/유료/유료(일부 무료 조건 있음)/확인 필요)를 기준으로,
+    // 켜져 있으면 '완전무료'가 아닌 kids 항목을 목록·지도·코스·검색에서 전부 제외한다.
+    // 축제(type !== 'kids')는 이 필터의 영향을 받지 않는다.
+    let kidsFreeOnly = false;
+    function getFilteredData() {
+        if (!kidsFreeOnly) return festivalData;
+        return festivalData.filter(function (item) {
+            return item.type !== 'kids' || item.costTag === '완전무료';
+        });
+    }
+    function toggleKidsFreeOnly() {
+        kidsFreeOnly = !kidsFreeOnly;
+        const btn = document.getElementById('kidsFreeOnlyBtn');
+        if (btn) btn.classList.toggle('active', kidsFreeOnly);
+        // renderNearbyPanel()은 목록·마커를 둘 다 갱신하므로(GPS 모드), 일반 모드에서는
+        // renderMainPanel()이 동일한 역할을 한다.
+        if (gpsModeActive) {
+            renderNearbyPanel();
+        } else {
+            renderMainPanel();
+        }
+    }
     // [ADD] 무더위쉼터 목록 fetch의 경쟁 상태(race condition) 방지용 — 자세한 설명은
     // 마커 클릭 핸들러 안 주석 참고.
     let activeShelterRequestId = null;
@@ -714,9 +754,15 @@
         // 바로 알 수 있도록, 선택한 위치에 빨간 원이 퍼지는(pulse) 표시를 띄운다.
         showSelectedPinPulse(item.lat, item.lng);
         document.getElementById('cardTitle').innerText = item.title;
-        document.getElementById('cardDate').innerText = (item.startDate && item.endDate)
+        const dateLabel = (item.startDate && item.endDate)
             ? `📅 ${item.startDate} ~ ${item.endDate}`
             : (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : (item.type === 'kids' ? '🧒 상시 이용 가능' : '🌳 상시 개방'));
+        // [ADD] 2026-10-10: "아이랑 갈만한 곳"엔 kids_places.json에 미리 매겨둔 costTag를
+        // 무료/유료 배지로 같이 보여준다. 축제 항목엔 costTag가 없어 배지가 안 붙는다.
+        const costBadgeHtml = (item.type === 'kids' && item.costTag && item.costTag !== '확인 필요')
+            ? '<span class="cost-badge ' + (item.costTag === '완전무료' ? 'free' : 'paid') + '">' + escapeHtml(item.costTag) + '</span>'
+            : '';
+        document.getElementById('cardDate').innerHTML = escapeHtml(dateLabel) + costBadgeHtml;
 
         document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
 
@@ -724,8 +770,11 @@
         // 없으면(기존 축제 항목 등) 숨긴다.
         const cardDescEl = document.getElementById('cardDesc');
         if (cardDescEl) {
-            if (item.desc) {
-                cardDescEl.textContent = item.desc;
+            // [ADD] 2026-10-10: ageWarning(연령제한 주의)이 있으면 desc 위에 함께 보여준다.
+            const ageWarningText = item.ageWarning ? ('⚠️ ' + item.ageWarning) : '';
+            const descText = [ageWarningText, item.desc].filter(Boolean).join(' / ');
+            if (descText) {
+                cardDescEl.textContent = descText;
                 cardDescEl.style.display = 'block';
             } else {
                 cardDescEl.textContent = '';
@@ -1030,9 +1079,12 @@
         const lng = item.lng || '';
         const title = escapeHtml(item.title);
         const addr = escapeHtml(item.addr);
+        const costBadgeHtml = (item.type === 'kids' && item.costTag && item.costTag !== '확인 필요')
+            ? '<span class="cost-badge ' + (item.costTag === '완전무료' ? 'free' : 'paid') + '">' + escapeHtml(item.costTag) + '</span>'
+            : '';
         const dateLine = (item.startDate && item.endDate)
             ? '<span class="today-date">📅 ' + formatDateRange(item.startDate, item.endDate) + '</span>'
-            : '<span class="today-date">' + (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : (item.type === 'kids' ? '🧒 상시 이용 가능' : '🌳 상시 개방')) + '</span>';
+            : '<span class="today-date">' + (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : (item.type === 'kids' ? '🧒 상시 이용 가능' : '🌳 상시 개방')) + costBadgeHtml + '</span>';
         const regionTag = (typeof distanceKm === 'number')
             ? '<span class="today-region">📍 ' + distanceKm.toFixed(1) + 'km</span>'
             : (showRegionTag && item._regionKey)
@@ -1097,7 +1149,7 @@
         if (!listEl || festivalData.length === 0) return;
 
         // 기간만 우선 적용(지역은 아래에서 key에 따라 별도 처리).
-        const periodFiltered = festivalData.filter(function (item) {
+        const periodFiltered = getFilteredData().filter(function (item) {
             return matchesPeriod(item, currentPeriod);
         });
 
@@ -1253,7 +1305,7 @@
         // 것만 포함한다. 공원/쉼터/캠핑장/수상레저(THEME_GATED_TYPES)는 테마를 직접
         // 고를 때만 보이는 성격이 강해 1단계 코스에서는 제외한다(너무 많이 섞여
         // "아이랑 갈만한 곳" 중심이라는 코스의 취지가 흐려지는 걸 막기 위함).
-        let pool = festivalData.filter(function (item) {
+        let pool = getFilteredData().filter(function (item) {
             if (item.type === 'kids') return true;
             if (isThemeGatedType(item.type)) return false;
             return getFestivalSeason(item) === season;
@@ -1497,7 +1549,7 @@
         document.getElementById('titleSearchActive').style.display = 'block';
         document.getElementById('titleSearchTerm').textContent = term;
 
-        const matched = festivalData.filter(function (item) {
+        const matched = getFilteredData().filter(function (item) {
             return item.title && item.title.includes(term);
         });
 
@@ -1537,7 +1589,7 @@
     // (기간은 마커에 적용하지 않는다 — "이번달에 열리는 축제"를 골라도 지도에서
     // 위치를 미리 둘러보는 용도이므로, 마커까지 기간으로 좁히면 오히려 불편하다.)
     function applyRegionAndThemeToMarkers(key) {
-        let filtered = festivalData;
+        let filtered = getFilteredData();
         if (key !== 'all') {
             const keywords = REGION_KEYWORDS[key] || [];
             filtered = filtered.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
@@ -1701,7 +1753,7 @@
         const listEl = document.querySelector('.today-list');
         if (!listEl || !myLocation) return;
 
-        const nearby = festivalData
+        const nearby = getFilteredData()
             .filter(function (item) {
                 return matchesPeriod(item, currentPeriod) && matchesTheme(item, currentThemes) && item.lat && item.lng;
             })
