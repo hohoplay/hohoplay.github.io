@@ -1,0 +1,54 @@
+name: Delete Old Minigame Guide Pages
+
+# "미니게임 전체 완벽 공략" 통합 가이드(guides/minigames-guide.html)로 합쳐진
+# 기존 미니게임 개별 가이드 10개 페이지를 삭제하는 1회성 작업입니다.
+#
+# - 이 Action을 실행하기 전에 아래 3개 파일이 저장소에 먼저 올라가 있어야 합니다
+#   (덮어쓰기 2개 + 신규 1개):
+#     guides/index.html            (일반게임/미니게임 탭을 없애고 목록 하나로 통합,
+#                                    "미니게임 전체 완벽 공략" 항목 추가)
+#     guides/minigames-guide.html  (신규 — 미니게임 10종 통합 가이드)
+#     sitemap.xml                  (삭제되는 10개 주소 제거 + 통합 가이드 주소 추가)
+# - 이 Action은 그 다음 단계로, 더 이상 guides/index.html에서 링크되지 않는
+#   개별 가이드 10개 파일만 저장소에서 삭제하고 커밋·푸시합니다.
+# - 이미 삭제되어 없는 파일이 있어도(다시 실행해도) 에러 없이 넘어갑니다.
+# - 수동 실행(workflow_dispatch)만 가능합니다. 1회성 작업이라 push/schedule
+#   트리거는 넣지 않았습니다.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  delete-old-guides:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 개별 미니게임 가이드 10개 파일 삭제
+        run: |
+          git rm --ignore-unmatch \
+            guides/ladder-game-guide.html \
+            guides/coin-flip-guide.html \
+            guides/dice-roll-guide.html \
+            guides/lucky-roulette-guide.html \
+            guides/rock-paper-scissors-guide.html \
+            guides/number-baseball-guide.html \
+            guides/tic-tac-toe-guide.html \
+            guides/reaction-time-test-guide.html \
+            guides/card-matching-guide.html \
+            guides/whack-a-mole-guide.html
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 미니게임 전체 완벽 공략으로 통합되어 개별 가이드 10개 페이지 삭제"
+            git push
+          fi
