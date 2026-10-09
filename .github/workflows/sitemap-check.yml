@@ -49,4 +49,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add sitemap.xml
           git commit -m "chore: auto-sync sitemap.xml (삭제/이동된 글 정리)"
+          # [FIX] 2026-10-10: 체크아웃 이후 누군가(대표님이 직접 올리는 파일 등) 먼저
+          # main에 푸시하면, 이 커밋은 옛 기준점 위에 있어서 그냥 push만 하면
+          # "fast-forward 아님"으로 거절된다("! [rejected] main -> main (fetch first)").
+          # sitemap.xml 자체는 이 워크플로만 건드리는 파일이라 충돌 날 일이 거의 없으므로,
+          # 리베이스로 최신 main 위에 이 커밋만 다시 얹은 뒤 푸시한다.
+          git pull --rebase origin main
           git push
