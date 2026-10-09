@@ -159,6 +159,19 @@
             color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
         }
         .course-place-name { font-size: 12px; color: #1e293b; font-weight: 600; }
+
+        /* [ADD] 2026-10-10: 지금 선택한 장소 위치에 빨간 원이 바깥으로 퍼졌다 사라지는
+           표시. 핀이 여러 개 겹쳐 보일 때 "지금 어느 핀을 눌렀는지" 바로 알 수 있게 함. */
+        .selected-pin-pulse {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(239, 68, 68, 0.5); border: 2px solid rgba(220, 38, 38, 0.85);
+            animation: pinPulseRing 1.3s ease-out infinite; pointer-events: none;
+        }
+        @keyframes pinPulseRing {
+            0% { transform: scale(0.5); opacity: 0.9; }
+            70% { transform: scale(2.4); opacity: 0; }
+            100% { opacity: 0; }
+        }
         /* [ADD] 2026-10-10: 2단계 — 코스 안 장소 사이 대략 거리 표시 줄 */
         .course-distance-connector { font-size: 10px; color: #94a3b8; padding-left: 26px; }
         .today-map-link { font-size: 11px; color: #1a73e8; font-weight: 700; text-decoration: none; }
@@ -687,6 +700,9 @@
     // 카드가 떴고, 사이드 목록 항목을 클릭하면 지도만 이동하고 카드는 안 떠서
     // "왼쪽 목록 눌렀는데 하단 팝업은 왜 안 뜨냐"는 지적을 받아 통합했다.
     function showFestivalCard(item) {
+        // [ADD] 2026-10-10: 핀이 여러 개 겹쳐 보일 때 "지금 어떤 장소를 선택했는지"
+        // 바로 알 수 있도록, 선택한 위치에 빨간 원이 퍼지는(pulse) 표시를 띄운다.
+        showSelectedPinPulse(item.lat, item.lng);
         document.getElementById('cardTitle').innerText = item.title;
         document.getElementById('cardDate').innerText = (item.startDate && item.endDate)
             ? `📅 ${item.startDate} ~ ${item.endDate}`
@@ -911,6 +927,27 @@
     function closeFestivalCard() {
         activeShelterRequestId = null;
         document.getElementById('festivalCard').classList.remove('active');
+        // [ADD] 2026-10-10: 상세 카드를 닫으면 선택 표시(빨간 원)도 같이 지운다.
+        if (selectedPinOverlay) { selectedPinOverlay.setMap(null); selectedPinOverlay = null; }
+    }
+
+    // [ADD] 2026-10-10: 선택한 장소 위치에 빨간 원이 퍼지는 표시를 띄운다. 카카오맵
+    // 마커 자체엔 구글맵 같은 bounce 애니메이션 기능이 없어서, CustomOverlay + CSS
+    // 애니메이션으로 직접 구현했다. 새로 선택하면 이전 표시는 지우고 새 위치로 옮긴다.
+    let selectedPinOverlay = null;
+    function showSelectedPinPulse(lat, lng) {
+        if (!lat || !lng) return;
+        if (selectedPinOverlay) selectedPinOverlay.setMap(null);
+        const el = document.createElement('div');
+        el.className = 'selected-pin-pulse';
+        selectedPinOverlay = new kakao.maps.CustomOverlay({
+            position: new kakao.maps.LatLng(lat, lng),
+            content: el,
+            xAnchor: 0.5,
+            yAnchor: 0.5,
+            zIndex: 5
+        });
+        selectedPinOverlay.setMap(map);
     }
 
     function formatDateRange(start, end) {
@@ -1329,6 +1366,11 @@
     function showCourseOnMap(idx) {
         const course = currentCourses[idx];
         if (!course) return;
+        // [FIX] 2026-10-10: 어떤 장소를 선택해 상세카드+빨간 핀 표시가 떠 있는 상태에서
+        // 다른 코스의 "지도에서 전체보기"를 누르면, 그 이전 선택 표시가 안 지워지고
+        // 엉뚱하게 새 코스 지역 위에 그대로 남아있던 문제. 코스를 바꿀 때는 이전 선택을
+        // 먼저 정리한다(closeFestivalCard가 카드와 빨간 핀 표시를 함께 지움).
+        closeFestivalCard();
         renderMarkers(course.items);
         fitToMarkers(allMarkers);
         closeTodayPanel();
