@@ -12,9 +12,18 @@
 새로 추가한 핵심 기능도 여기서 지켜지길 원하면, 아래 CHECKS에 한 줄
 추가하면 된다(파일이 실제로 배포된 뒤에 추가할 것 — 아직 안 올라간 기능을
 먼저 넣으면 다음 푸시 때 바로 실패한다).
+
+[2026-10-10] game1~10.html은 더 이상 실제 게임 페이지가 아니라, 각 게임의
+새 slug 주소(예: /hoya-typing-rpg.html)로 보내주는 메타 리프레시 리다이렉트
+안내 페이지로 교체되었다(구 URL/북마크/검색엔진 색인 보존용). 그래서 이
+파일들에는 이제 댓글 위젯이 없는 게 정상이다 — 아래 is_redirect_stub()로
+리다이렉트 페이지는 구분해서 댓글 위젯 체크에서 제외하고, 대신 리다이렉트
+주소 자체가 비어있지 않은지만 확인한다. mgame*.html은 이 교체 대상이
+아니므로 기존처럼 댓글 위젯을 그대로 요구한다.
 """
 import glob
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +48,11 @@ def iter_game_files():
             yield os.path.relpath(path, ROOT)
 
 
+def is_redirect_stub(content):
+    """새 slug 주소로 보내는 메타 리프레시 안내 페이지인지 확인한다."""
+    return bool(re.search(r'http-equiv=["\']refresh["\']', content, re.IGNORECASE))
+
+
 def main():
     failures = []
 
@@ -56,6 +70,12 @@ def main():
         full_path = os.path.join(ROOT, rel_path)
         with open(full_path, encoding="utf-8") as f:
             content = f.read()
+        if is_redirect_stub(content):
+            # game1~10.html처럼 새 slug 주소로 옮겨간 페이지 — 댓글 위젯이
+            # 없는 게 정상이다. 대신 리다이렉트 주소가 비어있지 않은지만 확인.
+            if not re.search(r'url=\s*[^\s"\'>]', content, re.IGNORECASE):
+                failures.append(f"{rel_path}: 리다이렉트 안내 페이지인데 이동 주소(url=)가 비어있거나 손상됨")
+            continue
         if "old-rain-16f7" not in content:
             failures.append(f"{rel_path}: 댓글 위젯(old-rain-16f7 Worker 연동)이 없음")
 
