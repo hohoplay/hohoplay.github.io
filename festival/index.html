@@ -159,6 +159,8 @@
             color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
         }
         .course-place-name { font-size: 12px; color: #1e293b; font-weight: 600; }
+        /* [ADD] 2026-10-10: 2단계 — 코스 안 장소 사이 대략 거리 표시 줄 */
+        .course-distance-connector { font-size: 10px; color: #94a3b8; padding-left: 26px; }
         .today-map-link { font-size: 11px; color: #1a73e8; font-weight: 700; text-decoration: none; }
         .today-map-link:hover { text-decoration: underline; }
 
@@ -1128,6 +1130,57 @@
         return monthToSeason(parseInt(item.startDate.slice(4, 6), 10));
     }
 
+    // [ADD] 2026-10-10: 2단계 — "정확한 좌표가 있는 곳들 한정으로" 가까운 순서 자동 정렬.
+    // kids_places.json 상당수가 정확한 도로명 주소가 아니라 구/군 중심 좌표로 대체되어
+    // 있어, 같은 좌표를 여러 장소가 함께 쓰는 경우가 많다(1단계 설계 당시 확인). "이
+    // 좌표를 쓰는 장소가 데이터 전체에서 자기 하나뿐"이면 정확한 좌표로 보고, 2곳
+    // 이상이 공유하면(=구/군 중심으로 뭉친 것) 부정확한 좌표로 간주해 거리 정렬
+    // 대상에서 제외한다. 축제는 TourAPI가 실제 행사장 좌표를 주므로 대체로 이 기준을
+    // 자연스럽게 통과한다.
+    let coordUsageMapCache = null;
+    function getCoordUsageMap() {
+        if (coordUsageMapCache) return coordUsageMapCache;
+        coordUsageMapCache = new Map();
+        festivalData.forEach(function (item) {
+            if (!item.lat || !item.lng) return;
+            const key = item.lat + ',' + item.lng;
+            coordUsageMapCache.set(key, (coordUsageMapCache.get(key) || 0) + 1);
+        });
+        return coordUsageMapCache;
+    }
+    function isPreciseCoord(item) {
+        if (!item.lat || !item.lng) return false;
+        const usage = getCoordUsageMap();
+        const key = item.lat + ',' + item.lng;
+        return (usage.get(key) || 0) <= 1;
+    }
+
+    // 정확한 좌표를 가진 장소들만 최근접 이웃(nearest-neighbor) 방식으로 가까운 순서로
+    // 줄 세운다. 축제가 있으면 축제를 출발점으로 삼아(계절 한정이라 가장 중요한 스팟이므로)
+    // 그 다음부터 매번 "지금까지 마지막으로 들른 곳에서 가장 가까운 곳"을 이어붙인다.
+    // 완벽한 최단 경로(외판원 문제)는 아니지만, 코스 3~4곳 규모에서는 충분히 합리적이다.
+    // 좌표가 부정확한 장소는 순서를 매길 수 없으므로 뒤에 그대로 덧붙인다.
+    function orderItemsByProximity(items) {
+        const precise = items.filter(isPreciseCoord);
+        const imprecise = items.filter(function (it) { return !isPreciseCoord(it); });
+        if (precise.length <= 1) return precise.concat(imprecise);
+        const remaining = precise.slice();
+        const startIdx = remaining.findIndex(function (it) { return it.type !== 'kids'; });
+        const ordered = [remaining.splice(startIdx >= 0 ? startIdx : 0, 1)[0]];
+        while (remaining.length > 0) {
+            const last = ordered[ordered.length - 1];
+            let bestIdx = 0, bestDist = Infinity;
+            remaining.forEach(function (it, i) {
+                const d = haversineDistanceKm(last.lat, last.lng, it.lat, it.lng);
+                if (d < bestDist) { bestDist = d; bestIdx = i; }
+            });
+            const next = remaining.splice(bestIdx, 1)[0];
+            ordered[ordered.length - 1]._distToNextKm = bestDist; // 카드에 "약 N km" 표시용
+            ordered.push(next);
+        }
+        return ordered.concat(imprecise);
+    }
+
     function buildCourses(regionKey) {
         const season = getCurrentSeason();
         // 아이랑 장소(kids)는 계절과 무관하게 항상 포함하고, 축제는 지금 계절에 열리는
@@ -1185,11 +1238,20 @@
                 const bFes = b.type !== 'kids' ? 0 : 1;
                 return aFes - bFes;
             });
+            // 보여줄 최대 개수(MAX_COURSE_PLACES)만큼 먼저 고르고(축제 우선 — "코스에
+            // 뭐가 들어갈지"는 그대로), 그 안에서만 가까운 순서로 다시 줄을 세운다
+            // ("순서를 어떻게 보여줄지"만 2단계에서 바뀜).
+            const picked = sortedItems.slice(0, MAX_COURSE_PLACES);
+            const ordered = orderItemsByProximity(picked);
+            const totalDistanceKm = ordered.reduce(function (sum, it) {
+                return sum + (typeof it._distToNextKm === 'number' ? it._distToNextKm : 0);
+            }, 0);
             courses.push({
                 subRegion: group.label,
-                items: sortedItems.slice(0, MAX_COURSE_PLACES),
+                items: ordered,
                 total: group.items.length,
-                hasFestival: group.hasFestival
+                hasFestival: group.hasFestival,
+                totalDistanceKm: totalDistanceKm
             });
         });
         // 이번 계절 축제가 껴 있는 코스를 먼저, 그 다음 장소가 많이 모인(=완성도 높은) 순.
@@ -1207,17 +1269,28 @@
             // 축제는 🎪, 아이랑 상시 장소는 🧒로 구분해서 한눈에 "이번 계절 한정"인지
             // "언제 가도 되는 곳"인지 알 수 있게 한다.
             const icon = item.type === 'kids' ? '🧒' : '🎪';
-            return '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
+            const li = '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
                 + '<span class="course-place-num">' + (i + 1) + '</span>'
                 + '<span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>'
                 + '</li>';
+            // [ADD] 2026-10-10: 2단계 — 정확한 좌표끼리는 바로 다음 장소까지의 대략적인
+            // 직선거리를 다음 항목 사이에 작게 보여준다(차로 이동 거리가 아니라 직선거리라
+            // "약"을 붙여 과신하지 않도록 함). 좌표가 부정확해 순서를 못 매긴 장소 사이엔
+            // 표시하지 않는다.
+            const connector = (typeof item._distToNextKm === 'number')
+                ? '<li class="course-distance-connector">↓ 약 ' + item._distToNextKm.toFixed(1) + 'km</li>'
+                : '';
+            return li + connector;
         }).join('');
         const moreNote = course.total > course.items.length
             ? '<span class="today-desc">그 외 ' + (course.total - course.items.length) + '곳 더 있어요</span>'
             : '';
+        const distanceNote = course.totalDistanceKm > 0
+            ? ' · 이동 약 ' + course.totalDistanceKm.toFixed(1) + 'km'
+            : '';
         const seasonBadge = course.hasFestival
-            ? '<span class="today-date">' + escapeHtml(SEASON_LABELS[getCurrentSeason()]) + ' 축제 포함 · ' + course.items.length + '곳</span>'
-            : '<span class="today-date">🧒 상시 이용 가능 · ' + course.items.length + '곳</span>';
+            ? '<span class="today-date">' + escapeHtml(SEASON_LABELS[getCurrentSeason()]) + ' 축제 포함 · ' + course.items.length + '곳' + distanceNote + '</span>'
+            : '<span class="today-date">🧒 상시 이용 가능 · ' + course.items.length + '곳' + distanceNote + '</span>';
         return '<li class="today-item course-card">'
             + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
             + seasonBadge
