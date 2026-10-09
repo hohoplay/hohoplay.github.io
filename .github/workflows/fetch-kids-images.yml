@@ -1,0 +1,64 @@
+name: Fetch Kids Place Images
+
+# 아이랑 나들이 지도(data/kids_places.json) 199곳에 TourAPI 공식 사진을 채워 넣는 작업입니다.
+#
+# - 자동 스케줄 없이 수동 실행(workflow_dispatch)만 가능합니다 — Actions 탭에서
+#   "Run workflow" 버튼을 눌러야 실행됩니다. 장소를 새로 추가했을 때만 가끔 돌리면 되는
+#   작업이라 push/schedule 트리거는 일부러 넣지 않았습니다(필요해지면 나중에 추가 가능).
+# - scripts/fetch_kids_images.py 가 api/kids-image-search.js(festival-api-proxy
+#   Vercel 프로젝트에 배포된 TourAPI 프록시)를 호출해서 사진 주소를 찾고,
+#   data/kids_places.json 의 "image" 필드를 채웁니다. 이미 image가 채워진 곳은
+#   건너뛰므로(스크립트 자체가 그렇게 동작) 여러 번 실행해도 안전합니다.
+# - 이어서 scripts/generate_kids_detail_pages.py 로 festival/detail/kids-*.html
+#   199개를 사진 포함된 모습으로 다시 생성합니다.
+# - 바뀐 파일이 있으면 자동으로 커밋·푸시합니다. 바뀐 게 없으면(이미 다 채워져 있거나
+#   TourAPI에 매칭되는 사진이 없는 경우) 아무 것도 커밋하지 않습니다.
+#
+# 미리 필요한 것:
+#   - 이 저장소에 data/kids_places.json, templates/kids_detail_template.html,
+#     scripts/fetch_kids_images.py, scripts/generate_kids_detail_pages.py 가
+#     이미 커밋되어 있어야 합니다(kids_images_setup.zip 내용을 저장소에 올려둔 상태).
+#   - KIDS_IMAGE_PROXY_URL 은 공개 호출 주소라 비밀값이 아니므로 아래에 직접 적어뒀습니다.
+#     festival-api-proxy 저장소/주소가 바뀌면 이 값만 고치면 됩니다.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+env:
+  KIDS_IMAGE_PROXY_URL: "https://festival-api-proxy.vercel.app/api/kids-image-search"
+
+jobs:
+  fetch-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: requests 설치
+        run: pip install requests
+
+      - name: 사진 주소 가져오기 (TourAPI 키워드 검색)
+        run: python3 scripts/fetch_kids_images.py data/kids_places.json
+
+      - name: 상세페이지 199개 재생성
+        run: python3 scripts/generate_kids_detail_pages.py data/kids_places.json festival/detail templates/kids_detail_template.html
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/kids_places.json festival/detail
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 아이랑 나들이 지도 장소 사진 채워넣기 (TourAPI)"
+            git push
+          fi
