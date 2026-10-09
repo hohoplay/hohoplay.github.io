@@ -239,8 +239,14 @@ function convertContentToHtml(text) {
     if (m) return '<h3>' + inlineFormat(m[1].trim()) + '</h3>';
     m = block.match(/^##\s*([\s\S]*)$/);
     if (m) return '<h2>' + inlineFormat(m[1].trim()) + '</h2>';
+    // [FIX] 2026-10-10: "#" 하나로 시작하는 문단을 <h1>로 저장하고 있었는데, 글
+    // 본문이 들어가는 실제 페이지(community_post_template.html 등)에는 글 제목이
+    // 이미 별도의 진짜 <h1>로 한 번 박혀있어서, 본문 안에 또 <h1>이 생기면 한
+    // 페이지에 <h1>이 2개가 되어버림(네이버 서치어드바이저 "H1 요소가 2개 이상
+    // 발견" 경고의 원인 — 실제로 10~16번 매거진 글에서 이 패턴으로 발생함). 안내
+    // 문구에도 "#"는 애초에 없었던 표기라, 그냥 "##"과 같은 결과(<h2>)로 만든다.
     m = block.match(/^#\s*([\s\S]*)$/);
-    if (m) return '<h1>' + inlineFormat(m[1].trim()) + '</h1>';
+    if (m) return '<h2>' + inlineFormat(m[1].trim()) + '</h2>';
 
     const lines = block.split('\n').map(function (l) { return l.trim(); }).filter(function (l) { return l; });
     const isList = lines.length > 0 && lines.every(function (l) { return /^[*\-]\s+/.test(l); });
