@@ -3,13 +3,19 @@
 kids_places.json의 각 장소마다 /festival/detail/{contentid}.html 상세페이지를 생성한다.
 
 사용법:
-    python3 generate_kids_detail_pages.py [kids_places.json 경로] [출력 폴더]
+    python3 scripts/generate_kids_detail_pages.py [kids_places.json 경로] [출력 폴더] [템플릿 경로]
+    (저장소 루트에서 실행하는 것을 기준으로 함 — data/, templates/, scripts/, festival/detail/
+    가 모두 저장소 루트의 형제 폴더인 구조)
 
-기본값:
-    kids_places.json 경로 = ./kids_places.json
-    출력 폴더            = ./festival/detail
+기본값(인자 없이 실행 시, 이 스크립트가 <저장소 루트>/scripts/ 안에 있다고 가정):
+    kids_places.json 경로 = <저장소 루트>/data/kids_places.json
+    출력 폴더            = <저장소 루트>/festival/detail
+    템플릿 경로           = <저장소 루트>/templates/kids_detail_template.html
 
 주의:
+    - [FIX 2026-10-09] 예전 버전은 기본 경로가 이 스크립트가 있는 폴더(scripts/) 기준으로
+      계산되어 있어서, data/·templates/·festival/ 이 scripts/의 형제 폴더인 실제 배포
+      구조에서는 파일을 못 찾는 버그가 있었다. 저장소 루트 기준으로 고쳤다.
     - 축제 상세페이지(fetch_data.py가 생성)와 같은 폴더(festival/detail/)를 공유합니다.
       contentid가 서로 겹치지 않아야 합니다(축제는 TourAPI 숫자 contentid, 여기는 "kids-0001"
       형식이라 자연스럽게 안 겹칩니다).
@@ -33,6 +39,13 @@ import urllib.parse
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+# [FIX] 2026-10-09: 이 스크립트가 scripts/ 폴더 안에 있을 때(zip으로 전달하는 실제 배포 구조:
+# data/, templates/, scripts/, festival/detail/ 가 모두 저장소 루트의 형제 폴더) 과거에는
+# 아래 기본 경로들이 SCRIPT_DIR(=scripts/) 기준으로 계산되어 scripts/kids_places.json,
+# scripts/templates/... 처럼 실제로는 존재하지 않는 경로를 가리키는 버그가 있었다.
+# REPO_ROOT(=scripts/의 부모 폴더, 즉 저장소 루트)를 기준으로 고쳤다 — 인자 없이 실행해도
+# 저장소 루트에서 'python scripts/generate_kids_detail_pages.py'로 실행하면 정상 동작한다.
+REPO_ROOT = SCRIPT_DIR.parent
 
 
 def html_escape(s: str) -> str:
@@ -46,9 +59,9 @@ def html_escape(s: str) -> str:
 
 
 def main():
-    data_path = Path(sys.argv[1]) if len(sys.argv) > 1 else SCRIPT_DIR / "kids_places.json"
-    out_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else SCRIPT_DIR / "festival" / "detail"
-    template_path = SCRIPT_DIR / "templates" / "kids_detail_template.html"
+    data_path = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO_ROOT / "data" / "kids_places.json"
+    out_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else REPO_ROOT / "festival" / "detail"
+    template_path = Path(sys.argv[3]) if len(sys.argv) > 3 else REPO_ROOT / "templates" / "kids_detail_template.html"
 
     with open(data_path, "r", encoding="utf-8") as f:
         places = json.load(f)
