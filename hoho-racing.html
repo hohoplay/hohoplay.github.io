@@ -146,7 +146,7 @@ canvas {
   -webkit-overflow-scrolling: touch;
 }
 
-#game-over h1 {
+#game-over h1, #game-over h2 {
   margin-bottom: 1.2rem;
 }
 
@@ -187,7 +187,7 @@ canvas {
   z-index: 100;
 }
 
-#loading-screen h1 {
+#loading-screen h1, #loading-screen h2 {
   font-size: 2.5rem;
   font-weight: bold;
   color: white;
@@ -481,7 +481,7 @@ canvas {
     width: 130px;
   }
   
-  #loading-screen h1 {
+  #loading-screen h1, #loading-screen h2 {
     font-size: 2rem;
   }
   
@@ -554,7 +554,6 @@ canvas {
                             <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
                             <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                    <a href="/dream/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -601,7 +600,6 @@ canvas {
                 <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
                 <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
                 <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -828,7 +826,7 @@ canvas {
   -webkit-overflow-scrolling: touch;
 }
 
-#game-over h1 {
+#game-over h1, #game-over h2 {
   margin-bottom: 1.2rem;
 }
 
@@ -869,7 +867,7 @@ canvas {
   z-index: 100;
 }
 
-#loading-screen h1 {
+#loading-screen h1, #loading-screen h2 {
   font-size: 2.5rem;
   font-weight: bold;
   color: white;
@@ -1281,7 +1279,7 @@ canvas {
     width: 130px;
   }
   
-  #loading-screen h1 {
+  #loading-screen h1, #loading-screen h2 {
     font-size: 2rem;
   }
   
@@ -1328,7 +1326,7 @@ canvas {
       </div>
       <div id="title-content">
         <div id="title-emoji">🏎️</div>
-        <h1 id="title-main">호호레이싱</h1>
+        <h2 id="title-main">호호레이싱</h2>
         <p id="title-slogan">도심을 가르는 질주 본능!</p>
         <p id="title-sub">화면 좌우를 터치해 차선을 변경하십시오.</p>
         <button id="start-button">질주 시작!</button>
@@ -1340,14 +1338,14 @@ canvas {
 
     <!-- 로딩 화면 -->
     <div id="loading-screen" class="hidden">
-      <h1>코스 준비 중</h1>
+      <h2>코스 준비 중</h2>
       <p class="loading-dots">엔진 예열 중</p>
       <div id="retry-ad-slot"></div>
     </div>
 
     <!-- 게임오버 팝업 -->
     <div id="game-over" class="hidden">
-      <h1 class="game-over-title">레이스 종료!</h1>
+      <h2 class="game-over-title">레이스 종료!</h2>
       <div id="new-record-badge" class="hidden" style="font-size:1.2rem;font-weight:800;color:#D4AF37;margin-bottom:8px;font-family:'Gamja Flower',sans-serif;animation:goldPulse 0.6s ease-in-out infinite alternate;">🏆 NEW RECORD!</div>
       
       <div id="popup-step1">
@@ -3237,6 +3235,26 @@ if(document.readyState==='loading'){
             </div>
         </div>
     </section>
+<div id="hoho-pick-placeholder" style="max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
+<script>
+(function(){
+    var ph = document.getElementById('hoho-pick-placeholder');
+    if (!ph) return;
+    fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+        ph.innerHTML = html;
+        var scripts = ph.querySelectorAll('script');
+        for (var i = 0; i < scripts.length; i++) {
+            var old = scripts[i];
+            var s = document.createElement('script');
+            for (var j = 0; j < old.attributes.length; j++) {
+                s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+            }
+            s.textContent = old.textContent;
+            old.parentNode.replaceChild(s, old);
+        }
+    }).catch(function(){});
+})();
+</script>
     <script>
         const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
         const CMT_GAME_ID = 'game5';

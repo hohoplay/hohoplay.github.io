@@ -527,7 +527,6 @@
                             <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
                             <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                    <a href="/dream/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -574,7 +573,6 @@
                 <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
                 <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
                 <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -1622,7 +1620,7 @@
         <p style="margin-top: 14px; color: var(--ts-text-muted); font-size: 0.88rem; line-height: 1.5;">봉인된 결계를 깨는 두뇌 대결!<br>AI 봉인사와의 숨막히는 정면 승부에 도전합니다.</p>
     </div>
     <div id="ts-stage-select-overlay" class="ts-overlay">
-        <h1 style="font-size: 1.8rem; margin: 0 0 4px 0; font-weight: 900;">🔮 SEAL SELECT</h1>
+        <h2 style="font-size: 1.8rem; margin: 0 0 4px 0; font-weight: 900;">🔮 SEAL SELECT</h2>
         <p style="color: var(--ts-text-muted); font-size: 0.82rem; margin-bottom: 16px;">봉인 등급을 선택하여 결계에 도전하십시오.</p>
         <div id="ts-grid-master" class="ts-stage-grid"></div>
         <!-- 하단 유틸리티 버튼 -->
@@ -3113,6 +3111,26 @@
             </div>
         </div>
     </section>
+<div id="hoho-pick-placeholder" style="max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
+<script>
+(function(){
+    var ph = document.getElementById('hoho-pick-placeholder');
+    if (!ph) return;
+    fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+        ph.innerHTML = html;
+        var scripts = ph.querySelectorAll('script');
+        for (var i = 0; i < scripts.length; i++) {
+            var old = scripts[i];
+            var s = document.createElement('script');
+            for (var j = 0; j < old.attributes.length; j++) {
+                s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+            }
+            s.textContent = old.textContent;
+            old.parentNode.replaceChild(s, old);
+        }
+    }).catch(function(){});
+})();
+</script>
     <script>
         const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
         const CMT_GAME_ID = 'game7';
