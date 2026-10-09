@@ -612,6 +612,11 @@
     // "테마를 직접 골라야만 보이는" 항목과는 달리, 아이랑 장소는 테마를 안 골라도(=전체 테마
     // 보기) 항상 노출되어야 하므로 그 구분은 THEME_GATED_TYPES(아래)가 따로 담당한다.
     function renderMainPanel() {
+        // [FIX] 2026-10-09: 마커나 "오늘의 축제" 목록에서 항목을 클릭해 하단 상세카드가
+        // 열려 있는 상태에서 지역/테마를 바꾸면, 카드가 안 닫히고 방금 선택한 지역과
+        // 상관없는 이전 항목(예: 인천 옥토끼우주센터)이 계속 떠 있는 문제가 있었다.
+        // 필터가 바뀌면 지금 열려 있는 카드는 더 이상 유효하지 않으므로 항상 닫는다.
+        closeFestivalCard();
         applyRegionAndThemeToMarkers(currentRegionKey);
         renderTodayPanel(currentRegionKey);
     }
@@ -1053,8 +1058,9 @@
         if (gpsModeActive) {
             renderNearbyPanel();
         } else {
-            applyRegionAndThemeToMarkers(currentRegionKey);
-            renderTodayPanel(currentRegionKey);
+            // [FIX] 2026-10-09: renderMainPanel()로 통일 — 테마를 바꿀 때도 지역을 바꿀 때와
+            // 똑같이, 열려 있던 하단 상세카드(더 이상 현재 필터와 무관해진 이전 항목)를 닫는다.
+            renderMainPanel();
         }
     }
 
