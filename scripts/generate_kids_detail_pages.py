@@ -32,6 +32,10 @@ kids_places.json의 각 장소마다 /festival/detail/{contentid}.html 상세페
       상세페이지와 동일하게 상단에 사진을 넣는다. image를 채우려면 scripts/fetch_kids_images.py
       를 먼저 실행해야 한다(이 스크립트 혼자서는 사진을 찾아오지 않음) — 없으면 그냥 사진
       영역 없이 생성된다.
+    - [2026-10-09] "← 나들이 지도로 돌아가기" 링크에 이 장소의 좌표(lat/lng)와 contentid를
+      쿼리 파라미터로 함께 실어 보낸다({{BACK_URL}}). festival/index.html이 이 파라미터를
+      읽어서 돌아왔을 때 전국 지도가 아니라 그 장소 위치로 바로 이동하도록 festival/index.html
+      쪽에도 짝을 이루는 코드를 같이 추가했다 — 둘 다 같이 배포해야 효과가 있다.
 """
 import json
 import sys
@@ -92,6 +96,19 @@ def main():
             continue
 
         canonical_url = f"https://hohoplaylab.com/festival/detail/{cid}.html"
+
+        # [ADD] 2026-10-09: "← 나들이 지도로 돌아가기" 링크가 그냥 "/festival/"로만 가면
+        # 지도가 항상 전국 기본 화면으로 리셋되는 문제가 있었다(예: 인천 장소를 보다가
+        # 돌아가도 인천이 아니라 전국 지도가 뜸). 이 장소의 좌표(와 contentid)를 쿼리
+        # 파라미터로 같이 실어 보내서, festival/index.html이 돌아왔을 때 그 위치로 바로
+        # 이동하도록 한다(festival/index.html 쪽에도 이 파라미터를 읽는 코드가 있어야
+        # 동작함 — 2026-10-09에 같이 추가함).
+        back_params = [("id", cid)]
+        if lat is not None and lng is not None:
+            back_params.append(("lat", lat))
+            back_params.append(("lng", lng))
+        back_url = "/festival/?" + urllib.parse.urlencode(back_params)
+
         map_url = (
             "https://map.kakao.com/link/map/"
             + urllib.parse.quote(title)
@@ -143,6 +160,7 @@ def main():
             .replace("{{DESC}}", html_escape(desc))
             .replace("{{CANONICAL_URL}}", canonical_url)
             .replace("{{IMAGE_HTML}}", image_html)
+            .replace("{{BACK_URL}}", html_escape(back_url))
         )
 
         out_path = out_dir / f"{cid}.html"
