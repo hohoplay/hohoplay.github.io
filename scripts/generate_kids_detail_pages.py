@@ -22,6 +22,10 @@ kids_places.json의 각 장소마다 /festival/detail/{contentid}.html 상세페
       "정보 없음"으로 표시한다 — 데이터가 아직 없는 장소도 페이지 생성 자체는 깨지지 않는다.
     - 광고 영역의 data-ad-slot="REPLACE_WITH_AD_SLOT_ID" 는 실제 AdSense 광고 단위 slot
       번호로 꼭 바꿔주세요. 채우지 않으면 광고가 표시되지 않습니다(에러는 안 남).
+    - [2026-10-09] kids_places.json에 image 필드(TourAPI 공식 사진 URL)가 있으면 축제
+      상세페이지와 동일하게 상단에 사진을 넣는다. image를 채우려면 scripts/fetch_kids_images.py
+      를 먼저 실행해야 한다(이 스크립트 혼자서는 사진을 찾아오지 않음) — 없으면 그냥 사진
+      영역 없이 생성된다.
 """
 import json
 import sys
@@ -66,6 +70,7 @@ def main():
         hours = p.get("hours")
         homepage = p.get("homepage")
         overview = p.get("overview")
+        image = p.get("image")
         lat = p.get("lat")
         lng = p.get("lng")
 
@@ -104,6 +109,15 @@ def main():
         overview_text = overview or desc
         overview_html = html_escape(overview_text) if overview_text else "설명 정보가 없습니다."
 
+        # [ADD] TourAPI 키워드 검색(scripts/fetch_kids_images.py)으로 받아온 공식 사진이
+        # 있으면 축제 상세페이지와 똑같은 모양(.detail-image)으로 넣고, 없으면 그 자리를
+        # 통째로 비워 레이아웃이 깨지지 않게 한다 — fetch_data.py의 image_html 처리와 동일한 방식.
+        image_html = (
+            f'<img src="{html_escape(image)}" alt="{html_escape(title)}" class="detail-image">'
+            if image
+            else ""
+        )
+
         html_out = (
             template.replace("{{TITLE}}", html_escape(title))
             .replace("{{ADDR}}", html_escape(addr))
@@ -115,6 +129,7 @@ def main():
             .replace("{{MAP_LINK}}", map_link)
             .replace("{{DESC}}", html_escape(desc))
             .replace("{{CANONICAL_URL}}", canonical_url)
+            .replace("{{IMAGE_HTML}}", image_html)
         )
 
         out_path = out_dir / f"{cid}.html"
