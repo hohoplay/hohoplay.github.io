@@ -1,0 +1,48 @@
+name: Rename Festival Nav Label
+
+# 사이트 전체 페이지(100개 넘음)의 "플레이하기" 메뉴에 있는 "축제 지도"를
+# "아이랑 나들이 지도"로 한 번에 바꾸는 1회성 작업입니다.
+#
+# - 수동 실행(workflow_dispatch)만 가능합니다. 1회성 작업이라 push/schedule
+#   트리거는 넣지 않았습니다.
+# - scripts/rename_festival_nav_label.py 가 실제 메뉴에서만 쓰이는 걸로 확인된
+#   정확한 <a> 태그 7가지 모양만 정확히 찾아서 바꿉니다. 본문/FAQ 설명 문구에
+#   있는 "축제 지도"(예: "전국의 다양한 축제 정보를 지도에서...")는 일부러
+#   건드리지 않습니다 — 자세한 이유는 스크립트 안의 설명을 참고하세요.
+# - 이미 바뀐 파일은 건너뛰므로 여러 번 실행해도 안전합니다.
+# - 바뀐 파일이 있으면 자동으로 커밋·푸시합니다. 실행 로그에 "검토 필요"로 나오는
+#   항목이 있으면 자동으로 고치지 않고 로그에만 남기니, Actions 실행 결과를 한 번
+#   확인해주세요.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  rename-nav:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 메뉴 글자 바꾸기 (축제 지도 → 아이랑 나들이 지도)
+        run: python3 scripts/rename_festival_nav_label.py .
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A -- '*.html'
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 메뉴 '축제 지도' → '아이랑 나들이 지도'로 변경"
+            git push
+          fi
