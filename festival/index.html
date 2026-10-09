@@ -1106,16 +1106,47 @@
     const MIN_COURSE_PLACES = 3; // 이보다 적게 모이면 "코스"라 부르기엔 부실해서 제외
     const MAX_COURSE_PLACES = 4; // 하루 코스로 보기 좋은 상한
 
+    // [ADD] 2026-10-10: kids_places.json(상시 장소) + 축제(기간 한정)를 계절로 묶어서
+    // 코스에 함께 보여준다 — "지금 이 계절에 이 동네에서 열리는 축제 + 근처 아이랑 갈만한
+    // 곳"을 한 코스로 제안하는 게 목표. 계절은 탭으로 고르게 하지 않고 오늘 날짜로
+    // 자동 판정한다(사용자 결정) — 코스 화면을 열 때마다 "지금 계절" 기준으로 보임.
+    const SEASON_LABELS = { spring: '봄 🌸', summer: '여름 ☀️', fall: '가을 🍁', winter: '겨울 ❄️' };
+    function monthToSeason(month) {
+        if (month === 12 || month === 1 || month === 2) return 'winter';
+        if (month >= 3 && month <= 5) return 'spring';
+        if (month >= 6 && month <= 8) return 'summer';
+        return 'fall';
+    }
+    function getCurrentSeason() {
+        return monthToSeason(new Date().getMonth() + 1);
+    }
+    // 축제의 계절은 시작일(startDate, YYYYMMDD) 기준 월로 판정한다. 여러 달에 걸친
+    // 축제(예: 9/18~10/11)도 시작월 하나로만 보는 단순한 기준이라, 계절 경계에 걸친
+    // 일부 축제는 다소 거칠게 분류될 수 있지만 1단계로는 충분하다.
+    function getFestivalSeason(item) {
+        if (!item.startDate || item.startDate.length < 6) return null;
+        return monthToSeason(parseInt(item.startDate.slice(4, 6), 10));
+    }
+
     function buildCourses(regionKey) {
-        let kidsItems = festivalData.filter(function (item) { return item.type === 'kids'; });
+        const season = getCurrentSeason();
+        // 아이랑 장소(kids)는 계절과 무관하게 항상 포함하고, 축제는 지금 계절에 열리는
+        // 것만 포함한다. 공원/쉼터/캠핑장/수상레저(THEME_GATED_TYPES)는 테마를 직접
+        // 고를 때만 보이는 성격이 강해 1단계 코스에서는 제외한다(너무 많이 섞여
+        // "아이랑 갈만한 곳" 중심이라는 코스의 취지가 흐려지는 걸 막기 위함).
+        let pool = festivalData.filter(function (item) {
+            if (item.type === 'kids') return true;
+            if (isThemeGatedType(item.type)) return false;
+            return getFestivalSeason(item) === season;
+        });
         if (regionKey !== 'all') {
             const kws = REGION_KEYWORDS[regionKey] || [];
-            kidsItems = kidsItems.filter(function (item) {
+            pool = pool.filter(function (item) {
                 return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
             });
         }
-        const groups = new Map(); // "광역지역키|소지역" -> { label, items[] }
-        kidsItems.forEach(function (item) {
+        const groups = new Map(); // "광역지역키|소지역" -> { label, items[], hasFestival }
+        pool.forEach(function (item) {
             if (!item.addr) return;
             // [FIX] "중구"/"남구"/"북구"처럼 같은 구/군 이름이 인천·대구·부산·대전 등
             // 여러 시에 동시에 존재한다 — extractSubRegion(구/군 이름만)만으로 묶으면
@@ -1138,17 +1169,34 @@
             const groupKey = itemRegionKey + '|' + (sub || '__whole__');
             if (!groups.has(groupKey)) {
                 const label = sub ? (REGION_LABELS[itemRegionKey] + ' ' + sub) : (REGION_LABELS[itemRegionKey] + ' 전체');
-                groups.set(groupKey, { label: label, items: [] });
+                groups.set(groupKey, { label: label, items: [], hasFestival: false });
             }
-            groups.get(groupKey).items.push(item);
+            const group = groups.get(groupKey);
+            group.items.push(item);
+            if (item.type !== 'kids') group.hasFestival = true;
         });
         const courses = [];
         groups.forEach(function (group) {
             if (group.items.length < MIN_COURSE_PLACES) return;
-            courses.push({ subRegion: group.label, items: group.items.slice(0, MAX_COURSE_PLACES), total: group.items.length });
+            // 같은 코스 안에서는 축제를 먼저 보여주고(계절 한정이라 더 눈에 띄어야 함),
+            // 그 다음 아이랑 장소 순으로 정렬한다.
+            const sortedItems = group.items.slice().sort(function (a, b) {
+                const aFes = a.type !== 'kids' ? 0 : 1;
+                const bFes = b.type !== 'kids' ? 0 : 1;
+                return aFes - bFes;
+            });
+            courses.push({
+                subRegion: group.label,
+                items: sortedItems.slice(0, MAX_COURSE_PLACES),
+                total: group.items.length,
+                hasFestival: group.hasFestival
+            });
         });
-        // 장소가 많이 모인(=코스 완성도가 높은) 지역부터 보여준다.
-        courses.sort(function (a, b) { return b.total - a.total; });
+        // 이번 계절 축제가 껴 있는 코스를 먼저, 그 다음 장소가 많이 모인(=완성도 높은) 순.
+        courses.sort(function (a, b) {
+            if (a.hasFestival !== b.hasFestival) return a.hasFestival ? -1 : 1;
+            return b.total - a.total;
+        });
         return courses;
     }
 
@@ -1156,17 +1204,23 @@
         const placesHtml = course.items.map(function (item, i) {
             const lat = item.lat || '';
             const lng = item.lng || '';
+            // 축제는 🎪, 아이랑 상시 장소는 🧒로 구분해서 한눈에 "이번 계절 한정"인지
+            // "언제 가도 되는 곳"인지 알 수 있게 한다.
+            const icon = item.type === 'kids' ? '🧒' : '🎪';
             return '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
                 + '<span class="course-place-num">' + (i + 1) + '</span>'
-                + '<span class="course-place-name">' + escapeHtml(item.title) + '</span>'
+                + '<span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>'
                 + '</li>';
         }).join('');
         const moreNote = course.total > course.items.length
             ? '<span class="today-desc">그 외 ' + (course.total - course.items.length) + '곳 더 있어요</span>'
             : '';
+        const seasonBadge = course.hasFestival
+            ? '<span class="today-date">' + escapeHtml(SEASON_LABELS[getCurrentSeason()]) + ' 축제 포함 · ' + course.items.length + '곳</span>'
+            : '<span class="today-date">🧒 상시 이용 가능 · ' + course.items.length + '곳</span>';
         return '<li class="today-item course-card">'
             + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
-            + '<span class="today-date">🧒 아이랑 가볼만한 곳 ' + course.items.length + '곳</span>'
+            + seasonBadge
             + '<ol class="course-place-list">' + placesHtml + '</ol>'
             + moreNote
             + '<div style="display:flex; gap:12px; margin-top:6px;">'
@@ -1202,7 +1256,9 @@
         courseModeActive = !courseModeActive;
         const btn = document.getElementById('courseModeBtn');
         if (btn) {
-            btn.textContent = courseModeActive ? '📋 전체 목록으로 돌아가기' : '🗺️ 지역별 추천 코스 보기';
+            btn.textContent = courseModeActive
+                ? '📋 전체 목록으로 돌아가기'
+                : ('🗺️ 지금(' + SEASON_LABELS[getCurrentSeason()] + ') 추천 코스 보기');
             btn.classList.toggle('active', courseModeActive);
         }
         const periodRow = document.getElementById('periodBtnRow');
@@ -1215,6 +1271,13 @@
             renderMainPanel();
         }
     }
+
+    // 페이지를 처음 열었을 때도(아직 버튼을 누르기 전) 버튼에 지금 계절이 바로 보이도록
+    // 정적 HTML의 기본 문구("🗺️ 지역별 추천 코스 보기")를 한 번 덮어쓴다.
+    (function initCourseModeButtonLabel() {
+        const btn = document.getElementById('courseModeBtn');
+        if (btn) btn.textContent = '🗺️ 지금(' + SEASON_LABELS[getCurrentSeason()] + ') 추천 코스 보기';
+    })();
 
     function setPeriod(period) {
         currentPeriod = period;
