@@ -403,6 +403,15 @@
         map: map, averageCenter: true, minLevel: 6
     });
 
+    // [ADD] 2026-10-09: 상세페이지의 "← 나들이 지도로 돌아가기" 링크가
+    // ?id=...&lat=...&lng=... 를 붙여서 돌아오면, 전국 지도로 리셋하지 않고 그
+    // 장소 위치로 바로 이동해서 보여준다. generate_kids_detail_pages.py(아이랑 장소)
+    // 쪽에서 이 파라미터를 실어 보내도록 같이 고쳤다 — 두 쪽 다 배포돼야 동작함.
+    const backParams = new URLSearchParams(location.search);
+    const backLat = parseFloat(backParams.get('lat'));
+    const backLng = parseFloat(backParams.get('lng'));
+    const hasBackFocus = !isNaN(backLat) && !isNaN(backLng);
+
     // 대한민국 전체(제주·독도 포함)가 화면에 다 들어오도록 경계 좌표로 맞춤
     function fitKoreaBounds() {
         const bounds = new kakao.maps.LatLngBounds();
@@ -410,7 +419,15 @@
         bounds.extend(new kakao.maps.LatLng(38.7, 131.9)); // 북동쪽 (독도 포함)
         map.setBounds(bounds);
     }
-    fitKoreaBounds();
+    // [FIX] 2026-10-09: 되돌아올 좌표가 있으면 전국 지도로 맞추지 않고 바로 그 장소로
+    // 이동한다(focusFestival은 아래에서 정의되지만 함수 선언은 호이스팅되어 여기서
+    // 먼저 호출해도 문제없다 — 이 파일의 focusFestivalItem 등 다른 곳에서도 이미
+    // 쓰고 있는 패턴).
+    if (hasBackFocus) {
+        focusFestival(backLat, backLng);
+    } else {
+        fitKoreaBounds();
+    }
 
     // "오늘의 축제" 패널에서 항목 클릭 시 해당 위치로 지도 이동.
     // panTo()는 부드럽게 이동하는 애니메이션인데, 페이지를 열자마자 우리가 직접 호출한
@@ -632,6 +649,17 @@
         });
         festivalData = festivals.concat(kidsTagged);
         renderMainPanel();
+
+        // [ADD] 2026-10-09: 지도 이동 자체는 위에서(데이터 로딩 전) 이미 끝냈고, 데이터가
+        // 다 로드된 지금 contentid로 원본 항목을 찾아 하단 상세카드까지 마저 띄워준다
+        // (마커를 직접 클릭했을 때와 동일한 카드).
+        if (hasBackFocus) {
+            const backId = backParams.get('id');
+            if (backId) {
+                const backItem = festivalData.find(function (f) { return f.contentid === backId; });
+                if (backItem) showFestivalCard(backItem);
+            }
+        }
     });
 
     // [성능] 필터를 바꿀 때마다 마커를 전부 새로 만들면(생성 + 이벤트 등록), 데이터가
