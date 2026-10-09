@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>커뮤니티 - 호호플레이(HOHO PLAY) | 공지사항 및 게임소개</title>
     <meta name="description" content="호호플레이(HOHO PLAY) 커뮤니티에서 공지사항, 업데이트 소식을 확인하고 게임소개에서 각 게임 이야기를 만나보세요.">
+    <!-- [ADD] ?board=... 로 들어온 화면은 /blog/posts/ 또는 /blog/magazine/ 의 진짜 정적
+         페이지를 SPA가 필터링해서 보여주는 "같은 내용의 다른 창구"일 뿐이라, 검색결과에는
+         이 주소 말고 진짜 정적 페이지만 떠야 한다. fetch가 끝나길 기다리는 기존 로직은
+         구글이 렌더링하는 타이밍과 안 맞을 수 있어서, 머리말에서 location.search만 보고
+         바로(동기적으로) noindex를 박아 넣는다. -->
+    <script>
+      if (/[?&]board=/.test(location.search)) {
+        document.write('<meta name="robots" content="noindex, follow">');
+      }
+    </script>
     <!-- [FIX] 원래 여기 <link rel="canonical" href=".../blog/"> 정적 태그가 있었는데,
          이 페이지는 ?post=ID로 어떤 글을 보여줄지 자바스크립트가 나중에 정하는 구조라,
          정적 태그가 항상 "/blog/"만 가리키는 게 실제 보여주는 글과 안 맞는 경우가
