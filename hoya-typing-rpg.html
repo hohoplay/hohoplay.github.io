@@ -123,7 +123,6 @@
                             <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
                             <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                    <a href="/dream/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -170,7 +169,6 @@
                 <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
                 <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
                 <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -1448,7 +1446,7 @@
         <div id="object-layer"></div>
         
         <div id="start-screen" class="overlay-screen">
-            <h1 class="title">🍄 호호타자RPG</h1>
+            <h2 class="title">🍄 호호타자RPG</h2>
             <p style="margin-bottom: 6px; font-size: 1.05rem; color: #ffd700; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 0 12px rgba(255,215,0,0.5);">🌿 단어로 숲을 지켜라 — 속담 타자 RPG 대모험</p>
             <p style="margin-bottom: 10px; color: #4fc3f7; font-weight: 700; font-size: 0.8rem;">이 게임은 호호플레이에서 제작함</p>
             <p style="font-size: 0.9rem; color: #ffffff;">캐릭터 선택</p>
@@ -1727,7 +1725,7 @@
         </div>
 
         <div id="game-over-screen" class="overlay-screen hidden">
-            <h1 class="title" style="color:#ff5252">🍄 숲이 어둠에 잠겼습니다... 🍄</h1>
+            <h2 class="title" style="color:#ff5252">🍄 숲이 어둠에 잠겼습니다... 🍄</h2>
             <p style="color:#ff8a80; font-size: 0.95rem; font-weight: 700; margin-bottom: 4px;">단어의 힘이 다하고 몬스터가 숲을 뒤덮었습니다.</p>
             <p id="game-over-info" style="color:#aaa; font-size:0.9rem; margin-top:4px; margin-bottom:10px;"></p>
             <button class="btn-start" id="btn-gameover-load" style="margin-top:10px; background:rgba(74,144,226,0.25); border:2px solid #4a90e2; font-size:1rem; padding:12px 40px; color:#7ec8ff;" onclick="loadGame()">📂 이어하기</button>
@@ -1736,7 +1734,7 @@
         </div>
 
         <div id="game-clear-screen" class="overlay-screen hidden">
-            <h1 class="title" style="color:var(--primary-yellow)">✨ 전설의 수호자 호야! ✨</h1>
+            <h2 class="title" style="color:var(--primary-yellow)">✨ 전설의 수호자 호야! ✨</h2>
             <button class="btn-start" style="margin-top:10px; padding:12px 40px; font-size:1rem;" onclick="restartGame()">🔄 새로 시작</button>
             <button class="btn-start" style="margin-top:8px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); color:#fff; padding:12px 40px; font-size:1rem;" onclick="goToTitle()">🏠 캐릭터 선택</button>
         </div>
@@ -4384,6 +4382,26 @@
             </div>
         </div>
     </section>
+<div id="hoho-pick-placeholder" style="max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
+<script>
+(function(){
+    var ph = document.getElementById('hoho-pick-placeholder');
+    if (!ph) return;
+    fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+        ph.innerHTML = html;
+        var scripts = ph.querySelectorAll('script');
+        for (var i = 0; i < scripts.length; i++) {
+            var old = scripts[i];
+            var s = document.createElement('script');
+            for (var j = 0; j < old.attributes.length; j++) {
+                s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+            }
+            s.textContent = old.textContent;
+            old.parentNode.replaceChild(s, old);
+        }
+    }).catch(function(){});
+})();
+</script>
     <script>
         // ⚠️ Cloudflare Worker 배포 후 실제 주소로 바꿔주세요 (wrangler deploy 결과값)
         const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
