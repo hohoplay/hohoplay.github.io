@@ -574,6 +574,17 @@ def build_magazine_archive_page(posts):
     page = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
+<!-- [ADD] 2026-10-10: 애드센스 광고 코드가 개별 글(community_post_template.html)에는
+     있는데 이 매거진 "목록" 페이지에는 빠져있었음 — 애드센스 품질 심사에서
+     "광고 코드가 누락되었거나 불완전한 경우"로 잡힐 수 있어 개별 글과 동일하게 추가. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', 'G-VGTXTM4R91');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티</title>
