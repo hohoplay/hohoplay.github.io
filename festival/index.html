@@ -1306,6 +1306,18 @@
         const listEl = document.querySelector('.today-list');
         if (!listEl || festivalData.length === 0) return;
         currentCourses = buildCourses(regionKey);
+        // [FIX] 2026-10-10: 코스 카드 안 장소를 눌렀을 때 지도가 그 위치로 이동은 하는데
+        // 핀(마커)이 하나도 안 보이는 버그 — 코스 모드에서는 renderMainPanel()이
+        // applyRegionAndThemeToMarkers()를 건너뛰어서 애초에 지도에 마커를 하나도
+        // 그려두지 않았기 때문이다(그동안은 "지도에서 전체보기"를 눌렀을 때만 그 코스
+        // 장소들의 마커가 그려졌음). 코스 목록을 그릴 때 그 안에 나온 장소들 전부를
+        // 미리 마커로 깔아둬서, 목록에서 바로 아무 장소나 눌러도 핀이 보이게 한다.
+        const allCourseItems = [];
+        currentCourses.forEach(function (course) {
+            allCourseItems.push.apply(allCourseItems, course.items);
+        });
+        renderMarkers(allCourseItems);
+        if (regionKey === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
         if (currentCourses.length === 0) {
             listEl.innerHTML = '<li class="today-empty">이 지역은 아직 코스로 묶을 만큼 장소가 모이지 않았어요. 다른 지역을 선택해보세요!</li>';
             return;
