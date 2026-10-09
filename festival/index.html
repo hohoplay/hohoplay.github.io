@@ -161,15 +161,25 @@
         .course-place-name { font-size: 12px; color: #1e293b; font-weight: 600; }
 
         /* [ADD] 2026-10-10: 지금 선택한 장소 위치에 빨간 원이 바깥으로 퍼졌다 사라지는
-           표시. 핀이 여러 개 겹쳐 보일 때 "지금 어느 핀을 눌렀는지" 바로 알 수 있게 함. */
-        .selected-pin-pulse {
-            width: 22px; height: 22px; border-radius: 50%;
-            background: rgba(239, 68, 68, 0.5); border: 2px solid rgba(220, 38, 38, 0.85);
-            animation: pinPulseRing 1.3s ease-out infinite; pointer-events: none;
+           표시. 핀이 여러 개 겹쳐 보일 때 "지금 어느 핀을 눌렀는지" 바로 알 수 있게 함.
+           [FIX] 2026-10-10: 기존엔 퍼지는 원(ring) 하나만 있어서, 클러스터 마커 등
+           다른 마커에 거의 가려지면 애니메이션이 투명해지는 순간엔 아예 안 보이는
+           구간이 생겼다. 가운데 항상 보이는 진한 점(dot)을 추가하고, 래퍼를 더 크게
+           잡아서(56px) 클러스터 마커보다 확실히 커 보이게 했다. */
+        .selected-pin-wrap { position: absolute; width: 56px; height: 56px; pointer-events: none; }
+        .selected-pin-ring {
+            position: absolute; top: 50%; left: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px;
+            border-radius: 50%; background: rgba(239, 68, 68, 0.45); border: 2px solid rgba(220, 38, 38, 0.9);
+            animation: pinPulseRing 1.3s ease-out infinite;
+        }
+        .selected-pin-dot {
+            position: absolute; top: 50%; left: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px;
+            border-radius: 50%; background: #dc2626; border: 2px solid #fff;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
         }
         @keyframes pinPulseRing {
-            0% { transform: scale(0.5); opacity: 0.9; }
-            70% { transform: scale(2.4); opacity: 0; }
+            0% { transform: scale(0.4); opacity: 0.9; }
+            70% { transform: scale(2.6); opacity: 0; }
             100% { opacity: 0; }
         }
         /* [ADD] 2026-10-10: 2단계 — 코스 안 장소 사이 대략 거리 표시 줄 */
@@ -934,20 +944,39 @@
     // [ADD] 2026-10-10: 선택한 장소 위치에 빨간 원이 퍼지는 표시를 띄운다. 카카오맵
     // 마커 자체엔 구글맵 같은 bounce 애니메이션 기능이 없어서, CustomOverlay + CSS
     // 애니메이션으로 직접 구현했다. 새로 선택하면 이전 표시는 지우고 새 위치로 옮긴다.
+    //
+    // [FIX] 2026-10-10: 실제 사이트에서 "효과 없음" 제보. 원인으로 확인된 것들:
+    // 1) festivalData의 item.lat/lng는 문자열이다(마커 만들 때도 전부 parseFloat를
+    //    거침). 여기만 그대로 kakao.maps.LatLng에 넘기고 있어서 위치 계산이 어긋날
+    //    수 있었다 → parseFloat 추가.
+    // 2) zIndex: 5는 MarkerClusterer가 내부적으로 쓰는 값보다 낮아서, 클러스터 마커에
+    //    덮여 안 보일 수 있었다 → zIndex를 확 높임(9999).
+    // 3) 지도 패닝 직후(특히 마커를 "직접" 클릭해서 focusFestival()의 relayout()을
+    //    타지 않는 경로) 좌표 계산이 틀어질 수 있던 걸 막기 위해 여기서도 relayout 호출.
+    // 4) 퍼지는 원(ring)만 있으면 애니메이션상 투명해지는 순간엔 아무것도 안 보이는
+    //    구간이 생긴다 → 항상 보이는 진한 점(dot)을 가운데 추가.
     let selectedPinOverlay = null;
     function showSelectedPinPulse(lat, lng) {
-        if (!lat || !lng) return;
-        if (selectedPinOverlay) selectedPinOverlay.setMap(null);
-        const el = document.createElement('div');
-        el.className = 'selected-pin-pulse';
-        selectedPinOverlay = new kakao.maps.CustomOverlay({
-            position: new kakao.maps.LatLng(lat, lng),
-            content: el,
-            xAnchor: 0.5,
-            yAnchor: 0.5,
-            zIndex: 5
-        });
-        selectedPinOverlay.setMap(map);
+        const latNum = parseFloat(lat);
+        const lngNum = parseFloat(lng);
+        if (isNaN(latNum) || isNaN(lngNum)) return;
+        if (selectedPinOverlay) { selectedPinOverlay.setMap(null); selectedPinOverlay = null; }
+        try {
+            map.relayout();
+            const el = document.createElement('div');
+            el.className = 'selected-pin-wrap';
+            el.innerHTML = '<div class="selected-pin-ring"></div><div class="selected-pin-dot"></div>';
+            selectedPinOverlay = new kakao.maps.CustomOverlay({
+                position: new kakao.maps.LatLng(latNum, lngNum),
+                content: el,
+                xAnchor: 0.5,
+                yAnchor: 0.5,
+                zIndex: 9999
+            });
+            selectedPinOverlay.setMap(map);
+        } catch (e) {
+            console.warn('selected pin pulse failed', e);
+        }
     }
 
     function formatDateRange(start, end) {
