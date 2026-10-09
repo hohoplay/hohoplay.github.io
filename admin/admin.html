@@ -36,8 +36,11 @@
 <h1>💬 댓글 관리</h1>
 <p style="font-size:13px;color:#64748b;margin-top:-8px">퀴즈·투표·게임·공략 등 사이트 전체 댓글을 한 곳에서 관리합니다. game_id를 비워두면 전체가 보입니다.</p>
 <input id="key" type="password" placeholder="관리자 키 입력">
-<input id="gameFilter" type="text" placeholder="game_id로 필터 (비우면 전체, 예: game1)">
-<button onclick="loadFirstPage()">불러오기</button>
+<input id="gameFilter" type="text" placeholder="game_id로 필터 (비우면 전체, 예: game1 / 접두어 전체조회는 kids-* 처럼 *를 끝에)">
+<div style="display:flex; gap:8px; margin-bottom:12px">
+  <button onclick="loadFirstPage()" style="flex:1">불러오기</button>
+  <button onclick="filterKidsPlaces()" style="flex:1; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; cursor:pointer; color:#15803d; font-weight:700">🧒 아이랑 나들이 지도 전체보기</button>
+</div>
 <div id="list" style="margin-top:20px"></div>
 <div id="pager" class="pager" style="display:none"></div>
 
@@ -61,6 +64,42 @@ let currentTotal = 0;
 // (문자열을 onclick="...('내용')" 식으로 직접 삽입하면 따옴표·역슬래시가 섞였을 때
 // JS 문자열이 깨지거나 스크립트 삽입으로 이어질 수 있어 이 방식이 더 안전하다.)
 let currentComments = [];
+
+// [ADD] 2026-10-10: 아이랑 나들이 지도 199곳은 game_id가 kids-0001~kids-0199라 숫자만
+// 봐서는 어떤 장소인지 알 수 없다. kids_places.json을 한 번만 불러와 contentid→title
+// 매핑을 만들어두고, 목록 렌더링 시 "[kids-0049] 아트팩토리 참기름"처럼 장소명을 같이
+// 보여준다. 실패해도(네트워크 등) 그냥 id만 보이도록 조용히 넘어간다.
+let kidsPlaceTitles = null;
+let kidsPlaceTitlesLoading = null;
+
+function loadKidsPlaceTitles() {
+  if (kidsPlaceTitles) return Promise.resolve(kidsPlaceTitles);
+  if (kidsPlaceTitlesLoading) return kidsPlaceTitlesLoading;
+  kidsPlaceTitlesLoading = fetch('/data/kids_places.json')
+    .then(res => res.json())
+    .then(list => {
+      const map = {};
+      (list || []).forEach(p => { if (p.contentid) map[p.contentid] = p.title || ''; });
+      kidsPlaceTitles = map;
+      return map;
+    })
+    .catch(() => {
+      kidsPlaceTitles = {};
+      return kidsPlaceTitles;
+    });
+  return kidsPlaceTitlesLoading;
+}
+
+function gameIdLabel(gameId) {
+  const title = kidsPlaceTitles && kidsPlaceTitles[gameId];
+  return title ? `${escapeHtml(gameId)} (${escapeHtml(title)})` : escapeHtml(gameId);
+}
+
+// [ADD] "아이랑 나들이 지도 전체보기" 버튼 — gameFilter에 'kids-*'를 넣고 바로 조회.
+function filterKidsPlaces() {
+  document.getElementById('gameFilter').value = 'kids-*';
+  loadFirstPage();
+}
 
 // [FIX] 기존에는 content만 '<'를 문자열 치환으로 막고 있었고, nickname과
 // game_id는 아예 이스케이프가 없었다(관리자 화면에 그대로 삽입되는 구조라
@@ -122,7 +161,17 @@ async function load() {
     return;
   }
 
-  list.innerHTML = data.comments.map(c => {
+  // kids-* 댓글이 섞여 있으면 장소명 매핑을 받아온 뒤에 그려야 라벨이 바로 보인다.
+  const hasKidsRows = data.comments.some(c => c.game_id && c.game_id.startsWith('kids-'));
+  if (hasKidsRows) await loadKidsPlaceTitles();
+
+  renderCommentList(data.comments);
+  renderPager();
+}
+
+function renderCommentList(comments) {
+  const list = document.getElementById('list');
+  list.innerHTML = comments.map(c => {
     const flag = countryFlag(c.country);
     const countryLabel = flag ? `${flag} ${escapeHtml(c.country)}` : '국가 미상';
     const ipLabel = c.ip_address ? escapeHtml(c.ip_address) : 'IP 없음(마이그레이션 이전 댓글)';
@@ -135,14 +184,12 @@ async function load() {
       <button class="del" onclick="del(${c.id})">삭제</button>
       <button class="edit" onclick="editComment(${c.id})">수정</button>
       ${blockBtn}
-      <div class="meta">[${escapeHtml(c.game_id)}] ${escapeHtml(c.nickname)} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
+      <div class="meta">[${gameIdLabel(c.game_id)}] ${escapeHtml(c.nickname)} · ${new Date(c.created_at).toLocaleString('ko-KR')}</div>
       <div class="meta">${countryLabel} · ${ipLabel}</div>
       <div class="content">${escapeHtml(c.content)}</div>
     </div>
   `;
   }).join('');
-
-  renderPager();
 }
 
 // [ADD] 댓글 수정 — 신고·오타 등으로 관리자가 내용을 직접 고쳐야 할 때 쓴다.
