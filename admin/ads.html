@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>광고(유료 등록) 장소 관리</title>
+<!-- [ADD] 2026-10-10: 주소→좌표 변환에 Kakao Geocoder(services 라이브러리)를 쓴다.
+     festival/index.html과 동일한, 이미 도메인 등록된 앱키를 재사용. 지도를 그릴 필요는
+     없고 geocoder 서비스만 쓰므로 <div id="map">은 없음. -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=services"></script>
+<style>
+  body { font-family: sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; background: #f8fafc; }
+  h1 { font-size: 18px; margin-bottom: 4px; }
+  h2 { font-size: 15px; margin: 28px 0 10px; }
+  .hint { font-size: 13px; color: #64748b; margin-top: -2px; margin-bottom: 16px; }
+  input[type=password], input[type=text], input[type=date], textarea {
+    padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; width: 100%;
+    box-sizing: border-box; margin-bottom: 10px; font: inherit;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  label { font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px; }
+  .field { margin-bottom: 10px; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > div { flex: 1; min-width: 0; }
+  .geocode-row { display: flex; gap: 8px; align-items: flex-end; }
+  .geocode-row .field { flex: 1; margin-bottom: 0; }
+  button { cursor: pointer; }
+  .btn-primary { background: #4f46e5; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 700; }
+  .btn-secondary { background: #e2e8f0; color: #1e293b; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; }
+  .btn-geocode { background: #334155; color: #fff; border: none; border-radius: 8px; padding: 9px 14px; font-size: 13px; white-space: nowrap; margin-bottom: 10px; }
+  .btn-small { border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+  .btn-edit { background: #4f46e5; color: #fff; }
+  .btn-del { background: #ef4444; color: #fff; }
+  .form-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .checkbox-row input { width: auto; margin: 0; }
+  .ad-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .ad-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .ad-title { font-weight: 700; font-size: 14px; color: #1e293b; }
+  .ad-addr { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .ad-period { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .status-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .status-active { background: #dcfce7; color: #15803d; }
+  .status-upcoming { background: #dbeafe; color: #1d4ed8; }
+  .status-expired { background: #f1f5f9; color: #94a3b8; }
+  .status-off { background: #fee2e2; color: #b91c1c; }
+  .ad-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .empty { font-size: 13px; color: #94a3b8; text-align: center; padding: 24px 0; }
+</style>
+</head>
+<body>
+<h1>📢 광고(유료 등록) 장소 관리</h1>
+<p class="hint">아이랑 나들이 지도에 "광고" 배지와 함께 노출되는 유료 등록 장소를 관리합니다. 기간이 지나면 자동으로 지도에서 숨겨지고, 데이터는 그대로 남아있어 종료일만 늘리면 다시 노출됩니다.</p>
+
+<div class="field">
+  <label for="key">관리자 키</label>
+  <input id="key" type="password" placeholder="관리자 키 입력" onchange="loadAds()">
+</div>
+
+<h2 id="formTitle">➕ 새 광고 장소 등록</h2>
+<input type="hidden" id="editId" value="">
+
+<div class="field">
+  <label>제목</label>
+  <input id="f-title" type="text" maxlength="60" placeholder="예: OO키즈카페">
+</div>
+
+<div class="geocode-row">
+  <div class="field">
+    <label>주소</label>
+    <input id="f-addr" type="text" placeholder="예: 경기도 수원시 권선구 세화로134번길 37">
+  </div>
+  <button type="button" class="btn-geocode" onclick="geocodeAddress()">📍 주소로 좌표 찾기</button>
+</div>
+<div id="geocodeStatus" class="hint" style="margin-top:-6px"></div>
+
+<div class="row2">
+  <div class="field">
+    <label>위도(lat)</label>
+    <input id="f-lat" type="text" placeholder="주소로 좌표 찾기를 누르면 자동 입력">
+  </div>
+  <div class="field">
+    <label>경도(lng)</label>
+    <input id="f-lng" type="text" placeholder="주소로 좌표 찾기를 누르면 자동 입력">
+  </div>
+</div>
+
+<div class="field">
+  <label>사진 URL</label>
+  <input id="f-image" type="text" placeholder="https://...">
+</div>
+
+<div class="field">
+  <label>설명</label>
+  <textarea id="f-description" maxlength="500" placeholder="아이랑 가볼만한 포인트, 특징 등"></textarea>
+</div>
+
+<div class="row2">
+  <div class="field">
+    <label>전화번호</label>
+    <input id="f-tel" type="text" placeholder="선택">
+  </div>
+  <div class="field">
+    <label>요금</label>
+    <input id="f-fee" type="text" placeholder="선택, 예: 성인 10,000원">
+  </div>
+</div>
+
+<div class="field">
+  <label>홈페이지</label>
+  <input id="f-homepage" type="text" placeholder="선택">
+</div>
+
+<div class="row2">
+  <div class="field">
+    <label>광고 시작일</label>
+    <input id="f-start" type="date">
+  </div>
+  <div class="field">
+    <label>광고 종료일</label>
+    <input id="f-end" type="date">
+  </div>
+</div>
+
+<div class="checkbox-row">
+  <input id="f-active" type="checkbox" checked>
+  <label style="margin:0" for="f-active">활성화 (체크 해제 시 기간과 무관하게 항상 숨김 — 긴급 중단용)</label>
+</div>
+
+<div class="form-actions">
+  <button type="button" class="btn-primary" onclick="saveAd()">저장</button>
+  <button type="button" class="btn-secondary" onclick="resetForm()">취소/초기화</button>
+</div>
+<div id="saveStatus" class="hint"></div>
+
+<h2>📋 등록된 광고 장소</h2>
+<div id="adList"></div>
+
+<script>
+const API = 'https://old-rain-16f7.lyh0929mm.workers.dev';
+let currentAds = [];
+let geocoder = null;
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+// YYYYMMDD <-> YYYY-MM-DD (input type=date는 하이픈 형식만 받는다)
+function toInputDate(yyyymmdd) {
+  if (!yyyymmdd || yyyymmdd.length !== 8) return '';
+  return yyyymmdd.slice(0, 4) + '-' + yyyymmdd.slice(4, 6) + '-' + yyyymmdd.slice(6, 8);
+}
+function toStoredDate(yyyy_mm_dd) {
+  return (yyyy_mm_dd || '').replace(/-/g, '');
+}
+function todayYYYYMMDD() {
+  const d = new Date();
+  return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+}
+
+// [ADD] 주소 → 좌표. Kakao services 라이브러리가 로드된 뒤에만 쓸 수 있어, 버튼을 누른
+// 시점에 처음 한 번만 Geocoder 인스턴스를 만든다(로드 타이밍 이슈 방지).
+function geocodeAddress() {
+  const statusEl = document.getElementById('geocodeStatus');
+  const addr = document.getElementById('f-addr').value.trim();
+  if (!addr) {
+    statusEl.textContent = '주소를 먼저 입력해주세요.';
+    return;
+  }
+  if (!window.kakao || !kakao.maps || !kakao.maps.services) {
+    statusEl.textContent = '지도 서비스를 아직 불러오는 중이에요. 잠시 후 다시 눌러주세요.';
+    return;
+  }
+  if (!geocoder) geocoder = new kakao.maps.services.Geocoder();
+
+  statusEl.textContent = '좌표 찾는 중...';
+  geocoder.addressSearch(addr, function (result, status) {
+    if (status === kakao.maps.services.Status.OK && result.length > 0) {
+      document.getElementById('f-lat').value = result[0].y;
+      document.getElementById('f-lng').value = result[0].x;
+      statusEl.textContent = '좌표를 찾았어요 (' + result[0].y + ', ' + result[0].x + '). 지도에서 다시 확인해보세요.';
+    } else {
+      statusEl.textContent = '이 주소로는 좌표를 찾지 못했어요. 주소를 더 정확히 입력하거나, 위도/경도를 직접 입력해주세요.';
+    }
+  });
+}
+
+function resetForm() {
+  document.getElementById('formTitle').textContent = '➕ 새 광고 장소 등록';
+  document.getElementById('editId').value = '';
+  ['f-title', 'f-addr', 'f-lat', 'f-lng', 'f-image', 'f-description', 'f-tel', 'f-fee', 'f-homepage', 'f-start', 'f-end']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-active').checked = true;
+  document.getElementById('geocodeStatus').textContent = '';
+  document.getElementById('saveStatus').textContent = '';
+}
+
+function fillFormForEdit(ad) {
+  document.getElementById('formTitle').textContent = '✏️ 광고 장소 수정 (#' + ad.id + ')';
+  document.getElementById('editId').value = ad.id;
+  document.getElementById('f-title').value = ad.title || '';
+  document.getElementById('f-addr').value = ad.addr || '';
+  document.getElementById('f-lat').value = ad.lat || '';
+  document.getElementById('f-lng').value = ad.lng || '';
+  document.getElementById('f-image').value = ad.image || '';
+  document.getElementById('f-description').value = ad.description || '';
+  document.getElementById('f-tel').value = ad.tel || '';
+  document.getElementById('f-fee').value = ad.fee || '';
+  document.getElementById('f-homepage').value = ad.homepage || '';
+  document.getElementById('f-start').value = toInputDate(ad.start_date);
+  document.getElementById('f-end').value = toInputDate(ad.end_date);
+  document.getElementById('f-active').checked = !!ad.active;
+  document.getElementById('saveStatus').textContent = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function saveAd() {
+  const key = document.getElementById('key').value;
+  const statusEl = document.getElementById('saveStatus');
+  const id = document.getElementById('editId').value;
+
+  const body = {
+    title: document.getElementById('f-title').value.trim(),
+    addr: document.getElementById('f-addr').value.trim(),
+    lat: document.getElementById('f-lat').value.trim(),
+    lng: document.getElementById('f-lng').value.trim(),
+    image: document.getElementById('f-image').value.trim(),
+    description: document.getElementById('f-description').value.trim(),
+    tel: document.getElementById('f-tel').value.trim(),
+    fee: document.getElementById('f-fee').value.trim(),
+    homepage: document.getElementById('f-homepage').value.trim(),
+    start_date: toStoredDate(document.getElementById('f-start').value),
+    end_date: toStoredDate(document.getElementById('f-end').value),
+    active: document.getElementById('f-active').checked,
+  };
+
+  if (!body.title || !body.addr || !body.lat || !body.lng || !body.start_date || !body.end_date) {
+    statusEl.textContent = '제목·주소·좌표·광고 기간은 필수예요.';
+    return;
+  }
+
+  statusEl.textContent = '저장 중...';
+  try {
+    const res = await fetch(API + '/admin/ads?key=' + encodeURIComponent(key), {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(id ? Object.assign({ id: Number(id) }, body) : body),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.textContent = '저장 실패: ' + (data.error || res.status);
+      return;
+    }
+    statusEl.textContent = '저장되었습니다.';
+    resetForm();
+    loadAds();
+  } catch (e) {
+    statusEl.textContent = '네트워크 오류: ' + e.message;
+  }
+}
+
+async function deleteAd(id) {
+  if (!confirm('이 광고 장소를 완전히 삭제할까요? (복구 불가 — 잠시 숨기려면 수정에서 "활성화" 체크를 해제하세요)')) return;
+  const key = document.getElementById('key').value;
+  await fetch(API + '/admin/ads?key=' + encodeURIComponent(key) + '&id=' + id, { method: 'DELETE' });
+  loadAds();
+}
+
+function statusBadge(ad) {
+  const today = todayYYYYMMDD();
+  if (!ad.active) return '<span class="status-badge status-off">⏸ 비활성</span>';
+  if (today < ad.start_date) return '<span class="status-badge status-upcoming">🕒 노출 예정</span>';
+  if (today > ad.end_date) return '<span class="status-badge status-expired">⌛ 기간 만료</span>';
+  return '<span class="status-badge status-active">🟢 노출 중</span>';
+}
+
+async function loadAds() {
+  const key = document.getElementById('key').value;
+  const listEl = document.getElementById('adList');
+  if (!key) return;
+
+  listEl.innerHTML = '<p class="empty">불러오는 중...</p>';
+  try {
+    const res = await fetch(API + '/admin/ads?key=' + encodeURIComponent(key));
+    const data = await res.json();
+    if (!res.ok) {
+      listEl.innerHTML = '<p class="empty" style="color:red">' + escapeHtml(data.error || '오류') + '</p>';
+      return;
+    }
+    currentAds = data.ads || [];
+    if (!currentAds.length) {
+      listEl.innerHTML = '<p class="empty">아직 등록된 광고 장소가 없습니다.</p>';
+      return;
+    }
+    listEl.innerHTML = currentAds.map(ad => `
+      <div class="ad-card">
+        <div class="ad-card-top">
+          <div>
+            <div class="ad-title">${escapeHtml(ad.title)} ${statusBadge(ad)}</div>
+            <div class="ad-addr">📍 ${escapeHtml(ad.addr)}</div>
+            <div class="ad-period">📅 ${toInputDate(ad.start_date)} ~ ${toInputDate(ad.end_date)}</div>
+          </div>
+          <div class="ad-card-actions">
+            <button type="button" class="btn-small btn-edit" onclick="editById(${ad.id})">수정</button>
+            <button type="button" class="btn-small btn-del" onclick="deleteAd(${ad.id})">삭제</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    listEl.innerHTML = '<p class="empty" style="color:red">네트워크 오류: ' + escapeHtml(e.message) + '</p>';
+  }
+}
+
+function editById(id) {
+  const ad = currentAds.find(a => a.id === id);
+  if (ad) fillFormForEdit(ad);
+}
+</script>
+</body>
+</html>
