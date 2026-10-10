@@ -163,6 +163,13 @@
         }
         .cost-badge.free { background: #dcfce7; color: #15803d; }
         .cost-badge.paid { background: #fef3c7; color: #92400e; }
+        /* [ADD] 2026-10-10: 유료 등록(광고) 장소 배지. 무료/유료 배지와 헷갈리지 않도록
+           별도 색(주황)을 쓰고, "광고"라는 말을 그대로 넣어 광고임을 숨기지 않는다. */
+        .ad-badge {
+            display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+            border-radius: 20px; margin-left: 6px; vertical-align: middle;
+            background: #ffedd5; color: #c2410c;
+        }
         .course-card { cursor: default; }
         .course-place-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin: 2px 0 0; padding: 0; }
         .course-place-item {
@@ -734,16 +741,43 @@
         renderTodayPanel(currentRegionKey);
     }
 
+    // [ADD] 2026-10-10: 유료 등록(광고) 장소. old-rain-16f7 Worker의 공개 /ads에서
+    // "지금 노출 기간인" 광고만 이미 걸러져서 내려오므로(active=1 AND 기간 내), 여기서는
+    // "아이랑 갈만한 곳"과 동일한 type('kids')으로 합쳐 기존 목록/지도 로직을 그대로 타게
+    // 하고, isAd 플래그만 붙여서 목록·상세카드에 "광고" 배지만 추가로 보여준다.
+    const ADS_API_URL = 'https://old-rain-16f7.lyh0929mm.workers.dev/ads';
+
     Promise.all([
         fetch('/data/festivals.json').then(res => res.json()).catch(() => []),
-        fetch('/data/kids_places.json').then(res => res.json()).catch(() => [])
+        fetch('/data/kids_places.json').then(res => res.json()).catch(() => []),
+        fetch(ADS_API_URL).then(res => res.json()).catch(() => ({ ads: [] }))
     ]).then(function (results) {
         const festivals = results[0];
         const kidsPlaces = results[1];
+        const adsRaw = (results[2] && Array.isArray(results[2].ads)) ? results[2].ads : [];
         const kidsTagged = (Array.isArray(kidsPlaces) ? kidsPlaces : []).map(function (p) {
             return Object.assign({}, p, { type: 'kids' });
         });
-        festivalData = festivals.concat(kidsTagged);
+        // [ADD] 2026-10-10: 광고 장소는 festivals.json/kids_places.json과 다른 필드명
+        // (description/addr 그대로/lat·lng가 문자열)으로 내려오므로, 기존 항목들과 같은
+        // 모양(desc, hasDetail 등)으로 맞춰준다. contentid는 "ad-123" 형태로 만들어
+        // 다른 장소의 contentid와 절대 겹치지 않게 한다.
+        const adsTagged = adsRaw.map(function (ad) {
+            return {
+                contentid: 'ad-' + ad.id,
+                type: 'kids',
+                isAd: true,
+                title: ad.title,
+                addr: ad.addr,
+                lat: Number(ad.lat),
+                lng: Number(ad.lng),
+                image: ad.image || '',
+                desc: ad.description || '',
+                fee: ad.fee || '',
+                hasDetail: false
+            };
+        });
+        festivalData = festivals.concat(kidsTagged).concat(adsTagged);
         renderMainPanel();
     });
 
@@ -770,7 +804,9 @@
         const costBadgeHtml = (item.type === 'kids' && item.costTag && item.costTag !== '확인 필요')
             ? '<span class="cost-badge ' + (item.costTag === '완전무료' ? 'free' : 'paid') + '">' + escapeHtml(item.costTag) + '</span>'
             : '';
-        document.getElementById('cardDate').innerHTML = escapeHtml(dateLabel) + costBadgeHtml;
+        // [ADD] 2026-10-10: 유료 등록(광고) 장소는 "광고" 배지를 추가로 붙인다.
+        const adBadgeHtml = item.isAd ? '<span class="ad-badge">📢 광고</span>' : '';
+        document.getElementById('cardDate').innerHTML = escapeHtml(dateLabel) + costBadgeHtml + adBadgeHtml;
 
         document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
 
@@ -779,8 +815,10 @@
         const cardDescEl = document.getElementById('cardDesc');
         if (cardDescEl) {
             // [ADD] 2026-10-10: ageWarning(연령제한 주의)이 있으면 desc 위에 함께 보여준다.
+            // [ADD] 2026-10-10: 광고 장소는 요금(fee) 정보가 있으면 설명 뒤에 같이 보여준다.
             const ageWarningText = item.ageWarning ? ('⚠️ ' + item.ageWarning) : '';
-            const descText = [ageWarningText, item.desc].filter(Boolean).join(' / ');
+            const feeText = (item.isAd && item.fee) ? ('💰 ' + item.fee) : '';
+            const descText = [ageWarningText, item.desc, feeText].filter(Boolean).join(' / ');
             if (descText) {
                 cardDescEl.textContent = descText;
                 cardDescEl.style.display = 'block';
@@ -1090,9 +1128,11 @@
         const costBadgeHtml = (item.type === 'kids' && item.costTag && item.costTag !== '확인 필요')
             ? '<span class="cost-badge ' + (item.costTag === '완전무료' ? 'free' : 'paid') + '">' + escapeHtml(item.costTag) + '</span>'
             : '';
+        // [ADD] 2026-10-10: 유료 등록(광고) 장소는 목록에서도 "광고" 배지를 붙여 보여준다.
+        const adBadgeHtml = item.isAd ? '<span class="ad-badge">📢 광고</span>' : '';
         const dateLine = (item.startDate && item.endDate)
             ? '<span class="today-date">📅 ' + formatDateRange(item.startDate, item.endDate) + '</span>'
-            : '<span class="today-date">' + (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : (item.type === 'kids' ? '🧒 상시 이용 가능' : '🌳 상시 개방')) + costBadgeHtml + '</span>';
+            : '<span class="today-date">' + (item.type === 'shelter' ? '🧊 무더위쉼터 (폭염기간 운영)' : (item.type === 'kids' ? '🧒 상시 이용 가능' : '🌳 상시 개방')) + costBadgeHtml + adBadgeHtml + '</span>';
         const regionTag = (typeof distanceKm === 'number')
             ? '<span class="today-region">📍 ' + distanceKm.toFixed(1) + 'km</span>'
             : (showRegionTag && item._regionKey)
