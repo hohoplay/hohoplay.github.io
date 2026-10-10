@@ -1367,6 +1367,10 @@
             courses.push({
                 subRegion: group.label,
                 items: ordered,
+                // [FIX] 2026-10-10: 카드엔 최대 MAX_COURSE_PLACES(4)곳만 보여주지만,
+                // "지도에서 전체보기"는 그 지역에 묶인 장소 전부(그 외 N곳 포함)를
+                // 보여줘야 한다. items만 쓰면 "그 외 2곳"이 지도에서 빠지는 버그가 있었음.
+                allItems: sortedItems,
                 total: group.items.length,
                 hasFestival: group.hasFestival,
                 totalDistanceKm: totalDistanceKm
@@ -1452,7 +1456,10 @@
         // 엉뚱하게 새 코스 지역 위에 그대로 남아있던 문제. 코스를 바꿀 때는 이전 선택을
         // 먼저 정리한다(closeFestivalCard가 카드와 빨간 핀 표시를 함께 지움).
         closeFestivalCard();
-        renderMarkers(course.items);
+        // [FIX] 2026-10-10: course.items는 카드에 보이는 최대 4곳짜리 축약본이라, 그걸
+        // 그대로 쓰면 "그 외 N곳 더 있어요"가 지도에서 빠졌다. 전체보기는 allItems(그
+        // 지역에 묶인 장소 전부)를 써야 "4곳 표시 + 2곳 더 있음 = 지도엔 6곳"이 맞는다.
+        renderMarkers(course.allItems || course.items);
         fitToMarkers(allMarkers);
         closeTodayPanel();
     }
