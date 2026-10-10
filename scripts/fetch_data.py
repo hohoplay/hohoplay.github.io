@@ -47,6 +47,85 @@ def apply_coord_overrides(items, overrides):
         applied += 1
     return applied
 
+
+# [ADD] 2026-10-10: 주소 기반 좌표 보정(대량). coord_overrides.json은 몇 건을 손으로
+# 고치는 용도고, TourAPI 좌표 오류가 전체적으로 수천~수만 건 단위로 있을 수 있어서는
+# 감당이 안 된다. 그래서 TourAPI가 준 좌표(mapx/mapy) 대신, 각 장소의 주소(addr1)를
+# 카카오 로컬 API(주소 검색)로 직접 좌표 변환해서 쓰는 걸 기본으로 하고, 변환에 실패하면
+# (주소가 비정형이거나 API 오류) 그때만 TourAPI 좌표로 되돌아간다.
+#
+# 매번 전체를 다시 변환하면 느리고(수천~수만 건) API 호출도 많아지므로, 한 번 성공한
+# 변환 결과는 contentid 기준으로 data/geocode_cache.json에 저장해두고, 다음 실행부터는
+# 캐시에 없는(새로 생긴) 장소만 새로 변환한다 — 최초 1회만 전체 분량을 부담한다.
+GEOCODE_CACHE_PATH = os.path.join('data', 'geocode_cache.json')
+KAKAO_GEOCODE_URL = 'https://dapi.kakao.com/v2/local/search/address.json'
+# 한 번 실행에서 새로 지오코딩하는 건수 상한. 캐시가 쌓이기 전 최초 백필 때처럼
+# 한꺼번에 수만 건이 몰려도 이 값만큼만 처리하고 나머지는 이번엔 TourAPI 좌표를 쓰며,
+# 캐시가 안 남았으니 다음 실행(하루 3회)에서 이어서 처리된다 — 실행 시간 폭주 방지용 안전장치.
+MAX_NEW_GEOCODE_PER_RUN = 3000
+
+
+def load_geocode_cache():
+    if not os.path.exists(GEOCODE_CACHE_PATH):
+        return {}
+    try:
+        with open(GEOCODE_CACHE_PATH, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"data/geocode_cache.json 읽기 실패, 이번 실행은 캐시 없이 진행합니다: {e}")
+        return {}
+
+
+def save_geocode_cache(cache):
+    with open(GEOCODE_CACHE_PATH, 'w', encoding='utf-8') as f:
+        json.dump(cache, f, ensure_ascii=False, indent=2)
+
+
+def geocode_address(addr, rest_key, max_retries=2):
+    """주소 한 건을 카카오 좌표 변환 API로 조회한다. 못 찾거나 오류면 (None, None)."""
+    if not addr or not rest_key:
+        return None, None
+    headers = {'Authorization': f'KakaoAK {rest_key}'}
+    for attempt in range(max_retries):
+        try:
+            res = requests.get(KAKAO_GEOCODE_URL, headers=headers, params={'query': addr}, timeout=10)
+            if res.status_code == 200:
+                docs = res.json().get('documents', [])
+                if docs:
+                    return docs[0].get('y'), docs[0].get('x')  # y=위도(lat), x=경도(lng)
+                return None, None  # 주소를 못 찾음 — 재시도해도 결과 같음
+            if res.status_code == 429:  # 호출 한도 초과, 잠시 쉬었다 재시도
+                time.sleep(1.0 * (attempt + 1))
+                continue
+            return None, None
+        except requests.exceptions.RequestException:
+            time.sleep(0.5)
+            continue
+    return None, None
+
+
+def resolve_coords(contentid, addr, fallback_lat, fallback_lng, cache, rest_key, stats):
+    """주소 지오코딩 결과(캐시 우선) → 실패 시 TourAPI 원본 좌표(fallback) 순으로 좌표를 정한다."""
+    if not rest_key:
+        return fallback_lat, fallback_lng
+    if contentid and contentid in cache:
+        hit = cache[contentid]
+        stats['cache_hit'] += 1
+        return hit.get('lat') or fallback_lat, hit.get('lng') or fallback_lng
+    if stats['geocoded'] >= MAX_NEW_GEOCODE_PER_RUN:
+        stats['skipped_limit'] += 1
+        return fallback_lat, fallback_lng
+    lat, lng = geocode_address(addr, rest_key)
+    if lat and lng:
+        if contentid:
+            cache[contentid] = {'lat': lat, 'lng': lng}
+        stats['geocoded'] += 1
+        time.sleep(0.05)  # API 호출 과속 방지
+        return lat, lng
+    stats['failed'] += 1
+    return fallback_lat, fallback_lng
+
+
 # 서울 리전에서 실행되는 Vercel 프록시 함수 주소.
 # GitHub Actions(해외 서버)가 apis.data.go.kr에 직접 접속하면 차단당하는 문제를 피하기 위해
 # 한국 위치인 이 프록시를 통해 대신 데이터를 받아온다.
@@ -1000,6 +1079,15 @@ def update_map_html(festivals, today):
 
 
 def main():
+    # [ADD] 2026-10-10: 주소 기반 좌표 보정 준비. KAKAO_REST_KEY가 없으면(시크릿 미등록)
+    # 자동으로 건너뛰고 기존처럼 TourAPI 좌표를 그대로 쓴다 — 키가 없어도 파이프라인이
+    # 깨지지 않는다.
+    kakao_rest_key = os.environ.get('KAKAO_REST_KEY', '')
+    geocode_cache = load_geocode_cache()
+    geocode_stats = {'cache_hit': 0, 'geocoded': 0, 'failed': 0, 'skipped_limit': 0}
+    if not kakao_rest_key:
+        print("KAKAO_REST_KEY가 없어 주소 기반 좌표 보정을 건너뜁니다 (TourAPI 좌표 그대로 사용)")
+
     all_items = fetch_all_items('festival')
 
     festivals = []
@@ -1008,11 +1096,14 @@ def main():
         if end_date and end_date < TODAY:
             continue  # 이미 종료된 축제는 제외
 
+        lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
+                                   item.get('mapy'), item.get('mapx'),
+                                   geocode_cache, kakao_rest_key, geocode_stats)
         festivals.append({
             'type': 'festival',
             'title': item.get('title'),
-            'lat': item.get('mapy'),
-            'lng': item.get('mapx'),
+            'lat': lat,
+            'lng': lng,
             'startDate': item.get('eventstartdate'),
             'endDate': end_date,
             'addr': item.get('addr1', ''),
@@ -1064,11 +1155,14 @@ def main():
     try:
         nature_items = fetch_all_items('nature')
         for item in nature_items:
+            lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
+                                       item.get('mapy'), item.get('mapx'),
+                                       geocode_cache, kakao_rest_key, geocode_stats)
             nature_spots.append({
                 'type': 'park',
                 'title': item.get('title'),
-                'lat': item.get('mapy'),
-                'lng': item.get('mapx'),
+                'lat': lat,
+                'lng': lng,
                 'startDate': '',
                 'endDate': '',
                 'addr': item.get('addr1', ''),
@@ -1086,11 +1180,14 @@ def main():
     try:
         camping_items = fetch_all_items('camping')
         for item in camping_items:
+            lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
+                                       item.get('mapy'), item.get('mapx'),
+                                       geocode_cache, kakao_rest_key, geocode_stats)
             camping_spots.append({
                 'type': 'camping',
                 'title': item.get('title'),
-                'lat': item.get('mapy'),
-                'lng': item.get('mapx'),
+                'lat': lat,
+                'lng': lng,
                 'startDate': '',
                 'endDate': '',
                 'addr': item.get('addr1', ''),
@@ -1107,11 +1204,14 @@ def main():
     try:
         watersports_items = fetch_all_items('watersports')
         for item in watersports_items:
+            lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
+                                       item.get('mapy'), item.get('mapx'),
+                                       geocode_cache, kakao_rest_key, geocode_stats)
             watersports_spots.append({
                 'type': 'watersports',
                 'title': item.get('title'),
-                'lat': item.get('mapy'),
-                'lng': item.get('mapx'),
+                'lat': lat,
+                'lng': lng,
                 'startDate': '',
                 'endDate': '',
                 'addr': item.get('addr1', ''),
@@ -1146,6 +1246,15 @@ def main():
         print("폭염 대책기간(5.20~9.30) 밖이라 무더위쉼터는 수집하지 않습니다.")
 
     all_map_items = festivals + nature_spots + camping_spots + watersports_spots + shelters
+
+    # [ADD] 2026-10-10: 이번 실행에서 새로 지오코딩된 게 있으면 캐시 파일에 저장해서
+    # 다음 실행부터는 재사용한다 (KAKAO_REST_KEY가 없거나 신규 변환이 0건이면 건너뜀).
+    if kakao_rest_key and (geocode_stats['geocoded'] > 0):
+        save_geocode_cache(geocode_cache)
+    if kakao_rest_key:
+        print(f"주소 기반 좌표 변환: 캐시 재사용 {geocode_stats['cache_hit']}건, "
+              f"신규 변환 {geocode_stats['geocoded']}건, 변환 실패(TourAPI 좌표 사용) {geocode_stats['failed']}건, "
+              f"이번 실행 한도 초과로 보류 {geocode_stats['skipped_limit']}건")
 
     # [ADD] 2026-10-10: TourAPI 원본 좌표가 실제 주소와 다른 곳을 가리키는 경우를
     # data/coord_overrides.json 기준으로 고쳐서 고정한다 (위 load_coord_overrides 설명 참고).
