@@ -11,6 +11,42 @@ TODAY = datetime.datetime.now().strftime('%Y%m%d')
 # 30일 전부터 검색해서, 이미 시작했지만 아직 안 끝난 축제도 놓치지 않도록 함
 SEARCH_FROM = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y%m%d')
 
+# [ADD] 2026-10-10: 좌표 수동 보정. TourAPI가 내려주는 mapx/mapy(행사장 좌표)가
+# 가끔 실제 주소와 다른 곳을 가리키는 경우가 있다(발견 사례: 경기미 디저트
+# 페스타 contentid 3368470 — mapy/mapx를 lat/lng에 바르게 매핑하고 있는데도
+# 핀이 실제 주소와 다른 곳에 찍힘, TourAPI 원본 좌표 자체의 오류로 확인됨).
+# data/coord_overrides.json에 {"contentid": {"lat": "37.xxxx", "lng": "127.xxxx"}}
+# 형태로 적어두면, TourAPI를 다시 호출할 때마다(매일 자동 실행) 매번 이 값으로
+# 덮어써서 고정된다 — 한 번 등록해두면 TourAPI가 같은 틀린 좌표를 계속 내려줘도
+# 더 이상 틀어지지 않는다.
+def load_coord_overrides():
+    path = os.path.join('data', 'coord_overrides.json')
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"data/coord_overrides.json 읽기 실패, 이번 실행에서는 보정 없이 진행합니다: {e}")
+        return {}
+
+
+def apply_coord_overrides(items, overrides):
+    if not overrides:
+        return 0
+    applied = 0
+    for it in items:
+        cid = it.get('contentid')
+        fix = overrides.get(cid) if cid else None
+        if not fix:
+            continue
+        if fix.get('lat'):
+            it['lat'] = fix['lat']
+        if fix.get('lng'):
+            it['lng'] = fix['lng']
+        applied += 1
+    return applied
+
 # 서울 리전에서 실행되는 Vercel 프록시 함수 주소.
 # GitHub Actions(해외 서버)가 apis.data.go.kr에 직접 접속하면 차단당하는 문제를 피하기 위해
 # 한국 위치인 이 프록시를 통해 대신 데이터를 받아온다.
@@ -1110,6 +1146,13 @@ def main():
         print("폭염 대책기간(5.20~9.30) 밖이라 무더위쉼터는 수집하지 않습니다.")
 
     all_map_items = festivals + nature_spots + camping_spots + watersports_spots + shelters
+
+    # [ADD] 2026-10-10: TourAPI 원본 좌표가 실제 주소와 다른 곳을 가리키는 경우를
+    # data/coord_overrides.json 기준으로 고쳐서 고정한다 (위 load_coord_overrides 설명 참고).
+    coord_overrides = load_coord_overrides()
+    if coord_overrides:
+        applied = apply_coord_overrides(all_map_items, coord_overrides)
+        print(f"좌표 수동 보정 적용: {applied}건 (data/coord_overrides.json)")
 
     # ── 상세페이지 생성을 JSON 저장보다 먼저 한다 ──
     # 자연관광지·캠핑장·수상레저는 하루 40건씩만 새로 만들어지므로(API 할당량 보호),
