@@ -2572,7 +2572,9 @@ function initGame() {
   // ── 다시하기/새 게임 클릭 시 기존 로딩화면에 광고 슬롯 삽입 ──
   // (fortune.html의 로딩 중 광고 패턴과 동일 구조. 최초 시작(handleGameStart)엔 넣지 않음)
   // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+  var _RETRY_AD_ENABLED = false; // [AdSense 재신청 대기] 콘텐츠 품질 승인 전까지 재시작 광고 노출 임시 중단. 재개 시 true로.
   function _fillRetryAd(){
+    if(!_RETRY_AD_ENABLED) return;
     var slot = document.getElementById('retry-ad-slot');
     if(!slot) return;
     slot.innerHTML = '<div style="margin-top:14px;padding:12px 10px;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.25);border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:6px">'
