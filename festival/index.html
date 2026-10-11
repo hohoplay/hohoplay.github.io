@@ -183,32 +183,9 @@
         }
         .course-place-name { font-size: 12px; color: #1e293b; font-weight: 600; }
 
-        /* [ADD] 2026-10-10: 지금 선택한 장소 위치에 빨간 원이 바깥으로 퍼졌다 사라지는
-           표시. 핀이 여러 개 겹쳐 보일 때 "지금 어느 핀을 눌렀는지" 바로 알 수 있게 함.
-           [FIX] 2026-10-10: 기존엔 퍼지는 원(ring) 하나만 있어서, 클러스터 마커 등
-           다른 마커에 거의 가려지면 애니메이션이 투명해지는 순간엔 아예 안 보이는
-           구간이 생겼다. 가운데 항상 보이는 진한 점(dot)을 추가하고, 래퍼를 더 크게
-           잡아서(56px) 클러스터 마커보다 확실히 커 보이게 했다.
-           [CHANGE] 2026-10-11: 퍼지는 빨간 원 대신, 선택한 핀 자체가 통통 튀어 보이는
-           연출로 교체. 카카오맵 마커엔 구글맵 같은 bounce 기능이 없어서 기존과 동일하게
-           CustomOverlay + CSS 애니메이션으로 직접 구현 — 위치 계산(아래 showSelectedPinBounce의
-           parseFloat·zIndex·relayout 처리)은 기존에 검증된 로직을 그대로 재사용한다. */
-        .selected-pin-wrap { position: absolute; width: 36px; height: 48px; pointer-events: none; }
-        .selected-pin-flag {
-            position: absolute; left: 50%; bottom: 0; width: 36px; height: 48px;
-            transform: translate(-50%, 0); transform-origin: 50% 100%;
-            animation: pinBounce 1.1s cubic-bezier(.34,1.56,.64,1) infinite;
-            filter: drop-shadow(0 3px 3px rgba(0,0,0,0.4));
-        }
-        .selected-pin-flag svg { display: block; width: 100%; height: 100%; }
-        @keyframes pinBounce {
-            0%, 100% { transform: translate(-50%, 0) scale(1, 1); }
-            30%      { transform: translate(-50%, -18px) scale(1, 1); }
-            42%      { transform: translate(-50%, -18px) scale(1.05, 0.92); }
-            55%      { transform: translate(-50%, 0) scale(0.92, 1.08); }
-            70%      { transform: translate(-50%, 0) scale(1.03, 0.97); }
-            85%      { transform: translate(-50%, 0) scale(0.99, 1.01); }
-        }
+        /* [REMOVED] 2026-10-11: 선택한 핀 강조 표시(퍼지는 빨간 원 → 통통 튀는 핀)를
+           요청에 따라 완전히 제거. 이제 핀을 선택해도 별도 강조 연출 없이 기본
+           마커 동작만 사용한다. */
         /* [ADD] 2026-10-10: 2단계 — 코스 안 장소 사이 대략 거리 표시 줄 */
         .course-distance-connector { font-size: 10px; color: #94a3b8; padding-left: 26px; }
         .today-map-link { font-size: 11px; color: #1a73e8; font-weight: 700; text-decoration: none; }
@@ -796,9 +773,6 @@
     // 카드가 떴고, 사이드 목록 항목을 클릭하면 지도만 이동하고 카드는 안 떠서
     // "왼쪽 목록 눌렀는데 하단 팝업은 왜 안 뜨냐"는 지적을 받아 통합했다.
     function showFestivalCard(item) {
-        // [ADD] 2026-10-10: 핀이 여러 개 겹쳐 보일 때 "지금 어떤 장소를 선택했는지"
-        // 바로 알 수 있도록, 선택한 위치의 핀이 통통 튀는 표시를 띄운다.
-        showSelectedPinBounce(item.lat, item.lng);
         document.getElementById('cardTitle').innerText = item.title;
         const dateLabel = (item.startDate && item.endDate)
             ? `📅 ${item.startDate} ~ ${item.endDate}`
@@ -1036,51 +1010,11 @@
     function closeFestivalCard() {
         activeShelterRequestId = null;
         document.getElementById('festivalCard').classList.remove('active');
-        // [ADD] 2026-10-10: 상세 카드를 닫으면 선택 표시(통통 튀는 핀)도 같이 지운다.
-        if (selectedPinOverlay) { selectedPinOverlay.setMap(null); selectedPinOverlay = null; }
     }
 
-    // [ADD] 2026-10-10: 선택한 장소 위치에 강조 표시를 띄운다. 카카오맵 마커 자체엔
-    // 구글맵 같은 bounce 애니메이션 기능이 없어서, CustomOverlay + CSS 애니메이션으로
-    // 직접 구현했다. 새로 선택하면 이전 표시는 지우고 새 위치로 옮긴다.
-    //
-    // [FIX] 2026-10-10: 실제 사이트에서 "효과 없음" 제보. 원인으로 확인된 것들:
-    // 1) festivalData의 item.lat/lng는 문자열이다(마커 만들 때도 전부 parseFloat를
-    //    거침). 여기만 그대로 kakao.maps.LatLng에 넘기고 있어서 위치 계산이 어긋날
-    //    수 있었다 → parseFloat 추가.
-    // 2) zIndex: 5는 MarkerClusterer가 내부적으로 쓰는 값보다 낮아서, 클러스터 마커에
-    //    덮여 안 보일 수 있었다 → zIndex를 확 높임(9999).
-    // 3) 지도 패닝 직후(특히 마커를 "직접" 클릭해서 focusFestival()의 relayout()을
-    //    타지 않는 경로) 좌표 계산이 틀어질 수 있던 걸 막기 위해 여기서도 relayout 호출.
-    //
-    // [CHANGE] 2026-10-11: 퍼지는 빨간 원 대신 핀 모양 자체가 제자리에서 통통 튀는
-    // 연출로 교체(요청: "빨간 원 없애고 깃발을 움직이게"). 위치 계산(parseFloat·
-    // zIndex·relayout)은 위에서 이미 검증된 로직이라 그대로 두고, 오버레이 내용물과
-    // xAnchor/yAnchor만 바꿨다 — 원형 표시는 중심 기준(0.5/0.5)이 맞지만, 핀 모양은
-    // 뾰족한 끝이 실제 좌표를 가리켜야 하므로 하단 기준(0.5/1)으로 앵커를 옮겼다.
-    let selectedPinOverlay = null;
-    function showSelectedPinBounce(lat, lng) {
-        const latNum = parseFloat(lat);
-        const lngNum = parseFloat(lng);
-        if (isNaN(latNum) || isNaN(lngNum)) return;
-        if (selectedPinOverlay) { selectedPinOverlay.setMap(null); selectedPinOverlay = null; }
-        try {
-            map.relayout();
-            const el = document.createElement('div');
-            el.className = 'selected-pin-wrap';
-            el.innerHTML = '<div class="selected-pin-flag"><svg viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20c0-6.6-5.4-12-12-12z" fill="#dc2626"/><circle cx="12" cy="12" r="5" fill="#ffffff"/></svg></div>';
-            selectedPinOverlay = new kakao.maps.CustomOverlay({
-                position: new kakao.maps.LatLng(latNum, lngNum),
-                content: el,
-                xAnchor: 0.5,
-                yAnchor: 1,
-                zIndex: 9999
-            });
-            selectedPinOverlay.setMap(map);
-        } catch (e) {
-            console.warn('selected pin bounce failed', e);
-        }
-    }
+    // [REMOVED] 2026-10-11: 선택한 핀 강조 표시 기능(showSelectedPinBounce, 이전엔
+    // showSelectedPinPulse) 전체 제거. 핀을 눌러도 이제 기본 마커 동작만 일어나고
+    // 별도 강조 연출은 없다.
 
     function formatDateRange(start, end) {
         function fmt(raw) {
