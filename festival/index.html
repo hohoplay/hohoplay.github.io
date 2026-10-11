@@ -896,11 +896,14 @@
     // 전부 같은 픽셀에 쌓여 있어 아무리 확대해도 분리되지 않고, 맨 위 마커 1개만 클릭되는
     // 문제가 있었다("강화 누르면 5개인데 클릭하면 1개만 나옴" 제보). 근본 해결책은 주소 기반
     // 카카오 지오코딩 전환(진행 예정)이지만, 그때까지 임시로 "지도에 보여주는" 마커 위치만
-    // 원래 좌표를 중심으로 작은 원(반경 약 150m) 모양으로 살짝 펼쳐서 전부 클릭 가능하게
-    // 한다. item.lat/item.lng(원본 데이터)는 그대로 둬서, 코스 추천의 "정확한 좌표" 판정
+    // 원래 좌표를 중심으로 가로 한 줄로 살짝 펼쳐서 전부 클릭 가능하게 한다. item.lat/
+    // item.lng(원본 데이터)는 그대로 둬서, 코스 추천의 "정확한 좌표" 판정
     // (isPreciseCoord/getCoordUsageMap)이나 상세페이지 주소 표시 등 다른 로직에는 영향이
     // 없다 — 오직 지도 위 마커를 그릴 때 쓰는 좌표만 살짝 다르다.
-    const JITTER_RADIUS_DEG = 0.0015; // 위도 기준 약 150m
+    // [CHANGE] 2026-10-11: 원형으로 펼치면 핀이 대각선으로 겹쳐 오히려 산만해 보인다는
+    // 의견에 따라, 같은 위도에 가로로 한 줄 정렬하는 방식으로 교체(요청: "가로정렬로
+    // 보이면 좋을듯"). 짝수/홀수 상관없이 원래 지점을 중심으로 좌우 대칭 배치.
+    const ROW_SPACING_DEG = 0.0015; // 경도 기준 간격, 적도에서 약 150m
     function computeJitteredPositions(data) {
         const groups = new Map(); // "lat,lng" -> 그 좌표를 공유하는 item들
         data.forEach(function (item) {
@@ -920,13 +923,12 @@
             const baseLat = parseFloat(items[0].lat);
             const baseLng = parseFloat(items[0].lng);
             const latRad = baseLat * Math.PI / 180;
+            // 위도가 올라갈수록 경도 1도의 실제 거리가 줄어들어서(cos(위도)), 간격이
+            // 찌그러지지 않도록 경도 쪽 오프셋을 보정한다.
+            const stepLng = ROW_SPACING_DEG / Math.cos(latRad);
             items.forEach(function (item, i) {
-                const angle = (2 * Math.PI * i) / items.length;
-                const dLat = JITTER_RADIUS_DEG * Math.sin(angle);
-                // 위도가 올라갈수록 경도 1도의 실제 거리가 줄어들어서(cos(위도)), 원 모양이
-                // 찌그러지지 않도록 경도 쪽 오프셋을 보정한다.
-                const dLng = (JITTER_RADIUS_DEG * Math.cos(angle)) / Math.cos(latRad);
-                positions.set(item, { lat: baseLat + dLat, lng: baseLng + dLng });
+                const offsetIndex = i - (items.length - 1) / 2; // 가운데 기준 좌우 대칭
+                positions.set(item, { lat: baseLat, lng: baseLng + stepLng * offsetIndex });
             });
         });
         return positions;
