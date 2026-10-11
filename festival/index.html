@@ -86,6 +86,25 @@
             padding: 0 2px; vertical-align: middle; opacity: 0.7;
         }
         .copy-addr-btn:hover { opacity: 1; }
+        /* [ADD] 2026-10-11: 같은 좌표에 여러 장소가 겹쳐 있을 때, 하단 카드 안에서
+           좌우로 넘겨 보는 점(dot)/화살표 네비게이션. */
+        .card-group-nav {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; margin-top: 6px; padding-top: 10px; border-top: 1px solid #f1f5f9;
+        }
+        .card-group-arrow {
+            flex-shrink: 0; border: none; background: #f1f5f9; color: #475569;
+            width: 24px; height: 24px; border-radius: 50%; font-size: 14px; line-height: 1;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .card-group-arrow:hover { background: #e2e8f0; color: #1e293b; }
+        .card-group-arrow:disabled { opacity: 0.35; cursor: default; background: #f1f5f9; }
+        .card-group-dots { display: flex; align-items: center; gap: 6px; }
+        .card-group-dot {
+            border: none; background: #cbd5e1; width: 7px; height: 7px; border-radius: 50%;
+            padding: 0; cursor: pointer;
+        }
+        .card-group-dot.active { background: #1a73e8; width: 16px; border-radius: 4px; }
 
         /* 무더위쉼터처럼 클러스터로 묶인 항목을 클릭했을 때, 그 지역 개별 목록을
            카드 아래쪽에 펼쳐서 보여주는 영역. flex-basis:100%로 강제 줄바꿈해서
@@ -387,6 +406,13 @@
                 <a id="cardDetailLink" href="#" style="font-size:11px; color:#1a73e8; font-weight:700; text-decoration:none; display:none; margin-top:4px;">상세보기 →</a>
             </div>
             <ul id="cardShelterList" class="shelter-list"></ul>
+            <!-- [ADD] 2026-10-11: 같은 좌표에 여러 장소가 겹쳐 있을 때만 보이는 점/화살표
+                 네비게이션 — renderCardGroupNav()가 1개짜리 그룹이면 자동으로 숨긴다. -->
+            <div id="cardGroupNav" class="card-group-nav" style="display:none;">
+                <button type="button" id="cardGroupPrev" class="card-group-arrow" aria-label="이전 장소" onclick="goToCardGroupIndex(currentCardGroup ? currentCardGroup.index - 1 : 0)">‹</button>
+                <span id="cardGroupDots" class="card-group-dots"></span>
+                <button type="button" id="cardGroupNext" class="card-group-arrow" aria-label="다음 장소" onclick="goToCardGroupIndex(currentCardGroup ? currentCardGroup.index + 1 : 0)">›</button>
+            </div>
         </div>
 
         <div class="remote-menu">
@@ -502,7 +528,7 @@
         focusFestival(lat, lng);
         if (!contentid) return;
         const item = festivalData.find(function (f) { return f.contentid === contentid; });
-        if (item) showFestivalCard(item);
+        if (item) showFestivalCardSingle(item);
     }
 
     // 모바일에서 좌측 슬라이드 패널 열고 닫기
@@ -776,6 +802,54 @@
     // 로직은 완전히 동일해야 해서 함수로 뺐다. 예전엔 마커를 직접 클릭했을 때만
     // 카드가 떴고, 사이드 목록 항목을 클릭하면 지도만 이동하고 카드는 안 떠서
     // "왼쪽 목록 눌렀는데 하단 팝업은 왜 안 뜨냐"는 지적을 받아 통합했다.
+    //
+    // [ADD] 2026-10-11: 같은 좌표에 여러 장소가 겹쳐 있을 때("강화" 등), 마커 자체를
+    // 펼쳐서 보여주는 대신 마커는 하나만 두고(buildAllMarkersOnce 참고) 하단 카드
+    // 안에서 점(dot)/화살표로 좌우로 넘겨가며 보도록 했다. currentCardGroup이 "지금
+    // 카드에 띄운 그룹과 그 안에서 몇 번째를 보고 있는지"를 들고 있고, 사이드 목록
+    // 클릭이나 쉼터 클러스터 클릭처럼 애초에 "장소 하나만" 보여주는 경우는
+    // showFestivalCardSingle(1개짜리 그룹으로 취급)을 거쳐 이전 그룹 상태를 정리한다.
+    let currentCardGroup = null; // { items: [...], index: n } | null
+
+    function showFestivalCardGroup(items, index) {
+        currentCardGroup = { items: items, index: index };
+        showFestivalCard(items[index]);
+        renderCardGroupNav();
+    }
+
+    function showFestivalCardSingle(item) {
+        showFestivalCardGroup([item], 0);
+    }
+
+    function goToCardGroupIndex(idx) {
+        if (!currentCardGroup) return;
+        if (idx < 0 || idx >= currentCardGroup.items.length) return;
+        currentCardGroup.index = idx;
+        showFestivalCard(currentCardGroup.items[idx]);
+        renderCardGroupNav();
+    }
+
+    function renderCardGroupNav() {
+        const navEl = document.getElementById('cardGroupNav');
+        if (!navEl) return;
+        if (!currentCardGroup || currentCardGroup.items.length <= 1) {
+            navEl.style.display = 'none';
+            return;
+        }
+        navEl.style.display = 'flex';
+        const dotsEl = document.getElementById('cardGroupDots');
+        dotsEl.innerHTML = currentCardGroup.items.map(function (_, i) {
+            return '<button type="button" class="card-group-dot' + (i === currentCardGroup.index ? ' active' : '') + '" data-idx="' + i + '" aria-label="' + (i + 1) + '번째 장소 보기"></button>';
+        }).join('');
+        dotsEl.querySelectorAll('.card-group-dot').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                goToCardGroupIndex(Number(btn.dataset.idx));
+            });
+        });
+        document.getElementById('cardGroupPrev').disabled = currentCardGroup.index === 0;
+        document.getElementById('cardGroupNext').disabled = currentCardGroup.index === currentCardGroup.items.length - 1;
+    }
+
     function showFestivalCard(item) {
         document.getElementById('cardTitle').innerText = item.title;
         const dateLabel = (item.startDate && item.endDate)
@@ -891,20 +965,16 @@
         }
     }
 
-    // [ADD] 2026-10-11: 같은 좌표(주로 구/군 중심좌표를 대신 쓰는 kids_places 항목들)에
-    // 여러 장소가 완전히 겹쳐 있으면, MarkerClusterer가 "5개"라고 배지는 띄우면서도 실제로는
-    // 전부 같은 픽셀에 쌓여 있어 아무리 확대해도 분리되지 않고, 맨 위 마커 1개만 클릭되는
-    // 문제가 있었다("강화 누르면 5개인데 클릭하면 1개만 나옴" 제보). 근본 해결책은 주소 기반
-    // 카카오 지오코딩 전환(진행 예정)이지만, 그때까지 임시로 "지도에 보여주는" 마커 위치만
-    // 원래 좌표를 중심으로 가로 한 줄로 살짝 펼쳐서 전부 클릭 가능하게 한다. item.lat/
-    // item.lng(원본 데이터)는 그대로 둬서, 코스 추천의 "정확한 좌표" 판정
-    // (isPreciseCoord/getCoordUsageMap)이나 상세페이지 주소 표시 등 다른 로직에는 영향이
-    // 없다 — 오직 지도 위 마커를 그릴 때 쓰는 좌표만 살짝 다르다.
-    // [CHANGE] 2026-10-11: 원형으로 펼치면 핀이 대각선으로 겹쳐 오히려 산만해 보인다는
-    // 의견에 따라, 같은 위도에 가로로 한 줄 정렬하는 방식으로 교체(요청: "가로정렬로
-    // 보이면 좋을듯"). 짝수/홀수 상관없이 원래 지점을 중심으로 좌우 대칭 배치.
-    const ROW_SPACING_DEG = 0.0015; // 경도 기준 간격, 적도에서 약 150m
-    function computeJitteredPositions(data) {
+    // [ADD] 2026-10-11, [CHANGE] 2026-10-11: 같은 좌표(주로 구/군 중심좌표를 대신 쓰는
+    // kids_places 항목들)에 여러 장소가 완전히 겹쳐 있으면, MarkerClusterer가 "5개"라고
+    // 배지는 띄우면서도 실제로는 전부 같은 픽셀에 쌓여 있어 아무리 확대해도 분리되지 않고,
+    // 맨 위 마커 1개만 클릭되는 문제가 있었다("강화 누르면 5개인데 클릭하면 1개만 나옴"
+    // 제보). 처음엔 마커 위치 자체를 살짝 펼쳐서(원형 → 가로 한 줄) 대응했는데, "뭔가
+    // 지저분하다"는 피드백을 받아 방향을 바꿨다 — 이제 마커는 원래 좌표에 "그룹당 1개"만
+    // 두고, 클릭하면 하단 정보 카드 안에서 점(dot)/화살표로 좌우로 넘겨가며 보는 방식으로
+    // 바꿨다(showFestivalCardGroup/renderCardGroupNav, 아래쪽). 지도 위 마커는 다시
+    // 깔끔해지고, "이 자리에 여러 곳이 있다"는 정보는 카드 쪽에서 보여준다.
+    function groupItemsByCoord(data) {
         const groups = new Map(); // "lat,lng" -> 그 좌표를 공유하는 item들
         data.forEach(function (item) {
             const lat = parseFloat(item.lat);
@@ -914,55 +984,43 @@
             if (!groups.has(key)) groups.set(key, []);
             groups.get(key).push(item);
         });
-        const positions = new Map(); // item(참조) -> {lat, lng} 렌더링용 좌표
-        groups.forEach(function (items) {
-            if (items.length === 1) {
-                positions.set(items[0], { lat: parseFloat(items[0].lat), lng: parseFloat(items[0].lng) });
-                return;
-            }
-            const baseLat = parseFloat(items[0].lat);
-            const baseLng = parseFloat(items[0].lng);
-            const latRad = baseLat * Math.PI / 180;
-            // 위도가 올라갈수록 경도 1도의 실제 거리가 줄어들어서(cos(위도)), 간격이
-            // 찌그러지지 않도록 경도 쪽 오프셋을 보정한다.
-            const stepLng = ROW_SPACING_DEG / Math.cos(latRad);
-            items.forEach(function (item, i) {
-                const offsetIndex = i - (items.length - 1) / 2; // 가운데 기준 좌우 대칭
-                positions.set(item, { lat: baseLat, lng: baseLng + stepLng * offsetIndex });
-            });
-        });
-        return positions;
+        return groups;
     }
 
     function buildAllMarkersOnce(data) {
-        allMarkersCache = new Map();
-        const jitteredPositions = computeJitteredPositions(data);
-        data.forEach(item => {
-            const lat = parseFloat(item.lat);
-            const lng = parseFloat(item.lng);
-            if (isNaN(lat) || isNaN(lng)) return;
-
-            const pos = jitteredPositions.get(item) || { lat: lat, lng: lng };
+        allMarkersCache = new Map(); // contentid -> marker (좌표가 겹치는 item들은 같은 marker를 가리킴)
+        const groups = groupItemsByCoord(data);
+        groups.forEach(function (items, key) {
+            const parts = key.split(',');
+            const lat = Number(parts[0]);
+            const lng = Number(parts[1]);
             const marker = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(pos.lat, pos.lng)
+                position: new kakao.maps.LatLng(lat, lng)
             });
 
+            // items가 1개든 여러 개든 똑같이 "그룹"으로 넘긴다 — showFestivalCardGroup이
+            // 1개짜리 그룹이면 점/화살표 네비게이션을 그냥 숨긴다.
             kakao.maps.event.addListener(marker, 'click', function() {
-                showFestivalCard(item);
+                showFestivalCardGroup(items, 0);
             });
 
-            // contentid를 키로 캐시(참조가 아니라 문자열 id 기준이라, GPS 검색처럼
-            // 원본을 복사·가공한 객체가 넘어와도 같은 마커를 정확히 찾아낼 수 있다).
-            allMarkersCache.set(item.contentid || `${lat},${lng}`, marker);
+            items.forEach(function (item) {
+                allMarkersCache.set(item.contentid || key, marker);
+            });
         });
     }
 
     function renderMarkers(data) {
         if (!allMarkersCache) buildAllMarkersOnce(festivalData);
         clusterer.clear();
-        allMarkers = data
-            .map(item => allMarkersCache.get(item.contentid || `${item.lat},${item.lng}`))
-            .filter(Boolean);
+        // 여러 item이 같은(그룹) 마커를 가리킬 수 있어서, Set으로 중복 추가를 막는다
+        // (안 그러면 클러스터 배지 숫자가 실제보다 부풀려질 수 있다).
+        const markerSet = new Set();
+        data.forEach(function (item) {
+            const m = allMarkersCache.get(item.contentid || `${item.lat},${item.lng}`);
+            if (m) markerSet.add(m);
+        });
+        allMarkers = Array.from(markerSet);
         clusterer.addMarkers(allMarkers);
     }
 
@@ -1059,6 +1117,12 @@
     function closeFestivalCard() {
         activeShelterRequestId = null;
         document.getElementById('festivalCard').classList.remove('active');
+        // [ADD] 2026-10-11: 카드를 닫을 때 점/화살표 네비게이션 상태도 같이 정리해서,
+        // 다음에 전혀 다른(그룹이 아닌) 장소를 열었을 때 이전 그룹의 점 표시가 잘못
+        // 남아있지 않게 한다.
+        currentCardGroup = null;
+        const navEl = document.getElementById('cardGroupNav');
+        if (navEl) navEl.style.display = 'none';
     }
 
     // [REMOVED] 2026-10-11: 선택한 핀 강조 표시 기능(showSelectedPinBounce, 이전엔
@@ -1778,7 +1842,7 @@
             // 자동으로 띄워준다. 그보다 멀면 관련 없는 클러스터를 잘못 띄우는 게 되므로
             // 그냥 아무것도 안 띄운다(사용자가 직접 지도에서 클러스터 마커를 찾아야 함).
             const cluster = findNearestShelterCluster(lat, lng, 20);
-            if (cluster) showFestivalCard(cluster);
+            if (cluster) showFestivalCardSingle(cluster);
         }
     }
 
