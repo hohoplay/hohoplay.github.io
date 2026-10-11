@@ -177,9 +177,13 @@
             padding: 6px 8px; border-radius: 8px; background: #fff; border: 1px solid #eef2ff;
         }
         .course-place-item:hover { background: #eef2ff; }
+        /* [CHANGE] 2026-10-11: 순번 원형 배지(1,2,3,4) 대신 "오전/점심/오후/저녁" 같은
+           시간대 라벨을 넣기로 해서, 동그라미 대신 글자 길이에 맞는 알약(pill) 모양으로
+           바꿈. 2글자(점심/오후 등)가 들어가도 안 잘리게 min-width+padding으로 변경. */
         .course-place-num {
-            flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: #4338ca;
+            flex-shrink: 0; min-width: 34px; height: 18px; padding: 0 6px; border-radius: 9px; background: #4338ca;
             color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+            white-space: nowrap;
         }
         .course-place-name { font-size: 12px; color: #1e293b; font-weight: 600; }
 
@@ -1374,6 +1378,22 @@
         return courses;
     }
 
+    // [ADD] 2026-10-11: 코스 안 장소 순번(1,2,3,4)을 그냥 번호로 보여주면 "장소를
+    // 그냥 나열한 목록"처럼 보인다는 지적이 있어, "오전→점심→오후(→저녁)"처럼 하루
+    // 동선을 따라가는 시간대 라벨로 바꿨다. 실제 식사 장소 데이터는 없어서 "점심"은
+    // 실제 맛집 추천이 아니라 "이 순서대로 움직이면 점심때쯤 여기" 정도의 흐름
+    // 표시다. 코스는 3~4곳(MIN/MAX_COURSE_PLACES)뿐이라 두 경우만 정의하면 된다.
+    const TIME_SLOT_LABELS_BY_TOTAL = {
+        1: ['오전'],
+        2: ['오전', '오후'],
+        3: ['오전', '점심', '오후'],
+        4: ['오전', '점심', '오후', '저녁']
+    };
+    function getTimeSlotLabel(index, total) {
+        const slots = TIME_SLOT_LABELS_BY_TOTAL[total] || TIME_SLOT_LABELS_BY_TOTAL[4];
+        return slots[index] || slots[slots.length - 1];
+    }
+
     function buildCourseCardHtml(course, idx) {
         const placesHtml = course.items.map(function (item, i) {
             const lat = item.lat || '';
@@ -1382,7 +1402,7 @@
             // "언제 가도 되는 곳"인지 알 수 있게 한다.
             const icon = item.type === 'kids' ? '🧒' : '🎪';
             const li = '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
-                + '<span class="course-place-num">' + (i + 1) + '</span>'
+                + '<span class="course-place-num">' + getTimeSlotLabel(i, course.items.length) + '</span>'
                 + '<span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>'
                 + '</li>';
             // [ADD] 2026-10-10: 2단계 — 정확한 좌표끼리는 바로 다음 장소까지의 대략적인
@@ -1394,9 +1414,11 @@
                 : '';
             return li + connector;
         }).join('');
-        const moreNote = course.total > course.items.length
-            ? '<span class="today-desc">그 외 ' + (course.total - course.items.length) + '곳 더 있어요</span>'
-            : '';
+        // [REMOVED] 2026-10-11: "그 외 N곳 더 있어요" 문구 제거(요청) — 이 문구가
+        // "이 코스도 결국 공공데이터를 긁어 나열한 것"이라는 인상을 줘서, 코스 카드를
+        // 직접 짠 콘텐츠처럼 보이게 하려는 의도가 흐려진다는 지적. "지도에서 전체보기"
+        // 링크 자체는 눌렀을 때 지도 핀+상세 팝업(사진·날짜·주소·상세보기) 형태로
+        // 이어지고 목록을 그대로 나열하지 않으므로 그대로 둔다.
         const distanceNote = course.totalDistanceKm > 0
             ? ' · 이동 약 ' + course.totalDistanceKm.toFixed(1) + 'km'
             : '';
@@ -1407,7 +1429,6 @@
             + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
             + seasonBadge
             + '<ol class="course-place-list">' + placesHtml + '</ol>'
-            + moreNote
             + '<div style="display:flex; gap:12px; margin-top:6px;">'
             + '<a class="today-map-link" href="javascript:void(0)" onclick="showCourseOnMap(' + idx + ')">지도에서 전체보기 →</a>'
             + '</div>'
