@@ -3982,7 +3982,9 @@
     // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
     // 최초 "PRESS START" 탭에는 안 넣고, GAMEOVER 이후 재시작 탭에만 적용.
     let _retryAdActive = false;
+    var _RETRY_AD_ENABLED = false; // [AdSense 재신청 대기] 콘텐츠 품질 승인 전까지 재시작 광고 노출 임시 중단. 재개 시 true로.
     function _showRetryAd(actualFn){
+      if(!_RETRY_AD_ENABLED){ actualFn(); return; }
       if(_retryAdActive) return;
       _retryAdActive = true;
       var ov=document.createElement('div');

@@ -2586,7 +2586,9 @@ btnStart.addEventListener('click', function() {
 });
 // ── "다시하기" 클릭 시 광고 슬롯 (fortune.html의 로딩 중 광고 패턴과 동일 구조) ──
 // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
+var _RETRY_AD_ENABLED = false; // [AdSense 재신청 대기] 콘텐츠 품질 승인 전까지 재시작 광고 노출 임시 중단. 재개 시 true로.
 function _showRetryAd(actualFn){
+  if(!_RETRY_AD_ENABLED){ actualFn(); return; }
   var ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
   ov.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'

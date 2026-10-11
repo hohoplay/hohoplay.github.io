@@ -2456,7 +2456,9 @@
     // 애드센스 슬롯 ID가 나오면 <!-- ins --> 주석만 해제하면 바로 노출됨.
     // "봉인 해방 +1"(즉시 보상 버튼)에는 적용하지 않음 — 보상과 광고를
     // 강제로 묶는 형태가 되어 애드센스 정책상 리스크가 있기 때문.
+    var _RETRY_AD_ENABLED = false; // [AdSense 재신청 대기] 콘텐츠 품질 승인 전까지 재시작 광고 노출 임시 중단. 재개 시 true로.
     function _showRetryAd(actualFn){
+      if(!_RETRY_AD_ENABLED){ actualFn(); return; }
       var ov=document.createElement('div');
       ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
       ov.innerHTML='<div style="background:#0f1420;border:1px solid #fbbf24;border-radius:14px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.5)">'
