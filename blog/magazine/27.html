@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VGTXTM4R91');
+    </script>
+    <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <!-- ═══ Kakao SDK (실제 공유 기능) ═══ -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+      crossorigin="anonymous"></script>
+    <script>
+      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>종이 만세력에서 AI 알고리즘까지: 오늘운세 계산기 시스템의 역사와 작동 원리 - HOHO PLAY 커뮤니티</title>
+    <meta name="description" content="종이 만세력에서 AI 알고리즘까지: 오늘운세 계산기 시스템의 역사와 작동 원리 아침에 일어나 스마트폰 앱을 열고 생년월시를 입력하거나 클릭 몇 ">
+    <link rel="canonical" href="https://hohoplaylab.com/blog/posts/27.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+        <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="/index.html" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">호호 매거진</span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🏢 회사 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:140px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/index.html" onclick="sessionStorage.setItem('page','about');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">소개</a>
+                            <a href="/index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">고객지원</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
+                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
+                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
+                    <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:140px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
+                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
+                            <a href="/index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/index.html" onclick="sessionStorage.setItem('page','terms');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
+                            <a href="/index.html" onclick="sessionStorage.setItem('page','privacy');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
+                            <a href="/index.html" onclick="sessionStorage.setItem('page','copyright');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','fortune');return true;" id="g-nav-cta" style="display:none;align-items:center;gap:6px;background:#f3e8ff;color:#7c3aed;font-weight:700;font-size:14px;padding:8px 16px;border-radius:9999px;text-decoration:none">
+                        <span>🔮</span> 오늘의 운세
+                    </a>
+                    <a href="/index.html" onclick="sessionStorage.setItem('page','fortune');return true;" aria-label="오늘의 운세" id="g-nav-cta-m" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:#f3e8ff;color:#7c3aed;border-radius:9999px;text-decoration:none;font-size:16px">
+                        🔮
+                    </a>
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">🏢 회사</div>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','about');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">소개</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','guide');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">고객지원</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div><div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🎮 플레이하기</div>
+                <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
+                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+            <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
+                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','partner');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','terms');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','privacy');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
+                <a href="/index.html" onclick="sessionStorage.setItem('page','copyright');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+
+    <main class="max-w-3xl mx-auto px-4 py-10 w-full">
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
+
+    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">호호 매거진</span>
+        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
+    </div>
+    <script>
+      (function() {
+          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=post-27')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                  var el = document.getElementById('page-view-num');
+                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
+              })
+              .catch(function() {});
+      })();
+    </script>
+
+    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">종이 만세력에서 AI 알고리즘까지: 오늘운세 계산기 시스템의 역사와 작동 원리</h1>
+    <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.11</p>
+
+    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>종이 만세력에서 AI 알고리즘까지: 오늘운세 계산기 시스템의 역사와 작동 원리</h2>
+<p>아침에 일어나 스마트폰 앱을 열고 생년월시를 입력하거나 클릭 몇 번으로 '오늘의 운세'를 확인하는 일은 많은 현대인들에게 익숙한 일상입니다. 과거에는 역술가나 무속인을 찾아가 복채를 내고 상담을 받아야 했던 명리학적 분석이, 이제는 누구나 손쉽게 디지털 기기로 접근할 수 있는 서비스로 자리 잡았습니다.</p>
+<p>그렇다면 손안의 화면에 나타나는 오늘의 운세는 과연 어떤 원리와 시스템으로 계산되어 출력되는 것일까요? 오늘은 전통 음양오행과 명리학의 수학적 구조부터 PC 통신/ARS 시대의 알고리즘화, 그리고 현대 IT 서비스 및 AI 기술이 결합된 '오늘운세 계산기 시스템'의 역사와 구조를 3,000자 이상의 가이드로 정밀하게 살펴봅니다.</p>
+<p>---</p>
+<h2>1. 운세 계산 시스템의 학술적 근간: 사주명리학과 천문 만세력의 수학적 구조</h2>
+<p>디지털 운세 계산기 시스템의 바탕에는 단순한 주관적 점술이 아니라, 오랜 세월 축적된 천문 관측 데이터와 정교한 계산 체계인 '사주명리학(四柱命理學)'과 '만세력(萬歲曆)'이 존재합니다.</p>
+<h3>음양오행과 육십간지의 시간 이진화 체계</h3>
+<p>사주명리학은 사람이 태어난 연(年), 월(月), 일(日), 시(時)의 네 가지 기둥(사주)과 여덟 개 글자(팔자)를 통해 개인의 기운을 분석하는 체계입니다. 이 체계의 핵심은 천간(10가지)과 지지(12가지)를 조합한 60년 주기 순환 체계인 '육십간지(六十干支)'입니다.</p>
+<ul><li><strong>시간의 정형화 데이터화:</strong> 고대 동양 천문학은 연월일시를 십간(갑·을·병·정·무·기·경·신·임·계)과 십이지(자·축·인·묘·진·사·오·미·신·유·술·해)라는 기호로 치환했습니다.</li><li><strong>절기(節氣) 기준의 시간 계산:</strong> 음력 달력이나 양력 달력을 그대로 사용하는 것이 아니라, 태양의 황도상 위치에 따른 24절기(입춘, 경칩, 청명 등)의 정밀한 시각(분·초 단위)을 기준으로 월(月)의 경계를 구분합니다.</li></ul>
+<p>이러한 특성 때문에 명리학은 본래 기호화된 정형 데이터 간의 상생(相生)·상극(相克) 관계를 계산하는 일종의 연산 모델에 가까운 성격을 가지고 있었습니다.</p>
+<h3>종이 만세력(萬歲曆)과 데이터베이스(DB)의 초기 형태</h3>
+<p>컴퓨터가 보급되기 전, 역술가들은 수백 년 동안의 연월일시 절기와 절입 시간을 책으로 기록한 '만세력'을 직접 넘겨보며 사주 팔자를 도출했습니다.</p>
+<p>만세력은 태양과 달의 운동 및 절기 시각을 정리한 일종의 '천문 데이터북'이었습니다. 특정 사용자의 생년월시(양력 또는 음력)를 입력하면 해당 시점의 간지(干支) 글자 8개를 정확히 매핑(Mapping)해주는 1:1 데이터 조회 테이블(Lookup Table) 역할을 수행한 셈입니다. 바로 이 만세력 데이터베이스 구축이 오늘날 운세 계산 프로그램의 가장 근본적인 첫걸음이 되었습니다.</p>
+<p>---</p>
+<h2>2. PC 통신·ARS 시대부터 웹/모바일 서비스로의 운세 알고리즘 진화</h2>
+<p>1980년대 후반과 1990년대 초반, 컴퓨터 기술의 발전과 상용 네트워크의 등장으로 운세 서비스는 대중화의 전기를 맞이하게 되었습니다.</p>
+<h3>ARS 060 서비스와 천리안·하이텔 PC 통신 운세의 등장</h3>
+<p>1990년대 초반, PC 통신(천리안, 하이텔, 나우누리)의 퍼스널 컴퓨터 보급과 전화 기반 ARS(060) 서비스의 확산은 운세 프로그램의 1차 대중화 시대를 열었습니다.</p>
+<ul><li><strong>초기 프로그래밍 언어의 변환:</strong> C언어, BASIC, Pascal 등의 언어를 활용하여 만세력의 날짜 변환 로직이 코드화되었습니다. 양력-음력 변환 알고리즘과 24절기 절입시각 계산 로직이 프로그램화된 시기입니다.</li><li><strong>텍스트 매칭 방식의 운세 출력:</strong> 사용자가 생년월일을 키보드나 전화기 자판으로 입력하면, 서버에서는 이를 사주 팔자로 변환한 뒤 사전에 정의된 '운세 텍스트 DB'에서 연관된 결과를 추출하여 텍스트나 음성으로 전달했습니다.</li></ul>
+<p>이 시기의 시스템은 개인의 완벽한 맞춤형 분석보다는, 태어난 띠나 간지의 대표성을 띤 템플릿 문장을 조건문(If-Else) 알고리즘으로 매칭해 주는 형태가 주를 이루었습니다.</p>
+<h3>인터넷 포털 사이트의 대두와 운세 엔진의 고도화</h3>
+<p>2000년대 초반, 네이버, 다음, 야후코리아 등 대형 웹 포털 사이트들이 방문자 유입 및 체류 시간 증대를 위해 '오늘의 운세' 서비스를 무료로 도입하기 시작했습니다.</p>
+<ul><li><strong>운세 전용 전문 엔진 개발:</strong> 사주 전문 기업들이 운세 연산 엔진(Engine)을 솔루션화하여 포털 사이트에 API 형태로 공급했습니다.</li><li><strong>다각화된 운세 데이터 분류:</strong> 오늘의 운세를 단순히 한 문장으로 제공하는 것을 넘어 총운, 재물운, 연애운, 건강운, 학업/사업운, 행운의 숫자/색상 등 세분화된 항목으로 파싱(Parsing)하여 사용자에게 제공했습니다.</li></ul>
+<p>이때부터 사용자가 매일 접속하여 자신의 사주 정보와 '오늘 날짜의 일진(日辰)' 간의 오행 조합을 정밀하게 계산하는 정교한 연산 시스템이 정착되었습니다.</p>
+<p>---</p>
+<h2>3. 현대 '오늘운세 계산기'의 내부 작동 원리와 AI 기술의 결합</h2>
+<p>오늘날 우리가 사용하는 운세 애플리케이션 및 웹 계산기 시스템은 단순한 텍스트 출력을 넘어 복잡한 데이터베이스와 실시간 매칭 알고리즘을 통해 구동됩니다.</p>
+<h3>사주 파싱 및 오늘 일진 매칭 알고리즘 단계</h3>
+<p>현대의 오늘운세 계산기 시스템은 사용자가 생년월시와 성별을 입력했을 때 다음과 같은 4단계 파이프라인 프로세스를 수행합니다.</p>
+<ul><li><strong>1단계 (입력 및 시간 보정):</strong> 입력받은 양력/음력 날짜를 표준 만세력 DB와 대조합니다. 이 과정에서 동경 135도 표준시 적용에 따른 '30분 시차 보정(한국 표준시 보정)' 및 서머타임(Summer Time) 적용 여부 등을 정밀하게 계산합니다.</li><li><strong>2단계 (개인 사주 체계화):</strong> 년·월·일·시의 4주 8자를 도출하고, 해당 사주의 오행(목·화·토·금·수) 분포와 신살(역마살, 도화살 등), 대운(10년 주기 운)을 코드화합니다.</li><li><strong>3단계 (오늘의 일진 데이터 연산):</strong> '오늘'에 해당하는 날짜의 천간과 지지(일진)를 시스템 시계에서 추출하여, 사용자의 개인 사주 팔자와의 상생, 상극, 합(合), 충(沖), 파(破), 해(害) 관계를 수치화된 점수로 계산합니다.</li><li><strong>4단계 (결과 조합 및 텍스트 렌더링):</strong> 산출된 종합 점수 및 오행 균형도에 맞춰 준비된 텍스트 템플릿 DB와 연동하거나, 조합 규칙에 따라 자연스러운 오늘 운세 결과를 화면에 가공해 출력합니다.</li></ul>
+<h3>빅데이터와 생성형 AI(LLM)가 바꾼 차세대 운세 서비스</h3>
+<p>최근의 운세 계산기 시스템은 고전적인 조건문 매칭을 넘어 빅데이터 분석과 생성형 인공지능(AI) 기술을 적극적으로 도입하고 있습니다.</p>
+<ul><li><strong>자연어 처리(NLP) 기반 문맥 가공:</strong> 정형화된 딱딱한 명리학 용어 대신, AI 언어 모델이 사용자의 연령대, 직업, 관심사(취업, 연애, 투자 등)에 맞추어 담백하고 현대적인 언어로 운세 풀이를 자연스럽게 재구성합니다.</li><li><strong>개인화된 행동 가이드 제안:</strong> 사용자의 일상 패턴과 결합하여 단순한 길흉화복 예언을 넘어 "오늘은 신중하게 계약서를 검토할 것", "상체 운동 위주의 가벼운 스트레칭 추천" 등 구체적인 피드백과 코칭을 제공하는 일상 케어 시스템으로 발전하고 있습니다.</li></ul>
+<p>이처럼 오늘운세 계산기 시스템은 수천 년간 내려온 동양의 천문 명리학적 관측 기록을 현대 디지털 컴퓨터의 알고리즘과 데이터베이스 기술로 체계화한 지식 정보 처리 시스템의 대표적인 사례라 할 수 있습니다.</p></div>
+
+    <div class="mt-10 text-center">
+        <a href="/blog/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-6 py-3 rounded-full transition">← 커뮤니티로 돌아가기</a>
+    </div>
+
+    <div style="margin-top:24px;text-align:center;">
+        <div class="text-sm font-bold text-slate-400 mb-3">🔗 이 글을 공유해보세요</div>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+            <button onclick="snsShare('facebook')" aria-label="페이스북 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">f</button>
+            <button onclick="snsShare('x')" aria-label="X 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">X</button>
+            <button onclick="snsShare('kakaot')" aria-label="카카오톡 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:18px">💬</button>
+            <button onclick="snsShare('naver')" aria-label="네이버 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">N</button>
+            <button onclick="snsShare('band')" aria-label="밴드 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">밴드</button>
+            <button onclick="snsShare('line')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>
+        </div>
+    </div>
+
+    <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px;margin-top:24px">
+        <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+            <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+            <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                <button id="cmt-submit" onclick="submitComment()"
+                    style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
+            </div>
+        </div>
+        <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+            <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+        </div>
+    </div>
+
+    </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+    <script>
+        const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+        const CMT_GAME_ID = 'post-27';
+        const INQUIRY_GAME_NAME = '커뮤니티 게시글';
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.innerText = str;
+            return d.innerHTML;
+        }
+        function formatCmtTime(ts) {
+            const diff = Date.now() - ts;
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return '방금 전';
+            if (min < 60) return min + '분 전';
+            const hr = Math.floor(min / 60);
+            if (hr < 24) return hr + '시간 전';
+            const day = Math.floor(hr / 24);
+            if (day < 7) return day + '일 전';
+            return new Date(ts).toLocaleDateString('ko-KR');
+        }
+        async function loadComments() {
+            const list = document.getElementById('cmt-list');
+            try {
+                const res = await fetch(COMMENTS_API + '?game_id=' + CMT_GAME_ID);
+                const data = await res.json();
+                if (!data.comments || data.comments.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
+                    return;
+                }
+                list.innerHTML = data.comments.map(c => `
+                    <div style="padding:12px 14px;background:#f8fafc;border-radius:12px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                            <span style="font-weight:800;font-size:13px;color:#334155">${escapeHtml(c.nickname)}</span>
+                            <span style="font-size:11px;color:#94a3b8">${formatCmtTime(c.created_at)}</span>
+                        </div>
+                        <div style="font-size:13px;color:#475569;line-height:1.6;white-space:pre-wrap">${escapeHtml(c.content)}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오지 못했습니다.</div>';
+            }
+        }
+        async function submitComment() {
+            const nickname = document.getElementById('cmt-nickname').value.trim();
+            const content = document.getElementById('cmt-content').value.trim();
+            const status = document.getElementById('cmt-status');
+            const btn = document.getElementById('cmt-submit');
+            if (!nickname || !content) { status.textContent = '닉네임과 내용을 입력해주세요.'; return; }
+            btn.disabled = true;
+            status.textContent = '등록 중...';
+            try {
+                const res = await fetch(COMMENTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: CMT_GAME_ID, nickname, content })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    status.textContent = data.error || '등록에 실패했습니다.';
+                    btn.disabled = false;
+                    return;
+                }
+                document.getElementById('cmt-content').value = '';
+                status.textContent = '';
+                btn.disabled = false;
+                loadComments();
+            } catch (e) {
+                status.textContent = '네트워크 오류가 발생했습니다.';
+                btn.disabled = false;
+            }
+        }
+        loadComments();
+
+        function snsShare(type){
+            // 검증된 최종 버전 (축제 지도에서 발견/수정한 문제 반영):
+            // - 카카오톡: 모바일은 OS 공유시트, PC는 카드 방식이 엉뚱한 페이지로 새는 문제가
+            //   있어 링크를 직접 보여주는 방식(prompt) 사용
+            // - 밴드: url/title만으로는 게시글 본문에 링크가 안 붙어서 본문 텍스트에 직접 포함
+            // - 팝업 크기 지정 제거 (모바일에서 팝업 차단 대상으로 취급되는 문제 방지)
+            var pageUrl = window.location.href;
+            var shareUrl = encodeURIComponent(pageUrl);
+            var title = document.title;
+            var shareTitle = encodeURIComponent(title);
+
+            if (type === 'kakaot') {
+                var isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                if (isMobileDevice && navigator.share) {
+                    navigator.share({ title: title, url: pageUrl }).catch(function () {});
+                    return;
+                }
+                prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
+                return;
+            }
+
+            var map = {
+                facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl,
+                x: 'https://twitter.com/intent/tweet?text=' + shareTitle + '&url=' + shareUrl,
+                naver: 'https://share.naver.com/web/shareView.nhn?url=' + shareUrl + '&title=' + shareTitle,
+                band: 'https://band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + shareUrl,
+                line: 'https://social-plugins.line.me/lineit/share?url=' + shareUrl + '&text=' + shareTitle
+            };
+            if (map[type]) window.open(map[type], '_blank');
+        }
+    </script>
+
+</body>
+</html>
