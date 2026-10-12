@@ -11,8 +11,12 @@ GitHub Pages는 완전한 정적 호스팅이라 서버가 요청마다 새로 �
 
 이 스크립트가 하는 일:
 1. Worker API에서 전체 게시글 목록 + 각 게시글 상세 내용을 가져온다
-2. blog/posts/{id}.html 정적 페이지를 생성한다 (없는 것만 새로 생성, 있는 것은 건드리지 않음
-   — 게시글 내용은 등록 후 바뀌지 않는다는 전제. 삭제된 글은 정리 단계에서 함께 제거)
+2. blog/posts/{id}.html 정적 페이지를 생성한다 (매 실행마다 전체 글을 항상 최신
+   템플릿/공통 헤더로 다시 렌더링한다 — 게시글 '내용'은 등록 후 바뀌지 않지만, 상단
+   메뉴 같은 공통 헤더나 템플릿은 나중에 바뀔 수 있어서, 그때도 이미 만들어진 과거
+   글들이 자동으로 최신 상태를 따라가게 하기 위함. 내용이 실제로 안 바뀐 글은
+   렌더링 결과도 바이트 단위로 동일해서 git에는 diff가 안 남는다. 삭제된 글은
+   정리 단계에서 함께 제거)
 3. blog/index.html 안의 "최근 게시글" 정적 폴백 섹션(HOHO PLAY BBS 패널 내부, BBS 톤으로
    스타일링됨)을 최신 12개로 갱신한다
 4. sitemap.xml에 새로 생긴 게시글 URL을 추가한다 (중복 추가하지 않음)
@@ -397,6 +401,7 @@ def generate_post_pages(posts):
     current_ids = {p["id"] for p in posts}
 
     new_count = 0
+    updated_count = 0
     for p in posts:
         target_dir = post_output_dir(p)
         target_path = os.path.join(target_dir, f"{p['id']}.html")
@@ -411,16 +416,29 @@ def generate_post_pages(posts):
             other_rel = "blog/posts" if other_dir is POSTS_DIR else f"blog/{MAGAZINE_ARCHIVE_SLUG}"
             print(f"  - {other_rel}/{p['id']}.html 삭제 (카테고리 변경으로 주소 이동됨)")
 
-        if os.path.exists(target_path):
-            continue  # 게시글 내용은 불변이므로 이미 있으면 재생성하지 않음
+        # [FIX] 2026-10-12: 예전에는 target_path가 이미 있으면 "게시글 내용은 불변"이란
+        # 이유로 재생성을 아예 건너뛰었다. 하지만 글 '내용'은 안 바뀌어도 모든 글이
+        # 공유하는 상단 메뉴(SITE_HEADER_HTML)나 템플릿 자체는 나중에 바뀔 수 있는데,
+        # 그 경우 이미 만들어진 과거 글들은 영원히 그 시점의 옛날 메뉴를 보여주는 채로
+        # 멈춰 있었다 — 실제로 상단 메뉴에 "아이랑 나들이 지도"/"꿈해몽 사전" 링크를
+        # 나중에 추가했는데, blog/magazine/ 아카이브 목록(매번 다시 그려짐)에는
+        # 반영됐지만 그 전에 이미 생성돼 있던 blog/magazine/27.html 같은 개별 글
+        # 페이지에는 반영되지 않는 문제로 발견됨. 이제 매번 실행할 때마다 모든 글을
+        # 항상 최신 템플릿/헤더로 다시 렌더링한다 — 글 내용이 실제로 그대로면 렌더링
+        # 결과도 바이트 단위로 동일하므로 git 커밋에는 변화가 없고, 헤더/템플릿을
+        # 고친 뒤 다음 자동 실행(3시간 주기) 때 기존 글들에도 자동으로 반영된다.
+        was_existing = os.path.exists(target_path)
         detail = fetch_post_detail(p["id"])
         if not detail:
             continue
         html_out = render_post_html(template, detail)
         with open(target_path, "w", encoding="utf-8") as f:
             f.write(html_out)
-        new_count += 1
-        print(f"  + {post_output_rel(p)} 생성 ({detail['title']})")
+        if was_existing:
+            updated_count += 1
+        else:
+            new_count += 1
+            print(f"  + {post_output_rel(p)} 생성 ({detail['title']})")
 
     # 삭제된 게시글의 정적 파일 정리 (두 폴더 다 확인)
     removed_count = 0
@@ -437,7 +455,7 @@ def generate_post_pages(posts):
             removed_count += 1
             print(f"  - blog/{MAGAZINE_ARCHIVE_SLUG}/{rid}.html 삭제 (원본 게시글 삭제됨)")
 
-    return new_count, removed_count
+    return new_count, removed_count, updated_count
 
 
 # 커뮤니티 페이지가 처음 열렸을 때 기본으로 보여주는 탭(= window.onload의 switchBoard 기본값과
@@ -755,14 +773,14 @@ def main():
     posts = fetch_all_posts()
     print(f"전체 게시글 {len(posts)}개 확인")
 
-    new_count, removed_count = generate_post_pages(posts)
+    new_count, removed_count, updated_count = generate_post_pages(posts)
     update_blog_index_static_list(posts)
     build_magazine_archive_page(posts)
     build_magazine_archive_redirect()
     migrate_magazine_sitemap_entry()
     update_sitemap(posts)
 
-    print(f"완료: 신규 {new_count}개, 삭제 {removed_count}개")
+    print(f"완료: 신규 {new_count}개, 재렌더링 {updated_count}개(내용 그대로면 git diff 없음), 삭제 {removed_count}개")
 
 
 if __name__ == "__main__":
