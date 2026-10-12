@@ -321,6 +321,21 @@ def format_date(ms_timestamp):
 
 
 _TAG_RE = re.compile(r"<[^>]+>")
+_H1_OPEN_RE = re.compile(r"<h1(\s[^>]*)?>", re.IGNORECASE)
+_H1_CLOSE_RE = re.compile(r"</h1\s*>", re.IGNORECASE)
+
+
+# [FIX] 2026-10-12: 네이버 서치어드바이저가 blog/magazine·blog/posts 글 여러 개를
+# "<H1> 요소가 2개 이상 발견"으로 잡아냄. 원인은 이 템플릿이 {{TITLE}}을 헤더 영역에
+# 이미 <h1>로 렌더링하는데, writer.html로 글을 쓸 때 본문(post["content"]) 첫 줄에도
+# 습관적으로 <h1>제목</h1>을 또 넣어서 한 페이지에 h1이 두 번(헤더 1개 + 본문 1개)
+# 나오는 경우가 많았기 때문. 본문 쪽 h1을 전부 h2로 한 단계 낮춰서 "페이지 제목은
+# 헤더의 h1 하나뿐"이 되도록 한다 — 디자인(글자 크기 등)은 본문에 박힌 인라인
+# style/class를 그대로 보존하므로 그대로 유지되고, 태그 레벨만 바뀐다.
+def _demote_content_h1(raw_html):
+    fixed = _H1_OPEN_RE.sub(lambda m: "<h2" + (m.group(1) or "") + ">", raw_html)
+    fixed = _H1_CLOSE_RE.sub("</h2>", fixed)
+    return fixed
 
 
 def render_post_html(template, post):
@@ -332,7 +347,9 @@ def render_post_html(template, post):
     # 만드는 이 함수는 그때 같이 안 고쳐져 있었음. writer.html은 관리자 키로 보호된 대표님
     # 전용 도구라 공개 사용자가 임의로 글을 못 올리므로, 여기서도 이스케이프 없이 그대로
     # HTML로 해석해서 넣는다.
-    content_html = post["content"]
+    # [FIX] 2026-10-12: 본문에 들어있는 h1은 _demote_content_h1()으로 h2로 낮춘다
+    # (페이지 헤더의 {{TITLE}} h1과 중복되는 문제 수정 — 위 주석 참고).
+    content_html = _demote_content_h1(post["content"])
 
     # excerpt(메타 설명 등에 쓰임)는 원래 raw content의 첫 줄을 그대로 잘라 썼는데, 그 줄이
     # "<h1>...</h1>" 같은 태그째로 시작하는 경우가 많아 메타 설명에 "&lt;h1&gt;..."이 그대로
@@ -499,7 +516,10 @@ def update_blog_index_static_list(posts):
             # 노출된다. 실시간 화면(viewCommunityPost, blog/index.html 안의 JS)은 이미
             # 이스케이프 없이 post.content.replace(/\n/g,'<br>')만 쓰고 있으므로, 여기서도
             # 그것과 완전히 동일하게 맞춘다(정적 폴백 → JS 렌더링 전환 시 내용이 안 튀어야 함).
-            content_html = detail["content"].replace("\n", "<br>")
+            # [FIX] 2026-10-12: 바로 아래에서 제목을 이미 <h2>로 한 번 렌더링하는데, 본문이
+            # 또 <h1>로 시작하면 이 블록 안에 h1이 생겨버린다 — render_post_html()과 같은
+            # 이유로 _demote_content_h1()을 거친다.
+            content_html = _demote_content_h1(detail["content"]).replace("\n", "<br>")
             title_escaped = html_lib.escape(detail["title"])
             author_escaped = html_lib.escape(detail["author"])
             category_escaped = html_lib.escape(detail["category"])

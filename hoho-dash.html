@@ -1147,7 +1147,12 @@
 
         .upg-cost { display: none; }
 
-        #game-wrapper h1 {
+        /* [FIX] 2026-10-12: 이전엔 태그 선택자(game-wrapper 안의 heading-1 태그)였음 — 페이지
+           상단(게임 헤더)에도 이미 제목용 heading-1 태그(hohoDash)가 있어서 한 페이지에
+           heading-1이 2개가 되는 문제가 있었음(네이버 서치어드바이저 경고로 확인됨).
+           이 타이틀/게임오버 배너는 시맨틱 제목이 아니라 게임 위젯 내부 상태 표시이므로
+           태그를 div로 내리고, 선택자도 ID 기준으로 바꿔 스타일은 그대로 유지한다. */
+        #game-wrapper #overlayTitle {
             font-size: 14px;
             font-weight: 400;
             color: var(--rpg-magenta);
@@ -1301,7 +1306,7 @@
         </div>
 
         <div class="overlay-content">
-            <h1 id="overlayTitle">hoho<br>Dash</h1>
+            <div id="overlayTitle">hoho<br>Dash</div>
             <p id="hoho-dash-slogan" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#cc88ff;letter-spacing:2px;text-shadow:0 0 8px rgba(204,136,255,0.7),2px 2px 0 #000;margin:0 0 8px 0;line-height:1.8;">RUN. HACK. BREAK THE SYSTEM.</p>
             <div class="divider"></div>
             <p id="overlayMessage" class="msg">Run. Collect Data. Break the System.</p>
