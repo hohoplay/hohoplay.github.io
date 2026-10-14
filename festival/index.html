@@ -817,7 +817,14 @@
             };
         });
         festivalData = festivals.concat(kidsTagged).concat(adsTagged);
-        renderMainPanel();
+        // [ADD] 2026-10-14: 메인 사이트 검색("부산 추천해줘" 등)처럼 외부에서
+        // "?region=busan&course=1" 같은 쿼리 파라미터로 바로 들어오는 경우, 그 지역(및
+        // 코스 모드)을 자동으로 선택된 상태로 보여준다 — applyInitialRegionFromUrl()
+        // 내부에서 이미 renderMainPanel()까지 호출하므로, 적용됐으면(true) 아래 기본
+        // renderMainPanel()은 생략한다.
+        if (!applyInitialRegionFromUrl()) {
+            renderMainPanel();
+        }
     });
 
     // [성능] 필터를 바꿀 때마다 마커를 전부 새로 만들면(생성 + 이벤트 등록), 데이터가
@@ -1893,6 +1900,35 @@
             if (btn) { btn.textContent = '📍 내 주변으로 보기'; btn.style.background = '#fff'; btn.style.color = '#334155'; }
         }
         renderMainPanel();
+    }
+
+    // [ADD] 2026-10-14: 메인 사이트(hohoplaylab.com) 검색창처럼 외부에서 지역을 미리
+    // 정해서 이 페이지로 들어오는 경우를 위한 딥링크 지원 — 예:
+    // "/festival/?region=busan&course=1" 로 들어오면 "부산" 지역 + "지역별 추천 코스"
+    // 모드가 자동으로 선택된 상태로 열린다("부산 추천해줘" 검색 → 부산 추천 코스로
+    // 바로 연결하기 위함). 지원 파라미터:
+    //   - region: REGION_KEYWORDS에 있는 키(seoul/busan/... ) — 없거나 모르는 값이면 무시
+    //   - sub: region 안의 시/군/구 하위지역(예: "해운대구") — region 없이는 적용 안 됨
+    //   - course=1: 지역별 추천 코스 모드까지 함께 켜기
+    // 반환값이 true면 내부에서 이미 renderMainPanel()까지 호출을 마친 것이므로, 호출부
+    // (Promise.all 콜백)에서 기본 renderMainPanel()을 또 부를 필요가 없다.
+    function applyInitialRegionFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const region = params.get('region');
+        if (!region || !REGION_KEYWORDS[region]) return false;
+        filterRegion(region); // 내부에서 populateSubRegionSelect + renderMainPanel까지 호출됨
+
+        const sub = params.get('sub');
+        if (sub) {
+            const panelSel = document.getElementById('subRegionSelectPanel');
+            const hasOption = panelSel && Array.prototype.some.call(panelSel.options, function (o) { return o.value === sub; });
+            if (hasOption) filterSubRegion(sub); // 내부에서 renderMainPanel()까지 호출됨
+        }
+
+        if (params.get('course') === '1' && !courseModeActive) {
+            toggleCourseMode(); // 내부에서 renderMainPanel()까지 호출됨
+        }
+        return true;
     }
 
     // ── 내 주변으로 보기 (GPS) ──────────────────────────────────────
