@@ -1543,12 +1543,15 @@
 
     function buildCourseCardHtml(course, idx) {
         const placesHtml = course.items.map(function (item, i) {
-            const lat = item.lat || '';
-            const lng = item.lng || '';
             // 축제는 🎪, 아이랑 상시 장소는 🧒로 구분해서 한눈에 "이번 계절 한정"인지
             // "언제 가도 되는 곳"인지 알 수 있게 한다.
             const icon = item.type === 'kids' ? '🧒' : '🎪';
-            const li = '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
+            // [FIX] 2026-10-14: 예전엔 focusFestivalItem()을 그대로 써서, 코스 안 장소
+            // 하나를 누르면 그 장소 하나로 바짝 확대(zoom level 6)되어 같은 코스의 나머지
+            // 핀들이 화면 밖으로 밀려나는 문제가 있었다("하나 눌렀더니 핀이 1개만 보임").
+            // focusCourseItem()으로 바꿔서, 장소를 하나 눌러도 그 코스에 속한 핀 전부를
+            // 먼저 지도에 펼쳐 보여주고, 그 중 누른 장소의 상세카드만 열어준다.
+            const li = '<li class="course-place-item" onclick="focusCourseItem(' + idx + ', ' + i + '); closeTodayPanel();">'
                 + '<span class="course-place-num">' + getTimeSlotLabel(i, course.items.length) + '</span>'
                 + '<span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>'
                 + '</li>';
@@ -1620,6 +1623,22 @@
         renderMarkers(course.allItems || course.items);
         fitToMarkers(allMarkers);
         closeTodayPanel();
+    }
+
+    // [ADD] 2026-10-14: 코스 카드 안의 장소를 하나 클릭했을 때 — "지도에서 전체보기"와
+    // 똑같이 그 코스에 속한 핀 전부를 먼저 지도에 펼쳐 보여준 다음, 그중 누른 장소의
+    // 하단 상세카드만 열어준다. (이전엔 focusFestivalItem()을 그대로 써서 누른 장소
+    // 하나로 바짝 확대되는 바람에, 같은 코스의 나머지 핀이 화면 밖으로 밀려나
+    // "코스에 몇 곳이 있는지" 한눈에 안 보이는 문제가 있었다.)
+    function focusCourseItem(courseIdx, itemIdx) {
+        const course = currentCourses[courseIdx];
+        if (!course) return;
+        const item = course.items[itemIdx];
+        if (!item) return;
+        closeFestivalCard();
+        renderMarkers(course.allItems || course.items);
+        fitToMarkers(allMarkers);
+        showFestivalCardSingle(item);
     }
 
     // 코스 모드 on/off — 패널 상단 버튼에서 호출된다. 켜면 기간 탭/검색 UI는 코스 모드와
