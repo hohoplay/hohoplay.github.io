@@ -69,7 +69,16 @@ def excerpt_from_body(content):
 
 
 def _get_json(url):
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    # [FIX] 403 Forbidden 대응: Cloudflare가 Python urllib 기본 User-Agent
+    # ("Python-urllib/3.x")를 봇으로 보고 막는 경우가 있어, 실제 브라우저가
+    # writer.html에서 호출할 때와 비슷한 헤더(User-Agent/Origin/Referer)를 붙인다.
+    req = urllib.request.Request(url, headers={
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+        "Origin": "https://hohoplaylab.com",
+        "Referer": "https://hohoplaylab.com/",
+    })
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
