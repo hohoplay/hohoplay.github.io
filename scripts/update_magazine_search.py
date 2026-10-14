@@ -22,8 +22,18 @@ data/encyclopedia_index.json 안의 "magazine-<이슈번호>" 검색 엔트리�
 사용법:
     python scripts/update_magazine_search.py
 환경변수:
-    GITHUB_TOKEN  - GitHub Actions에서 자동 주입되는 토큰(선택). 있으면 API
-                    요청 한도가 늘어나고, 비공개 저장소에서도 동작한다.
+    MAGAZINE_REPO_TOKEN  - (선택) hohoplay/hohoplaylab.com 저장소 이슈를 읽을 때
+                           쓸 개인 액세스 토큰(PAT). 저장소가 공개(public)라
+                           없어도 동작하며, 분당 요청 한도를 늘리고 싶을 때만
+                           레포 Secrets에 추가해서 쓰면 된다.
+
+※ [중요] GitHub Actions가 자동으로 주입하는 GITHUB_TOKEN은 "이 워크플로우가
+돌고 있는 저장소"에만 쓸 수 있는 권한이라, 이슈가 실제로 올라와 있는
+hohoplay/hohoplaylab.com 저장소(이 워크플로우/파일들이 커밋된 저장소와 이름이
+다를 수 있음)를 그 토큰으로 조회하면 403/404로 거부된다. 그래서 이 스크립트는
+이슈를 읽을 때는 일부러 인증 헤더를 안 보내고(= 브라우저가 비로그인 상태로
+공개 저장소를 읽는 것과 동일), 레포 자체에 커밋·푸시하는 쪽만 Actions가 주는
+기본 토큰(별도 코드 없이 git push가 알아서 사용)을 쓴다.
 """
 import json
 import os
@@ -56,7 +66,9 @@ def excerpt_from_body(body):
 
 
 def fetch_all_issues():
-    token = os.environ.get("GITHUB_TOKEN")
+    # 주의: 여기서는 일부러 Actions의 GITHUB_TOKEN을 쓰지 않는다(위 docstring 참고).
+    # 이슈가 있는 저장소를 읽을 전용 토큰이 따로 있을 때만 MAGAZINE_REPO_TOKEN으로 넣는다.
+    token = os.environ.get("MAGAZINE_REPO_TOKEN")
     headers = {"Accept": "application/vnd.github.v3+json"}
     if token:
         headers["Authorization"] = "Bearer " + token
