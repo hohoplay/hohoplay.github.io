@@ -52,6 +52,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); outline: none; cursor: pointer;
         }
         .panel-region-select { margin-bottom: 16px; box-shadow: none; }
+        /* [ADD] 시/군/구 세분화 select — 상위(시/도) select보다 한 단계 눌러놓은 느낌을
+           주기 위해 테두리 색을 옅게, 글자 크기를 살짝 작게 둔다. 레이아웃(width:100%
+           등)은 기존 .region-select/.panel-region-select를 그대로 물려받는다. */
+        .sub-region-select { border-color: #93c5fd; font-size: 13px; font-weight: 600; }
         .period-btn {
             border: none; background: transparent; padding: 5px 10px; border-radius: 8px;
             font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; white-space: nowrap;
@@ -336,6 +340,14 @@
                 <option value="watersports">🚤 수상레저</option>
             </select>
         </div>
+        <!-- [ADD] 시/군/구 세분화(사이드 패널용): 위 지역 select에서 "전국 전체보기"가
+             아닌 특정 시/도를 고르면, 그 시/도 안의 시/군/구 목록이 이 자리에 나타난다.
+             기본은 숨김 — populateSubRegionSelect()가 시/도 변경마다 옵션을 다시 채우고
+             보이기/숨기기를 함께 처리한다. 떠 있는 지도 위 select(subRegionSelect)와
+             값이 항상 같게 syncSubRegionSelectors()로 동기화된다. -->
+        <div id="subRegionSelectPanelWrap" style="display:none; margin-bottom:10px;">
+            <select id="subRegionSelectPanel" class="region-select panel-region-select sub-region-select" style="width:100%; padding:10px 8px; font-size:13px; margin-bottom:0;" onchange="filterSubRegion(this.value)"></select>
+        </div>
         <div id="festivalSearchControls">
         <button type="button" id="gpsBtn" onclick="useMyLocation()" style="width:100%; margin-bottom:8px; padding:9px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#334155; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
             📍 내 주변으로 보기
@@ -387,6 +399,13 @@
                 <option value="gyeongnam">경상남도</option>
                 <option value="jeju">제주특별자치도</option>
             </select>
+            <!-- [ADD] 시/군/구 세분화: 특정 시/도를 고르면 그 아래에 나타나는 2단계
+                 하위지역 선택. 기본은 숨김(display:none) — "전국 전체보기"거나 아직
+                 데이터가 없을 때는 보일 필요가 없다. populateSubRegionSelect()가
+                 시/도를 고를 때마다 옵션을 다시 채우고 보이기/숨기기를 함께 처리한다. -->
+            <div id="subRegionSelectWrap" style="display:none; margin-top:8px;">
+                <select id="subRegionSelect" class="region-select sub-region-select" onchange="filterSubRegion(this.value)"></select>
+            </div>
         </div>
 
         <div id="map"></div>
@@ -591,6 +610,11 @@
     // 현재 선택된 지역(전국 전체 / 특정 지역)을 기억해뒀다가, 창 크기가 바뀔 때도
     // 같은 범위를 다시 화면에 딱 맞게 잡아주기 위해 사용한다.
     let currentRegionKey = 'all';
+    // [ADD] 시/군/구 세분화: 선택된 시/도(currentRegionKey) 안에서 더 좁힌 하위지역.
+    // ''(빈 문자열)은 "그 시/도 전체"를 뜻하고, currentRegionKey가 'all'로 바뀌면
+    // (filterRegion에서) 항상 ''로 함께 리셋된다 — 전국 보기에선 하위지역 select 자체가
+    // 숨겨지므로 값이 남아있어도 쓰이지 않지만, 혼선을 막기 위해 명시적으로 비운다.
+    let currentSubRegion = '';
 
     // 테마는 축제 "제목"에 특정 키워드가 있는지로 판정한다(주소 기반 지역 분류와 같은 방식).
     // 지도 마커는 지역으로만 거르고, 이 테마/기간 필터는 "오늘 축제가 열리는 곳" 패널에만 적용한다.
@@ -1165,11 +1189,16 @@
     }
 
     // 특정 지역 선택: 그 지역의(이미 기간/테마로 걸러진) 축제를 마감임박순으로 최대 5개
-    function pickRegionList(list, key) {
+    // [ADD] subRegion(시/군/구)이 주어지면, 그 시/도 안에서도 extractSubRegion()이 뽑아낸
+    // 하위지역 토큰이 정확히 일치하는 항목으로 한 번 더 좁힌다. ''(전체)이면 기존과 동일.
+    function pickRegionList(list, key, subRegion) {
         const kws = REGION_KEYWORDS[key] || [];
-        const inRegion = list.filter(function (item) {
+        let inRegion = list.filter(function (item) {
             return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
         });
+        if (subRegion) {
+            inRegion = inRegion.filter(function (item) { return extractSubRegion(item.addr) === subRegion; });
+        }
         inRegion.sort(compareByUrgency);
         return inRegion.slice(0, 5);
     }
@@ -1264,6 +1293,10 @@
             if (key !== 'all') {
                 const keywords = REGION_KEYWORDS[key] || [];
                 regionScoped = regionScoped.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
+                // [ADD] 시/군/구까지 고른 상태라면 테마 선택 시에도 그 하위지역으로 좁힌다.
+                if (currentSubRegion) {
+                    regionScoped = regionScoped.filter(item => extractSubRegion(item.addr) === currentSubRegion);
+                }
             } else {
                 showRegionTag = true;
             }
@@ -1287,7 +1320,7 @@
                 items = periodFiltered.filter(item => !isThemeGatedType(item.type)).slice().sort(compareByUrgency).slice(0, 5);
             }
         } else {
-            items = pickRegionList(periodFiltered.filter(item => !isThemeGatedType(item.type)), key);
+            items = pickRegionList(periodFiltered.filter(item => !isThemeGatedType(item.type)), key, currentSubRegion);
         }
 
         if (items.length === 0) {
@@ -1417,6 +1450,12 @@
             pool = pool.filter(function (item) {
                 return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
             });
+            // [ADD] 시/군/구까지 고른 상태면("서울 > 강남구" 등) 코스도 그 하위지역
+            // 안에서만 묶는다. 묶을 장소가 모자라면(MIN_COURSE_PLACES 미만) 기존처럼
+            // "코스로 묶을 만큼 장소가 모이지 않았다" 빈 상태가 그대로 뜬다.
+            if (currentSubRegion) {
+                pool = pool.filter(function (item) { return extractSubRegion(item.addr) === currentSubRegion; });
+            }
         }
         const groups = new Map(); // "광역지역키|소지역" -> { label, items[], hasFestival }
         pool.forEach(function (item) {
@@ -1719,15 +1758,97 @@
         if (key !== 'all') {
             const keywords = REGION_KEYWORDS[key] || [];
             filtered = filtered.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
+            // [ADD] 시/군/구까지 고른 상태면 지도 마커도 그 하위지역만 보여준다.
+            if (currentSubRegion) {
+                filtered = filtered.filter(item => extractSubRegion(item.addr) === currentSubRegion);
+            }
         }
         filtered = filtered.filter(item => matchesTheme(item, currentThemes));
         renderMarkers(filtered);
         if (key === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
     }
 
+    // ── 시/군/구 세분화 (2단계 지역 드롭다운) ──────────────────────────
+    // extractSubRegion()은 이미 "지역별 추천 코스"가 addr 문자열에서 시/군/구 토큰을
+    // 뽑아내는 데 쓰고 있던 헬퍼라, 데이터를 다시 입력하지 않고도 그대로 재사용할 수
+    // 있다. 여기서는 그 토큰들을 모아 드롭다운 옵션으로 보여주고, 고른 값을
+    // currentSubRegion에 저장해 마커/목록/코스 필터에 추가로 적용한다.
+    function populateSubRegionSelect(provinceKey) {
+        const floatingSel = document.getElementById('subRegionSelect');
+        const panelSel = document.getElementById('subRegionSelectPanel');
+        const floatingWrap = document.getElementById('subRegionSelectWrap');
+        const panelWrap = document.getElementById('subRegionSelectPanelWrap');
+        // "전국 전체보기"거나, 아직 festivalData가 로딩되지 않았으면 하위지역을 뽑을 수
+        // 없으니 숨긴다(초기 로딩 중 select onchange가 먼저 불릴 일은 없지만, 방어적으로 둠).
+        if (provinceKey === 'all' || !festivalData.length) {
+            if (floatingWrap) floatingWrap.style.display = 'none';
+            if (panelWrap) panelWrap.style.display = 'none';
+            if (floatingSel) floatingSel.innerHTML = '';
+            if (panelSel) panelSel.innerHTML = '';
+            return;
+        }
+        const keywords = REGION_KEYWORDS[provinceKey] || [];
+        const inProvince = festivalData.filter(function (item) {
+            return item.addr && keywords.some(function (kw) { return item.addr.includes(kw); });
+        });
+        const subNamesSet = new Set();
+        inProvince.forEach(function (item) {
+            const sub = extractSubRegion(item.addr);
+            // extractSubRegion은 "시/군/구"로 끝나는 토큰이 없으면(세종처럼 addr에 하위
+            // 행정구역 표기가 없는 경우) addr의 첫 토큰(보통 "세종특별자치시"처럼 시/도
+            // 이름 자체)을 그대로 돌려준다 — 이건 "하위지역"이 아니므로 /[시군구]$/로
+            // 한 번 더 걸러낸다. 다만 "세종특별자치시"도 끝 글자가 "시"라 /[시군구]$/만
+            // 쓰면 걸러지지 않으므로, extractSubRegion 안에서 광역 단위를 건너뛸 때 쓰는
+            // 것과 같은 (특별시|광역시|특별자치시|특별자치도)$ 패턴을 함께 적용해 제외한다.
+            if (sub && /[시군구]$/.test(sub) && !/(특별시|광역시|특별자치시|특별자치도)$/.test(sub)) {
+                subNamesSet.add(sub);
+            }
+        });
+        if (subNamesSet.size === 0) {
+            // 세종처럼 하위지역을 나눌 수 없는 시/도는 드롭다운 자체를 보여주지 않는다
+            // (옵션이 "전체" 하나뿐인 드롭다운은 의미가 없다).
+            if (floatingWrap) floatingWrap.style.display = 'none';
+            if (panelWrap) panelWrap.style.display = 'none';
+            if (floatingSel) floatingSel.innerHTML = '';
+            if (panelSel) panelSel.innerHTML = '';
+            return;
+        }
+        const subNames = Array.from(subNamesSet).sort(function (a, b) { return a.localeCompare(b, 'ko'); });
+        const provinceLabel = REGION_LABELS[provinceKey] || '';
+        const optionsHtml = '<option value="">' + escapeHtml(provinceLabel) + ' 전체</option>'
+            + subNames.map(function (name) {
+                return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+            }).join('');
+        if (floatingSel) { floatingSel.innerHTML = optionsHtml; floatingSel.value = ''; }
+        if (panelSel) { panelSel.innerHTML = optionsHtml; panelSel.value = ''; }
+        if (floatingWrap) floatingWrap.style.display = '';
+        if (panelWrap) panelWrap.style.display = '';
+    }
+
+    // 떠 있는 지도 위 select(subRegionSelect)와 사이드 패널 select(subRegionSelectPanel)의
+    // 값을 항상 같게 맞춘다 — syncRegionSelectors()와 동일한 역할을 하위지역 select에 대해 한다.
+    function syncSubRegionSelectors(value) {
+        const sel1 = document.getElementById('subRegionSelect');
+        const sel2 = document.getElementById('subRegionSelectPanel');
+        if (sel1 && sel1.value !== value) sel1.value = value;
+        if (sel2 && sel2.value !== value) sel2.value = value;
+    }
+
+    // 하위지역(시/군/구) select의 onchange 핸들러.
+    function filterSubRegion(value) {
+        currentSubRegion = value;
+        syncSubRegionSelectors(value);
+        renderMainPanel();
+    }
+
     function filterRegion(key) {
         currentRegionKey = key;
         syncRegionSelectors(key);
+        // [ADD] 시/도가 바뀌면 이전에 고른 하위지역은 더 이상 의미가 없으므로 항상
+        // 초기화하고, 새 시/도에 맞는 하위지역 목록을 다시 채운다.
+        currentSubRegion = '';
+        syncSubRegionSelectors('');
+        populateSubRegionSelect(key);
         if (gpsModeActive) {
             gpsModeActive = false;
             myLocation = null;
@@ -1832,6 +1953,12 @@
         btn.style.color = '#4f46e5';
         document.getElementById('regionSelectPanel').value = 'all';
         currentRegionKey = 'all';
+        // [ADD] 위치 검색/GPS로 "내 주변 보기"에 들어가면 지역 select 자체가 'all'로
+        // 리셋되므로, 시/군/구 하위지역 select도 함께 숨기고 값을 비운다(안 그러면
+        // "내 주변 보기"를 해제했을 때 이전에 골랐던 하위지역이 뜬금없이 남아있게 됨).
+        currentSubRegion = '';
+        syncSubRegionSelectors('');
+        populateSubRegionSelect('all');
         renderNearbyPanel();
         map.setCenter(new kakao.maps.LatLng(lat, lng));
         map.setLevel(zoomLevel || 7);
