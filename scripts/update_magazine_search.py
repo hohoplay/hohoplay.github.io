@@ -13,11 +13,12 @@ data/encyclopedia_index.json 안의 "magazine-<이슈번호>" 검색 엔트리�
   제목엔 "십자말풀이"가 없어도 본문 첫 문단에 나오면 그 단어로도 검색됨).
   본문 전체를 다 넣지 않는 건, 글이 길어질수록 파일이 계속 커지고 전혀
   무관한 단어까지 섞여 검색 정확도가 떨어질 위험이 있어서다.
-- url은 전부 "/blog/magazine/"로 통일한다. 이 BBS 구조(GitHub Issues 기반)는
-  글 하나하나로 바로 연결되는 딥링크 URL이 없어서(= 클릭하면 안에서 목록을 보여주고
-  글을 다시 눌러야 함) 지금은 "매거진 코너로 보내기"까지만 가능하다. 특정 글로
-  바로 펄치는 딥링크를 원하면 /blog/magazine/ 페이지 쪽에 festival/index.html에서
-  했던 것과 같은 방식의 URL 파라미터(예: ?post=123) 지원을 별도로 추가해야 한다.
+- url은 "/blog/magazine/<이슈번호>.html"로 딥링크한다. 이 사이트엔 커뮤니티 글을
+  이슈번호.html 정적 페이지로 자동 동기화해주는 별도 자동화가 이미 있어서
+  (예: 이슈 #21 -> /blog/magazine/21.html = "슈퍼 마리오부터 쿠키런까지" 글),
+  검색 결과를 누르면 목록이 아니라 그 글이 바로 뜬다. 단, 그 정적 페이지 동기화가
+  이 스크립트와는 별개의 자동화라서, 이슈가 막 올라온 직후 아주 짧은 순간에는
+  정적 페이지가 아직 안 만들어져 있어 링크가 404일 수 있다(보통 금방 따라잡힘).
 
 사용법:
     python scripts/update_magazine_search.py
@@ -116,7 +117,7 @@ def build_magazine_entries(issues):
             "type": "corner",
             "name": title,
             "genre": "매거진",
-            "url": "/blog/magazine/",
+            "url": "/blog/magazine/%d.html" % number,
             "summary": "호호 매거진에 올라온 글이다.",
             "searchText": search_text,
         })
