@@ -23,18 +23,26 @@ data/encyclopedia_index.json 안의 "magazine-<이슈번호>" 검색 엔트리�
 사용법:
     python scripts/update_magazine_search.py
 환경변수:
-    MAGAZINE_REPO_TOKEN  - (선택) hohoplay/hohoplaylab.com 저장소 이슈를 읽을 때
-                           쓸 개인 액세스 토큰(PAT). 저장소가 공개(public)라
-                           없어도 동작하며, 분당 요청 한도를 늘리고 싶을 때만
-                           레포 Secrets에 추가해서 쓰면 된다.
+    MAGAZINE_REPO_TOKEN  - (선택) 이슈를 읽을 때 쓸 개인 액세스 토큰(PAT).
+                           저장소가 공개(public)라 없어도 동작하며, 분당 요청
+                           한도를 늘리고 싶을 때만 레포 Secrets에 추가해서 쓰면 된다.
 
-※ [중요] GitHub Actions가 자동으로 주입하는 GITHUB_TOKEN은 "이 워크플로우가
-돌고 있는 저장소"에만 쓸 수 있는 권한이라, 이슈가 실제로 올라와 있는
-hohoplay/hohoplaylab.com 저장소(이 워크플로우/파일들이 커밋된 저장소와 이름이
-다를 수 있음)를 그 토큰으로 조회하면 403/404로 거부된다. 그래서 이 스크립트는
-이슈를 읽을 때는 일부러 인증 헤더를 안 보내고(= 브라우저가 비로그인 상태로
-공개 저장소를 읽는 것과 동일), 레포 자체에 커밋·푸시하는 쪽만 Actions가 주는
-기본 토큰(별도 코드 없이 git push가 알아서 사용)을 쓴다.
+※ GH_OWNER/GH_REPO 값에 대한 메모: 사이트 자체 JS(index.html)에는
+GH_OWNER='hohoplay', GH_REPO='hohoplaylab.com'으로 박혀 있는데, 실제로 이
+저장소 이름으로 GitHub API(repos/hohoplay/hohoplaylab.com/issues)를 호출하면
+(인증 유무와 상관없이) 404가 난다 — 실제 커밋/정적 페이지 동기화가 일어나는
+저장소는 GitHub 파일 탐색기 주소에 찍히는 "hohoplay.github.io"였다. 그래서
+여기서는 GH_REPO를 "hohoplay.github.io"로 맞췄다. (참고: 그렇다면 사이트
+자체 JS의 loadIssues()/openBoard() — 공지사항·업데이트·자유게시판을 눌렀을 때
+뜨는 실시간 게시판 — 도 같은 이유로 조용히 실패하고 있을 가능성이 있다.
+별개 사이트 버그라 이 스크립트로는 못 고치고, 확인해보려면 index.html의
+GH_REPO 상수를 "hohoplay.github.io"로 바꿔야 할 수 있다.)
+
+GitHub Actions가 자동으로 주입하는 기본 GITHUB_TOKEN은 "이 워크플로우가 돌고
+있는 저장소"에만 쓸 수 있는 권한이라, 혹시라도 이슈가 다른 저장소에 있을
+경우를 대비해 이슈를 읽을 때는 인증 헤더를 아예 안 보낸다(공개 저장소라
+문제없음). 레포 자체에 커밋·푸시하는 쪽만 Actions가 주는 기본 토큰(별도
+코드 없이 git push가 알아서 사용)을 쓴다.
 """
 import json
 import os
@@ -45,7 +53,7 @@ import urllib.error
 import urllib.parse
 
 GH_OWNER = "hohoplay"
-GH_REPO = "hohoplaylab.com"
+GH_REPO = "hohoplay.github.io"
 LABEL = "호호 매거진"
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "encyclopedia_index.json")
 ID_PREFIX = "magazine-"
