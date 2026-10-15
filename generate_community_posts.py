@@ -17,12 +17,16 @@ GitHub Pages는 완전한 정적 호스팅이라 서버가 요청마다 새로 �
    스타일링됨)을 최신 12개로 갱신한다
 4. sitemap.xml에 새로 생긴 게시글 URL을 추가한다 (중복 추가하지 않음)
 
-[주의] CATEGORIES에 "호호 매거진"이 들어있지 않습니다. 그런데 실제 사이트의
-blog/posts/10~32.html(매거진 글)도 이 스크립트와 완전히 동일한 템플릿·구조로
-생성되어 있는 걸 직접 파일로 확인했습니다. 즉 지금 이 파일이 실제 운영 중인
-최신 버전이 아니거나(매거진 카테고리가 나중에 추가된 버전이 따로 있거나),
-또는 다른 스크립트가 매거진 글을 생성하고 있을 수 있습니다 — 확인이 필요합니다.
-(이 수정에서는 CATEGORIES 목록 자체는 건드리지 않았습니다.)
+[참고] CATEGORIES에 "호호 매거진"이 없는 건 의도된 것으로 확인됨. 매거진 글은
+이 스크립트가 아니라 별도의 자동화가 blog/magazine/<id>.html에 생성한다
+(실제 사이트에서 "/blog/posts/<매거진글ID>.html"은 404, "/blog/magazine/<id>.html"은
+정상 로드됨을 직접 확인했고, 매거진 목차 페이지·sitemap.xml도 전부
+"/blog/magazine/" 경로로 링크돼 있음). 즉 이 스크립트는 공지사항/업데이트/
+게임소개 전용이 맞고, blog/posts/<id>.html만 다룬다. 다만 매거진 쪽 정적
+페이지들의 <link rel="canonical">가 이 스크립트의 템플릿(community_post_
+template.html)을 그대로 가져다 쓰면서 "/blog/posts/{{POST_ID}}.html"로 박혀
+있는 버그가 있었다 — 매거진 전용 생성 스크립트(아직 못 봄)나 그쪽 템플릿에서
+canonical을 "/blog/magazine/{{POST_ID}}.html"로 고쳐야 한다.
 
 실행 환경: GitHub Actions (Python 3.11+, requests 필요)
 """
