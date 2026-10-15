@@ -812,6 +812,16 @@
         gyeongnam: '경남',
         jeju: '제주'
     };
+    // [FIX] 2026-10-16: 지역 필터링을 addr.includes(키워드)로 판정하면, "해운대구"(부산
+    // 해운대구) 안에 "대구"가, "세종대로"(서울 종로구 도로명) 안에 "세종"이, "대구동"
+    // (부산 강서구 대구동) 안에 "대구"가 그대로 들어있어서, "대구"로 지역을 골랐는데
+    // 엉뚱하게 "부산 해운대구" 코스가 섞여 나오는 문제가 있었다(실사용자 제보로 확인:
+    // 검색 → 대구 선택 → 넘어가니 부산 코스가 떠 있었음). 실제 주소(addr)는 항상 시/도
+    // 이름이나 그 지역 고유명(수원/청주 등)으로 "시작"하므로, 키워드가 주소 맨 앞에 올
+    // 때만 그 지역으로 인정하도록 바꿔서 중간에 우연히 끼어 있는 동명이인 글자를 걸러낸다.
+    function addrMatchesRegion(addr, keyword) {
+        return !!addr && addr.trim().indexOf(keyword) === 0;
+    }
     // Vercel 프록시 주소를 브라우저에서 직접 호출 (지역 선택 시 설명 문구를 즉시 받아오기 위함)
     const DETAIL_PROXY_URL = 'https://festival-api-proxy.vercel.app/api/detail';
 
@@ -1271,7 +1281,7 @@
         REGION_ORDER.forEach(function (key) {
             const kws = REGION_KEYWORDS[key];
             const inRegion = list.filter(function (item) {
-                return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+                return item.addr && kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); });
             });
             if (inRegion.length === 0) return;
             inRegion.sort(compareByUrgency);
@@ -1286,7 +1296,7 @@
     function pickRegionList(list, key) {
         const kws = REGION_KEYWORDS[key] || [];
         const inRegion = list.filter(function (item) {
-            return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+            return item.addr && kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); });
         });
         inRegion.sort(compareByUrgency);
         return inRegion.slice(0, 5);
@@ -1381,7 +1391,7 @@
             let regionScoped = periodFiltered;
             if (key !== 'all') {
                 const keywords = REGION_KEYWORDS[key] || [];
-                regionScoped = regionScoped.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
+                regionScoped = regionScoped.filter(item => keywords.some(kw => addrMatchesRegion(item.addr, kw)));
             } else {
                 showRegionTag = true;
             }
@@ -1558,7 +1568,7 @@
         if (regionKey !== 'all') {
             const kws = REGION_KEYWORDS[regionKey] || [];
             pool = pool.filter(function (item) {
-                return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
+                return item.addr && kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); });
             });
         }
         const groups = new Map(); // "광역지역키|소지역" -> { label, items[], hasFestival }
@@ -1573,7 +1583,7 @@
             let itemRegionKey = null;
             for (let i = 0; i < REGION_ORDER.length; i++) {
                 const key = REGION_ORDER[i];
-                if (REGION_KEYWORDS[key].some(function (kw) { return item.addr.includes(kw); })) {
+                if (REGION_KEYWORDS[key].some(function (kw) { return addrMatchesRegion(item.addr, kw); })) {
                     itemRegionKey = key;
                     break;
                 }
@@ -1994,7 +2004,7 @@
         let filtered = getFilteredData();
         if (key !== 'all') {
             const keywords = REGION_KEYWORDS[key] || [];
-            filtered = filtered.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
+            filtered = filtered.filter(item => keywords.some(kw => addrMatchesRegion(item.addr, kw)));
         }
         filtered = filtered.filter(item => matchesTheme(item, currentThemes));
         renderMarkers(filtered);
