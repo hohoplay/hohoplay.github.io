@@ -898,6 +898,11 @@ def build_festival_list_page(list_items):
 <title>{month_label} 전국 축제·자연관광지 목록 - HOHO PLAY 축제 지도</title>
 <meta name="description" content="{month_label} 기준 전국에서 진행 중이거나 예정된 축제, 그리고 상시 이용 가능한 자연관광지·캠핑장·수상레저 정보를 지역별로 모은 전체 목록입니다.">
 <link rel="canonical" href="https://hohoplaylab.com/festival/list.html">
+<!-- [ADD] 2026-10-15: 상세페이지(festival/detail/*)에 이미 적용한 것과 같은 이유로
+     noindex, follow 적용. 이 페이지는 매달 내용이 바뀌는 단순 링크 목록이라 그 자체로
+     검색 결과에 노출시키기보다, 크롤러가 이 페이지의 링크를 따라 상세페이지로
+     넘어가게 하는 크롤링 경로 역할로만 쓴다(follow는 유지). -->
+<meta name="robots" content="noindex, follow">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <style>
 body{{font-family:'Noto Sans KR',sans-serif;max-width:720px;margin:0 auto;padding:24px 16px;color:#1e293b;line-height:1.7}}
@@ -926,17 +931,23 @@ h1{{font-size:1.5rem;font-weight:900}}
 
 
 def update_sitemap(list_items):
-    """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목만 지우고,
-    festival/list.html 하나만 다시 채운다. 다른 페이지(홈, 게임, 약관 등) 항목은
-    절대 건드리지 않는다.
+    """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목을 지운다(있으면).
+    다른 페이지(홈, 게임, 약관 등) 항목은 절대 건드리지 않는다.
 
-    [정책 변경] 예전에는 축제·자연관광지 상세페이지 하나하나를 전부 sitemap.xml에
+    [정책 변경 1] 예전에는 축제·자연관광지 상세페이지 하나하나를 전부 sitemap.xml에
     등록했었다(1,130건 중 1,069건, 전체의 95%). 그런데 이 상세페이지들이 공공데이터
     소개문을 거의 그대로 옮긴 짧은 페이지들이라, "직접 쓴 콘텐츠 몇 개 + 복사한 짧은
     페이지 천 개"로 보여 애드센스 심사에 오히려 마이너스라는 지적을 받았다.
     상세페이지 자체는 그대로 두고(URL로 직접 접근 가능하고 festival/list.html에서
-    링크도 걸려있어 검색봇이 링크를 타고 찾아갈 수 있음), sitemap.xml에는 그 목록
-    페이지 하나만 등록해서 제출 URL 대비 색인 품질 비율을 정상적으로 되돌린다."""
+    링크도 걸려있어 검색봇이 링크를 타고 찾아갈 수 있음), sitemap.xml에서는 뺐다.
+
+    [정책 변경 2] 2026-10-15: 처음엔 상세페이지들을 뺀 대신 festival/list.html 하나만
+    sitemap에 올려뒀는데, 그 페이지 자체도 noindex, follow로 바꾸면서(build_festival_
+    list_page 참고) 더 이상 sitemap에 올릴 이유가 없어졌다 — "색인하지 말라"고 해놓고
+    sitemap엔 올려두면 검색엔진에 엇갈린 신호를 주는 셈이기 때문이다. 그래서 이제는
+    festival/detail/*·festival/list.html 둘 다 지우기만 하고 다시 채워 넣지 않는다.
+    (festival/ 자체도 noindex로 바꿨지만, 그 항목은 이 자동화가 건드리는 범위 밖이라
+    sitemap.xml에서 수동으로 한 번만 빼면 된다.)"""
     import re
     sitemap_path = 'sitemap.xml'
     if not os.path.exists(sitemap_path):
@@ -953,16 +964,9 @@ def update_sitemap(list_items):
         flags=re.DOTALL
     )
 
-    insertion = (
-        '  <url>\n    <loc>https://hohoplaylab.com/festival/list.html</loc>\n'
-        '    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
-    )
-    content = content.replace('</urlset>', insertion + '</urlset>') if '</urlset>' in content \
-        else content.rstrip() + '\n' + insertion
-
     with open(sitemap_path, 'w', encoding='utf-8') as fp:
         fp.write(content)
-    print(f"sitemap.xml 갱신 완료 (상세페이지 {len(list_items)}건은 목록 페이지 링크로만 노출, 사이트맵엔 festival/list.html 1건만 등록)")
+    print(f"sitemap.xml 갱신 완료 (상세페이지 {len(list_items)}건 + festival/list.html 모두 sitemap에서 제외 — 둘 다 noindex 처리됨)")
 
 
 def pick_region_representatives(today_list):
