@@ -193,19 +193,18 @@
            3곳 이상 모인 지역을 찾아 코스 카드로 묶어 보여준다. 기존 today-item과 같은
            카드 틀을 쓰되, 안에 장소 목록(course-place-list)이 추가로 들어간다. */
         .course-mode-row { margin-bottom: 12px; }
-        .course-mode-btn {
-            width: 100%; padding: 10px; border: 1.5px solid #c7d2fe; border-radius: 10px;
-            background: #eef2ff; color: #4338ca; font-weight: 700; font-size: 13px; cursor: pointer;
-        }
-        .course-mode-btn.active { background: #4338ca; color: #fff; border-color: #4338ca; }
-        /* [ADD] 2026-10-10: "아이랑 갈만한 곳" 무료만 보기 토글. 코스 보기 버튼과 같은
-           줄에 나란히 놓되, 켜졌을 때 눈에 띄는 녹색 계열로 구분했다. */
-        .kids-free-row { display: flex; gap: 6px; margin-bottom: 12px; }
-        .kids-free-row .course-mode-btn { flex: 1; }
+        /* [REMOVED] 2026-10-15: 패널 안쪽 상단의 "아이랑 나들이 추천 코스"/"전체 목록으로
+           돌아가기" 토글 버튼(#courseModeBtn, .course-mode-btn)을 지웠다 — 지도 우하단
+           리모컨 메뉴(.remote-menu)의 "전체 목록"/"코스 추천" 버튼이 똑같은 전환을 이미
+           하고 있어서, 같은 기능의 버튼이 패널 안팎에 동시에 보이는 게 "뭔가 두 개로
+           나뉜 것 같다"는 혼란을 줬다. 전환은 리모컨 메뉴 하나로 통일. */
+        /* [ADD] 2026-10-10: "아이랑 갈만한 곳" 무료만 보기 토글. 원래 위 토글 버튼과 한
+           줄에 나란히 뒀었는데, 그 버튼이 없어지면서 혼자 한 줄 전체를 쓰도록 바꿨다. */
         .kids-free-btn {
-            flex-shrink: 0; padding: 10px 12px; border: 1.5px solid #bbf7d0; border-radius: 10px;
+            display: block; width: 100%; box-sizing: border-box; margin-bottom: 12px;
+            padding: 10px; border: 1.5px solid #bbf7d0; border-radius: 10px;
             background: #f0fdf4; color: #15803d; font-weight: 700; font-size: 13px; cursor: pointer;
-            white-space: nowrap;
+            white-space: nowrap; text-align: center;
         }
         .kids-free-btn.active { background: #16a34a; color: #fff; border-color: #16a34a; }
         .cost-badge {
@@ -338,10 +337,7 @@
         <!-- [ADD] 2026-10-10: 지역별 추천 코스(1단계) 토글. 누르면 아래 목록이 "오늘의
              축제/장소" 개별 목록 대신, 같은 구/군에 모인 아이랑 장소를 묶은 코스 카드로
              바뀐다. 지역 선택(위/아래 select)은 코스 모드에서도 그대로 재사용된다. -->
-        <div class="kids-free-row">
-            <button type="button" id="courseModeBtn" class="course-mode-btn" onclick="toggleCourseMode()">🗺️ 아이랑 나들이 추천 코스</button>
-            <button type="button" id="kidsFreeOnlyBtn" class="kids-free-btn" onclick="toggleKidsFreeOnly()" title="아이랑 갈만한 곳 중 완전무료인 곳만 보기">💰 무료만</button>
-        </div>
+        <button type="button" id="kidsFreeOnlyBtn" class="kids-free-btn" onclick="toggleKidsFreeOnly()" title="아이랑 갈만한 곳 중 완전무료인 곳만 보기">💰 무료만</button>
         <!-- [FIX] 지역 선택과 테마 선택을 각각 한 줄씩 차지하던 걸, 한 줄(가로)에 나란히
              배치하도록 바꿨다 — 기능은 그대로(필터 두 개는 여전히 따로 동작), 레이아웃만 변경. -->
         <div style="display:flex; gap:8px; margin-bottom:10px;">
