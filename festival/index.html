@@ -886,7 +886,23 @@
             };
         });
         festivalData = festivals.concat(kidsTagged).concat(adsTagged);
-        renderMainPanel();
+        // [ADD] 2026-10-16: 메인 사이트 통합 검색(encyclopedia_index.json)의 "서울/부산/..."
+        // 코너 항목들이 /festival/?region=xxx&course=1 형태로 링크하고 있었는데, 정작 이
+        // 페이지는 그 쿼리파라미터를 읽어서 적용하는 코드가 없어서 그동안 눌러도 그냥
+        // 기본 화면(전국+코스 모드)만 떴다 — region이 전혀 안 먹힌 상태. 여기서 읽어서
+        // 적용한다. course=0이면 명시적으로 목록 모드로, 그 외(기본값 포함)는 코스
+        // 모드(이미 기본값)로 둔다.
+        const urlParams = new URLSearchParams(window.location.search);
+        const regionParam = urlParams.get('region');
+        const courseParam = urlParams.get('course');
+        if (courseParam === '0') {
+            setCourseMode(false);
+        }
+        if (regionParam && REGION_ORDER.indexOf(regionParam) !== -1) {
+            filterRegion(regionParam);
+        } else {
+            renderMainPanel();
+        }
         // [ADD] 2026-10-15: 실제 데이터로 패널을 다 그린 직후 js-loading을 지워서,
         // <head>에서 CSS로 숨겨뒀던 정적 목록 대신 지금 막 그려진 내용(코스 카드 등)이
         // 바로 보이게 한다.
