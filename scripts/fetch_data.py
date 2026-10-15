@@ -946,8 +946,13 @@ def update_sitemap(list_items):
     list_page 참고) 더 이상 sitemap에 올릴 이유가 없어졌다 — "색인하지 말라"고 해놓고
     sitemap엔 올려두면 검색엔진에 엇갈린 신호를 주는 셈이기 때문이다. 그래서 이제는
     festival/detail/*·festival/list.html 둘 다 지우기만 하고 다시 채워 넣지 않는다.
-    (festival/ 자체도 noindex로 바꿨지만, 그 항목은 이 자동화가 건드리는 범위 밖이라
-    sitemap.xml에서 수동으로 한 번만 빼면 된다.)"""
+
+    [정책 변경 3] 2026-10-15: festival/ 자체(지도 메인)도 한때 같이 noindex로
+    바꿨다가, 이미 네이버/구글에 등록되어 있었고 상세/목록페이지와 달리 실질적인
+    콘텐츠(인터랙티브 지도+코스 추천)라는 판단으로 noindex를 다시 뺐다. 그 항목은
+    애초에 이 정규식(festival/detail/*·list.html만 매칭)이 건드리는 범위 밖이라
+    sitemap.xml에 수동으로 한 번만 다시 넣어주면 이후로는 이 자동화가 건드리지
+    않는다."""
     import re
     sitemap_path = 'sitemap.xml'
     if not os.path.exists(sitemap_path):
