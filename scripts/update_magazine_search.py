@@ -18,21 +18,25 @@ JS를 그대로 따라간 것:
 
 - 기존 수동으로 넣은 다른 항목들(festival-* 지역 엔트리, 게임/운세/코너 등)은
   절대 건드리지 않는다. "magazine-"로 시작하는 id만 지우고 새로 채운다.
-- id는 글 자체의 id(=/blog/posts/<id>.html 번호와 동일)라 제목이 수정돼도
+- id는 글 자체의 id(=/blog/magazine/<id>.html 번호와 동일)라 제목이 수정돼도
   안정적으로 유지된다.
 - "호호 매거진" 카테고리인 글만 쓴다 — 공지사항/업데이트/게임소개는 제외.
 - searchText는 "글 제목 + 본문 앞부분 일부(최대 EXCERPT_LEN자)"를 쓴다. 본문은
   writer.html에서 이미 HTML로 변환해 저장해두므로, 태그/마크다운 기호를 벗겨내고
   순수 텍스트만 남긴다. 본문 전체를 다 넣지 않는 건, 글이 길어질수록 파일이
   계속 커지고 무관한 단어까지 섞여 검색 정확도가 떨어질 위험이 있어서다.
-- [FIX] url 경로 정정: "/blog/magazine/<글ID>.html"로 쓰고 있었는데, 실제로
-  올라와 있는 매거진 정적 페이지들의 <link rel="canonical">을 직접 확인해보니
-  전부 "/blog/posts/<글ID>.html"이었다(예: id=21 글의 canonical이
-  https://hohoplaylab.com/blog/posts/21.html). 커뮤니티 글 정적 페이지 생성
-  스크립트(generate_community_posts.py)도 sitemap.xml·blog/index.html 양쪽에
-  동일하게 "/blog/posts/{id}.html"을 쓰고 있어, 실제 생성 경로와 일치시켰다.
-  (이전 주석엔 두 경로가 같은 거라 적어놨었는데, 그게 아니라 애초에
-  "/blog/magazine/"이 아니라 "/blog/posts/"가 맞는 경로였다.)
+- url은 "/blog/magazine/<글ID>.html"이 맞다. [정정] 한 차례 "/blog/posts/"로
+  바꿨다가 다시 되돌렸다 — 그때는 매거진 정적 페이지들의 <link rel="canonical">
+  태그가 "/blog/posts/<id>.html"을 가리키고 있는 걸 보고 그게 진짜 경로라고
+  판단했는데, 실제 사이트에서 직접 열어보니 "/blog/posts/21.html"·
+  "/blog/posts/10.html" 등은 전부 404였고, "/blog/magazine/21.html"처럼
+  "/blog/magazine/<id>.html"이 실제로 존재하는 페이지였다(매거진 목차 페이지
+  자체의 링크들과 sitemap.xml도 전부 "/blog/magazine/<id>.html" 형태로 등록돼
+  있음을 확인). 즉 매거진 정적 페이지들의 canonical 태그 쪽이 잘못된 것이었다
+  (커뮤니티 공지용 템플릿을 그대로 재사용하면서 canonical 경로만 못 고친 것으로
+  추정 — 공지/업데이트/게임소개 글은 실제로 "/blog/posts/<id>.html"에 있어서
+  그 템플릿 자체는 틀리지 않았다). 이 스크립트는 원래 값("/blog/magazine/")이
+  맞았으므로 다시 그대로 둔다.
 
 [참고] 공지사항/업데이트/자유게시판 커뮤니티 게시판(index.html의
 loadIssues()/openBoard())은 지금도 GitHub Issues API를 바라보고 있는데, 거기
@@ -119,7 +123,7 @@ def build_magazine_entries(posts):
             "type": "corner",
             "name": title,
             "genre": "매거진",
-            "url": "/blog/posts/%s.html" % post_id,
+            "url": "/blog/magazine/%s.html" % post_id,
             "summary": "호호 매거진에 올라온 글이다.",
             "searchText": search_text,
         })
