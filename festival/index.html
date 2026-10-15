@@ -126,8 +126,13 @@
         .shelter-list-item span { color: #94a3b8; }
         .shelter-list-loading, .shelter-list-empty { font-size: 11px; color: #94a3b8; padding: 6px 0; }
 
+        /* [FIX] 2026-10-15: 모바일에서 패널(목록/코스추천)을 열면 전체 화면을 덮는
+           백드롭(.today-panel-backdrop, z-index:25)이 이 메뉴(기존 z-index:20)보다
+           위에 쌓여서, 패널이 열린 상태로 홈/운세 버튼을 누르면 실제로는 백드롭을
+           누른 게 되어 패널만 닫히고 이동은 안 되는 문제가 있었다("홈 버튼 눌러도
+           지도에만 있음"). 백드롭(25)·패널(30)보다 항상 위에 오도록 올렸다. */
         .remote-menu {
-            position: fixed; bottom: 16px; right: 16px; z-index: 20;
+            position: fixed; bottom: 16px; right: 16px; z-index: 40;
             display: flex; flex-direction: column; gap: 10px;
         }
         .remote-btn {
