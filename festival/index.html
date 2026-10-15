@@ -260,12 +260,14 @@
         /* [CHANGE] 2026-10-15: 처음엔 패널 안쪽에 별도 탭바/홈 링크를 추가했었는데,
            "지도 우하단에 이미 떠 있는 라디오 메뉴(.remote-menu)를 활용하자"는 게
            원래 의도였다는 피드백을 받아 되돌리고, 아래 .remote-radio-btn 쪽으로
-           옮겼다. */
+           옮겼다. "목록"(festival/list.html 링크) 버튼은 요청에 따라 뺐다. "전체
+           목록"은 한 번 데스크톱에서 숨겼다가, 다시 데스크톱에도 보이는 걸로
+           되돌렸다 — 지금은 모바일·데스크톱 공통으로 보인다. */
         .remote-radio-btn.active { background: #4338ca; color: #fff; }
         .remote-radio-btn.active .label { color: #fff; }
         /* 모바일은 화면이 좁고 세로 공간도 아껴야 해서(요청: "라디오 버튼은 모바일
-           버전도 생각해줘야 함"), 버튼이 5개로 늘어난 플로팅 메뉴를 데스크톱보다
-           조금 작게 줄인다. */
+           버전도 생각해줘야 함"), 버튼이 늘어난 플로팅 메뉴를 데스크톱보다 조금 작게
+           줄인다. */
         @media (max-width: 768px) {
             .remote-menu { bottom: 12px; right: 12px; gap: 7px; }
             .remote-btn { width: 46px; height: 46px; font-size: 16px; }
@@ -438,8 +440,8 @@
              동시에 보기 모드까지 같이 바꿔준다(데스크톱은 패널이 항상 열려 있어서
              openTodayPanel() 호출은 사실상 아무 효과 없이 모드만 바뀜). 서로 배타적인
              라디오 버튼이라 지금 모드 쪽에 active 표시가 붙는다(syncCourseModeUI 참고).
-             "목록"은 festival/list.html(검색봇용 전체 글 목록, noindex지만 사람이 직접
-             보기엔 유용)로 가는 링크로 새로 추가했다. -->
+             "전체 목록"(#remoteListBtn)은 모바일·데스크톱 공통으로 보인다.
+             festival/list.html로 가는 "목록" 링크는 요청에 따라 뺐다. -->
         <div class="remote-menu">
             <button type="button" id="remoteListBtn" class="remote-btn remote-radio-btn" onclick="setCourseModeFromRemote(false)" aria-label="전체 목록 보기">
                 <span>📋</span><span class="label">전체 목록</span>
@@ -449,9 +451,6 @@
             </button>
             <a href="/" class="remote-btn" aria-label="홈으로 가기">
                 <span>🏠</span><span class="label">홈</span>
-            </a>
-            <a href="/festival/list.html" class="remote-btn" aria-label="전체 글 목록으로 보기">
-                <span>📄</span><span class="label">목록</span>
             </a>
             <a href="/fortune/" class="remote-btn" aria-label="오늘의 운세로 가기">
                 <span>🔮</span><span class="label">운세</span>
