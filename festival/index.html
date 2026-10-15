@@ -79,29 +79,21 @@
            광고는 포함하지 않음(의견 확인 후 안내문구만 우선 적용) — 나중에 광고를 넣게
            되면 이 티커와는 분리된 고정 슬롯으로 따로 만들 것(움직이는 광고는 애드센스
            정책상 리스크가 있어 피함). */
+        /* [FIX] 2026-10-16: 처음엔 5개 문구를 이어붙여 계속 흐르게 했는데, "한 문구가
+           다 지나간 다음에 다음 문구가 나오게" 바꿔달라는 요청으로 구조를 변경 — 문구
+           길이가 서로 달라서 고정 비율 CSS 애니메이션만으로는 "다 지나감"을 정확히 맞출
+           수 없어, JS로 실제 폭(px)을 재서 움직이는 방식으로 바꿨다(아래 스크립트 쪽
+           playTickerItem() 참고). */
         .info-ticker {
             position: absolute; top: 68px; left: 50%; transform: translateX(-50%);
-            z-index: 10; width: 90%; max-width: 360px;
-            overflow: hidden; white-space: nowrap; padding: 7px 0;
+            z-index: 10; width: 90%; max-width: 360px; height: 20px;
+            overflow: hidden; white-space: nowrap; padding: 8px 0;
             background: rgba(255,255,255,0.95); border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
-        .info-ticker-track {
-            display: inline-flex; animation: info-ticker-scroll 34s linear infinite; will-change: transform;
-        }
-        .info-ticker:hover .info-ticker-track, .info-ticker:focus-within .info-ticker-track {
-            animation-play-state: paused;
-        }
         .info-ticker-item {
-            display: inline-block; font-size: 12px; color: #475569; font-weight: 600; padding: 0 28px;
-        }
-        @keyframes info-ticker-scroll {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .info-ticker-track { animation: none; }
-            .info-ticker { overflow-x: auto; }
+            display: inline-block; position: relative; white-space: nowrap;
+            font-size: 12px; color: #475569; font-weight: 600;
         }
         .period-btn {
             border: none; background: transparent; padding: 5px 10px; border-radius: 8px;
@@ -471,21 +463,11 @@
                 <option value="jeju">제주특별자치도</option>
             </select>
         </div>
-        <!-- [ADD] 2026-10-16: "전국 전체보기" 드롭다운 바로 아래 안내문구 티커(오른→왼
-             스크롤). 문구를 두 벌 이어붙여서 translateX(-50%)로 끊김 없이 반복되게 한다. -->
-        <div class="info-ticker" aria-label="이용 안내">
-            <div class="info-ticker-track">
-                <span class="info-ticker-item">📋 전체목록: 지금 열리는 축제를 전부 볼 수 있어요</span>
-                <span class="info-ticker-item">🗺️ 코스추천: 아이랑 갈만한 곳을 묶어 하루 코스로 보여드려요 (최대 4곳)</span>
-                <span class="info-ticker-item">⚠️ 코스에 포함된 축제는 성격이 다양할 수 있어요 — 방문 전 한번 더 확인하세요</span>
-                <span class="info-ticker-item">📍 지역을 먼저 선택하면 그 지역 코스만 바로 볼 수 있어요</span>
-                <span class="info-ticker-item">💰 코스추천에서는 무료만/유료만으로 비용별로 걸러볼 수 있어요</span>
-                <span class="info-ticker-item" aria-hidden="true">📋 전체목록: 지금 열리는 축제를 전부 볼 수 있어요</span>
-                <span class="info-ticker-item" aria-hidden="true">🗺️ 코스추천: 아이랑 갈만한 곳을 묶어 하루 코스로 보여드려요 (최대 4곳)</span>
-                <span class="info-ticker-item" aria-hidden="true">⚠️ 코스에 포함된 축제는 성격이 다양할 수 있어요 — 방문 전 한번 더 확인하세요</span>
-                <span class="info-ticker-item" aria-hidden="true">📍 지역을 먼저 선택하면 그 지역 코스만 바로 볼 수 있어요</span>
-                <span class="info-ticker-item" aria-hidden="true">💰 코스추천에서는 무료만/유료만으로 비용별로 걸러볼 수 있어요</span>
-            </div>
+        <!-- [FIX] 2026-10-16: "한 문구가 다 지나간 다음에 다음 문구" 방식으로 변경 —
+             문구 하나만 담긴 요소를 JS(playTickerItem())가 매번 폭을 재서 오른쪽 밖에서
+             왼쪽 밖까지 이동시키고, 다 지나가면 다음 문구로 바꿔서 다시 움직인다. -->
+        <div class="info-ticker" id="infoTickerWrap" aria-label="이용 안내">
+            <span class="info-ticker-item" id="infoTickerItem"></span>
         </div>
 
         <div id="map"></div>
@@ -1847,6 +1829,49 @@
     // 켜짐" 상태로 바로 보이도록 페이지 로드 시점에 한 번 맞춰준다(실제 코스 카드 렌더링은
     // Promise.all 이후 renderMainPanel()이 처리).
     syncCourseModeUI();
+
+    // [ADD] 2026-10-16: 지도 위 안내문구 티커 — 문구 5개를 하나씩, 완전히 지나간 다음에
+    // 다음 문구가 나오게 움직인다(이어붙여 계속 흐르는 방식 대신). 문구 길이가 서로 달라서
+    // CSS만으로는 "다 지나감" 시점을 정확히 맞추기 어려워, 실제 폭(px)을 재서
+    // transform으로 직접 움직인다. prefers-reduced-motion일 때는 움직이지 않고 문구만
+    // 교체한다.
+    (function () {
+        const TICKER_MESSAGES = [
+            '📋 전체목록: 지금 열리는 축제를 전부 볼 수 있어요',
+            '🗺️ 코스추천: 아이랑 갈만한 곳을 묶어 하루 코스로 보여드려요 (최대 4곳)',
+            '⚠️ 코스에 포함된 축제는 성격이 다양할 수 있어요 — 방문 전 한번 더 확인하세요',
+            '📍 지역을 먼저 선택하면 그 지역 코스만 바로 볼 수 있어요',
+            '💰 코스추천에서는 무료만/유료만으로 비용별로 걸러볼 수 있어요'
+        ];
+        const TICKER_PASS_MS = 8000; // 문구 하나가 오른쪽→왼쪽으로 지나가는 데 걸리는 시간
+        const TICKER_GAP_MS = 500;   // 다 지나간 뒤 다음 문구가 나오기 전 짧은 틈
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let tickerIdx = 0;
+
+        function playTickerItem() {
+            const wrap = document.getElementById('infoTickerWrap');
+            const el = document.getElementById('infoTickerItem');
+            if (!wrap || !el) return;
+            el.textContent = TICKER_MESSAGES[tickerIdx % TICKER_MESSAGES.length];
+            tickerIdx++;
+
+            if (reduceMotion) {
+                // 움직이는 대신 문구만 그대로 두고, 일정 시간마다 교체만 한다.
+                setTimeout(playTickerItem, TICKER_PASS_MS + TICKER_GAP_MS);
+                return;
+            }
+
+            const wrapWidth = wrap.offsetWidth;
+            el.style.transition = 'none';
+            el.style.transform = 'translateX(' + wrapWidth + 'px)';
+            void el.offsetWidth; // 강제 reflow — 위치 리셋을 화면에 바로 반영시켜야 다음 transition이 처음부터 다시 움직인다.
+            const itemWidth = el.offsetWidth;
+            el.style.transition = 'transform ' + TICKER_PASS_MS + 'ms linear';
+            el.style.transform = 'translateX(-' + itemWidth + 'px)';
+            setTimeout(playTickerItem, TICKER_PASS_MS + TICKER_GAP_MS);
+        }
+        playTickerItem();
+    })();
 
     function setPeriod(period) {
         currentPeriod = period;
