@@ -198,15 +198,13 @@
            리모컨 메뉴(.remote-menu)의 "전체 목록"/"코스 추천" 버튼이 똑같은 전환을 이미
            하고 있어서, 같은 기능의 버튼이 패널 안팎에 동시에 보이는 게 "뭔가 두 개로
            나뉜 것 같다"는 혼란을 줬다. 전환은 리모컨 메뉴 하나로 통일. */
-        /* [ADD] 2026-10-10: "아이랑 갈만한 곳" 무료만 보기 토글. 원래 위 토글 버튼과 한
-           줄에 나란히 뒀었는데, 그 버튼이 없어지면서 혼자 한 줄 전체를 쓰도록 바꿨다. */
-        .kids-free-btn {
-            display: block; width: 100%; box-sizing: border-box; margin-bottom: 12px;
-            padding: 10px; border: 1.5px solid #bbf7d0; border-radius: 10px;
-            background: #f0fdf4; color: #15803d; font-weight: 700; font-size: 13px; cursor: pointer;
-            white-space: nowrap; text-align: center;
-        }
-        .kids-free-btn.active { background: #16a34a; color: #fff; border-color: #16a34a; }
+        /* [REMOVED] 2026-10-15: "💰 무료만" 토글 버튼도 지웠다 — 리스트 모드(오늘의
+           축제/장소)에서는 비용 필터가 애매해서 빼고, 비용 정보가 의미 있는 "아이랑
+           갈만한 곳"은 코스 모드에서만 다루니까 그쪽에만 필요했다. 버튼 대신 코스
+           모드에서만 보이는 #costFilterSelect 드롭다운(전체 비용/무료만/유료만, 지역
+           선택 옆)으로 교체 — 기존 regionSelectPanel/themeSelect와 같은 자리, 같은
+           .region-select.panel-region-select 스타일을 재사용해서 새 CSS가 따로 필요
+           없다. */
         .cost-badge {
             display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
             border-radius: 20px; margin-left: 6px; vertical-align: middle;
@@ -337,7 +335,6 @@
         <!-- [ADD] 2026-10-10: 지역별 추천 코스(1단계) 토글. 누르면 아래 목록이 "오늘의
              축제/장소" 개별 목록 대신, 같은 구/군에 모인 아이랑 장소를 묶은 코스 카드로
              바뀐다. 지역 선택(위/아래 select)은 코스 모드에서도 그대로 재사용된다. -->
-        <button type="button" id="kidsFreeOnlyBtn" class="kids-free-btn" onclick="toggleKidsFreeOnly()" title="아이랑 갈만한 곳 중 완전무료인 곳만 보기">💰 무료만</button>
         <!-- [FIX] 지역 선택과 테마 선택을 각각 한 줄씩 차지하던 걸, 한 줄(가로)에 나란히
              배치하도록 바꿨다 — 기능은 그대로(필터 두 개는 여전히 따로 동작), 레이아웃만 변경. -->
         <div style="display:flex; gap:8px; margin-bottom:10px;">
@@ -377,6 +374,14 @@
                 <option value="shelter" id="themeOptionShelter">🧊 무더위쉼터</option>
                 <option value="camping">🏕️ 캠핑장</option>
                 <option value="watersports">🚤 수상레저</option>
+            </select>
+            <!-- [ADD] 2026-10-15: 코스 모드 전용 비용 필터. 테마 드롭다운(위)과 같은 자리를
+                 공유하되, courseModeActive에 따라 둘 중 하나만 보이게 syncCourseModeUI()가
+                 display를 전환한다(리스트 모드 ↔ 테마 드롭다운, 코스 모드 ↔ 이 드롭다운). -->
+            <select id="costFilterSelect" class="region-select panel-region-select" style="flex:1; min-width:0; padding:10px 8px; font-size:13px;" onchange="setCostFilter(this.value)">
+                <option value="all">🗂️ 전체 비용</option>
+                <option value="free">💰 무료만</option>
+                <option value="paid">💳 유료만</option>
             </select>
         </div>
         <div id="festivalSearchControls">
@@ -670,21 +675,25 @@
     // 호출될 때 이 값 그대로 코스 카드가 그려진다.
     let courseModeActive = true;
     let currentCourses = [];
-    // [ADD] 2026-10-10: "아이랑 갈만한 곳" 무료만 보기 필터. kids_places.json에 미리
-    // 매겨둔 costTag(완전무료/유료/유료(일부 무료 조건 있음)/확인 필요)를 기준으로,
-    // 켜져 있으면 '완전무료'가 아닌 kids 항목을 목록·지도·코스·검색에서 전부 제외한다.
-    // 축제(type !== 'kids')는 이 필터의 영향을 받지 않는다.
-    let kidsFreeOnly = false;
+    // [CHANGE] 2026-10-15: "아이랑 갈만한 곳" 비용 필터. 원래는 "무료만" on/off 토글
+    // 버튼이었는데, 코스 모드 전용 드롭다운(#costFilterSelect, 전체 비용/무료만/유료만)
+    // 으로 바꿨다 — 비용 정보가 의미 있는 건 코스 모드가 다루는 "아이랑 갈만한 곳"
+    // 뿐이라, 리스트 모드에서는 이 필터 자체를 적용하지 않는다(courseModeActive 가드).
+    // costTag(완전무료/유료/유료(일부 무료 조건 있음)/확인 필요) 중 "확인 필요"는
+    // 무료인지 유료인지 알 수 없어서, 무료만/유료만을 고르면 둘 다 빠지고 "전체 비용"
+    // 에서만 보인다. 축제(type !== 'kids')는 이 필터의 영향을 받지 않는다.
+    let costFilterMode = 'all'; // 'all' | 'free' | 'paid'
     function getFilteredData() {
-        if (!kidsFreeOnly) return festivalData;
+        if (!courseModeActive || costFilterMode === 'all') return festivalData;
         return festivalData.filter(function (item) {
-            return item.type !== 'kids' || item.costTag === '완전무료';
+            if (item.type !== 'kids') return true;
+            if (costFilterMode === 'free') return item.costTag === '완전무료';
+            if (costFilterMode === 'paid') return item.costTag === '유료' || item.costTag === '유료(일부 무료 조건 있음)';
+            return true;
         });
     }
-    function toggleKidsFreeOnly() {
-        kidsFreeOnly = !kidsFreeOnly;
-        const btn = document.getElementById('kidsFreeOnlyBtn');
-        if (btn) btn.classList.toggle('active', kidsFreeOnly);
+    function setCostFilter(value) {
+        costFilterMode = value;
         // renderNearbyPanel()은 목록·마커를 둘 다 갱신하므로(GPS 모드), 일반 모드에서는
         // renderMainPanel()이 동일한 역할을 한다.
         if (gpsModeActive) {
@@ -1719,6 +1728,11 @@
         // (버튼만 있고 실제로 안 먹힘). 헷갈리지 않게 코스 모드일 땐 아예 숨긴다.
         const themeSelect = document.getElementById('themeSelect');
         if (themeSelect) themeSelect.style.display = courseModeActive ? 'none' : '';
+        // [ADD] 2026-10-15: 비용 필터 드롭다운(#costFilterSelect)은 테마 드롭다운과 정확히
+        // 반대로 — 코스 모드일 때만 보인다(비용 정보가 의미 있는 "아이랑 갈만한 곳"은
+        // 코스 모드가 다루므로).
+        const costFilterSelect = document.getElementById('costFilterSelect');
+        if (costFilterSelect) costFilterSelect.style.display = courseModeActive ? '' : 'none';
         // [ADD] 2026-10-15: 지도 우하단 플로팅 메뉴(.remote-menu)의 "전체 목록"/"코스
         // 추천" 두 버튼은 서로 배타적인 모드 전환이라, 지금 모드에 맞는 쪽만 active로
         // 강조한다.
