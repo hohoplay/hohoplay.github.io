@@ -86,8 +86,13 @@
            playTickerItem() 참고). */
         .info-ticker {
             position: absolute; top: 68px; left: 50%; transform: translateX(-50%);
-            z-index: 10; width: 90%; max-width: 360px; height: 20px;
-            overflow: hidden; white-space: nowrap; padding: 8px 0;
+            z-index: 10; width: 90%; max-width: 360px;
+            /* [FIX] 2026-10-16: 페이지 전체에 `* { box-sizing: border-box }`가 걸려있어서
+               height:20px 안에 padding(8px 0, 위아래 합 16px)까지 포함돼버려 실제 글자가
+               들어갈 자리가 4px밖에 안 남아 글씨 윗부분만 살짝 보이고 잘려 있었다.
+               고정 height를 빼고 line-height로 세로 크기를 자연스럽게 잡는다. */
+            overflow: hidden; white-space: nowrap; padding: 9px 0;
+            line-height: 16px;
             background: rgba(255,255,255,0.95); border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
@@ -688,7 +693,7 @@
     const THEME_KEYWORDS = {
         cherry: ['벚꽃'],
         foliage: ['단풍', '억새'],
-        seafood: ['대하', '새우', '전어', '굴', '수산물', '대게', '전복', '멸치', '인삼', '한우', '사과', '포도', '딸기', '곶감', '메밀', '고구마', '감자', '마늘', '고추', '멜론', '수박'],
+        seafood: ['대하', '새우', '전어', '굴', '수산물', '대게', '전복', '멸치', '인삼', '한우', '사과', '포도', '딸기', '곶감', '고구마', '감자', '마늘', '고추', '멜론', '수박'],
         fireworks: ['불꽃'],
         winter: ['눈꽃', '빙어', '얼음'],
         flower: ['꽃축제', '꽃박람회', '튤립', '코스모스', '유채꽃', '장미', '국화', '수국', '철쭉', '진달래', '메밀꽃', '핑크뮬리', '구절초', '라벤더', '해바라기', '연꽃']
