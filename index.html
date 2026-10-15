@@ -791,6 +791,15 @@
                 +         'if(tokenHits(nameText,t)){score+=3;}'
                 +         'else if(tokenHits(text,t)){score+=1;}'
                 +       '});'
+                // [FIX] 2026-10-16: "대전코스"처럼 띄어쓰기 없이 붙여 쓴 검색어는 위
+                // tokens.forEach가 한 덩어리를 통짜 토큰으로 보고 그 전체(or 70%대 앞부분)가
+                // 텍스트에 그대로 들어있어야 매칭되는데, 실제 데이터엔 "대전"과 "코스"가
+                // 항상 띄어서 저장돼 있어 "대전코"처럼 이어붙은 문자열이 어디에도 없어서
+                // 한 건도 안 걸렸다(실사용자 제보로 확인). 짧은 지역명처럼 흔히 붙여 쓰는
+                // 이름은, 그 이름이 입력어 어딘가에 그대로 포함돼 있기만 해도("대전코스"
+                // 안에 "대전"이 들어있음) 강한 매칭으로 쳐준다 — 지역명마다 "코스/축제/
+                // 나들이/추천" 조합을 데이터에 일일이 다 박아두지 않아도 되는 일반적인 해법.
+                +       'if(nameText.length>=2 && lq.indexOf(nameText)!==-1){score+=3;}'
                 +       'return {item:it, hits:score};'
                 +     '}).filter(function(s){return s.hits>0;});'
                 +     'scored.sort(function(a,b){return b.hits-a.hits;});'
