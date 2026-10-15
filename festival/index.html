@@ -52,15 +52,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); outline: none; cursor: pointer;
         }
         .panel-region-select { margin-bottom: 16px; box-shadow: none; }
-        /* [ADD] 시/군/구 세분화 select — 상위(시/도) select보다 한 단계 눌러놓은 느낌을
-           주기 위해 테두리 색을 옅게, 글자 크기를 살짝 작게 둔다. 레이아웃(width:100%
-           등)은 기존 .region-select/.panel-region-select를 그대로 물려받는다. */
-        .sub-region-select { border-color: #93c5fd; font-size: 13px; font-weight: 600; }
-        /* [ADD] 2026-10-14: 코스 카드 제목을 눌러서 지도에서 보기 — 클릭 가능하다는 걸
-           커서/밑줄로 드러낸다(기존 "지도에서 전체보기" 링크와 동일한 동작을 제목에도
-           추가로 달았을 뿐, 다른 코스 카드 레이아웃/스타일은 그대로 둔다). */
-        .course-card-title { cursor: pointer; }
-        .course-card-title:hover { text-decoration: underline; }
         .period-btn {
             border: none; background: transparent; padding: 5px 10px; border-radius: 8px;
             font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; white-space: nowrap;
@@ -301,7 +292,7 @@
              축제/장소" 개별 목록 대신, 같은 구/군에 모인 아이랑 장소를 묶은 코스 카드로
              바뀐다. 지역 선택(위/아래 select)은 코스 모드에서도 그대로 재사용된다. -->
         <div class="kids-free-row">
-            <button type="button" id="courseModeBtn" class="course-mode-btn" onclick="toggleCourseMode()">🗺️ 지역별 추천 코스 보기</button>
+            <button type="button" id="courseModeBtn" class="course-mode-btn" onclick="toggleCourseMode()">🗺️ 아이랑 나들이 추천 코스</button>
             <button type="button" id="kidsFreeOnlyBtn" class="kids-free-btn" onclick="toggleKidsFreeOnly()" title="아이랑 갈만한 곳 중 완전무료인 곳만 보기">💰 무료만</button>
         </div>
         <!-- [FIX] 지역 선택과 테마 선택을 각각 한 줄씩 차지하던 걸, 한 줄(가로)에 나란히
@@ -345,14 +336,6 @@
                 <option value="watersports">🚤 수상레저</option>
             </select>
         </div>
-        <!-- [ADD] 시/군/구 세분화(사이드 패널용): 위 지역 select에서 "전국 전체보기"가
-             아닌 특정 시/도를 고르면, 그 시/도 안의 시/군/구 목록이 이 자리에 나타난다.
-             기본은 숨김 — populateSubRegionSelect()가 시/도 변경마다 옵션을 다시 채우고
-             보이기/숨기기를 함께 처리한다. 떠 있는 지도 위 select(subRegionSelect)와
-             값이 항상 같게 syncSubRegionSelectors()로 동기화된다. -->
-        <div id="subRegionSelectPanelWrap" style="display:none; margin-bottom:10px;">
-            <select id="subRegionSelectPanel" class="region-select panel-region-select sub-region-select" style="width:100%; padding:10px 8px; font-size:13px; margin-bottom:0;" onchange="filterSubRegion(this.value)"></select>
-        </div>
         <div id="festivalSearchControls">
         <button type="button" id="gpsBtn" onclick="useMyLocation()" style="width:100%; margin-bottom:8px; padding:9px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#334155; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
             📍 내 주변으로 보기
@@ -372,7 +355,7 @@
         </div>
         <ul class="today-list">
             <!-- TODAY_FESTIVALS_START -->
-<li class="today-item" data-cid="3021908" onclick="focusFestival(37.5068164770, 127.0982373555); closeTodayPanel();"><span class="today-region">서울</span><strong>2026 서울발레페스티벌</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.15</span><span class="today-addr">📍 서울특별시 송파구 석촌호수로 191 (잠실동)</span><p class="today-desc">2026 서울발레페스티벌은 세계와 서울이 춤으로 만나는 특별한 순간이다. 10월 15일, 서울의 랜드마크 석촌호수 수변무대에 아름다운 발레가 펼쳐진다. 세계 각국에서 찾아온 해외 무용수들, 그리고 국내ㅐ 최정상 무용단이 함께 어우러져 &#x27;춤으로 하나 되는 세계발레&#x27;를 선…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3021908.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%84%9C%EC%9A%B8%EB%B0%9C%EB%A0%88%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,37.5068164770,127.0982373555" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4109305" onclick="focusFestival(35.1655426683, 129.0558397915); closeTodayPanel();"><span class="today-region">부산</span><strong>달밤에체조 부산 챌린지</strong><span class="today-date">📅 2026.09.19 ~ 2026.11.07</span><span class="today-addr">📍 부산광역시 부산진구 시민공원로 73 (범전동)</span><p class="today-desc">달밤에체조 부산 챌린지는 운동에 익숙하지 않거나 평소 운동에 관심이 적은 시민도 쉽고 즐겁게 생활체육 활동에 참여할 수 있도록 유도하여 시민의 생활체육 참여 확대와 건강증진, 활기찬 야간 여가문화 조성을 목적으로 하는 부산 특화형 생활체육 프로그램이다. 부산광역시가 주최·주관하여 운영하…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4109305.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%8B%AC%EB%B0%A4%EC%97%90%EC%B2%B4%EC%A1%B0%20%EB%B6%80%EC%82%B0%20%EC%B1%8C%EB%A6%B0%EC%A7%80,35.1655426683,129.0558397915" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3492276" onclick="focusFestival(37.476334, 126.632619); closeTodayPanel();"><span class="today-region">인천</span><strong>2026 문화가 있는 날</strong><span class="today-date">📅 2026.04.01 ~ 2026.11.29</span><span class="today-addr">📍 인천광역시 제물포구 송현동</span><p class="today-desc">청춘마이크 수도·강원권은 다양한 관객의 취향을 추적하며 방방곡곡을 누빈다. 문화가 있는 날 청년·실버 공연팀이 만들어내는 특별한 거리공연이 수도·강원권 전역을 무대로 펼쳐진다. 지금 이 순간 무대에 서고 싶은 마음이 모여 하나가 되는 청춘의 무대, &#x27;I.M 청춘마이크&#x27;…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3492276.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EB%AC%B8%ED%99%94%EA%B0%80%20%EC%9E%88%EB%8A%94%20%EB%82%A0,37.476334,126.632619" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2561700" onclick="focusFestival(35.1384947137, 126.8287603579); closeTodayPanel();"><span class="today-region">광주</span><strong>광주서창억새축제</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.18</span><span class="today-addr">📍 전남광주통합특별시 서구 서창둑길 377 (벽진동)</span><p class="today-desc">남도대표 자연 힐링축제인 광주서창억새축제는 영산강 일원에서 자연 억새와 어우러진 다양한 문화예술공연과 체험행사, 선셋런, 이색적인 포토존 등의 프로그램이 운영된다. 서구 8경 중 하나인 서창들녘 노을과 억새길을 걸으며 남도 유일 도심속 자연축제를 만날 수 있다. 이번 축제는 선율이 흐르…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2561700.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B4%91%EC%A3%BC%EC%84%9C%EC%B0%BD%EC%96%B5%EC%83%88%EC%B6%95%EC%A0%9C,35.1384947137,126.8287603579" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4106719" onclick="focusFestival(36.3266036648, 127.3515672497); closeTodayPanel();"><span class="today-region">대전</span><strong>2026 달빛 음악공감</strong><span class="today-date">📅 2026.09.11 ~ 2026.10.17</span><span class="today-addr">📍 대전광역시 서구 도안동로 246 (도안동)</span><p class="today-desc">2026 「달빛 음악공감」은 9월부터 10월까지 대전 5개 자치구의 공원과 천변 등 일상 가까운 공간에서 가을밤의 음악을 즐길 수 있도록 마련된 문화예술 공연이다. 시민 누구나 자유롭게 관람할 수 있는 개방형 공연으로 자치구별 1회씩 총 5회 진행된다. 선선한 가을밤을 배경으로 펼쳐지는…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4106719.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EB%8B%AC%EB%B9%9B%20%EC%9D%8C%EC%95%85%EA%B3%B5%EA%B0%90,36.3266036648,127.3515672497" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="553263" onclick="focusFestival(35.5031615190, 129.3808069186); closeTodayPanel();"><span class="today-region">울산</span><strong>울산고래축제</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.18</span><span class="today-addr">📍 울산광역시 남구 장생포고래로 244 (매암동)</span><p class="today-desc">제30회 울산고래축제는 울산광역시 남구가 주최하고 (재)고래문화재단이 주관하는 울산의 대표적인 문화관광 축제이다. 과거 포경의 중심지였던 장생포가 고래와 인간이 공존하는 생태도시로 전환된 역사를 배경으로 하며, 2026년 축제 30주년을 맞아 &#x27;고래의 초대, 서른살 파티!&#x…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/553263.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%9A%B8%EC%82%B0%EA%B3%A0%EB%9E%98%EC%B6%95%EC%A0%9C,35.5031615190,129.3808069186" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2756396" onclick="focusFestival(37.5650549194, 126.9765746344); closeTodayPanel();"><span class="today-region">세종</span><strong>덕수궁 밤의 석조전</strong><span class="today-date">📅 2026.09.09 ~ 2026.10.18</span><span class="today-addr">📍 서울특별시 중구 세종대로 99 (정동)</span><p class="today-desc">[덕수궁 밤의 석조전]은 전문 해설사와 함께하는 &#x27;석조전 야간 탐방&#x27;과 클래식 연주를 들으며 고종이 사랑했던 가배차(커피)와 디저트를 즐기는 &#x27;테라스 카페 체험&#x27;, 대한제국 황실의 이야기를 담은 뮤지컬 공연 관람으로 구성되어 있는 덕수궁 야간 관람 프…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2756396.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%8D%95%EC%88%98%EA%B6%81%20%EB%B0%A4%EC%9D%98%20%EC%84%9D%EC%A1%B0%EC%A0%84,37.5650549194,126.9765746344" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3343831" onclick="focusFestival(37.2641627269, 126.9973855390); closeTodayPanel();"><span class="today-region">경기</span><strong>2026 대한민국 AI 콘텐츠 어워즈</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.16</span><span class="today-addr">📍 경기도 수원시 권선구 세화로 134 (서둔동)</span><p class="today-desc">경기도가 주최하고 경기콘텐츠진흥원이 주관하는 「2026 대한민국 AI 콘텐츠 어워즈」는 생성형 AI 기술과 영상 콘텐츠의 만남을 통해 새로운 창작의 가능성을 발견하고, AI 시대 콘텐츠 산업의 미래를 함께 모색하는 행사이다. 오는 10월 15일부터 16일까지 롯데시네마 수원에서 열리는…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3343831.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD%20AI%20%EC%BD%98%ED%85%90%EC%B8%A0%20%EC%96%B4%EC%9B%8C%EC%A6%88,37.2641627269,126.9973855390" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2930716" onclick="focusFestival(37.7557770169, 128.8976016584); closeTodayPanel();"><span class="today-region">강원</span><strong>강릉 국수 축제</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.18</span><span class="today-addr">📍 강원특별자치도 강릉시 경강로 2111 (임당동)</span><p class="today-desc">강릉 국수 축제는 장칼국수, 막국수, 짬뽕, 감자옹심이칼국수 등 그 어느 지역보다 면 요리가 많은 사랑을 받고 있는 면의 도시 강릉에서 펼쳐지는 대표 미식 축제이다. 2025년까지 강릉 누들 축제로 많은 사랑을 받아왔고, 2026년 제5회를 맞이하여 더욱 더 대중에게 친숙하게 다가가고…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2930716.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B0%95%EB%A6%89%20%EA%B5%AD%EC%88%98%20%EC%B6%95%EC%A0%9C,37.7557770169,128.8976016584" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="293084" onclick="focusFestival(36.1563534107, 127.7865136910); closeTodayPanel();"><span class="today-region">충북</span><strong>영동난계국악축제</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.18</span><span class="today-addr">📍 충청북도 영동군 영동읍 영동힐링로 117</span><p class="today-desc">영동군의 문화유산이자 전통문화예술인 국악을 주제로 하여 난계 박연선생의 음악적 업적을 기리고 전통문화예술 진흥에 기여하기 매년 개최되고 있는 문화예술 공연 축제이다. 제57회 영동난계국악축제는 2025 영동세계국악엑스포의 성과를 계승하여 국악이라는 대한민국 유산을 전세계적으로 홍보하고…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/293084.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%98%81%EB%8F%99%EB%82%9C%EA%B3%84%EA%B5%AD%EC%95%85%EC%B6%95%EC%A0%9C,36.1563534107,127.7865136910" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="506376" onclick="focusFestival(36.1575562492, 127.0098062990); closeTodayPanel();"><span class="today-region">충남</span><strong>강경젓갈축제</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.18</span><span class="today-addr">📍 충청남도 논산시 강경읍 황산리 198</span><p class="today-desc">2026 제30회 강경젓갈축제는 강경의 역사와 문화, 젓갈을 비롯한 지역 특산물을 주제로 개최되는 지역 대표 축제이다. 2026년 10월 15일부터 10월 18일까지 4일간 논산시 강경읍 금강 둔치 일원에서 열리는 행사다. 올해 축제의 주제는 ‘강경젓갈·상월고구마, 드디어 최고가 되다!…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/506376.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B0%95%EA%B2%BD%EC%A0%93%EA%B0%88%EC%B6%95%EC%A0%9C,36.1575562492,127.0098062990" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="638241" onclick="focusFestival(35.3687554717, 127.1123214189); closeTodayPanel();"><span class="today-region">전북</span><strong>순창장류축제</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.18</span><span class="today-addr">📍 전북특별자치도 순창군 순창읍 장류로 55</span><p class="today-desc">순창장류축제는 전통 장류의 고장 순창에서 고추장·된장·간장 등 우리나라 장류문화와 발효식품의 가치를 직접 체험할 수 있는 음식문화축제이다. 2026년 제21회를 맞아 ‘세계인의 입맛, 순창에 담다’를 주제로 10월 15일부터 18일까지 순창전통고추장민속마을과 순창발효테마파크 일원에서 열…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/638241.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%88%9C%EC%B0%BD%EC%9E%A5%EB%A5%98%EC%B6%95%EC%A0%9C,35.3687554717,127.1123214189" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2561700" onclick="focusFestival(35.1384947137, 126.8287603579); closeTodayPanel();"><span class="today-region">전남</span><strong>광주서창억새축제</strong><span class="today-date">📅 2026.10.15 ~ 2026.10.18</span><span class="today-addr">📍 전남광주통합특별시 서구 서창둑길 377 (벽진동)</span><p class="today-desc">남도대표 자연 힐링축제인 광주서창억새축제는 영산강 일원에서 자연 억새와 어우러진 다양한 문화예술공연과 체험행사, 선셋런, 이색적인 포토존 등의 프로그램이 운영된다. 서구 8경 중 하나인 서창들녘 노을과 억새길을 걸으며 남도 유일 도심속 자연축제를 만날 수 있다. 이번 축제는 선율이 흐르…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2561700.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B4%91%EC%A3%BC%EC%84%9C%EC%B0%BD%EC%96%B5%EC%83%88%EC%B6%95%EC%A0%9C,35.1384947137,126.8287603579" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4119230" onclick="focusFestival(36.0294710365, 129.3732768860); closeTodayPanel();"><span class="today-region">경북</span><strong>포항 낙화의 밤</strong><span class="today-date">📅 2026.10.09 ~ 2026.10.17</span><span class="today-addr">📍 경상북도 포항시 남구 축항로 45 (해도동)</span><p class="today-desc">선선한 가을밤, 포항운하 물길 위로 은은한 불빛이 내린다. 낙화놀이는 숯가루를 한지에 감싸 천천히 태우는 우리 전통 불꽃놀이다. 화약을 쓰지 않아 폭죽처럼 터지지 않고, 운하를 가로지른 낙화 줄을 따라 불빛이 서서히 번진다. 75미터 낙화줄을 두 개 사선으로 설치하여 운하의 밤과 수면을…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4119230.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%ED%8F%AC%ED%95%AD%20%EB%82%99%ED%99%94%EC%9D%98%20%EB%B0%A4,36.0294710365,129.3732768860" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="506926" onclick="focusFestival(35.1904937892, 128.0800831631); closeTodayPanel();"><span class="today-region">경남</span><strong>진주남강유등축제</strong><span class="today-date">📅 2026.10.03 ~ 2026.10.18</span><span class="today-addr">📍 경상남도 진주시 남강로 626 (본성동)</span><p class="today-desc">유등(流燈)은 임진왜란 3대첩 중 하나인 진주성 전투 당시, 성 밖의 의병들과 연락을 주고받는 군사적 신호이자 가족 간 안부를 전하는 통신 수단으로 남강에 등불을 띄운 데서 유래되었다. 진주 시민들은 이러한 전통을 계승하여, 1949년부터 개최된 우리나라 지방종합예술제의 효시인 ‘개천예…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/506926.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%A7%84%EC%A3%BC%EB%82%A8%EA%B0%95%EC%9C%A0%EB%93%B1%EC%B6%95%EC%A0%9C,35.1904937892,128.0800831631" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3512205" onclick="focusFestival(33.24708081676599, 126.56445889201075); closeTodayPanel();"><span class="today-region">제주</span><strong>2026 서귀포 원도심 문화페스티벌</strong><span class="today-date">📅 2026.04.11 ~ 2026.10.30</span><span class="today-addr">📍 제주특별자치도 서귀포시 이중섭로 11 (서귀동)</span><p class="today-desc">2026 서귀포 원도심 문화페스티벌’은 서귀포 이중섭로에서 펼쳐지는 야간 문화공연이다. 화려한 조명 아래 음악, 댄스, 퍼포먼스 등 다양한 장르의 공연이 관객들들에게 다양한 볼거리를 제공한다. 일상에서 벗어나 예술과 여유가 어우러진 특별한 추억을 남기고 싶은 이들에게 적극 추천하는 행사…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3512205.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%84%9C%EA%B7%80%ED%8F%AC%20%EC%9B%90%EB%8F%84%EC%8B%AC%20%EB%AC%B8%ED%99%94%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,33.24708081676599,126.56445889201075" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li>
+<li class="today-item" data-cid="2756396" onclick="focusFestival(37.5650549194, 126.9765746344); closeTodayPanel();"><span class="today-region">서울</span><strong>덕수궁 밤의 석조전</strong><span class="today-date">📅 2026.09.09 ~ 2026.10.18</span><span class="today-addr">📍 서울특별시 중구 세종대로 99 (정동)</span><p class="today-desc">[덕수궁 밤의 석조전]은 전문 해설사와 함께하는 &#x27;석조전 야간 탐방&#x27;과 클래식 연주를 들으며 고종이 사랑했던 가배차(커피)와 디저트를 즐기는 &#x27;테라스 카페 체험&#x27;, 대한제국 황실의 이야기를 담은 뮤지컬 공연 관람으로 구성되어 있는 덕수궁 야간 관람 프…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2756396.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%8D%95%EC%88%98%EA%B6%81%20%EB%B0%A4%EC%9D%98%20%EC%84%9D%EC%A1%B0%EC%A0%84,37.5650549194,126.9765746344" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4109305" onclick="focusFestival(35.1655426683, 129.0558397915); closeTodayPanel();"><span class="today-region">부산</span><strong>달밤에체조 부산 챌린지</strong><span class="today-date">📅 2026.09.19 ~ 2026.11.07</span><span class="today-addr">📍 부산광역시 부산진구 시민공원로 73 (범전동)</span><p class="today-desc">달밤에체조 부산 챌린지는 운동에 익숙하지 않거나 평소 운동에 관심이 적은 시민도 쉽고 즐겁게 생활체육 활동에 참여할 수 있도록 유도하여 시민의 생활체육 참여 확대와 건강증진, 활기찬 야간 여가문화 조성을 목적으로 하는 부산 특화형 생활체육 프로그램이다. 부산광역시가 주최·주관하여 운영하…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4109305.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%8B%AC%EB%B0%A4%EC%97%90%EC%B2%B4%EC%A1%B0%20%EB%B6%80%EC%82%B0%20%EC%B1%8C%EB%A6%B0%EC%A7%80,35.1655426683,129.0558397915" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3492276" onclick="focusFestival(37.476334, 126.632619); closeTodayPanel();"><span class="today-region">인천</span><strong>2026 문화가 있는 날</strong><span class="today-date">📅 2026.04.01 ~ 2026.11.29</span><span class="today-addr">📍 인천광역시 제물포구 송현동</span><p class="today-desc">청춘마이크 수도·강원권은 다양한 관객의 취향을 추적하며 방방곡곡을 누빈다. 문화가 있는 날 청년·실버 공연팀이 만들어내는 특별한 거리공연이 수도·강원권 전역을 무대로 펼쳐진다. 지금 이 순간 무대에 서고 싶은 마음이 모여 하나가 되는 청춘의 무대, &#x27;I.M 청춘마이크&#x27;…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3492276.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EB%AC%B8%ED%99%94%EA%B0%80%20%EC%9E%88%EB%8A%94%20%EB%82%A0,37.476334,126.632619" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4110051" onclick="focusFestival(37.4789871959, 127.1800243535); closeTodayPanel();"><span class="today-region">광주</span><strong>숲속의 산성도시 - 남한산성 가을 페스타</strong><span class="today-date">📅 2026.09.05 ~ 2026.10.25</span><span class="today-addr">📍 경기도 광주시 남한산성면 산성리 산23</span><p class="today-desc">2026 숲속의 산성도시-남한산성 가을 페스타 프로그램은 세계유산의 가치를 시민과 함께 향유하는 체험프로그램으로, 남한산성 일원에서 펼쳐진다. 산성 곳곳에서 남한산성이 품은 역사적 가치와 아름다움을 되새길 수 있으며, 체험·공연·투어 등 다양한 프로그램이 마련된다. 산성의 역사와 전통을…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4110051.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%88%B2%EC%86%8D%EC%9D%98%20%EC%82%B0%EC%84%B1%EB%8F%84%EC%8B%9C%20-%20%EB%82%A8%ED%95%9C%EC%82%B0%EC%84%B1%20%EA%B0%80%EC%9D%84%20%ED%8E%98%EC%8A%A4%ED%83%80,37.4789871959,127.1800243535" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4106719" onclick="focusFestival(36.3266036648, 127.3515672497); closeTodayPanel();"><span class="today-region">대전</span><strong>2026 달빛 음악공감</strong><span class="today-date">📅 2026.09.11 ~ 2026.10.17</span><span class="today-addr">📍 대전광역시 서구 도안동로 246 (도안동)</span><p class="today-desc">2026 「달빛 음악공감」은 9월부터 10월까지 대전 5개 자치구의 공원과 천변 등 일상 가까운 공간에서 가을밤의 음악을 즐길 수 있도록 마련된 문화예술 공연이다. 시민 누구나 자유롭게 관람할 수 있는 개방형 공연으로 자치구별 1회씩 총 5회 진행된다. 선선한 가을밤을 배경으로 펼쳐지는…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4106719.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EB%8B%AC%EB%B9%9B%20%EC%9D%8C%EC%95%85%EA%B3%B5%EA%B0%90,36.3266036648,127.3515672497" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4109998" onclick="focusFestival(35.4808952614, 129.4326515987); closeTodayPanel();"><span class="today-region">울산</span><strong>2026 울산야외도서관 소풍</strong><span class="today-date">📅 2026.09.19 ~ 2026.10.18</span><span class="today-addr">📍 울산광역시 동구 성끝길 103 (방어동)</span><p class="today-desc">2026 울산 야외도서관 &#x27;소풍&#x27;은 바다를 바라보며 책을 읽는 야외 독서 문화 행사이다. 본 행사는 울산광역시가 주최하며, 울산 동구 방어동 슬도 내 슬도아트 일원에서 개최된다. 행사명 &#x27;소풍&#x27;은 슬도에서 펼쳐지는 슬기로운 독서를 의미하는 &#x27;…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4109998.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%9A%B8%EC%82%B0%EC%95%BC%EC%99%B8%EB%8F%84%EC%84%9C%EA%B4%80%20%EC%86%8C%ED%92%8D,35.4808952614,129.4326515987" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2756396" onclick="focusFestival(37.5650549194, 126.9765746344); closeTodayPanel();"><span class="today-region">세종</span><strong>덕수궁 밤의 석조전</strong><span class="today-date">📅 2026.09.09 ~ 2026.10.18</span><span class="today-addr">📍 서울특별시 중구 세종대로 99 (정동)</span><p class="today-desc">[덕수궁 밤의 석조전]은 전문 해설사와 함께하는 &#x27;석조전 야간 탐방&#x27;과 클래식 연주를 들으며 고종이 사랑했던 가배차(커피)와 디저트를 즐기는 &#x27;테라스 카페 체험&#x27;, 대한제국 황실의 이야기를 담은 뮤지컬 공연 관람으로 구성되어 있는 덕수궁 야간 관람 프…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2756396.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%8D%95%EC%88%98%EA%B6%81%20%EB%B0%A4%EC%9D%98%20%EC%84%9D%EC%A1%B0%EC%A0%84,37.5650549194,126.9765746344" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3113045" onclick="focusFestival(37.7085879207, 126.6872037130); closeTodayPanel();"><span class="today-region">경기</span><strong>파주페어 북앤컬처</strong><span class="today-date">📅 2026.10.09 ~ 2026.10.18</span><span class="today-addr">📍 경기도 파주시 회동길 145 (문발동)</span><p class="today-desc">파주페어 북앤컬처는 주요 출판사, 작가와 독자, 서점이 한 자리에 모여 책을 단순히 읽는 대상에 그치지 않고 새로운 시각에서 들여다보고 즐길 수 있는 특별한 장을 제공한다. 책이라는 원천 콘텐츠에서 발현되는 공연, 전시, 체험 등 다채로운 문화예술 창작 작품을 시민들에게 선보이며 독서…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3113045.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%ED%8C%8C%EC%A3%BC%ED%8E%98%EC%96%B4%20%EB%B6%81%EC%95%A4%EC%BB%AC%EC%B2%98,37.7085879207,126.6872037130" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2618014" onclick="focusFestival(38.1858390000, 128.3096920000); closeTodayPanel();"><span class="today-region">강원</span><strong>인제가을꽃축제</strong><span class="today-date">📅 2026.09.24 ~ 2026.10.18</span><span class="today-addr">📍 강원특별자치도 인제군 북면 용대리</span><p class="today-desc">2026 인제가을꽃축제는 한국 모더니즘 시의 대표 주자인 박인환 시인 탄생 100주년을 기념하여, 문학적 감성과 화려한 가을꽃이 어우러진 차별화된 정원을 연출해 특별함을 더했다. 시인의 낭만을 현대적으로 재해석한 공간에서 다채로운 가을꽃을 감상하며 문학적 여운을 함께 느낄 수 있는 것이…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2618014.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%9D%B8%EC%A0%9C%EA%B0%80%EC%9D%84%EA%BD%83%EC%B6%95%EC%A0%9C,38.1858390000,128.3096920000" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4117505" onclick="focusFestival(36.6330946217, 127.4897577706); closeTodayPanel();"><span class="today-region">충북</span><strong>국가유산 미디어아트 청주</strong><span class="today-date">📅 2026.10.03 ~ 2026.10.24</span><span class="today-addr">📍 충청북도 청주시 상당구 남문로2가 48-19</span><p class="today-desc">〈2026 국가유산 미디어아트 청주 용두사지 철당간 등〉은 청주 원도심 일원의 문화유산(용두사지 철당간, 망선루, 압각수, 충청도병마절도사영문)의 역사적 가치를 미디어아트로 표현한 야간 문화 행사이다. 행사 주제는 &#x27;빛으로 여는 청주의 보물&#x27;이며 청주의 옛 지형적 특성…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4117505.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B5%AD%EA%B0%80%EC%9C%A0%EC%82%B0%20%EB%AF%B8%EB%94%94%EC%96%B4%EC%95%84%ED%8A%B8%20%EC%B2%AD%EC%A3%BC,36.6330946217,127.4897577706" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="140911" onclick="focusFestival(36.5388309018, 126.4722831164); closeTodayPanel();"><span class="today-region">충남</span><strong>홍성남당항 대하축제</strong><span class="today-date">📅 2026.09.04 ~ 2026.11.08</span><span class="today-addr">📍 충청남도 홍성군 서부면 남당항로213번길 1-1</span><p class="today-desc">제31회 홍성남당항 대하축제는 천수만의 청정한 바다와 싱싱한 제철 대하를 만날 수 있는 홍성의 대표적인 가을 먹거리 축제이다. 서해안 대표 미식 관광지인 남당항에서 열리는 이번 축제에서는 제철을 맞아 살이 통통하게 오른 대하를 맛볼 수 있으며, 남당항의 아름다운 바다 풍경과 함께 다양한…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/140911.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%ED%99%8D%EC%84%B1%EB%82%A8%EB%8B%B9%ED%95%AD%20%EB%8C%80%ED%95%98%EC%B6%95%EC%A0%9C,36.5388309018,126.4722831164" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2547013" onclick="focusFestival(35.814171786262136, 127.15002124718735); closeTodayPanel();"><span class="today-region">전북</span><strong>전주한옥마을 전통연희 퍼레이드-노상놀이야</strong><span class="today-date">📅 2026.04.18 ~ 2026.10.31</span><span class="today-addr">📍 전북특별자치도 전주시 완산구 태조로 44 (풍남동3가)</span><p class="today-desc">거리에서 만나는 뜻밖의 전주민속. 전주의 상징인 전주기접놀이의 화려한 용깃발 퍼포먼스와 풍물놀이가 한가득 넘치는 공연이다. 해학 넘치는 단편 마당놀이, 거대한 용깃발 전주기접놀이 퍼포먼스 풍물연희와 전통기예를 한껏 보고 즐길 수 있다. 그리고 현장에서 전주 구전 노동요인 &#x27;만두…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2547013.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%A0%84%EC%A3%BC%ED%95%9C%EC%98%A5%EB%A7%88%EC%9D%84%20%EC%A0%84%ED%86%B5%EC%97%B0%ED%9D%AC%20%ED%8D%BC%EB%A0%88%EC%9D%B4%EB%93%9C-%EB%85%B8%EC%83%81%EB%86%80%EC%9D%B4%EC%95%BC,35.814171786262136,127.15002124718735" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4089090" onclick="focusFestival(35.1896608044, 126.8839435426); closeTodayPanel();"><span class="today-region">전남</span><strong>〈도기陶器, 우리를 담은 질그릇〉</strong><span class="today-date">📅 2026.07.29 ~ 2026.10.25</span><span class="today-addr">📍 전남광주통합특별시 북구 하서로 110 (매곡동)</span><p class="today-desc">〈도기陶器, 우리를 담은 질그릇〉은 올해 7월 국립광주박물관에서 개최하는 특별전시이다. 우리네 일상 생활 속 가장 가까이, 오랜 세월 함께해 온 도기를 다시 들여다보며 실용성과 미감, 그리고 그 전통이 이어져 온 도기에 담긴 이야기를 만나볼 수 있다. 이번 전시에서는 완도 장도 청해진…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4089090.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%E3%80%88%EB%8F%84%EA%B8%B0%E9%99%B6%E5%99%A8%2C%20%EC%9A%B0%EB%A6%AC%EB%A5%BC%20%EB%8B%B4%EC%9D%80%20%EC%A7%88%EA%B7%B8%EB%A6%87%E3%80%89,35.1896608044,126.8839435426" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4119230" onclick="focusFestival(36.0294710365, 129.3732768860); closeTodayPanel();"><span class="today-region">경북</span><strong>포항 낙화의 밤</strong><span class="today-date">📅 2026.10.09 ~ 2026.10.17</span><span class="today-addr">📍 경상북도 포항시 남구 축항로 45 (해도동)</span><p class="today-desc">선선한 가을밤, 포항운하 물길 위로 은은한 불빛이 내린다. 낙화놀이는 숯가루를 한지에 감싸 천천히 태우는 우리 전통 불꽃놀이다. 화약을 쓰지 않아 폭죽처럼 터지지 않고, 운하를 가로지른 낙화 줄을 따라 불빛이 서서히 번진다. 75미터 낙화줄을 두 개 사선으로 설치하여 운하의 밤과 수면을…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4119230.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%ED%8F%AC%ED%95%AD%20%EB%82%99%ED%99%94%EC%9D%98%20%EB%B0%A4,36.0294710365,129.3732768860" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="506926" onclick="focusFestival(35.1904937892, 128.0800831631); closeTodayPanel();"><span class="today-region">경남</span><strong>진주남강유등축제</strong><span class="today-date">📅 2026.10.03 ~ 2026.10.18</span><span class="today-addr">📍 경상남도 진주시 남강로 626 (본성동)</span><p class="today-desc">유등(流燈)은 임진왜란 3대첩 중 하나인 진주성 전투 당시, 성 밖의 의병들과 연락을 주고받는 군사적 신호이자 가족 간 안부를 전하는 통신 수단으로 남강에 등불을 띄운 데서 유래되었다. 진주 시민들은 이러한 전통을 계승하여, 1949년부터 개최된 우리나라 지방종합예술제의 효시인 ‘개천예…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/506926.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%A7%84%EC%A3%BC%EB%82%A8%EA%B0%95%EC%9C%A0%EB%93%B1%EC%B6%95%EC%A0%9C,35.1904937892,128.0800831631" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3512205" onclick="focusFestival(33.24708081676599, 126.56445889201075); closeTodayPanel();"><span class="today-region">제주</span><strong>2026 서귀포 원도심 문화페스티벌</strong><span class="today-date">📅 2026.04.11 ~ 2026.10.30</span><span class="today-addr">📍 제주특별자치도 서귀포시 이중섭로 11 (서귀동)</span><p class="today-desc">2026 서귀포 원도심 문화페스티벌’은 서귀포 이중섭로에서 펼쳐지는 야간 문화공연이다. 화려한 조명 아래 음악, 댄스, 퍼포먼스 등 다양한 장르의 공연이 관객들들에게 다양한 볼거리를 제공한다. 일상에서 벗어나 예술과 여유가 어우러진 특별한 추억을 남기고 싶은 이들에게 적극 추천하는 행사…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3512205.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%84%9C%EA%B7%80%ED%8F%AC%20%EC%9B%90%EB%8F%84%EC%8B%AC%20%EB%AC%B8%ED%99%94%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,33.24708081676599,126.56445889201075" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li>
 <!-- TODAY_FESTIVALS_END -->
         </ul>
         <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.6">
@@ -404,13 +387,6 @@
                 <option value="gyeongnam">경상남도</option>
                 <option value="jeju">제주특별자치도</option>
             </select>
-            <!-- [ADD] 시/군/구 세분화: 특정 시/도를 고르면 그 아래에 나타나는 2단계
-                 하위지역 선택. 기본은 숨김(display:none) — "전국 전체보기"거나 아직
-                 데이터가 없을 때는 보일 필요가 없다. populateSubRegionSelect()가
-                 시/도를 고를 때마다 옵션을 다시 채우고 보이기/숨기기를 함께 처리한다. -->
-            <div id="subRegionSelectWrap" style="display:none; margin-top:8px;">
-                <select id="subRegionSelect" class="region-select sub-region-select" onchange="filterSubRegion(this.value)"></select>
-            </div>
         </div>
 
         <div id="map"></div>
@@ -615,11 +591,6 @@
     // 현재 선택된 지역(전국 전체 / 특정 지역)을 기억해뒀다가, 창 크기가 바뀔 때도
     // 같은 범위를 다시 화면에 딱 맞게 잡아주기 위해 사용한다.
     let currentRegionKey = 'all';
-    // [ADD] 시/군/구 세분화: 선택된 시/도(currentRegionKey) 안에서 더 좁힌 하위지역.
-    // ''(빈 문자열)은 "그 시/도 전체"를 뜻하고, currentRegionKey가 'all'로 바뀌면
-    // (filterRegion에서) 항상 ''로 함께 리셋된다 — 전국 보기에선 하위지역 select 자체가
-    // 숨겨지므로 값이 남아있어도 쓰이지 않지만, 혼선을 막기 위해 명시적으로 비운다.
-    let currentSubRegion = '';
 
     // 테마는 축제 "제목"에 특정 키워드가 있는지로 판정한다(주소 기반 지역 분류와 같은 방식).
     // 지도 마커는 지역으로만 거르고, 이 테마/기간 필터는 "오늘 축제가 열리는 곳" 패널에만 적용한다.
@@ -817,14 +788,7 @@
             };
         });
         festivalData = festivals.concat(kidsTagged).concat(adsTagged);
-        // [ADD] 2026-10-14: 메인 사이트 검색("부산 추천해줘" 등)처럼 외부에서
-        // "?region=busan&course=1" 같은 쿼리 파라미터로 바로 들어오는 경우, 그 지역(및
-        // 코스 모드)을 자동으로 선택된 상태로 보여준다 — applyInitialRegionFromUrl()
-        // 내부에서 이미 renderMainPanel()까지 호출하므로, 적용됐으면(true) 아래 기본
-        // renderMainPanel()은 생략한다.
-        if (!applyInitialRegionFromUrl()) {
-            renderMainPanel();
-        }
+        renderMainPanel();
     });
 
     // [성능] 필터를 바꿀 때마다 마커를 전부 새로 만들면(생성 + 이벤트 등록), 데이터가
@@ -1201,16 +1165,11 @@
     }
 
     // 특정 지역 선택: 그 지역의(이미 기간/테마로 걸러진) 축제를 마감임박순으로 최대 5개
-    // [ADD] subRegion(시/군/구)이 주어지면, 그 시/도 안에서도 extractSubRegion()이 뽑아낸
-    // 하위지역 토큰이 정확히 일치하는 항목으로 한 번 더 좁힌다. ''(전체)이면 기존과 동일.
-    function pickRegionList(list, key, subRegion) {
+    function pickRegionList(list, key) {
         const kws = REGION_KEYWORDS[key] || [];
-        let inRegion = list.filter(function (item) {
+        const inRegion = list.filter(function (item) {
             return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
         });
-        if (subRegion) {
-            inRegion = inRegion.filter(function (item) { return extractSubRegion(item.addr) === subRegion; });
-        }
         inRegion.sort(compareByUrgency);
         return inRegion.slice(0, 5);
     }
@@ -1305,10 +1264,6 @@
             if (key !== 'all') {
                 const keywords = REGION_KEYWORDS[key] || [];
                 regionScoped = regionScoped.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
-                // [ADD] 시/군/구까지 고른 상태라면 테마 선택 시에도 그 하위지역으로 좁힌다.
-                if (currentSubRegion) {
-                    regionScoped = regionScoped.filter(item => extractSubRegion(item.addr) === currentSubRegion);
-                }
             } else {
                 showRegionTag = true;
             }
@@ -1332,7 +1287,7 @@
                 items = periodFiltered.filter(item => !isThemeGatedType(item.type)).slice().sort(compareByUrgency).slice(0, 5);
             }
         } else {
-            items = pickRegionList(periodFiltered.filter(item => !isThemeGatedType(item.type)), key, currentSubRegion);
+            items = pickRegionList(periodFiltered.filter(item => !isThemeGatedType(item.type)), key);
         }
 
         if (items.length === 0) {
@@ -1372,11 +1327,6 @@
 
     const MIN_COURSE_PLACES = 3; // 이보다 적게 모이면 "코스"라 부르기엔 부실해서 제외
     const MAX_COURSE_PLACES = 4; // 하루 코스로 보기 좋은 상한
-    // [ADD] 2026-10-14: 코스 "카드" 자체의 개수 상한 — "전국 전체보기"처럼 지역을
-    // 좁히지 않은 상태에서는 전국의 모든 시/군/구 코스가 다 모여 목록이 한없이 길어질
-    // 수 있다. "공공데이터를 긁어 나열한 것"이 아니라 "엄선해서 추천한 것"처럼 보이게
-    // 하자는 기존 방향(아래 courses.sort 주석 참고)에 맞춰, 정렬 후 상위 4개만 보여준다.
-    const MAX_COURSES_SHOWN = 4;
 
     // [ADD] 2026-10-10: kids_places.json(상시 장소) + 축제(기간 한정)를 계절로 묶어서
     // 코스에 함께 보여준다 — "지금 이 계절에 이 동네에서 열리는 축제 + 근처 아이랑 갈만한
@@ -1467,12 +1417,6 @@
             pool = pool.filter(function (item) {
                 return item.addr && kws.some(function (kw) { return item.addr.includes(kw); });
             });
-            // [ADD] 시/군/구까지 고른 상태면("서울 > 강남구" 등) 코스도 그 하위지역
-            // 안에서만 묶는다. 묶을 장소가 모자라면(MIN_COURSE_PLACES 미만) 기존처럼
-            // "코스로 묶을 만큼 장소가 모이지 않았다" 빈 상태가 그대로 뜬다.
-            if (currentSubRegion) {
-                pool = pool.filter(function (item) { return extractSubRegion(item.addr) === currentSubRegion; });
-            }
         }
         const groups = new Map(); // "광역지역키|소지역" -> { label, items[], hasFestival }
         pool.forEach(function (item) {
@@ -1539,10 +1483,7 @@
             if (a.hasFestival !== b.hasFestival) return a.hasFestival ? -1 : 1;
             return b.total - a.total;
         });
-        // [ADD] 2026-10-14: 정렬 기준(축제 포함 우선 → 장소 많은 순)이 이미 "가장 추천할
-        // 만한 코스"를 앞에 두므로, 그중 상위 MAX_COURSES_SHOWN(4)개만 잘라서 보여준다.
-        // 그 지역에 코스가 4개가 안 모이면(흔한 경우) 있는 만큼만 그대로 보여준다.
-        return courses.slice(0, MAX_COURSES_SHOWN);
+        return courses;
     }
 
     // [ADD] 2026-10-11: 코스 안 장소 순번(1,2,3,4)을 그냥 번호로 보여주면 "장소를
@@ -1563,15 +1504,12 @@
 
     function buildCourseCardHtml(course, idx) {
         const placesHtml = course.items.map(function (item, i) {
+            const lat = item.lat || '';
+            const lng = item.lng || '';
             // 축제는 🎪, 아이랑 상시 장소는 🧒로 구분해서 한눈에 "이번 계절 한정"인지
             // "언제 가도 되는 곳"인지 알 수 있게 한다.
             const icon = item.type === 'kids' ? '🧒' : '🎪';
-            // [FIX] 2026-10-14: 예전엔 focusFestivalItem()을 그대로 써서, 코스 안 장소
-            // 하나를 누르면 그 장소 하나로 바짝 확대(zoom level 6)되어 같은 코스의 나머지
-            // 핀들이 화면 밖으로 밀려나는 문제가 있었다("하나 눌렀더니 핀이 1개만 보임").
-            // focusCourseItem()으로 바꿔서, 장소를 하나 눌러도 그 코스에 속한 핀 전부를
-            // 먼저 지도에 펼쳐 보여주고, 그 중 누른 장소의 상세카드만 열어준다.
-            const li = '<li class="course-place-item" onclick="focusCourseItem(' + idx + ', ' + i + '); closeTodayPanel();">'
+            const li = '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
                 + '<span class="course-place-num">' + getTimeSlotLabel(i, course.items.length) + '</span>'
                 + '<span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>'
                 + '</li>';
@@ -1595,13 +1533,8 @@
         const seasonBadge = course.hasFestival
             ? '<span class="today-date">' + escapeHtml(SEASON_LABELS[getCurrentSeason()]) + ' 축제 포함 · ' + course.items.length + '곳' + distanceNote + '</span>'
             : '<span class="today-date">🧒 상시 이용 가능 · ' + course.items.length + '곳' + distanceNote + '</span>';
-        // [ADD] 2026-10-14: 코스 이름(제목) 자체를 눌러도 "지도에서 전체보기"와 똑같이
-        // 그 코스의 핀 전부를 지도에 보여주도록 했다("코스 이름 선택시 나오게 해달라"는
-        // 요청 반영). <strong>은 <ol class="course-place-list">·"지도에서 전체보기" 링크와
-        // 형제(sibling) 관계라, 제목에 onclick을 달아도 장소 하나하나를 클릭했을 때의
-        // 동작(focusCourseItem)이나 기존 링크 클릭과 서로 간섭하지 않는다.
         return '<li class="today-item course-card">'
-            + '<strong class="course-card-title" onclick="showCourseOnMap(' + idx + ')" title="지도에서 이 코스 보기">📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
+            + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
             + seasonBadge
             + '<ol class="course-place-list">' + placesHtml + '</ol>'
             + '<div style="display:flex; gap:12px; margin-top:6px;">'
@@ -1650,22 +1583,6 @@
         closeTodayPanel();
     }
 
-    // [ADD] 2026-10-14: 코스 카드 안의 장소를 하나 클릭했을 때 — "지도에서 전체보기"와
-    // 똑같이 그 코스에 속한 핀 전부를 먼저 지도에 펼쳐 보여준 다음, 그중 누른 장소의
-    // 하단 상세카드만 열어준다. (이전엔 focusFestivalItem()을 그대로 써서 누른 장소
-    // 하나로 바짝 확대되는 바람에, 같은 코스의 나머지 핀이 화면 밖으로 밀려나
-    // "코스에 몇 곳이 있는지" 한눈에 안 보이는 문제가 있었다.)
-    function focusCourseItem(courseIdx, itemIdx) {
-        const course = currentCourses[courseIdx];
-        if (!course) return;
-        const item = course.items[itemIdx];
-        if (!item) return;
-        closeFestivalCard();
-        renderMarkers(course.allItems || course.items);
-        fitToMarkers(allMarkers);
-        showFestivalCardSingle(item);
-    }
-
     // 코스 모드 on/off — 패널 상단 버튼에서 호출된다. 켜면 기간 탭/검색 UI는 코스 모드와
     // 무관해서 숨기고(아이랑 장소는 상시 개방이라 기간 개념이 없음), 지역 선택(위/아래
     // select)은 코스 모드에서도 그대로 써서 "이 지역 코스만 보기"로 재사용한다.
@@ -1675,7 +1592,7 @@
         if (btn) {
             btn.textContent = courseModeActive
                 ? '📋 전체 목록으로 돌아가기'
-                : ('🗺️ 지금(' + SEASON_LABELS[getCurrentSeason()] + ') 추천 코스 보기');
+                : '🗺️ 아이랑 나들이 추천 코스';
             btn.classList.toggle('active', courseModeActive);
         }
         const periodRow = document.getElementById('periodBtnRow');
@@ -1689,11 +1606,13 @@
         }
     }
 
-    // 페이지를 처음 열었을 때도(아직 버튼을 누르기 전) 버튼에 지금 계절이 바로 보이도록
-    // 정적 HTML의 기본 문구("🗺️ 지역별 추천 코스 보기")를 한 번 덮어쓴다.
+    // [FIX] 2026-10-15: "지금(가을 🍁) 추천 코스 보기"처럼 괄호+이모지가 문장 중간에
+    // 끼어 읽기 거슬린다는 피드백으로, 계절을 넣지 않는 고정 문구로 바꿨다. 정적
+    // HTML의 기본 문구와도 이제 동일해서 이 초기화 자체가 사실상 불필요해졌지만,
+    // 혹시 모를 불일치를 막기 위해 그대로 한 번 더 맞춰준다.
     (function initCourseModeButtonLabel() {
         const btn = document.getElementById('courseModeBtn');
-        if (btn) btn.textContent = '🗺️ 지금(' + SEASON_LABELS[getCurrentSeason()] + ') 추천 코스 보기';
+        if (btn) btn.textContent = '🗺️ 아이랑 나들이 추천 코스';
     })();
 
     function setPeriod(period) {
@@ -1802,97 +1721,15 @@
         if (key !== 'all') {
             const keywords = REGION_KEYWORDS[key] || [];
             filtered = filtered.filter(item => keywords.some(kw => item.addr && item.addr.includes(kw)));
-            // [ADD] 시/군/구까지 고른 상태면 지도 마커도 그 하위지역만 보여준다.
-            if (currentSubRegion) {
-                filtered = filtered.filter(item => extractSubRegion(item.addr) === currentSubRegion);
-            }
         }
         filtered = filtered.filter(item => matchesTheme(item, currentThemes));
         renderMarkers(filtered);
         if (key === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
     }
 
-    // ── 시/군/구 세분화 (2단계 지역 드롭다운) ──────────────────────────
-    // extractSubRegion()은 이미 "지역별 추천 코스"가 addr 문자열에서 시/군/구 토큰을
-    // 뽑아내는 데 쓰고 있던 헬퍼라, 데이터를 다시 입력하지 않고도 그대로 재사용할 수
-    // 있다. 여기서는 그 토큰들을 모아 드롭다운 옵션으로 보여주고, 고른 값을
-    // currentSubRegion에 저장해 마커/목록/코스 필터에 추가로 적용한다.
-    function populateSubRegionSelect(provinceKey) {
-        const floatingSel = document.getElementById('subRegionSelect');
-        const panelSel = document.getElementById('subRegionSelectPanel');
-        const floatingWrap = document.getElementById('subRegionSelectWrap');
-        const panelWrap = document.getElementById('subRegionSelectPanelWrap');
-        // "전국 전체보기"거나, 아직 festivalData가 로딩되지 않았으면 하위지역을 뽑을 수
-        // 없으니 숨긴다(초기 로딩 중 select onchange가 먼저 불릴 일은 없지만, 방어적으로 둠).
-        if (provinceKey === 'all' || !festivalData.length) {
-            if (floatingWrap) floatingWrap.style.display = 'none';
-            if (panelWrap) panelWrap.style.display = 'none';
-            if (floatingSel) floatingSel.innerHTML = '';
-            if (panelSel) panelSel.innerHTML = '';
-            return;
-        }
-        const keywords = REGION_KEYWORDS[provinceKey] || [];
-        const inProvince = festivalData.filter(function (item) {
-            return item.addr && keywords.some(function (kw) { return item.addr.includes(kw); });
-        });
-        const subNamesSet = new Set();
-        inProvince.forEach(function (item) {
-            const sub = extractSubRegion(item.addr);
-            // extractSubRegion은 "시/군/구"로 끝나는 토큰이 없으면(세종처럼 addr에 하위
-            // 행정구역 표기가 없는 경우) addr의 첫 토큰(보통 "세종특별자치시"처럼 시/도
-            // 이름 자체)을 그대로 돌려준다 — 이건 "하위지역"이 아니므로 /[시군구]$/로
-            // 한 번 더 걸러낸다. 다만 "세종특별자치시"도 끝 글자가 "시"라 /[시군구]$/만
-            // 쓰면 걸러지지 않으므로, extractSubRegion 안에서 광역 단위를 건너뛸 때 쓰는
-            // 것과 같은 (특별시|광역시|특별자치시|특별자치도)$ 패턴을 함께 적용해 제외한다.
-            if (sub && /[시군구]$/.test(sub) && !/(특별시|광역시|특별자치시|특별자치도)$/.test(sub)) {
-                subNamesSet.add(sub);
-            }
-        });
-        if (subNamesSet.size === 0) {
-            // 세종처럼 하위지역을 나눌 수 없는 시/도는 드롭다운 자체를 보여주지 않는다
-            // (옵션이 "전체" 하나뿐인 드롭다운은 의미가 없다).
-            if (floatingWrap) floatingWrap.style.display = 'none';
-            if (panelWrap) panelWrap.style.display = 'none';
-            if (floatingSel) floatingSel.innerHTML = '';
-            if (panelSel) panelSel.innerHTML = '';
-            return;
-        }
-        const subNames = Array.from(subNamesSet).sort(function (a, b) { return a.localeCompare(b, 'ko'); });
-        const provinceLabel = REGION_LABELS[provinceKey] || '';
-        const optionsHtml = '<option value="">' + escapeHtml(provinceLabel) + ' 전체</option>'
-            + subNames.map(function (name) {
-                return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
-            }).join('');
-        if (floatingSel) { floatingSel.innerHTML = optionsHtml; floatingSel.value = ''; }
-        if (panelSel) { panelSel.innerHTML = optionsHtml; panelSel.value = ''; }
-        if (floatingWrap) floatingWrap.style.display = '';
-        if (panelWrap) panelWrap.style.display = '';
-    }
-
-    // 떠 있는 지도 위 select(subRegionSelect)와 사이드 패널 select(subRegionSelectPanel)의
-    // 값을 항상 같게 맞춘다 — syncRegionSelectors()와 동일한 역할을 하위지역 select에 대해 한다.
-    function syncSubRegionSelectors(value) {
-        const sel1 = document.getElementById('subRegionSelect');
-        const sel2 = document.getElementById('subRegionSelectPanel');
-        if (sel1 && sel1.value !== value) sel1.value = value;
-        if (sel2 && sel2.value !== value) sel2.value = value;
-    }
-
-    // 하위지역(시/군/구) select의 onchange 핸들러.
-    function filterSubRegion(value) {
-        currentSubRegion = value;
-        syncSubRegionSelectors(value);
-        renderMainPanel();
-    }
-
     function filterRegion(key) {
         currentRegionKey = key;
         syncRegionSelectors(key);
-        // [ADD] 시/도가 바뀌면 이전에 고른 하위지역은 더 이상 의미가 없으므로 항상
-        // 초기화하고, 새 시/도에 맞는 하위지역 목록을 다시 채운다.
-        currentSubRegion = '';
-        syncSubRegionSelectors('');
-        populateSubRegionSelect(key);
         if (gpsModeActive) {
             gpsModeActive = false;
             myLocation = null;
@@ -1900,35 +1737,6 @@
             if (btn) { btn.textContent = '📍 내 주변으로 보기'; btn.style.background = '#fff'; btn.style.color = '#334155'; }
         }
         renderMainPanel();
-    }
-
-    // [ADD] 2026-10-14: 메인 사이트(hohoplaylab.com) 검색창처럼 외부에서 지역을 미리
-    // 정해서 이 페이지로 들어오는 경우를 위한 딥링크 지원 — 예:
-    // "/festival/?region=busan&course=1" 로 들어오면 "부산" 지역 + "지역별 추천 코스"
-    // 모드가 자동으로 선택된 상태로 열린다("부산 추천해줘" 검색 → 부산 추천 코스로
-    // 바로 연결하기 위함). 지원 파라미터:
-    //   - region: REGION_KEYWORDS에 있는 키(seoul/busan/... ) — 없거나 모르는 값이면 무시
-    //   - sub: region 안의 시/군/구 하위지역(예: "해운대구") — region 없이는 적용 안 됨
-    //   - course=1: 지역별 추천 코스 모드까지 함께 켜기
-    // 반환값이 true면 내부에서 이미 renderMainPanel()까지 호출을 마친 것이므로, 호출부
-    // (Promise.all 콜백)에서 기본 renderMainPanel()을 또 부를 필요가 없다.
-    function applyInitialRegionFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        const region = params.get('region');
-        if (!region || !REGION_KEYWORDS[region]) return false;
-        filterRegion(region); // 내부에서 populateSubRegionSelect + renderMainPanel까지 호출됨
-
-        const sub = params.get('sub');
-        if (sub) {
-            const panelSel = document.getElementById('subRegionSelectPanel');
-            const hasOption = panelSel && Array.prototype.some.call(panelSel.options, function (o) { return o.value === sub; });
-            if (hasOption) filterSubRegion(sub); // 내부에서 renderMainPanel()까지 호출됨
-        }
-
-        if (params.get('course') === '1' && !courseModeActive) {
-            toggleCourseMode(); // 내부에서 renderMainPanel()까지 호출됨
-        }
-        return true;
     }
 
     // ── 내 주변으로 보기 (GPS) ──────────────────────────────────────
@@ -2026,12 +1834,6 @@
         btn.style.color = '#4f46e5';
         document.getElementById('regionSelectPanel').value = 'all';
         currentRegionKey = 'all';
-        // [ADD] 위치 검색/GPS로 "내 주변 보기"에 들어가면 지역 select 자체가 'all'로
-        // 리셋되므로, 시/군/구 하위지역 select도 함께 숨기고 값을 비운다(안 그러면
-        // "내 주변 보기"를 해제했을 때 이전에 골랐던 하위지역이 뜬금없이 남아있게 됨).
-        currentSubRegion = '';
-        syncSubRegionSelectors('');
-        populateSubRegionSelect('all');
         renderNearbyPanel();
         map.setCenter(new kakao.maps.LatLng(lat, lng));
         map.setLevel(zoomLevel || 7);
