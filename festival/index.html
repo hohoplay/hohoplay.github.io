@@ -258,6 +258,45 @@
             }
             .map-wrapper { order: 2; flex: 1 1 auto; }
         }
+
+        /* [ADD] 2026-10-15: 데스크톱 전용 "홈으로" 링크 — 지도 우하단에 떠 있는
+           .remote-menu 홈 버튼은 데스크톱에선 패널과 안 겹쳐서 이미 잘 보이지만,
+           패널 안에서도 바로 눈에 띄게 작은 링크를 하나 더 둔다(요청에 따름).
+           모바일은 아래 .panel-tab-bar 쪽에 홈이 있어서 중복을 피해 여기선 숨긴다. */
+        .panel-home-link { display: none; }
+        @media (min-width: 769px) {
+            .panel-home-link {
+                display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+                font-size: 12px; font-weight: 700; color: #4338ca; text-decoration: none;
+                padding: 6px 10px; border-radius: 8px; background: #eef2ff;
+            }
+            .panel-home-link:hover { background: #e0e7ff; }
+        }
+
+        /* [ADD] 2026-10-15: 모바일 전용 하단 고정 탭바(전체 목록/코스 추천/홈/목록).
+           패널(.today-panel)이 overflow-y:auto인 스크롤 컨테이너라, position:sticky로
+           붙이면 리스트를 스크롤해도 항상 패널 하단에 붙어 있고, 다른 내용과 안 겹친다
+           (fixed처럼 뷰포트 기준 높이 계산을 따로 안 해도 되어 더 안전함). */
+        .panel-tab-bar { display: none; }
+        @media (max-width: 768px) {
+            .panel-tab-bar {
+                display: flex; position: sticky; bottom: 0; left: 0; right: 0;
+                background: #fff; border-top: 1px solid #e2e8f0;
+                padding: 4px 2px calc(4px + env(safe-area-inset-bottom));
+                margin: 14px -20px -32px; /* .today-panel 좌우 20px·하단 32px 패딩을 상쇄해 바가 패널 끝까지 꽉 차게 */
+                z-index: 2;
+            }
+            .panel-tab-btn {
+                flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                gap: 2px; padding: 7px 2px; border: none; background: none; cursor: pointer;
+                font-family: inherit; font-size: 10px; font-weight: 700; color: #64748b;
+                text-decoration: none; border-radius: 10px; min-width: 0;
+            }
+            .panel-tab-btn .tab-icon { font-size: 17px; line-height: 1; }
+            .panel-tab-btn.active { color: #4338ca; background: #eef2ff; }
+            /* 모바일에서 마지막 카드가 바에 가리지 않도록, 목록 바로 다음 안내문에 여유를 둔다. */
+            .today-list { margin-bottom: 4px; }
+        }
     </style>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=clusterer,services"></script>
 </head>
@@ -277,13 +316,15 @@
                     <button type="button" class="period-btn" data-period="all" onclick="setPeriod('all')">전체 예정</button>
                 </div>
             </div>
-            <div style="display:flex; gap:6px;">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                 <button type="button" onclick="shareFestivalMap('facebook')" aria-label="페이스북 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;">f</button>
                 <button type="button" onclick="shareFestivalMap('x')" aria-label="X 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;">X</button>
                 <button type="button" onclick="shareFestivalMap('kakaot')" aria-label="카카오톡 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:13px;">💬</button>
                 <button type="button" onclick="shareFestivalMap('naver')" aria-label="네이버 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;">N</button>
                 <button type="button" onclick="shareFestivalMap('line')" aria-label="라인 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;">L</button>
                 <button type="button" onclick="shareFestivalMap('band')" aria-label="밴드 공유" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:9px;">밴드</button>
+                <!-- [ADD] 2026-10-15: 데스크톱 전용 홈 링크(모바일은 하단 탭바에 있음) -->
+                <a href="/" class="panel-home-link" aria-label="홈으로 가기">🏠 홈으로</a>
             </div>
         </div>
         <!-- [ADD] 2026-10-10: 서울·대전·대구·부산·광주 등 주요 지역명을 담은 한 줄 소개문.
@@ -368,6 +409,25 @@
             축제 정보는 최신 데이터를 기준으로 하루 약 3회 업데이트됩니다.<br>
             축제 정보 출처: 한국관광공사 TourAPI / 공공데이터포털
         </p>
+        <!-- [ADD] 2026-10-15: 모바일 전용 하단 고정 탭바. 패널이 화면 85%를 덮는 서랍
+             구조라(데스크톱은 늘 펼쳐진 사이드바라 필요 없음), 서랍을 연 채로도 모드
+             전환·홈·전체 글 목록으로 바로 이동할 수 있게 패널 맨 아래에 붙여둔다.
+             "전체 목록"/"코스 추천"은 courseModeActive를 켜고 끄는 모드 전환(서로 배타적
+             라디오 성격)이고, "홈"/"목록"은 그냥 다른 페이지로 넘어가는 링크다. -->
+        <nav class="panel-tab-bar" aria-label="지도 빠른 이동">
+            <button type="button" id="tabBtnList" class="panel-tab-btn" onclick="setCourseMode(false)">
+                <span class="tab-icon">📋</span>전체 목록
+            </button>
+            <button type="button" id="tabBtnCourse" class="panel-tab-btn" onclick="setCourseMode(true)">
+                <span class="tab-icon">🗺️</span>코스 추천
+            </button>
+            <a href="/" class="panel-tab-btn" aria-label="홈으로 가기">
+                <span class="tab-icon">🏠</span>홈
+            </a>
+            <a href="/festival/list.html" class="panel-tab-btn" aria-label="전체 글 목록으로 보기">
+                <span class="tab-icon">📄</span>목록
+            </a>
+        </nav>
     </aside>
 
 
@@ -1663,19 +1723,32 @@
         // (버튼만 있고 실제로 안 먹힘). 헷갈리지 않게 코스 모드일 땐 아예 숨긴다.
         const themeSelect = document.getElementById('themeSelect');
         if (themeSelect) themeSelect.style.display = courseModeActive ? 'none' : '';
+        // [ADD] 2026-10-15: 모바일 하단 탭바의 "전체 목록"/"코스 추천" 두 버튼은 서로
+        // 배타적인 모드 전환이라, 지금 모드에 맞는 쪽만 active로 강조한다.
+        const tabList = document.getElementById('tabBtnList');
+        if (tabList) tabList.classList.toggle('active', !courseModeActive);
+        const tabCourse = document.getElementById('tabBtnCourse');
+        if (tabCourse) tabCourse.classList.toggle('active', courseModeActive);
     }
 
-    // 코스 모드 on/off — 패널 상단 버튼에서 호출된다. 켜면 기간 탭/검색 UI는 코스 모드와
-    // 무관해서 숨기고(아이랑 장소는 상시 개방이라 기간 개념이 없음), 지역 선택(위/아래
-    // select)은 코스 모드에서도 그대로 써서 "이 지역 코스만 보기"로 재사용한다.
-    function toggleCourseMode() {
-        courseModeActive = !courseModeActive;
+    // 코스 모드 on/off. courseModeActive를 원하는 값으로 직접 맞추는 버전 — 기존
+    // courseModeBtn(토글 전용)과 모바일 하단 탭바(명시적으로 "전체 목록"/"코스 추천"
+    // 각각 켜는 두 버튼)가 같이 쓴다. 켜면 기간 탭/검색 UI는 코스 모드와 무관해서
+    // 숨기고(아이랑 장소는 상시 개방이라 기간 개념이 없음), 지역 선택(위/아래 select)은
+    // 코스 모드에서도 그대로 써서 "이 지역 코스만 보기"로 재사용한다.
+    function setCourseMode(isCourse) {
+        if (courseModeActive === isCourse) return;
+        courseModeActive = isCourse;
         syncCourseModeUI();
         if (gpsModeActive) {
             deactivateNearbyMode(); // 내부에서 filterRegion() → renderMainPanel()까지 다시 호출됨
         } else {
             renderMainPanel();
         }
+    }
+
+    function toggleCourseMode() {
+        setCourseMode(!courseModeActive);
     }
 
     // [FIX] 2026-10-15: 첫 화면을 코스 모드로 시작하기로 하면서(courseModeActive 기본값
