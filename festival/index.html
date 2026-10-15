@@ -1505,6 +1505,48 @@
         return slots[index] || slots[slots.length - 1];
     }
 
+    // [ADD] 2026-10-15: "아이랑 갈만한 곳"(상시 장소)만으로 3곳 이상 모이는 지역 33곳은
+    // /blog/kids-course/{slug}.html 에 실제 글(검색봇이 읽을 수 있는 정적 페이지)로도
+    // 만들어뒀다. 코스 카드의 subRegion 라벨(예: "인천 연수구")이 이 33곳 중 하나와
+    // 같으면 "이 코스 자세히 보기" 링크를 추가로 보여준다. 여기 없는 라벨(예: 이번
+    // 계절 축제가 섞여서 새로 3곳을 넘긴 지역)은 글이 없으므로 링크를 보여주지 않는다 —
+    // 새 글을 추가할 때는 이 표와 글 자체를 함께 갱신해야 한다.
+    const COURSE_ARTICLE_SLUGS = {
+        '경기 수원시': 'gyeonggi-suwon',
+        '인천 중구': 'incheon-jung',
+        '부산 해운대구': 'busan-haeundae',
+        '세종 세종특별자치시': 'sejong-sejong',
+        '대구 동구': 'daegu-dong',
+        '충북 청주시': 'chungbuk-cheongju',
+        '경기 용인시': 'gyeonggi-yongin',
+        '대구 달서구': 'daegu-dalseo',
+        '대구 북구': 'daegu-buk',
+        '서울 송파구': 'seoul-songpa',
+        '경기 화성시': 'gyeonggi-hwaseong',
+        '강원 강릉시': 'gangwon-gangneung',
+        '경기 파주시': 'gyeonggi-paju',
+        '인천 강화군': 'incheon-ganghwa',
+        '인천 연수구': 'incheon-yeonsu',
+        '대구 수성구': 'daegu-suseong',
+        '부산 부산진구': 'busan-busanjin',
+        '제주 제주시': 'jeju-jeju',
+        '경기 부천시': 'gyeonggi-bucheon',
+        '경기 김포시': 'gyeonggi-gimpo',
+        '강원 춘천시': 'gangwon-chuncheon',
+        '대구 중구': 'daegu-jung',
+        '부산 중구': 'busan-jung',
+        '부산 남구': 'busan-nam',
+        '부산 동래구': 'busan-dongnae',
+        '경북 포항시': 'gyeongbuk-pohang',
+        '인천 서구': 'incheon-seo',
+        '대구 달성군': 'daegu-dalseong',
+        '대전 유성구': 'daejeon-yuseong',
+        '부산 기장군': 'busan-gijang',
+        '부산 수영구': 'busan-suyeong',
+        '부산 영도구': 'busan-yeongdo',
+        '부산 북구': 'busan-buk'
+    };
+
     function buildCourseCardHtml(course, idx) {
         const placesHtml = course.items.map(function (item, i) {
             const lat = item.lat || '';
@@ -1536,12 +1578,20 @@
         const seasonBadge = course.hasFestival
             ? '<span class="today-date">' + escapeHtml(SEASON_LABELS[getCurrentSeason()]) + ' 축제 포함 · ' + course.items.length + '곳' + distanceNote + '</span>'
             : '<span class="today-date">🧒 상시 이용 가능 · ' + course.items.length + '곳' + distanceNote + '</span>';
+        // [ADD] 2026-10-15: 이 지역의 정적 글(COURSE_ARTICLE_SLUGS)이 있으면 "자세히
+        // 보기" 링크를 함께 보여준다 — 검색봇뿐 아니라 실제로 지도를 보는 사람도 글로
+        // 넘어가 전체 장소 설명과 댓글을 볼 수 있게 연결한다.
+        const articleSlug = COURSE_ARTICLE_SLUGS[course.subRegion];
+        const articleLink = articleSlug
+            ? '<a class="today-map-link" href="/blog/kids-course/' + articleSlug + '.html">📖 이 코스 자세히 보기</a>'
+            : '';
         return '<li class="today-item course-card">'
             + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
             + seasonBadge
             + '<ol class="course-place-list">' + placesHtml + '</ol>'
             + '<div style="display:flex; gap:12px; margin-top:6px;">'
             + '<a class="today-map-link" href="javascript:void(0)" onclick="showCourseOnMap(' + idx + ')">지도에서 전체보기 →</a>'
+            + articleLink
             + '</div>'
             + '</li>';
     }
@@ -1602,6 +1652,11 @@
         if (periodRow) periodRow.style.display = courseModeActive ? 'none' : 'flex';
         const searchControls = document.getElementById('festivalSearchControls');
         if (searchControls) searchControls.style.display = courseModeActive ? 'none' : 'block';
+        // [FIX] 2026-10-15: 코스 모드는 buildCourses()가 지역+계절로만 묶고 테마는 전혀
+        // 보지 않아서, "전체 테마 보기" 드롭다운을 코스 모드에서 바꿔도 아무 effect가 없었다
+        // (버튼만 있고 실제로 안 먹힘). 헷갈리지 않게 코스 모드일 땐 아예 숨긴다.
+        const themeSelect = document.getElementById('themeSelect');
+        if (themeSelect) themeSelect.style.display = courseModeActive ? 'none' : '';
     }
 
     // 코스 모드 on/off — 패널 상단 버튼에서 호출된다. 켜면 기간 탭/검색 UI는 코스 모드와
