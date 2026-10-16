@@ -269,6 +269,18 @@
         .course-distance-connector { font-size: 10px; color: #94a3b8; padding-left: 26px; }
         .today-map-link { font-size: 11px; color: #1a73e8; font-weight: 700; text-decoration: none; }
         .today-map-link:hover { text-decoration: underline; }
+        /* [FIX] 2026-10-16: "지도에서 전체보기"가 <a href="javascript:void(0)">라서 가끔
+           눌러도 완전히 무반응이었다(장소 하나씩 누르는 <li onclick>은 멀쩡히 됨 — 그쪽은
+           <a> 태그가 아니기 때문). 페이지에 로드된 AdSense 스크립트 등 외부 스크립트가
+           "실제 URL이 아닌 href를 가진 <a> 클릭"을 가로채 아무 동작도 안 하게 만드는
+           경우가 있어, 아예 <a>+javascript: 조합을 버리고 진짜 <button>으로 바꿔서 그런
+           간섭 자체를 피한다. 버튼은 기본적으로 테두리/배경/여백이 생기므로 기존 링크처럼
+           보이게 리셋한다. */
+        button.today-map-link {
+            background: none; border: none; padding: 0; margin: 0;
+            font-family: inherit; display: inline; -webkit-appearance: none;
+            cursor: pointer;
+        }
 
         .today-panel-close { display: none; }
         .today-panel-backdrop { display: none; }
@@ -1745,7 +1757,7 @@
             + seasonBadge
             + '<ol class="course-place-list">' + placesHtml + '</ol>'
             + '<div style="display:flex; gap:12px; margin-top:6px;">'
-            + '<a class="today-map-link" href="javascript:void(0)" onclick="showCourseOnMap(' + idx + ')">지도에서 전체보기 →</a>'
+            + '<button type="button" class="today-map-link" onclick="showCourseOnMap(' + idx + ')">지도에서 전체보기 →</button>'
             + articleLink
             + '</div>'
             + '</li>';
