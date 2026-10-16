@@ -36,7 +36,14 @@ CHECKS = [
     ("index.html", 'href="/quiz/"', "상식테스트 메뉴 링크"),
     ("index.html", 'href="/festival/"', "아이랑 나들이 지도 메뉴 링크"),
     ("index.html", 'id="content"', "메인 콘텐츠(크롤러용 정적 폴백) 컨테이너"),
-    ("festival/index.html", 'id="courseModeBtn"', "지역별 추천 코스 보기 버튼"),
+    # [FIX] 2026-10-16: 예전엔 패널 안쪽 상단의 #courseModeBtn 토글 버튼이 이 기능을
+    # 담당했지만, 2026-10-15에 지도 우하단 리모컨 메뉴(.remote-menu)의 "전체 목록"/
+    # "코스 추천" 버튼으로 통합되면서 #courseModeBtn 자체가 코드에서 의도적으로
+    # 삭제됐다(festival/index.html 안 [REMOVED] 2026-10-15 주석 참고). 이 체크가 그걸
+    # 모른 채 옛 마커만 계속 찾다 보니, 정상적으로 배포된 파일도 "기능이 빠졌다"고
+    # 오탐(false positive)하고 있었다. 지금 실제로 같은 역할을 하는 #remoteCourseBtn으로
+    # 마커를 바꾼다.
+    ("festival/index.html", 'id="remoteCourseBtn"', "지역별 추천 코스 보기 버튼(리모컨 메뉴)"),
 ]
 
 
