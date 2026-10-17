@@ -154,7 +154,7 @@
         return d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
     }
     function escPost(s) { return String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-    function renderPostCards(containerId, posts) {
+    function renderPostCards(containerId, posts, excerptMap) {
         var cont = document.getElementById(containerId);
         if (!cont) return;
         if (!posts.length) { cont.innerHTML = '<div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">아직 등록된 글이 없습니다.</div>'; return; }
@@ -162,22 +162,54 @@
             var isMagazine = p.category === MAGAZINE_CATEGORY;
             var href = isMagazine ? ('/blog/magazine/' + p.id + '.html') : ('/blog/posts/' + p.id + '.html');
             var badge = CATEGORY_BADGE[p.category] || { bg: '#eef2ff', fg: '#4f46e5' };
+            var excerpt = excerptMap && excerptMap[p.id];
             return '<a href="' + href + '" class="curated-item">'
                 + '<span class="curated-badge" style="background:' + badge.bg + ';color:' + badge.fg + '">' + escPost(p.category) + '</span>'
                 + '<div class="curated-title">' + escPost(p.title) + '</div>'
+                + (excerpt ? ('<div class="curated-excerpt">' + escPost(excerpt) + '</div>') : '')
                 + '<div class="curated-meta">' + fmtPostDate(p.created_at) + (p.author ? (' · 👤 ' + escPost(p.author)) : '') + '</div>'
                 + '</a>';
         }).join('');
     }
+    // [ADD] 2026-10-17: 호호 매거진 카드에도 /blog/magazine/ 목록 페이지와 똑같이 3줄
+    // 미리보기를 보여준다. Worker의 공개 /posts 목록 API는 카드 렌더링용이라 일부러
+    // 본문(content)을 안 내려주기 때문에, 글마다 /posts/{id}로 따로 불러오는 대신 이미
+    // generate_community_posts.py가 빌드 시점에 발췌문을 박아서 만들어둔 정적 페이지
+    // /blog/magazine/ 를 그대로 fetch해서 HTML을 파싱해, 거기 있는 발췌문을 재사용한다
+    // (글당 API 호출이 늘어나지 않음). 이 방식의 특성상, 방금 막 쓴 매거진 글은
+    // "Sync Community Posts"가 한 번 더 돌 때까지는 발췌문 없이(제목만) 보일 수 있다 —
+    // 제목/날짜 자체는 Worker API에서 바로 받아오니 글 자체는 즉시 보인다.
+    function loadMagazineExcerpts() {
+        return fetch('/blog/magazine/')
+            .then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.text(); })
+            .then(function (html) {
+                var map = {};
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var items = doc.querySelectorAll('.post-item');
+                items.forEach(function (a) {
+                    var m = (a.getAttribute('href') || '').match(/(\d+)\.html\s*$/);
+                    if (!m) return;
+                    var excerptEl = a.querySelector('.post-excerpt');
+                    if (excerptEl && excerptEl.textContent.trim()) {
+                        map[Number(m[1])] = excerptEl.textContent.trim();
+                    }
+                });
+                return map;
+            })
+            .catch(function () { return {}; });
+    }
     var needCommunity = excludeList.indexOf('community') === -1;
     var needMagazine = excludeList.indexOf('magazine') === -1;
     if (needCommunity || needMagazine) {
-        fetch(WORKER_API + '/posts')
-            .then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.json(); })
-            .then(function (data) {
-                var posts = (data && data.posts) || [];
+        Promise.all([
+            fetch(WORKER_API + '/posts').then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.json(); }),
+            needMagazine ? loadMagazineExcerpts() : Promise.resolve({})
+        ])
+            .then(function (results) {
+                var posts = (results[0] && results[0].posts) || [];
+                var excerptMap = results[1] || {};
                 if (needMagazine) {
-                    renderPostCards('hoho-pick-magazine-body', posts.filter(function (p) { return p.category === MAGAZINE_CATEGORY; }));
+                    renderPostCards('hoho-pick-magazine-body', posts.filter(function (p) { return p.category === MAGAZINE_CATEGORY; }), excerptMap);
                 }
                 if (needCommunity) {
                     renderPostCards('hoho-pick-community-body', posts.filter(function (p) { return p.category !== MAGAZINE_CATEGORY; }));
