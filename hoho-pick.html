@@ -315,8 +315,14 @@
     }
 
     function renderKidsPicks(list) {
+        // [FIX] 2026-10-17: 처음엔 festivals.json 안에 kids 항목도 섞여 있는 줄 알고
+        // type==='kids'로만 걸렀는데, 실제로는 festivals.json엔 kids 항목이 아예 없다 —
+        // festival/index.html을 보면 "아이랑 갈만한 곳"은 /data/kids_places.json을
+        // 별도로 fetch한 뒤 브라우저 쪽에서 type:'kids'를 붙여 합치는 구조였다
+        // (kids_places.json 원본엔 type 필드 자체가 없음). 그래서 여기서도 kids_places.json을
+        // 따로 받아 그 배열 전체를 후보로 쓴다(이 파일엔 아이랑 장소만 있으므로 타입 필터 불필요).
         if (!kidsBody) return;
-        var byRegion = groupByRegion(list.filter(function (f) { return f && f.type === 'kids'; }));
+        var byRegion = groupByRegion(list.filter(function (f) { return f && f.addr; }));
         var picks = [];
         PICK_REGIONS.forEach(function (r, ri) {
             var arr = byRegion[r] || [];
@@ -345,16 +351,24 @@
         }).join('');
     }
 
-    fetch('/data/festivals.json')
-        .then(function(r){ if(!r.ok) throw new Error('fetch failed'); return r.json(); })
-        .then(function(data){
-            var list = Array.isArray(data) ? data : [];
-            if (needFestival) renderFestivalPicks(list);
-            if (needKids) renderKidsPicks(list);
-        })
-        .catch(function(){
-            if (needFestival && festivalSection) festivalSection.style.display = 'none';
-            if (needKids && kidsSection) kidsSection.style.display = 'none';
-        });
+    Promise.all([
+        needFestival
+            ? fetch('/data/festivals.json').then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.json(); }).catch(function () { return null; })
+            : Promise.resolve(null),
+        needKids
+            ? fetch('/data/kids_places.json').then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.json(); }).catch(function () { return null; })
+            : Promise.resolve(null)
+    ]).then(function (results) {
+        if (needFestival) {
+            var festivalsData = results[0];
+            if (festivalsData === null) { if (festivalSection) festivalSection.style.display = 'none'; }
+            else renderFestivalPicks(Array.isArray(festivalsData) ? festivalsData : []);
+        }
+        if (needKids) {
+            var kidsData = results[1];
+            if (kidsData === null) { if (kidsSection) kidsSection.style.display = 'none'; }
+            else renderKidsPicks(Array.isArray(kidsData) ? kidsData : []);
+        }
+    });
 })();
 </script>
