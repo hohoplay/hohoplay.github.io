@@ -362,6 +362,17 @@ def format_date(ms_timestamp):
 _TAG_RE = re.compile(r"<[^>]+>")
 
 
+# [ADD] 2026-10-17: 매거진 목록 페이지에 글마다 3줄 미리보기를 보여달라는 요청으로
+# 추가. render_post_html()이 메타 설명용으로 앞 80자만 쓰던 것과 같은 방식(태그
+# 제거 + 공백 정리)이지만, 여기선 화면에 직접 보여주는 미리보기라 더 넉넉히 자른다.
+# 실제 "3줄"은 글자 수가 아니라 화면 폭에 따라 달라지므로, 여기서는 3줄을 채우고도
+# 남을 만큼만(200자) 잘라서 넘기고 정확히 3줄로 자르는 건 CSS(-webkit-line-clamp:3)에
+# 맡긴다.
+def plain_text_excerpt(content, length=200):
+    plain = re.sub(r"\s+", " ", _TAG_RE.sub("", content or "")).strip()
+    return plain[:length]
+
+
 def render_post_html(template, post):
     # [FIX] 2026-09-21: post["content"]를 html_lib.escape()로 감싸고 있었음 — writer.html이
     # 실제 <h1>/<h2>/<p>/<ul><li>/<strong> 등 진짜 HTML 태그로 저장한 본문을 여기서 다시
@@ -441,6 +452,11 @@ def generate_post_pages(posts):
 
     new_count = 0
     updated_count = 0
+    # [ADD] 2026-10-17: 매거진 목록 페이지(build_magazine_archive_page)에 보여줄
+    # 3줄 미리보기용 — 어차피 아래에서 글마다 fetch_post_detail()로 본문을 이미
+    # 받아오고 있어서, 매거진 목록을 만들 때 같은 본문을 또 fetch하지 않도록
+    # 여기서 한 번만 받아온 걸 모아뒀다가 넘겨준다.
+    post_excerpts = {}
     for p in posts:
         target_dir = post_output_dir(p)
         target_path = os.path.join(target_dir, f"{p['id']}.html")
@@ -470,6 +486,7 @@ def generate_post_pages(posts):
         detail = fetch_post_detail(p["id"])
         if not detail:
             continue
+        post_excerpts[p["id"]] = plain_text_excerpt(detail.get("content", ""))
         html_out = render_post_html(template, detail)
         with open(target_path, "w", encoding="utf-8") as f:
             f.write(html_out)
@@ -494,7 +511,7 @@ def generate_post_pages(posts):
             removed_count += 1
             print(f"  - blog/{MAGAZINE_ARCHIVE_SLUG}/{rid}.html 삭제 (원본 게시글 삭제됨)")
 
-    return new_count, removed_count, updated_count
+    return new_count, removed_count, updated_count, post_excerpts
 
 
 # 커뮤니티 페이지가 처음 열렸을 때 기본으로 보여주는 탭(= window.onload의 switchBoard 기본값과
@@ -602,12 +619,17 @@ def update_blog_index_static_list(posts):
     print(f"  ✓ blog/index.html 정적 목록 갱신 완료 (최신글+지난글 {shown_count}개, {n_subs}곳 반영)")
 
 
-def build_magazine_archive_page(posts):
+def build_magazine_archive_page(posts, post_excerpts=None):
     """호호 매거진 카테고리 글 전체를 모은 정적 목록 페이지(blog/board-magazine-260921/index.html)를
     만든다. blog/posts/{id}.html(개별 글, 내용이 안 바뀌므로 이미 있으면 건드리지 않음)과 달리,
     이 페이지는 "목록"이라 새 매거진 글이 올라올 때마다 내용이 계속 바뀌어야 하므로 매 실행마다
-    통째로 다시 써서 덮어쓴다. 파일 경로(=주소)는 MAGAZINE_ARCHIVE_SLUG로 고정되어 있어 안 바뀐다."""
+    통째로 다시 써서 덮어쓴다. 파일 경로(=주소)는 MAGAZINE_ARCHIVE_SLUG로 고정되어 있어 안 바뀐다.
+
+    post_excerpts: {post_id: 3줄 미리보기용 평문 일부} — generate_post_pages()가 각 글
+    본문을 fetch하는 김에 함께 뽑아둔 걸 그대로 받는다(여기서 다시 fetch하지 않음).
+    """
     os.makedirs(MAGAZINE_ARCHIVE_DIR, exist_ok=True)
+    post_excerpts = post_excerpts or {}
 
     magazine_posts = [p for p in posts if p.get("category") == MAGAZINE_CATEGORY]
     magazine_posts.sort(key=lambda p: p["created_at"], reverse=True)
@@ -619,9 +641,12 @@ def build_magazine_archive_page(posts):
         for p in magazine_posts:
             title = html_lib.escape(p["title"])
             author = html_lib.escape(p["author"])
+            excerpt = html_lib.escape(post_excerpts.get(p["id"], ""))
+            excerpt_html = f'<p class="post-excerpt">{excerpt}</p>' if excerpt else ""
             rows.append(
                 f'<li><a class="post-item" href="/blog/{MAGAZINE_ARCHIVE_SLUG}/{p["id"]}.html">'
                 f'<div class="post-title">{title}</div>'
+                f'{excerpt_html}'
                 f'<div class="post-meta"><span>{format_date(p["created_at"])}</span>'
                 f'<span>👤 {author}</span></div>'
                 f'</a></li>'
@@ -658,6 +683,10 @@ body {{ font-family: 'Noto Sans KR', sans-serif; }}
 .post-list {{ list-style: none; padding: 0; margin: 0; }}
 .post-item {{ display: block; padding: 16px 0; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit; }}
 .post-title {{ font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }}
+.post-excerpt {{
+    font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 8px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}}
 .post-meta {{ font-size: 12px; color: #94a3b8; }}
 .post-meta span {{ margin-right: 10px; }}
 .empty {{ color: #94a3b8; font-size: 14px; padding: 40px 0; text-align: center; list-style: none; }}
@@ -673,6 +702,31 @@ body {{ font-family: 'Noto Sans KR', sans-serif; }}
 {items_html}
 </ul>
 <a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>
+
+<!-- [ADD] 2026-10-17: 게임공략 페이지 하단과 같은 방식으로 HOHO PICK을 붙인다.
+     data-exclude="magazine"은 hoho-pick.html 쪽에서 "이 페이지가 이미 다루는
+     섹션(호호 매거진)은 추천 목록에서 또 보여주지 않는다"는 뜻으로 읽는 값이다
+     (게임공략 페이지가 data-exclude="guide"를 쓰는 것과 같은 패턴). -->
+<div id="hoho-pick-placeholder" data-exclude="magazine" style="margin-top:24px;"></div>
+<script>
+(function(){{
+    var ph = document.getElementById('hoho-pick-placeholder');
+    if (!ph) return;
+    fetch('/hoho-pick.html').then(function(r){{ return r.text(); }}).then(function(html){{
+        ph.innerHTML = html;
+        var scripts = ph.querySelectorAll('script');
+        for (var i = 0; i < scripts.length; i++) {{
+            var old = scripts[i];
+            var s = document.createElement('script');
+            for (var j = 0; j < old.attributes.length; j++) {{
+                s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+            }}
+            s.textContent = old.textContent;
+            old.parentNode.replaceChild(s, old);
+        }}
+    }}).catch(function(){{}});
+}})();
+</script>
 </main>
 {SITE_FOOTER_HTML}
 </body>
@@ -812,9 +866,9 @@ def main():
     posts = fetch_all_posts()
     print(f"전체 게시글 {len(posts)}개 확인")
 
-    new_count, removed_count, updated_count = generate_post_pages(posts)
+    new_count, removed_count, updated_count, post_excerpts = generate_post_pages(posts)
     update_blog_index_static_list(posts)
-    build_magazine_archive_page(posts)
+    build_magazine_archive_page(posts, post_excerpts)
     build_magazine_archive_redirect()
     migrate_magazine_sitemap_entry()
     update_sitemap(posts)
