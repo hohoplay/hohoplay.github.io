@@ -26,6 +26,14 @@
     <div id="hoho-pick-festival-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>
 </section>
 
+<!-- [ADD] 2026-10-17: 아이랑 나들이 지도의 "아이랑 갈만한 곳"(상시 장소, 200여 곳) 중
+     서울/대구/부산/광주/제주 권역별 대표 1곳씩을 보여준다. 데이터는 "오늘 어디 갈까요"와
+     같은 /data/festivals.json(festival+kids가 한 파일에 섞여 있음)을 재사용한다. -->
+<section id="hoho-pick-kids" class="curated-board" style="margin-bottom:24px;">
+    <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">🧸 아이랑 어디 갈까요</h2><a href="/festival/" class="curated-more">지도에서 보기 →</a></div>
+    <div id="hoho-pick-kids-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>
+</section>
+
 <section id="hoho-pick-guide" class="curated-board" style="margin-bottom:24px;">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">📖 게임공략</h2><a href="/guides/index.html" class="curated-more">전체 공략 보기 →</a></div>
     <div id="hoho-pick-guide-body" class="curated-board-body">
@@ -79,6 +87,7 @@
     //    예) 게임공략 페이지: data-exclude="guide"
     //        커뮤니티(블로그) 페이지: data-exclude="community"
     //        호호 매거진 페이지: data-exclude="magazine"
+    //        아이랑 나들이 지도(축제+아이랑 다 다루는) 페이지: data-exclude="festival,kids"
     //        여러 개 숨기려면 콤마로: data-exclude="guide,festival"
     var ph = document.getElementById('hoho-pick-placeholder');
     var excludeAttr = (ph && ph.getAttribute('data-exclude')) || '';
@@ -86,6 +95,7 @@
 
     var sectionMap = {
         festival: { id: 'hoho-pick-festival', label: '축제' },
+        kids:     { id: 'hoho-pick-kids',     label: '아이랑 갈만한 곳' },
         guide:    { id: 'hoho-pick-guide',    label: '게임공략' },
         community:{ id: 'hoho-pick-community',label: '커뮤니티' },
         magazine: { id: 'hoho-pick-magazine', label: '매거진' }
@@ -98,7 +108,7 @@
         if (el) el.style.display = 'none';
     });
 
-    var order = ['festival', 'guide', 'community', 'magazine'];
+    var order = ['festival', 'kids', 'guide', 'community', 'magazine'];
     var visibleLabels = order.filter(function(k){ return excludeList.indexOf(k) === -1; })
         .map(function(k){ return sectionMap[k].label; });
     var taglineEl = document.getElementById('hoho-pick-tagline');
@@ -221,74 +231,130 @@
             });
     }
 
-    // 축제 섹션이 제외 목록에 있으면 데이터도 불러올 필요 없음
-    if (excludeList.indexOf('festival') !== -1) return;
+    // 축제·아이랑 섹션이 둘 다 제외 목록에 있으면 /data/festivals.json도 불러올 필요 없음
+    var needFestival = excludeList.indexOf('festival') === -1;
+    var needKids = excludeList.indexOf('kids') === -1;
+    if (!needFestival && !needKids) return;
 
-    var body = document.getElementById('hoho-pick-festival-body');
-    var section = document.getElementById('hoho-pick-festival');
-    if (!body) return;
+    var festivalBody = document.getElementById('hoho-pick-festival-body');
+    var festivalSection = document.getElementById('hoho-pick-festival');
+    var kidsBody = document.getElementById('hoho-pick-kids-body');
+    var kidsSection = document.getElementById('hoho-pick-kids');
+
+    // [FIX] 2026-10-17: 예전엔 "가장 최근에 시작된 진행중 축제 → 가장 임박한 예정 축제"
+    // 순으로 날짜만 보고 상위 4개를 뽑았는데, 이러면 특정 지역(예: 경기권) 축제가
+    // 한꺼번에 몰려 있을 때 전국 다른 지역 축제가 하나도 안 보이는 문제가 있었다.
+    // 그래서 서울/대구/부산/광주/제주 5개 권역에서 각각 대표를 1개씩 뽑아 전국 각지를
+    // 골고루 보여주는 방식으로 바꾼다. "아이랑 갈만한 곳"(상시 장소, type:'kids')도
+    // 2026-10-17에 같은 방식으로 추가했다 — 다만 상시 장소라 시작일/진행중 개념이
+    // 없으므로, 권역당 대표를 날짜순이 아니라 주 단위로 랜덤하게(게임공략 카드 순서
+    // 섞는 것과 같은 mulberry32 시드) 고른다. 주소 앞부분으로 권역을 판정하는 건
+    // festival/index.html의 addrMatchesRegion과 동일한 방식 — "경기도 광주시"는
+    // "경기"로 시작해 "광주" 권역과 안 섞인다.
+    var PICK_REGIONS = ['서울', '대구', '부산', '광주', '제주'];
+    function regionOfAddr(addr) {
+        var a = String(addr || '').trim();
+        for (var i = 0; i < PICK_REGIONS.length; i++) {
+            if (a.indexOf(PICK_REGIONS[i]) === 0) return PICK_REGIONS[i];
+        }
+        return null;
+    }
+    function groupByRegion(list) {
+        var byRegion = {};
+        list.forEach(function (f) {
+            var r = regionOfAddr(f.addr);
+            if (!r) return;
+            (byRegion[r] = byRegion[r] || []).push(f);
+        });
+        return byRegion;
+    }
+    function fmt(s){ return s ? (s.slice(4,6) + '.' + s.slice(6,8)) : ''; }
+    function addrShort(a){ if(!a) return ''; var p = String(a).split(' '); return p.slice(0,2).join(' '); }
+    function esc(s){ return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function placeHref(f) {
+        return (f.hasDetail && f.contentid) ? ('/festival/detail/' + encodeURIComponent(f.contentid) + '.html') : '/festival/';
+    }
+    function placeThumb(f, fallbackIcon) {
+        return f.image
+            ? ('<img src="' + f.image + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">')
+            : ('<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;background:#eef2ff;color:#4f46e5;">' + fallbackIcon + '</div>');
+    }
+
+    function renderFestivalPicks(list) {
+        if (!festivalBody) return;
+        var today = new Date();
+        var todayStr = '' + today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+        var byRegion = groupByRegion(list.filter(function (f) { return f && f.type === 'festival' && f.startDate && f.endDate; }));
+        var picks = [];
+        PICK_REGIONS.forEach(function (r) {
+            var arr = byRegion[r] || [];
+            var ongoing = arr.filter(function (f) { return f.startDate <= todayStr && f.endDate >= todayStr; }).sort(function (a, b) { return b.startDate.localeCompare(a.startDate); });
+            var upcoming = arr.filter(function (f) { return f.startDate > todayStr; }).sort(function (a, b) { return a.startDate.localeCompare(b.startDate); });
+            var pick = ongoing[0] || upcoming[0];
+            if (pick) { pick._pickRegion = r; picks.push(pick); }
+        });
+        if (!picks.length) { if (festivalSection) festivalSection.style.display = 'none'; return; }
+        function badgeOf(f){
+            if (f.startDate <= todayStr && f.endDate >= todayStr) return { label:'진행중', bg:'#dcfce7', fg:'#16a34a' };
+            var y = +f.startDate.slice(0,4), m = +f.startDate.slice(4,6)-1, d = +f.startDate.slice(6,8);
+            var ty = +todayStr.slice(0,4), tm = +todayStr.slice(4,6)-1, td = +todayStr.slice(6,8);
+            var diff = Math.round((new Date(y,m,d) - new Date(ty,tm,td)) / 86400000);
+            return { label:'D-'+diff, bg:'#eef2ff', fg:'#4f46e5' };
+        }
+        festivalBody.innerHTML = picks.map(function(f){
+            var b = badgeOf(f);
+            return '<a href="'+placeHref(f)+'" class="curated-item festival-item">'
+                + '<div class="festival-thumb-wrap">'+placeThumb(f, '🎪')+'</div>'
+                + '<div class="festival-item-text">'
+                + '<span style="font-size:11px;font-weight:800;color:#94a3b8;margin-right:6px;">📍'+esc(f._pickRegion)+'</span>'
+                + '<span class="curated-badge" style="background:'+b.bg+';color:'+b.fg+'">'+b.label+'</span>'
+                + '<div class="curated-title">'+esc(f.title)+'</div>'
+                + '<div class="curated-meta">'+fmt(f.startDate)+' ~ '+fmt(f.endDate)+' · '+esc(addrShort(f.addr))+'</div>'
+                + '</div></a>';
+        }).join('');
+    }
+
+    function renderKidsPicks(list) {
+        if (!kidsBody) return;
+        var byRegion = groupByRegion(list.filter(function (f) { return f && f.type === 'kids'; }));
+        var picks = [];
+        PICK_REGIONS.forEach(function (r, ri) {
+            var arr = byRegion[r] || [];
+            if (!arr.length) return;
+            var rand = mulberry32(weekIndex() + 400 + ri); // 주 단위로 랜덤, 같은 주엔 항상 같은 결과
+            var pick = arr[Math.floor(rand() * arr.length)];
+            pick._pickRegion = r;
+            picks.push(pick);
+        });
+        if (!picks.length) { if (kidsSection) kidsSection.style.display = 'none'; return; }
+        function costBadge(f) {
+            if (f.costTag === '무료') return { label: '무료', bg: '#dcfce7', fg: '#16a34a' };
+            if (f.costTag === '유료') return { label: '유료', bg: '#fef3c7', fg: '#b45309' };
+            return { label: '상시', bg: '#eef2ff', fg: '#4f46e5' };
+        }
+        kidsBody.innerHTML = picks.map(function (f) {
+            var b = costBadge(f);
+            return '<a href="'+placeHref(f)+'" class="curated-item festival-item">'
+                + '<div class="festival-thumb-wrap">'+placeThumb(f, '🧸')+'</div>'
+                + '<div class="festival-item-text">'
+                + '<span style="font-size:11px;font-weight:800;color:#94a3b8;margin-right:6px;">📍'+esc(f._pickRegion)+'</span>'
+                + '<span class="curated-badge" style="background:'+b.bg+';color:'+b.fg+'">'+b.label+'</span>'
+                + '<div class="curated-title">'+esc(f.title)+'</div>'
+                + '<div class="curated-meta">'+esc(addrShort(f.addr))+'</div>'
+                + '</div></a>';
+        }).join('');
+    }
+
     fetch('/data/festivals.json')
         .then(function(r){ if(!r.ok) throw new Error('fetch failed'); return r.json(); })
         .then(function(data){
             var list = Array.isArray(data) ? data : [];
-            list = list.filter(function(f){ return f && f.type === 'festival' && f.startDate && f.endDate; });
-            var today = new Date();
-            var todayStr = '' + today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
-            // [FIX] 2026-10-17: 예전엔 "가장 최근에 시작된 진행중 축제 → 가장 임박한 예정 축제"
-            // 순으로 날짜만 보고 상위 4개를 뽑았는데, 이러면 특정 지역(예: 경기권) 축제가
-            // 한꺼번에 몰려 있을 때 전국 다른 지역 축제가 하나도 안 보이는 문제가 있었다.
-            // 그래서 서울/대구/부산/광주/제주 5개 권역에서 각각 대표 축제를 1개씩 뽑아
-            // 전국 각지를 골고루 보여주는 방식으로 바꾼다(권역당: 진행중인 축제가 있으면
-            // 그중 가장 최근에 시작된 것, 없으면 가장 임박한 예정 축제). 주소 앞부분으로
-            // 권역을 판정하는 건 festival/index.html의 addrMatchesRegion과 동일한 방식 —
-            // "경기도 광주시"는 "경기"로 시작해 "광주" 권역과 안 섞인다.
-            var PICK_REGIONS = ['서울', '대구', '부산', '광주', '제주'];
-            function regionOfAddr(addr) {
-                var a = String(addr || '').trim();
-                for (var i = 0; i < PICK_REGIONS.length; i++) {
-                    if (a.indexOf(PICK_REGIONS[i]) === 0) return PICK_REGIONS[i];
-                }
-                return null;
-            }
-            var byRegion = {};
-            list.forEach(function (f) {
-                var r = regionOfAddr(f.addr);
-                if (!r) return;
-                (byRegion[r] = byRegion[r] || []).push(f);
-            });
-            var picks = [];
-            PICK_REGIONS.forEach(function (r) {
-                var arr = byRegion[r] || [];
-                var ongoing = arr.filter(function (f) { return f.startDate <= todayStr && f.endDate >= todayStr; }).sort(function (a, b) { return b.startDate.localeCompare(a.startDate); });
-                var upcoming = arr.filter(function (f) { return f.startDate > todayStr; }).sort(function (a, b) { return a.startDate.localeCompare(b.startDate); });
-                var pick = ongoing[0] || upcoming[0];
-                if (pick) { pick._pickRegion = r; picks.push(pick); }
-            });
-            if (!picks.length) { if (section) section.style.display = 'none'; return; }
-            function fmt(s){ return s ? (s.slice(4,6) + '.' + s.slice(6,8)) : ''; }
-            function addrShort(a){ if(!a) return ''; var p = String(a).split(' '); return p.slice(0,2).join(' '); }
-            function esc(s){ return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-            function badgeOf(f){
-                if (f.startDate <= todayStr && f.endDate >= todayStr) return { label:'진행중', bg:'#dcfce7', fg:'#16a34a' };
-                var y = +f.startDate.slice(0,4), m = +f.startDate.slice(4,6)-1, d = +f.startDate.slice(6,8);
-                var ty = +todayStr.slice(0,4), tm = +todayStr.slice(4,6)-1, td = +todayStr.slice(6,8);
-                var diff = Math.round((new Date(y,m,d) - new Date(ty,tm,td)) / 86400000);
-                return { label:'D-'+diff, bg:'#eef2ff', fg:'#4f46e5' };
-            }
-            body.innerHTML = picks.map(function(f){
-                var b = badgeOf(f);
-                var img = f.image ? ('<img src="'+f.image+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">') : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;background:#eef2ff;color:#4f46e5;">🎪</div>';
-                var href = (f.hasDetail && f.contentid) ? ('/festival/detail/' + encodeURIComponent(f.contentid) + '.html') : '/festival/';
-                return '<a href="'+href+'" class="curated-item festival-item">'
-                    + '<div class="festival-thumb-wrap">'+img+'</div>'
-                    + '<div class="festival-item-text">'
-                    + '<span style="font-size:11px;font-weight:800;color:#94a3b8;margin-right:6px;">📍'+esc(f._pickRegion)+'</span>'
-                    + '<span class="curated-badge" style="background:'+b.bg+';color:'+b.fg+'">'+b.label+'</span>'
-                    + '<div class="curated-title">'+esc(f.title)+'</div>'
-                    + '<div class="curated-meta">'+fmt(f.startDate)+' ~ '+fmt(f.endDate)+' · '+esc(addrShort(f.addr))+'</div>'
-                    + '</div></a>';
-            }).join('');
+            if (needFestival) renderFestivalPicks(list);
+            if (needKids) renderKidsPicks(list);
         })
-        .catch(function(){ if (section) section.style.display = 'none'; });
+        .catch(function(){
+            if (needFestival && festivalSection) festivalSection.style.display = 'none';
+            if (needKids && kidsSection) kidsSection.style.display = 'none';
+        });
 })();
 </script>
