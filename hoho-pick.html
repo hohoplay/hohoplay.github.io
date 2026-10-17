@@ -271,6 +271,7 @@
     function fmt(s){ return s ? (s.slice(4,6) + '.' + s.slice(6,8)) : ''; }
     function addrShort(a){ if(!a) return ''; var p = String(a).split(' '); return p.slice(0,2).join(' '); }
     function esc(s){ return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function truncate(s, n){ s = String(s||''); return s.length > n ? (s.slice(0, n) + '…') : s; }
     function placeHref(f) {
         return (f.hasDetail && f.contentid) ? ('/festival/detail/' + encodeURIComponent(f.contentid) + '.html') : '/festival/';
     }
@@ -338,8 +339,19 @@
             if (f.costTag === '유료') return { label: '유료', bg: '#fef3c7', fg: '#b45309' };
             return { label: '상시', bg: '#eef2ff', fg: '#4f46e5' };
         }
+        // [ADD] 2026-10-17: 주소만으로는 실제로 갈 만한지 판단이 안 돼서, kids_places.json에
+        // 이미 있는 이용요금(fee, 없으면 costTag)·운영시간(hours)·전화번호(tel)를 카드에
+        // 같이 보여준다. 길이가 긴 요금/시간 문구는 카드가 너무 늘어지지 않게 줄여서 표시.
         kidsBody.innerHTML = picks.map(function (f) {
             var b = costBadge(f);
+            var detailLines = [];
+            var feeText = f.fee || f.costTag;
+            if (feeText) detailLines.push('💰 ' + esc(truncate(feeText, 46)));
+            if (f.hours) detailLines.push('🕐 ' + esc(truncate(f.hours, 46)));
+            if (f.tel) detailLines.push('📞 ' + esc(f.tel));
+            var detailHtml = detailLines.length
+                ? ('<div class="curated-meta" style="margin-top:4px;line-height:1.7;">' + detailLines.join('<br>') + '</div>')
+                : '';
             return '<a href="'+placeHref(f)+'" class="curated-item festival-item">'
                 + '<div class="festival-thumb-wrap">'+placeThumb(f, '🧸')+'</div>'
                 + '<div class="festival-item-text">'
@@ -347,6 +359,7 @@
                 + '<span class="curated-badge" style="background:'+b.bg+';color:'+b.fg+'">'+b.label+'</span>'
                 + '<div class="curated-title">'+esc(f.title)+'</div>'
                 + '<div class="curated-meta">'+esc(addrShort(f.addr))+'</div>'
+                + detailHtml
                 + '</div></a>';
         }).join('');
     }
