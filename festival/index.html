@@ -710,6 +710,14 @@
         winter: ['눈꽃', '빙어', '얼음'],
         flower: ['꽃축제', '꽃박람회', '튤립', '코스모스', '유채꽃', '장미', '국화', '수국', '철쭉', '진달래', '메밀꽃', '핑크뮬리', '구절초', '라벤더', '해바라기', '연꽃']
     };
+    // [FIX] 2026-10-17: 짧은 테마 키워드(특히 '굴')가 전혀 상관없는 복합어 안에 부분일치로
+    // 끼어들어서, "굴포천 생태하천"(지명)·"OO동굴"(동굴=동+굴, 관광 동굴) 같은 장소가
+    // 특산물(굴) 테마로 잘못 걸려 나왔다. 실제 사용자 제보로 확인됨. matchesOneTheme에서
+    // 이 단어들을 먼저 지우고 나서 키워드를 검사해서, 우연히 글자가 겹치는 것과 실제
+    // 그 테마인 것을 구분한다.
+    const THEME_KEYWORD_EXCLUDE = {
+        seafood: ['동굴', '굴포천', '불굴']
+    };
     let currentThemes = new Set(); // 비어있으면 "전체(공원 제외)"와 동일
     let currentPeriod = 'today'; // 'today' | 'month' | 'nextmonth'
     // [ADD] 2026-10-10: 지역별 추천 코스(1단계) 모드 상태. true면 오늘의 목록 대신
@@ -1222,7 +1230,15 @@
         if (themeKey === 'watersports') return item.type === 'watersports';
         const kws = THEME_KEYWORDS[themeKey];
         if (!kws) return true;
-        return !!(item.title && kws.some(function (kw) { return item.title.includes(kw); }));
+        if (!item.title) return false;
+        // 제외 복합어(동굴/굴포천 등)를 먼저 지운 뒤에 키워드를 검사한다 — 그래야
+        // "굴포천 생태하천"이 '굴'(특산물) 테마에 안 걸리고, "강화 대하축제"처럼
+        // 진짜 키워드가 들어있는 건 그대로 걸린다.
+        let title = item.title;
+        (THEME_KEYWORD_EXCLUDE[themeKey] || []).forEach(function (ex) {
+            title = title.split(ex).join('');
+        });
+        return kws.some(function (kw) { return title.includes(kw); });
     }
 
     function matchesTheme(item, themeSet) {
