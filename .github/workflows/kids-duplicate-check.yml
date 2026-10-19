@@ -1,0 +1,26 @@
+name: Kids Places Duplicate Check
+
+# data/kids_places.json이 올라올 때마다 같은 장소가 두 번 들어갔는지 검사한다.
+# 중복 의심이 있으면 이 워크플로가 빨간 X로 끝나고, 실행 화면(Summary)에 목록이 나온다.
+# 알림 용도라 사이트 배포나 다른 워크플로는 막지 않는다.
+on:
+  push:
+    paths:
+      - 'data/kids_places.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check duplicate kids places
+        run: python scripts/check_kids_duplicates.py
