@@ -413,6 +413,17 @@
                     style="resize:vertical;min-height:120px;"></textarea>
             </div>
 
+            <div style="margin-top:20px;">
+                <label class="p-form-label" for="pf-captcha-a">보안문자 <span style="color:#f87171">*</span></label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div id="pf-captcha-q" style="flex:1;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px 16px;font-size:14px;font-weight:700;color:#334155;text-align:center;user-select:none;"></div>
+                    <input class="p-form-input" id="pf-captcha-a" type="text" inputmode="numeric" autocomplete="off" placeholder="정답"
+                        style="width:100px;flex:none;text-align:center;">
+                    <button type="button" onclick="pRefreshCaptcha()" aria-label="보안문자 새로고침"
+                        style="flex-shrink:0;width:48px;height:48px;border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">↻</button>
+                </div>
+            </div>
+
             <div id="pf-error" style="display:none;margin-top:16px;padding:14px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600;"></div>
             <div id="pf-success" style="display:none;margin-top:16px;padding:16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center;">
                 ✅ 문의가 접수되었습니다! 영업일 1~2일 내로 연락드리겠습니다.
@@ -430,12 +441,25 @@
 </main>
 
 <script>
+var pCaptchaAnswer = 0;
+function pRefreshCaptcha() {
+    var a = Math.floor(Math.random() * 8) + 1;
+    var b = Math.floor(Math.random() * 8) + 1;
+    pCaptchaAnswer = a + b;
+    var q = document.getElementById('pf-captcha-q');
+    if (q) q.textContent = a + ' + ' + b + ' = ?';
+    var aEl = document.getElementById('pf-captcha-a');
+    if (aEl) aEl.value = '';
+}
+pRefreshCaptcha();
+
 function pSubmit() {
     var name  = document.getElementById('pf-name').value.trim();
     var email = document.getElementById('pf-email').value.trim();
     var type  = document.getElementById('pf-type').value;
     var msg   = document.getElementById('pf-msg').value.trim();
     var url   = document.getElementById('pf-url').value.trim();
+    var captchaAnswer = document.getElementById('pf-captcha-a').value.trim();
     var err   = document.getElementById('pf-error');
     var suc   = document.getElementById('pf-success');
     var btn   = document.getElementById('pf-btn');
@@ -444,13 +468,19 @@ function pSubmit() {
 
     err.style.display = 'none'; suc.style.display = 'none';
 
-    if (!name || !email || !type || !msg) {
+    if (!name || !email || !type || !msg || !captchaAnswer) {
         err.textContent = '필수 항목(*)을 모두 입력해 주세요.';
         err.style.display = 'block'; return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         err.textContent = '올바른 이메일 주소를 입력해 주세요.';
         err.style.display = 'block'; return;
+    }
+    if (parseInt(captchaAnswer, 10) !== pCaptchaAnswer) {
+        err.textContent = '보안문자가 올바르지 않습니다. 다시 확인해 주세요.';
+        err.style.display = 'block';
+        pRefreshCaptcha();
+        return;
     }
     btn.disabled = true; tx.textContent = '전송 중...'; sp.style.display = 'inline-block';
     var tl = {game:'게임 제휴',ad:'광고·마케팅',content:'콘텐츠 협업',other:'기타'}[type]||type;
@@ -460,6 +490,7 @@ function pSubmit() {
         btn.disabled=false; tx.textContent='문의 보내기'; sp.style.display='none';
         suc.style.display='block';
         ['pf-name','pf-email','pf-type','pf-url','pf-msg'].forEach(function(id){ document.getElementById(id).value=''; });
+        pRefreshCaptcha();
     }, 1200);
 }
 
