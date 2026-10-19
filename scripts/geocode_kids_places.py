@@ -108,10 +108,18 @@ def search_address(addr, key):
 
 def search_keyword(title, addr, ref_lat, ref_lng, key):
     # 이름만으로 먼저, 안 되면 "시/군/구 + 이름"으로 한 번 더.
+    # 이름에 괄호가 있으면("금강보행교(이응다리)") 괄호째로는 검색이 안 되는 경우가 있어서,
+    # 괄호 앞 이름("금강보행교")과 괄호 안 이름("이응다리")도 각각 따로 시도한다.
+    names = [title]
+    outer = re.sub(r'\([^)]*\)', ' ', title or '').strip()
+    inner = re.findall(r'\(([^)]*)\)', title or '')
+    for n in [outer] + [i.replace('옛 ', '').strip() for i in inner]:
+        if n and n not in names:
+            names.append(n)
     region = ' '.join(clean_addr(addr).split()[:2])
-    queries = [title]
+    queries = list(names)
     if region:
-        queries.append(region + ' ' + title)
+        queries += [region + ' ' + n for n in names]
     for q in queries:
         data = kakao_get(KEYWORD_URL, {'query': q, 'size': 15}, key)
         docs = (data or {}).get('documents') or []
