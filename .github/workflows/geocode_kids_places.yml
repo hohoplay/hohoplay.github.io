@@ -1,0 +1,41 @@
+name: Geocode Kids Places
+
+# 아이랑 나들이 지도 장소(data/kids_places.json)의 좌표를 카카오 로컬 API로 보정한다.
+# 자동 스케줄 없이, Actions 탭에서 "Run workflow" 버튼으로만 실행한다.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: geocode-kids-places
+  cancel-in-progress: false
+
+jobs:
+  geocode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Geocode kids places
+        env:
+          KAKAO_REST_KEY: ${{ secrets.KAKAO_REST_KEY }}
+        run: python scripts/geocode_kids_places.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/kids_places.json data/geocode_cache.json
+          if git diff --cached --quiet; then
+            echo "바뀐 좌표가 없습니다."
+            exit 0
+          fi
+          git commit -m "chore: 아이랑 장소 좌표 보정 (카카오 로컬 API)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
