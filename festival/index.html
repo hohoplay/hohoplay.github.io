@@ -341,6 +341,35 @@
             .remote-btn { width: 46px; height: 46px; font-size: 16px; }
             .remote-btn .label { font-size: 8px; }
         }
+
+        /* [ADD] 2026-10-19: "아이랑 갈만한 곳" 마커 아래에 장소 이름 라벨을 띄운다(지도의
+           "강화군청" 글씨처럼). 마커가 클러스터로 묶이지 않는 확대 수준(LABEL_MAX_LEVEL 이하)
+           에서만 보이게 해서, 전국 단위로 축소했을 땐 글씨가 빽빽해지지 않는다. */
+        .place-label {
+            display: block; max-width: 140px; padding: 2px 7px; margin-top: 2px;
+            background: rgba(255,255,255,0.95); border: 1px solid #c7d2fe; border-radius: 6px;
+            color: #1e293b; font-size: 11px; font-weight: 700; line-height: 1.4;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15); cursor: pointer;
+            font-family: inherit;
+        }
+        .place-label:hover { background: #eef2ff; }
+        .place-label .place-label-more { color: #4338ca; font-weight: 800; }
+
+        /* [ADD] 2026-10-19: "☔ 실내만" 토글. kids_places.json의 placeType이 실내/실내외인
+           장소만 남긴다(비 오는 날용). 리스트·코스 모드 둘 다 적용된다. */
+        .indoor-toggle-btn {
+            flex: 0 0 auto; padding: 10px 10px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+            background: #fff; color: #334155; font-weight: 700; font-size: 12px;
+            cursor: pointer; white-space: nowrap; font-family: inherit;
+        }
+        .indoor-toggle-btn.active { background: #4338ca; border-color: #4338ca; color: #fff; }
+        .place-type-badge {
+            display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+            border-radius: 20px; margin-left: 6px; vertical-align: middle;
+            background: #e0f2fe; color: #0369a1;
+        }
+        .place-type-badge.outdoor { background: #f1f5f9; color: #475569; }
     </style>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=clusterer,services"></script>
 </head>
@@ -428,6 +457,8 @@
                 <option value="free">💰 무료만</option>
                 <option value="paid">💳 유료만</option>
             </select>
+            <!-- [ADD] 2026-10-19: 비 오는 날용 실내 장소 필터(리스트·코스 모드 공통). -->
+            <button type="button" id="indoorToggleBtn" class="indoor-toggle-btn" onclick="toggleIndoorOnly()" aria-pressed="false" title="실내에서 놀 수 있는 곳만 보기">☔ 실내만</button>
         </div>
         <div id="festivalSearchControls">
         <button type="button" id="gpsBtn" onclick="useMyLocation()" style="width:100%; margin-bottom:8px; padding:9px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#334155; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
@@ -742,9 +773,37 @@
     // 무료인지 유료인지 알 수 없어서, 무료만/유료만을 고르면 둘 다 빠지고 "전체 비용"
     // 에서만 보인다. 축제(type !== 'kids')는 이 필터의 영향을 받지 않는다.
     let costFilterMode = 'all'; // 'all' | 'free' | 'paid'
+    // [ADD] 2026-10-19: "☔ 실내만" 토글 상태. 켜면 리스트·코스 모드 공통으로
+    // 실내에서 놀 수 있는 곳만 남긴다. 판정 기준(isIndoorFriendly):
+    //  - 아이랑 갈만한 곳(kids): kids_places.json의 placeType이 '실내' 또는 '실내외'
+    //    ('실내외' = 야외도 있지만 실내 구역만으로도 충분히 놀 수 있는 곳)
+    //  - 광고 장소(isAd): placeType 정보가 없으므로 '실외'로 명시된 경우만 뺀다
+    //  - 무더위쉼터(shelter): 실내 시설이라 그대로 둔다
+    //  - 축제·공원·캠핑장·수상레저: 실내 여부를 알 수 없거나 야외라 뺀다
+    let indoorOnly = false;
+    function isIndoorFriendly(item) {
+        if (item.type === 'shelter') return true;
+        if (item.type !== 'kids') return false;
+        if (item.isAd) return item.placeType !== '실외';
+        return item.placeType === '실내' || item.placeType === '실내외';
+    }
+    function toggleIndoorOnly() {
+        indoorOnly = !indoorOnly;
+        const btn = document.getElementById('indoorToggleBtn');
+        if (btn) {
+            btn.classList.toggle('active', indoorOnly);
+            btn.setAttribute('aria-pressed', indoorOnly ? 'true' : 'false');
+        }
+        if (gpsModeActive) {
+            renderNearbyPanel();
+        } else {
+            renderMainPanel();
+        }
+    }
     function getFilteredData() {
-        if (!courseModeActive || costFilterMode === 'all') return festivalData;
-        return festivalData.filter(function (item) {
+        const base = indoorOnly ? festivalData.filter(isIndoorFriendly) : festivalData;
+        if (!courseModeActive || costFilterMode === 'all') return base;
+        return base.filter(function (item) {
             if (item.type !== 'kids') return true;
             if (costFilterMode === 'free') return item.costTag === '완전무료';
             if (costFilterMode === 'paid') return item.costTag === '유료' || item.costTag === '유료(일부 무료 조건 있음)';
@@ -1020,7 +1079,12 @@
             : '';
         // [ADD] 2026-10-10: 유료 등록(광고) 장소는 "광고" 배지를 추가로 붙인다.
         const adBadgeHtml = item.isAd ? '<span class="ad-badge">📢 광고</span>' : '';
-        document.getElementById('cardDate').innerHTML = escapeHtml(dateLabel) + costBadgeHtml + adBadgeHtml;
+        // [ADD] 2026-10-19: 실내/실외 배지(kids_places.json의 placeType).
+        const placeTypeLabels = { '실내': '☔ 실내', '실내외': '☔ 실내+야외', '실외': '🌤️ 야외' };
+        const placeTypeBadgeHtml = (item.type === 'kids' && placeTypeLabels[item.placeType])
+            ? '<span class="place-type-badge' + (item.placeType === '실외' ? ' outdoor' : '') + '">' + placeTypeLabels[item.placeType] + '</span>'
+            : '';
+        document.getElementById('cardDate').innerHTML = escapeHtml(dateLabel) + costBadgeHtml + placeTypeBadgeHtml + adBadgeHtml;
 
         document.getElementById('cardAddrText').innerText = `📍 ${item.addr}`;
 
@@ -1168,18 +1232,105 @@
         });
     }
 
+    // [ADD] 2026-10-19: 마커 아래 장소 이름 라벨(지도의 "강화군청" 글씨처럼).
+    // - "아이랑 갈만한 곳"(kids) 마커에만 붙인다 — 축제·쉼터까지 붙이면 너무 빽빽해진다.
+    // - 지도 레벨 LABEL_MAX_LEVEL 이하(시·군 정도로 확대했을 때)에서만 보여준다.
+    //   전국 단위로 축소하면 글씨가 빽빽해지므로 숨긴다.
+    // - 레벨 6 이상에서는 클러스터러(minLevel 6)가 가까운 마커들을 숫자 원으로 묶는데,
+    //   묶여서 안 보이는 마커의 라벨까지 떠 있으면 이상하므로, 'clustered' 이벤트로 받은
+    //   "지금 숫자 원 안에 들어간 마커" 목록(clusteredMarkerSet)은 라벨을 숨긴다.
+    // - 라벨 글자는 "지금 필터를 통과한" 장소 기준으로 만든다(renderMarkers의 data).
+    //   같은 좌표에 여러 곳이 남아 있으면 "첫 장소 외 N곳"으로 표시한다.
+    // - 라벨을 눌러도 마커를 누른 것과 똑같이 하단 카드가 뜬다.
+    const LABEL_MAX_LEVEL = 7;
+    const CLUSTER_MIN_LEVEL = 6; // 위 clusterer 생성 옵션 minLevel과 같은 값
+    const labelOverlayCache = new Map(); // marker -> CustomOverlay
+    let labelTargets = []; // [{ marker, items }] — 마지막 renderMarkers 기준
+    let clusteredMarkerSet = new Set();
+
+    kakao.maps.event.addListener(clusterer, 'clustered', function (clusters) {
+        clusteredMarkerSet = new Set();
+        (clusters || []).forEach(function (c) {
+            if (c.getSize() >= 2) {
+                c.getMarkers().forEach(function (m) { clusteredMarkerSet.add(m); });
+            }
+        });
+        updatePlaceLabels();
+    });
+
+    function getLabelOverlay(marker) {
+        let overlay = labelOverlayCache.get(marker);
+        if (!overlay) {
+            const el = document.createElement('button');
+            el.type = 'button';
+            el.className = 'place-label';
+            overlay = new kakao.maps.CustomOverlay({
+                position: marker.getPosition(),
+                content: el,
+                xAnchor: 0.5,
+                yAnchor: 0,
+                zIndex: 1,
+                clickable: true
+            });
+            overlay._labelEl = el;
+            labelOverlayCache.set(marker, overlay);
+        }
+        return overlay;
+    }
+
+    function updatePlaceLabels() {
+        const level = map.getLevel();
+        const show = level <= LABEL_MAX_LEVEL;
+        const clusteringOn = level >= CLUSTER_MIN_LEVEL;
+        const activeOverlays = new Set();
+        if (show) {
+            labelTargets.forEach(function (t) {
+                if (clusteringOn && clusteredMarkerSet.has(t.marker)) return;
+                const overlay = getLabelOverlay(t.marker);
+                const el = overlay._labelEl;
+                const first = t.items[0];
+                const more = t.items.length - 1;
+                el.innerHTML = escapeHtml(first.title) + (more > 0 ? ' <span class="place-label-more">외 ' + more + '곳</span>' : '');
+                el.title = t.items.map(function (i) { return i.title; }).join(', ');
+                el.onclick = function (e) {
+                    e.stopPropagation();
+                    showFestivalCardGroup(t.items, 0);
+                };
+                if (!overlay.getMap()) overlay.setMap(map);
+                activeOverlays.add(overlay);
+            });
+        }
+        labelOverlayCache.forEach(function (overlay) {
+            if (!activeOverlays.has(overlay) && overlay.getMap()) overlay.setMap(null);
+        });
+    }
+
+    kakao.maps.event.addListener(map, 'zoom_changed', updatePlaceLabels);
+
     function renderMarkers(data) {
         if (!allMarkersCache) buildAllMarkersOnce(festivalData);
         clusterer.clear();
         // 여러 item이 같은(그룹) 마커를 가리킬 수 있어서, Set으로 중복 추가를 막는다
         // (안 그러면 클러스터 배지 숫자가 실제보다 부풀려질 수 있다).
         const markerSet = new Set();
+        const kidsItemsByMarker = new Map(); // 라벨용: 마커별로 지금 보이는 kids 장소
         data.forEach(function (item) {
             const m = allMarkersCache.get(item.contentid || `${item.lat},${item.lng}`);
-            if (m) markerSet.add(m);
+            if (m) {
+                markerSet.add(m);
+                if (item.type === 'kids' && item.title) {
+                    if (!kidsItemsByMarker.has(m)) kidsItemsByMarker.set(m, []);
+                    kidsItemsByMarker.get(m).push(item);
+                }
+            }
         });
         allMarkers = Array.from(markerSet);
         clusterer.addMarkers(allMarkers);
+        labelTargets = [];
+        kidsItemsByMarker.forEach(function (items, marker) {
+            labelTargets.push({ marker: marker, items: items });
+        });
+        updatePlaceLabels();
     }
 
 
