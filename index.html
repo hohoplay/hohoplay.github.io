@@ -353,6 +353,19 @@
                 <textarea id="iq-msg" rows="5" placeholder="어떤 기기·브라우저에서 발생했는지 함께 적어주시면 더 빠르게 확인할 수 있어요."
                     style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;resize:vertical;min-height:100px"></textarea>
             </div>
+            <!-- [ADD] 2026-10-19: 스팸 방지용 간단한 숫자 보안문자. 참고 사이트(alwayscorp.co.kr)의
+                 "4 + 5 = ?" 방식과 동일하게, 두 한 자리 숫자를 더하는 문제를 모달 열 때마다
+                 새로 뽑아서 보여주고, 제출 시 정답과 맞는지 확인한다. -->
+            <div style="margin-bottom:8px">
+                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">보안문자 <span style="color:#f87171">*</span></label>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div id="iq-captcha-q" style="flex:1;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;color:#334155;text-align:center;user-select:none"></div>
+                    <input id="iq-captcha-a" type="text" inputmode="numeric" autocomplete="off" placeholder="정답"
+                        style="width:90px;flex:none;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;text-align:center">
+                    <button type="button" onclick="refreshInquiryCaptcha()" aria-label="보안문자 새로고침"
+                        style="flex:none;width:44px;height:44px;border-radius:12px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center">↻</button>
+                </div>
+            </div>
             <div id="iq-error" style="display:none;margin-top:10px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600"></div>
             <div id="iq-success" style="display:none;margin-top:10px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center">
                 메일 앱이 열립니다. 내용을 확인하고 전송해 주세요!
@@ -368,12 +381,26 @@
     <script>
         const INQUIRY_GAME_NAME = "호호플레이";
 
-        function openInquiryModal() { document.getElementById('inquiry-modal').style.display = 'flex'; }
+        // [ADD] 2026-10-19: 보안문자(스팸 방지용 간단 산수 문제) 정답을 들고 있는 변수.
+        // 모달을 열 때, 새로고침 버튼을 누를 때, 제출에 실패(오답)했을 때마다 새로 뽑는다.
+        let iqCaptchaAnswer = 0;
+        function refreshInquiryCaptcha() {
+            const a = Math.floor(Math.random() * 8) + 1;
+            const b = Math.floor(Math.random() * 8) + 1;
+            iqCaptchaAnswer = a + b;
+            const q = document.getElementById('iq-captcha-q');
+            if (q) q.textContent = a + ' + ' + b + ' = ?';
+            const aEl = document.getElementById('iq-captcha-a');
+            if (aEl) aEl.value = '';
+        }
+
+        function openInquiryModal() { document.getElementById('inquiry-modal').style.display = 'flex'; refreshInquiryCaptcha(); }
         function closeInquiryModal() { document.getElementById('inquiry-modal').style.display = 'none'; }
         function submitInquiry() {
             const email = document.getElementById('iq-email').value.trim();
             const type = document.getElementById('iq-type').value;
             const msg = document.getElementById('iq-msg').value.trim();
+            const captchaAnswer = document.getElementById('iq-captcha-a').value.trim();
             const err = document.getElementById('iq-error');
             const suc = document.getElementById('iq-success');
             const btn = document.getElementById('iq-btn');
@@ -381,7 +408,7 @@
             const sp = document.getElementById('iq-spin');
             err.style.display = 'none';
             suc.style.display = 'none';
-            if (!email || !type || !msg) {
+            if (!email || !type || !msg || !captchaAnswer) {
                 err.textContent = '필수 항목(*)을 모두 입력해 주세요.';
                 err.style.display = 'block';
                 return;
@@ -389,6 +416,12 @@
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 err.textContent = '올바른 이메일 주소를 입력해 주세요.';
                 err.style.display = 'block';
+                return;
+            }
+            if (parseInt(captchaAnswer, 10) !== iqCaptchaAnswer) {
+                err.textContent = '보안문자가 올바르지 않습니다. 다시 확인해 주세요.';
+                err.style.display = 'block';
+                refreshInquiryCaptcha();
                 return;
             }
             btn.disabled = true;
@@ -405,6 +438,7 @@
                 document.getElementById('iq-email').value = '';
                 document.getElementById('iq-type').value = '';
                 document.getElementById('iq-msg').value = '';
+                refreshInquiryCaptcha();
             }, 1200);
         }
     </script>
