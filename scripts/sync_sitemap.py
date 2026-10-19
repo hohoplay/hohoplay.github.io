@@ -53,7 +53,13 @@ ET.register_namespace("", SITEMAP_NS)
 DOMAIN = "https://hohoplaylab.com"
 
 # 새 파일이 생기면 자동으로 sitemap에 추가해줄 디렉터리 (끝에 '/' 포함, 저장소 루트 기준)
-ADD_NEW_FROM_DIRS = ["blog/posts/", "blog/magazine/"]
+# [ADD] 2026-10-19: blog/indoor-kids/ — 지역별 실내 장소 목록 페이지
+# (scripts/generate_indoor_region_pages.py가 생성). 이 폴더는 priority=0.6,
+# changefreq=weekly로 쓰고 있었는데, 아래 DEFAULT_CHANGEFREQ/DEFAULT_PRIORITY는
+# monthly/0.5라 자동 추가되면 그 값으로 들어간다 — 생성 스크립트가 이미 올바른
+# 값으로 sitemap을 직접 갱신해주므로, 보통은 그 값이 먼저 들어가 있어서 이 자동
+# 추가 규칙은 "생성 스크립트 실행을 깜빡했을 때"의 안전망 역할만 한다.
+ADD_NEW_FROM_DIRS = ["blog/posts/", "blog/magazine/", "blog/indoor-kids/"]
 
 # 파일 스캔에서 아예 제외할 디렉터리/패턴 (관리자 페이지, 백업, data 폴더 등)
 EXCLUDE_DIR_PATTERNS = [
