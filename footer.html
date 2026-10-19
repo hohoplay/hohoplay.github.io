@@ -2,11 +2,11 @@
     <div class="max-w-7xl mx-auto px-4 mb-12">
         <div style="background:#1e293b;border-radius:16px;padding:20px 24px">
             <div style="font-size:12px;font-weight:900;color:#818cf8;letter-spacing:.05em;margin-bottom:12px">📢 최신 소식</div>
-            <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;text-align:left"><!-- FOOTER_LATEST_START --><li><a href="https://hohoplaylab.com/blog/magazine/37.html" style="display:flex;align-items:baseline;gap:8px;text-decoration:none;overflow:hidden" class="hover:text-white transition"><span style="flex:none;font-size:11px;font-weight:800;color:#ec4899">호호 매거진</span><span style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">궁합과 운세: 사주로 보는 관계의 합과 현대적 해석</span></a></li><li><a href="https://hohoplaylab.com/blog/magazine/36.html" style="display:flex;align-items:baseline;gap:8px;text-decoration:none;overflow:hidden" class="hover:text-white transition"><span style="flex:none;font-size:11px;font-weight:800;color:#ec4899">호호 매거진</span><span style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">아이와 함께 떠나는 전국 축제 여행: 호호플레이 나들이 안내</span></a></li><li><a href="https://hohoplaylab.com/blog/magazine/35.html" style="display:flex;align-items:baseline;gap:8px;text-decoration:none;overflow:hidden" class="hover:text-white transition"><span style="flex:none;font-size:11px;font-weight:800;color:#ec4899">호호 매거진</span><span style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">호호플레이 게임 아카이브: 설치 없는 웹 기반 캐주얼 미니게임의 매력과 가치</span></a></li><!-- FOOTER_LATEST_END --></ul>
+            <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;text-align:left"><!-- FOOTER_LATEST_START --><li style="color:#64748b;font-size:13px">불러오는 중...</li><!-- FOOTER_LATEST_END --></ul>
         </div>
     </div>
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-6 gap-10 text-center md:text-left">
-        <div class="col-span-2 md:col-span-2">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-6 gap-10 text-center md:text-left">
+        <div class="md:col-span-2">
             <h4 class="font-black text-2xl mb-6 uppercase tracking-wider"><span class="text-indigo-400">HOHO</span><span class="text-violet-400"> PLAY</span></h4>
             <p class="text-lg leading-relaxed mb-6">로그인 없이 즐기는 무한한 즐거움, HOHO PLAY은 웹 표준 기술을 이용한 고성능 브라우저 게임 플랫폼입니다.</p>
             <p class="text-sm text-slate-500 mb-6">개인 운영 서비스 · Since 2026 · 문의: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a></p>
@@ -28,14 +28,14 @@
                 </a>
             </div>
         </div>
-        <div>
+        <div class="hidden md:block">
             <h4 class="text-white font-bold mb-4">회사</h4>
             <ul class="space-y-2 text-sm">
                 <li><a href="#" onclick="footerNav('about');return false;" class="hover:text-white transition">소개</a></li>
                 <li><a href="#" onclick="footerNav('guide');return false;" class="hover:text-white transition">고객지원</a></li>
             </ul>
         </div>
-        <div>
+        <div class="hidden md:block">
             <h4 class="text-white font-bold mb-4">플레이하기</h4>
             <ul class="space-y-2 text-sm">
                 <li><a href="/index.html" class="hover:text-white transition">전체게임</a></li>
@@ -46,7 +46,7 @@
                 <li><a href="/dream/" class="hover:text-white transition">꿈해몽 사전</a></li>
             </ul>
         </div>
-        <div>
+        <div class="hidden md:block">
             <h4 class="text-white font-bold mb-4">소통</h4>
             <ul class="space-y-2 text-sm">
                 <li><a href="#" onclick="footerNav('blog');return false;" class="hover:text-white transition">커뮤니티</a></li>
@@ -54,11 +54,61 @@
                 <li><a href="#" onclick="footerNav('partner');return false;" class="hover:text-white transition">파트너</a></li>
             </ul>
         </div>
-        <div>
+        <div class="hidden md:block">
             <h4 class="text-white font-bold mb-4">고객 센터</h4>
             <p class="text-sm">이메일: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a></p>
         </div>
     </div>
+
+    <!-- [ADD] 2026-10-19: 모바일 전용 메뉴 — 기존엔 위 grid가 모바일에서 grid-cols-2라
+         회사/플레이하기/소통/고객센터가 2x2로 두 줄에 걸쳐 나왔음. "한 줄에 3개 + 접히는
+         메뉴로" 요청에 따라, 모바일에서는 위 4칸 grid를 통째로 숨기고(각 칸에
+         hidden md:block 추가) 대신 회사·플레이하기·소통을 details/summary 네이티브
+         아코디언 3개로 한 줄에 배치한다. details 요소는 자바스크립트 없이 브라우저가
+         직접 열고 닫아주는 표준 HTML 태그라 — footer.html 맨 아래 script 태그가
+         (outerHTML로 끼워 넣는 방식 특성상) 실제로는 실행되지 않는 문제와 무관하게
+         항상 정상 동작한다. 고객센터는 펼칠 하위 메뉴가 이메일 한 줄뿐이라 아코디언
+         없이 바로 아래 한 줄로 노출한다. -->
+    <style>
+        .footer-acc details{background:#1e293b;border-radius:12px;overflow:hidden}
+        .footer-acc summary{list-style:none;cursor:pointer;position:relative;font-weight:800;color:#fff;font-size:12px;padding:12px 22px 12px 8px;text-align:center}
+        .footer-acc summary::-webkit-details-marker{display:none}
+        .footer-acc summary::after{content:'+';position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#818cf8;font-weight:900;font-size:14px}
+        .footer-acc details[open] summary::after{content:'\2212'}
+        .footer-acc details[open] summary{padding-bottom:4px}
+    </style>
+    <div class="md:hidden max-w-7xl mx-auto px-4 footer-acc grid grid-cols-3 gap-2 text-center">
+        <details>
+            <summary>회사</summary>
+            <ul style="list-style:none;margin:0;padding:4px 6px 12px;display:flex;flex-direction:column;gap:8px">
+                <li><a href="#" onclick="footerNav('about');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">소개</a></li>
+                <li><a href="#" onclick="footerNav('guide');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">고객지원</a></li>
+            </ul>
+        </details>
+        <details>
+            <summary>플레이하기</summary>
+            <ul style="list-style:none;margin:0;padding:4px 6px 12px;display:flex;flex-direction:column;gap:8px">
+                <li><a href="/index.html" style="font-size:11px;color:#cbd5e1;text-decoration:none">전체게임</a></li>
+                <li><a href="/vote/" style="font-size:11px;color:#cbd5e1;text-decoration:none">익명투표</a></li>
+                <li><a href="/quiz/" style="font-size:11px;color:#cbd5e1;text-decoration:none">상식테스트</a></li>
+                <li><a href="/festival/" style="font-size:11px;color:#cbd5e1;text-decoration:none">아이랑 나들이 지도</a></li>
+                <li><a href="/guides/index.html" style="font-size:11px;color:#cbd5e1;text-decoration:none">게임공략</a></li>
+                <li><a href="/dream/" style="font-size:11px;color:#cbd5e1;text-decoration:none">꿈해몽 사전</a></li>
+            </ul>
+        </details>
+        <details>
+            <summary>소통</summary>
+            <ul style="list-style:none;margin:0;padding:4px 6px 12px;display:flex;flex-direction:column;gap:8px">
+                <li><a href="#" onclick="footerNav('blog');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">커뮤니티</a></li>
+                <li><a href="/blog/magazine/" style="font-size:11px;color:#cbd5e1;text-decoration:none">호호 매거진</a></li>
+                <li><a href="#" onclick="footerNav('partner');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">파트너</a></li>
+            </ul>
+        </details>
+    </div>
+    <div class="md:hidden max-w-7xl mx-auto px-4 text-center text-sm mt-6">
+        고객센터 · 이메일: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a>
+    </div>
+
     <div class="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-slate-800 text-center text-sm font-medium tracking-wide">
         <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 text-slate-500">
             <a href="#" onclick="footerNav('terms');return false;" class="hover:text-white transition">이용약관</a>
