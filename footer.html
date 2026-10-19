@@ -61,47 +61,50 @@
     </div>
 
     <!-- [ADD] 2026-10-19: 모바일 전용 메뉴 — 기존엔 위 grid가 모바일에서 grid-cols-2라
-         회사/플레이하기/소통/고객센터가 2x2로 두 줄에 걸쳐 나왔음. "한 줄에 3개 + 접히는
-         메뉴로" 요청에 따라, 모바일에서는 위 4칸 grid를 통째로 숨기고(각 칸에
-         hidden md:block 추가) 대신 회사·플레이하기·소통을 details/summary 네이티브
-         아코디언 3개로 한 줄에 배치한다. details 요소는 자바스크립트 없이 브라우저가
-         직접 열고 닫아주는 표준 HTML 태그라 — footer.html 맨 아래 script 태그가
-         (outerHTML로 끼워 넣는 방식 특성상) 실제로는 실행되지 않는 문제와 무관하게
-         항상 정상 동작한다. 고객센터는 펼칠 하위 메뉴가 이메일 한 줄뿐이라 아코디언
-         없이 바로 아래 한 줄로 노출한다. -->
+         회사/플레이하기/소통/고객센터가 2x2로 두 줄에 걸쳐 나왔음. 처음엔 3칸을 한 줄에
+         가로로 배치했는데(아코디언이 열고 닫힐 때 칸 높이가 들쭉날쭉해지는 문제가 있었음),
+         참고 사진(다른 사이트의 세로로 쌓인 FAQ형 아코디언 — 게임/도구/회사/제품이 각각
+         전체 폭 한 줄씩이고, 펼친 줄만 아래에 목록이 나오는 모양)을 보고 이 방식으로
+         바꿨다. 회사·플레이하기·소통을 details/summary 네이티브 아코디언으로 세로로
+         쌓으면, 옆으로 나란히 놓지 않으니애초에 칸 높이가 달라도 서로 어긋나 보이는
+         문제 자체가 생기지 않는다. details 요소는 자바스크립트 없이 브라우저가 직접
+         열고 닫아주는 표준 HTML 태그라 — footer.html 맨 아래 script 태그가 (outerHTML로
+         끼워 넣는 방식 특성상) 실제로는 실행되지 않는 문제와 무관하게 항상 정상 동작한다.
+         고객센터는 펼칠 하위 메뉴가 이메일 한 줄뿐이라 아코디언 없이 바로 아래 한 줄로
+         노출한다. -->
     <style>
-        .footer-acc details{background:#1e293b;border-radius:12px;overflow:hidden}
-        .footer-acc summary{list-style:none;cursor:pointer;position:relative;font-weight:800;color:#fff;font-size:12px;padding:12px 22px 12px 8px;text-align:center}
+        .footer-acc{border-top:1px solid #1e293b}
+        .footer-acc details{border-bottom:1px solid #1e293b}
+        .footer-acc summary{list-style:none;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:space-between;font-weight:800;color:#fff;font-size:15px;padding:16px 4px}
         .footer-acc summary::-webkit-details-marker{display:none}
-        .footer-acc summary::after{content:'+';position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#818cf8;font-weight:900;font-size:14px}
-        .footer-acc details[open] summary::after{content:'\2212'}
-        .footer-acc details[open] summary{padding-bottom:4px}
+        .footer-acc summary::after{content:'\2304';color:#818cf8;font-weight:900;font-size:18px;transition:transform .2s;line-height:1}
+        .footer-acc details[open] summary::after{transform:rotate(180deg)}
     </style>
-    <div class="md:hidden max-w-7xl mx-auto px-4 footer-acc grid grid-cols-3 gap-2 text-center">
+    <div class="md:hidden max-w-7xl mx-auto px-4 footer-acc">
         <details>
             <summary>회사</summary>
-            <ul style="list-style:none;margin:0;padding:4px 6px 12px;display:flex;flex-direction:column;gap:8px">
-                <li><a href="#" onclick="footerNav('about');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">소개</a></li>
-                <li><a href="#" onclick="footerNav('guide');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">고객지원</a></li>
+            <ul style="list-style:none;margin:0;padding:0 4px 18px;display:flex;flex-direction:column;gap:14px">
+                <li><a href="#" onclick="footerNav('about');return false;" style="font-size:13px;color:#cbd5e1;text-decoration:none">소개</a></li>
+                <li><a href="#" onclick="footerNav('guide');return false;" style="font-size:13px;color:#cbd5e1;text-decoration:none">고객지원</a></li>
             </ul>
         </details>
         <details>
             <summary>플레이하기</summary>
-            <ul style="list-style:none;margin:0;padding:4px 6px 12px;display:flex;flex-direction:column;gap:8px">
-                <li><a href="/index.html" style="font-size:11px;color:#cbd5e1;text-decoration:none">전체게임</a></li>
-                <li><a href="/vote/" style="font-size:11px;color:#cbd5e1;text-decoration:none">익명투표</a></li>
-                <li><a href="/quiz/" style="font-size:11px;color:#cbd5e1;text-decoration:none">상식테스트</a></li>
-                <li><a href="/festival/" style="font-size:11px;color:#cbd5e1;text-decoration:none">아이랑 나들이 지도</a></li>
-                <li><a href="/guides/index.html" style="font-size:11px;color:#cbd5e1;text-decoration:none">게임공략</a></li>
-                <li><a href="/dream/" style="font-size:11px;color:#cbd5e1;text-decoration:none">꿈해몽 사전</a></li>
+            <ul style="list-style:none;margin:0;padding:0 4px 18px;display:flex;flex-direction:column;gap:14px">
+                <li><a href="/index.html" style="font-size:13px;color:#cbd5e1;text-decoration:none">전체게임</a></li>
+                <li><a href="/vote/" style="font-size:13px;color:#cbd5e1;text-decoration:none">익명투표</a></li>
+                <li><a href="/quiz/" style="font-size:13px;color:#cbd5e1;text-decoration:none">상식테스트</a></li>
+                <li><a href="/festival/" style="font-size:13px;color:#cbd5e1;text-decoration:none">아이랑 나들이 지도</a></li>
+                <li><a href="/guides/index.html" style="font-size:13px;color:#cbd5e1;text-decoration:none">게임공략</a></li>
+                <li><a href="/dream/" style="font-size:13px;color:#cbd5e1;text-decoration:none">꿈해몽 사전</a></li>
             </ul>
         </details>
         <details>
             <summary>소통</summary>
-            <ul style="list-style:none;margin:0;padding:4px 6px 12px;display:flex;flex-direction:column;gap:8px">
-                <li><a href="#" onclick="footerNav('blog');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">커뮤니티</a></li>
-                <li><a href="/blog/magazine/" style="font-size:11px;color:#cbd5e1;text-decoration:none">호호 매거진</a></li>
-                <li><a href="#" onclick="footerNav('partner');return false;" style="font-size:11px;color:#cbd5e1;text-decoration:none">파트너</a></li>
+            <ul style="list-style:none;margin:0;padding:0 4px 18px;display:flex;flex-direction:column;gap:14px">
+                <li><a href="#" onclick="footerNav('blog');return false;" style="font-size:13px;color:#cbd5e1;text-decoration:none">커뮤니티</a></li>
+                <li><a href="/blog/magazine/" style="font-size:13px;color:#cbd5e1;text-decoration:none">호호 매거진</a></li>
+                <li><a href="#" onclick="footerNav('partner');return false;" style="font-size:13px;color:#cbd5e1;text-decoration:none">파트너</a></li>
             </ul>
         </details>
     </div>
