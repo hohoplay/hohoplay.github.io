@@ -370,6 +370,20 @@
             background: #e0f2fe; color: #0369a1;
         }
         .place-type-badge.outdoor { background: #f1f5f9; color: #475569; }
+
+        /* [ADD] 2026-10-19: 비 예보 배너. 지도에서 보고 있는 지역의 강수확률이 높으면
+           뜬다(api/weather.js 호출 결과로 표시 여부가 정해짐). */
+        .weather-banner {
+            display: none; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 10px;
+            background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px;
+            font-size: 13px; font-weight: 700; color: #1e3a8a;
+        }
+        .weather-banner .weather-banner-icon { font-size: 16px; flex: none; }
+        .weather-banner .weather-banner-text { flex: 1; line-height: 1.4; }
+        .weather-banner .weather-banner-close {
+            flex: none; border: none; background: transparent; color: #60a5fa; font-size: 16px;
+            font-weight: 900; cursor: pointer; padding: 0 2px; line-height: 1;
+        }
     </style>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9e0536bde5120d8fcdd09c780e431ea3&libraries=clusterer,services"></script>
 </head>
@@ -459,6 +473,13 @@
             </select>
             <!-- [ADD] 2026-10-19: 비 오는 날용 실내 장소 필터(리스트·코스 모드 공통). -->
             <button type="button" id="indoorToggleBtn" class="indoor-toggle-btn" onclick="toggleIndoorOnly()" aria-pressed="false" title="실내에서 놀 수 있는 곳만 보기">☔ 실내만</button>
+        </div>
+        <!-- [ADD] 2026-10-19: 날씨 연동 배너. 지도에서 보고 있는 지역에 비 예보가 있으면
+             자동으로 나타나고, "☔ 실내만" 필터를 함께 켠다(checkWeatherForCurrentView). -->
+        <div id="weatherBanner" class="weather-banner">
+            <span class="weather-banner-icon">☔</span>
+            <span class="weather-banner-text" id="weatherBannerText">오늘 비 예보 — 실내 장소를 먼저 보여드려요</span>
+            <button type="button" class="weather-banner-close" onclick="dismissWeatherBanner()" aria-label="닫기">✕</button>
         </div>
         <div id="festivalSearchControls">
         <button type="button" id="gpsBtn" onclick="useMyLocation()" style="width:100%; margin-bottom:8px; padding:9px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#334155; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
@@ -781,14 +802,19 @@
     //  - 무더위쉼터(shelter): 실내 시설이라 그대로 둔다
     //  - 축제·공원·캠핑장·수상레저: 실내 여부를 알 수 없거나 야외라 뺀다
     let indoorOnly = false;
+    // [ADD] 2026-10-19: 날씨 배너가 자동으로 켠 상태인지 추적한다. 사용자가 버튼을 직접
+    // 누르면(아래 isAutoFromWeather 없이 호출됨) 날씨 쪽 자동 제어를 넘겨받아서, 나중에
+    // 비 예보가 사라져도 사용자가 고른 상태를 임의로 되돌리지 않는다.
+    let indoorAutoEnabledByWeather = false;
     function isIndoorFriendly(item) {
         if (item.type === 'shelter') return true;
         if (item.type !== 'kids') return false;
         if (item.isAd) return item.placeType !== '실외';
         return item.placeType === '실내' || item.placeType === '실내외';
     }
-    function toggleIndoorOnly() {
+    function toggleIndoorOnly(isAutoFromWeather) {
         indoorOnly = !indoorOnly;
+        if (!isAutoFromWeather) indoorAutoEnabledByWeather = false;
         const btn = document.getElementById('indoorToggleBtn');
         if (btn) {
             btn.classList.toggle('active', indoorOnly);
@@ -820,6 +846,73 @@
             renderMainPanel();
         }
     }
+
+    // ── 날씨 연동 (비 예보 배너 + 실내 필터 자동 켜기) ──────────────────────
+    // [ADD] 2026-10-19: 지도가 멈출 때(idle)마다 지금 보고 있는 중심 좌표로
+    // api/weather.js를 호출해서 강수확률을 확인한다. 같은 지역을 계속 보고 있으면
+    // 중복 호출하지 않도록 좌표를 반올림해 키로 묶고, 전국/광역 단위로 넓게 보고
+    // 있을 땐 특정 지역 날씨가 의미 없으므로 건너뛴다.
+    let weatherDebounceTimer = null;
+    let lastWeatherKey = null;
+
+    function roundCoord(n) {
+        // 소수점 1자리(약 11km 단위)로 묶어서, 살짝만 지도를 움직여도 매번 다시
+        // 호출하는 걸 막는다. 날씨는 시/군 단위면 충분하다는 전제와도 맞는다.
+        return Math.round(n * 10) / 10;
+    }
+
+    function dismissWeatherBanner() {
+        const banner = document.getElementById('weatherBanner');
+        if (banner) banner.style.display = 'none';
+    }
+
+    function applyWeatherResult(data) {
+        const banner = document.getElementById('weatherBanner');
+        if (!banner) return;
+        if (data && data.willRain) {
+            banner.style.display = 'flex';
+            if (!indoorOnly) {
+                toggleIndoorOnly(true);
+                indoorAutoEnabledByWeather = true;
+            }
+        } else {
+            banner.style.display = 'none';
+            if (indoorAutoEnabledByWeather) {
+                if (indoorOnly) toggleIndoorOnly(true);
+                indoorAutoEnabledByWeather = false;
+            }
+        }
+    }
+
+    function checkWeatherForCurrentView() {
+        // 레벨 10 이상(전국/광역 단위로 넓게 보는 중)이면 특정 지역 날씨를 보여줄
+        // 의미가 없으므로 배너를 숨기고 건너뛴다.
+        if (map.getLevel() >= 10) {
+            const banner = document.getElementById('weatherBanner');
+            if (banner) banner.style.display = 'none';
+            lastWeatherKey = null;
+            return;
+        }
+        const center = map.getCenter();
+        const lat = roundCoord(center.getLat());
+        const lng = roundCoord(center.getLng());
+        const key = lat + ',' + lng;
+        if (key === lastWeatherKey) return;
+        lastWeatherKey = key;
+
+        fetch(WEATHER_API_URL + '?lat=' + lat + '&lng=' + lng)
+            .then(function (res) { return res.json(); })
+            .then(applyWeatherResult)
+            .catch(function () { /* 날씨 조회 실패해도 지도 기능엔 영향 없음 — 조용히 무시 */ });
+    }
+
+    function scheduleWeatherCheck() {
+        clearTimeout(weatherDebounceTimer);
+        weatherDebounceTimer = setTimeout(checkWeatherForCurrentView, 1200);
+    }
+
+    kakao.maps.event.addListener(map, 'idle', scheduleWeatherCheck);
+
     // [ADD] 무더위쉼터 목록 fetch의 경쟁 상태(race condition) 방지용 — 자세한 설명은
     // 마커 클릭 핸들러 안 주석 참고.
     let activeShelterRequestId = null;
@@ -914,6 +1007,8 @@
     }
     // Vercel 프록시 주소를 브라우저에서 직접 호출 (지역 선택 시 설명 문구를 즉시 받아오기 위함)
     const DETAIL_PROXY_URL = 'https://festival-api-proxy.vercel.app/api/detail';
+    // [ADD] 2026-10-19: 날씨 연동(api/weather.js, 같은 Vercel 프록시 프로젝트에 추가됨).
+    const WEATHER_API_URL = 'https://festival-api-proxy.vercel.app/api/weather';
 
     const TODAY_STR = (function () {
         const d = new Date();
