@@ -38,6 +38,16 @@ REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 POSTS_DIR = os.path.join(REPO_ROOT, "blog", "posts")
 TEMPLATE_PATH = os.path.join(REPO_ROOT, "templates", "community_post_template.html")
 BLOG_INDEX_PATH = os.path.join(REPO_ROOT, "blog", "index.html")
+# [ADD] 2026-10-19: footer.html에 "최신 소식"(공지사항·업데이트·호호 매거진 최신 3개) 칸을
+# 추가하면서 생김. footer.html은 모든 페이지가 fetch('/footer.html')로 받아 그 자리에
+# outerHTML로 통째로 갈아끼우는 "공용 조각 파일"이라, 자바스크립트로 그때그때 최신글을
+# 불러오는 방식은 쓸 수 없다(outerHTML로 끼워 넣은 <script>는 브라우저가 실행해주지 않음 —
+# innerHTML/outerHTML로 삽입된 스크립트는 원래 동작 안 하는 게 표준 동작이라, footer.html
+# 맨 아래 있던 기존 footerNav() 스크립트도 사실 지금까지 전 페이지에서 똑같이 실행 안 되고
+# 있었던 것으로 보임. 이 스크립트가 이미 매 실행마다 전체 글을 최신순으로 불러오고 있으므로,
+# blog/index.html의 COMMUNITY_STATIC_LIST와 완전히 같은 방식 — 마커 사이를 매 실행마다
+# 정적 HTML로 다시 채워 넣는 방식 — 으로 footer.html도 같이 최신화한다.
+FOOTER_PATH = os.path.join(REPO_ROOT, "footer.html")
 SITEMAP_PATH = os.path.join(REPO_ROOT, "sitemap.xml")
 
 # [FIX] 2026-09-21: "호호 매거진" 카테고리가 이 목록에 없어서, 매거진 글들이
@@ -517,6 +527,7 @@ def generate_post_pages(posts):
 # 커뮤니티 페이지가 처음 열렸을 때 기본으로 보여주는 탭(= window.onload의 switchBoard 기본값과
 # 반드시 일치시켜야, 정적 콘텐츠 → 자바스크립트 실시간 콘텐츠로 바뀔 때 내용이 안 튄다).
 PAST_LIST_SIZE = 10  # 실시간 화면의 PAST_LIST_SIZE와 동일하게 맞춤
+FOOTER_LATEST_SIZE = 3  # footer.html "최신 소식" 칸에 보여줄 개수
 
 
 def update_blog_index_static_list(posts):
@@ -617,6 +628,64 @@ def update_blog_index_static_list(posts):
         f.write(new_html)
     shown_count = (1 if posts else 0) + (len(past) if posts else 0)
     print(f"  ✓ blog/index.html 정적 목록 갱신 완료 (최신글+지난글 {shown_count}개, {n_subs}곳 반영)")
+
+
+# [ADD] 2026-10-19: footer.html "최신 소식" 칸 — 공지사항/업데이트/호호 매거진을 합쳐서
+# 최신 생성일순 3개만(게임소개는 제외) 보여준다. posts는 fetch_all_posts()가 이미
+# created_at 기준 내림차순으로 정렬해서 넘겨주므로 필터링 후 앞에서 3개만 자르면 된다.
+FOOTER_LATEST_CATEGORIES = {"공지사항", "업데이트", MAGAZINE_CATEGORY}
+
+_CATEGORY_BADGE_COLOR = {
+    "공지사항": "#f59e0b",
+    "업데이트": "#4f46e5",
+    MAGAZINE_CATEGORY: "#ec4899",
+}
+
+
+def update_footer_latest(posts):
+    """footer.html의 FOOTER_LATEST_START~END 마커 사이를 최신글 3개로 갱신한다."""
+    if not os.path.exists(FOOTER_PATH):
+        print("⚠️ footer.html을 찾을 수 없어 최신 소식 갱신을 건너뜁니다.", file=sys.stderr)
+        return
+
+    html_content = open(FOOTER_PATH, encoding="utf-8").read()
+
+    latest = [p for p in posts if p.get("category") in FOOTER_LATEST_CATEGORIES][:FOOTER_LATEST_SIZE]
+
+    if not latest:
+        items_html = '<li style="color:#64748b">아직 소식이 없습니다.</li>'
+    else:
+        items = []
+        for p in latest:
+            title = html_lib.escape(p["title"])
+            category = html_lib.escape(p["category"])
+            color = _CATEGORY_BADGE_COLOR.get(p["category"], "#94a3b8")
+            url = post_output_url(p)
+            items.append(
+                '<li><a href="' + url + '" style="display:flex;align-items:baseline;gap:8px;'
+                'text-decoration:none;overflow:hidden" class="hover:text-white transition">'
+                '<span style="flex:none;font-size:11px;font-weight:800;color:' + color + '">'
+                + category + '</span>'
+                '<span style="font-size:13px;overflow:hidden;text-overflow:ellipsis;'
+                'white-space:nowrap">' + title + '</span>'
+                '</a></li>'
+            )
+        items_html = "".join(items)
+
+    start_marker = "<!-- FOOTER_LATEST_START -->"
+    end_marker = "<!-- FOOTER_LATEST_END -->"
+
+    if start_marker not in html_content:
+        print("⚠️ footer.html에서 최신 소식 마커를 찾지 못했습니다. 수동 확인이 필요합니다.", file=sys.stderr)
+        return
+
+    pattern = re.compile(re.escape(start_marker) + r".*?" + re.escape(end_marker), re.DOTALL)
+    replacement = f"{start_marker}{items_html}{end_marker}"
+    new_html, n_subs = pattern.subn(replacement, html_content)
+
+    with open(FOOTER_PATH, "w", encoding="utf-8") as f:
+        f.write(new_html)
+    print(f"  ✓ footer.html 최신 소식 갱신 완료 ({len(latest)}개, {n_subs}곳 반영)")
 
 
 def build_magazine_archive_page(posts, post_excerpts=None):
@@ -868,6 +937,7 @@ def main():
 
     new_count, removed_count, updated_count, post_excerpts = generate_post_pages(posts)
     update_blog_index_static_list(posts)
+    update_footer_latest(posts)
     build_magazine_archive_page(posts, post_excerpts)
     build_magazine_archive_redirect()
     migrate_magazine_sitemap_entry()
