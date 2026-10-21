@@ -5624,9 +5624,15 @@ def _build_slug_title(labels):
     return f"{type_code}{item_code}-{date_part}"
 
 
+# 수동 테스트용: DRAFT_ONLY=true 이면 공개하지 않고 Blogger '초안'으로만 저장한다.
+#  - 중복 제목 검사를 건너뜀(같은 글을 몇 번이고 미리보기 가능)
+#  - 숫자 슬러그 2단계 발행/명언 순차번호(quote_state.json)는 건드리지 않음
+DRAFT_ONLY = os.environ.get("DRAFT_ONLY", "false").lower() == "true"
+
+
 def post_blogger(title, content, labels, description, idx, total):
-    # ── 중복 발행 방지: 같은 제목이 이미 발행되어 있으면 건너뜀 ──
-    if title in _EXISTING_TITLES:
+    # ── 중복 발행 방지: 같은 제목이 이미 발행되어 있으면 건너뜀 (초안 모드는 제외) ──
+    if title in _EXISTING_TITLES and not DRAFT_ONLY:
         print(f"[{idx:02d}/{total}] ⏭️  이미 발행됨, 건너뜀 — {title[:45]}")
         return True
 
@@ -5640,6 +5646,27 @@ def post_blogger(title, content, labels, description, idx, total):
         return True
 
     url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
+
+    # ── 초안 모드: 공개하지 않고 초안으로만 저장 ──
+    if DRAFT_ONLY:
+        for attempt in range(1, 4):
+            resp = requests.post(url,
+                headers={"Authorization":f"Bearer {ACCESS_TOKEN}","Content-Type":"application/json"},
+                params={"isDraft": "true"},
+                json={"title":title,"content":content,"labels":labels,"searchDescription":description}
+            )
+            if resp.status_code == 200:
+                print(f"[{idx:02d}/{total}] 📝 초안 저장 완료 (비공개) — {title[:45]}")
+                time.sleep(3)
+                return True
+            elif resp.status_code == 429:
+                wait = 60 * attempt
+                print(f"[{idx:02d}/{total}] ⏳ 429 쿼터 초과 — {wait}초 대기 후 재시도 ({attempt}/3)...")
+                time.sleep(wait)
+            else:
+                print(f"[{idx:02d}/{total}] ❌ 초안 저장 실패 {resp.status_code}: {resp.text[:120]}")
+                return False
+        return False
 
     # 영어 슬러그 확보 시도 — 성공하면 [영어 제목으로 생성 → 한글 제목으로 수정] 2단계로 발행.
     # 실패(라벨 조합 인식 안 됨)하면 기존처럼 한글 제목으로 바로 발행.
@@ -5771,56 +5798,15 @@ def main():
     # 수동 실행 시 강제 포함 옵션
     force_weekly        = os.environ.get("FORCE_WEEKLY",        "false").lower() == "true"
     force_monthly       = os.environ.get("FORCE_MONTHLY",       "false").lower() == "true"
-    force_monthly_test  = os.environ.get("FORCE_MONTHLY_TEST",  "false").lower() == "true"
     force_chinese_only  = os.environ.get("FORCE_CHINESE_ONLY",  "false").lower() == "true"
     force_date          = os.environ.get("FORCE_DATE", "").strip()  # 예: "2026-06-24"
 
-    # FORCE_MONTHLY_TEST=true → 쥐띠 월간운세 1개만 발행 (테스트용)
-    if force_monthly_test:
-        _test_c = next(c for c in CHINESE if c['en'] == 'rat')
-        _test_posts = build_chinese_monthly_post(today_str)
-        _test_post  = next((p for p in _test_posts if '쥐띠' in p[0]), _test_posts[0])
-        print(f"🧪 FORCE_MONTHLY_TEST 모드: 쥐띠 월간운세 1개만 발행 ({today_str})")
-        title, content, labels, description = _test_post
-        post_blogger(title, content, labels, description, 1, 1)
-        print("✅ 완료: 1/1개 게시 성공")
-        return
-
-    # FORCE_WEEKLY_TEST=true → 물고기자리 주간운세 1개만 발행 (테스트용)
-    force_weekly_test = os.environ.get("FORCE_WEEKLY_TEST", "false").lower() == "true"
-    if force_weekly_test:
-        _w_posts = build_zodiac_weekly_post(today_str)
-        _w_post  = next((p for p in _w_posts if '물고기자리' in p[0]), _w_posts[-1])
-        print(f"🧪 FORCE_WEEKLY_TEST 모드: 물고기자리 주간운세 1개만 발행 ({today_str})")
-        title, content, labels, description = _w_post
-        post_blogger(title, content, labels, description, 1, 1)
-        print("✅ 완료: 1/1개 게시 성공")
-        return
-
-    # FORCE_ZODIAC_TEST=true → 별자리(하루) 1개만 발행 (테스트용)
-    # FORCE_ZODIAC 환경변수로 별자리 이름 지정 가능 (기본값: 처녀자리)
-    force_zodiac_test = os.environ.get("FORCE_ZODIAC_TEST", "false").lower() == "true"
-    if force_zodiac_test:
-        target_name = os.environ.get("FORCE_ZODIAC", "처녀자리")
-        z = next((zz for zz in ZODIACS if zz['kr'] == target_name), ZODIACS[0])
-        print(f"🧪 FORCE_ZODIAC_TEST 모드: {z['kr']} 오늘의 운세 1개만 발행 ({today_str})")
-        title, content, labels, description = build_zodiac_post(z, today_str)
-        post_blogger(title, content, labels, description, 1, 1)
-        print("✅ 완료: 1/1개 게시 성공")
-        return
-
-    # FORCE_CHINESE_TEST=true → 띠운세(하루) 1개만 발행 (테스트용)
-    # FORCE_CHINESE 환경변수로 띠 이름 지정 가능 (기본값: 쥐띠)
-    force_chinese_test = os.environ.get("FORCE_CHINESE_TEST", "false").lower() == "true"
-    if force_chinese_test:
-        target_name = os.environ.get("FORCE_CHINESE", "쥐띠")
-        c = next((cc for cc in CHINESE if cc['kr'] == target_name), CHINESE[0])
-        print(f"🧪 FORCE_CHINESE_TEST 모드: {c['kr']} 오늘의 운세 1개만 발행 ({today_str})")
-        title, content, labels, description = build_chinese_post(c, today_str)
-        post_blogger(title, content, labels, description, 1, 1)
-        print("✅ 완료: 1/1개 게시 성공")
-        return
-
+    # ── 수동 단독 발행 모드 (Actions "Run workflow"에서 선택) ──
+    #    FORCE_OMNIBUS_ONLY / FORCE_WEEKLY / FORCE_MONTHLY / FORCE_QUOTE_ONLY 중 하나라도 true면
+    #    해당 글만 발행하고 종료(정규 구성·fortune_feed 갱신 없음).
+    #    DRAFT_ONLY=true 를 함께 주면 공개하지 않고 Blogger 초안으로만 저장한다.
+    force_omnibus_only = os.environ.get("FORCE_OMNIBUS_ONLY", "false").lower() == "true"
+    force_quote_only   = os.environ.get("FORCE_QUOTE_ONLY",   "false").lower() == "true"
 
     if force_date:
         try:
@@ -5831,7 +5817,29 @@ def main():
         except ValueError:
             print(f"⚠️  FORCE_DATE 형식 오류 (YYYY-MM-DD 필요): {force_date}")
 
-    # FORCE_WEEKLY=true → 별자리 주간운세 12개만 단독 발행
+    if DRAFT_ONLY:
+        print("📝 DRAFT_ONLY 모드: 공개하지 않고 Blogger 초안으로만 저장합니다")
+
+    _single = []
+    if force_quote_only:
+        _single.append(build_quote_post(today_str))
+    if force_omnibus_only:
+        _single.append(build_omnibus_weekly_post(today_str))
+    if force_monthly:
+        _single.extend(build_chinese_monthly_post(today_str, combine=True))
+    if force_weekly:
+        _single.extend(build_zodiac_weekly_post(today_str, combine=True))
+    if _single:
+        total = len(_single)
+        print(f"🎯 수동 단독 발행 — {total}개 ({today_str})")
+        success = 0
+        for i, (title, content, labels, description) in enumerate(_single, 1):
+            if post_blogger(title, content, labels, description, i, total):
+                success += 1
+        print(f"\n✅ 완료: {success}/{total}개 처리 성공")
+        return
+
+    # FORCE_WEEKLY=true → 별자리 주간운세 12개만 단독 발행 (위 단독 발행 모드에서 이미 처리됨, 참고용 잔존)
     if force_weekly:
         _w_posts = build_zodiac_weekly_post(today_str, combine=True)
         total = len(_w_posts)
