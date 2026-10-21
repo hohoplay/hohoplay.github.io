@@ -3807,13 +3807,6 @@ def build_zodiac_weekly_post(today_str, combine=False):
 
   </div>
 
-  <div class="z-quote-block">
-    <p style="font-size:13px;color:#9d8bc7;margin:0 0 1rem;word-break:keep-all">{pick_human_bridge(kst_day, "weekly", _wq.get("category","인생"))}</p>
-    <h3 class="z-quote-label">📜 이 흐름에 어울리는 속담</h3>
-    <p class="z-quote-text">"{_wq["proverb"]}"</p>
-    <p style="font-size:13px;line-height:1.9;color:#5b21b6;margin:0;word-break:keep-all">{_wq["meaning"]}</p>
-  </div>
-
   <div style="background:none;padding:0;margin:1.4rem 0 0">
     <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
     <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;word-break:keep-all">{_we[1]}</p>
@@ -4160,12 +4153,6 @@ def build_chinese_monthly_post(today_str, combine=False):
     <p>{_m_peak_tip}</p>
   </div>
   {_avoid_box}
-
-  <div class="z-quote-block">
-    <h3 class="z-quote-label">📜 이 흐름에 어울리는 속담</h3>
-    <p class="z-quote-text">"{_mq["proverb"]}"</p>
-    <p style="font-size:13px;line-height:1.9;color:#5b21b6;margin:0;word-break:keep-all">{_mq.get("풀이", _mq.get("meaning", ""))}</p>
-  </div>
 
   <p style="margin:1.4em 0 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{info.get("monthly_tip","")}</p>
   {_tail}
