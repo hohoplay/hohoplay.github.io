@@ -544,8 +544,17 @@ def pick_quote():
         background = str(row.get('background', ''))
         apply_     = str(row.get('apply', ''))
         category   = str(row.get('category', ''))
-        return quote, quote_en, author_ko, author_en, birth, profession, meaning, background, apply_, category
-    return '', '', '', '', '', '', '', '', '', ''
+        # 2026-10-21 추가 컬럼 — 인물 이야기 / 말의 배경 / 영어 표현 / 출처 불확실 여부
+        def _g(k):
+            v = row.get(k, '')
+            return '' if str(v) == 'nan' else str(v).strip()
+        bio        = _g('bio')
+        context    = _g('context')
+        en_note    = _g('en_note')
+        unsure     = _g('attrib_unsure') == '1'
+        return (quote, quote_en, author_ko, author_en, birth, profession, meaning, background, apply_, category,
+                bio, context, en_note, unsure)
+    return ('', '', '', '', '', '', '', '', '', '', '', '', '', False)
 
 def daily_fortune():
     today = now_kst().strftime("%Y-%m-%d")
@@ -1712,6 +1721,61 @@ _FAREWELL_MONTHLY = [
     "이달의 흐름을 함께 살펴보았습니다. 당신이 마주할 이달의 매 순간을 신뢰하며, 조용히 배웅을 전합니다.",
 ]
 
+# 오늘의 명언 — 카테고리별 되새김 질문 (2026-10-21)
+_QUOTE_QUESTIONS = {
+    "인생": [
+        "오늘 하루 중 가장 오래 기억하고 싶은 순간은 무엇이 될까요?",
+        "지금 내 삶에서 가장 감사한 것 하나를 꼽는다면 무엇인가요?",
+        "누구의 기대가 아니라 내 마음이 원하는 것은 무엇인가요?",
+        "최근 한 달 사이, 나를 가장 편안하게 해 준 순간은 언제였나요?",
+        "내가 지키고 싶은 삶의 기준을 한 문장으로 적는다면 무엇인가요?",
+        "오늘 하루를 마치며 스스로에게 해 주고 싶은 말은 무엇인가요?",
+    ],
+    "성장": [
+        "어제의 나보다 오늘 조금 나아진 점은 무엇인가요?",
+        "요즘 새로 배우고 싶은 것이 있다면 무엇인가요?",
+        "최근에 겪은 실수에서 얻은 것은 무엇인가요?",
+        "지금 미루고 있는 일 중 5분만 시작할 수 있는 것은 무엇인가요?",
+        "나에게 가장 큰 영향을 준 사람이나 책은 무엇인가요?",
+        "1년 뒤의 내가 오늘의 나에게 고마워할 만한 선택은 무엇일까요?",
+    ],
+    "도전": [
+        "지금 두려워서 망설이는 일이 있다면 가장 작은 첫 단계는 무엇인가요?",
+        "실패해도 괜찮다면 해 보고 싶은 일은 무엇인가요?",
+        "오늘 한 가지 용기를 낸다면 어떤 일이 될까요?",
+        "결과가 아니라 과정을 기준으로 보면 지금 나는 잘하고 있나요?",
+        "이미 해냈지만 스스로 인정해 주지 못한 일은 무엇인가요?",
+        "내가 시작을 미루는 진짜 이유는 무엇인가요?",
+    ],
+    "인내": [
+        "지금 견디고 있는 일 속에서 조금씩 쌓이고 있는 것은 무엇인가요?",
+        "오늘 하루 잠시 쉬어도 괜찮다면 어떻게 쉬고 싶나요?",
+        "과거에 힘들었지만 지나온 일을 떠올리면 어떤 생각이 드나요?",
+        "지금 내가 놓아도 되는 걱정은 무엇인가요?",
+        "나를 지치게 하는 것과 나를 지탱해 주는 것은 각각 무엇인가요?",
+        "버티는 나에게 오늘 건네고 싶은 말은 무엇인가요?",
+    ],
+    "관계": [
+        "오늘 먼저 안부를 전하고 싶은 사람이 있나요?",
+        "최근에 누군가에게 고마웠던 순간은 언제였나요?",
+        "내가 관계에서 지키고 싶은 선은 무엇인가요?",
+        "말하지 못해 마음에 남은 이야기가 있다면 무엇인가요?",
+        "나는 어떤 사람에게 편안한 사람으로 남고 싶나요?",
+        "오늘 누군가의 이야기를 끝까지 들어 준다면 어떤 변화가 있을까요?",
+    ],
+}
+
+# 오늘의 명언 전용 배웅 — 서재·서가 표현 없음 (2026-10-21)
+_FAREWELL_QUOTE = [
+    "오늘의 한 줄이 당신의 하루에 작은 나침반이 되었기를 바랍니다. 당신의 발걸음이 닿는 곳마다 평온함이 함께하기를 조용히 응원하겠습니다.",
+    "오늘의 문장을 함께 읽어 주셔서 감사합니다. 문을 열고 나서는 당신의 하루가 조금 더 다정하고 따뜻하기를 진심으로 바랍니다.",
+    "마음이 복잡하거나 삶의 결을 가다듬고 싶을 때 언제든 다시 들러 주시기 바랍니다. 오늘 하루도 당신만의 속도로 묵묵히 빛나시기 바랍니다.",
+    "짧은 문장 하나가 하루를 바꾸기도 합니다. 오늘 읽은 한 줄이 걷는 길에 작은 온기가 되어 주기를 바랍니다.",
+    "오늘의 이야기를 끝까지 읽어 주셔서 감사합니다. 당신이 오늘 하루를 온전히 당신답게 보내시기를 조용히 바라겠습니다.",
+    "오늘의 한 줄이 마음 한편에 남아 필요한 순간 떠오르기를 바랍니다. 조심히, 그리고 천천히 걸어가시기 바랍니다.",
+    "짧은 시간이었지만 함께 읽어 주셔서 감사했습니다. 당신의 하루 끝이 처음보다 조금 더 가벼워지기를 바랍니다.",
+]
+
 def pick_farewell_bridge(seed_num, mode='daily'):
     """책방을 나서는 독자에게 건네는 다정한 배웅 인사 — CSV 기반
     mode: daily / weekly / monthly
@@ -2163,7 +2227,10 @@ _QUOTE_TITLE_PATTERNS = [
 
 def build_quote_post(today_str):
     """실존 명언 기반 정보성 스토리텔링 포스트 — 1,000자 이상, 출처·의미·배경·적용 포함"""
-    quote, quote_en, author_ko, author_en, birth, profession, meaning, background, apply_, category = pick_quote()
+    (quote, quote_en, author_ko, author_en, birth, profession, meaning, background, apply_, category,
+     bio, context_txt, en_note, unsure) = pick_quote()
+    if not context_txt:      # 새 컬럼이 비어 있으면 예전 배경 문장 사용
+        context_txt = background
 
     # 제목 패턴
     kst = now_kst()
@@ -2174,7 +2241,7 @@ def build_quote_post(today_str):
     # ── H2 브릿지 ──
     _QUOTE_H2_BRIDGES = [
         f"오늘 {author_ko}의 한 문장이 이 하루의 시작이 되었으면 합니다.",
-        f"오늘 서가에서 꺼낸 {author_ko}의 이 말이 당신의 하루에 닿기를 바랍니다.",
+        f"오늘 {author_ko}의 이 말이 당신의 하루에 닿기를 바랍니다.",
         f"{author_ko}{'가' if (ord(author_ko[-1]) - 0xAC00) % 28 == 0 else '이'} 남긴 이 말이 오늘 당신에게 가장 필요한 문장일 수 있습니다.",
         f"오늘의 흐름을 살피다가, {author_ko}의 이 구절이 자연스럽게 손에 잡혔습니다.",
         f"긴 시간을 견뎌온 말이 있습니다. 오늘은 {author_ko}의 한 줄을 함께 읽어보겠습니다.",
@@ -2196,7 +2263,7 @@ def build_quote_post(today_str):
     if cat not in ('인생','성장','도전','인내','관계'):
         cat = '인생'
     # ── 배웅 ──
-    farewell_txt = pick_farewell_bridge(kst_day, "daily")
+    farewell_txt = _FAREWELL_QUOTE[kst_day % len(_FAREWELL_QUOTE)]
 
     # ── 이미지 저장 카드 ID ──
     card_id = f"qc-{today_str.replace(' ','').replace('년','').replace('월','').replace('일','')}"
@@ -2218,6 +2285,31 @@ def build_quote_post(today_str):
     if category and str(category) != 'nan':
         kw_list.append(str(category))
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
+
+    _qs = _QUOTE_QUESTIONS.get(cat, _QUOTE_QUESTIONS["인생"])
+    _q1 = _qs[kst_day % len(_qs)]
+    _q2 = _qs[(kst_day + 3) % len(_qs)]
+    q_html = (
+        '<div style="margin:1.2rem 0 1.4rem;padding:12px 16px;background:#f9fafb;'
+        'border-left:3px solid #d1d5db;border-radius:0 8px 8px 0">'
+        '<p style="font-size:12px;font-weight:700;color:#6b7280;margin:0 0 6px">🪞 오늘 스스로에게 물어볼 질문</p>'
+        f'<ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.9;color:#374151">'
+        f'<li style="margin:0 0 4px">{_q1}</li><li>{_q2}</li></ul></div>'
+    )
+    bio_html = (f'<p style="font-size:14px;line-height:2.0;color:#374151;margin:0">{bio}</p>' if bio else '')
+    en_html = ''
+    if en_note:
+        _items = [x.strip() for x in en_note.split('|') if '=' in x]
+        _lis = ''.join(
+            f'<li style="margin:0 0 4px"><b style="color:#4c1d95">{x.split("=",1)[0].strip()}</b>'
+            f' — {x.split("=",1)[1].strip()}</li>' for x in _items)
+        if _lis:
+            en_html = (
+                '<div style="margin:1.2rem 0 1.4rem;padding:12px 16px;background:#faf8ff;'
+                'border-left:3px solid #c4b5fd;border-radius:0 8px 8px 0">'
+                '<p style="font-size:12px;font-weight:700;color:#7c3aed;margin:0 0 6px">🔤 오늘의 영어 표현</p>'
+                f'<ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.9;color:#374151">{_lis}</ul>'
+                '</div>')
 
     content = f"""{style()}
 <style>
@@ -2274,7 +2366,7 @@ def build_quote_post(today_str):
     <!-- 헤더 -->
     <div class="qc-date">{today_str} · {category}</div>
     <h1 class="qc-title">📖 오늘의 명언</h1>
-    <p class="qc-sub">{author_ko}{("이" if (ord(author_ko[-1]) - 0xAC00) % 28 != 0 else "가")} 오늘 당신에게 건네는 한 줄</p>
+    <p class="qc-sub">{author_ko}{("의 말로 전해지는 한 줄" if unsure else (("이" if (ord(author_ko[-1]) - 0xAC00) % 28 != 0 else "가") + " 오늘 당신에게 건네는 한 줄"))}</p>
     <div class="qc-rule">&middot; &middot; &middot;</div>
 
     <!-- 💭 공감 -->
@@ -2294,7 +2386,8 @@ def build_quote_post(today_str):
         <span style="font-size:16px;font-weight:700;color:#4c1d95">{author_ko}</span>
         <span style="font-size:12px;color:#9d8bc7;margin-left:8px">{author_en} · {birth}</span>
       </p>
-      <p style="font-size:13px;color:#6b7280;margin:0">{profession}</p>
+      <p style="font-size:13px;color:#6b7280;margin:0 0 0.6rem">{profession}</p>
+      {bio_html}
     </div>
 
     <!-- 명언 원문 — 1번만 -->
@@ -2311,10 +2404,12 @@ def build_quote_post(today_str):
     <!-- 본문 — 하나의 흐름 -->
     <div class="qc-body">
       <p>{meaning}</p>
-      <p>{background}</p>
+      <p>{context_txt}</p>
+      {en_html}
       <p>{emotion}</p>
       <p>{comfort}</p>
       <p>{apply_}</p>
+      {q_html}
     </div>
 
     <!-- 배웅 -->
