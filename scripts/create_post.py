@@ -5411,11 +5411,11 @@ def main():
     for c in CHINESE:
         build_chinese_post(c, today_str)
 
-    # ⑥ 운세SNS — 별자리 통합 1개 (매일, 기존 개별 12개는 그대로 유지)
-    posts.append(build_zodiac_combined_post(today_str))
-
-    # ⑦ 운세SNS — 띠 통합 1개 (매일, 기존 개별 12개는 그대로 유지)
-    posts.append(build_chinese_combined_post(today_str))
+    # ⑥⑦ 별자리통합운세·띠통합운세 — 2026-10-21: 매일 발행 일시 중단
+    #    (build_zodiac_combined_post / build_chinese_combined_post 는 fortune_feed에 영향이 없어
+    #     호출 자체를 하지 않는다. 다시 켤 때는 아래 두 줄의 주석만 풀면 된다.)
+    # posts.append(build_zodiac_combined_post(today_str))
+    # posts.append(build_chinese_combined_post(today_str))
 
     # ⑧ 별과띠가만나는시간 — 옴니버스 스토리텔링 1개
     #    2026-10-21: 매일 → 매주 일요일로 변경 (한 주를 시작하기 전에 읽는 글, 반복 콘텐츠 비중 감소 목적)
@@ -5461,7 +5461,7 @@ def main():
     monthly = "띠별월간 12 + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
     omni    = "별과띠가만나는시간 1 + " if omnibus_today else ""
-    print(f"구성: {quote}별자리통합 1 + 띠통합 1 + {omni}{weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
+    print(f"구성: {quote}{omni}{weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
     print("ℹ️  별자리운세·띠운세 개별 12개씩은 2026-10-04부터 Blogger 발행 중단(샵콜 전용 운영) — "
           "fortune_feed.json용 계산만 수행하고 블로그에는 올리지 않음\n")
 
