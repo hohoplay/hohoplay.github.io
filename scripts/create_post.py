@@ -3941,6 +3941,7 @@ def build_chinese_monthly_post(today_str, combine=False):
     month_str = get_next_month_str()
     results   = []
     _stories  = []   # combine=True 일 때 띠별 본문을 모아 둔다
+    _summ     = []   # combine=True 일 때 (띠, 핵심 메시지, 행운 키워드) — 한눈에 보기 표용
 
     v2_df    = csv("chinese_monthly_v2.csv")
     m1000_df = csv("chinese_monthly_1000.csv")  # ← 추가 fortune 풀 (다양성 확보)
@@ -3970,7 +3971,7 @@ def build_chinese_monthly_post(today_str, combine=False):
         "dragon":  {"kr":"용띠",    "trait":"카리스마가 강하고 이상이 높으며 큰 그림을 보는 타입", "strength":"열정·창의성·카리스마", "weakness":"완벽주의·고집", "monthly_tip":"이달 용띠는 큰 아이디어를 실행으로 옮기기 좋은 시기입니다. 단, 세부 계획도 함께 챙기시기 바랍니다."},
         "snake":   {"kr":"뱀띠",    "trait":"직관이 예리하고 신중하며 깊게 생각하는 타입", "strength":"통찰력·신중함·집중력", "weakness":"의심·감정 표현 어려움", "monthly_tip":"뱀띠는 직관이 가장 정확하게 작동하는 한 달을 보냅니다. 충분히 관찰한 뒤 움직이는 것이 맞는 방식입니다."},
         "horse":   {"kr":"말띠",    "trait":"자유를 사랑하고 활동적이며 변화를 즐기는 타입", "strength":"열정·적응력·사교성", "weakness":"끈기 부족·집중 분산", "monthly_tip":"말띠는 활동적인 에너지가 올라오는 시기를 이달 맞이합니다. 하나에 집중하는 것이 가장 좋은 결과를 만들어 냅니다."},
-        "goat":    {"kr":"양띠",    "trait":"온화하고 배려심이 깊으며 예술적 감수성이 풍부한 타입", "strength":"공감능력·창의성·온화함", "weakness":"자기주장 약함·의존적", "monthly_tip":"이달 양띠는 자신의 의견을 먼저 표현하는 연습이 필요한 시기입니다. 배려만큼 자기 자신도 챙기시기 바랍니다."},
+        "sheep":   {"kr":"양띠",    "trait":"온화하고 배려심이 깊으며 예술적 감수성이 풍부한 타입", "strength":"공감능력·창의성·온화함", "weakness":"자기주장 약함·의존적", "monthly_tip":"이달 양띠는 자신의 의견을 먼저 표현하는 연습이 필요한 시기입니다. 배려만큼 자기 자신도 챙기시기 바랍니다."},
         "monkey":  {"kr":"원숭이띠","trait":"재치 있고 영리하며 새로운 것을 빠르게 습득하는 타입", "strength":"지능·유머·적응력", "weakness":"집중력 분산·변덕", "monthly_tip":"원숭이띠는 아이디어가 풍부한 한 달을 보냅니다. 그 아이디어를 하나 선택해서 완성하는 것이 이달 핵심입니다."},
         "rooster": {"kr":"닭띠",    "trait":"성실하고 꼼꼼하며 완벽을 추구하는 타입", "strength":"성실함·책임감·분석력", "weakness":"완벽주의·비판적", "monthly_tip":"닭띠는 꼼꼼함이 빛나는 시기를 이달 맞이합니다. 완벽하지 않아도 진행하는 연습이 더 좋은 결과를 만들어 냅니다."},
         "dog":     {"kr":"개띠",    "trait":"충성스럽고 정직하며 신뢰를 중시하는 타입", "strength":"충성심·정직함·책임감", "weakness":"걱정 많음·융통성 부족", "monthly_tip":"개띠는 신뢰를 쌓는 행동이 이달 가장 빛나는 시기를 맞습니다. 말보다 행동으로 보여주는 것이 가장 강한 전략입니다."},
@@ -4013,27 +4014,10 @@ def build_chinese_monthly_post(today_str, combine=False):
         # ── 달빛서재 입장/책발견/계산대 문장 — library_entrance.csv ──
         _month_seed = kst_now.year * 12 + kst_now.month
         _ANIMAL_IDX = {'rat':0,'ox':1,'tiger':2,'rabbit':3,'dragon':4,'snake':5,
-                       'horse':6,'goat':7,'monkey':8,'rooster':9,'dog':10,'pig':11}
+                       'horse':6,'sheep':7,'goat':7,'monkey':8,'rooster':9,'dog':10,'pig':11}
         _aid = _ANIMAL_IDX.get(c['en'], 0)
 
-        def _pick_entrance(type_, offset=0):
-            """library_entrance.csv에서 type별 문장 선택"""
-            if library_entrance.empty:
-                return ""
-            pool = library_entrance[library_entrance['type'] == type_]
-            if pool.empty:
-                return ""
-            return pool.iloc[(_month_seed + _aid + offset) % len(pool)]['sentence']
-
-        entrance_html   = _pick_entrance('entrance',   offset=0)
-        book_found_html = _pick_entrance('book_found', offset=3)
-        checkout_html   = _pick_entrance('checkout',   offset=7)
-
-        # book_found에 띠별 kr 삽입 (CSV 문장이 일반형이므로 앞에 붙임)
-        if book_found_html and c['kr'] not in book_found_html:
-            book_found_html = f"{c['kr']}를 위한 이달의 책이 눈에 들어왔습니다. {book_found_html}"
-
-        empathy = entrance_html  # 기존 empathy 변수 유지 (story_html 참조)
+        # (2026-10-21) 달빛서재 입장/책 발견/계산대 장면 제거 — 별자리주간·별과띠 주간판과 같은 구성으로 통일
 
         # 인과 브릿지
         _to_period_bridges = [
@@ -4127,62 +4111,72 @@ def build_chinese_monthly_post(today_str, combine=False):
         _title_kw = _M_TITLE_KEYWORDS[(_month_seed + _aid) % len(_M_TITLE_KEYWORDS)]
         title = f"{c['kr']} {month_str} 월간운세 | {_title_kw}"
 
-        # 하나의 흐르는 스토리 — 달빛서재 스토리텔링
-        story_html = f'''
-<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto;
-            font-size:15px;line-height:2.2;color:#374151;word-break:keep-all">
+        # 별자리주간과 같은 구성: 특징 칩 → 핵심 메시지 → 이달의 흐름 → 이달의 특성 → 조심할 점 → 속담
+        _hl = headline.replace(chr(10), ' ').strip()
+        _sy = sympathy.replace(chr(10), ' ').strip()
+        _chip_lucky = f'<span class="z-trait">🍀 <b>{lucky_kw}</b></span>' if lucky_kw else ''
+        _avoid_box = ''
+        if avoid_kw or _m_low_tip:
+            _avoid_box = f'''
+  <div class="z-section money">
+    <h2><span class="z-icon">⚠️</span> {c['kr']} 이달 조심할 점</h2>
+    {avoid_html_m}
+    <p style="color:#6b7280;font-size:13px">{_m_low_tip}</p>
+  </div>'''
+        # 단독(비통합) 발행일 때만 개별 마무리를 붙인다. 통합 글은 맨 끝에 한 번만 마무리한다.
+        _tail = "" if combine else f'''
+  <p style="margin:1.6em 0 0.6em 0;font-size:15px;font-weight:500;color:#374151">"{_me[0]}"</p>
+  <p style="margin:0 0 1.6em 0;font-size:14px;color:#6d28d9">{_me[1]}</p>'''
 
-  <div class="m-today">
-    <span class="m-today-label">📖 이달의 이야기</span>
-    <p>{entrance_html}</p>
-    <p>{book_found_html}</p>
+        story_html = f'''
+<div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
+
+  <p class="fortune-lead">{c['emoji']} {c['kr']} — {trait}</p>
+  <div class="z-traits">
+    <span class="z-trait">✅ {info.get("strength","")}</span>
+    <span class="z-trait">⚠️ {info.get("weakness","")}</span>
+    {_chip_lucky}
   </div>
 
-  <p style="margin:0 0 1.6em 0">{headline.replace(chr(10),' ').strip()}</p>
+  <div class="z-today">
+    <span class="z-today-label">💭 이달 핵심 메시지</span>
+    <p>{_hl}</p>
+  </div>
+  {f'<p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#6b7280;word-break:keep-all">{_sy}</p>' if _sy else ''}
 
-  <p style="margin:0 0 1.6em 0;font-size:14px;color:#6b7280">{sympathy.replace(chr(10),' ').strip()}</p>
+  <div class="z-divider">✦</div>
 
-  <div class="m-divider">✦</div>
-
-  <div class="m-section period">
+  <div class="z-section work">
     <h2><span class="z-icon">🌙</span> {c['kr']} 이달의 흐름</h2>
     <p class="z-bridge">{tpb}</p>
     <p>{period_html}</p>
   </div>
 
-  <div class="m-section trait">
+  <div class="z-section health">
     <h2><span class="z-icon">🀄</span> {c['kr']} 이달의 특성</h2>
     <p class="z-bridge">{tmb}</p>
     <p>{c['kr']}{"는" if (ord(c["kr"][-1])-0xAC00)%28==0 else "은"} 본래 {trait}입니다. 이달은 그 성향이 가장 자연스럽게 빛나는 시기입니다.</p>
     {f'<p>{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
     <p>{_m_peak_tip}</p>
-    {avoid_html_m}
-    <p style="color:#6b7280;font-size:13px">{_m_low_tip}</p>
+  </div>
+  {_avoid_box}
+
+  <div class="z-quote-block">
+    <h3 class="z-quote-label">📜 이 흐름에 어울리는 속담</h3>
+    <p class="z-quote-text">"{_mq["proverb"]}"</p>
+    <p style="font-size:13px;line-height:1.9;color:#5b21b6;margin:0;word-break:keep-all">{_mq.get("풀이", _mq.get("meaning", ""))}</p>
   </div>
 
-  <p style="margin:0 0 2.0em 0;font-size:13px;color:#9d8bc7">{pick_human_bridge(_month_seed, "monthly", _mq.get("category","인생"))}</p>
-
-  <div class="m-quote-block">
-    <h3 class="m-quote-label">📜 이 흐름에 어울리는 속담</h3>
-    <p class="m-quote-text">"{_mq["proverb"]}"</p>
-    <p style="font-size:13px;line-height:1.9;color:#6d28d9;margin:0;word-break:keep-all">{_mq.get("풀이", _mq.get("meaning", ""))}</p>
-  </div>
-
-  <p style="margin:1.6em 0 2.0em;font-size:13px;color:#78350f">{info.get("monthly_tip","")}</p>
-
-  <p style="margin:0 0 0.6em 0;font-size:15px;font-weight:500;color:#374151">"{_me[0]}"</p>
-
-  <p style="margin:0 0 1.6em 0;font-size:14px;color:#6d28d9">{_me[1]}</p>
-
-  <p style="margin:0 0 1.6em 0;font-size:14px;color:#78350f">{checkout_html}</p>
-
-  <p style="margin:2.0em 0 0;font-size:13px;color:#9ca3af">{pick_farewell_bridge(_month_seed, "monthly")}</p>
+  <p style="margin:1.4em 0 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{info.get("monthly_tip","")}</p>
+  {_tail}
 
 </div>'''
 
 
         if combine:
             _stories.append((c, story_html))
+            _mh = re.search(r'["“]([^"”]{2,30})["”]', _hl)
+            _summ.append((c, _mh.group(1) if _mh else _hl, lucky_kw))
             continue
 
         # ── 이미지 저장 카드 (띠별 월간 전용) ──
@@ -4234,17 +4228,42 @@ def build_chinese_monthly_post(today_str, combine=False):
         sections = "\n".join(
             f'<h2 id="mc-{i+1}" style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;'
             f'margin:1.6em auto 0.6em;font-size:20px;color:#4c1d95">{cc["emoji"]} {cc["kr"]} {month_str} 월간운세</h2>\n'
-            f'{sh}\n<div class="m-divider">✦</div>'
+            f'{sh}\n<div class="z-divider">✦</div>'
             for i, (cc, sh) in enumerate(_stories)
+        )
+        _rows = "".join(
+            f'<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px 4px;white-space:nowrap">'
+            f'<a href="#mc-{i+1}">{cc["emoji"]} {cc["kr"]}</a></td>'
+            f'<td style="padding:6px 4px;text-align:left;word-break:keep-all">{hl}</td>'
+            f'<td style="padding:6px 4px;font-size:12px;color:#6b7280;word-break:keep-all">{lk}</td></tr>'
+            for i, (cc, hl, lk) in enumerate(_summ)
+        )
+        table_html = (
+            '<table style="width:100%;max-width:660px;margin:0 auto 1.4em;border-collapse:collapse;'
+            'font-size:13px;text-align:center">'
+            '<thead><tr style="color:#7c3aed;border-bottom:1px solid #ddd6fe">'
+            '<th>띠</th><th>이달 핵심 메시지</th><th>행운 키워드</th></tr></thead>'
+            f'<tbody>{_rows}</tbody></table>'
         )
         intro = (
             f'<p style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:0 auto 1.2em;'
             f'font-size:15px;line-height:2.0;color:#374151;word-break:keep-all">'
-            f'{month_str}의 열두 띠 흐름을 한 편에 모았습니다. 띠마다 이달의 이야기와 상순·중순·하순의 흐름, '
-            f'타고난 특성과 조심할 점을 나누어 정리했으니, 아래 목차에서 본인의 띠로 이동하여 읽어보시기 바랍니다.</p>'
+            f'{month_str}의 열두 띠 흐름을 한 편에 모았습니다. 띠마다 핵심 메시지와 상순·중순·하순의 흐름, '
+            f'타고난 특성과 조심할 점을 나누어 정리했으니, 아래 표나 목차에서 본인의 띠로 이동하여 읽어보시기 바랍니다.</p>'
+            f'<h2 style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:0 auto .6em;'
+            f'font-size:15px;color:#4c1d95">한눈에 보는 {month_str} 열두 띠</h2>'
+            f'{table_html}'
             f'<p style="max-width:660px;margin:0 auto 2em;font-size:13px;line-height:2.2;color:#7c3aed;word-break:keep-all">{toc}</p>'
         )
-        _body_text = re.sub(r"<[^>]+>", "", intro + sections)
+        quote_clean = _plain(str(pick_quote()[0]), 120)
+        closing = (
+            f'<div class="card"><span class="badge">💬 이달의 한 마디</span>'
+            f'<p style="font-size:14px;line-height:1.85;color:#6b7280;margin-top:8px">{quote_clean}</p></div>'
+            f'<p style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:1.4em auto 0;'
+            f'font-size:14px;line-height:1.95;color:#6d28d9;word-break:keep-all">'
+            f'이달을 잘 살아내는 것으로 충분합니다. 열두 띠의 흐름을 함께 살펴보았습니다. 자신의 띠가 건네는 방향을 기억하며 한 달을 천천히 걸어가시기 바랍니다.</p>'
+        )
+        _body_text = re.sub(r"<[^>]+>", "", intro + sections + closing)
         _body_len  = len(re.sub(r"\s", "", _body_text))
         print(f"📏 띠별 월간운세 통합 본문 길이: 공백 제외 {_body_len:,}자" +
               ("" if _body_len >= 3000 else "  ⚠️ 3,000자 미만"))
@@ -4264,6 +4283,8 @@ def build_chinese_monthly_post(today_str, combine=False):
   {intro}
 
   {sections}
+
+  {closing}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html_all}</div>
