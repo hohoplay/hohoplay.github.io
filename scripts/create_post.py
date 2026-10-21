@@ -1,12 +1,11 @@
 """
-운세 자동화 - 하루 최대 27개 포스팅
-  1개  : 오늘의 명언 (매일 — 2026-10-21부터 매일 발행으로 변경)
- 12개  : 별자리 운세
- 12개  : 띠 운세
-  1개  : 별자리 주간 운세 (12별자리 통합, 매주 월요일만)
-  1개  : 띠별 월간 운세 (12띠 통합)
-────────────────────────────────
- 평일 25개, 월요일 27개 — 대략 26개/일 × 30일 ≈ 780개/월
+운세 자동화 (2026-10-21 기준)
+  매일     : 오늘의 명언 1개
+  일요일   : 별과띠가만나는시간 1개
+  월요일   : 별자리 주간운세 1개 (12별자리 통합, 본문 3,000자 이상)
+  마지막 월요일 : 띠별 월간운세 1개 (12띠 통합, 본문 3,000자 이상)
+  발행 중단 : 띠운세·별자리운세 개별 12개씩(10/4~), 별자리통합·띠통합(10/21~)
+  ※ fortune_feed.json(샵콜용) 계산은 개별 12개 빌더 호출로 계속 수행
 """
 
 import os, random, time, re, json
@@ -3574,8 +3573,9 @@ def _zodiac_weekly_title_keyword(total, money, health, love):
     return random.choice(_W_TITLE_TOTAL)
 
 
-def build_zodiac_weekly_post(today_str):
-    """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성"""
+def build_zodiac_weekly_post(today_str, combine=False):
+    """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성
+    combine=True (2026-10-21~): 12개를 한 편의 통합 포스트 1개로 합쳐 [그 1개짜리 리스트]를 반환한다."""
     # ── 기준 날짜: today_str(=발행 기준일, FORCE_DATE 반영)을 우선 사용 ──
     # 이전에는 now_kst()를 다시 호출해 today_str을 무시했기 때문에,
     # FORCE_DATE/FORCE_WEEKLY로 수동 재실행하거나 실행 시각이 자정 경계를
@@ -3669,6 +3669,7 @@ def build_zodiac_weekly_post(today_str):
     }
 
     results = []
+    _stories = []   # combine=True 일 때 별자리별 본문을 모아 둔다
     for z in ZODIACS:
         fortune  = zodiac_weekly_fortune(z['kr'])
         rating   = stars()
@@ -3820,6 +3821,10 @@ def build_zodiac_weekly_post(today_str):
 
 </div>'''
 
+        if combine:
+            _stories.append((z, story_html))
+            continue
+
         content_html = f"""{style()}
 <div class="wrap">
   <div class="hero">
@@ -3849,6 +3854,58 @@ def build_zodiac_weekly_post(today_str):
             f"{z['kr']} {week_range} 주간운세 — {signal}. {_wq['proverb']} {_wq['meaning']}", 155
         )
         results.append((title, content_html, ["별자리주간", z['kr'], "주간운세"], search_description))
+
+    if combine:
+        toc = " · ".join(
+            f'<a href="#wz-{i+1}">{zz["emoji"]} {zz["kr"]}</a>' for i, (zz, _) in enumerate(_stories)
+        )
+        sections = "\n".join(
+            f'<div id="wz-{i+1}" style="margin:0 0 2.4em 0">{sh}</div>\n<div class="z-divider">✦</div>'
+            for i, (zz, sh) in enumerate(_stories)
+        )
+        intro = (
+            f'<p style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:0 auto 1.2em;'
+            f'font-size:15px;line-height:2.0;color:#374151;word-break:keep-all">'
+            f'{week_range}, {week_label}의 열두 별자리 흐름을 한 편에 모았습니다. '
+            f'별자리마다 이번 주의 핵심 메시지와 관계·일·돈·건강 네 영역을 나누어 정리했으니, '
+            f'아래 목차에서 본인의 별자리로 이동하여 읽어보시기 바랍니다.</p>'
+            f'<p style="max-width:660px;margin:0 auto 2em;font-size:13px;line-height:2.2;color:#7c3aed;word-break:keep-all">{toc}</p>'
+        )
+        _body_text = re.sub(r"<[^>]+>", "", intro + sections)
+        _body_len  = len(re.sub(r"\s", "", _body_text))
+        print(f"📏 별자리 주간운세 통합 본문 길이: 공백 제외 {_body_len:,}자" +
+              ("" if _body_len >= 3000 else "  ⚠️ 3,000자 미만"))
+        all_tags = [f"{zz['kr']} 주간운세" for zz, _ in _stories] + [
+            "별자리 주간운세", f"{week_label} 주간운세", f"{week_range} 주간운세",
+            f"{mon_date.year}년 {month_str} 별자리 주간운세", "12별자리 주간운세", "이번주 별자리운세"]
+        tag_html_all = "".join(f'<span class="tag">{t}</span>' for t in all_tags)
+        title_c = f"별자리 {week_label} 주간운세 {week_range} | 12별자리 한눈에 보기"
+        content_c = f"""{style()}
+<div class="wrap">
+  <div class="hero">
+    <h1>📅 12별자리 주간운세</h1>
+    <p>{week_range} · {week_label}</p>
+  </div>
+
+  {post_img('weekly', "별자리 주간운세")}
+
+  {intro}
+
+  {sections}
+
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html_all}</div>
+  </div>
+
+  <!-- 관련 콘텐츠 링크 -->
+  {related_content_links("별자리주간")}
+
+  {site_link()}
+  {comment_prompt("weekly")}
+  <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매주 업데이트</div>
+</div>"""
+        desc_c = _plain(f"{week_range} 별자리 주간운세 — 양자리부터 물고기자리까지 열두 별자리의 이번 주 관계·일·돈·건강 흐름을 한 번에 정리했습니다.", 155)
+        return [(title_c, content_c, ["별자리주간", "주간운세"], desc_c)]
     return results
 
 
@@ -3877,10 +3934,12 @@ def _build_monthly_card(card_id, month_str, emoji, kr, headline, upper, mid, low
     btn   = '<button id="savebtn-' + card_id + '" class="save-btn" onclick="saveFortuneCard(\'' + card_id + '\', \'' + fname + '\')">📥 이미지로 저장</button>'
     return html, btn
 
-def build_chinese_monthly_post(today_str):
-    """띠별 월간운세 12개 — 별과띠가만나는시간 방식 스토리텔링"""
+def build_chinese_monthly_post(today_str, combine=False):
+    """띠별 월간운세 12개 — 별과띠가만나는시간 방식 스토리텔링
+    combine=True (2026-10-21~): 12개를 한 편의 통합 포스트 1개로 합쳐 [그 1개짜리 리스트]를 반환한다."""
     month_str = get_next_month_str()
     results   = []
+    _stories  = []   # combine=True 일 때 띠별 본문을 모아 둔다
 
     v2_df    = csv("chinese_monthly_v2.csv")
     m1000_df = csv("chinese_monthly_1000.csv")  # ← 추가 fortune 풀 (다양성 확보)
@@ -4121,6 +4180,10 @@ def build_chinese_monthly_post(today_str):
 </div>'''
 
 
+        if combine:
+            _stories.append((c, story_html))
+            continue
+
         # ── 이미지 저장 카드 (띠별 월간 전용) ──
         _proverb_card = str(_mq.get('proverb', _mq.get('속담', '')))
         image_card_m, save_btn_m = _build_monthly_card(
@@ -4162,6 +4225,58 @@ def build_chinese_monthly_post(today_str):
             f"{c['kr']} {month_str} 월간운세 — {headline}. {_proverb_card} {_desc_meaning}", 155
         )
         results.append((title, content_html, ["띠별월간", c['kr'], "월간운세"], search_description))
+
+    if combine:
+        toc = " · ".join(
+            f'<a href="#mc-{i+1}">{cc["emoji"]} {cc["kr"]}</a>' for i, (cc, _) in enumerate(_stories)
+        )
+        sections = "\n".join(
+            f'<h2 id="mc-{i+1}" style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;'
+            f'margin:1.6em auto 0.6em;font-size:20px;color:#4c1d95">{cc["emoji"]} {cc["kr"]} {month_str} 월간운세</h2>\n'
+            f'{sh}\n<div class="m-divider">✦</div>'
+            for i, (cc, sh) in enumerate(_stories)
+        )
+        intro = (
+            f'<p style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:0 auto 1.2em;'
+            f'font-size:15px;line-height:2.0;color:#374151;word-break:keep-all">'
+            f'{month_str}의 열두 띠 흐름을 한 편에 모았습니다. 띠마다 이달의 이야기와 상순·중순·하순의 흐름, '
+            f'타고난 특성과 조심할 점을 나누어 정리했으니, 아래 목차에서 본인의 띠로 이동하여 읽어보시기 바랍니다.</p>'
+            f'<p style="max-width:660px;margin:0 auto 2em;font-size:13px;line-height:2.2;color:#7c3aed;word-break:keep-all">{toc}</p>'
+        )
+        _body_text = re.sub(r"<[^>]+>", "", intro + sections)
+        _body_len  = len(re.sub(r"\s", "", _body_text))
+        print(f"📏 띠별 월간운세 통합 본문 길이: 공백 제외 {_body_len:,}자" +
+              ("" if _body_len >= 3000 else "  ⚠️ 3,000자 미만"))
+        all_tags = [f"{cc['kr']} 월간운세" for cc, _ in _stories] + [
+            "띠별 월간운세", f"{month_str} 월간운세", f"{month_str} 띠별운세", "12띠 월간운세", "이달의 띠별운세"]
+        tag_html_all = "".join(f'<span class="tag">{t}</span>' for t in all_tags)
+        title_c = f"띠별 {month_str} 월간운세 | 12띠 한눈에 보기"
+        content_c = f"""{style()}
+<div class="wrap">
+  <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
+    <h1>🌙 12띠 월간운세</h1>
+    <p>{month_str}</p>
+  </div>
+
+  {post_img('monthly', "띠별 월간운세")}
+
+  {intro}
+
+  {sections}
+
+  <div class="card"><span class="badge">🔍 관련 키워드</span>
+    <div class="tag-cloud">{tag_html_all}</div>
+  </div>
+
+  <!-- 관련 콘텐츠 링크 -->
+  {related_content_links("띠별월간")}
+
+  {site_link()}
+  {comment_prompt("monthly")}
+  <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매월 업데이트</div>
+</div>"""
+        desc_c = _plain(f"{month_str} 띠별 월간운세 — 쥐띠부터 돼지띠까지 열두 띠의 이달 흐름과 상순·중순·하순 운세를 한 번에 정리했습니다.", 155)
+        return [(title_c, content_c, ["띠별월간", "월간운세"], desc_c)]
     return results
 
 
@@ -5371,9 +5486,9 @@ def main():
 
     # FORCE_WEEKLY=true → 별자리 주간운세 12개만 단독 발행
     if force_weekly:
-        _w_posts = build_zodiac_weekly_post(today_str)
+        _w_posts = build_zodiac_weekly_post(today_str, combine=True)
         total = len(_w_posts)
-        print(f"📅 FORCE_WEEKLY 모드: 별자리 주간운세 12개만 발행 ({today_str})")
+        print(f"📅 FORCE_WEEKLY 모드: 별자리 주간운세 통합 1개만 발행 ({today_str})")
         success = 0
         for i, (title, content, labels, description) in enumerate(_w_posts, 1):
             if post_blogger(title, content, labels, description, i, total):
@@ -5440,8 +5555,8 @@ def main():
 
     # ④ 별자리 주간운세 — 매주 월요일만 (force_weekly는 위에서 단독 처리됨)
     if kst_now.weekday() == 0:
-        posts.extend(build_zodiac_weekly_post(today_str))
-        print(f"📅 별자리 주간운세 12개 포함 (월요일)")
+        posts.extend(build_zodiac_weekly_post(today_str, combine=True))
+        print(f"📅 별자리 주간운세 통합 1개 포함 (월요일)")
     else:
         print("📅 주간운세 스킵 (월요일 아님)")
 
@@ -5449,16 +5564,16 @@ def main():
     # - 매월 마지막주 월요일: 다음달 운세 미리 발행 (월 1회만 — 1일 중복 발행 트리거 제거)
     # - FORCE_MONTHLY=true: 강제 발행
     if is_last_monday or force_monthly:
-        posts.extend(build_chinese_monthly_post(today_str))
+        posts.extend(build_chinese_monthly_post(today_str, combine=True))
         label = "마지막주 월요일 다음달 발행" if is_last_monday else "강제 포함"
-        print(f"📅 띠별 월간운세 12개 포함 ({label})")
+        print(f"📅 띠별 월간운세 통합 1개 포함 ({label})")
     else:
         print("📅 월간운세 스킵")
 
     total = len(posts)
     quote   = "오늘의명언 1 + "
-    weekly  = "별자리주간 12 + " if kst_now.weekday() == 0 else ""
-    monthly = "띠별월간 12 + "   if (is_last_monday or force_monthly) else ""
+    weekly  = "별자리주간 1(12별자리 통합) + " if kst_now.weekday() == 0 else ""
+    monthly = "띠별월간 1(12띠 통합) + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
     omni    = "별과띠가만나는시간 1 + " if omnibus_today else ""
     print(f"구성: {quote}{omni}{weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
