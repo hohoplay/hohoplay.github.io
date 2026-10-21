@@ -4282,8 +4282,6 @@ def build_chinese_monthly_post(today_str, combine=False):
         )
         quote_clean = _plain(str(pick_quote()[0]), 120)
         closing = (
-            f'<div class="card"><span class="badge">💬 이달의 한 마디</span>'
-            f'<p style="font-size:14px;line-height:1.85;color:#6b7280;margin-top:8px">{quote_clean}</p></div>'
             f'<p style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:1.4em auto 0;'
             f'font-size:14px;line-height:1.95;color:#6d28d9;word-break:keep-all">'
             f'이달을 잘 살아내는 것으로 충분합니다. 열두 띠의 흐름을 함께 살펴보았습니다. 자신의 띠가 건네는 방향을 기억하며 한 달을 천천히 걸어가시기 바랍니다.</p>'
@@ -4945,17 +4943,50 @@ def _ow_particle(word, a, b):
     return a if (ord(ch) - 0xAC00) % 28 else b
 
 
-def _ow_weekly_text(t):
-    """일간 문구(조합 풀이 DB)를 주간 문구로 변환 — '오늘'·'날' 표현 치환"""
+_OW_REASON_OPEN = ("이 조합에서는 ", "이런 날엔 ", "이런 날엔, ", "지금 이 흐름에서는 ", "가만히 보면, ",
+                   "돌아보면, ", "흥미롭게도 ", "오늘따라 ", "이런 흐름에서는 ")
+_OW_ACTION_COND = ("이 조합이라면 ", "이런 흐름이라면 ", "이럴 때는 ", "가능하다면 ", "오늘이라면 ",
+                   "지금이라면 ", "이 두 에너지가 만난다면 ")
+
+
+def _ow_weekly_text(t, kind=None):
+    """일간 문구(조합 풀이 DB)를 주간 문구로 변환.
+    kind='reason' : 문장 앞의 하루 기준 군더더기("이런 날엔/오늘따라/가만히 보면," 등)를 떼고 '날'을 '한 주'로 바꾼다.
+    kind='action' : "한번 이렇게 해보면 좋습니다." 같은 상투구를 빼고, 조건 연결어("이 조합이라면/오늘이라면" 등)를
+                    "이번 주에는"으로 통일한다.
+    kind=None     : 예전 방식(단순 치환)."""
     if not t:
         return t
+    t = str(t).strip()
+    if kind == 'reason':
+        changed = True
+        while changed:
+            changed = False
+            for o in _OW_REASON_OPEN:
+                if t.startswith(o):
+                    t = t[len(o):]
+                    changed = True
+    elif kind == 'action':
+        t = t.replace("한번 이렇게 해보면 좋습니다. ", "")
+        for o in _OW_ACTION_COND:
+            if t.startswith(o):
+                t = "이번 주에는 " + t[len(o):]
+                break
+    if kind:
+        t = re.sub(r'(?<!한 )날입니다', '한 주입니다', t)
+        t = re.sub(r'(\S+한) 날입니다', r'\1 주입니다', t)
+        t = t.replace("날보다", "주보다")
+        # 한 주입니다가 한 문단에 둘 이상이면 두 번째부터 어미를 바꿔 반복을 줄인다
+        _first = t.find("한 주입니다")
+        if _first >= 0:
+            t = t[:_first + 6] + t[_first + 6:].replace("한 주입니다", "때입니다")
     for a, b in (
         ("오늘따라 ", "이번 주에는 "), ("오늘이라면", "이번 주라면"), ("지금이라면", "이번 주라면"),
         ("이런 날엔", "이런 주엔"), ("날입니다", "주입니다"), ("오늘 ", "이번 주 "), ("오늘", "이번 주"),
-        ("지금 이 흐름에서는", "이번 주 흐름에서는"),
+        ("지금 이 흐름에서는", "이번 주 흐름에서는"), ("내일", "다음 주"), ("하루", "한 주"),
     ):
         t = t.replace(a, b)
-    return t
+    return t.strip()
 
 
 def _ow_pair_scores(z_kr, c_kr, week_seed, z_idx, c_idx):
@@ -5023,11 +5054,33 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
         rel   = paras[1] if len(paras) > 1 else ""
         return _to_formal(first), _to_formal(rel)
 
+    # 범용 문장(이름만 바꾼 채 4개 이상의 띠가 공유하는 원래 8개 템플릿)은 띠 성격과 어긋날 수 있어
+    # 그 띠 전용 문장이 3개 이상이면 제외한다.
+    def _cw_norm(t):
+        t = str(t)
+        for _n in c_names:
+            t = t.replace(_n, '')
+        return t.strip()
+    _cw_generic = set()
+    try:
+        if (not chinese_weekly.empty) and 'animal_zodiac' in chinese_weekly.columns:
+            _cwt = chinese_weekly.assign(_n=chinese_weekly['fortune'].map(_cw_norm))
+            _cwc = _cwt.groupby('_n')['animal_zodiac'].nunique()
+            _cw_generic = set(_cwc[_cwc >= 4].index)
+    except Exception:
+        _cw_generic = set()
+
     def _c_lines(c_kr):
         """띠 주간 CSV에서 해당 띠 문장 2개(서로 다른 것)를 골라 반환"""
         if chinese_weekly.empty or 'animal_zodiac' not in chinese_weekly.columns:
             return []
         sub = chinese_weekly[chinese_weekly['animal_zodiac'] == c_en[c_kr]]
+        try:
+            _spec = sub[~sub['fortune'].map(_cw_norm).isin(_cw_generic)]
+            if len(_spec) >= 3:
+                sub = _spec
+        except Exception:
+            pass
         pool = [_to_formal(str(x)) for x in sub['fortune'].tolist()]
         if not pool:
             return []
@@ -5072,8 +5125,8 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
         c_two = _c_lines(c_kr)
 
         adv = _OMNIBUS_SPECIAL_ADVICE.get((z_kr, c_kr))
-        adv_reason = _ow_weekly_text(adv[0]) if adv else ""
-        adv_action = _ow_weekly_text(adv[1]) if adv else ""
+        adv_reason = _ow_weekly_text(adv[0], 'reason') if adv else ""
+        adv_action = _ow_weekly_text(adv[1], 'action') if adv else ""
 
         zp = _ow_particle(z_kr, "은", "는")
         cp = _ow_particle(c_kr, "은", "는")
@@ -5152,11 +5205,6 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
     </div>
     <div class="novel-footer">{closing}</div>
     </div>
-  </div>
-
-  <div class="card" style="margin-top:12px">
-    <span class="badge">💬 이번 주의 한 마디</span>
-    <p style="font-size:14px;line-height:1.85;color:#6b7280;margin-top:8px">{quote_clean}</p>
   </div>
 
   <div class="card">
