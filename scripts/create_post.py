@@ -3939,6 +3939,22 @@ def build_chinese_monthly_post(today_str, combine=False):
     v2_df    = csv("chinese_monthly_v2.csv")
     m1000_df = csv("chinese_monthly_1000.csv")  # ← 추가 fortune 풀 (다양성 확보)
 
+    # 범용 문장 판별: 이름을 지운 문장이 4개 이상의 띠에 공통으로 들어 있으면 범용 문장
+    _KR_NAMES = [cc['kr'] for cc in CHINESE_ZODIACS]
+    def _m1000_norm(t):
+        t = str(t)
+        for _n in _KR_NAMES:
+            t = t.replace(_n, '')
+        return t.strip()
+    _m1000_generic = set()
+    try:
+        if (not m1000_df.empty) and 'animal_zodiac' in m1000_df.columns:
+            _tmp = m1000_df.assign(_n=m1000_df['fortune'].map(_m1000_norm))
+            _cnt = _tmp.groupby('_n')['animal_zodiac'].nunique()
+            _m1000_generic = set(_cnt[_cnt >= 4].index)
+    except Exception:
+        _m1000_generic = set()
+
     def _m1000_fortune(en_name, month_seed):
         """chinese_monthly_1000.csv에서 띠별 fortune 1개 — 월 기준 시드(일간 운세와 분리)"""
         if m1000_df.empty or 'animal_zodiac' not in m1000_df.columns:
@@ -3946,6 +3962,14 @@ def build_chinese_monthly_post(today_str, combine=False):
         m = m1000_df[m1000_df['animal_zodiac'] == en_name]
         if m.empty:
             return ""
+        # (2026-10-21) 여러 띠가 같이 쓰는 범용 문장(원래 8개 템플릿)은 띠 성격과 어긋날 수 있어,
+        #  그 띠 전용 문장이 3개 이상 있으면 범용 문장을 제외하고 고른다.
+        try:
+            _g = m[~m['fortune'].map(_m1000_norm).isin(_m1000_generic)]
+            if len(_g) >= 3:
+                m = _g
+        except Exception:
+            pass
         idx = month_seed % len(m)
         return str(m.iloc[idx]['fortune'])
 
@@ -3988,10 +4012,17 @@ def build_chinese_monthly_post(today_str, combine=False):
                 '', str(t)
             ).strip()
 
+        def _fix_frag(t):
+            """CSV의 명사형 끝맺음("…시기.", "…타이밍.", "…가능성.")을 문장으로 마무리"""
+            t = re.sub(r'(시기|타이밍|때)\.(?=\s|$)', r'\1입니다.', str(t))
+            t = re.sub(r'가능성\.(?=\s|$)', '가능성이 있습니다.', t)
+            t = re.sub(r'충동\.(?=\s|$)', '충동이 생기는 시기입니다.', t)
+            return t
+
         headline  = str(v2['headline'])  if v2 is not None and 'headline'  in v2.index else f"이달 {c['kr']}에게 중요한 변화가 시작됩니다."
-        upper     = _strip_emoji(v2['upper'])    if v2 is not None and 'upper'     in v2.index else ""
-        mid       = _strip_emoji(v2['mid'])      if v2 is not None and 'mid'       in v2.index else ""
-        lower     = _strip_emoji(v2['lower'])    if v2 is not None and 'lower'     in v2.index else ""
+        upper     = _fix_frag(_strip_emoji(v2['upper']))    if v2 is not None and 'upper'     in v2.index else ""
+        mid       = _fix_frag(_strip_emoji(v2['mid']))      if v2 is not None and 'mid'       in v2.index else ""
+        lower     = _fix_frag(_strip_emoji(v2['lower']))    if v2 is not None and 'lower'     in v2.index else ""
         lucky_kw  = (
             f"{v2['lucky_color']} · {v2['lucky_number']} · {v2['lucky_place']}"
             if v2 is not None and 'lucky_color' in v2.index else ""
