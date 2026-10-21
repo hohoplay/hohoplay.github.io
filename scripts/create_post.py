@@ -1780,10 +1780,13 @@ def pick_farewell_bridge(seed_num, mode='daily'):
     """책방을 나서는 독자에게 건네는 다정한 배웅 인사 — CSV 기반
     mode: daily / weekly / monthly
     """
+    _bad = re.compile(r"서가|서재|도서관|책방")      # 2026-10-21: 서재 컨셉 제거 — 해당 표현이 든 문장은 쓰지 않음
     if not farewell_bridge.empty and 'mode' in farewell_bridge.columns:
         pool = farewell_bridge[farewell_bridge['mode'] == mode]
         if pool.empty:
             pool = farewell_bridge[farewell_bridge['mode'] == 'daily']
+        if not pool.empty:
+            pool = pool[~pool['sentence'].astype(str).str.contains(_bad)]
         if not pool.empty:
             pool = pool.reset_index(drop=True)
             return str(pool.iloc[seed_num % len(pool)]['sentence'])
@@ -1794,6 +1797,7 @@ def pick_farewell_bridge(seed_num, mode='daily'):
         pool = _FAREWELL_MONTHLY
     else:
         pool = _FAREWELL_DAILY
+    pool = [x for x in pool if not _bad.search(x)] or _FAREWELL_QUOTE
     return pool[seed_num % len(pool)]
 
 def pick_insight_bridge(day_seed, mode='daily'):
@@ -2406,9 +2410,9 @@ def build_quote_post(today_str):
       <p>{meaning}</p>
       <p>{context_txt}</p>
       {en_html}
+      <p>{apply_}</p>
       <p>{emotion}</p>
       <p>{comfort}</p>
-      <p>{apply_}</p>
       {q_html}
     </div>
 
@@ -2557,6 +2561,16 @@ def birth_year_fortune(en_name, year):
         2020: "주변을 가만히 살펴보는 시기입니다.",
     }
     return _DECADE_MSG.get(decade, "하나에 집중하는 것이 가장 좋은 흐름입니다.")
+
+def _weekly_closing_html(_we, kst_day):
+    """별자리 주간 마무리 3문단 — 개별글은 각 글 끝, 통합글은 맨 끝에 한 번만"""
+    return (
+        '<div style="background:none;padding:0;margin:1.4rem 0 0">'
+        f'<p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>'
+        f'<p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;word-break:keep-all">{_we[1]}</p>'
+        f'<p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;word-break:keep-all">{pick_farewell_bridge(kst_day, "weekly")}</p>'
+        '</div>'
+    )
 
 # ── 별자리 주간운세 오프닝·엔딩 풀 ──
 _W_OPENINGS = [
@@ -3864,10 +3878,10 @@ def build_zodiac_weekly_post(today_str, combine=False):
         story_html = f'''
 <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto">
 
-  <p class="fortune-lead">{z['emoji']} {z['kr']} — {z_info.get("trait","")}</p>
+  <p class="fortune-lead">{(z['emoji'] + ' ') if z.get('emoji') else ''}{z['kr']} — {z_info.get("trait","")}</p>
   <div class="z-traits">
     <span class="z-trait">🌿 <b>{z_info.get("element","")}</b></span>
-    <span class="z-trait">☿ <b>{z_info.get("ruling","")}</b></span>
+    <span class="z-trait">🪐 <b>{z_info.get("ruling","")}</b></span>
     <span class="z-trait">✅ {z_info.get("strength","")}</span>
     <span class="z-trait">⚠️ {z_info.get("weakness","")}</span>
   </div>
@@ -3908,15 +3922,11 @@ def build_zodiac_weekly_post(today_str, combine=False):
     <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{z_tip if z_tip else "이번 주 에너지를 잘 활용하려면 방향을 먼저 정하는 것이 중요합니다."}</p>
     {compat_tip_html_w}
 
-    <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{pick_insight_bridge(kst_day+2, mode='weekly')}</p>
+    {'' if combine else '<p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">' + pick_insight_bridge(kst_day+2, mode='weekly') + '</p>'}
 
   </div>
 
-  <div style="background:none;padding:0;margin:1.4rem 0 0">
-    <p style="font-size:15px;line-height:2.0;color:#374151;font-weight:500;margin:0 0 0.8rem;word-break:keep-all">{_we[0]}</p>
-    <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.4rem;word-break:keep-all">{_we[1]}</p>
-    <p style="font-size:13px;line-height:2.0;color:#9ca3af;margin:1.6rem 0 0;word-break:keep-all">{pick_farewell_bridge(kst_day, "weekly")}</p>
-  </div>
+  {'' if combine else _weekly_closing_html(_we, kst_day)}
 
 </div>'''
 
@@ -3956,7 +3966,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
 
     if combine:
         toc = " · ".join(
-            f'<a href="#wz-{i+1}">{zz["emoji"]} {zz["kr"]}</a>' for i, (zz, _) in enumerate(_stories)
+            f'<a href="#wz-{i+1}">{(zz["emoji"] + " ") if zz.get("emoji") else ""}{zz["kr"]}</a>' for i, (zz, _) in enumerate(_stories)
         )
         sections = "\n".join(
             f'<div id="wz-{i+1}" style="margin:0 0 2.4em 0">{sh}</div>\n<div class="z-divider">✦</div>'
@@ -3991,6 +4001,11 @@ def build_zodiac_weekly_post(today_str, combine=False):
   {intro}
 
   {sections}
+
+  <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto 1.4em">
+    <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{pick_insight_bridge(kst_day+2, mode='weekly')}</p>
+    {_weekly_closing_html(_W_ENDINGS[ref_date.day % len(_W_ENDINGS)], kst_day)}
+  </div>
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html_all}</div>
@@ -4163,8 +4178,8 @@ def build_chinese_monthly_post(today_str, combine=False):
             f"그리고 이달 {c['kr']}의 고유한 강점이 작동합니다.",
             f"이달의 핵심 방향입니다.",
         ]
-        tpb = _to_period_bridges[kst_day % len(_to_period_bridges)]
-        tmb = _to_tip_bridges_m[(kst_day+1) % len(_to_tip_bridges_m)]
+        tpb = _to_period_bridges[(kst_day + _aid) % len(_to_period_bridges)]
+        tmb = _to_tip_bridges_m[(kst_day + 1 + _aid) % len(_to_tip_bridges_m)]
 
         # 추가 fortune (chinese_monthly_1000.csv) — 월 기준 시드 (일간운세 day 시드와 분리)
         _month_seed = kst_now.year * 12 + kst_now.month  # 월이 바뀌면 값이 바뀌는 시드
@@ -4176,10 +4191,22 @@ def build_chinese_monthly_post(today_str, combine=False):
         _m_low_tip  = ''
         if not _cz_row_m.empty:
             _sample_m = _cz_row_m.sample(1, random_state=_month_seed % 100)
+            def _yo(t):
+                t = re.sub(r'져요(?=[.!?\s]|$)', '집니다', t)
+                t = re.sub(r'려요(?=[.!?\s]|$)', '립니다', t)
+                t = re.sub(r'져요', '집니다', t)
+                return t
             if 'peak_tip' in _cz_row_m.columns:
-                _m_peak_tip = _to_formal(str(_sample_m['peak_tip'].iloc[0]))
+                _m_peak_tip = _yo(_to_formal(str(_sample_m['peak_tip'].iloc[0])))
             if 'low_tip' in _cz_row_m.columns:
-                _m_low_tip  = _to_formal(str(_sample_m['low_tip'].iloc[0]))
+                _m_low_tip  = _yo(_to_formal(str(_sample_m['low_tip'].iloc[0])))
+
+        _TRAIT_CLOSERS = [
+            "이달은 그 성향이 가장 자연스럽게 빛나는 시기입니다.",
+            "이달에는 이 기질이 평소보다 또렷하게 드러납니다.",
+            "이달의 흐름 속에서 이 성향이 가장 큰 힘이 됩니다.",
+            "이달은 이 타고난 성향을 믿고 따라가기 좋은 시기입니다.",
+        ]
 
         # trait → extra_fortune 자연스러운 연결 어미 (월 시드로 순환)
         _EXTRA_LINKS = [
@@ -4195,8 +4222,13 @@ def build_chinese_monthly_post(today_str, combine=False):
         if upper: period_items.append(("상순", upper, "#3b82f6"))
         if mid:   period_items.append(("중순", mid,   "#7c3aed"))
         if lower: period_items.append(("하순", lower, "#16a34a"))
-        period_html = " ".join(
-            f'<strong style="color:{col}">{label}</strong>에는 {txt}'
+        def _clean_period(label, txt):
+            """'하순에는 하순에 …' 같은 접두 중복 제거 + CSV 안의 줄바꿈 정리"""
+            t = re.sub(r'\s+', ' ', str(txt)).strip()
+            t = re.sub(r'^' + label + r'(에서는|에는|에서|엔|에)\s*', '', t)
+            return t
+        period_html = "</p><p>".join(
+            f'<strong style="color:{col}">{label}</strong>에는 {_clean_period(label, txt)}'
             for label, txt, col in period_items
         )
 
@@ -4284,7 +4316,7 @@ def build_chinese_monthly_post(today_str, combine=False):
   <div class="z-section health">
     <h2><span class="z-icon">🀄</span> {c['kr']} 이달의 특성</h2>
     <p class="z-bridge">{tmb}</p>
-    <p>{c['kr']}{"는" if (ord(c["kr"][-1])-0xAC00)%28==0 else "은"} 본래 {trait}입니다. 이달은 그 성향이 가장 자연스럽게 빛나는 시기입니다.</p>
+    <p>{c['kr']}{"는" if (ord(c["kr"][-1])-0xAC00)%28==0 else "은"} 본래 {trait}입니다. {_TRAIT_CLOSERS[(_month_seed + _aid) % len(_TRAIT_CLOSERS)]}</p>
     {f'<p>{extra_link} {extra_fortune}</p>' if extra_fortune else ''}
     <p>{_m_peak_tip}</p>
   </div>
@@ -4972,7 +5004,7 @@ _OW_RELATION = {
     "boost": ("서로 북돋우는 조합", 82, [
         "한쪽의 기운이 다른 쪽을 자연스럽게 북돋워 주는 관계입니다.",
         "서로 다른 결이지만 맞물릴 때 힘이 커지는 조합이라 협력이 잘 풀립니다.",
-        "한쪽이 불씨를 지피면 다른 쪽이 바람을 보태는 식으로 흐름이 이어지는 주입니다.",
+        "한쪽이 먼저 길을 열면 다른 쪽이 뒤에서 힘을 보태는 식으로 흐름이 이어지는 주입니다.",
     ]),
     "balance": ("속도가 달라도 보완되는 조합", 72, [
         "속도와 방식이 달라 처음엔 어긋나 보여도, 역할을 나누면 서로의 빈틈을 메워줍니다.",
