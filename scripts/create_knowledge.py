@@ -150,20 +150,23 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 # 더 추가하고 싶으면 이 리스트에 딕셔너리만 이어서 넣으면 됨.
 # ─────────────────────────────────────────
 # ─────────────────────────────────────────
-# 하단 관련 콘텐츠 링크 3개 — 운세상식은 띠/별자리 양쪽 다 다루는 주제라
-# 두 일간 운세 카테고리 + 특별 콘텐츠(별과띠가만나는시간) 조합으로 고정.
+# 하단 관련 콘텐츠 링크 — 2026-10-21: 발행을 멈춘 개별 띠운세·별자리운세 링크를 빼고,
+# 지금 실제로 발행되는 글(별자리 주간운세·띠별 월간운세·별과띠 주간판·오늘의 명언)로 교체.
 # (label, url, gradient) — url은 실제 create_post.py가 붙이는 라벨과 정확히 일치해야 함
 # ─────────────────────────────────────────
 _RELATED_LINKS = [
-    ("🐉 오늘의 띠운세",
-     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%9D%A0%EC%9A%B4%EC%84%B8",
-     "#7c2d12,#ea580c"),
-    ("⭐ 오늘의 별자리운세",
-     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%9A%B4%EC%84%B8",
+    ("📅 별자리 주간운세",
+     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EC%9E%90%EB%A6%AC%EC%A3%BC%EA%B0%84",
      "#1e3a5f,#2563eb"),
+    ("🌙 띠별 월간운세",
+     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%9B%94%EA%B0%84%EC%9A%B4%EC%84%B8",
+     "#7c2d12,#ea580c"),
     ("✨ 별과 띠가 만나는 시간",
      "https://todayhoroscopelaboratory.blogspot.com/search/label/%EB%B3%84%EA%B3%BC%EB%9D%A0%EA%B0%80%EB%A7%8C%EB%82%98%EB%8A%94%EC%8B%9C%EA%B0%84",
      "#4c1d95,#7c3aed"),
+    ("💬 오늘의 명언",
+     "https://todayhoroscopelaboratory.blogspot.com/search/label/%EC%98%A4%EB%8A%98%EC%9D%98%EB%AA%85%EC%96%B8",
+     "#374151,#6b7280"),
 ]
 
 TOPICS = [
