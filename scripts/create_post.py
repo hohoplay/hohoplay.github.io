@@ -1888,6 +1888,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 .m-quote-block{background:#fdf4ff;border-left:4px solid #a855f7;border-radius:0 16px 16px 0;padding:20px 22px;margin:8px 0 20px}
 .m-quote-label{font-size:12px;font-weight:800;color:#86198f;margin:0 0 10px}
 .m-quote-text{font-size:15px;font-style:italic;font-weight:600;color:#581c87;line-height:1.7;margin:0 0 6px;word-break:keep-all}
+/* 모바일: 본문 한 줄을 약 30자(띄어쓰기 포함)로 제한해 자동 줄바꿈, 가로 넘침 방지 */
+@media(max-width:768px){
+.wrap p,.wrap li{max-width:30em!important;word-break:keep-all;overflow-wrap:anywhere}
+.wrap td,.wrap th,.wrap h1,.wrap h2,.wrap h3,.wrap span{overflow-wrap:anywhere}
+.wrap table{display:block;max-width:100%;overflow-x:auto}
+.wrap img,.wrap svg,.wrap iframe{max-width:100%;height:auto}
+}
 </style>
 <script>
 function saveFortuneCard(cardId, filename) {
