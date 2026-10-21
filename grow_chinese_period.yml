@@ -1,0 +1,68 @@
+name: 📈 Chinese Weekly/Monthly Sentence Grow
+
+on:
+  schedule:
+    - cron: '10 2 1 * *'   # 매월 1일 KST 11:10 (UTC 02:10) — grow_fortune(02:00)·grow_chinese_fortune(02:05)와 5분씩 간격
+  workflow_dispatch:        # 수동 실행 (최초 시드 배치 등)
+    inputs:
+      kind:
+        description: '대상 (weekly / monthly / both)'
+        required: false
+        default: 'both'
+      chinese:
+        description: '특정 띠만 (비워두면 전체)'
+        required: false
+        default: ''
+      count:
+        description: '띠×영역당 추가 문장 수 (영역 6개 → 띠당 6×count개. 평소 2, 최초 시드 배치 때는 5 정도)'
+        required: false
+        default: '2'
+
+concurrency:
+  group: grow-csv-main
+  cancel-in-progress: false
+
+jobs:
+  grow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v5
+
+      - name: 🐍 Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: 📦 패키지 설치
+        run: pip install pandas anthropic
+
+      - name: 📈 CSV 확장 실행
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATA_DIR: ${{ github.workspace }}/data
+        run: |
+          KIND="${{ github.event.inputs.kind }}"
+          KIND="${KIND:-both}"
+          CHINESE="${{ github.event.inputs.chinese }}"
+          COUNT="${{ github.event.inputs.count }}"
+          COUNT="${COUNT:-2}"
+
+          if [ -n "$CHINESE" ]; then
+            python scripts/grow_chinese_period_csv.py --kind "$KIND" --chinese "$CHINESE" --count "$COUNT"
+          else
+            python scripts/grow_chinese_period_csv.py --kind "$KIND" --count "$COUNT"
+          fi
+
+      - name: 💾 변경사항 커밋
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/chinese_weekly_1000.csv data/chinese_monthly_1000.csv
+          git diff --staged --quiet || git commit -m "📈 띠별 주간/월간 문장 CSV 자동 확장 $(date +'%Y-%m')"
+          git pull --rebase origin main
+          git push
