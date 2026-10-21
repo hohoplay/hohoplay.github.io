@@ -5417,8 +5417,16 @@ def main():
     # ⑦ 운세SNS — 띠 통합 1개 (매일, 기존 개별 12개는 그대로 유지)
     posts.append(build_chinese_combined_post(today_str))
 
-    # ⑧ 별자리가 만나는 시간 — 옴니버스 스토리텔링 1개 (매일)
-    posts.append(build_omnibus_post(today_str))
+    # ⑧ 별과띠가만나는시간 — 옴니버스 스토리텔링 1개
+    #    2026-10-21: 매일 → 매주 일요일로 변경 (한 주를 시작하기 전에 읽는 글, 반복 콘텐츠 비중 감소 목적)
+    #    FORCE_OMNIBUS=true 로 다른 요일에도 수동 발행 가능
+    omnibus_today = (kst_now.weekday() == 6) or \
+        os.environ.get("FORCE_OMNIBUS", "false").lower() == "true"
+    if omnibus_today:
+        posts.append(build_omnibus_post(today_str))
+        print("🌙 별과띠가만나는시간 포함 (일요일)")
+    else:
+        print("🌙 별과띠가만나는시간 스킵 (일요일 아님)")
 
     # 매월 마지막주 월요일 계산 (다음 달 띠별월간 미리 발행)
     import calendar as _cal
@@ -5452,7 +5460,8 @@ def main():
     weekly  = "별자리주간 12 + " if kst_now.weekday() == 0 else ""
     monthly = "띠별월간 12 + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
-    print(f"구성: {quote}별자리통합 1 + 띠통합 1 + 별과띠가만나는시간 1 + {weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
+    omni    = "별과띠가만나는시간 1 + " if omnibus_today else ""
+    print(f"구성: {quote}별자리통합 1 + 띠통합 1 + {omni}{weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
     print("ℹ️  별자리운세·띠운세 개별 12개씩은 2026-10-04부터 Blogger 발행 중단(샵콜 전용 운영) — "
           "fortune_feed.json용 계산만 수행하고 블로그에는 올리지 않음\n")
 
