@@ -1,6 +1,6 @@
 """
 운세 자동화 - 하루 최대 27개 포스팅
-  1개  : 오늘의 명언 (매주 월요일만)
+  1개  : 오늘의 명언 (매일 — 2026-10-21부터 매일 발행으로 변경)
  12개  : 별자리 운세
  12개  : 띠 운세
   1개  : 별자리 주간 운세 (12별자리 통합, 매주 월요일만)
@@ -5395,12 +5395,9 @@ def main():
         print(f"\n✅ 완료: {success}/{total}개 게시 성공")
         return
 
-    # ① 오늘의 명언 — 매주 월요일만 (매일 반복 콘텐츠 비중을 줄이기 위해 주 1회로 조정)
-    if kst_now.weekday() == 0:
-        posts.append(build_quote_post(today_str))
-        print("💬 오늘의 명언 포함 (월요일)")
-    else:
-        print("💬 오늘의 명언 스킵 (월요일 아님)")
+    # ① 오늘의 명언 — 매일 1개 (2026-10-21: 주 1회(월요일)에서 매일 발행으로 변경)
+    posts.append(build_quote_post(today_str))
+    print("💬 오늘의 명언 포함 (매일)")
 
     # ② 별자리 운세 12개 — 2026-10-04: 구글 블로그(Blogger) 발행은 중단하고,
     #    build_zodiac_post() 호출 자체는 그대로 유지한다. 이 함수 안에서 오늘의
@@ -5451,7 +5448,7 @@ def main():
         print("📅 월간운세 스킵")
 
     total = len(posts)
-    quote   = "오늘의명언 1 + " if kst_now.weekday() == 0 else ""
+    quote   = "오늘의명언 1 + "
     weekly  = "별자리주간 12 + " if kst_now.weekday() == 0 else ""
     monthly = "띠별월간 12 + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
