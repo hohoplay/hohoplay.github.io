@@ -232,7 +232,18 @@ function inlineFormat(text) {
   return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
 
+// [ADD] 2026-10-23: AI(구글 검색 그라운딩 등)가 쓴 글을 그대로 붙여넣을 때 섞여 들어오는
+// "[cite: 16]", "[cite:1, 2]" 같은 출처 인용 태그를 제거한다. 실제로 "MBTI+타로" 글 등에
+// 이 태그가 안 지워진 채로 그대로 등록된 사례가 있었음 — 사람이 일일이 찾아 지우지 않아도
+// 변환 시점에 자동으로 깨끗해지도록 하는 안전장치.
+function stripCitationArtifacts(text) {
+  return text
+    .replace(/\s*\[cite:\s*[\d,\s]+\]/gi, '')
+    .replace(/[ \t]{2,}/g, ' ');
+}
+
 function convertContentToHtml(text) {
+  text = stripCitationArtifacts(text);
   const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b);
   return blocks.map(function (block) {
     let m = block.match(/^###\s*([\s\S]*)$/);
