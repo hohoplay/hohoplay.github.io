@@ -27,7 +27,7 @@
 </section>
 
 <!-- [ADD] 2026-10-17: 아이랑 나들이 지도의 "아이랑 갈만한 곳"(상시 장소, 200여 곳) 중
-     서울/대구/부산/광주/제주 권역별 대표 1곳씩을 보여준다. 데이터는 "오늘 어디 갈까요"와
+     서울/인천/대구/부산/광주/제주 권역별 대표 1곳씩을 보여준다. 데이터는 "오늘 어디 갈까요"와
      같은 /data/festivals.json(festival+kids가 한 파일에 섞여 있음)을 재사용한다. -->
 <section id="hoho-pick-kids" class="curated-board" style="margin-bottom:24px;">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">🧸 아이랑 어디 갈까요</h2><a href="/festival/" class="curated-more">지도에서 보기 →</a></div>
@@ -244,14 +244,17 @@
     // [FIX] 2026-10-17: 예전엔 "가장 최근에 시작된 진행중 축제 → 가장 임박한 예정 축제"
     // 순으로 날짜만 보고 상위 4개를 뽑았는데, 이러면 특정 지역(예: 경기권) 축제가
     // 한꺼번에 몰려 있을 때 전국 다른 지역 축제가 하나도 안 보이는 문제가 있었다.
-    // 그래서 서울/대구/부산/광주/제주 5개 권역에서 각각 대표를 1개씩 뽑아 전국 각지를
+    // 그래서 서울/인천/대구/부산/광주/제주 6개 권역에서 각각 대표를 1개씩 뽑아 전국 각지를
     // 골고루 보여주는 방식으로 바꾼다. "아이랑 갈만한 곳"(상시 장소, type:'kids')도
     // 2026-10-17에 같은 방식으로 추가했다 — 다만 상시 장소라 시작일/진행중 개념이
     // 없으므로, 권역당 대표를 날짜순이 아니라 주 단위로 랜덤하게(게임공략 카드 순서
     // 섞는 것과 같은 mulberry32 시드) 고른다. 주소 앞부분으로 권역을 판정하는 건
     // festival/index.html의 addrMatchesRegion과 동일한 방식 — "경기도 광주시"는
     // "경기"로 시작해 "광주" 권역과 안 섞인다.
-    var PICK_REGIONS = ['서울', '대구', '부산', '광주', '제주'];
+    // [ADD] 2026-10-24: 인천 추가(서울 다음 순서). 주소가 "인천광역시 …"로 시작하므로 '인천' 접두 일치로 판정.
+    // 아이랑 섹션의 주간 랜덤 시드는 기존 5개 권역의 오늘 결과가 바뀌지 않도록 권역별 고정 값을 쓴다.
+    var PICK_REGIONS = ['서울', '인천', '대구', '부산', '광주', '제주'];
+    var PICK_SEED = { '서울': 0, '대구': 1, '부산': 2, '광주': 3, '제주': 4, '인천': 5 };
     function regionOfAddr(addr) {
         var a = String(addr || '').trim();
         for (var i = 0; i < PICK_REGIONS.length; i++) {
@@ -325,10 +328,10 @@
         if (!kidsBody) return;
         var byRegion = groupByRegion(list.filter(function (f) { return f && f.addr; }));
         var picks = [];
-        PICK_REGIONS.forEach(function (r, ri) {
+        PICK_REGIONS.forEach(function (r) {
             var arr = byRegion[r] || [];
             if (!arr.length) return;
-            var rand = mulberry32(weekIndex() + 400 + ri); // 주 단위로 랜덤, 같은 주엔 항상 같은 결과
+            var rand = mulberry32(weekIndex() + 400 + PICK_SEED[r]); // 주 단위로 랜덤, 같은 주엔 항상 같은 결과
             var pick = arr[Math.floor(rand() * arr.length)];
             pick._pickRegion = r;
             picks.push(pick);
