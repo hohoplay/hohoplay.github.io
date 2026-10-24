@@ -246,6 +246,8 @@ function convertContentToHtml(text) {
   text = stripCitationArtifacts(text);
   const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b);
   return blocks.map(function (block) {
+    // [ADD] 2026-10-24: AI 초안에 섞여 오는 "---" 구분선이 글자 그대로 노출되던 문제 — <hr>로 변환.
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(block)) return '<hr>';
     let m = block.match(/^###\s*([\s\S]*)$/);
     if (m) return '<h3>' + inlineFormat(m[1].trim()) + '</h3>';
     m = block.match(/^##\s*([\s\S]*)$/);
