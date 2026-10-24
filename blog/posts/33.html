@@ -28,6 +28,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -53,9 +64,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -100,9 +109,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -173,7 +180,7 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">🧒 아이랑 나들이 지도 업데이트 안내</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.14</p>
 
-    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><p>안녕하세요, HOHO PLAY입니다. 🎡</p>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><p>안녕하세요, HOHO PLAY입니다. 🎡</p>
 <p>🧒 아이랑 나들이 지도 업데이트 안내</p>
 <p>✨ 기능 개선</p>
 <p>지역 선택 세분화: 기존엔 "경상북도"처럼 큰 단위로만 지역을 고를 수 있었는데, 이제 "경상북도 → 포항시"처럼 시/군/구 단위까지 좁혀서 찾아볼 수 있어요. 전국 17개 시/도 전부 적용됩니다.<br>추천 코스 보기 개선:<br>코스 안 장소를 클릭하면 그 코스에 속한 핀 전체가 지도에 함께 나타나요.<br>코스 이름만 눌러도 "지도에서 전체보기"처럼 바로 핀을 확인할 수 있어요.<br>추천 코스는 이번 계절 축제가 포함된 곳과 장소가 알차게 모인 곳 <br>위주로 최대 4개만 엄선해서 보여드려요.</p>

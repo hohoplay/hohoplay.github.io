@@ -27,6 +27,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -52,9 +63,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -99,9 +108,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -172,7 +179,7 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">오늘의 운세, AI가 멋대로 지어내지 않는 이유</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.13</p>
 
-    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>오늘의 운세, AI가 멋대로 지어내지 않는 이유</h2>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>오늘의 운세, AI가 멋대로 지어내지 않는 이유</h2>
 <p>아침에 눈을 떠서 스마트폰을 켜고 가장 먼저 확인하는 콘텐츠 중 하나는 단연 '오늘의 운세'입니다. 하루의 시작을 가볍게 열어주는 활력소가 되기도 하고, 중요한 결정을 앞두고 마음의 위안을 얻는 작은 참고서가 되기도 합니다. 하지만 누구나 한 번쯤 "이 수많은 운세 글들이 과연 진짜 내 사주를 계산해서 나오는 걸까, 아니면 AI가 그때그때 그럴듯하게 지어내는 대사일까?"라는 의문을 품어본 적이 있을 것입니다. 최근 생성형 인공지능 기술이 발전하면서 아무 말이나 무작위로 조합해 뱉어내는 가짜 운세들이 난립하게 되었고, 이로 인해 운세 콘텐츠 전반에 대한 신뢰도가 크게 낮아진 것도 사실입니다.</p>
 <p>호호플레이의 '오늘의 운세' 서비스는 바로 이 지점에서 출발했습니다. 우리는 AI가 그럴듯한 문장을 즉석에서 지어내는 방식을 전면 배제하고, 전통 사주 명리학의 정해진 수학적 계산 로직과 엄격한 알고리즘을 통해 결과를 도출합니다. 생년월일시라는 객관적 데이터에 기반하여 총운부터 건강운까지 6가지 영역으로 나누어 명확한 하루치 가이드를 제공하며, 입력된 모든 정보는 외부 서버로 일절 전송되지 않고 오직 사용자의 브라우저 안에서만 안전하게 처리됩니다. 이번 글에서는 호호플레이의 오늘의 운세 시스템이 어떤 철학과 원리로 작동하는지 핵심 스텝과 함께 상세히 알아보겠습니다.</p>
 <p>---</p>

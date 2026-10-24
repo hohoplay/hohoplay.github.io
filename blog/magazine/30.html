@@ -27,6 +27,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -52,9 +63,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -99,9 +108,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -172,7 +179,7 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">타로 카드 한 장에 과거·현재·미래가 담기는 이유</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.13</p>
 
-    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>타로 카드 한 장에 과거·현재·미래가 담기는 이유</h2>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>타로 카드 한 장에 과거·현재·미래가 담기는 이유</h2>
 <p>아침에 일어나 커피 한 잔을 마시며 오늘의 심리 상태를 점검하거나, 연애나 직장 문제로 마음이 복잡할 때 가볍게 펼쳐보는 타로 카드는 이제 많은 이들에게 친숙한 일상의 카운슬러가 되었습니다. 화려한 그림 속에 담긴 상징을 통해 내면의 무의식을 들여다보고 다가올 미래의 힌트를 얻는 타로 리딩은 단순한 미신을 넘어 깊은 공감과 통찰을 선사합니다. 하지만 누구나 한 번쯤 "정말 이 몇 장의 카드가 내 마음과 앞으로의 흐름을 정확히 짚어낼 수 있을까?" 하는 호기심을 가져보았을 것입니다.</p>
 <p>호호플레이의 '타로 리딩' 서비스는 단순히 무작위로 카드를 보여주는 방식을 넘어, 궁금한 주제를 선택한 뒤 세 장의 카드를 뽑아 과거, 현재, 그리고 미래로 이어지는 입체적인 흐름을 함께 살펴보는 구조로 설계되었습니다. 카드 한 장마다 철저하게 정의된 해석 데이터가 담겨 있으며, 사용자가 고른 주제와 정방향·역방향의 상태에 맞춰 정교하게 풀이됩니다. 별도의 회원가입이나 복잡한 로그인 절차 없이 누구나 즉시 시작할 수 있고, 입력된 모든 정보는 외부 서버로 전송되지 않고 브라우저 안에서 안전하게 처리됩니다. 이번 글에서는 호호플레이 타로 서비스가 어떤 철학과 원리로 구성되어 있는지 핵심 스텝과 함께 상세히 알아보겠습니다.</p>
 <p>---</p>

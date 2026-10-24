@@ -27,6 +27,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -52,9 +63,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -99,9 +108,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -172,7 +179,7 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">꿈해몽에 MBTI를 더하다: 전통 해몽과 현대 성격 심리학의 만남</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.13</p>
 
-    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>[상식] 꿈해몽에 MBTI를 더하다: 전통 해몽과 현대 성격 심리학의 만남</h2>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>[상식] 꿈해몽에 MBTI를 더하다: 전통 해몽과 현대 성격 심리학의 만남</h2>
 <p>아침에 눈을 떴을 때 간밤에 꾼 생생한 꿈의 여운이 하루 종일 머릿속을 맴돌 때가 있습니다. 누군가에게는 단순한 무의식의 찌꺼기처럼 느껴지기도 하고, 또 다른 누군가에게는 앞으로 다가올 일에 대한 은밀한 경고나 예지처럼 다가오기도 합니다. 인류 역사상 가장 오래된 심리 탐구 수단 중 하나인 '꿈해몽'은 시대가 변함에 따라 꾸준히 진화해 왔습니다. 특히 현대에 이르러서는 단순히 전통적인 길흉화복을 따지는 것을 넘어, 개인의 성향과 심리적 상태를 입체적으로 분석하는 방향으로 확장되고 있습니다.</p>
 <p>호호플레이의 'MBTI+꿈해몽' 서비스는 바로 이러한 전통적 해몽의 지혜와 현대 성격 심리학의 대표주자인 MBTI(성격유형검사)를 결합하여 탄생했습니다. 똑같은 꿈을 꾸더라도 평소 성향이나 스트레스 수준에 따라 받아들이는 의미와 대처법이 다를 수밖에 없다는 착안점에서 출발했습니다. 복잡한 회원가입이나 유료 결제 없이 누구나 즉시 이용할 수 있으며, 입력된 개인정보는 외부 서버로 일절 전송되지 않고 브라우저 안에서 안전하게 처리됩니다. 이번 글에서는 전통 꿈해몽에 MBTI 성격 유형이 어떻게 결합되어 더욱 깊이 있는 심리 가이드를 제공하는지 상세히 알아보겠습니다.</p>
 <p>---</p>

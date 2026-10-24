@@ -27,6 +27,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -52,9 +63,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -99,9 +108,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -172,7 +179,7 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">[게임 상식] 마작 패에서 PC·모바일 국민 게임으로: 사천성(Shisen-Sho) 게임의 역사와 발전</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.09.28</p>
 
-    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h1>[매일 읽는 게임 상식] 마작 패에서 PC·모바일 국민 게임으로: 사천성(Shisen-Sho) 게임의 역사와 발전</h1>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h1>[매일 읽는 게임 상식] 마작 패에서 PC·모바일 국민 게임으로: 사천성(Shisen-Sho) 게임의 역사와 발전</h1>
 <p>같은 그림의 패 두 개를 찾아 꺾이는 선으로 연결하여 제거하는 '사천성'은 직관적인 규칙과 강한 중독성으로 수십 년간 큰 사랑을 받아온 퍼즐 장르입니다.</p>
 <p>마작 패를 사용하는 외형 때문에 중국이나 전통 보드게임에서 유래된 것으로 오해받기도 하지만, 실제로는 1980년대 일본의 비디오 게임 개발사에서 탄생한 컴퓨터 퍼즐 게임에 뿌리를 두고 있습니다. 매일 하나씩 알아가는 게임 상식 시리즈로 사천성 게임의 유래와 고유 메커니즘, 그리고 PC PC 통신 시절부터 모바일 시대까지 이어진 진화의 역사를 상세히 살펴보겠습니다.</p>
 <p>---</p>
