@@ -27,6 +27,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -52,9 +63,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -99,9 +108,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -172,7 +179,7 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">뇌 풀기 미니게임의 과학: 퍼즐과 타자 게임이 두뇌에 미치는 긍정적 영향</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.21</p>
 
-    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>뇌 풀기 미니게임의 과학: 퍼즐과 타자 게임이 두뇌에 미치는 긍정적 영향</h2>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>뇌 풀기 미니게임의 과학: 퍼즐과 타자 게임이 두뇌에 미치는 긍정적 영향</h2>
 <p>매일 아침 복잡한 대중교통에 시달리며 출근하고, 모니터 앞에서 쏟아지는 업무와 메일을 처리하다 보면 오후 즈음 머리가 멍해지고 집중력이 뚝 떨어지는 경험을 누구나 해보았을 것입니다. 3040 직장인이나 육아와 가사를 병행하는 학부모들에게 일상의 피로는 단순히 신체적인 지침을 넘어, 뇌의 피로와 단기 기억력 저하, 집중력 감소라는 형태로 찾아오곤 합니다. 이처럼 과도한 정보와 스트레스에 노출된 현대인들에게는 잠시 일상의 과업에서 벗어나 뇌를 가볍게 환기하고 리프레시할 수 있는 '뇌 휴식' 시간이 절실히 필요합니다.</p>
 <p>흔히 게임이라고 하면 시간 낭비나 시력 저하, 집중력 방해라는 부정적인 단어를 먼저 떠올리기 쉽지만, 게임의 장르와 이용 방식에 따라 뇌 건강에 미치는 영향은 현저히 달라집니다. 특히 정교한 손가락 움직임과 순간적인 판단력을 요구하는 타자(타이핑) 게임이나, 논리적 순발력과 공간 인지력을 자극하는 캐주얼 퍼즐 게임은 뇌 과학적으로 지친 두뇌를 활성화하고 스트레스를 해소하는 훌륭한 '두뇌 트레이닝' 도구가 될 수 있습니다. 호호플레이(HoHoPlay)의 게임 아카이브 공간은 이러한 뇌 과학적 원리를 바탕으로, 직장인과 학부모들이 일상 속에서 부담 없이 뇌를 풀고 가벼운 몰입을 즐길 수 있도록 구축되었습니다. 이번 글에서는 퍼즐과 타자 게임이 우리의 두뇌와 정신 건강에 미치는 긍정적인 영향에 대해 상세히 알아보고자 합니다.</p>
 <p>---</p>

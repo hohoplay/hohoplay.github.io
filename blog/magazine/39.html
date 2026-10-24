@@ -27,6 +27,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -52,9 +63,7 @@
                             <a href="/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
                             <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
                             <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
@@ -99,9 +108,7 @@
                 <a href="/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
             <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
                 <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
                 <a href="/index.html" onclick="sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
@@ -172,7 +179,7 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">아이와 함께하는 나들이 필수 체크리스트 &amp; 실패 없는 준비 팁</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.23</p>
 
-    <div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>아이와 함께하는 나들이 필수 체크리스트 &amp; 실패 없는 준비 팁</h2>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>아이와 함께하는 나들이 필수 체크리스트 &amp; 실패 없는 준비 팁</h2>
 <p>주말이나 휴일이 다가오면 어린 자녀를 둔 부모들의 머릿속은 바빠지기 시작합니다. "이번 주말에는 어디로 떠나볼까?"라는 설렘도 잠시, 아이 동반 나들이는 준비해야 할 짐부터 이동 동선, 현장 변수까지 챙겨야 할 요소가 한두 가지가 아닙니다. 특히 야외 축제장이나 낯선 나들이 장소에 도착해서야 아이의 여벌 옷이나 젖병, 혹은 아이가 즐겨 먹는 간식을 집에 두고 온 사실을 깨달았을 때 부모가 겪는 당황스러움은 이루 말할 수 없습니다. 부모의 철저한 사전 준비와 세심한 체크리스트는 나들이 당일의 피로도를 절반 이하로 줄여주고, 온 가족이 웃으며 여행을 마무리할 수 있게 만드는 핵심 열쇠입니다.</p>
 <p>호호플레이(HoHoPlay)의 '아이랑 나들이랑' 서비스는 전국 축제 소식과 알찬 4코스 추천을 넘어, 실제 아이를 동반했을 때 부모들이 현장에서 겪는 현실적인 고민과 불편을 해소해 드리고자 합니다. 단순히 멋진 장소를 추천하는 데 그치지 않고, 출발 전 짐 싸기 단계부터 유모차 동선 확인, 예상치 못한 기상 변화나 안전사고 대처법까지 실전 가이드를 제공합니다. 또한 향후 업그레이드될 아이 동반 맞춤형 식사 및 편안한 휴식 공간 연계 기능에 대한 소식도 함께 전해드립니다. 이번 글에서는 실패 없는 가족 나들이를 위한 연령별 필수 체크리스트와 알짜 준비 팁을 상세히 정리해 드립니다.</p>
 <p>---</p>
