@@ -17,6 +17,9 @@
        - sitemap.xml 에 /game/ 추가
 
   ⑤ (5차) 메뉴·푸터의 '고객지원' 이름을 'FAQ'로 바꾼다(주소 /guide/ 는 그대로).
+  ⑥ (6차) 모바일 햄버거 메뉴를 2열·좁은 간격으로 줄여 전체가 한 화면에 보이게 한다.
+       스타일은 공통 footer.html 에 들어 있고, footer.html 을 불러오지 않는 페이지(호호 매거진 목록 등)에는
+       같은 스타일을 <head> 안에 직접 넣는다.
 
 저장소의 모든 .html / .py 파일을 훑어서 메뉴 코드가 있는 곳만 고친다
 (생성 스크립트·템플릿 안에 박힌 메뉴도 같이 고쳐야 자동 생성 페이지가 다시 옛 메뉴로 돌아가지 않는다).
@@ -380,6 +383,35 @@ def process_stage_e(text):
     return new, ('changed' if new != text else 'same')
 
 
+# ─────────────────────────────────────────────────────────────
+#  6차: 모바일 햄버거 메뉴 컴팩트(2열)
+#  footer.html 을 불러오는 페이지는 footer.html 의 스타일로 적용되므로 건드리지 않는다.
+# ─────────────────────────────────────────────────────────────
+MM_COMPACT_CSS = r'''<style id="mm-compact">
+        /* 모바일 햄버거 메뉴 컴팩트(2열): #mobile-menu(일반 페이지)·#game-mobile-menu(게임 페이지) 공통.
+           메뉴가 길어 아래가 잘리던 문제 해결 — 전체 메뉴가 한 화면에 보이도록 항목 간격을 줄이고 2열로 배치 */
+        @media (max-width: 767px) {
+            #mobile-menu > div, #game-mobile-menu > div { display: grid !important; grid-template-columns: 1fr 1fr; gap: 2px 8px !important; padding: 6px 14px 10px !important; }
+            #mobile-menu > div > *, #game-mobile-menu > div > * { margin: 0 !important; min-width: 0; }
+            #mobile-menu > div > div, #game-mobile-menu > div > div { grid-column: 1 / -1; }
+            #mobile-menu > div > div.border-t, #game-mobile-menu > div > div[style*="border-top"] { margin: 4px 0 !important; }
+            #mobile-menu a, #mobile-menu button, #game-mobile-menu a { padding: 9px 12px !important; line-height: 1.3 !important; font-size: 14px !important; }
+        }
+    </style>'''
+
+
+def process_stage_f(text, is_html):
+    if not is_html:
+        return text, 'n/a'
+    if 'id="mobile-menu"' not in text and 'id="game-mobile-menu"' not in text:
+        return text, 'n/a'
+    if 'id="mm-compact"' in text or 'footer.html' in text:
+        return text, 'same'
+    if text.count('</head>') != 1:
+        return text, 'skip'
+    return text.replace('</head>', '    ' + MM_COMPACT_CSS + '\n</head>', 1), 'changed'
+
+
 def ensure_sitemap(root):
     path = os.path.join(root, 'sitemap.xml')
     if not os.path.exists(path):
@@ -428,6 +460,7 @@ def main():
             text, _ = process_stage_c(text, rel, game_exists)
             text, _ = process_stage_d(text)
             text, _ = process_stage_e(text)
+            text, _ = process_stage_f(text, fn.endswith('.html'))
             bad = [n for n in notes if 'fail' in n]
             if bad:
                 failed.append((rel, bad))
