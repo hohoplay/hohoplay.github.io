@@ -1,0 +1,33 @@
+# 상단 메뉴 개편을 저장소 전체 페이지에 한 번에 적용하는 일회용 워크플로입니다.
+# 사용법: Actions 탭 → "Update Nav Menu (one-time)" → Run workflow
+# 다 쓰고 나면 이 파일과 scripts/update_nav_menu.py는 지워도 됩니다(여러 번 돌려도 안전합니다).
+name: Update Nav Menu (one-time)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-nav:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update nav menu in all pages
+        run: python scripts/update_nav_menu.py
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: 상단 메뉴 개편 (소통·정보 통합, 고객지원 약관·정책으로 이동)"
+          git push
