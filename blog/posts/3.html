@@ -266,6 +266,10 @@ JELLY POP 7 : 합이 7이 되면 터지는 마법 결정 퍼즐
     (function(){
         var ph = document.getElementById('hoho-pick-placeholder');
         if (!ph) return;
+        // [ADD] 2026-10-26: 이 템플릿은 커뮤니티 글(blog/posts/)과 호호 매거진 글(blog/magazine/)이
+        // 같이 쓴다. 매거진 글 아래에는 "호호 매거진" 추천이 또 나오지 않게 magazine을 빼고,
+        // 커뮤니티 글은 기존대로 community를 뺀다. 주소(경로)로 구분하므로 생성 스크립트는 안 바꿔도 된다.
+        ph.setAttribute('data-exclude', location.pathname.indexOf('/blog/magazine/') === 0 ? 'magazine' : 'community');
         fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
             ph.innerHTML = html;
             var scripts = ph.querySelectorAll('script');
