@@ -10,28 +10,23 @@
       if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <!-- [FIX] Tailwind CDN·html2canvas 스크립트가 async 없이 동기 로딩이라, 네트워크가
-         느리면 그 다운로드가 끝날 때까지 실제 콘텐츠 교체 스크립트 실행 자체가 지연되어
-         크롤러용 정적 폴백 텍스트가 화면에 그대로 노출될 수 있음. 그 어떤 스크립트보다
-         먼저 파싱되는 이 자리에서 #content를 즉시 숨기고, 실제 콘텐츠 교체가 끝나는
-         순간(navigateTo 내부에서) 다시 보이게 처리함. 정적 텍스트 자체는 HTML 소스에
-         그대로 남아있어 JS 미실행 크롤러 관점에서는 기존과 동일함. -->
-    <style>#content{opacity:0}</style>
-    <noscript><style>#content{opacity:1!important}</style></noscript>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>호호플레이(HOHO PLAY) - 프리미엄 웹게임 포털</title>
-    <meta name="description" content="호호플레이(HOHO PLAY)는 설치·가입 없이 무료로 즐기는 웹게임 포털입니다. 타이핑·레이싱·러닝·퍼즐 게임 10종과 운세 서비스를 만나보세요.">
+    <title>호호플레이(HOHO PLAY) | 궁금한 점 검색 · 무료 웹게임 · 운세 · 아이랑 나들이</title>
+    <meta name="description" content="호호플레이(HOHO PLAY)에서 게임 공략, 운세, 꿈해몽, 아이랑 나들이 장소까지 궁금한 점을 한 번에 검색하세요. 설치·가입 없이 즐기는 무료 웹게임도 만나보세요.">
     <link rel="canonical" href="https://hohoplaylab.com/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="HOHO PLAY">
-    <meta property="og:title" content="호호플레이(HOHO PLAY) - 프리미엄 웹게임 포털">
-    <meta property="og:description" content="호호플레이(HOHO PLAY)는 설치·가입 없이 무료로 즐기는 웹게임 포털입니다. 타이핑·레이싱·러닝·퍼즐 게임 10종과 운세 서비스를 만나보세요.">
+    <meta property="og:title" content="호호플레이(HOHO PLAY) | 궁금한 점 검색 · 무료 웹게임 · 운세 · 아이랑 나들이">
+    <meta property="og:description" content="게임 공략, 운세, 꿈해몽, 아이랑 나들이 장소까지 궁금한 점을 한 번에 검색하세요.">
     <meta property="og:url" content="https://hohoplaylab.com/">
     <meta property="og:image" content="https://hohoplaylab.com/data/banner.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="호호플레이(HOHO PLAY) - 프리미엄 웹게임 포털">
-    <meta name="twitter:description" content="호호플레이(HOHO PLAY)는 설치·가입 없이 무료로 즐기는 웹게임 포털입니다. 타이핑·레이싱·러닝·퍼즐 게임 10종과 운세 서비스를 만나보세요.">
+    <meta name="twitter:title" content="호호플레이(HOHO PLAY) | 궁금한 점 검색 · 무료 웹게임 · 운세 · 아이랑 나들이">
+    <meta name="twitter:description" content="게임 공략, 운세, 꿈해몽, 아이랑 나들이 장소까지 궁금한 점을 한 번에 검색하세요.">
     <meta name="twitter:image" content="https://hohoplaylab.com/data/banner.png">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebSite","name":"HOHO PLAY","alternateName":"호호플레이","url":"https://hohoplaylab.com/","inLanguage":"ko","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://hohoplaylab.com/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
     <script>
@@ -48,92 +43,176 @@
     <!-- ═══ Google AdSense ═══ -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
     <style>
-        /* ── 로딩 중 광고 슬롯 ── */
-        .loading-ad-slot {
-            width: 100%;
-            max-width: 360px;
-            margin: 16px auto 0;
-            background: #f1f5f9;
-            border: 1px dashed #cbd5e1;
-            border-radius: 12px;
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            font-size: 11px;
-            gap: 6px;
-            padding: 12px;
-            box-sizing: border-box;
-        }
-        .loading-ad-slot .ad-label {
-            font-size: 10px;
-            color: #cbd5e1;
-            letter-spacing: .05em;
-        }
-        /* 실제 애드센스 ins 태그 */
-        .loading-ad-slot ins {
-            display: block;
-            width: 100%;
-        }
-        /* ── 띠운세 카드 내부 텍스트 가시성 보장 ── */
-        #ccard-full * { color: inherit !important; }
-        #ccard-full { color: #fff; }
-    </style>
-    <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
         body { font-family: 'Noto Sans KR', sans-serif; }
-        .page-transition { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .game-card:hover { transform: translateY(-5px); transition: all 0.3s ease; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
-        .scroll-section { scroll-margin-top: 80px; }
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: #4338ca; }
-        /* 게임 카드 터치 피드백 (모바일) */
-        .game-card.touch-active {
-            border-color: #818cf8 !important;
-            box-shadow: 0 10px 25px -5px rgba(99,102,241,0.25) !important;
-            transform: translateY(-2px);
+
+        /* ═══ 검색 히어로 ═══ */
+        .sh-hero {
+            position: relative;
+            border-radius: 32px;
+            padding: 56px 20px 40px;
+            margin-bottom: 36px;
+            color: #fff;
+            text-align: center;
+            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 45%, #7c3aed 75%, #db2777 100%);
+            box-shadow: 0 24px 60px -12px rgba(79, 70, 229, .45);
         }
-        .game-card.touch-active h3 {
-            color: #4f46e5;
+        .sh-bg { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+        .sh-orb { position: absolute; border-radius: 50%; filter: blur(48px); opacity: .55; animation: shFloat 11s ease-in-out infinite; }
+        .sh-orb.o1 { width: 280px; height: 280px; background: #f472b6; top: -90px; left: -60px; }
+        .sh-orb.o2 { width: 320px; height: 320px; background: #60a5fa; bottom: -140px; right: -80px; animation-delay: -4s; }
+        .sh-orb.o3 { width: 200px; height: 200px; background: #34d399; top: 40%; left: 55%; opacity: .28; animation-delay: -7s; }
+        .sh-grid {
+            position: absolute; inset: 0; opacity: .12;
+            background-image: radial-gradient(#fff 1px, transparent 1px);
+            background-size: 22px 22px;
+            -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+            mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
         }
-        @media (hover: none) and (pointer: coarse) {
-            .game-card:active {
-                border-color: #818cf8;
-                box-shadow: 0 10px 25px -5px rgba(99,102,241,0.25);
-                transform: translateY(-2px);
-            }
+        .sh-spark { position: absolute; color: #fde68a; animation: shTwinkle 3.2s ease-in-out infinite; }
+        .sh-spark.s1 { top: 18%; left: 9%; font-size: 20px; }
+        .sh-spark.s2 { top: 30%; right: 8%; font-size: 14px; animation-delay: -1.2s; }
+        .sh-spark.s3 { bottom: 24%; left: 14%; font-size: 12px; animation-delay: -2.1s; }
+        .sh-spark.s4 { bottom: 16%; right: 16%; font-size: 18px; animation-delay: -.6s; }
+        @keyframes shFloat { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(24px,-22px) scale(1.08); } }
+        @keyframes shTwinkle { 0%,100% { opacity: .25; transform: scale(.8) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(20deg); } }
+        @keyframes shFlow { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+        @keyframes shShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+
+        .sh-inner { position: relative; z-index: 2; }
+        .sh-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .04em;
+            background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+            margin-bottom: 18px;
         }
-        /* ── 버튼 로딩 스피너 ── */
-        @keyframes btnSpin { to { transform: rotate(360deg); } }
-        .btn-loading { position:relative; pointer-events:none; opacity:.75; }
-        .btn-loading .btn-spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:btnSpin .7s linear infinite; vertical-align:middle; margin-right:7px; }
+        .sh-title { font-size: clamp(1.7rem, 5.6vw, 3.1rem); font-weight: 900; line-height: 1.22; letter-spacing: -.02em; margin: 0 0 12px; }
+        .sh-title em {
+            font-style: normal;
+            background: linear-gradient(90deg, #fde68a, #fbcfe8, #a5f3fc, #fde68a);
+            background-size: 200% 100%;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: shShine 5s linear infinite;
+        }
+        .sh-sub { font-size: clamp(.86rem, 2.6vw, 1.02rem); color: rgba(255,255,255,.82); margin: 0 auto 28px; max-width: 560px; line-height: 1.7; }
+
+        .sh-box { position: relative; max-width: 700px; margin: 0 auto; text-align: left; }
+        .sh-ring {
+            padding: 3px; border-radius: 999px;
+            background: linear-gradient(90deg, #f472b6, #a78bfa, #60a5fa, #34d399, #fde68a, #f472b6);
+            background-size: 300% 100%;
+            animation: shFlow 7s linear infinite;
+            box-shadow: 0 0 0 6px rgba(255,255,255,.08), 0 18px 48px rgba(15,23,42,.45);
+            transition: box-shadow .25s, transform .25s;
+        }
+        .sh-ring:focus-within { box-shadow: 0 0 0 7px rgba(255,255,255,.2), 0 0 44px rgba(167,139,250,.75), 0 18px 48px rgba(15,23,42,.45); transform: translateY(-1px); }
+        .sh-field { position: relative; display: flex; align-items: center; background: #fff; border-radius: 999px; }
+        .sh-lead { flex: none; padding-left: 22px; display: flex; color: #7c3aed; }
+        .sh-input {
+            flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+            padding: 20px 10px 20px 12px; font-size: 16px; font-weight: 500; color: #0f172a; font-family: inherit;
+        }
+        .sh-input::placeholder { color: #94a3b8; font-weight: 400; }
+        .sh-go {
+            flex: none; margin: 6px; height: 48px; padding: 0 24px; border: none; cursor: pointer; border-radius: 999px;
+            font-family: inherit; font-weight: 900; font-size: 15px; color: #fff; display: flex; align-items: center; gap: 6px;
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            box-shadow: 0 6px 18px rgba(124,58,237,.45);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .sh-go:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(219,39,119,.5); }
+        .sh-go:active { transform: scale(.97); }
+        .sh-go span.t { display: inline; }
+        @media (max-width: 480px) {
+            .sh-hero { padding: 40px 14px 30px; border-radius: 26px; }
+            .sh-go { padding: 0; width: 48px; justify-content: center; }
+            .sh-go span.t { display: none; }
+            .sh-lead { padding-left: 16px; }
+            .sh-input { padding: 17px 6px 17px 8px; }
+        }
+
+        .sh-recent {
+            display: none; position: absolute; top: calc(100% + 12px); left: 0; right: 0; z-index: 30;
+            background: #fff; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 20px;
+            box-shadow: 0 20px 48px rgba(15,23,42,.28); overflow: hidden;
+        }
+        .sh-recent-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid #f1f5f9; }
+        .sh-recent-head b { font-size: 12px; font-weight: 800; color: #94a3b8; }
+        .sh-recent-head button { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: 700; padding: 2px 4px; }
+        .sh-recent-row { display: flex; align-items: center; gap: 10px; padding: 11px 18px; cursor: pointer; }
+        .sh-recent-row:hover { background: #f5f3ff; }
+        .sh-recent-row span { flex: 1; font-size: 14px; color: #334155; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sh-recent-row button { background: none; border: none; cursor: pointer; color: #cbd5e1; font-size: 18px; line-height: 1; padding: 4px; }
+
+        .sh-hot { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 22px; }
+        .sh-hot-label { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.7); margin-right: 4px; }
+        .sh-chip {
+            border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.12); color: #fff;
+            padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            transition: background .15s, transform .15s, color .15s;
+        }
+        .sh-chip:hover { background: #fff; color: #6d28d9; transform: translateY(-2px); }
+
+        /* 바로가기 */
+        .sh-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 36px; }
+        @media (min-width: 768px) { .sh-links { grid-template-columns: repeat(8, 1fr); } }
+        .sh-link {
+            display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 4px 12px;
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; text-decoration: none;
+            font-size: 12px; font-weight: 800; color: #334155; text-align: center; line-height: 1.3;
+            transition: transform .15s, border-color .15s, box-shadow .15s;
+        }
+        .sh-link i { font-style: normal; font-size: 24px; line-height: 1; }
+        .sh-link:hover { transform: translateY(-3px); border-color: #a5b4fc; box-shadow: 0 10px 24px rgba(79,70,229,.14); color: #4338ca; }
+
+        /* 결과 */
+        #sh-results { display: none; margin: 0 0 36px; }
+        .sh-res-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .sh-res-head h2 { font-size: 15px; font-weight: 900; color: #1e293b; margin: 0; }
+        .sh-res-head h2 b { color: #7c3aed; }
+        .sh-res-head button { background: #f1f5f9; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 800; color: #64748b; cursor: pointer; font-family: inherit; }
+        .sh-res-head button:hover { background: #e2e8f0; }
+        .sh-res {
+            display: flex; align-items: center; gap: 14px; padding: 16px 18px; margin-bottom: 8px; border-radius: 16px;
+            background: #fff; border: 1px solid #eef2f7; text-decoration: none; color: inherit;
+            transition: box-shadow .15s, border-color .15s, transform .15s;
+        }
+        a.sh-res:hover { box-shadow: 0 8px 24px rgba(79,70,229,.12); border-color: #c7d2fe; transform: translateY(-1px); }
+        .sh-res .ic { font-size: 24px; flex: none; }
+        .sh-res .bd { flex: 1; min-width: 0; }
+        .sh-res .nm { font-weight: 800; font-size: 14px; color: #1e293b; margin-bottom: 2px; }
+        .sh-res .sn { font-size: 12px; color: #94a3b8; line-height: 1.55; }
+        .sh-empty { text-align: center; padding: 44px 0; color: #94a3b8; font-size: 14px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 16px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sh-orb, .sh-spark, .sh-ring, .sh-title em { animation: none !important; }
+        }
+
+        /* 소개 */
+        .home-about { color: #475569; line-height: 1.85; font-size: 14px; }
+        .home-about h2 { font-size: 1.1rem; font-weight: 900; color: #1e293b; margin: 0 0 8px; }
+        .home-about a { color: #4f46e5; text-decoration: underline; }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- ═══ 캐시 버스팅 & 자동 업데이트 감지 ═══ -->
     <script>
     (function() {
-        var CHECK_INTERVAL = 2 * 60 * 1000; // 2분마다 체크 (기존 5분 → 2분)
+        var CHECK_INTERVAL = 2 * 60 * 1000;
         var _lastChecked = 0;
-
         function checkVersion(force) {
             var now = Date.now();
-            // 10초 이내 중복 호출 방지
             if (!force && now - _lastChecked < 10000) return;
             _lastChecked = now;
-
-            fetch('./version.json?_=' + now, {
+            fetch('/version.json?_=' + now, {
                 cache: 'no-store',
                 headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
             })
-            .then(function(r) {
-                if (!r.ok) throw new Error('fetch fail');
-                return r.json();
-            })
+            .then(function(r) { if (!r.ok) throw new Error('fetch fail'); return r.json(); })
             .then(function(data) {
                 var stored = sessionStorage.getItem('_app_version');
                 if (!stored) {
@@ -146,30 +225,23 @@
             })
             .catch(function() { /* 로컬/오프라인 무시 */ });
         }
-
         window.addEventListener('load', function() {
-            // 로드 직후 1초 뒤 첫 체크
             setTimeout(function(){ checkVersion(true); }, 1000);
             setInterval(function(){ checkVersion(false); }, CHECK_INTERVAL);
         });
-
-        // 탭 전환 복귀 시 즉시 체크 (오래 열어둔 탭 대응)
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') checkVersion(true);
         });
-
-        // 창 포커스 복귀 시도 즉시 체크
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
-    <!-- 상단 네비게이션 -->
     <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('index')">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="location.href='/'">
                     <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
                     <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
                 </div>
@@ -229,9 +301,9 @@
                 <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">💬 소통·정보</div>
                 <button onclick="mobileNav('blog')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</button>
                 <button onclick="toggleMenu(); location.href = '/blog/magazine/'" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">호호 매거진</button>
-                <a href="/festival/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
-                <a href="/guides/index.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
-                <a href="/dream/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
+                <a href="/festival/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">아이랑 나들이 지도</a>
+                <a href="/guides/index.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">게임공략</a>
+                <a href="/dream/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">꿈해몽 사전</a>
                 <button onclick="mobileNav('partner')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</button>
 
                 <div class="border-t my-2"></div>
@@ -246,71 +318,84 @@
     <div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
 
     <!-- 메인 콘텐츠 영역 -->
-    <main id="content" class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
-        <div class="seo-fallback" style="display:block"><!-- [FIX-3-동일패턴] 비표준 커스텀 태그(<noscript-fallback>) 대신 표준 div 사용. /fortune/ 페이지에서 먼저 발견/수정했던 것과 동일한 문제를 여기도 같이 정리함. -->
-        <h1 style="font-size:1.75rem;font-weight:900;margin-bottom:.75rem">호호플레이(HOHO PLAY) — 로그인 없는 무료 웹게임 포털</h1>
-        <p style="line-height:1.8;margin-bottom:1rem">
-            HOHO PLAY는 회원가입이나 설치 없이 브라우저에서 바로 즐기는 무료 웹게임 포털입니다.
-            타이핑, 퍼즐, 러닝, 레이싱 등 다양한 장르의 자체 제작 게임을 제공하며,
-            사주·타로 등 실제 계산 로직 기반의 운세 콘텐츠도 함께 즐길 수 있습니다.
-        </p>
-        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">제공 중인 게임</h2>
-        <ul style="line-height:2;padding-left:1.25rem">
-            <li><a href="hoya-typing-rpg.html" style="color:#4f46e5;text-decoration:underline"><strong>호호타자RPG</strong></a> — 타이핑 액션. 단어를 입력해 몬스터를 물리치는 RPG</li>
-            <li><a href="hoya-proverb-typing.html" style="color:#4f46e5;text-decoration:underline"><strong>호호속담</strong></a> — 타이핑. 속담을 완성하며 타자 실력을 겨루는 게임. 아는 속담이 나오면 반갑고 몰랐던 것도 배우게 돼요.</li>
-            <li><a href="hoho-cherry-blossom-typing.html" style="color:#4f46e5;text-decoration:underline"><strong>호호벚꽃타자</strong></a> — 타이핑. 벚꽃이 흩날리는 화면에서 떨어지는 단어를 입력하는 낙하형 타자 게임. 놓치면 안 돼요.</li>
-            <li><a href="hoho-typing-fps.html" style="color:#4f46e5;text-decoration:underline"><strong>호호타자FPS</strong></a> — 타이핑 슈터. 단어 입력으로 적을 조준·사격</li>
-            <li><a href="hoho-racing.html" style="color:#4f46e5;text-decoration:underline"><strong>호호레이싱</strong></a> — 레이싱. 좌우 조작만으로 달리는 캐주얼 레이싱. 갈수록 속도가 빨라져서 손이 바빠져요.</li>
-            <li><a href="hoho-run.html" style="color:#4f46e5;text-decoration:underline"><strong>HOHO RUN</strong></a> — 러닝 액션. 벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션. 타이밍 하나로 승부가 갈려요.</li>
-            <li><a href="hoho-tile-match.html" style="color:#4f46e5;text-decoration:underline"><strong>호호사천성</strong></a> — 퍼즐. 같은 그림 두 개를 선으로 이어 없애는 고전 매칭 퍼즐. 머리 식히기 좋아요.</li>
-            <li><a href="jelly-pop-7.html" style="color:#4f46e5;text-decoration:underline"><strong>JELLY POP 7</strong></a> — 퍼즐. 숫자 합이 7이 되도록 젤리를 연결해 터뜨리는 매치 퍼즐. 10분 제한이 있어요.</li>
-            <li><a href="hoho-dash.html" style="color:#4f46e5;text-decoration:underline"><strong>HOHO DASH</strong></a> — 러닝 액션. 도트 그래픽으로 장애물을 피해 달리는 러닝 게임. 단순하지만 손을 못 떼요.</li>
-            <li><a href="word-puzzle-dungeon.html" style="color:#4f46e5;text-decoration:underline"><strong>낱말퍼즐 던전</strong></a> — 낱말 퍼즐. 던전을 테마로 한 낱말 맞추기</li>
-        </ul>
-        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">간단히 즐기는 미니게임</h2>
-        <ul style="line-height:2;padding-left:1.25rem">
-            <li><a href="mgame1.html" style="color:#4f46e5;text-decoration:underline"><strong>사다리게임</strong></a> — 인원수만 정하면 바로 만들어지는 사다리게임</li>
-            <li><a href="mgame2.html" style="color:#4f46e5;text-decoration:underline"><strong>동전 던지기</strong></a> — 앞면 뒷면을 예측하고 던져보는 초간단 미니게임</li>
-            <li><a href="mgame3.html" style="color:#4f46e5;text-decoration:underline"><strong>주사위 굴리기</strong></a> — 1~6 중 하나를 예측하고 굴려보는 미니게임</li>
-            <li><a href="mgame4.html" style="color:#4f46e5;text-decoration:underline"><strong>행운의 룰렛</strong></a> — 항목을 입력하고 돌려서 하나를 뽑는 룰렛</li>
-            <li><a href="mgame5.html" style="color:#4f46e5;text-decoration:underline"><strong>가위바위보</strong></a> — 컴퓨터를 상대로 겨루는 가위바위보</li>
-            <li><a href="mgame6.html" style="color:#4f46e5;text-decoration:underline"><strong>숫자 야구</strong></a> — 스트라이크·볼 힌트로 숫자를 추리하는 두뇌 게임</li>
-            <li><a href="mgame7.html" style="color:#4f46e5;text-decoration:underline"><strong>틱택토</strong></a> — 컴퓨터를 상대로 3줄을 먼저 만드는 게임</li>
-            <li><a href="mgame8.html" style="color:#4f46e5;text-decoration:underline"><strong>반응속도 테스트</strong></a> — 색이 바뀌는 순간 클릭해 반응속도를 측정</li>
-            <li><a href="mgame9.html" style="color:#4f46e5;text-decoration:underline"><strong>카드 짝맞추기</strong></a> — 같은 그림 카드를 찾는 기억력 게임</li>
-            <li><a href="mgame10.html" style="color:#4f46e5;text-decoration:underline"><strong>두더지 잡기</strong></a> — 30초 동안 튀어나오는 두더지를 잡는 반사신경 게임</li>
-        </ul>
-        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">커뮤니티 코너</h2>
-        <ul style="line-height:2;padding-left:1.25rem">
-            <li><a href="/vote/" style="color:#4f46e5;text-decoration:underline"><strong>익명투표</strong></a> — 로그인 없이 바로 참여하는 매주 새 주제 투표</li>
-            <li><a href="/quiz/" style="color:#4f46e5;text-decoration:underline"><strong>상식테스트</strong></a> — 매주 바뀌는 5문제 상식 퀴즈</li>
-            <li><a href="/festival/" style="color:#4f46e5;text-decoration:underline"><strong>축제 지도</strong></a> — 전국의 다양한 축제 정보를 지도에서 쉽게 찾아볼 수 있습니다.</li>
-        </ul>
-        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">운세 서비스</h2>
-        <p style="line-height:1.8">
-            <a href="/fortune/" style="color:#4f46e5;text-decoration:underline">오늘의 운세</a>, 사주, 타로, 별자리 월간운세, 띠별 주간운세, MBTI 결합 콘텐츠와
-            <a href="fortune-adventure.html" style="color:#4f46e5;text-decoration:underline">오늘의 운세 모험</a> 등을 제공합니다.
-            AI가 임의로 문장을 지어내는 방식이 아니라, 사주 명리학과 정해진 계산 로직을 바탕으로
-            결과를 만들어내며, 입력하신 정보는 외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
-            키워드로 꿈의 의미를 찾아보는 <a href="/dream/" style="color:#4f46e5;text-decoration:underline">꿈해몽 사전</a>도 함께 제공합니다.
-        </p>
-        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">뭐부터 해볼까요</h2>
-<p style="line-height:1.8;margin-bottom:.5rem"><strong>🤔 결정 못 할 때</strong> — 이거 할지 저거 할지 고민될 때</p><ul style="line-height:2;padding-left:1.25rem;margin-bottom:1rem"><li><a href="mgame1.html" style="color:#4f46e5;text-decoration:underline">사다리게임</a> — 인원수만 정하면 바로 결과가 나와요</li><li><a href="mgame2.html" style="color:#4f46e5;text-decoration:underline">동전 던지기</a> — 앞면 뒷면, 딱 반반의 확률</li><li><a href="mgame3.html" style="color:#4f46e5;text-decoration:underline">주사위 굴리기</a> — 숫자 하나로 깔끔하게</li><li><a href="mgame4.html" style="color:#4f46e5;text-decoration:underline">행운의 룰렛</a> — 메뉴 고민 이제 그만</li></ul><p style="line-height:1.8;margin-bottom:.5rem"><strong>⏱️ 5초 때우기</strong> — 잠깐 시간 남을 때, 부담 없이</p><ul style="line-height:2;padding-left:1.25rem;margin-bottom:1rem"><li><a href="mgame8.html" style="color:#4f46e5;text-decoration:underline">반응속도 테스트</a> — 색 바뀌는 순간 클릭 한 번</li><li><a href="mgame10.html" style="color:#4f46e5;text-decoration:underline">두더지 잡기</a> — 30초, 최대한 많이</li><li><a href="mgame9.html" style="color:#4f46e5;text-decoration:underline">카드 짝맞추기</a> — 짧게 집중하는 기억력 승부</li></ul><p style="line-height:1.8;margin-bottom:.5rem"><strong>👯 친구랑 둘이</strong> — 혼자 말고 같이 하면 더 재밌는</p><ul style="line-height:2;padding-left:1.25rem;margin-bottom:1rem"><li><a href="jelly-pop-7.html" style="color:#4f46e5;text-decoration:underline">JELLY POP 7</a> — 실제 2인 대결 모드 지원</li><li><a href="mgame5.html" style="color:#4f46e5;text-decoration:underline">가위바위보</a> — 누가 먼저 지치나 대결</li><li><a href="mgame7.html" style="color:#4f46e5;text-decoration:underline">틱택토</a> — 3줄 먼저 완성하기 대결</li></ul><p style="line-height:1.8;margin-bottom:.5rem"><strong>⌨️ 손가락 워밍업하고 싶을 때</strong> — 타이핑으로 몸 좀 풀어볼까</p><ul style="line-height:2;padding-left:1.25rem;margin-bottom:1rem"><li><a href="hoya-typing-rpg.html" style="color:#4f46e5;text-decoration:underline">호호타자RPG</a> — 몬스터 물리치는 타이핑 액션</li><li><a href="hoya-proverb-typing.html" style="color:#4f46e5;text-decoration:underline">호호속담</a> — 속담 완성하며 타자 실력 겨루기</li><li><a href="hoho-cherry-blossom-typing.html" style="color:#4f46e5;text-decoration:underline">호호벚꽃타자</a> — 떨어지는 단어 낙하형 타자</li><li><a href="hoho-typing-fps.html" style="color:#4f46e5;text-decoration:underline">호호타자FPS</a> — 단어로 조준하는 타이핑 슈터</li></ul><p style="line-height:1.8;margin-bottom:.5rem"><strong>🎯 잠깐 집중하고 싶을 때</strong> — 짧고 굵게, 한 판만 더</p><ul style="line-height:2;padding-left:1.25rem;margin-bottom:1rem"><li><a href="hoho-racing.html" style="color:#4f46e5;text-decoration:underline">호호레이싱</a> — 갈수록 빨라지는 캐주얼 레이싱</li><li><a href="hoho-run.html" style="color:#4f46e5;text-decoration:underline">HOHO RUN</a> — 타이밍 하나로 승부, 벽 사이 튕기기</li><li><a href="hoho-dash.html" style="color:#4f46e5;text-decoration:underline">HOHO DASH</a> — 장애물 피해 달리는 러닝</li><li><a href="word-puzzle-dungeon.html" style="color:#4f46e5;text-decoration:underline">낱말퍼즐 던전</a> — 던전 테마 낱말 맞추기</li><li><a href="mgame6.html" style="color:#4f46e5;text-decoration:underline">숫자 야구</a> — 스트라이크·볼로 추리하는 두뇌 게임</li><li><a href="hoho-tile-match.html" style="color:#4f46e5;text-decoration:underline">호호사천성</a> — AI와 스피드 대결하는 매칭 퍼즐</li></ul>
-        <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">계속 늘어나요</h2>
-        <p style="line-height:1.8">
-            HOHO PLAY는 게임 10종으로 시작해서, 이후 로그인 없이 바로 즐기는
-            <a href="mgame1.html" style="color:#4f46e5;text-decoration:underline">미니게임 10종</a>(사다리게임, 동전 던지기, 두더지 잡기 등)과
-            <a href="/vote/" style="color:#4f46e5;text-decoration:underline">익명투표</a>,
-            <a href="/quiz/" style="color:#4f46e5;text-decoration:underline">상식테스트</a>,
-            <a href="/festival/" style="color:#4f46e5;text-decoration:underline">축제 지도</a>,
-            <a href="/dream/" style="color:#4f46e5;text-decoration:underline">꿈해몽 사전</a> 코너를 새로 추가했습니다.
-            콘텐츠는 계속 늘어나는 중이며, 새로 추가되는 항목은 이 페이지와 각 코너 화면에서 바로 확인할 수 있습니다.
-        </p>
-        </div>
+    <main id="content" class="flex-grow max-w-5xl mx-auto w-full px-4 py-8">
+
+        <!-- 검색 히어로 -->
+        <section class="sh-hero" aria-label="호호플레이 검색">
+            <div class="sh-bg" aria-hidden="true">
+                <div class="sh-orb o1"></div><div class="sh-orb o2"></div><div class="sh-orb o3"></div>
+                <div class="sh-grid"></div>
+                <span class="sh-spark s1">✦</span><span class="sh-spark s2">✦</span><span class="sh-spark s3">✦</span><span class="sh-spark s4">✦</span>
+            </div>
+            <div class="sh-inner">
+                <div class="sh-badge">✨ HOHO PLAY 통합 검색</div>
+                <h1 class="sh-title">궁금한 건 <em>호호플레이</em>에서<br>한 번에 찾아보세요</h1>
+                <p class="sh-sub">게임 공략부터 운세, 꿈해몽, 아이랑 나들이 장소까지.<br class="hidden sm:inline"> 가입 없이 바로 검색하고 바로 즐겨요.</p>
+
+                <form class="sh-box" id="sh-form" role="search" onsubmit="return shSubmit(event)">
+                    <div class="sh-ring">
+                        <div class="sh-field">
+                            <span class="sh-lead" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                            </span>
+                            <input id="sh-input" class="sh-input" type="search" name="q" autocomplete="off" enterkeyhint="search"
+                                   placeholder="호호플레이 궁금한 점을 검색해보세요" aria-label="호호플레이 궁금한 점 검색"
+                                   onfocus="shShowRecent()" onblur="shHideRecentLater()">
+                            <button type="submit" class="sh-go" aria-label="검색">
+                                <span class="t">검색</span>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="sh-recent" class="sh-recent"></div>
+                </form>
+
+                <div class="sh-hot" id="sh-hot">
+                    <span class="sh-hot-label">🔥 많이 찾는 검색어</span>
+                    <button type="button" class="sh-chip" data-q="타자">타자</button>
+                    <button type="button" class="sh-chip" data-q="운세">운세</button>
+                    <button type="button" class="sh-chip" data-q="꿈해몽">꿈해몽</button>
+                    <button type="button" class="sh-chip" data-q="사다리">사다리</button>
+                    <button type="button" class="sh-chip" data-q="축제">축제</button>
+                    <button type="button" class="sh-chip" data-q="아이랑 코스">아이랑 코스</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 바로가기 -->
+        <nav class="sh-links" aria-label="바로가기">
+            <a class="sh-link" href="/game/"><i>🎮</i>전체게임</a>
+            <a class="sh-link" href="/fortune/"><i>🔮</i>오늘의 운세</a>
+            <a class="sh-link" href="/dream/"><i>💭</i>꿈해몽 사전</a>
+            <a class="sh-link" href="/festival/"><i>🗺️</i>아이랑 나들이 지도</a>
+            <a class="sh-link" href="/vote/"><i>🗳️</i>익명투표</a>
+            <a class="sh-link" href="/quiz/"><i>🧠</i>상식테스트</a>
+            <a class="sh-link" href="/guides/index.html"><i>📖</i>게임공략</a>
+            <a class="sh-link" href="/blog/magazine/"><i>📰</i>호호 매거진</a>
+        </nav>
+
+        <!-- 검색 결과 -->
+        <section id="sh-results" aria-live="polite"></section>
+
+        <!-- 호호픽 -->
+        <div id="hoho-pick-placeholder" style="margin-bottom:40px;"></div>
+
+        <!-- 소개 (크롤러·사용자 모두에게 보이는 정적 텍스트) -->
+        <section class="home-about" style="margin-bottom:24px;">
+            <h2>호호플레이는 이런 곳이에요</h2>
+            <p style="margin:0 0 10px;">
+                호호플레이(HOHO PLAY)는 회원가입이나 설치 없이 브라우저에서 바로 즐기는 무료 웹게임 포털입니다.
+                <a href="/game/">타이핑·퍼즐·러닝·레이싱 게임 10종</a>과 간단히 즐기는 미니게임 10종을 직접 만들어 제공하고,
+                사주·타로 등 계산 로직을 바탕으로 한 <a href="/fortune/">운세</a>와 키워드로 찾는 <a href="/dream/">꿈해몽 사전</a>도 함께 운영합니다.
+            </p>
+            <p style="margin:0;">
+                주말에 아이와 어디 갈지 고민될 때는 <a href="/festival/">아이랑 나들이 지도</a>에서 전국의 축제와 가볼 만한 곳을 지역별로 찾아보세요.
+                매주 새 주제로 열리는 <a href="/vote/">익명투표</a>, 5문제 <a href="/quiz/">상식테스트</a>,
+                <a href="/blog/magazine/">호호 매거진</a>도 준비되어 있습니다.
+            </p>
+        </section>
     </main>
 
-    <!-- 푸터 -->
-    
     <div id="inquiry-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:20px;overflow-y:auto">
         <div style="background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);max-width:520px;width:100%;padding:32px;position:relative;margin:auto">
             <button onclick="closeInquiryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;line-height:1">×</button>
@@ -429,1316 +514,273 @@
         }
     </script>
 
+
     <div id="footer-placeholder"></div>
     <script>
-        fetch('./footer.html')
+        fetch('/footer.html')
             .then(r => r.text())
             .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
     </script>
 
     <script>
-        // 모바일 감지
-        // UA + 너비 체크만으로는 "데스크톱 사이트" 모드로 접속하는 안드로이드 태블릿(삼성 갤럭시탭 등)을
-        // 놓칠 수 있어서, 실제 입력 방식(터치 전용 + 마우스 hover 불가)도 함께 확인함
-        const isTouchOnlyDevice = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window)
-            && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-        // 창 폭(window.innerWidth) 기반 판별은 넣지 않음: const라 페이지 로드 시점에 한 번만 계산되어
-        // 창을 좁게 연 채로 로드하면 이후 창을 넓혀도 값이 갱신되지 않아 PC에서도 계속 막히는 문제가 있었음
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || isTouchOnlyDevice;
-
-        const gameData = [
-            { id: 'g1', name: '호호타자rpg',    genre: '타이핑 액션', desc: '숲을 탐험하며 몬스터를 타이핑으로 물리치는 액션 RPG. 이동과 타이핑을 동시에 처리해야 해요.', version: 'v1.0.0', file: 'hoya-typing-rpg.html', img: 'data/game1.png' },
-            { id: 'g2', name: '호호속담',        genre: '타이핑',      desc: '속담을 완성하며 타자 실력을 겨루는 게임. 아는 속담이 나오면 반갑고 몰랐던 것도 배우게 돼요.', version: 'v1.0.0', file: 'hoya-proverb-typing.html', img: 'data/game2.png' },
-            { id: 'g3', name: '호호벚꽃타자',  genre: '타이핑',      desc: '벚꽃이 흩날리는 화면에서 떨어지는 단어를 입력하는 낙하형 타자 게임. 놓치면 안 돼요.', version: 'v1.0.0', file: 'hoho-cherry-blossom-typing.html', img: 'data/game3.png' },
-            { id: 'g4',  name: '호호타자FPS', genre: '타이핑 슈터', desc: '총 대신 단어로 적을 쏘는 타이핑 슈터. 정확하고 빠른 타자 실력이 곧 전투력이에요.', version: 'v1.0.0', file: 'hoho-typing-fps.html', img: 'data/game4.png' },
-            { id: 'g5',  name: '호호레이싱', genre: '레이싱', desc: '좌우 조작만으로 달리는 캐주얼 레이싱. 갈수록 속도가 빨라져서 손이 바빠져요.', version: 'v1.0.0', file: 'hoho-racing.html', img: 'data/game5.png' },
-            { id: 'g6',  name: 'HOHO RUN', genre: '러닝 액션', desc: '벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션. 타이밍 하나로 승부가 갈려요.', version: 'v1.0.0', file: 'hoho-run.html', img: 'data/game6.png' },
-            { id: 'g7',  name: '호호사천성', genre: '퍼즐', desc: '같은 그림 두 개를 선으로 이어 없애는 고전 매칭 퍼즐. 머리 식히기 좋아요.', version: 'v1.0.0', file: 'hoho-tile-match.html', img: 'data/game7.png' },
-            { id: 'g8',  name: 'JELLY POP 7', genre: '퍼즐', desc: '숫자 합이 7이 되도록 젤리를 연결해 터뜨리는 매치 퍼즐. 10분 제한이 있어요.', version: 'v1.0.0', file: 'jelly-pop-7.html', img: 'data/game8.png' },
-            { id: 'g9',  name: 'HOHO DASH', genre: '러닝 액션', desc: '도트 그래픽으로 장애물을 피해 달리는 러닝 게임. 단순하지만 손을 못 떼요.', version: 'v1.0.0', file: 'hoho-dash.html', img: 'data/game9.png' },
-            { id: 'g10', name: '낱말퍼즐 던전', genre: '낱말 퍼즐', desc: '던전을 테마로 한 낱말 맞추기 퍼즐. 단어가 막히면 은근 오래 걸려요.', version: 'v1.0.0', file: 'word-puzzle-dungeon.html', img: 'data/game10.png' }
-        ];
-        // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
-        const bannerConfig = {
-            img: './data/banner.png',
-            link: 'fortune-adventure.html',  // 독립 파일로 이동
-            alt: '오늘의 운세 모험 시작하기'
-        };
-
-        // 게임 목록 페이지 HTML 생성
-        function buildIndexPage() {
-            function makeCard(game) {
-                var badge = '';
-                var isPcOnly = (game.id === 'g1' || game.id === 'g3' || game.id === 'g4');
-                if (isPcOnly) {
-                    var clsPc = isMobile
-                        ? 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400'
-                        : 'absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-500';
-                    badge = '<span id="pc-badge-' + game.id + '" class="' + clsPc + '">\u2328\uFE0F \uD0A4\uBCF4\uB4DC \uD544\uC694</span>';
-                } else {
-                    badge = '<span class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">ALL</span>';
-                }
-                var hasImg = game.img && game.img.trim() !== '';
-                var thumbBg = '#eef2ff';
-                var thumbColor = '#4f46e5';
-                var icon = '\uD83C\uDFAE';
-                var thumb = hasImg
-                    ? '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:10px;position:relative;"><img src="' + game.img + '" alt="' + game.name + '" style="width:100%;height:100%;object-fit:cover;">' + '<div class="play-overlay"><span>\u25B6 \uD50C\uB808\uC774\uD558\uAE30</span></div>' + '<div class="play-badge-mobile">\u25B6</div>' + '</div>'
-                    : '<div style="width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:' + thumbBg + ';color:' + thumbColor + ';position:relative;">' + icon + '<div class="play-overlay"><span>\u25B6 \uD50C\uB808\uC774\uD558\uAE30</span></div>' + '<div class="play-badge-mobile">\u25B6</div>' + '</div>';
-                var onclick = "handleGameClick('" + game.id + "')";
-                // 모바일 + PC전용 게임일 때만 "PC에서 다시 만나요" 안내 노출
-                var pcNote = (isMobile && isPcOnly)
-                    ? '<span class="text-[10px] text-indigo-400 font-bold mt-1.5">\uD83D\uDCCC PC\uC5D0\uC11C \uB2E4\uC2DC \uB9CC\uB098\uC694</span>'
-                    : '';
-                return '<button onclick="' + onclick + '" class="game-card group bg-white p-3 rounded-2xl border border-slate-100 hover:border-indigo-400 hover:shadow-lg transition-all flex flex-col items-center text-center relative w-full">'
-                    + thumb
-                    + badge
-                    + '<h3 class="font-bold text-sm text-slate-800 mb-1 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight">' + game.name + '</h3>'
-                    + '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full uppercase tracking-tighter">' + game.genre + '</span>'
-                    + (game.desc ? '<p class="text-[11px] text-slate-400 mt-1.5 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + game.desc + '</p>' : '')
-                    + pcNote
-                    + '</button>';
-            }
-
-            var cards;
-            if (isMobile) {
-                // 모바일: 한 손으로 바로 되는 게임 먼저, 키보드 필요한 게임은 아래 별도 섹션으로
-                var oneHandGames = gameData.filter(function(g){ return !(g.id === 'g1' || g.id === 'g3' || g.id === 'g4'); });
-                var keyboardGames = gameData.filter(function(g){ return (g.id === 'g1' || g.id === 'g3' || g.id === 'g4'); });
-                cards = '<div style="grid-column:1/-1;font-size:13px;font-weight:900;color:#1e293b;margin-bottom:2px">\uD83D\uDCF1 \uD55C \uC190\uC73C\uB85C 5\uCD08</div>'
-                    + '<div style="grid-column:1/-1;font-size:11px;color:#94a3b8;margin-bottom:10px">\uBC14\uB85C \uB204\ub974\uba74 \ubc14\ub85c \ub418\ub294 \uac8c\uc784\ub4e4</div>'
-                    + oneHandGames.map(makeCard).join('')
-                    + '<div style="grid-column:1/-1;font-size:13px;font-weight:900;color:#1e293b;margin:20px 0 2px">\u2328\uFE0F \uD0A4\uBCF4\uB4DC \uC788\uC744 \uB54C</div>'
-                    + '<div style="grid-column:1/-1;font-size:11px;color:#94a3b8;margin-bottom:10px">\ud0c0\uc774\ud551\uc774 \ud575\uc2ec\uc774\ub77c PC\uc5d0\uc11c \ub354 \uc798 \ub3c4\ub294 \uac8c\uc784\ub4e4</div>'
-                    + keyboardGames.map(makeCard).join('');
-            } else {
-                // PC: 기존 순서 그대로
-                cards = gameData.map(makeCard).join('');
-            }
-
-            var hasBanner = bannerConfig.img && bannerConfig.img.trim() !== '';
-            var bannerInner = hasBanner
-                ? '<img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;">'
-                : '<div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">'
-                  + '<span style="font-size:32px;">\uD83D\uDDBC\uFE0F</span>'
-                  + '<span style="font-size:12px;font-weight:800;color:#a5b4fc;letter-spacing:.07em;">BANNER &nbsp;\u00B7&nbsp; \uAD8C\uC7A5 \uC0AC\uC774\uC988: 1200 \u00D7 240 px</span>'
-                  + '<span style="font-size:11px;color:#c4b5fd;">bannerConfig.img \uC5D0 \uC774\uBBF8\uC9C0 \uACBD\uB85C, bannerConfig.link \uC5D0 URL\uC744 \uC785\uB825\uD558\uC138\uC694</span>'
-                  + '</div>';
-
-            return '<div class="page-transition">'
-                + '<style>'
-                + '.top-mobile-banner{display:none;margin-bottom:20px;}'
-                + '.game-icon-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:48px;}'
-                + '@media(max-width:767px){.top-mobile-banner{display:block;}.game-icon-grid{grid-template-columns:1fr;}}'
-                + '@media(min-width:768px) and (max-width:1023px){.game-icon-grid{grid-template-columns:repeat(2,1fr);}}'
-                + '@media(min-width:1024px) and (max-width:1279px){.game-icon-grid{grid-template-columns:repeat(4,1fr);}}'
-                + '@media(min-width:1280px){.game-icon-grid{grid-template-columns:repeat(5,1fr);}}'
-                + '.community-board-grid{display:grid;grid-template-columns:1fr;gap:12px;}'
-                + '@media(min-width:768px) and (max-width:1023px){.community-board-grid{grid-template-columns:repeat(2,1fr);}}'
-                + '@media(min-width:1024px){.community-board-grid{grid-template-columns:repeat(3,1fr);}}'
-                + '.usage-guide-grid{display:grid;grid-template-columns:1fr;gap:20px;max-width:900px;margin:0 auto;}'
-                + '@media(min-width:768px){.usage-guide-grid{grid-template-columns:repeat(2,1fr);}}'
-                + '.play-overlay{display:none;}'
-                + '.play-badge-mobile{display:none;}'
-                + '@media(hover:hover) and (pointer:fine){'
-                +   '.play-overlay{display:flex;position:absolute;inset:0;border-radius:12px;background:rgba(30,27,75,.55);align-items:center;justify-content:center;opacity:0;transition:opacity .25s ease;pointer-events:none;}'
-                +   '.game-card:hover .play-overlay{opacity:1;}'
-                +   '.play-overlay span{color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;gap:6px;background:rgba(124,58,237,.92);padding:6px 14px;border-radius:999px;transform:translateY(6px);transition:transform .25s ease;}'
-                +   '.game-card:hover .play-overlay span{transform:translateY(0);}'
-                + '}'
-                + '@media(hover:none) and (pointer:coarse){'
-                +   '.play-badge-mobile{display:flex;position:absolute;bottom:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(79,70,229,.92);color:#fff;align-items:center;justify-content:center;font-size:10px;line-height:1;pointer-events:none;}'
-                + '}'
-                + '.community-card{transition:box-shadow .2s,border-color .2s;}'
-                + '.community-card:hover{box-shadow:0 8px 24px rgba(79,70,229,.1);border-color:#c7d2fe;}'
-                + '</style>'
-                + '<div class="text-center mb-6">'
-                + '<h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight">\uD50C\uB808\uC774\uD558\uACE0 \uC2F6\uC740 \uAC8C\uC784\uC744 \uC120\uD0DD\uD558\uC138\uC694</h1>'
-                + '<p class="text-slate-500 text-sm md:text-base">\uD0C0\uC774\uD551\uBD80\uD130 \uD37C\uC990, \uB7EC\uB2DD, \uB808\uC774\uC2F1\uAE4C\uC9C0 \u2014 \uC9C1\uC811 \uB9CC\uB4E0 \uCE90\uC8FC\uC5BC \uC6F9\uAC8C\uC784\uACFC \uBBF8\uB2C8\uAC8C\uC784\uC744 \uD55C\uACF3\uC5D0 \uBAA8\uC558\uC2B5\uB2C8\uB2E4. \uC124\uCE58 \uC5C6\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C \uBC14\uB85C, \uBAA8\uBC14\uC77C\uACFC PC \uC5B4\uB514\uC11C\uB4E0 \uC989\uC2DC \uC990\uAE38 \uC218 \uC788\uC5B4\uC694.</p>'
-                + '</div>'
-                + '<div style="max-width:640px;margin:0 auto 36px;">'
-                + '<div style="position:relative;">'
-                + '<input type="text" id="hoho-search-input" placeholder="\uD638\uD638\uD50C\uB808\uC774 \uAD81\uAE08\uD55C \uC810\uC744 \uAC80\uC0C9\uD574\uBCF4\uC138\uC694" autocomplete="off" '
-                +   'style="width:100%;padding:16px 56px 16px 22px;border-radius:999px;border:2px solid #e5e7eb;font-size:15px;outline:none;box-sizing:border-box;transition:border-color .2s;" '
-                +   'onfocus="this.style.borderColor=\'#7c3aed\';hohoShowRecentDropdown(\'hoho-search-input\');" onblur="this.style.borderColor=\'#e5e7eb\';hohoHideRecentDropdownDelayed(\'hoho-search-input\');" '
-                +   'onkeydown="if(event.key===\'Enter\'){hohoSearchGo(this.value);}">'
-                + '<button onclick="hohoSearchGo(document.getElementById(\'hoho-search-input\').value)" aria-label="\uAC80\uC0C9" '
-                +   'style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#7c3aed;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">'
-                +   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
-                + '</button>'
-                + '<div id="hoho-search-input-recent" style="display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 16px 40px rgba(15,23,42,.12);z-index:30;overflow:hidden;"></div>'
-                + '</div>'
-                + '</div>'
-                + '<section class="top-mobile-banner"><a href="' + bannerConfig.link + '" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);"><img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;"></a></section>'
-                + '<div class="game-icon-grid" id="game-icon-grid">' + cards + '</div>'                + '<script>(function(){var grid=document.getElementById("game-icon-grid");if(!grid)return;grid.addEventListener("touchstart",function(e){var c=e.target.closest(".game-card");if(c)c.classList.add("touch-active");},{passive:true});grid.addEventListener("touchend",function(e){var c=e.target.closest(".game-card");if(c)setTimeout(function(){c.classList.remove("touch-active");},200);},{passive:true});grid.addEventListener("touchcancel",function(e){var c=e.target.closest(".game-card");if(c)c.classList.remove("touch-active");},{passive:true});})();<\/script>'
-                + '<style>'
-                +   '.mini-game-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:36px;}'
-                +   '@media(min-width:640px) and (max-width:1023px){.mini-game-grid{grid-template-columns:repeat(5,1fr);}}'
-                +   '@media(min-width:1024px){.mini-game-grid{grid-template-columns:repeat(10,1fr);}}'
-                +   '.mini-game-tile{aspect-ratio:1/1;border:1.5px solid #e2e8f0;border-radius:14px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:.15s;text-decoration:none;}'
-                +   '.mini-game-tile:hover{border-color:#818cf8;background:#eef2ff;}'
-                + '</style>'
-                + '<section style="margin-bottom:8px;">'
-                + '<div class="mini-game-grid">'
-                +   [
-                        ['mgame1','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round"><line x1="6" y1="3" x2="6" y2="21"/><line x1="18" y1="3" x2="18" y2="21"/><line x1="6" y1="7" x2="18" y2="7"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="17" x2="18" y2="17"/></svg>','사다리게임'],
-                        ['mgame2','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/></svg>','동전 던지기'],
-                        ['mgame3','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.3" fill="#0ea5e9" stroke="none"/><circle cx="16" cy="8" r="1.3" fill="#0ea5e9" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="#0ea5e9" stroke="none"/><circle cx="8" cy="16" r="1.3" fill="#0ea5e9" stroke="none"/><circle cx="16" cy="16" r="1.3" fill="#0ea5e9" stroke="none"/></svg>','주사위 굴리기'],
-                        ['mgame4','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.5" y1="5.5" x2="18.5" y2="18.5"/><line x1="18.5" y1="5.5" x2="5.5" y2="18.5"/></svg>','행운의 룰렛'],
-                        ['mgame5','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V6a2 2 0 1 1 4 0v4M12 10V5a2 2 0 1 1 4 0v5M16 11V8a2 2 0 1 1 4 0v6a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-3l-2-4a1.5 1.5 0 0 1 2.6-1.5L8 13"/></svg>','가위바위보'],
-                        ['mgame6','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M7 5c2 2 2 12 0 14M17 5c-2 2-2 12 0 14"/></svg>','숫자 야구'],
-                        ['mgame7','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>','틱택토'],
-                        ['mgame8','<svg width="22" height="22" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>','반응속도 테스트'],
-                        ['mgame9','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="1.8"><rect x="3" y="5" width="12" height="16" rx="2" fill="#fdf2f8"/><rect x="9" y="3" width="12" height="16" rx="2" fill="#fff"/></svg>','카드 짝맞추기'],
-                        ['mgame10','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#78350f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5l6 6L17 13l-6-6z"/><path d="M13 8 4 17l3 3 9-9"/></svg>','두더지 잡기'],
-                    ].map(function(g){
-                        return '<a href="' + g[0] + '.html" class="mini-game-tile">' + g[1] + '<span style="font-size:10px;font-weight:700;color:#64748b;text-align:center;padding:0 2px;">' + g[2] + '</span></a>';
-                    }).join('')
-                + '</div>'
-                + '</section>'
-                + '<div id="hoho-pick-placeholder" style="margin-bottom:40px;"></div>'
-                + '<script>(function(){'
-                +   'var ph=document.getElementById("hoho-pick-placeholder");'
-                +   'if(!ph)return;'
-                +   'fetch("/hoho-pick.html")'
-                +   '.then(function(r){if(!r.ok)throw new Error("fetch failed");return r.text();})'
-                +   '.then(function(html){'
-                +     'ph.innerHTML=html;'
-                +     'ph.querySelectorAll("script").forEach(function(oldScript){'
-                +       'var newScript=document.createElement("script");'
-                +       'if(oldScript.src)newScript.src=oldScript.src;'
-                +       'newScript.textContent=oldScript.textContent;'
-                +       'oldScript.parentNode.replaceChild(newScript,oldScript);'
-                +     '});'
-                +   '})'
-                +   '.catch(function(){ ph.style.display="none"; });'
-                + '})();<\/script>'
-                + '<section style="margin-bottom:40px;">'
-                + '<a href="' + bannerConfig.link + '" id="banner-link" style="display:block;width:100%;border-radius:20px;overflow:hidden;border:none;text-decoration:none;box-shadow:0 8px 40px rgba(99,102,241,.18);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform=\'scale(1.01)\';this.style.boxShadow=\'0 12px 48px rgba(99,102,241,.28)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 40px rgba(99,102,241,.18)\'">'
-                + bannerInner
-                + '</a>'
-                + '</section>'
-                + '<section style="margin-bottom:40px;"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6" style="text-align:center">뭐부터 해볼까요</h2><div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:900;color:#1e293b;margin-bottom:4px">🤔 결정 못 할 때</h3><p style="font-size:13px;color:#94a3b8;margin-bottom:14px">이거 할지 저거 할지 고민될 때</p><div class="grid grid-cols-1 md:grid-cols-3" style="gap:10px"><a href="mgame1.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">사다리게임</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">인원수만 정하면 바로 결과가 나와요</div></a><a href="mgame2.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">동전 던지기</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">앞면 뒷면, 딱 반반의 확률</div></a><a href="mgame3.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">주사위 굴리기</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">숫자 하나로 깔끔하게</div></a><a href="mgame4.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">행운의 룰렛</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">메뉴 고민 이제 그만</div></a></div></div><div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:900;color:#1e293b;margin-bottom:4px">⏱️ 5초 때우기</h3><p style="font-size:13px;color:#94a3b8;margin-bottom:14px">잠깐 시간 남을 때, 부담 없이</p><div class="grid grid-cols-1 md:grid-cols-3" style="gap:10px"><a href="mgame8.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">반응속도 테스트</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">색 바뀌는 순간 클릭 한 번</div></a><a href="mgame10.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">두더지 잡기</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">30초, 최대한 많이</div></a><a href="mgame9.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">카드 짝맞추기</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">짧게 집중하는 기억력 승부</div></a></div></div><div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:900;color:#1e293b;margin-bottom:4px">👯 친구랑 둘이</h3><p style="font-size:13px;color:#94a3b8;margin-bottom:14px">혼자 말고 같이 하면 더 재밌는</p><div class="grid grid-cols-1 md:grid-cols-3" style="gap:10px"><a href="jelly-pop-7.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">JELLY POP 7</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">실제 2인 대결 모드 지원</div></a><a href="mgame5.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">가위바위보</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">누가 먼저 지치나 대결</div></a><a href="mgame7.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">틱택토</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">3줄 먼저 완성하기 대결</div></a></div></div><div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:900;color:#1e293b;margin-bottom:4px">⌨️ 손가락 워밍업하고 싶을 때</h3><p style="font-size:13px;color:#94a3b8;margin-bottom:14px">타이핑으로 몸 좀 풀어볼까</p><div class="grid grid-cols-1 md:grid-cols-3" style="gap:10px"><a href="hoya-typing-rpg.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">호호타자RPG</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">몬스터 물리치는 타이핑 액션</div></a><a href="hoya-proverb-typing.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">호호속담</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">속담 완성하며 타자 실력 겨루기</div></a><a href="hoho-cherry-blossom-typing.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">호호벚꽃타자</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">떨어지는 단어 낙하형 타자</div></a><a href="hoho-typing-fps.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">호호타자FPS</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">단어로 조준하는 타이핑 슈터</div></a></div></div><div style=""><h3 style="font-size:16px;font-weight:900;color:#1e293b;margin-bottom:4px">🎯 잠깐 집중하고 싶을 때</h3><p style="font-size:13px;color:#94a3b8;margin-bottom:14px">짧고 굵게, 한 판만 더</p><div class="grid grid-cols-1 md:grid-cols-3" style="gap:10px"><a href="hoho-racing.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">호호레이싱</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">갈수록 빨라지는 캐주얼 레이싱</div></a><a href="hoho-run.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">HOHO RUN</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">타이밍 하나로 승부, 벽 사이 튕기기</div></a><a href="hoho-dash.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">HOHO DASH</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">장애물 피해 달리는 러닝</div></a><a href="word-puzzle-dungeon.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">낱말퍼즐 던전</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">던전 테마 낱말 맞추기</div></a><a href="mgame6.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">숫자 야구</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">스트라이크·볼로 추리하는 두뇌 게임</div></a><a href="hoho-tile-match.html" style="display:block;background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s" onmouseover="this.style.borderColor=\'#c7d2fe\';this.style.background=\'#fff\'" onmouseout="this.style.borderColor=\'#f1f5f9\';this.style.background=\'#f8fafc\'"><div style="font-weight:900;font-size:14px;color:#1e293b;margin-bottom:2px">호호사천성</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">AI와 스피드 대결하는 매칭 퍼즐</div></a></div></div></section>'
-                + '<section style="margin-bottom:24px;text-align:center;">'
-                + '<div class="text-sm font-bold text-slate-400 mb-3">🔗 이 사이트를 친구에게 공유해보세요</div>'
-                + '<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">'
-                    + '<button onclick="mainSnsShare(\'facebook\')" aria-label="페이스북 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">f</button>'
-                    + '<button onclick="mainSnsShare(\'x\')" aria-label="X 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">X</button>'
-                    + '<button onclick="mainSnsShare(\'kakaot\')" aria-label="카카오톡 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:18px">💬</button>'
-                    + '<button onclick="mainSnsShare(\'naver\')" aria-label="네이버 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">N</button>'
-                    + '<button onclick="mainSnsShare(\'band\')" aria-label="밴드 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">밴드</button>'
-                    + '<button onclick="mainSnsShare(\'line\')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>'
-                + '</div>'
-                + '</section>'
-                + '</div>';
-        }
-
-        function mainSnsShare(type) {
-            // 검증된 최종 버전 (축제 지도에서 발견/수정한 문제 반영):
-            // - 카카오톡: 모바일은 OS 공유시트, PC는 카드 방식이 엉뚱한 페이지로 새는 문제가
-            //   있어 링크를 직접 보여주는 방식(prompt) 사용
-            // - 밴드: route만으로는 게시글 본문에 링크가 안 붙어서 본문 텍스트에 직접 포함
-            // - 팝업 크기 지정 제거 (모바일에서 팝업 차단 대상으로 취급되는 문제 방지)
-            var pageUrl = location.origin + '/';
-            var url = encodeURIComponent(pageUrl);
-            var title = 'HOHO PLAY - 로그인 없는 무료 웹게임 포털';
-            var text = encodeURIComponent(title);
-
-            if (type === 'kakaot') {
-                var isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-                if (isMobileDevice && navigator.share) {
-                    navigator.share({ title: title, url: pageUrl }).catch(function () {});
-                    return;
-                }
-                prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
-                return;
-            }
-
-            var shareUrl = '';
-            if (type === 'facebook') shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
-            else if (type === 'x') shareUrl = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + text;
-            else if (type === 'naver') shareUrl = 'https://share.naver.com/web/shareView?url=' + url + '&title=' + text;
-            else if (type === 'band') shareUrl = 'https://www.band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + url;
-            else if (type === 'line') shareUrl = 'https://social-plugins.line.me/lineit/share?url=' + url;
-            if (shareUrl) window.open(shareUrl, '_blank');
-        }
-
-        // ═══════════════════════════════
-        //  통합 검색 — 게임/운세/사이트 정보를 한 번에 검색. "오늘의 운세 모험" 결과창처럼
-        //  검색도 전용 페이지(별도 방)에서 결과를 보여줌. data/encyclopedia_index.json 재사용
-        // ═══════════════════════════════
-        let _hohoSearchQuery = '';
-        function hohoSearchGo(q) {
-            _hohoSearchQuery = (q || '').trim();
-            hohoSaveRecentSearch(_hohoSearchQuery);
-            navigateTo('search');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // ═══════════════════════════════
-        //  최근 검색어 — localStorage에 저장해두고, 검색창 포커스 시 드롭다운으로
-        //  보여줌(네이버 스타일). 항목별 삭제(×) 버튼과 전체삭제를 지원함.
-        // ═══════════════════════════════
-        var HOHO_RECENT_SEARCH_KEY = 'hohoRecentSearches';
-        var HOHO_RECENT_SEARCH_MAX = 8;
-
-        function hohoGetRecentSearches() {
-            try {
-                var raw = localStorage.getItem(HOHO_RECENT_SEARCH_KEY);
-                var list = raw ? JSON.parse(raw) : [];
-                return Array.isArray(list) ? list : [];
-            } catch (e) {
-                return [];
-            }
-        }
-        function hohoSaveRecentSearch(q) {
-            q = (q || '').trim();
-            if (!q) return;
-            try {
-                var list = hohoGetRecentSearches().filter(function (t) { return t !== q; });
-                list.unshift(q);
-                if (list.length > HOHO_RECENT_SEARCH_MAX) list = list.slice(0, HOHO_RECENT_SEARCH_MAX);
-                localStorage.setItem(HOHO_RECENT_SEARCH_KEY, JSON.stringify(list));
-            } catch (e) {}
-        }
-        function hohoRemoveRecentSearch(term, inputId) {
-            try {
-                var list = hohoGetRecentSearches().filter(function (t) { return t !== term; });
-                localStorage.setItem(HOHO_RECENT_SEARCH_KEY, JSON.stringify(list));
-            } catch (e) {}
-            hohoRenderRecentDropdown(inputId);
-        }
-        function hohoClearAllRecentSearches(inputId) {
-            try { localStorage.removeItem(HOHO_RECENT_SEARCH_KEY); } catch (e) {}
-            hohoRenderRecentDropdown(inputId);
-        }
-        function hohoEscText(s) {
-            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-        function hohoEscJsAttr(s) {
-            var jsEscaped = String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-            return jsEscaped.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-        function hohoRenderRecentDropdown(inputId) {
-            var dd = document.getElementById(inputId + '-recent');
-            if (!dd) return;
-            var list = hohoGetRecentSearches();
-            if (!list.length) {
-                dd.innerHTML = '';
-                dd.style.display = 'none';
-                return;
-            }
-            var header = '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #f1f5f9;">'
-                +   '<span style="font-size:12px;font-weight:800;color:#94a3b8;">최근 검색어</span>'
-                +   '<button type="button" onmousedown="event.preventDefault();hohoClearAllRecentSearches(\'' + inputId + '\')" '
-                +     'style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:12px;font-weight:700;padding:2px 4px;">전체삭제</button>'
-                + '</div>';
-            var rows = list.map(function (term) {
-                var attrSafe = hohoEscJsAttr(term);
-                var textSafe = hohoEscText(term);
-                return '<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;" '
-                    +   'onmousedown="event.preventDefault();hohoSearchGo(\'' + attrSafe + '\')">'
-                    +   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
-                    +   '<span style="flex:1;font-size:13px;color:#334155;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + textSafe + '</span>'
-                    +   '<button type="button" aria-label="삭제" onmousedown="event.preventDefault();event.stopPropagation();hohoRemoveRecentSearch(\'' + attrSafe + '\',\'' + inputId + '\')" '
-                    +     'style="background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:16px;line-height:1;padding:4px;flex-shrink:0;">×</button>'
-                    + '</div>';
-            }).join('');
-            dd.innerHTML = header + rows;
-            dd.style.display = 'block';
-        }
-        function hohoShowRecentDropdown(inputId) {
-            hohoRenderRecentDropdown(inputId);
-        }
-        function hohoHideRecentDropdownDelayed(inputId) {
-            setTimeout(function () {
-                var dd = document.getElementById(inputId + '-recent');
-                if (dd) dd.style.display = 'none';
-            }, 150);
-        }
-        function buildSearchPage() {
-            const q = _hohoSearchQuery;
-            const qEsc = q.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            return '<div class="page-transition max-w-3xl mx-auto py-8">'
-                + '<div style="position:relative;margin-bottom:24px;">'
-                +   '<input type="text" id="hoho-search-input-2" value="' + qEsc + '" placeholder="\uD638\uD638\uD50C\uB808\uC774 \uAD81\uAE08\uD55C \uC810\uC744 \uAC80\uC0C9\uD574\uBCF4\uC138\uC694" autocomplete="off" '
-                +     'style="width:100%;padding:14px 52px 14px 20px;border-radius:999px;border:2px solid #e5e7eb;font-size:15px;outline:none;box-sizing:border-box;" '
-                +     'onfocus="hohoShowRecentDropdown(\'hoho-search-input-2\');" onblur="hohoHideRecentDropdownDelayed(\'hoho-search-input-2\');" '
-                +     'onkeydown="if(event.key===\'Enter\'){hohoSearchGo(this.value);}">'
-                +   '<button onclick="hohoSearchGo(document.getElementById(\'hoho-search-input-2\').value)" aria-label="\uAC80\uC0C9" '
-                +     'style="position:absolute;right:5px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:#7c3aed;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">'
-                +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
-                +   '</button>'
-                +   '<div id="hoho-search-input-2-recent" style="display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 16px 40px rgba(15,23,42,.12);z-index:30;overflow:hidden;"></div>'
-                + '</div>'
-                + '<div style="display:flex;justify-content:center;gap:32px;margin-bottom:28px;">'
-                + '<a onclick="navigateTo(\'index\');return false;" href="#" style="display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:#64748b;font-size:12px;font-weight:700;">'
-                +   '<span style="width:44px;height:44px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:20px;">\uD83C\uDFAE</span>\uC804\uCCB4\uAC8C\uC784</a>'
-                + '<a onclick="navigateTo(\'blog\');return false;" href="#" style="display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:#64748b;font-size:12px;font-weight:700;">'
-                +   '<span style="width:44px;height:44px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:20px;">\uD83D\uDCAC</span>\uCEE4\uBBA4\uB2C8\uD2F0</a>'
-                + '<a href="/fortune/" style="display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:#64748b;font-size:12px;font-weight:700;">'
-                +   '<span style="width:44px;height:44px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:20px;">\uD83D\uDD2E</span>\uC624\uB298\uC758\uC6B4\uC138</a>'
-                + '</div>'
-                + '<div id="hoho-search-results" style="min-height:200px;">'
-                +   '<div style="text-align:center;padding:60px 0;color:#94a3b8;font-size:13px;">\uAC80\uC0C9\uD558\uB294 \uC911...</div>'
-                + '</div>'
-                + '<script>(function(){'
-                +   'var q=' + JSON.stringify(q) + ';'
-                +   'var box=document.getElementById("hoho-search-results");'
-                +   'if(!box)return;'
-                +   'if(!q){box.innerHTML=\'<div style="text-align:center;padding:60px 0;color:#94a3b8;font-size:13px;">\uAC80\uC0C9\uC5B4\uB97C \uC785\uB825\uD574 \uBCF4\uC138\uC694</div>\';return;}'
-                +   'fetch("./data/encyclopedia_index.json").then(function(r){return r.json();}).then(function(items){'
-                +     'var lq=q.toLowerCase();'
-                +     'var STOP=["뭐","뭔가","뭐야","있어","있나요","있나","있는","인가요","인가","무엇","어떤","좀","그","저","이","을","를","은","는","이다","인지","알려줘","알려주세요","해줘","해주세요","찾아줘","싶어","싶어요"];'
-                +     'var tokens=lq.split(/\\s+/).filter(function(t){return t.length>=2 && STOP.indexOf(t)===-1;});'
-                +     'if(!tokens.length)tokens=[lq];'
-                +     'function tokenHits(text,token){'
-                +       'if(!text)return false;'
-                +       'var minN=Math.min(token.length,Math.max(3,Math.ceil(token.length*0.7)));'+'for(var n=token.length;n>=minN;n--){'
-                +         'if(text.indexOf(token.slice(0,n))!==-1)return true;'
-                +       '}'
-                +       'return false;'
-                +     '}'
-                +     'var scored=items.map(function(it){'
-                +       'var text=((it.searchText||"")+" "+(it.name||"")).toLowerCase();'
-                +       'var nameText=(it.name||"").toLowerCase();'
-                +       'var score=0;'
-                +       'tokens.forEach(function(t){'
-                +         'if(tokenHits(nameText,t)){score+=3;}'
-                +         'else if(tokenHits(text,t)){score+=1;}'
-                +       '});'
-                // [FIX] 2026-10-16: "대전코스"처럼 띄어쓰기 없이 붙여 쓴 검색어는 위
-                // tokens.forEach가 한 덩어리를 통짜 토큰으로 보고 그 전체(or 70%대 앞부분)가
-                // 텍스트에 그대로 들어있어야 매칭되는데, 실제 데이터엔 "대전"과 "코스"가
-                // 항상 띄어서 저장돼 있어 "대전코"처럼 이어붙은 문자열이 어디에도 없어서
-                // 한 건도 안 걸렸다(실사용자 제보로 확인). 짧은 지역명처럼 흔히 붙여 쓰는
-                // 이름은, 그 이름이 입력어 어딘가에 그대로 포함돼 있기만 해도("대전코스"
-                // 안에 "대전"이 들어있음) 강한 매칭으로 쳐준다 — 지역명마다 "코스/축제/
-                // 나들이/추천" 조합을 데이터에 일일이 다 박아두지 않아도 되는 일반적인 해법.
-                +       'if(nameText.length>=2 && lq.indexOf(nameText)!==-1){score+=3;}'
-                +       'return {item:it, hits:score};'
-                +     '}).filter(function(s){return s.hits>0;});'
-                +     'scored.sort(function(a,b){return b.hits-a.hits;});'
-                +     'var results=scored.map(function(s){return s.item;});'
-                +     'var results=scored.map(function(s){return s.item;});'
-                +     'if(!results.length){'
-                +       'box.innerHTML=\'<div style="text-align:center;padding:60px 0;color:#94a3b8;font-size:14px;">\'+"\'"+q+"\'"+\' \uAC80\uC0C9 \uACB0\uACFC\uAC00 \uC5C6\uC5B4\uC694</div>\';'
-                +       'return;'
-                +     '}'
-                +     'function bestSnippet(it){'
-                +       'if(it.type!=="game")return it.summary||"";'
-                +       'var faqs=it.faq||[];'
-                +       'for(var i=0;i<faqs.length;i++){'
-                +         'var qa=faqs[i];'
-                +         'var qaText=((qa.q||"")+" "+(qa.a||"")).toLowerCase();'
-                +         'if(tokens.some(function(t){return tokenHits(qaText,t);})){'
-                +           'return "Q. "+(qa.q||"").replace(/^Q\\.\\s*/,"")+" — "+(qa.a||"");'
-                +         '}'
-                +       '}'
-                +       'var fields=[it.tips,it.controls,it.playPoints,it.summary];'
-                +       'for(var j=0;j<fields.length;j++){'
-                +         'var f=fields[j];'
-                +         'if(f&&tokens.some(function(t){return tokenHits(f.toLowerCase(),t);})){'
-                +           'return f.length>90?f.slice(0,90)+"...":f;'
-                +         '}'
-                +       '}'
-                +       'return it.summary||it.genre||"";'
-                +     '}'
-                +     'var iconOf={game:"\uD83C\uDFAE",fortune:"\uD83D\uDD2E",site:"\u2139\uFE0F",corner:"\u2728"};'
-                +     'box.innerHTML=\'<div style="font-size:13px;color:#94a3b8;font-weight:700;margin-bottom:12px;">\'+results.length+\'\uAC1C\uC758 \uACB0\uACFC</div>\''
-                +       '+results.map(function(it){'
-                +         'var icon=iconOf[it.type]||"\uD83D\uDCC4";'
-                +         'var sub=bestSnippet(it);'
-                +         'return \'<div onclick="hohoSearchResultClick(\\\'\'+it.type+\'\\\',\\\'\'+it.id+\'\\\',\\\'\'+(it.url||\'\')+\'\\\')" style="display:flex;align-items:center;gap:14px;cursor:pointer;padding:16px 18px;border-radius:14px;margin-bottom:8px;background:#fff;border:1px solid #f1f5f9;transition:box-shadow .15s,border-color .15s;" onmouseover="this.style.boxShadow=\\\'0 4px 16px rgba(79,70,229,.08)\\\';this.style.borderColor=\\\'#e0e7ff\\\'" onmouseout="this.style.boxShadow=\\\'none\\\';this.style.borderColor=\\\'#f1f5f9\\\'">\'+'
-                +           '\'<span style="font-size:24px;flex-shrink:0;">\'+icon+\'</span>\'+'
-                +           '\'<div style="flex:1;min-width:0;">\'+'
-                +             '\'<div style="font-weight:800;font-size:14px;color:#1e293b;margin-bottom:2px;">\'+it.name+\'</div>\'+'
-                +             '\'<div style="font-size:12px;color:#94a3b8;line-height:1.5;">\'+sub+\'</div>\'+'
-                +           '\'</div>\'+'
-                +           '\'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>\'+'
-                +         '\'</div>\';'
-                +       '}).join("");'
-                +   '}).catch(function(){'
-                +     'box.innerHTML=\'<div style="text-align:center;padding:60px 0;color:#94a3b8;font-size:13px;">\uAC80\uC0C9 \uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694</div>\';'
-                +   '});'
-                + '})();<' + '/scri' + 'pt>'
-                + '</div>';
-        }
-        function hohoSearchResultClick(type, id, url) {
-            if (url) {
-                // url 필드가 있으면 최우선으로 그대로 이동 (game1~10, mgame1~10, fortune-adventure 등)
-                window.location.href = url;
-                return;
-            }
-            if (type === 'fortune') {
-                // url이 없는 순수 사주/타로 탭류만 여기로 옴 (fortune-adventure는 위에서 이미 처리됨)
-                sessionStorage.setItem('fortuneJumpTab', id.replace('fortune-', ''));
-                window.location.href = '/fortune/';
-            } else if (type === 'corner') {
-                // 익명투표·상식테스트처럼 폴더형 URL을 쓰는 코너 (id: 'vote' → /vote/, id: 'quiz' → /quiz/)
-                window.location.href = '/' + id + '/';
-            } else if (id === 'site-about') {
-                navigateTo('about');
-            }
-            // 나머지 site 타입은 별도 이동 없음(정보성 항목이라 클릭해도 그 자리에 머묾)
-        }
-
-        const pages = {
-            get index() { return buildIndexPage(); },
-            get search() { return buildSearchPage(); },
-            about: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-10">
-                        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-indigo-200 shadow-xl">H</div>
-                        <div>
-                            <h1 class="text-4xl font-black"><span class="text-indigo-600">About HOHO</span><span class="text-violet-500"> PLAY</span></h1>
-                            <p class="text-slate-400 mt-1">로그인 없이 즐기는 브라우저 게임 플랫폼</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 leading-relaxed text-slate-700 space-y-6 text-lg mb-8">
-                        <p class="font-bold text-slate-900 text-xl">설치할 필요도, 복잡한 가입 절차도 없습니다.</p>
-                        <p>저는 브라우저로 할 수 있는 걸 하나씩 시험해보면서, 계속 붙잡고 싶은 게임들을 만들어가고 있어요. 누구나 링크 하나로 바로 시작할 수 있게요.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                            <div class="p-8 bg-indigo-50 rounded-3xl border border-indigo-100">
-                                <h4 class="font-black text-indigo-700 mb-3 text-xl">⚡ Lightning Fast</h4>
-                                <p class="text-base font-medium opacity-80">최적화된 엔진으로 어떤 환경에서도 즉시 로딩됩니다.</p>
-                            </div>
-                            <div class="p-8 bg-emerald-50 rounded-3xl border border-emerald-100">
-                                <h4 class="font-black text-emerald-700 mb-3 text-xl">🛡️ Privacy First</h4>
-                                <p class="text-base font-medium opacity-80">이메일이나 결제 정보 같은 민감한 개인정보를 요구하지 않습니다.</p>
-                            </div>
-                            <div class="p-8 bg-purple-50 rounded-3xl border border-purple-100">
-                                <h4 class="font-black text-purple-700 mb-3 text-xl">🎮 No Login</h4>
-                                <p class="text-base font-medium opacity-80">회원가입 없이 바로 플레이. 기억해야 할 비밀번호가 없습니다.</p>
-                            </div>
-                            <div class="p-8 bg-amber-50 rounded-3xl border border-amber-100">
-                                <h4 class="font-black text-amber-700 mb-3 text-xl">🔮 운세</h4>
-                                <p class="text-base font-medium opacity-80">타로, 사주, 별자리 운세 서비스도 함께 제공합니다.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                        <h3 class="font-black text-2xl mb-6 text-slate-800">운영 정보</h3>
-                        <div class="space-y-4 text-slate-600">
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">서비스명</span>
-                                <span class="font-black"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                            </div>
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">운영 형태</span>
-                                <span>개인 운영 (1인 개발·운영)</span>
-                            </div>
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">서비스 시작</span>
-                                <span>2026년</span>
-                            </div>
-                            <div class="flex gap-4 py-3 border-b border-slate-100">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">주요 서비스</span>
-                                <span>브라우저 웹게임, 운세, 커뮤니티</span>
-                            </div>
-                            <div class="flex gap-4 py-3">
-                                <span class="font-bold text-slate-500 w-32 flex-shrink-0">문의</span>
-                                <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 만든 사람 -->
-                    <div class="bg-gradient-to-br from-indigo-50 to-violet-50 p-10 rounded-[2.5rem] border border-indigo-100 mt-8">
-                        <div class="flex items-center gap-4 mb-8">
-                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">호</div>
-                            <div>
-                                <h3 class="font-black text-2xl text-slate-800">👤 만든 사람</h3>
-                                <p class="text-slate-400 text-sm mt-0.5">호야 · HOHO PLAY 운영자</p>
-                            </div>
-                        </div>
-                        <div class="space-y-5 text-slate-700 text-base leading-relaxed">
-                            <p>게임학교를 졸업하고 게임기획 자격증을 취득했습니다. 게임회사에서 4년을 보내며 직접 만든 게임을 처음으로 세상에 내놓았지만, 회사는 문을 닫았고 저는 다른 길을 선택했습니다.</p>
-                            <p>자영업을 하는 사이, AI가 세상을 바꾸기 시작했습니다. 손님은 줄고, 동네는 점점 조용해졌습니다. 그 시간 속에서 조용히 제 블로그를 다듬었습니다. 호호로그TV에서 시작해, 지금의 HOHO PLAY가 되었습니다.</p>
-                            <div class="bg-white rounded-2xl p-6 border border-indigo-100 mt-2">
-                                <p class="text-slate-500 text-sm font-bold mb-2 uppercase tracking-wider">HOHO PLAY 라는 이름은</p>
-                                <p><span class="font-black text-indigo-600">HOHO</span>는 제 이름 끝 글자 '호'와 별명 '호야'를 합쳤습니다. <span class="font-black text-violet-500">PLAY</span>는 언제 어디서나, 가볍게 즐기자는 마음입니다.</p>
-                            </div>
-                            <p>다른 서비스를 따라 만들고 싶지 않았습니다. 제가 직접 꾸민 놀이터 — 그게 HOHO PLAY입니다.</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-            blog: `
-                <div class="page-transition">
-                    <style>
-                        .bbs-wrap{background:#0a0e2e;border-radius:16px;padding:24px;font-family:'Courier New',monospace;min-height:500px}
-                        .bbs-top{color:#00ffff;font-size:13px;border-bottom:1px solid #1a2a5e;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-                        .bbs-title{color:#ffd700;font-size:22px;font-weight:900;text-align:center;margin-bottom:20px;text-shadow:0 0 10px #ffd70088}
-                        .bbs-menu-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
-                        .bbs-section h3{color:#00e5ff;font-size:13px;font-weight:700;border-bottom:1px solid #1a3a6e;padding-bottom:6px;margin-bottom:12px}
-                        .bbs-item{color:#7ec8e3;font-size:13px;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #0d1a40;transition:color .2s}
-                        .bbs-item:hover{color:#00ffff}
-                        .bbs-item .num{color:#4a6fa5;min-width:24px}
-                        .bbs-ship{text-align:center;margin-top:20px}
-                        .bbs-ship-name{color:#00e5ff;font-size:14px;font-weight:700;margin-top:8px}
-                        .bbs-board{display:none;background:#060b20;border-radius:12px;padding:20px;margin-top:16px}
-                        .bbs-board.active{display:block}
-                        .bbs-board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-                        .bbs-board-title{color:#ffd700;font-size:16px;font-weight:700}
-                        .bbs-write-btn{background:#1a3a6e;color:#00e5ff;border:1px solid #00e5ff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
-                        .bbs-write-btn:hover{background:#00e5ff;color:#0a0e2e}
-                        .bbs-post{border-bottom:1px solid #1a2a5e;padding:12px 0;cursor:pointer}
-                        .bbs-post:hover .bbs-post-title{color:#00ffff}
-                        .bbs-post-title{color:#7ec8e3;font-size:14px;margin-bottom:4px}
-                        .bbs-post-meta{color:#4a6fa5;font-size:11px;display:flex;gap:12px;flex-wrap:wrap}
-                        .bbs-post-comments{color:#00e5ff}
-                        .bbs-loading{color:#4a6fa5;text-align:center;padding:30px;font-size:13px}
-                        .bbs-back{color:#4a6fa5;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;transition:color .2s}
-                        .bbs-back:hover{color:#00e5ff}
-                        @media(max-width:640px){.bbs-menu-grid{grid-template-columns:1fr}}
-                    </style>
-                    <div class="bbs-wrap">
-                        <div class="bbs-top">
-                            <span>🖥 HOHO PLAY BBS v1.0</span>
-                            <span id="bbs-clock"></span>
-                        </div>
-                        <div class="bbs-title">
-                            <span style="display:inline-flex;align-items:center;gap:12px">
-                                <span style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:#4f46e5;border-radius:10px;font-family:Arial Black,sans-serif;font-size:26px;font-weight:900;color:#fff;box-shadow:0 0 18px #4f46e588">H</span>
-                                <span>HOHO PLAY 커뮤니티</span>
-                            </span>
-                        </div>
-                        <div id="bbs-main">
-                            <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
-                                <div class="bbs-item" onclick="openBoard('공지사항','공지사항')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">공지사항</div>
-                                <div class="bbs-item" onclick="openBoard('업데이트','업데이트')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">업데이트</div>
-                                <div class="bbs-item" onclick="openBoard('자유게시판','자유게시판')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">자유게시판</div>
-                                <div class="bbs-item" onclick="openBoard('호호 매거진','호호 매거진')" style="border-bottom:none;padding:10px 24px;background:#0d1a40;border-radius:8px;justify-content:center">호호 매거진</div>
-                            </div>
-                            <div class="bbs-ship">
-                                <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:18px;font-family:Arial Black,sans-serif;font-size:44px;font-weight:900;color:#fff;box-shadow:0 0 30px #4f46e566;margin-bottom:10px">H</div>
-                                <div class="bbs-ship-name">HOHO PLAY BBS</div>
-                                <div style="color:#4a6fa5;font-size:11px;margin-top:4px">Since 2026</div>
-                            </div>
-                        </div>
-                        <div id="bbs-board-area" class="bbs-board">
-                            <span class="bbs-back" onclick="closeBoard()">◀ 메인으로</span>
-                            <div class="bbs-board-top">
-                                <span class="bbs-board-title" id="bbs-board-name"></span>
-                                <a id="bbs-write-link" href="https://github.com/hohoplay/hohoplaylab.com/issues/new" target="_blank" class="bbs-write-btn">✏ 글쓰기</a>
-                            </div>
-                            <div id="bbs-posts"><div class="bbs-loading">⏳ 불러오는 중...</div></div>
-                        </div>
-                    </div>
-                </div>
-            `,
-                        fortune: `
-                <div class="page-transition">
-                    <div class="mb-8" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
-                        <button onclick="showFortune('today')"       id="tab-today"       class="ftab active-ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">오늘운세</button>
-                        <button onclick="showFortune('saju')"        id="tab-saju"        class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">사주</button>
-                        <button onclick="showFortune('zodiac')"      id="tab-zodiac"      class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">별자리</button>
-                        <button onclick="showFortune('chinese')"     id="tab-chinese"     class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">띠운세</button>
-                        <button onclick="showFortune('weekly')"      id="tab-weekly"      class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">별자리주간</button>
-                        <button onclick="showFortune('monthly')"     id="tab-monthly"     class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">띠별월간</button>
-                        <button onclick="showFortune('tarot')"       id="tab-tarot"       class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">타로</button>
-                        <button onclick="showFortune('mbti-tarot')"  id="tab-mbti-tarot"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+타로</button>
-                        <button onclick="showFortune('mbti-dream')"  id="tab-mbti-dream"  class="ftab px-4 py-2 rounded-2xl font-bold transition text-sm whitespace-nowrap">MBTI+꿈해몽</button>
-                    </div>
-                    <div id="fortune-content"></div>
-                </div>
-            `,
-                        guide: `
-                <div class="page-transition max-w-4xl mx-auto">
-                    <h1 class="text-4xl font-black mb-12 text-center">전체 서비스 가이드</h1>
-                    <div class="grid gap-6">
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-2xl mb-4 text-indigo-600">1. 게임 플레이 환경</h3>
-                            <p class="text-slate-600 text-lg">HOHO PLAY은 크롬(Chrome), 웨일 브라우저에 최적화되어 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-2xl mb-4 text-indigo-600">2. 데이터 저장 방식</h3>
-                            <p class="text-slate-600 text-lg">대부분의 게임은 브라우저의 'Local Storage'를 사용하여 진행 상황을 저장합니다.</p>
-                        </div>
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-2xl mb-4 text-indigo-600">3. 문의</h3>
-                            <p class="text-slate-600 text-lg">전문적인 피드백이나 비즈니스 문의는 '파트너' 메뉴를 이용해 주세요.</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-            contact: `
-                <div class="page-transition max-w-3xl mx-auto">
-                    <div class="text-center mb-12">
-                        <h1 class="text-4xl font-black mb-4">제휴 및 문의</h1>
-                        <p class="text-slate-500">전문적인 피드백이나 비즈니스 문의는 아래 양식을 이용해 주세요.</p>
-                    </div>
-                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-slate-50">
-                        <div class="space-y-8">
-                            <div>
-                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Name / Organization</label>
-                                <input type="text" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="성함 또는 기업명을 입력하세요">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Email Address</label>
-                                <input type="email" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="회신받을 이메일을 입력하세요">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">Message</label>
-                                <textarea rows="6" class="w-full bg-slate-50 border-0 rounded-2xl p-5 outline-none focus:ring-4 focus:ring-indigo-100 transition text-lg" placeholder="문의 내용을 자유롭게 작성해 주세요."></textarea>
-                            </div>
-                            <button class="w-full bg-indigo-600 text-white font-black py-6 rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-100 text-xl transition transform active:scale-[0.98]" onclick="alert('전송되었습니다. 24시간 내 회신드리겠습니다.')">문의 전송하기</button>
-                        </div>
-                    </div>
-                </div>
-            `,
-            privacy: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">🔒</div>
-                        <div>
-                            <h1 class="text-3xl font-black text-slate-900">개인정보처리방침</h1>
-                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.2 &nbsp;|&nbsp; 최종 수정: 2026년 4월 (AdSense 광고 쿠키 조항 추가)</p>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-50 border border-indigo-100 rounded-3xl p-8 mb-8 text-indigo-800 font-bold text-lg leading-relaxed">
-                        HOHO PLAY은 사용자의 개인정보를 최소한으로 수집하며, 수집된 정보를 외부에 판매하거나 제3자에게 제공하지 않습니다.
-                    </div>
-                    <div class="space-y-8 text-slate-600 leading-loose">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">1. 수집하는 정보 및 수집 방법</h3>
-                            <p class="mb-4">HOHO PLAY은 회원가입을 요구하지 않으며, 별도의 개인정보를 직접 수집하지 않습니다. 다만, 서비스 운영 과정에서 아래와 같은 정보가 자동으로 처리될 수 있습니다.</p>
-                            <ul class="list-disc list-inside space-y-2 text-slate-600">
-                                <li><strong>브라우저 로컬 스토리지:</strong> 게임 점수, 진행 상황, 환경설정 등 사용자의 기기 내에만 저장되며 서버로 전송되지 않습니다.</li>
-                                <li><strong>GitHub API:</strong> 커뮤니티(BBS) 기능 이용 시 GitHub Issues API를 통해 게시글이 처리됩니다. 이 과정에서 GitHub의 서버에 IP 주소 및 브라우저 정보(User-Agent)가 전달될 수 있으며, 이는 GitHub의 개인정보처리방침에 따릅니다.</li>
-                                <li><strong>운세 서비스:</strong> 운세 기능 이용 시 입력한 생년월일, 이름, 질문 내용 등은 외부 서버로 전송되지 않고 브라우저 안에서만 계산·처리됩니다.</li>
-                                <li><strong>Google AdSense (광고 서비스):</strong> 본 서비스는 Google AdSense를 통해 광고를 제공합니다. Google은 쿠키 및 광고 식별자를 사용하여 사용자의 관심사에 맞는 맞춤형 광고를 표시할 수 있습니다. Google이 수집하는 데이터에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a>을 참고하시기 바랍니다. 사용자는 <a href="https://adssettings.google.com/" target="_blank" class="text-indigo-600 underline">Google 광고 설정</a>에서 맞춤 광고를 거부하거나 관심사 기반 광고를 비활성화할 수 있습니다.</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">2. 개인정보의 이용 목적</h3>
-                            <p>수집 또는 처리되는 정보는 오직 다음의 목적으로만 사용됩니다.</p>
-                            <ul class="list-disc list-inside space-y-2 mt-3">
-                                <li>게임 서비스 제공 및 이용자 환경 유지</li>
-                                <li>커뮤니티 서비스 운영(게시글 표시)</li>
-                                <li>운세 콘텐츠 제공</li>
-                                <li>서비스 품질 개선 및 오류 분석</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">3. 개인정보의 보유 및 파기</h3>
-                            <p>HOHO PLAY이 직접 수집하는 개인정보는 없으며, 브라우저 로컬 스토리지에 저장된 데이터는 사용자가 직접 브라우저 설정에서 삭제할 수 있습니다. 운세 기능에 입력한 값도 외부 서버로 전송되지 않고 브라우저 안에서만 처리되므로 별도로 보관되지 않습니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">4. 제3자 서비스</h3>
-                            <p class="mb-3">본 서비스는 아래 제3자 서비스를 활용합니다. 각 서비스의 개인정보처리방침을 별도로 확인하시기 바랍니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>GitHub (커뮤니티 BBS): <a href="https://docs.github.com/ko/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" class="text-indigo-600 underline">GitHub 개인정보처리방침</a></li>
-                                <li>Google AdSense (광고): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a> · <a href="https://policies.google.com/technologies/ads" target="_blank" class="text-indigo-600 underline">Google 광고 정책</a></li>
-                                <li>Google Fonts (웹폰트): <a href="https://policies.google.com/privacy" target="_blank" class="text-indigo-600 underline">Google 개인정보처리방침</a></li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">5. 이용자의 권리</h3>
-                            <p class="mb-4">이용자는 언제든지 브라우저 로컬 스토리지를 직접 삭제하여 저장된 게임 데이터를 제거할 수 있습니다. 기타 개인정보 관련 문의 및 삭제 요청은 아래 연락처로 문의해 주세요.</p>
-                            <div class="mt-4 bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-2 text-sm">
-                                <p class="font-bold text-amber-800">📢 광고 관련 이용자 권리</p>
-                                <ul class="list-disc list-inside space-y-1 text-amber-700">
-                                    <li><a href="https://adssettings.google.com/" target="_blank" class="underline font-semibold">Google 광고 설정</a>에서 맞춤형 광고를 거부할 수 있습니다.</li>
-                                    <li>브라우저 설정에서 서드파티 쿠키를 차단하면 관심사 기반 광고가 표시되지 않습니다.</li>
-                                    <li>유럽 사용자의 경우 페이지 하단 쿠키 동의 배너를 통해 광고 쿠키 동의를 철회할 수 있습니다.</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">6. 개인정보 보호책임자 및 문의</h3>
-                            <p>개인정보 처리에 관한 문의, 불만, 피해구제 등은 아래로 연락해 주세요.</p>
-                            <div class="mt-4 bg-slate-50 rounded-2xl p-5">
-                                <p class="font-bold text-slate-700">개인정보 보호책임자: HOHO PLAY 운영팀</p>
-                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
-                            </div>
-                            <p class="mt-4 text-sm text-slate-400">개인정보 침해로 인한 구제를 받기 위하여 개인정보분쟁조정위원회, 한국인터넷진흥원 개인정보침해신고센터 등에도 분쟁해결이나 상담 등을 신청할 수 있습니다.</p>
-                        </div>
-                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
-                            본 방침은 2026년 1월 1일부터 시행되며, 내용 변경 시 서비스 내 공지를 통해 안내합니다. (최종 수정: 2026년 4월 — Google AdSense 광고 쿠키 조항 추가)
-                        </div>
-                    </div>
-                </div>
-            `,
-            terms: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
-                        <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">📋</div>
-                        <div>
-                            <h1 class="text-3xl font-black text-slate-900">이용약관</h1>
-                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.0</p>
-                        </div>
-                    </div>
-                    <div class="bg-emerald-50 border border-emerald-100 rounded-3xl p-8 mb-8 text-emerald-800 font-bold text-lg leading-relaxed">
-                        HOHO PLAY 서비스를 이용하시면 본 약관에 동의하신 것으로 간주합니다.
-                    </div>
-                    <div class="space-y-8 text-slate-600 leading-loose">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제1조 (목적)</h3>
-                            <p>본 약관은 HOHO PLAY(이하 "서비스")이 제공하는 웹 게임 플랫폼 및 부가 서비스의 이용 조건과 절차, 이용자와 서비스 운영자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제2조 (서비스의 제공)</h3>
-                            <p class="mb-3">서비스는 이용자에게 다음과 같은 기능을 제공합니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>브라우저 기반 웹 게임 플레이 (로그인 불필요)</li>
-                                <li>운세 서비스</li>
-                                <li>커뮤니티 게시판(BBS)</li>
-                                <li>기타 운영자가 추가로 정하는 서비스</li>
-                            </ul>
-                            <p class="mt-4">서비스는 연중무휴 제공을 원칙으로 하나, 시스템 점검·서버 장애·기타 운영상 사유로 일시 중단될 수 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제3조 (이용자의 의무)</h3>
-                            <p class="mb-3">이용자는 서비스 이용 시 다음 행위를 해서는 안 됩니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>타인의 개인정보, 계정을 도용하는 행위</li>
-                                <li>서비스의 정상적인 운영을 방해하는 행위(해킹, DDoS 등)</li>
-                                <li>서비스 내 게임 코드, 콘텐츠를 무단으로 복제·배포·판매하는 행위</li>
-                                <li>커뮤니티에 음란물, 허위정보, 타인 비방, 광고성 스팸 게시물을 올리는 행위</li>
-                                <li>관련 법령에 위반되는 행위</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제4조 (서비스 이용 제한)</h3>
-                            <p>운영자는 이용자가 제3조의 금지 행위를 하거나 서비스의 정상적인 운영을 방해할 경우 사전 통보 없이 해당 이용자의 서비스 접근을 제한할 수 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제5조 (면책 조항)</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>서비스는 무료로 제공되며, 서비스 이용으로 발생한 직간접적 손해에 대해 운영자는 법령상 고의·중과실이 없는 한 책임을 지지 않습니다.</li>
-                                <li>운세 서비스의 결과는 오락 목적으로만 제공되며, 실제 의사결정의 근거로 사용해서는 안 됩니다.</li>
-                                <li>이용자가 커뮤니티에 게시한 내용에 대한 책임은 해당 이용자에게 있습니다.</li>
-                                <li>서비스 중단, 데이터 손실 등 불가항력적 사유로 인한 손해에 대해 운영자는 책임을 지지 않습니다.</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제6조 (저작권)</h3>
-                            <p>서비스 내 게임, 디자인, 코드, 텍스트 등 모든 콘텐츠의 저작권은 HOHO PLAY 또는 해당 저작권자에게 있습니다. 이용자는 운영자의 명시적 동의 없이 서비스 콘텐츠를 복제·수정·배포·판매할 수 없습니다. (자세한 내용은 <span class="text-indigo-600 cursor-pointer underline" onclick="navigateTo('copyright')">저작권 및 콘텐츠 정책</span> 참조)</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제7조 (약관의 변경)</h3>
-                            <p>운영자는 필요한 경우 본 약관을 변경할 수 있으며, 변경 시 서비스 내 공지를 통해 7일 전 사전 고지합니다. 변경 후 서비스를 계속 이용하는 경우 변경된 약관에 동의한 것으로 간주합니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">제8조 (문의)</h3>
-                            <div class="bg-slate-50 rounded-2xl p-5">
-                                <p class="font-bold text-slate-700">이용약관 관련 문의</p>
-                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
-                            본 약관은 2026년 1월 1일부터 시행됩니다.
-                        </div>
-                    </div>
-                </div>
-            `,
-            copyright: `
-                <div class="page-transition max-w-4xl mx-auto py-12">
-                    <div class="flex items-center gap-4 mb-8 border-b-2 border-slate-200 pb-6">
-                        <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl">©️</div>
-                        <div>
-                            <h1 class="text-3xl font-black text-slate-900">저작권 및 콘텐츠 정책</h1>
-                            <p class="text-slate-400 text-sm mt-1">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 버전: v1.0</p>
-                        </div>
-                    </div>
-                    <div class="bg-amber-50 border border-amber-100 rounded-3xl p-8 mb-8 text-amber-800 font-bold text-lg leading-relaxed">
-                        HOHO PLAY의 모든 콘텐츠는 저작권법의 보호를 받습니다.
-                    </div>
-                    <div class="space-y-8 text-slate-600 leading-loose">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">1. 서비스 콘텐츠의 저작권</h3>
-                            <p class="mb-3">서비스 내 다음 콘텐츠의 저작권은 HOHO PLAY 또는 원저작권자에게 귀속됩니다.</p>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>웹 게임 소스코드 및 게임 로직</li>
-                                <li>서비스 UI 디자인, 레이아웃, 그래픽 요소</li>
-                                <li>서비스 내 텍스트, 설명문, 게임 내 스토리</li>
-                                <li>HOHO PLAY 로고 및 브랜드 아이덴티티</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">2. 허용되는 이용</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>개인적, 비상업적 목적의 서비스 이용 및 게임 플레이</li>
-                                <li>서비스 소개 목적의 스크린샷 공유 (출처 표기 필수)</li>
-                                <li>학습 목적의 코드 구조 참고 (재배포 금지)</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">3. 금지되는 이용</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>게임 소스코드의 무단 복제, 수정, 재배포</li>
-                                <li>서비스 콘텐츠의 상업적 이용</li>
-                                <li>HOHO PLAY 브랜드명, 로고의 무단 사용</li>
-                                <li>서비스를 통째로 모방한 파생 서비스 제작·운영</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">4. 오픈소스 및 제3자 라이선스</h3>
-                            <p class="mb-3">본 서비스는 다음 오픈소스 및 제3자 서비스를 사용합니다.</p>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm border-collapse">
-                                    <thead><tr class="bg-slate-50"><th class="text-left p-3 border border-slate-100 font-bold text-slate-700">라이브러리/서비스</th><th class="text-left p-3 border border-slate-100 font-bold text-slate-700">라이선스</th></tr></thead>
-                                    <tbody>
-                                        <tr><td class="p-3 border border-slate-100">Tailwind CSS</td><td class="p-3 border border-slate-100">MIT License</td></tr>
-                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">Noto Sans KR (Google Fonts)</td><td class="p-3 border border-slate-100">SIL Open Font License 1.1</td></tr>
-                                        <tr><td class="p-3 border border-slate-100">html2canvas</td><td class="p-3 border border-slate-100">MIT License</td></tr>
-                                        <tr class="bg-slate-50"><td class="p-3 border border-slate-100">GitHub Issues API</td><td class="p-3 border border-slate-100">GitHub Terms of Service</td></tr>
-                                        <tr><td class="p-3 border border-slate-100">Giscus (댓글 위젯)</td><td class="p-3 border border-slate-100">MIT License</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">5. 커뮤니티 게시물의 저작권</h3>
-                            <p>이용자가 커뮤니티(BBS)에 게시한 글의 저작권은 해당 이용자에게 있습니다. 다만, 이용자는 해당 게시물을 서비스 내에서 표시·공유하는 것에 동의합니다. 타인의 저작물을 무단으로 게시하는 행위는 금지되며, 저작권 침해 게시물은 신고 접수 후 삭제 처리될 수 있습니다.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h3 class="text-xl font-black text-slate-800 mb-4">6. 저작권 침해 신고</h3>
-                            <p>본 서비스에서 저작권 침해가 발생했다고 판단되는 경우 아래 연락처로 신고해 주세요. 신고 접수 후 검토를 거쳐 조치합니다.</p>
-                            <div class="mt-4 bg-slate-50 rounded-2xl p-5">
-                                <p class="font-bold text-slate-700">저작권 침해 신고</p>
-                                <p class="text-slate-600 mt-1">이메일: <a href="mailto:lyh0929mm@gmail.com" class="text-indigo-600 underline">lyh0929mm@gmail.com</a></p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 rounded-3xl p-6 text-sm text-slate-400 text-center">
-                            © 2026 HOHO PLAY. All rights reserved. 본 정책은 2026년 1월 1일부터 시행됩니다.
-                        </div>
-                    </div>
-                </div>
-            `
-        };
-
-        // 물리 키보드가 꼭 필요한 타이핑 게임 — 모바일/태블릿에서는 조작 자체가 불가능해서 진입을 막음
-        const PC_ONLY_GAMES = ['g1', 'g3', 'g4'];
-
-        // 게임 클릭: 실제 game*.html 파일로 진짜 이동 (about/fortune 등과 동일한 URL 분리 패턴)
-        // 이래야 애널리틱스가 게임별로 개별 추적되고, 검색엔진도 각 게임을 독립된 페이지로 인식함
-        function handleGameClick(gameId) {
-            const game = gameData.find(g => g.id === gameId);
-            if (game && game.file) {
-                if (isMobile && PC_ONLY_GAMES.includes(gameId)) {
-                    openPcSendModal(game);
-                    return;
-                }
-                location.href = game.file;
-            } else {
-                alert('현재 준비 중인 게임입니다. 조금만 기다려 주세요! 🎮');
-            }
-        }
-
-        // 모바일에서 PC전용 게임을 눌렀을 때: 그냥 막고 끝내는 대신
-        // 링크를 저장해뒀다가 PC에서 이어서 열어볼 수 있게 안내
-        function openPcSendModal(game) {
-            var modal = document.getElementById('pc-send-modal');
-            var titleEl = document.getElementById('pc-send-title');
-            var linkEl = document.getElementById('pc-send-link');
-            if (!modal) return;
-            titleEl.textContent = game.name + '은(는) 키보드가 있는 PC에서 즐길 수 있어요';
-            var fullUrl = location.origin + '/' + game.file;
-            linkEl.textContent = fullUrl;
-            linkEl.dataset.url = fullUrl;
-            modal.style.display = 'flex';
-        }
-        function closePcSendModal() {
-            var modal = document.getElementById('pc-send-modal');
-            if (modal) modal.style.display = 'none';
-        }
-        function copyPcSendLink() {
-            var linkEl = document.getElementById('pc-send-link');
-            var url = linkEl.dataset.url;
-            var done = function() {
-                var btn = document.getElementById('pc-send-copy-btn');
-                var old = btn.textContent;
-                btn.textContent = '복사됨! 카톡 나에게 보내기 등으로 저장해두세요';
-                setTimeout(function(){ btn.textContent = old; }, 2500);
-            };
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(url).then(done).catch(function(){
-                    var t = document.createElement('textarea');
-                    t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
-                    document.body.appendChild(t); t.select();
-                    try { document.execCommand('copy'); } catch(e) {}
-                    document.body.removeChild(t);
-                    done();
-                });
-            }
-        }
-
-        async function navigateTo(page) {
-            // ── URL 분리 마이그레이션: 실제 폴더 URL이 있는 페이지는 진짜 이동 ──
-            // (about/ 부터 시작, 이후 폴더 만들 때마다 이 목록에 추가)
-            const REAL_URL_PAGES = ['about', 'fortune', 'guide', 'blog', 'terms', 'privacy', 'copyright', 'partner'];
-            if (REAL_URL_PAGES.includes(page)) {
-                const targetPath = '/' + page + '/';
-                if (location.pathname !== targetPath) {
-                    location.href = targetPath;
-                    return;
-                }
-            }
-
-            const contentDiv = document.getElementById('content');
-
-            // [FIX] game9(hohoDash) 등 게임 페이지에서 벗어날 때 배경음악/효과음이
-            // 계속 재생되는 문제 해결. 게임 스크립트가 window.stopAllGameAudio를
-            // 정의해두면(있을 때만) 페이지 전환 직전에 호출해서 AudioContext를 정리한다.
-            if (typeof window.stopAllGameAudio === 'function') {
-                try { window.stopAllGameAudio(); } catch (e) {}
-            }
-
-            // ── partner: partner.html을 fetch해서 <main> 영역만 삽입 ──
-            if (page === 'partner') {
-                contentDiv.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-32 text-slate-400">
-                        <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                        <p class="font-bold text-sm">파트너 페이지 불러오는 중...</p>
-                    </div>`;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                try {
-                   const r = await fetch('/partner.html?v=' + Date.now(), { cache: 'no-store' });
-                    const html = await r.text();
-                    // partner.html의 <main>...</main> 내용만 추출
-                    const mainMatch = html.match(/<main[^>]*>([\s\S]*)<\/main>/i);
-                    contentDiv.innerHTML = mainMatch
-                        ? `<div class="page-transition">${mainMatch[1]}</div>`
-                        : `<div class="page-transition py-20 text-center text-slate-400">파트너 페이지를 불러올 수 없습니다.</div>`;
-                    // partner.html의 인라인 <script> 실행
-                    contentDiv.querySelectorAll('script').forEach(oldScript => {
-                        const s = document.createElement('script');
-                        s.textContent = oldScript.textContent;
-                        document.body.appendChild(s);
-                    });
-                    // .p-fade 요소들: IntersectionObserver 대신 즉시 visible 적용
-                    // (innerHTML 삽입 직후엔 뷰포트 감지가 불안정하므로 강제 처리)
-                    requestAnimationFrame(() => {
-                        contentDiv.querySelectorAll('.p-fade').forEach(el => {
-                            el.classList.add('visible');
-                        });
-                    });
-                } catch(e) {
-                    contentDiv.innerHTML = `<div class="page-transition py-20 text-center text-slate-400">파트너 페이지를 불러올 수 없습니다.</div>`;
-                }
-                return;
-            }
-
-            if (!pages[page]) return;
-            // 매번 DOM 새로 생성 → 메뉴/H마크 재클릭 시 항상 fresh fetch
-            contentDiv.innerHTML = pages[page];
-            // [FIX] head에서 opacity:0으로 숨겨뒀던 정적 폴백 텍스트를, 실제 콘텐츠로
-            // 교체된 이 시점에 다시 보이게 함
-            contentDiv.style.opacity = '1';
-            // [FIX] innerHTML로 삽입된 <script>는 브라우저가 실행하지 않으므로
-            // (예: 커뮤니티 소식 fetch, 게임 그리드 터치 핸들러) 다시 만들어서 붙여야 실제로 동작함
-            contentDiv.querySelectorAll('script').forEach(oldScript => {
-                const s = document.createElement('script');
-                s.textContent = oldScript.textContent;
-                document.body.appendChild(s);
-            });
-            // URL은 항상 깔끔하게 유지 (hash 표시 안 함)
-            history.replaceState(null, '', location.pathname);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            if (page === 'fortune') {
-                if(window.fortuneReady) {
-                    showFortune('today');
-                } else {
-                    var _fc = document.getElementById('fortune-content');
-                    if (_fc) _fc.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa"><span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:btnSpin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>운세 모듈 로딩 중...</div>';
-                    window._pendingFortune = function(){ showFortune('today'); };
-                    setTimeout(function(){
-                        if(!window.fortuneReady){
-                            var fc2 = document.getElementById('fortune-content');
-                            if(fc2 && fc2.innerHTML.includes('로딩 중'))
-                                fc2.innerHTML = '<div style="text-align:center;padding:60px;color:#aaa">⚠️ 운세 모듈을 불러오지 못했습니다. 페이지를 새로고침해 주세요.</div>';
-                        }
-                    }, 5000);
-                }
-            }
-            if (page === 'blog') bbsInit();
-        }
-
-        // 푸터 사이트맵 링크
-        // ※ outerHTML 삽입된 footer.html의 <script>는 브라우저가 실행하지 않으므로
-        //    index.html 자체에 footerNav를 반드시 정의해야 함
-        function footerNav(page) {
-            navigateTo(page);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
+        // ═══ 메뉴·내비게이션 (정적 페이지용) ═══
+        // ※ outerHTML 삽입된 footer.html의 script는 브라우저가 실행하지 않으므로
+        //    footerNav는 이 페이지에 반드시 정의해야 함
+        var PAGE_URL = { index: '/game/', about: '/about/', fortune: '/fortune/', guide: '/guide/', blog: '/blog/',
+                         terms: '/terms/', privacy: '/privacy/', copyright: '/copyright/', partner: '/partner/' };
+        function navigateTo(page) { window.location.href = PAGE_URL[page] || ('/' + page + '/'); }
+        function footerNav(page) { navigateTo(page); }
+        function mobileNav(page) { toggleMenu(); navigateTo(page); }
         function toggleMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const overlay = document.getElementById('menu-overlay');
-            const bar1 = document.getElementById('bar1');
-            const bar2 = document.getElementById('bar2');
-            const bar3 = document.getElementById('bar3');
-            const isOpen = !menu.classList.contains('hidden');
+            var menu = document.getElementById('mobile-menu');
+            var overlay = document.getElementById('menu-overlay');
+            var bar1 = document.getElementById('bar1');
+            var bar2 = document.getElementById('bar2');
+            var bar3 = document.getElementById('bar3');
+            var isOpen = !menu.classList.contains('hidden');
             if (isOpen) {
                 menu.classList.add('hidden');
-                if(overlay) overlay.style.display = 'none';
-                bar1.style.transform = '';
-                bar2.style.opacity = '1';
-                bar3.style.transform = '';
+                if (overlay) overlay.style.display = 'none';
+                bar1.style.transform = ''; bar2.style.opacity = '1'; bar3.style.transform = '';
             } else {
                 menu.classList.remove('hidden');
-                if(overlay) overlay.style.display = 'block';
+                if (overlay) overlay.style.display = 'block';
                 bar1.style.transform = 'translateY(8px) rotate(45deg)';
                 bar2.style.opacity = '0';
                 bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
             }
         }
+    </script>
 
-        function mobileNav(page) {
-            toggleMenu();
-            navigateTo(page);
+    <script>
+        // ═══════════════════════════════
+        //  통합 검색 — /data/encyclopedia_index.json (게임·운세·코너·사이트 정보)
+        //  결과는 이 페이지 안에서 바로 보여주고, 주소창은 /?q=검색어 로 갱신(공유 가능)
+        // ═══════════════════════════════
+        var SH_KEY = 'hohoRecentSearches';   // 기존 검색 기록 키 그대로 사용
+        var SH_MAX = 8;
+        var shIndexPromise = null;
+
+        function shEsc(s) {
+            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function shEscJs(s) {
+            // onmousedown="...('값')" 안에 넣을 문자열
+            return shEsc(String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
         }
 
-        // [FIX] 정적 폴백 텍스트(크롤러/애드센스 대응용)가 실제 사용자 화면에는 되도록
-        // 짧게만 보이도록, window.onload(이미지·외부스크립트까지 전부 로드될 때까지 대기해서
-        // 수 초씩 걸릴 수 있음)를 기다리지 않고 이 스크립트가 실행되는 시점(=이미 <main id="content">가
-        // 파싱 완료된 시점)에 바로 실제 콘텐츠로 교체한다. 정적 폴백 텍스트 자체는 그대로 두므로
-        // JS를 실행하지 않는 크롤러 관점에서는 기존과 동일하게 보인다.
-        (function renderInitialPage() {
+        function shGetRecent() {
             try {
-                const pendingPage = sessionStorage.getItem('page');
-                if (pendingPage) {
-                    sessionStorage.removeItem('page');
-                    navigateTo(pendingPage);
-                } else {
-                    navigateTo('index');
-                }
-            } catch (e) {
-                // 아래 3초 안전장치가 폴백 텍스트를 다시 보이게 처리함
+                var raw = localStorage.getItem(SH_KEY);
+                var arr = raw ? JSON.parse(raw) : [];
+                return Array.isArray(arr) ? arr : [];
+            } catch (e) { return []; }
+        }
+        function shSaveRecent(q) {
+            if (!q) return;
+            try {
+                var list = shGetRecent().filter(function (t) { return t !== q; });
+                list.unshift(q);
+                if (list.length > SH_MAX) list = list.slice(0, SH_MAX);
+                localStorage.setItem(SH_KEY, JSON.stringify(list));
+            } catch (e) {}
+        }
+        function shRemoveRecent(term) {
+            try {
+                var list = shGetRecent().filter(function (t) { return t !== term; });
+                localStorage.setItem(SH_KEY, JSON.stringify(list));
+            } catch (e) {}
+            shShowRecent();
+        }
+        function shClearRecent() {
+            try { localStorage.removeItem(SH_KEY); } catch (e) {}
+            shShowRecent();
+        }
+        function shShowRecent() {
+            var dd = document.getElementById('sh-recent');
+            if (!dd) return;
+            var list = shGetRecent();
+            if (!list.length) { dd.innerHTML = ''; dd.style.display = 'none'; return; }
+            var head = '<div class="sh-recent-head"><b>최근 검색어</b>'
+                + '<button type="button" onmousedown="event.preventDefault();shClearRecent()">전체삭제</button></div>';
+            var rows = list.map(function (t) {
+                return '<div class="sh-recent-row" onmousedown="event.preventDefault();shSearch(\'' + shEscJs(t) + '\')">'
+                    + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
+                    + '<span>' + shEsc(t) + '</span>'
+                    + '<button type="button" aria-label="삭제" onmousedown="event.preventDefault();event.stopPropagation();shRemoveRecent(\'' + shEscJs(t) + '\')">×</button>'
+                    + '</div>';
+            }).join('');
+            dd.innerHTML = head + rows;
+            dd.style.display = 'block';
+        }
+        function shHideRecentLater() {
+            setTimeout(function () {
+                var dd = document.getElementById('sh-recent');
+                if (dd) dd.style.display = 'none';
+            }, 150);
+        }
+
+        function shLoadIndex() {
+            if (!shIndexPromise) {
+                shIndexPromise = fetch('/data/encyclopedia_index.json')
+                    .then(function (r) { if (!r.ok) throw new Error('index fetch failed'); return r.json(); })
+                    .catch(function (e) { shIndexPromise = null; throw e; });
             }
-        })();
+            return shIndexPromise;
+        }
 
-        // [FIX] 안전장치: 어떤 이유로든 위 렌더링이 실패해서 #content가 계속
-        // opacity:0으로 남아있으면(=화면이 통째로 비어보이는 최악의 상황) 3초 뒤
-        // 강제로 다시 보이게 해서, 최소한 크롤러용 정적 폴백 텍스트라도 사용자에게 보이게 함
-        setTimeout(() => {
-            const c = document.getElementById('content');
-            if (c && getComputedStyle(c).opacity === '0') c.style.opacity = '1';
-        }, 3000);
+        function shSubmit(e) {
+            if (e) e.preventDefault();
+            shSearch(document.getElementById('sh-input').value);
+            return false;
+        }
 
-        // 현재 활성 페이지에 nav 강조 표시
-        function updateActiveNav(page) {
-            document.querySelectorAll('nav button[onclick]').forEach(btn => {
-                btn.classList.remove('text-indigo-600', 'text-purple-800');
+        function shSearch(raw, opts) {
+            opts = opts || {};
+            var q = String(raw || '').trim();
+            var input = document.getElementById('sh-input');
+            var box = document.getElementById('sh-results');
+            if (input) { input.value = q; input.blur(); }
+            var dd = document.getElementById('sh-recent');
+            if (dd) dd.style.display = 'none';
+            if (!q) { shClose(); return; }
+            if (!opts.silent) {
+                shSaveRecent(q);
+                try { history.replaceState(null, '', '/?q=' + encodeURIComponent(q)); } catch (e) {}
+            }
+            box.style.display = 'block';
+            box.innerHTML = '<div class="sh-empty">검색하는 중...</div>';
+            if (!opts.noScroll) {
+                try { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+            }
+            shLoadIndex().then(function (items) {
+                box.innerHTML = shRender(q, items);
+            }).catch(function () {
+                box.innerHTML = '<div class="sh-empty">검색 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>';
             });
         }
 
-        // ═══════════════════════════════
-        //  BBS 커뮤니티 (GitHub Issues)
-        // ═══════════════════════════════
-        const GH_OWNER = 'hohoplay';
-        const GH_REPO  = 'hohoplaylab.com';
-
-        function bbsInit() {
-            (function tick(){
-                const el = document.getElementById('bbs-clock');
-                if(el) { el.textContent = new Date().toLocaleTimeString('ko-KR'); setTimeout(tick,1000); }
-            })();
+        function shClose() {
+            var box = document.getElementById('sh-results');
+            box.style.display = 'none';
+            box.innerHTML = '';
+            var input = document.getElementById('sh-input');
+            if (input) input.value = '';
+            try { history.replaceState(null, '', '/'); } catch (e) {}
         }
 
-        function loadGiscus(term) {
-            const container = document.getElementById('giscus-container');
-            if(!container) return;
-            container.innerHTML = '';
-            const s = document.createElement('script');
-            s.src = 'https://giscus.app/client.js';
-            s.setAttribute('data-repo', 'hohoplay/hohoplaylab.com');
-            s.setAttribute('data-repo-id', 'R_kgDORWaWXQ');
-            s.setAttribute('data-category', 'General');
-            s.setAttribute('data-category-id', 'DIC_kwDORWaWXc4C4g1A');
-            s.setAttribute('data-mapping', 'specific');
-            s.setAttribute('data-term', term);
-            s.setAttribute('data-reactions-enabled', '1');
-            s.setAttribute('data-emit-metadata', '0');
-            s.setAttribute('data-input-position', 'top');
-            s.setAttribute('data-theme', 'dark_dimmed');
-            s.setAttribute('data-lang', 'ko');
-            s.setAttribute('crossorigin', 'anonymous');
-            s.async = true;
-            container.appendChild(s);
-        }
-
-        function openBoard(label, name) {
-            document.getElementById('bbs-main').style.display = 'none';
-            document.getElementById('bbs-board-area').classList.add('active');
-            document.getElementById('bbs-board-name').textContent = '[ '+name+' ]';
-
-            // 자유게시판만 글쓰기 버튼 표시
-            const writeBtn = document.getElementById('bbs-write-link');
-            if(name === '자유게시판') {
-                writeBtn.style.display = 'inline-block';
-                writeBtn.href = 'https://github.com/'+GH_OWNER+'/'+GH_REPO+'/issues/new?labels='+encodeURIComponent(label)+'&title=['+encodeURIComponent(name)+']%20';
-            } else {
-                writeBtn.style.display = 'none';
+        var SH_STOP = ['뭐','뭔가','뭐야','있어','있나요','있나','있는','인가요','인가','무엇','어떤','좀','그','저','이','을','를','은','는','이다','인지','알려줘','알려주세요','해줘','해주세요','찾아줘','싶어','싶어요'];
+        function shTokenHits(text, token) {
+            if (!text) return false;
+            var minN = Math.min(token.length, Math.max(3, Math.ceil(token.length * 0.7)));
+            for (var n = token.length; n >= minN; n--) {
+                if (text.indexOf(token.slice(0, n)) !== -1) return true;
             }
-            loadIssues(label, name);
+            return false;
         }
-
-        function closeBoard() {
-            document.getElementById('bbs-main').style.display = 'block';
-            document.getElementById('bbs-board-area').classList.remove('active');
+        function shDest(it) {
+            if (it.url) return it.url;
+            if (it.type === 'fortune') return '/fortune/';
+            if (it.type === 'corner') return '/' + it.id + '/';
+            if (it.id === 'site-about') return '/about/';
+            return '';
         }
+        function shRender(q, items) {
+            var lq = q.toLowerCase();
+            var tokens = lq.split(/\s+/).filter(function (t) { return t.length >= 2 && SH_STOP.indexOf(t) === -1; });
+            if (!tokens.length) tokens = [lq];
 
-        async function loadIssues(label, boardType) {
-            const el = document.getElementById('bbs-posts');
-            el.innerHTML = '<div class="bbs-loading">⏳ 게시글 불러오는 중...</div>';
-            try {
-                const url = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/issues?labels='+encodeURIComponent(label)+'&state=open&per_page=30&sort=created&direction=desc';
-                const r = await fetch(url, {headers:{'Accept':'application/vnd.github.v3+json'}});
-                const posts = await r.json();
-                if(!posts.length){
-                    el.innerHTML = '<div class="bbs-loading">📭 등록된 게시글이 없습니다.' +
-                        (boardType==='자유게시판' ? '<br><br><a href="https://github.com/'+GH_OWNER+'/'+GH_REPO+'/issues/new?labels='+encodeURIComponent(label)+'" target="_blank" style="color:#00e5ff">첫 글을 작성해보세요! ✏</a>' : '') +
-                        '</div>';
-                    return;
-                }
-                el.dataset.label = label;
-                el.innerHTML = posts.map((p,i) => {
-                    const d = new Date(p.created_at);
-                    const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-                    const commentsBadge = boardType==='자유게시판' ? '<span class="bbs-post-comments">💬 '+p.comments+'</span>' : '';
-                    return '<div class="bbs-post" onclick="viewPost('+p.number+',\''+boardType+'\')">'+
-                        '<div class="bbs-post-title">'+String(i+1).padStart(2,'0')+'. '+p.title+'</div>'+
-                        '<div class="bbs-post-meta">'+
-                            '<span>'+ds+'</span>'+
-                            '<span>👤 '+p.user.login+'</span>'+
-                            commentsBadge+
-                        '</div>'+
-                    '</div>';
-                }).join('');
-            } catch(e) {
-                el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패. 잠시 후 다시 시도해주세요.</div>';
-            }
-        }
-
-        async function viewPost(number, boardType) {
-            const el = document.getElementById('bbs-posts');
-            const label = el.dataset.label || '';
-            el.innerHTML = '<div class="bbs-loading">⏳ 글 불러오는 중...</div>';
-            try {
-                const r = await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/issues/'+number, {headers:{'Accept':'application/vnd.github.v3+json'}});
-                const post = await r.json();
-
-                const d = new Date(post.created_at);
-                const ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-                const body = post.body ? post.body.replace(/\n/g,'<br>') : '(내용 없음)';
-
-                const isFree = (boardType === '자유게시판');
-
-                // 댓글 (자유게시판만 giscus)
-                let commentsHtml = '';
-                if(isFree) {
-                    commentsHtml =
-                        '<div style="margin-top:24px;border-top:1px solid #1a2a5e;padding-top:16px">'+
-                        '<div style="color:#00e5ff;font-size:13px;font-weight:700;margin-bottom:12px">💬 댓글</div>'+
-                        '<div id="giscus-container"></div>'+
-                        '</div>';
-                }
-
-                el.innerHTML =
-                    '<span class="bbs-back" onclick="loadIssues(\''+label+'\',\''+boardType+'\')">◀ 목록으로</span>'+
-                    '<div style="border-bottom:1px solid #1a2a5e;padding-bottom:14px;margin-bottom:14px">'+
-                        '<div style="color:#ffd700;font-size:16px;font-weight:700;margin-bottom:8px">'+post.title+'</div>'+
-                        '<div style="color:#4a6fa5;font-size:12px">👤 '+post.user.login+' · '+ds+'</div>'+
-                    '</div>'+
-                    '<div style="color:#7ec8e3;font-size:14px;line-height:1.9;margin-bottom:20px;min-height:60px">'+body+'</div>'+
-                    commentsHtml;
-
-                // giscus 로드 (자유게시판만)
-                if(isFree) {
-                    setTimeout(() => loadGiscus('issue-'+number), 100);
-                }
-            } catch(e) {
-                el.innerHTML = '<div class="bbs-loading">❌ 불러오기 실패</div>';
-            }
-        }
-        // const 사용 금지 — fortune.html var와 충돌 방지
-        window.BLOG_ID  = '5608603268556826697';
-        window.API_KEY  = 'AIzaSyDBqlEZSs5HElZZYf0XyIMZOFpn10f0cu0';
-        window.BASE_URL = 'https://www.googleapis.com/blogger/v3';
-    </script>
-
-    <!-- 운세·타로·MBTI 모듈 동적 로드 -->
-    <script>
-    window.fortuneReady = false;
-    (function(){
-        fetch('./fortune.html?' + Date.now(), { cache: 'no-store' })
-            .then(function(r){ return r.text(); })
-            .then(function(html){
-                var tmp = document.createElement('div');
-                tmp.innerHTML = html;
-                var scripts = tmp.querySelectorAll('script');
-                scripts.forEach(function(s){
-                    var ns = document.createElement('script');
-                    if(s.src) { ns.src = s.src; ns.async = false; }
-                    else { ns.textContent = s.textContent; }
-                    document.body.appendChild(ns);
+            var scored = items.map(function (it) {
+                var text = ((it.searchText || '') + ' ' + (it.name || '')).toLowerCase();
+                var nameText = (it.name || '').toLowerCase();
+                var score = 0;
+                tokens.forEach(function (t) {
+                    if (shTokenHits(nameText, t)) score += 3;
+                    else if (shTokenHits(text, t)) score += 1;
                 });
-                window.fortuneReady = true;
-                // 대기 중인 운세 페이지 요청 처리
-                if(window._pendingFortune) {
-                    window._pendingFortune();
-                    window._pendingFortune = null;
+                // 띄어쓰기 없이 붙여 쓴 검색어("대전코스") 대응: 이름이 검색어 안에 통째로 들어있으면 강한 매칭
+                if (nameText.length >= 2 && lq.indexOf(nameText) !== -1) score += 3;
+                return { item: it, hits: score };
+            }).filter(function (s) { return s.hits > 0; });
+            scored.sort(function (a, b) { return b.hits - a.hits; });
+
+            var head = '<div class="sh-res-head"><h2>‘' + shEsc(q) + '’ 검색 결과 <b>' + scored.length + '</b>건</h2>'
+                + '<button type="button" onclick="shClose()">닫기 ✕</button></div>';
+            if (!scored.length) {
+                return head + '<div class="sh-empty">‘' + shEsc(q) + '’ 검색 결과가 없어요.<br>'
+                    + '<span style="font-size:12px">다른 검색어를 입력하거나 위의 바로가기를 이용해 보세요.</span></div>';
+            }
+
+            function snippet(it) {
+                if (it.type !== 'game') return it.summary || '';
+                var faqs = it.faq || [];
+                for (var i = 0; i < faqs.length; i++) {
+                    var qa = faqs[i];
+                    var qaText = ((qa.q || '') + ' ' + (qa.a || '')).toLowerCase();
+                    if (tokens.some(function (t) { return shTokenHits(qaText, t); })) {
+                        return 'Q. ' + (qa.q || '').replace(/^Q\.\s*/, '') + ' — ' + (qa.a || '');
+                    }
                 }
-            })
-            .catch(function(e){ console.warn('fortune.html 로드 실패:', e); });
-    })();
+                var fields = [it.tips, it.controls, it.playPoints, it.summary];
+                for (var j = 0; j < fields.length; j++) {
+                    var f = fields[j];
+                    if (f && tokens.some(function (t) { return shTokenHits(String(f).toLowerCase(), t); })) {
+                        return f.length > 90 ? f.slice(0, 90) + '...' : f;
+                    }
+                }
+                return it.summary || it.genre || '';
+            }
+
+            var iconOf = { game: '🎮', fortune: '🔮', site: 'ℹ️', corner: '✨' };
+            return head + scored.map(function (s) {
+                var it = s.item;
+                var dest = shDest(it);
+                var inner = '<span class="ic">' + (iconOf[it.type] || '📄') + '</span>'
+                    + '<div class="bd"><div class="nm">' + shEsc(it.name) + '</div><div class="sn">' + shEsc(snippet(it)) + '</div></div>'
+                    + (dest ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" style="flex:none"><path d="M9 18l6-6-6-6"/></svg>' : '');
+                if (!dest) return '<div class="sh-res">' + inner + '</div>';
+                // 순수 사주/타로 탭류(url 없음)는 운세 페이지에서 해당 탭이 열리도록 힌트를 남김
+                var jump = (!it.url && it.type === 'fortune')
+                    ? ' onclick="try{sessionStorage.setItem(\'fortuneJumpTab\',\'' + shEscJs(String(it.id).replace('fortune-', '')) + '\')}catch(e){}"'
+                    : '';
+                return '<a class="sh-res" href="' + shEsc(dest) + '"' + jump + '>' + inner + '</a>';
+            }).join('');
+        }
+
+        // 인기 검색어 칩
+        document.getElementById('sh-hot').addEventListener('click', function (e) {
+            var b = e.target.closest('.sh-chip');
+            if (b) shSearch(b.getAttribute('data-q'));
+        });
+        // 좁은 화면에서는 안내 문구가 잘리지 않도록 짧게
+        try { if (window.matchMedia('(max-width: 480px)').matches) document.getElementById('sh-input').placeholder = '궁금한 점을 검색해보세요'; } catch (e) {}
+        // /?q=검색어 로 들어오면 바로 검색
+        (function () {
+            try {
+                var q = new URLSearchParams(location.search).get('q');
+                if (q && q.trim()) shSearch(q, { silent: true, noScroll: false });
+            } catch (e) {}
+        })();
     </script>
+
     <script>
-    // ── 보안: 게임 캔버스 영역에서만 우클릭/개발자도구 차단 ──
-    // (전체 페이지 차단은 AdSense 정책 위반 소지 + UX 저하)
-
-    // 게임 페이지(hoya-typing-rpg.html, hoya-proverb-typing.html)는 별도 파일이므로 여기선 처리 불필요.
-    // index.html SPA 내에서는 게임이 iframe/별도 창으로 열리므로
-    // 아래 코드는 현재 아무 영향도 주지 않도록 제거합니다.
-
-    // ── 대신: 게임 iframe 내 캔버스에서만 우클릭 차단이 필요하다면
-    //    hoya-typing-rpg.html / hoya-proverb-typing.html 내부의 <canvas> 요소에 직접 아래를 추가하세요:
-    //    canvas.addEventListener('contextmenu', e => e.preventDefault());
-</script>
-
-<!-- ── 모바일에서 PC전용 게임 탭 시: 링크 저장 안내 모달 ── -->
-<div id="pc-send-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:20px">
-    <div style="background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);max-width:400px;width:100%;padding:28px;position:relative">
-        <button onclick="closePcSendModal()" aria-label="닫기" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;line-height:1">×</button>
-        <div style="text-align:center;margin-bottom:18px">
-            <div style="font-size:32px;margin-bottom:8px">⌨️</div>
-            <h3 id="pc-send-title" style="font-size:15px;font-weight:900;color:#1e293b;line-height:1.5">이 게임은 키보드가 있는 PC에서 즐길 수 있어요</h3>
-        </div>
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;margin-bottom:14px;overflow-wrap:break-word;word-break:break-all">
-            <span id="pc-send-link" style="font-size:12px;color:#64748b"></span>
-        </div>
-        <button id="pc-send-copy-btn" onclick="copyPcSendLink()"
-            style="width:100%;background:#4f46e5;color:#fff;padding:13px;border-radius:12px;font-weight:800;font-size:14px;border:none;cursor:pointer;margin-bottom:8px">
-            링크 복사하기
-        </button>
-        <p style="font-size:12px;color:#94a3b8;text-align:center;line-height:1.6;margin:0">
-            복사한 링크를 카카오톡 '나에게 보내기' 등으로 저장해두시면<br>나중에 PC에서 바로 열어보실 수 있어요.
-        </p>
-    </div>
-</div>
-
-    <!-- 업데이트 감지 배너 (평소엔 숨김) -->
-    <div id="_update_banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
-         background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;
-         padding:10px 20px;align-items:center;justify-content:space-between;
-         font-size:13px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.3)">
-        <span>🔄 새 버전이 업데이트되었습니다!</span>
-        <div style="display:flex;gap:8px">
-            <button onclick="location.reload(true)"
-                style="background:#fff;color:#4f46e5;border:none;padding:5px 14px;
-                       border-radius:8px;font-weight:900;cursor:pointer;font-size:13px">
-                지금 새로고침
-            </button>
-            <button onclick="document.getElementById('_update_banner').style.display='none'"
-                style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:5px 10px;
-                       border-radius:8px;cursor:pointer;font-size:12px">
-                나중에
-            </button>
-        </div>
-    </div>
-
+        // ═══ 호호픽 (공유 파셜) ═══
+        (function () {
+            var ph = document.getElementById('hoho-pick-placeholder');
+            if (!ph) return;
+            fetch('/hoho-pick.html')
+                .then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.text(); })
+                .then(function (html) {
+                    ph.innerHTML = html;
+                    ph.querySelectorAll('script').forEach(function (oldScript) {
+                        var newScript = document.createElement('script');
+                        if (oldScript.src) newScript.src = oldScript.src;
+                        newScript.textContent = oldScript.textContent;
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                })
+                .catch(function () { ph.style.display = 'none'; });
+        })();
+    </script>
 </body>
+</html>
