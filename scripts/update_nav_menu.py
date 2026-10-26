@@ -334,6 +334,36 @@ def process_stage_c(text, rel, game_exists):
     return text, ('changed' if text != orig else 'same')
 
 
+# ─────────────────────────────────────────────────────────────
+# 4차: 상단 로고(HOHO PLAY 아이콘+글자)는 항상 새 홈('/')으로
+#  - <a> 로고: href 가 /index.html, index.html, /game/ 어느 것이든 "/" 로 통일
+#              (옛 sessionStorage 'page' 저장 코드는 제거, stopAllGameAudio 등 나머지 onclick은 유지)
+#  - <div onclick="navigateTo('index')"> 로고(옛 SPA 페이지): location.href='/' 로 교체
+# ─────────────────────────────────────────────────────────────
+LOGO_MARK = 'HOHO<br>PLAY'
+LOGO_DIV_RE = re.compile(
+    r"""(<div\b[^>]*\bonclick=")(?:navigateTo\('index'\)|location\.href\s*=\s*'/game/'|location\.href\s*=\s*'/index\.html')("[^>]*>)(?=\s*<div\b[^>]*>\s*HOHO<br>PLAY)""",
+    re.S)
+
+
+def _fix_logo_anchor(m):
+    open_tag, inner = m.group(1), m.group(2)
+    if LOGO_MARK not in inner:
+        return m.group(0)
+    new_open = open_tag
+    new_open = re.sub(r"sessionStorage\.setItem\(\s*'page'\s*,\s*'index'\s*\)\s*;?", '', new_open)
+    new_open = re.sub(r'href="(?:/index\.html|index\.html|/game/)"', 'href="/"', new_open, count=1)
+    new_open = re.sub(r'\sonclick="\s*(?:return true;)?\s*"', '', new_open, count=1)
+    return new_open + inner + '</a>'
+
+
+def process_stage_d(text):
+    orig = text
+    text = A_FULL_RE.sub(_fix_logo_anchor, text)
+    text = LOGO_DIV_RE.sub(lambda m: m.group(1) + "location.href='/'" + m.group(2), text)
+    return text, ('changed' if text != orig else 'same')
+
+
 def ensure_sitemap(root):
     path = os.path.join(root, 'sitemap.xml')
     if not os.path.exists(path):
@@ -380,6 +410,7 @@ def main():
             text, notes_b = process_stage_b(text)
             notes += notes_b
             text, _ = process_stage_c(text, rel, game_exists)
+            text, _ = process_stage_d(text)
             bad = [n for n in notes if 'fail' in n]
             if bad:
                 failed.append((rel, bad))
