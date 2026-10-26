@@ -9,6 +9,12 @@
   ② '회사' 안의 '고객지원'을 '약관·정책' 맨 아래로 옮긴다.
   ③ (2차) '회사' 메뉴(소개 하나만 남음)를 통째로 없애고, 오른쪽 위 '🔮 오늘의 운세' 버튼/아이콘을 없앤 대신
      '플레이하기'의 상식테스트 아래에 '운세' 항목을 추가한다.
+  ④ (3차) 게임 목록이 /game/ 으로 옮겨가는 것에 맞춰 링크를 바꾼다(단, game/index.html 이 실제로 올라가 있을 때만):
+       - '전체게임' / '다른 게임 보러가기' / '← 전체 리스트로 이동' 같은 링크 → /game/
+       - 예전에 /index.html + sessionStorage 로 열던 about·terms·privacy·copyright·guide·blog·partner·fortune 링크
+         → 각자의 진짜 주소(/about/ 등)로 직접 연결 (새 루트 index.html이 그 방식을 몰라도 안 깨지게)
+       - footerNav() / goPartner() 의 같은 방식도 직접 이동으로 교체
+       - sitemap.xml 에 /game/ 추가
 
 저장소의 모든 .html / .py 파일을 훑어서 메뉴 코드가 있는 곳만 고친다
 (생성 스크립트·템플릿 안에 박힌 메뉴도 같이 고쳐야 자동 생성 페이지가 다시 옛 메뉴로 돌아가지 않는다).
@@ -261,8 +267,94 @@ def process_stage_b(text):
     return text, notes
 
 
+
+REAL_PAGES = {'about', 'guide', 'blog', 'terms', 'privacy', 'copyright', 'partner', 'fortune'}
+GAME_LINK_TEXTS = {'전체게임', '다른 게임 보러가기', '← 전체 리스트로 이동', '🎮 전체 게임 목록 보기'}
+A_OPEN_RE = re.compile(r'<a\b[^>]*>', re.S)
+A_FULL_RE = re.compile(r'(<a\b[^>]*>)(.*?)</a>', re.S)
+SESSION_RE = re.compile(r"sessionStorage\.setItem\(\s*'page'\s*,\s*'([a-zA-Z]+)'\s*\)\s*;?")
+HREF_INDEX_RE = re.compile(r'href="(?:/?index\.html)"')
+
+
+def _fix_session_link(m, game_exists):
+    tag = m.group(0)
+    if not HREF_INDEX_RE.search(tag):
+        return tag
+    sm = SESSION_RE.search(tag)
+    if not sm:
+        return tag
+    pid = sm.group(1)
+    if pid in REAL_PAGES:
+        target = '/%s/' % pid
+    elif pid == 'index' and game_exists:
+        target = '/game/'
+    else:
+        return tag
+    tag = HREF_INDEX_RE.sub('href="%s"' % target, tag, count=1)
+    tag = SESSION_RE.sub('', tag, count=1)
+    # onclick가 비거나 "return true;"만 남으면 정리
+    tag = re.sub(r'\sonclick="\s*(?:return true;)?\s*"', '', tag, count=1)
+    return tag
+
+
+def _fix_game_text_link(m, game_exists):
+    if not game_exists:
+        return m.group(0)
+    open_tag, inner = m.group(1), m.group(2)
+    text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', inner)).strip()
+    if text not in GAME_LINK_TEXTS:
+        return m.group(0)
+    hm = re.search(r'href="(/|/?index\.html)"', open_tag)
+    if not hm:
+        return m.group(0)
+    if hm.group(1) == '/' and text != '전체게임':
+        return m.group(0)
+    return re.sub(r'href="(?:/|/?index\.html)"', 'href="/game/"', open_tag, count=1) + inner + '</a>'
+
+
+def process_stage_c(text, rel, game_exists):
+    notes = []
+    orig = text
+    text = A_OPEN_RE.sub(lambda m: _fix_session_link(m, game_exists), text)
+    text = A_FULL_RE.sub(lambda m: _fix_game_text_link(m, game_exists), text)
+    # 전체게임 버튼(button + navigateTo('index') / mobileNav('index'))은 새 홈('/')이 아니라 /game/ 으로
+    if game_exists and rel.replace(os.sep, '/') != 'game/index.html':
+        def _btn(m):
+            line = m.group(0)
+            if '>전체게임<' not in line:
+                return line
+            return re.sub(r"(?:navigateTo|mobileNav)\('index'\)", "location.href='/game/'", line)
+        text = re.sub(r'^[^\n]*$', _btn, text, flags=re.M)
+    # footerNav 안의 "sessionStorage에 담고 index.html로" → 진짜 주소로 바로 이동
+    text = re.sub(r"""sessionStorage\.setItem\((['"])page\1\s*,\s*page\)\s*;\s*window\.location\.href\s*=\s*(['"])index\.html\2""",
+                  lambda m: "window.location.href = %s/%s + page + %s/%s" % ((m.group(2),) * 4), text)
+    # goPartner()
+    text = re.sub(r"sessionStorage\.setItem\('page',\s*'partner'\);\s*location\.href\s*=\s*'/index\.html';",
+                  "location.href = '/partner/';", text)
+    return text, ('changed' if text != orig else 'same')
+
+
+def ensure_sitemap(root):
+    path = os.path.join(root, 'sitemap.xml')
+    if not os.path.exists(path):
+        return 'sitemap.xml 없음(건너뜀)'
+    with open(path, encoding='utf-8', newline='') as fp:
+        xml = fp.read()
+    if 'https://hohoplaylab.com/game/<' in xml:
+        return 'sitemap.xml에 /game/ 이미 있음'
+    entry = ('  <url>\n    <loc>https://hohoplaylab.com/game/</loc>\n'
+             '    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n')
+    xml = xml.replace('</urlset>', entry + '</urlset>', 1) if '</urlset>' in xml else xml
+    with open(path, 'w', encoding='utf-8', newline='') as fp:
+        fp.write(xml)
+    return 'sitemap.xml에 /game/ 추가'
+
+
 def main():
     dry = '--dry' in sys.argv
+    game_exists = os.path.exists(os.path.join(ROOT, 'game', 'index.html'))
+    print('game/index.html %s → 3차(/game/ 링크 교체)는 %s' % (
+        '있음' if game_exists else '없음', '적용합니다' if game_exists else '건너뜁니다(game/index.html을 먼저 올리세요)'))
     changed, skipped, failed, untouched = [], [], [], 0
     for dirpath, dirnames, filenames in os.walk(ROOT):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
@@ -276,7 +368,8 @@ def main():
                     original = fp.read()
             except (UnicodeDecodeError, OSError):
                 continue
-            if '플레이하기' not in original or '소통' not in original:
+            has_nav = '플레이하기' in original and '소통' in original
+            if not has_nav and 'index.html' not in original and 'goPartner' not in original:
                 untouched += 1
                 continue
             text, notes = original, []
@@ -286,6 +379,7 @@ def main():
                 notes.append(('데스크톱' if desktop else '모바일') + ':' + st)
             text, notes_b = process_stage_b(text)
             notes += notes_b
+            text, _ = process_stage_c(text, rel, game_exists)
             bad = [n for n in notes if 'fail' in n]
             if bad:
                 failed.append((rel, bad))
@@ -301,6 +395,8 @@ def main():
         print('  고침:', r)
     for r, b in failed:
         print('  확인 필요:', r, b)
+    if game_exists:
+        print(ensure_sitemap(ROOT) if not dry else '(--dry) sitemap.xml 확인 건너뜀')
     if dry:
         print('(--dry: 실제 파일은 바꾸지 않았습니다)')
 
