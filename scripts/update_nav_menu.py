@@ -16,6 +16,8 @@
        - footerNav() / goPartner() 의 같은 방식도 직접 이동으로 교체
        - sitemap.xml 에 /game/ 추가
 
+  ⑤ (5차) 메뉴·푸터의 '고객지원' 이름을 'FAQ'로 바꾼다(주소 /guide/ 는 그대로).
+
 저장소의 모든 .html / .py 파일을 훑어서 메뉴 코드가 있는 곳만 고친다
 (생성 스크립트·템플릿 안에 박힌 메뉴도 같이 고쳐야 자동 생성 페이지가 다시 옛 메뉴로 돌아가지 않는다).
 데스크톱 메뉴와 모바일 메뉴를 각각 따로 처리하며, 이미 고쳐진 파일은 건드리지 않는다(여러 번 실행해도 안전).
@@ -34,7 +36,7 @@ SKIP_FILES = {'update_nav_menu.py'}
 NEEDED = (('호호 매거진', '/blog/magazine/'), ('아이랑 나들이 지도', '/festival/'), ('게임공략', '/guides/index.html'), ('꿈해몽 사전', '/dream/'))
 # 예전 이름으로 남아 있는 페이지가 있으면 같은 항목으로 보고 이름도 같이 바꾼다
 ALIASES = {'아이랑 나들이 지도': ('축제 지도',)}
-SUPPORT_RE = re.compile(r'^[^\n]*>고객지원</(?:a|button)>[^\n]*\n', re.M)
+SUPPORT_RE = re.compile(r'^[^\n]*>(?:고객지원|FAQ)</(?:a|button)>[^\n]*\n', re.M)
 
 
 def item_line(seg, label):
@@ -110,7 +112,7 @@ def process(text, desktop, active_label=None):
             return text, 'fail:새 항목을 만들 기준 줄(익명투표/전체게임)이 없음'
 
     support = SUPPORT_RE.search(seg_comp)
-    support_done = ('>고객지원<' in seg_terms)
+    support_done = ('>고객지원<' in seg_terms) or ('>FAQ<' in seg_terms)
 
     # ── 뒤쪽 위치부터 고쳐야 앞쪽 위치가 안 밀린다: ① 약관·정책 ② 소통 ③ 플레이하기 ④ 회사 ──
     # ① 고객지원 → 약관·정책 맨 아래 ('저작권·콘텐츠 정책' 줄 다음, 그 줄의 모양을 그대로 복사)
@@ -177,7 +179,7 @@ def process(text, desktop, active_label=None):
 
 
 
-SUPPORT_OR_ABOUT = {'소개', '고객지원'}
+SUPPORT_OR_ABOUT = {'소개', '고객지원', 'FAQ'}
 
 
 def _labels(seg):
@@ -364,6 +366,20 @@ def process_stage_d(text):
     return text, ('changed' if text != orig else 'same')
 
 
+# ─────────────────────────────────────────────────────────────
+# 5차: 메뉴·푸터의 '고객지원' 이름을 'FAQ'로 (주소 /guide/ 는 그대로)
+#  - /guide/ 로 가는 링크(navigateTo/mobileNav/footerNav('guide') 또는 href="/guide/")의 글자만 바꾼다.
+#  - 문장 속의 '고객지원'은 건드리지 않는다.
+# ─────────────────────────────────────────────────────────────
+FAQ_RENAME_RE = re.compile(
+    r"""(^[^\n]*(?:\('guide'\)|href="/guide/")[^\n]*>)\s*고객지원\s*(</(?:a|button)>)""", re.M)
+
+
+def process_stage_e(text):
+    new = FAQ_RENAME_RE.sub(lambda m: m.group(1) + 'FAQ' + m.group(2), text)
+    return new, ('changed' if new != text else 'same')
+
+
 def ensure_sitemap(root):
     path = os.path.join(root, 'sitemap.xml')
     if not os.path.exists(path):
@@ -399,7 +415,7 @@ def main():
             except (UnicodeDecodeError, OSError):
                 continue
             has_nav = '플레이하기' in original and '소통' in original
-            if not has_nav and 'index.html' not in original and 'goPartner' not in original:
+            if not has_nav and 'index.html' not in original and 'goPartner' not in original and '>고객지원<' not in original:
                 untouched += 1
                 continue
             text, notes = original, []
@@ -411,6 +427,7 @@ def main():
             notes += notes_b
             text, _ = process_stage_c(text, rel, game_exists)
             text, _ = process_stage_d(text)
+            text, _ = process_stage_e(text)
             bad = [n for n in notes if 'fail' in n]
             if bad:
                 failed.append((rel, bad))
