@@ -11,171 +11,32 @@ TODAY = datetime.datetime.now().strftime('%Y%m%d')
 # 30일 전부터 검색해서, 이미 시작했지만 아직 안 끝난 축제도 놓치지 않도록 함
 SEARCH_FROM = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y%m%d')
 
-# [ADD] 2026-10-10: 좌표 수동 보정. TourAPI가 내려주는 mapx/mapy(행사장 좌표)가
-# 가끔 실제 주소와 다른 곳을 가리키는 경우가 있다(발견 사례: 경기미 디저트
-# 페스타 contentid 3368470 — mapy/mapx를 lat/lng에 바르게 매핑하고 있는데도
-# 핀이 실제 주소와 다른 곳에 찍힘, TourAPI 원본 좌표 자체의 오류로 확인됨).
-# data/coord_overrides.json에 {"contentid": {"lat": "37.xxxx", "lng": "127.xxxx"}}
-# 형태로 적어두면, TourAPI를 다시 호출할 때마다(매일 자동 실행) 매번 이 값으로
-# 덮어써서 고정된다 — 한 번 등록해두면 TourAPI가 같은 틀린 좌표를 계속 내려줘도
-# 더 이상 틀어지지 않는다.
-def load_coord_overrides():
-    path = os.path.join('data', 'coord_overrides.json')
-    if not os.path.exists(path):
-        return {}
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"data/coord_overrides.json 읽기 실패, 이번 실행에서는 보정 없이 진행합니다: {e}")
-        return {}
-
-
-def apply_coord_overrides(items, overrides):
-    if not overrides:
-        return 0
-    applied = 0
-    for it in items:
-        cid = it.get('contentid')
-        fix = overrides.get(cid) if cid else None
-        if not fix:
-            continue
-        if fix.get('lat'):
-            it['lat'] = fix['lat']
-        if fix.get('lng'):
-            it['lng'] = fix['lng']
-        applied += 1
-    return applied
-
-
-# [ADD] 2026-10-10: 주소 기반 좌표 보정(대량). coord_overrides.json은 몇 건을 손으로
-# 고치는 용도고, TourAPI 좌표 오류가 전체적으로 수천~수만 건 단위로 있을 수 있어서는
-# 감당이 안 된다. 그래서 TourAPI가 준 좌표(mapx/mapy) 대신, 각 장소의 주소(addr1)를
-# 카카오 로컬 API(주소 검색)로 직접 좌표 변환해서 쓰는 걸 기본으로 하고, 변환에 실패하면
-# (주소가 비정형이거나 API 오류) 그때만 TourAPI 좌표로 되돌아간다.
-#
-# 매번 전체를 다시 변환하면 느리고(수천~수만 건) API 호출도 많아지므로, 한 번 성공한
-# 변환 결과는 contentid 기준으로 data/geocode_cache.json에 저장해두고, 다음 실행부터는
-# 캐시에 없는(새로 생긴) 장소만 새로 변환한다 — 최초 1회만 전체 분량을 부담한다.
-GEOCODE_CACHE_PATH = os.path.join('data', 'geocode_cache.json')
-KAKAO_GEOCODE_URL = 'https://dapi.kakao.com/v2/local/search/address.json'
-# 한 번 실행에서 새로 지오코딩하는 건수 상한. 캐시가 쌓이기 전 최초 백필 때처럼
-# 한꺼번에 수만 건이 몰려도 이 값만큼만 처리하고 나머지는 이번엔 TourAPI 좌표를 쓰며,
-# 캐시가 안 남았으니 다음 실행(하루 3회)에서 이어서 처리된다 — 실행 시간 폭주 방지용 안전장치.
-MAX_NEW_GEOCODE_PER_RUN = 3000
-
-
-def load_geocode_cache():
-    if not os.path.exists(GEOCODE_CACHE_PATH):
-        return {}
-    try:
-        with open(GEOCODE_CACHE_PATH, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"data/geocode_cache.json 읽기 실패, 이번 실행은 캐시 없이 진행합니다: {e}")
-        return {}
-
-
-def save_geocode_cache(cache):
-    with open(GEOCODE_CACHE_PATH, 'w', encoding='utf-8') as f:
-        json.dump(cache, f, ensure_ascii=False, indent=2)
-
-
-def geocode_address(addr, rest_key, max_retries=2):
-    """주소 한 건을 카카오 좌표 변환 API로 조회한다. 못 찾거나 오류면 (None, None)."""
-    if not addr or not rest_key:
-        return None, None
-    headers = {'Authorization': f'KakaoAK {rest_key}'}
-    for attempt in range(max_retries):
-        try:
-            res = requests.get(KAKAO_GEOCODE_URL, headers=headers, params={'query': addr}, timeout=10)
-            if res.status_code == 200:
-                docs = res.json().get('documents', [])
-                if docs:
-                    return docs[0].get('y'), docs[0].get('x')  # y=위도(lat), x=경도(lng)
-                return None, None  # 주소를 못 찾음 — 재시도해도 결과 같음
-            if res.status_code == 429:  # 호출 한도 초과, 잠시 쉬었다 재시도
-                time.sleep(1.0 * (attempt + 1))
-                continue
-            return None, None
-        except requests.exceptions.RequestException:
-            time.sleep(0.5)
-            continue
-    return None, None
-
-
-def resolve_coords(contentid, addr, fallback_lat, fallback_lng, cache, rest_key, stats):
-    """주소 지오코딩 결과(캐시 우선) → 실패 시 TourAPI 원본 좌표(fallback) 순으로 좌표를 정한다."""
-    if not rest_key:
-        return fallback_lat, fallback_lng
-    if contentid and contentid in cache:
-        hit = cache[contentid]
-        stats['cache_hit'] += 1
-        return hit.get('lat') or fallback_lat, hit.get('lng') or fallback_lng
-    if stats['geocoded'] >= MAX_NEW_GEOCODE_PER_RUN:
-        stats['skipped_limit'] += 1
-        return fallback_lat, fallback_lng
-    lat, lng = geocode_address(addr, rest_key)
-    if lat and lng:
-        if contentid:
-            cache[contentid] = {'lat': lat, 'lng': lng}
-        stats['geocoded'] += 1
-        time.sleep(0.05)  # API 호출 과속 방지
-        return lat, lng
-    stats['failed'] += 1
-    return fallback_lat, fallback_lng
-
-
 # 서울 리전에서 실행되는 Vercel 프록시 함수 주소.
 # GitHub Actions(해외 서버)가 apis.data.go.kr에 직접 접속하면 차단당하는 문제를 피하기 위해
 # 한국 위치인 이 프록시를 통해 대신 데이터를 받아온다.
 PROXY_URL = os.environ.get("FESTIVAL_PROXY_URL", "https://YOUR-PROJECT.vercel.app/api/festivals")
 
-# map.html(festival/index.html)의 지역 필터(filterRegion)와 반드시 동일하게 맞춰야 하는 지역 구분.
-# [수정] 예전엔 서울·인천·경기처럼 여러 시/도를 한 그룹으로 묶었었는데, 지도 쪽을 17개
-# 시/도 단위로 전부 분리했으므로 여기도 똑같이 맞춘다. 순서가 곧 "전국 전체보기"에서
-# 대표 축제가 나열되는 순서(지역마다 1개, 최대 17개).
-# 수원/용인/파주/화성/강릉/청주는 kids_places.json처럼 시/도명 없이 도시명만 적힌
-# 데이터가 섞여도 해당 지역으로 잡히도록 넣어둔 보조 키워드 — TourAPI 주소(addr1)는
-# 보통 전체 행정구역명을 쓰므로 실제로는 거의 안 쓰이지만, map.html과 같은 구조를
-# 유지해 두 파일이 어긋나지 않게 한다.
+# map.html의 지역 필터(filterRegion)와 반드시 동일하게 맞춰야 하는 지역 구분.
+# 순서가 곧 "전국 전체보기"에서 대표 축제가 나열되는 순서.
 REGION_KEYWORDS = [
-    ('seoul', ['서울']),
-    ('busan', ['부산']),
-    ('daegu', ['대구']),
-    ('incheon', ['인천']),
-    ('gwangju', ['광주']),
-    ('daejeon', ['대전']),
-    ('ulsan', ['울산']),
-    ('sejong', ['세종']),
-    ('gyeonggi', ['경기', '수원', '용인', '파주', '화성']),
+    # [FIX] 2026-10-26: 지역 판정을 "주소에 키워드가 들어있는가(in)"에서 "주소가 키워드로 시작하는가"로 바꿨다.
+    # 예전 방식은 서울 종로구 "세종로/세종대로"가 '세종'에, 경기도 "광주시"가 '광주'에 걸려서
+    # 서울 행사가 충청 대표로, 경기 광주 행사가 전라 대표로 뽑히는 오류가 있었다.
+    # 또 TourAPI 주소가 2026년부터 광주·전남 모두 "전남광주통합특별시 …"로 내려오므로 '전남'(접두)로 잡히게 했다.
+    ('seoul', ['서울', '인천', '경기', '수원', '용인', '파주', '화성']),
     ('gangwon', ['강원', '강릉']),
-    ('chungbuk', ['충청북도', '충북', '청주']),
-    ('chungnam', ['충청남도', '충남']),
-    ('jeonbuk', ['전라북도', '전북']),
-    ('jeonnam', ['전라남도', '전남']),
-    ('gyeongbuk', ['경상북도', '경북']),
-    ('gyeongnam', ['경상남도', '경남']),
+    ('chungcheong', ['세종', '대전', '충북', '충남', '충청', '청주']),
+    ('gyeongsang', ['대구', '울산', '부산', '경북', '경남', '경상']),
+    ('jeolla', ['광주', '전북', '전남', '전라']),
     ('jeju', ['제주']),
 ]
 
 REGION_LABELS = {
-    'seoul': '서울',
-    'busan': '부산',
-    'daegu': '대구',
-    'incheon': '인천',
-    'gwangju': '광주',
-    'daejeon': '대전',
-    'ulsan': '울산',
-    'sejong': '세종',
-    'gyeonggi': '경기',
+    'seoul': '서울·인천·경기',
     'gangwon': '강원',
-    'chungbuk': '충북',
-    'chungnam': '충남',
-    'jeonbuk': '전북',
-    'jeonnam': '전남',
-    'gyeongbuk': '경북',
-    'gyeongnam': '경남',
+    'chungcheong': '세종·대전·충청',
+    'gyeongsang': '경상도',
+    'jeolla': '광주·전라도',
     'jeju': '제주',
 }
 
@@ -823,10 +684,17 @@ def is_heatwave_season(today_str):
     return '0520' <= md <= '0930'
 
 
+def addr_matches_region(addr, keywords):
+    """주소가 지역 키워드로 '시작'할 때만 그 지역으로 인정한다(festival/index.html의
+    addrMatchesRegion과 같은 기준). 도로명·동네 이름에 우연히 들어간 글자는 무시."""
+    a = (addr or '').strip()
+    return bool(a) and any(a.startswith(kw) for kw in keywords)
+
+
 def get_region_key(addr):
-    """주소로부터 지역 키를 판정한다 (map.html의 필터 로직과 동일한 기준)."""
+    """주소로부터 지역 키를 판정한다 (festival/index.html의 필터 로직과 동일한 기준)."""
     for key, keywords in REGION_KEYWORDS:
-        if addr and any(kw in addr for kw in keywords):
+        if addr_matches_region(addr, keywords):
             return key
     return None
 
@@ -898,11 +766,6 @@ def build_festival_list_page(list_items):
 <title>{month_label} 전국 축제·자연관광지 목록 - HOHO PLAY 축제 지도</title>
 <meta name="description" content="{month_label} 기준 전국에서 진행 중이거나 예정된 축제, 그리고 상시 이용 가능한 자연관광지·캠핑장·수상레저 정보를 지역별로 모은 전체 목록입니다.">
 <link rel="canonical" href="https://hohoplaylab.com/festival/list.html">
-<!-- [ADD] 2026-10-15: 상세페이지(festival/detail/*)에 이미 적용한 것과 같은 이유로
-     noindex, follow 적용. 이 페이지는 매달 내용이 바뀌는 단순 링크 목록이라 그 자체로
-     검색 결과에 노출시키기보다, 크롤러가 이 페이지의 링크를 따라 상세페이지로
-     넘어가게 하는 크롤링 경로 역할로만 쓴다(follow는 유지). -->
-<meta name="robots" content="noindex, follow">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <style>
 body{{font-family:'Noto Sans KR',sans-serif;max-width:720px;margin:0 auto;padding:24px 16px;color:#1e293b;line-height:1.7}}
@@ -931,28 +794,17 @@ h1{{font-size:1.5rem;font-weight:900}}
 
 
 def update_sitemap(list_items):
-    """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목을 지운다(있으면).
-    다른 페이지(홈, 게임, 약관 등) 항목은 절대 건드리지 않는다.
+    """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목만 지우고,
+    festival/list.html 하나만 다시 채운다. 다른 페이지(홈, 게임, 약관 등) 항목은
+    절대 건드리지 않는다.
 
-    [정책 변경 1] 예전에는 축제·자연관광지 상세페이지 하나하나를 전부 sitemap.xml에
+    [정책 변경] 예전에는 축제·자연관광지 상세페이지 하나하나를 전부 sitemap.xml에
     등록했었다(1,130건 중 1,069건, 전체의 95%). 그런데 이 상세페이지들이 공공데이터
     소개문을 거의 그대로 옮긴 짧은 페이지들이라, "직접 쓴 콘텐츠 몇 개 + 복사한 짧은
     페이지 천 개"로 보여 애드센스 심사에 오히려 마이너스라는 지적을 받았다.
     상세페이지 자체는 그대로 두고(URL로 직접 접근 가능하고 festival/list.html에서
-    링크도 걸려있어 검색봇이 링크를 타고 찾아갈 수 있음), sitemap.xml에서는 뺐다.
-
-    [정책 변경 2] 2026-10-15: 처음엔 상세페이지들을 뺀 대신 festival/list.html 하나만
-    sitemap에 올려뒀는데, 그 페이지 자체도 noindex, follow로 바꾸면서(build_festival_
-    list_page 참고) 더 이상 sitemap에 올릴 이유가 없어졌다 — "색인하지 말라"고 해놓고
-    sitemap엔 올려두면 검색엔진에 엇갈린 신호를 주는 셈이기 때문이다. 그래서 이제는
-    festival/detail/*·festival/list.html 둘 다 지우기만 하고 다시 채워 넣지 않는다.
-
-    [정책 변경 3] 2026-10-15: festival/ 자체(지도 메인)도 한때 같이 noindex로
-    바꿨다가, 이미 네이버/구글에 등록되어 있었고 상세/목록페이지와 달리 실질적인
-    콘텐츠(인터랙티브 지도+코스 추천)라는 판단으로 noindex를 다시 뺐다. 그 항목은
-    애초에 이 정규식(festival/detail/*·list.html만 매칭)이 건드리는 범위 밖이라
-    sitemap.xml에 수동으로 한 번만 다시 넣어주면 이후로는 이 자동화가 건드리지
-    않는다."""
+    링크도 걸려있어 검색봇이 링크를 타고 찾아갈 수 있음), sitemap.xml에는 그 목록
+    페이지 하나만 등록해서 제출 URL 대비 색인 품질 비율을 정상적으로 되돌린다."""
     import re
     sitemap_path = 'sitemap.xml'
     if not os.path.exists(sitemap_path):
@@ -969,17 +821,24 @@ def update_sitemap(list_items):
         flags=re.DOTALL
     )
 
+    insertion = (
+        '  <url>\n    <loc>https://hohoplaylab.com/festival/list.html</loc>\n'
+        '    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
+    )
+    content = content.replace('</urlset>', insertion + '</urlset>') if '</urlset>' in content \
+        else content.rstrip() + '\n' + insertion
+
     with open(sitemap_path, 'w', encoding='utf-8') as fp:
         fp.write(content)
-    print(f"sitemap.xml 갱신 완료 (상세페이지 {len(list_items)}건 + festival/list.html 모두 sitemap에서 제외 — 둘 다 noindex 처리됨)")
+    print(f"sitemap.xml 갱신 완료 (상세페이지 {len(list_items)}건은 목록 페이지 링크로만 노출, 사이트맵엔 festival/list.html 1건만 등록)")
 
 
 def pick_region_representatives(today_list):
     """오늘 진행중인 축제 중, 지역별로 마감이 가장 임박한 축제 1개씩을 대표로 뽑는다
-    (지역마다 진행중인 축제가 없으면 그 지역은 건너뛰므로 결과는 최대 17개, REGION_KEYWORDS 참고)."""
+    (지역마다 진행중인 축제가 없으면 그 지역은 건너뛰므로 결과는 최대 6개, 보통 5~6개)."""
     reps = []
     for key, keywords in REGION_KEYWORDS:
-        in_region = [f for f in today_list if f.get('addr') and any(kw in f['addr'] for kw in keywords)]
+        in_region = [f for f in today_list if addr_matches_region(f.get('addr'), keywords)]
         if not in_region:
             continue
         in_region.sort(key=lambda f: f['endDate'])
@@ -990,7 +849,7 @@ def pick_region_representatives(today_list):
 
 
 def build_today_html(festivals, today):
-    """오늘 진행중인 축제 중 지역별 대표 1곳씩(최대 17곳)을 골라
+    """오늘 진행중인 축제 중 지역별 대표 1곳씩(최대 6곳)을 골라
     festival/index.html의 "전국 전체보기" 기본 화면에 그대로 박아넣을 HTML 텍스트를 만든다.
     (특정 지역을 선택했을 때 보이는 목록은 index.html의 자바스크립트가 festivals.json을
     직접 걸러서 클라이언트에서 렌더링한다 — 여기서는 기본 화면만 담당)"""
@@ -1088,15 +947,6 @@ def update_map_html(festivals, today):
 
 
 def main():
-    # [ADD] 2026-10-10: 주소 기반 좌표 보정 준비. KAKAO_REST_KEY가 없으면(시크릿 미등록)
-    # 자동으로 건너뛰고 기존처럼 TourAPI 좌표를 그대로 쓴다 — 키가 없어도 파이프라인이
-    # 깨지지 않는다.
-    kakao_rest_key = os.environ.get('KAKAO_REST_KEY', '')
-    geocode_cache = load_geocode_cache()
-    geocode_stats = {'cache_hit': 0, 'geocoded': 0, 'failed': 0, 'skipped_limit': 0}
-    if not kakao_rest_key:
-        print("KAKAO_REST_KEY가 없어 주소 기반 좌표 보정을 건너뜁니다 (TourAPI 좌표 그대로 사용)")
-
     all_items = fetch_all_items('festival')
 
     festivals = []
@@ -1105,14 +955,11 @@ def main():
         if end_date and end_date < TODAY:
             continue  # 이미 종료된 축제는 제외
 
-        lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
-                                   item.get('mapy'), item.get('mapx'),
-                                   geocode_cache, kakao_rest_key, geocode_stats)
         festivals.append({
             'type': 'festival',
             'title': item.get('title'),
-            'lat': lat,
-            'lng': lng,
+            'lat': item.get('mapy'),
+            'lng': item.get('mapx'),
             'startDate': item.get('eventstartdate'),
             'endDate': end_date,
             'addr': item.get('addr1', ''),
@@ -1164,14 +1011,11 @@ def main():
     try:
         nature_items = fetch_all_items('nature')
         for item in nature_items:
-            lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
-                                       item.get('mapy'), item.get('mapx'),
-                                       geocode_cache, kakao_rest_key, geocode_stats)
             nature_spots.append({
                 'type': 'park',
                 'title': item.get('title'),
-                'lat': lat,
-                'lng': lng,
+                'lat': item.get('mapy'),
+                'lng': item.get('mapx'),
                 'startDate': '',
                 'endDate': '',
                 'addr': item.get('addr1', ''),
@@ -1189,14 +1033,11 @@ def main():
     try:
         camping_items = fetch_all_items('camping')
         for item in camping_items:
-            lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
-                                       item.get('mapy'), item.get('mapx'),
-                                       geocode_cache, kakao_rest_key, geocode_stats)
             camping_spots.append({
                 'type': 'camping',
                 'title': item.get('title'),
-                'lat': lat,
-                'lng': lng,
+                'lat': item.get('mapy'),
+                'lng': item.get('mapx'),
                 'startDate': '',
                 'endDate': '',
                 'addr': item.get('addr1', ''),
@@ -1213,14 +1054,11 @@ def main():
     try:
         watersports_items = fetch_all_items('watersports')
         for item in watersports_items:
-            lat, lng = resolve_coords(item.get('contentid', ''), item.get('addr1', ''),
-                                       item.get('mapy'), item.get('mapx'),
-                                       geocode_cache, kakao_rest_key, geocode_stats)
             watersports_spots.append({
                 'type': 'watersports',
                 'title': item.get('title'),
-                'lat': lat,
-                'lng': lng,
+                'lat': item.get('mapy'),
+                'lng': item.get('mapx'),
                 'startDate': '',
                 'endDate': '',
                 'addr': item.get('addr1', ''),
@@ -1255,22 +1093,6 @@ def main():
         print("폭염 대책기간(5.20~9.30) 밖이라 무더위쉼터는 수집하지 않습니다.")
 
     all_map_items = festivals + nature_spots + camping_spots + watersports_spots + shelters
-
-    # [ADD] 2026-10-10: 이번 실행에서 새로 지오코딩된 게 있으면 캐시 파일에 저장해서
-    # 다음 실행부터는 재사용한다 (KAKAO_REST_KEY가 없거나 신규 변환이 0건이면 건너뜀).
-    if kakao_rest_key and (geocode_stats['geocoded'] > 0):
-        save_geocode_cache(geocode_cache)
-    if kakao_rest_key:
-        print(f"주소 기반 좌표 변환: 캐시 재사용 {geocode_stats['cache_hit']}건, "
-              f"신규 변환 {geocode_stats['geocoded']}건, 변환 실패(TourAPI 좌표 사용) {geocode_stats['failed']}건, "
-              f"이번 실행 한도 초과로 보류 {geocode_stats['skipped_limit']}건")
-
-    # [ADD] 2026-10-10: TourAPI 원본 좌표가 실제 주소와 다른 곳을 가리키는 경우를
-    # data/coord_overrides.json 기준으로 고쳐서 고정한다 (위 load_coord_overrides 설명 참고).
-    coord_overrides = load_coord_overrides()
-    if coord_overrides:
-        applied = apply_coord_overrides(all_map_items, coord_overrides)
-        print(f"좌표 수동 보정 적용: {applied}건 (data/coord_overrides.json)")
 
     # ── 상세페이지 생성을 JSON 저장보다 먼저 한다 ──
     # 자연관광지·캠핑장·수상레저는 하루 40건씩만 새로 만들어지므로(API 할당량 보호),
