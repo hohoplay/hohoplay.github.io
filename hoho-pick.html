@@ -257,6 +257,13 @@
     var PICK_SEED = { '서울': 0, '대구': 1, '부산': 2, '광주': 3, '제주': 4, '인천': 5 };
     function regionOfAddr(addr) {
         var a = String(addr || '').trim();
+        // [FIX] 2026-10-26: TourAPI가 광주시와 전남을 모두 "전남광주통합특별시 …"로 내려준다.
+        // 이 접두로는 '광주'가 영영 안 잡혀 광주 칸이 비었으니, 두 번째 단어가 자치구(~구)면
+        // 광주시, 시·군(~시/~군)이면 전남(여기선 대상 권역이 아니므로 제외)으로 가른다.
+        if (a.indexOf('전남광주통합특별시') === 0) {
+            var second = a.split(/\s+/)[1] || '';
+            return /구$/.test(second) ? '광주' : null;
+        }
         for (var i = 0; i < PICK_REGIONS.length; i++) {
             if (a.indexOf(PICK_REGIONS[i]) === 0) return PICK_REGIONS[i];
         }
