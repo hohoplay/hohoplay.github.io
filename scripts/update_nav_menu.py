@@ -51,7 +51,7 @@ def copy_look(line, ref):
     return line
 
 
-def process(text, desktop):
+def process(text, desktop, active_label=None):
     """한 가지 메뉴(데스크톱 또는 모바일)를 고친다. (새 텍스트, 상태 문구) 반환."""
     if desktop:
         pat_company, pat_play, pat_comm, pat_terms = r'회사 <svg', r'플레이하기 <svg', r'소통(?:·정보)? <svg', r'약관·정책 <svg'
@@ -123,8 +123,19 @@ def process(text, desktop):
         if p == -1:
             return text, 'fail:소통 메뉴에서 파트너 항목을 못 찾음'
         ps, _ = line_bounds(new_comm, p)
-        ref = new_comm[ps:line_bounds(new_comm, p)[1]]
-        new_comm = new_comm[:ps] + ''.join(copy_look(l, ref) for l in to_insert) + new_comm[ps:]
+        new_comm = new_comm[:ps] + ''.join(to_insert) + new_comm[ps:]
+    # [보정] <a> 링크 항목은 반드시 class에 block이 있어야 한 줄씩 쌓인다. 예전 실행에서 파트너(<button>)의
+    # class를 그대로 복사하는 바람에 block이 빠져 "게임공략 꿈해몽 사전"이 한 줄에 붙던 페이지도 여기서 고친다.
+    def _fix_block(m):
+        cls = m.group(2)
+        return m.group(0) if re.search(r'(?<![\w-])block(?![\w-])', cls) else '%sclass="block %s"' % (m.group(1), cls)
+    new_comm = re.sub(r'(^[^\n]*?<a\b[^>\n]*?\s)class="([^"]*)"', _fix_block, new_comm, flags=re.M)
+
+    # [보정] 꿈해몽 사전 페이지에서는 그 항목이 "지금 보는 페이지" 색(보라)이어야 한다. 예전 실행으로 풀렸으면 되돌린다.
+    if active_label:
+        new_comm = re.sub(r'(^[^\n]*>%s</[^\n]*$)' % re.escape(active_label),
+                          lambda m: re.sub(r'color:#(?:475569|334155)', 'color:#4f46e5', m.group(1)), new_comm, flags=re.M)
+
     # 항목 순서를 항상 같게: 커뮤니티 · 호호 매거진 · 아이랑 나들이 지도 · 게임공략 · 꿈해몽 사전 · 파트너
     # (옛 페이지에는 순서가 다르거나 호호 매거진이 빠진 곳이 있다). 모르는 항목이 섞여 있으면 순서는 건드리지 않는다.
     ORDER = ['커뮤니티', '호호 매거진', '아이랑 나들이 지도', '게임공략', '꿈해몽 사전', '파트너']
@@ -176,8 +187,9 @@ def main():
                 untouched += 1
                 continue
             text, notes = original, []
+            active = '꿈해몽 사전' if rel.replace(os.sep, '/').endswith('dream/index.html') else None
             for desktop in (True, False):
-                text, st = process(text, desktop)
+                text, st = process(text, desktop, active)
                 notes.append(('데스크톱' if desktop else '모바일') + ':' + st)
             bad = [n for n in notes if 'fail' in n]
             if bad:
