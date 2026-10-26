@@ -50,76 +50,74 @@
         ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: #4338ca; }
 
-        /* ═══ 검색 히어로 ═══ */
-        .sh-hero {
-            position: relative;
-            border-radius: 32px;
-            padding: 56px 20px 40px;
-            margin-bottom: 36px;
-            color: #fff;
-            text-align: center;
-            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 45%, #7c3aed 75%, #db2777 100%);
-            box-shadow: 0 24px 60px -12px rgba(79, 70, 229, .45);
+        /* ═══ 배너 슬라이드 ═══ */
+        .bn-wrap { position: relative; margin: 0 -16px 22px; }
+        .bn-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; }
+        .bn-track::-webkit-scrollbar { display: none; }
+        .bn-slide {
+            flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow: hidden;
+            min-height: 310px; display: flex; align-items: center; color: #fff; padding: 38px 26px 62px; box-sizing: border-box;
         }
-        .sh-bg { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
-        .sh-orb { position: absolute; border-radius: 50%; filter: blur(48px); opacity: .55; animation: shFloat 11s ease-in-out infinite; }
-        .sh-orb.o1 { width: 280px; height: 280px; background: #f472b6; top: -90px; left: -60px; }
-        .sh-orb.o2 { width: 320px; height: 320px; background: #60a5fa; bottom: -140px; right: -80px; animation-delay: -4s; }
-        .sh-orb.o3 { width: 200px; height: 200px; background: #34d399; top: 40%; left: 55%; opacity: .28; animation-delay: -7s; }
-        .sh-grid {
-            position: absolute; inset: 0; opacity: .12;
-            background-image: radial-gradient(#fff 1px, transparent 1px);
-            background-size: 22px 22px;
-            -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
-            mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
-        }
-        .sh-spark { position: absolute; color: #fde68a; animation: shTwinkle 3.2s ease-in-out infinite; }
-        .sh-spark.s1 { top: 18%; left: 9%; font-size: 20px; }
-        .sh-spark.s2 { top: 30%; right: 8%; font-size: 14px; animation-delay: -1.2s; }
-        .sh-spark.s3 { bottom: 24%; left: 14%; font-size: 12px; animation-delay: -2.1s; }
-        .sh-spark.s4 { bottom: 16%; right: 16%; font-size: 18px; animation-delay: -.6s; }
-        @keyframes shFloat { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(24px,-22px) scale(1.08); } }
-        @keyframes shTwinkle { 0%,100% { opacity: .25; transform: scale(.8) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(20deg); } }
-        @keyframes shFlow { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
-        @keyframes shShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-
-        .sh-inner { position: relative; z-index: 2; }
-        .sh-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .04em;
-            background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+        .bn-slide::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.22), transparent 46%), radial-gradient(circle at 92% 100%, rgba(255,255,255,.16), transparent 42%); }
+        .bn-s1 { background: linear-gradient(135deg, #1e1b4b 0%, #5b21b6 55%, #db2777 100%); }
+        .bn-s2 { background: linear-gradient(135deg, #064e3b 0%, #0f766e 50%, #0ea5e9 100%); }
+        .bn-s3 { background: linear-gradient(135deg, #1e3a8a 0%, #4f46e5 55%, #a855f7 100%); }
+        .bn-s4 { background: linear-gradient(135deg, #7c2d12 0%, #ea580c 55%, #f59e0b 100%); }
+        .bn-deco { position: absolute; right: -6px; bottom: -22px; font-size: 168px; line-height: 1; opacity: .24; pointer-events: none; transform: rotate(-8deg); }
+        .bn-txt { position: relative; z-index: 2; max-width: 540px; }
+        .bn-tag {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; margin-bottom: 14px;
+            font-size: 12px; font-weight: 800; letter-spacing: .03em; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
             -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-            margin-bottom: 18px;
         }
-        .sh-title { font-size: clamp(1.7rem, 5.6vw, 3.1rem); font-weight: 900; line-height: 1.22; letter-spacing: -.02em; margin: 0 0 12px; }
-        .sh-title em {
-            font-style: normal;
-            background: linear-gradient(90deg, #fde68a, #fbcfe8, #a5f3fc, #fde68a);
-            background-size: 200% 100%;
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            animation: shShine 5s linear infinite;
+        .bn-title { font-size: clamp(1.65rem, 6.4vw, 2.8rem); font-weight: 900; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 10px; }
+        .bn-title em { font-style: normal; background: linear-gradient(90deg, #fde68a, #fbcfe8, #a5f3fc, #fde68a); background-size: 200% 100%;
+            -webkit-background-clip: text; background-clip: text; color: transparent; animation: shShine 5s linear infinite; }
+        .bn-sub { font-size: clamp(.88rem, 3.3vw, 1.05rem); color: rgba(255,255,255,.9); line-height: 1.65; margin: 0 0 20px; }
+        .bn-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+        .bn-cta { display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border-radius: 999px; background: #fff; color: #1e1b4b;
+            font-weight: 900; font-size: 14px; text-decoration: none; box-shadow: 0 8px 22px rgba(0,0,0,.22); transition: transform .15s; }
+        .bn-cta:hover { transform: translateY(-2px); }
+        .bn-cta.ghost { background: rgba(255,255,255,.16); color: #fff; border: 1px solid rgba(255,255,255,.45); box-shadow: none; }
+        .bn-dots { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 8px; z-index: 3; }
+        .bn-dot { width: 8px; height: 8px; padding: 0; border: none; border-radius: 999px; background: rgba(255,255,255,.5); cursor: pointer; transition: width .25s, background .25s; }
+        .bn-dot.on { width: 26px; background: #fff; }
+        .bn-arrow { display: none; }
+        @media (min-width: 768px) {
+            .bn-wrap { margin: 0 0 26px; }
+            .bn-track { border-radius: 28px; }
+            .bn-slide { min-height: 370px; padding: 52px 72px 68px; }
+            .bn-deco { right: 56px; bottom: -34px; font-size: 280px; opacity: .3; }
+            .bn-arrow { display: flex; position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 44px; height: 44px; border-radius: 50%;
+                align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 18px;
+                background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+            .bn-arrow:hover { background: rgba(255,255,255,.35); }
+            .bn-prev { left: 18px; } .bn-next { right: 18px; }
         }
-        .sh-sub { font-size: clamp(.86rem, 2.6vw, 1.02rem); color: rgba(255,255,255,.82); margin: 0 auto 28px; max-width: 560px; line-height: 1.7; }
 
-        .sh-box { position: relative; max-width: 700px; margin: 0 auto; text-align: left; }
+        /* ═══ 검색 바 (배너 아래) ═══ */
+        .sb-wrap { position: relative; z-index: 20; margin: 0 0 22px; }
+        .sb-label { display: flex; align-items: center; gap: 6px; margin: 0 6px 10px; font-size: 14px; font-weight: 900; color: #4c1d95; }
+        .sh-box { position: relative; text-align: left; }
         .sh-ring {
             padding: 3px; border-radius: 999px;
             background: linear-gradient(90deg, #f472b6, #a78bfa, #60a5fa, #34d399, #fde68a, #f472b6);
             background-size: 300% 100%;
             animation: shFlow 7s linear infinite;
-            box-shadow: 0 0 0 6px rgba(255,255,255,.08), 0 18px 48px rgba(15,23,42,.45);
+            box-shadow: 0 0 0 5px rgba(167,139,250,.14), 0 12px 32px rgba(124,58,237,.25);
             transition: box-shadow .25s, transform .25s;
         }
-        .sh-ring:focus-within { box-shadow: 0 0 0 7px rgba(255,255,255,.2), 0 0 44px rgba(167,139,250,.75), 0 18px 48px rgba(15,23,42,.45); transform: translateY(-1px); }
+        .sh-ring:focus-within { box-shadow: 0 0 0 6px rgba(167,139,250,.28), 0 0 40px rgba(167,139,250,.7), 0 14px 36px rgba(124,58,237,.3); transform: translateY(-1px); }
         .sh-field { position: relative; display: flex; align-items: center; background: #fff; border-radius: 999px; }
-        .sh-lead { flex: none; padding-left: 22px; display: flex; color: #7c3aed; }
+        .sh-lead { flex: none; padding-left: 20px; display: flex; color: #7c3aed; }
         .sh-input {
             flex: 1; min-width: 0; border: none; outline: none; background: transparent;
-            padding: 20px 10px 20px 12px; font-size: 16px; font-weight: 500; color: #0f172a; font-family: inherit;
+            padding: 16px 10px 16px 12px; font-size: 16px; font-weight: 500; color: #0f172a; font-family: inherit;
         }
         .sh-input::placeholder { color: #94a3b8; font-weight: 400; }
         .sh-go {
-            flex: none; margin: 6px; height: 48px; padding: 0 24px; border: none; cursor: pointer; border-radius: 999px;
+            flex: none; margin: 5px; height: 44px; padding: 0 22px; border: none; cursor: pointer; border-radius: 999px;
             font-family: inherit; font-weight: 900; font-size: 15px; color: #fff; display: flex; align-items: center; gap: 6px;
             background: linear-gradient(135deg, #7c3aed, #db2777);
             box-shadow: 0 6px 18px rgba(124,58,237,.45);
@@ -129,15 +127,14 @@
         .sh-go:active { transform: scale(.97); }
         .sh-go span.t { display: inline; }
         @media (max-width: 480px) {
-            .sh-hero { padding: 40px 14px 30px; border-radius: 26px; }
-            .sh-go { padding: 0; width: 48px; justify-content: center; }
+            .sh-go { padding: 0; width: 44px; justify-content: center; }
             .sh-go span.t { display: none; }
-            .sh-lead { padding-left: 16px; }
-            .sh-input { padding: 17px 6px 17px 8px; }
+            .sh-lead { padding-left: 15px; }
+            .sh-input { padding: 15px 6px 15px 8px; }
         }
 
         .sh-recent {
-            display: none; position: absolute; top: calc(100% + 12px); left: 0; right: 0; z-index: 30;
+            display: none; position: absolute; top: calc(100% + 10px); left: 0; right: 0; z-index: 30;
             background: #fff; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 20px;
             box-shadow: 0 20px 48px rgba(15,23,42,.28); overflow: hidden;
         }
@@ -148,31 +145,33 @@
         .sh-recent-row:hover { background: #f5f3ff; }
         .sh-recent-row span { flex: 1; font-size: 14px; color: #334155; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .sh-recent-row button { background: none; border: none; cursor: pointer; color: #cbd5e1; font-size: 18px; line-height: 1; padding: 4px; }
-
-        .sh-hot { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 22px; }
-        .sh-hot-label { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.7); margin-right: 4px; }
+        .sh-hotbox { padding: 14px 18px 16px; border-top: 1px solid #f1f5f9; }
+        .sh-hotbox:first-child { border-top: none; }
+        .sh-hotbox b { display: block; font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 10px; }
+        .sh-hotchips { display: flex; flex-wrap: wrap; gap: 8px; }
         .sh-chip {
-            border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.12); color: #fff;
+            border: 1px solid #ddd6fe; background: #f5f3ff; color: #6d28d9;
             padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-            transition: background .15s, transform .15s, color .15s;
+            transition: background .15s, color .15s, transform .15s;
         }
-        .sh-chip:hover { background: #fff; color: #6d28d9; transform: translateY(-2px); }
+        .sh-chip:hover { background: #7c3aed; color: #fff; transform: translateY(-2px); }
 
-        /* 바로가기 */
-        .sh-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 36px; }
-        @media (min-width: 768px) { .sh-links { grid-template-columns: repeat(8, 1fr); } }
+        /* 바로가기: 모바일 4x2, PC 8x1 */
+        .sh-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 30px; }
         .sh-link {
-            display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 4px 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 2px 12px; min-width: 0;
             background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; text-decoration: none;
-            font-size: 12px; font-weight: 800; color: #334155; text-align: center; line-height: 1.3;
+            font-size: 12px; font-weight: 800; color: #334155; text-align: center; line-height: 1.3; word-break: keep-all;
             transition: transform .15s, border-color .15s, box-shadow .15s;
         }
         .sh-link i { font-style: normal; font-size: 24px; line-height: 1; }
         .sh-link:hover { transform: translateY(-3px); border-color: #a5b4fc; box-shadow: 0 10px 24px rgba(79,70,229,.14); color: #4338ca; }
+        @media (min-width: 768px) {
+            .sh-links { grid-template-columns: repeat(8, 1fr); gap: 10px; margin-bottom: 34px; }
+        }
 
         /* 결과 */
-        #sh-results { display: none; margin: 0 0 36px; }
+        #sh-results { display: none; margin: 0 0 30px; }
         .sh-res-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .sh-res-head h2 { font-size: 15px; font-weight: 900; color: #1e293b; margin: 0; }
         .sh-res-head h2 b { color: #7c3aed; }
@@ -190,8 +189,10 @@
         .sh-res .sn { font-size: 12px; color: #94a3b8; line-height: 1.55; }
         .sh-empty { text-align: center; padding: 44px 0; color: #94a3b8; font-size: 14px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 16px; }
 
+        @keyframes shFlow { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+        @keyframes shShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
         @media (prefers-reduced-motion: reduce) {
-            .sh-orb, .sh-spark, .sh-ring, .sh-title em { animation: none !important; }
+            .sh-ring, .bn-title em { animation: none !important; }
         }
 
         /* 소개 */
@@ -235,7 +236,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20261026133732_0e5bfd50">
+  <meta name="build-version" content="20261026140237_c271b2d2">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -279,6 +280,10 @@
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3">
 
+                    <!-- 검색 바로가기 아이콘 -->
+                    <button type="button" onclick="shFocusBar()" aria-label="검색" class="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    </button>
                     <!-- 햄버거 버튼 (모바일) -->
                     <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
                         <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
@@ -319,49 +324,89 @@
     <div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
 
     <!-- 메인 콘텐츠 영역 -->
-    <main id="content" class="flex-grow max-w-5xl mx-auto w-full px-4 py-8">
+    <main id="content" class="flex-grow max-w-5xl mx-auto w-full px-4 pt-0 md:pt-6 pb-8">
+        <h1 class="sr-only">호호플레이(HOHO PLAY) - 무료 웹게임 · 운세 · 아이랑 나들이 통합 검색</h1>
 
-        <!-- 검색 히어로 -->
-        <section class="sh-hero" aria-label="호호플레이 검색">
-            <div class="sh-bg" aria-hidden="true">
-                <div class="sh-orb o1"></div><div class="sh-orb o2"></div><div class="sh-orb o3"></div>
-                <div class="sh-grid"></div>
-                <span class="sh-spark s1">✦</span><span class="sh-spark s2">✦</span><span class="sh-spark s3">✦</span><span class="sh-spark s4">✦</span>
-            </div>
-            <div class="sh-inner">
-                <div class="sh-badge">✨ HOHO PLAY 통합 검색</div>
-                <h1 class="sh-title">궁금한 건 <em>호호플레이</em>에서<br>한 번에 찾아보세요</h1>
-                <p class="sh-sub">게임 공략부터 운세, 꿈해몽, 아이랑 나들이 장소까지.<br class="hidden sm:inline"> 가입 없이 바로 검색하고 바로 즐겨요.</p>
-
-                <form class="sh-box" id="sh-form" role="search" onsubmit="return shSubmit(event)">
-                    <div class="sh-ring">
-                        <div class="sh-field">
-                            <span class="sh-lead" aria-hidden="true">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                            </span>
-                            <input id="sh-input" class="sh-input" type="search" name="q" autocomplete="off" enterkeyhint="search"
-                                   placeholder="호호플레이 궁금한 점을 검색해보세요" aria-label="호호플레이 궁금한 점 검색"
-                                   onfocus="shShowRecent()" onblur="shHideRecentLater()">
-                            <button type="submit" class="sh-go" aria-label="검색">
-                                <span class="t">검색</span>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                            </button>
+        <!-- 배너 슬라이드 -->
+        <section class="bn-wrap" aria-roledescription="carousel" aria-label="호호플레이 추천">
+            <div class="bn-track" id="bn-track">
+                <div class="bn-slide bn-s1" aria-label="1 / 4">
+                    <span class="bn-deco" aria-hidden="true">🔮</span>
+                    <div class="bn-txt">
+                        <span class="bn-tag">🔮 오늘의 운세</span>
+                        <h2 class="bn-title">오늘의 운세 <em>모험</em>,<br>시작해 볼까요?</h2>
+                        <p class="bn-sub">오늘 하루를 모험처럼! 지금 바로 시작해 보세요.</p>
+                        <div class="bn-btns">
+                            <a class="bn-cta" href="/fortune-adventure.html">모험 시작하기 →</a>
+                            <a class="bn-cta ghost" href="/fortune/">오늘의 운세 보기</a>
                         </div>
                     </div>
-                    <div id="sh-recent" class="sh-recent"></div>
-                </form>
-
-                <div class="sh-hot" id="sh-hot">
-                    <span class="sh-hot-label">🔥 많이 찾는 검색어</span>
-                    <button type="button" class="sh-chip" data-q="타자">타자</button>
-                    <button type="button" class="sh-chip" data-q="운세">운세</button>
-                    <button type="button" class="sh-chip" data-q="꿈해몽">꿈해몽</button>
-                    <button type="button" class="sh-chip" data-q="사다리">사다리</button>
-                    <button type="button" class="sh-chip" data-q="축제">축제</button>
-                    <button type="button" class="sh-chip" data-q="아이랑 코스">아이랑 코스</button>
+                </div>
+                <div class="bn-slide bn-s2" aria-label="2 / 4">
+                    <span class="bn-deco" aria-hidden="true">🎪</span>
+                    <div class="bn-txt">
+                        <span class="bn-tag">🗺️ 아이랑 나들이 지도</span>
+                        <h2 class="bn-title">이번 주말,<br>아이랑 <em>어디 갈까요?</em></h2>
+                        <p class="bn-sub">전국의 축제와 가볼 만한 곳을 지도에서 지역별로 찾아보세요.</p>
+                        <div class="bn-btns"><a class="bn-cta" href="/festival/">지도 열기 →</a></div>
+                    </div>
+                </div>
+                <div class="bn-slide bn-s3" aria-label="3 / 4">
+                    <span class="bn-deco" aria-hidden="true">🎮</span>
+                    <div class="bn-txt">
+                        <span class="bn-tag">🎮 무료 웹게임</span>
+                        <h2 class="bn-title">설치 없이 바로 즐기는<br><em>웹게임 10종</em></h2>
+                        <p class="bn-sub">타이핑·퍼즐·러닝·레이싱까지, 가입 없이 브라우저에서 바로.</p>
+                        <div class="bn-btns"><a class="bn-cta" href="/game/">게임 하러 가기 →</a></div>
+                    </div>
+                </div>
+                <div class="bn-slide bn-s4" aria-label="4 / 4">
+                    <span class="bn-deco" aria-hidden="true">🗳️</span>
+                    <div class="bn-txt">
+                        <span class="bn-tag">🧠 이번 주 코너</span>
+                        <h2 class="bn-title">투표하고, <em>퀴즈</em> 풀고</h2>
+                        <p class="bn-sub">매주 새 주제로 열리는 익명투표와 5문제 상식테스트.</p>
+                        <div class="bn-btns">
+                            <a class="bn-cta" href="/vote/">익명투표 →</a>
+                            <a class="bn-cta ghost" href="/quiz/">상식테스트</a>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <button type="button" class="bn-arrow bn-prev" id="bn-prev" aria-label="이전 배너">&#10094;</button>
+            <button type="button" class="bn-arrow bn-next" id="bn-next" aria-label="다음 배너">&#10095;</button>
+            <div class="bn-dots" id="bn-dots">
+                <button type="button" class="bn-dot on" aria-label="배너 1"></button>
+                <button type="button" class="bn-dot" aria-label="배너 2"></button>
+                <button type="button" class="bn-dot" aria-label="배너 3"></button>
+                <button type="button" class="bn-dot" aria-label="배너 4"></button>
+            </div>
         </section>
+
+        <!-- 검색 바 + 결과 -->
+        <section class="sb-wrap" id="sb-wrap" aria-label="호호플레이 검색">
+            <div class="sb-label">🔎 궁금한 점, 호호플레이에서 바로 찾아보세요</div>
+            <form class="sh-box" id="sh-form" role="search" onsubmit="return shSubmit(event)">
+                <div class="sh-ring">
+                    <div class="sh-field">
+                        <span class="sh-lead" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                        </span>
+                        <input id="sh-input" class="sh-input" type="search" name="q" autocomplete="off" enterkeyhint="search"
+                               placeholder="호호플레이 궁금한 점을 검색해보세요" aria-label="호호플레이 궁금한 점 검색"
+                               onfocus="shShowRecent();shFocusScroll()" onblur="shHideRecentLater()">
+                        <button type="submit" class="sh-go" aria-label="검색">
+                            <span class="t">검색</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="sh-recent" class="sh-recent"></div>
+            </form>
+        </section>
+
+        <!-- 검색 결과 (검색 바 바로 아래) -->
+        <section id="sh-results" aria-live="polite"></section>
 
         <!-- 바로가기 -->
         <nav class="sh-links" aria-label="바로가기">
@@ -374,9 +419,6 @@
             <a class="sh-link" href="/guides/index.html"><i>📖</i>게임공략</a>
             <a class="sh-link" href="/blog/magazine/"><i>📰</i>호호 매거진</a>
         </nav>
-
-        <!-- 검색 결과 -->
-        <section id="sh-results" aria-live="polite"></section>
 
         <!-- 호호픽 -->
         <div id="hoho-pick-placeholder" style="margin-bottom:40px;"></div>
@@ -597,21 +639,29 @@
             try { localStorage.removeItem(SH_KEY); } catch (e) {}
             shShowRecent();
         }
+        var SH_HOT = ['타자', '운세', '꿈해몽', '사다리', '축제', '아이랑 코스'];
         function shShowRecent() {
             var dd = document.getElementById('sh-recent');
             if (!dd) return;
             var list = shGetRecent();
-            if (!list.length) { dd.innerHTML = ''; dd.style.display = 'none'; return; }
-            var head = '<div class="sh-recent-head"><b>최근 검색어</b>'
-                + '<button type="button" onmousedown="event.preventDefault();shClearRecent()">전체삭제</button></div>';
-            var rows = list.map(function (t) {
-                return '<div class="sh-recent-row" onmousedown="event.preventDefault();shSearch(\'' + shEscJs(t) + '\')">'
-                    + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
-                    + '<span>' + shEsc(t) + '</span>'
-                    + '<button type="button" aria-label="삭제" onmousedown="event.preventDefault();event.stopPropagation();shRemoveRecent(\'' + shEscJs(t) + '\')">×</button>'
-                    + '</div>';
-            }).join('');
-            dd.innerHTML = head + rows;
+            var html = '';
+            if (list.length) {
+                html += '<div class="sh-recent-head"><b>최근 검색어</b>'
+                    + '<button type="button" onmousedown="event.preventDefault();shClearRecent()">전체삭제</button></div>';
+                html += list.map(function (t) {
+                    return '<div class="sh-recent-row" onmousedown="event.preventDefault();shSearch(\'' + shEscJs(t) + '\')">'
+                        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
+                        + '<span>' + shEsc(t) + '</span>'
+                        + '<button type="button" aria-label="삭제" onmousedown="event.preventDefault();event.stopPropagation();shRemoveRecent(\'' + shEscJs(t) + '\')">×</button>'
+                        + '</div>';
+                }).join('');
+            }
+            html += '<div class="sh-hotbox"><b>🔥 많이 찾는 검색어</b><div class="sh-hotchips">'
+                + SH_HOT.map(function (w) {
+                    return '<button type="button" class="sh-chip" onmousedown="event.preventDefault();shSearch(\'' + shEscJs(w) + '\')">' + shEsc(w) + '</button>';
+                }).join('')
+                + '</div></div>';
+            dd.innerHTML = html;
             dd.style.display = 'block';
         }
         function shHideRecentLater() {
@@ -628,6 +678,32 @@
                     .catch(function (e) { shIndexPromise = null; throw e; });
             }
             return shIndexPromise;
+        }
+
+        // 검색 바를 상단 메뉴 바로 아래로 올려서 결과가 바로 보이게
+        function shBarTop() {
+            var w = document.getElementById('sb-wrap');
+            var nav = document.querySelector('nav');
+            var navH = nav ? nav.getBoundingClientRect().height : 80;
+            return w.getBoundingClientRect().top + window.pageYOffset - navH - 12;
+        }
+        function shScrollToBar() {
+            try { window.scrollTo({ top: Math.max(0, shBarTop()), behavior: 'smooth' }); } catch (e) {}
+        }
+        // 모바일: 입력창을 누르면 키보드에 가려지지 않도록 검색 바를 위로 올림
+        function shFocusScroll() {
+            try {
+                if (window.matchMedia('(max-width: 767px)').matches) {
+                    var d = Math.abs(shBarTop() - window.pageYOffset);
+                    if (d > 24) shScrollToBar();
+                }
+            } catch (e) {}
+        }
+        // 상단 검색 아이콘
+        function shFocusBar() {
+            shScrollToBar();
+            var input = document.getElementById('sh-input');
+            if (input) setTimeout(function () { try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); } }, 350);
         }
 
         function shSubmit(e) {
@@ -651,9 +727,7 @@
             }
             box.style.display = 'block';
             box.innerHTML = '<div class="sh-empty">검색하는 중...</div>';
-            if (!opts.noScroll) {
-                try { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
-            }
+            if (!opts.noScroll) shScrollToBar();
             shLoadIndex().then(function (items) {
                 box.innerHTML = shRender(q, items);
             }).catch(function () {
@@ -709,7 +783,7 @@
                 + '<button type="button" onclick="shClose()">닫기 ✕</button></div>';
             if (!scored.length) {
                 return head + '<div class="sh-empty">‘' + shEsc(q) + '’ 검색 결과가 없어요.<br>'
-                    + '<span style="font-size:12px">다른 검색어를 입력하거나 위의 바로가기를 이용해 보세요.</span></div>';
+                    + '<span style="font-size:12px">다른 검색어를 입력하거나 아래 바로가기를 이용해 보세요.</span></div>';
             }
 
             function snippet(it) {
@@ -748,11 +822,6 @@
             }).join('');
         }
 
-        // 인기 검색어 칩
-        document.getElementById('sh-hot').addEventListener('click', function (e) {
-            var b = e.target.closest('.sh-chip');
-            if (b) shSearch(b.getAttribute('data-q'));
-        });
         // 좁은 화면에서는 안내 문구가 잘리지 않도록 짧게
         try { if (window.matchMedia('(max-width: 480px)').matches) document.getElementById('sh-input').placeholder = '궁금한 점을 검색해보세요'; } catch (e) {}
         // /?q=검색어 로 들어오면 바로 검색
@@ -761,6 +830,60 @@
                 var q = new URLSearchParams(location.search).get('q');
                 if (q && q.trim()) shSearch(q, { silent: true, noScroll: false });
             } catch (e) {}
+        })();
+    </script>
+
+    <script>
+        // ═══ 배너 슬라이드 (스와이프 + 자동 넘김) ═══
+        (function () {
+            var track = document.getElementById('bn-track');
+            if (!track) return;
+            var dots = document.querySelectorAll('#bn-dots .bn-dot');
+            var n = track.children.length, cur = 0, hold = false, inView = true, timer = null, resumeT = null;
+            var reduced = false;
+            try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+            function mark(i) {
+                for (var k = 0; k < dots.length; k++) { dots[k].classList.toggle('on', k === i); }
+            }
+            function go(i, instant) {
+                cur = (i + n) % n;
+                try { track.scrollTo({ left: cur * track.clientWidth, behavior: instant ? 'auto' : 'smooth' }); }
+                catch (e) { track.scrollLeft = cur * track.clientWidth; }
+                mark(cur);
+            }
+            track.addEventListener('scroll', function () {
+                var i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+                if (i !== cur && i >= 0 && i < n) { cur = i; mark(i); }
+            }, { passive: true });
+            for (var d = 0; d < dots.length; d++) {
+                (function (idx) { dots[idx].addEventListener('click', function () { pause(); go(idx); }); })(d);
+            }
+            var prev = document.getElementById('bn-prev'), next = document.getElementById('bn-next');
+            if (prev) prev.addEventListener('click', function () { pause(); go(cur - 1); });
+            if (next) next.addEventListener('click', function () { pause(); go(cur + 1); });
+
+            function pause() {
+                hold = true;
+                clearTimeout(resumeT);
+                resumeT = setTimeout(function () { hold = false; }, 8000);
+            }
+            track.addEventListener('touchstart', pause, { passive: true });
+            track.addEventListener('pointerdown', pause);
+            track.addEventListener('mouseenter', function () { hold = true; clearTimeout(resumeT); });
+            track.addEventListener('mouseleave', function () { hold = false; });
+            track.addEventListener('focusin', function () { hold = true; clearTimeout(resumeT); });
+            track.addEventListener('focusout', function () { hold = false; });
+
+            if ('IntersectionObserver' in window) {
+                new IntersectionObserver(function (es) { inView = es[0].isIntersecting; }, { threshold: 0.35 }).observe(track);
+            }
+            if (!reduced) {
+                timer = setInterval(function () {
+                    if (!hold && inView && document.visibilityState === 'visible') go(cur + 1);
+                }, 5500);
+            }
+            window.addEventListener('resize', function () { go(cur, true); });
         })();
     </script>
 
