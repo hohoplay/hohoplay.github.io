@@ -173,13 +173,75 @@
             var href = isMagazine ? ('/blog/magazine/' + p.id + '.html') : ('/blog/posts/' + p.id + '.html');
             var badge = CATEGORY_BADGE[p.category] || { bg: '#eef2ff', fg: '#4f46e5' };
             var excerpt = excerptMap && excerptMap[p.id];
-            return '<a href="' + href + '" class="curated-item">'
+            return '<a href="' + href + '" class="curated-item" data-pid="' + escPost(p.id) + '">'
                 + '<span class="curated-badge" style="background:' + badge.bg + ';color:' + badge.fg + '">' + escPost(p.category) + '</span>'
                 + '<div class="curated-title">' + escPost(p.title) + '</div>'
                 + (excerpt ? ('<div class="curated-excerpt">' + escPost(excerpt) + '</div>') : '')
                 + '<div class="curated-meta">' + fmtPostDate(p.created_at) + (p.author ? (' · 👤 ' + escPost(p.author)) : '') + '</div>'
                 + '</a>';
         }).join('');
+    }
+    // [ADD] 2026-10-26: 커뮤니티(업데이트·공지사항) 카드에도 매거진처럼 본문 3줄 미리보기를 보여준다.
+    // Worker의 공개 /posts 목록 API는 본문(content)을 안 내려주므로, 이미 만들어져 있는 정적 글
+    // 페이지 /blog/posts/{id}.html 을 가져와 본문(.magazine-content)에서 앞부분만 뽑는다.
+    // - 커뮤니티 섹션이 화면 근처에 올 때 한 번만 불러온다(IntersectionObserver).
+    // - 한 번 가져온 발췌문은 sessionStorage에 담아 다른 페이지에서 다시 가져오지 않는다.
+    // - 가져오기에 실패하거나 아직 정적 페이지가 없는 글은 제목만 보인다(기존과 동일).
+    var EXCERPT_CACHE_KEY = 'hohoPickPostExcerpts_v1';
+    function readExcerptCache() {
+        try { return JSON.parse(sessionStorage.getItem(EXCERPT_CACHE_KEY) || '{}') || {}; } catch (e) { return {}; }
+    }
+    function writeExcerptCache(c) {
+        try { sessionStorage.setItem(EXCERPT_CACHE_KEY, JSON.stringify(c)); } catch (e) {}
+    }
+    function fetchPostExcerpt(id) {
+        return fetch('/blog/posts/' + encodeURIComponent(id) + '.html')
+            .then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.text(); })
+            .then(function (html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var el = doc.querySelector('.magazine-content');
+                if (!el) return '';
+                el.querySelectorAll('script,style').forEach(function (n) { n.remove(); });
+                return (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 220);
+            })
+            .catch(function () { return ''; });
+    }
+    function attachCommunityExcerpts(sectionId, bodyId) {
+        var section = document.getElementById(sectionId);
+        var body = document.getElementById(bodyId);
+        if (!section || !body) return;
+        var started = false;
+        function run() {
+            if (started) return;
+            started = true;
+            var cache = readExcerptCache();
+            Array.prototype.forEach.call(body.querySelectorAll('a.curated-item[data-pid]'), function (a) {
+                var id = a.getAttribute('data-pid');
+                function put(text) {
+                    if (!text || a.querySelector('.curated-excerpt')) return;
+                    var d = document.createElement('div');
+                    d.className = 'curated-excerpt';
+                    d.textContent = text;
+                    var title = a.querySelector('.curated-title');
+                    if (title) title.parentNode.insertBefore(d, title.nextSibling);
+                }
+                if (cache[id]) { put(cache[id]); return; }
+                fetchPostExcerpt(id).then(function (text) {
+                    if (!text) return;
+                    cache[id] = text;
+                    writeExcerptCache(cache);
+                    put(text);
+                });
+            });
+        }
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                if (entries.some(function (e) { return e.isIntersecting; })) { io.disconnect(); run(); }
+            }, { rootMargin: '400px 0px' });
+            io.observe(section);
+        } else {
+            run();
+        }
     }
     // [ADD] 2026-10-17: 호호 매거진 카드에도 /blog/magazine/ 목록 페이지와 똑같이 3줄
     // 미리보기를 보여준다. Worker의 공개 /posts 목록 API는 카드 렌더링용이라 일부러
@@ -223,6 +285,7 @@
                 }
                 if (needCommunity) {
                     renderPostCards('hoho-pick-community-body', posts.filter(function (p) { return p.category !== MAGAZINE_CATEGORY; }));
+                    attachCommunityExcerpts('hoho-pick-community', 'hoho-pick-community-body');
                 }
             })
             .catch(function () {
