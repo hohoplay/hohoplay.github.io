@@ -20,17 +20,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>호호레이싱 - HOHO PLAY | 무료 레이싱 게임</title>
-    <meta name="description" content="브라우저에서 바로 즐기는 무료 레이싱 게임. 설치 없이 바로 트랙을 질주하세요.">
+    <meta name="description" content="좌우로 움직여 차량을 피하는 무료 웹 레이싱 게임. 터보·방패·하트 아이템으로 기록에 도전하세요. 설치 없이 PC와 모바일에서 바로 플레이.">
     <link rel="canonical" href="https://hohoplaylab.com/hoho-racing.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="HOHO PLAY">
 <meta property="og:title" content="호호레이싱 - HOHO PLAY | 무료 레이싱 게임">
-<meta property="og:description" content="브라우저에서 바로 즐기는 무료 레이싱 게임. 설치 없이 바로 트랙을 질주하세요.">
+<meta property="og:description" content="좌우로 움직여 차량을 피하는 무료 웹 레이싱 게임. 터보·방패·하트 아이템으로 기록에 도전하세요. 설치 없이 PC와 모바일에서 바로 플레이.">
 <meta property="og:url" content="https://hohoplaylab.com/hoho-racing.html">
 <meta property="og:image" content="https://hohoplaylab.com/data/game5.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="호호레이싱 - HOHO PLAY | 무료 레이싱 게임">
-<meta name="twitter:description" content="브라우저에서 바로 즐기는 무료 레이싱 게임. 설치 없이 바로 트랙을 질주하세요.">
+<meta name="twitter:description" content="좌우로 움직여 차량을 피하는 무료 웹 레이싱 게임. 터보·방패·하트 아이템으로 기록에 도전하세요. 설치 없이 PC와 모바일에서 바로 플레이.">
 <meta name="twitter:image" content="https://hohoplaylab.com/data/game5.png">
     <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
@@ -533,43 +533,53 @@ canvas {
     <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-14 items-center">
-                <a href="/" onclick="stopAllGameAudio();return true;" class="flex items-center gap-2 cursor-pointer">
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','index');return true;" class="flex items-center gap-2 cursor-pointer">
                     <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
                     <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
                     <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-600 ml-1">호호레이싱</span>
                 </a>
                 <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/game/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
-                            <a href="/vote/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
-                            <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🏢 회사 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:140px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','about');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">소개</a>
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','guide');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">고객지원</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/blog/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
-                            <a href="/blog/magazine/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','index');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
+                            <a href="/vote/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
+                            <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
                             <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
                     <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
-                            <a href="/partner/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:140px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','blog');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
+                            <a href="/blog/magazine/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','partner');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
                         </div>
                     </div>
                     <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
                         <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
                         <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/terms/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
-                            <a href="/privacy/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
-                            <a href="/copyright/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
-                            <a href="/guide/" onclick="stopAllGameAudio();return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','terms');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','privacy');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
+                            <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','copyright');return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','fortune');return true;" id="g-nav-cta" style="display:none;align-items:center;gap:6px;background:#f3e8ff;color:#7c3aed;font-weight:700;font-size:14px;padding:8px 16px;border-radius:9999px;text-decoration:none">
+                        <span>🔮</span> 오늘의 운세
+                    </a>
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','fortune');return true;" aria-label="오늘의 운세" id="g-nav-cta-m" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:#f3e8ff;color:#7c3aed;border-radius:9999px;text-decoration:none;font-size:16px">
+                        🔮
+                    </a>
                     <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
                         <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
                         <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
@@ -581,24 +591,24 @@ canvas {
         <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
             <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
                 
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🎮 플레이하기</div>
-                <a href="/game/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">🏢 회사</div>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','about');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">소개</a>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','guide');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">고객지원</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div><div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🎮 플레이하기</div>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','index');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
                 <a href="/vote/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
                 <a href="/quiz/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
-                <a href="/blog/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
-                <a href="/blog/magazine/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
                 <a href="/festival/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
                 <a href="/guides/index.html" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
-                <a href="/partner/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
                 <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <a href="/terms/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
-                <a href="/privacy/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
-                <a href="/copyright/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
-                <a href="/guide/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통</div>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','blog');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
+                <a href="/blog/magazine/" onclick="stopAllGameAudio();return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','partner');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','terms');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','privacy');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
+                <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','copyright');return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
             </div>
         </div>
     </nav>
@@ -676,7 +686,7 @@ canvas {
             <!-- 게임 헤더 -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <a href="/game/" onclick="stopAllGameAudio();return true;" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
+                    <a href="index.html" onclick="stopAllGameAudio();sessionStorage.setItem('page','index');return true;" class="text-indigo-600 font-black mb-3 flex items-center gap-2 hover:opacity-70 transition">
                         <span class="text-xl">←</span> 전체 리스트로 이동
                     </a>
                     <div class="flex items-center gap-3 flex-wrap">
@@ -705,6 +715,17 @@ canvas {
                     document.getElementById('view-count-display').textContent = formatViews(count);
                 })();
                 </script>
+            </div>
+
+
+            <!-- 게임 요약 + 팁 (게임 위) -->
+            <div id="game-summary" style="margin-top:1.25rem;background:#eef2ff;border:1px solid #c7d2fe;border-radius:18px;padding:16px 20px">
+                <p style="margin:0 0 10px;color:#1e293b;font-size:15px;line-height:1.7;font-weight:700">좌우로 움직여 달려오는 차량을 피하며 최대한 오래 달리는 무료 웹 레이싱 게임입니다. 설치나 회원가입 없이 PC와 모바일 브라우저에서 바로 즐길 수 있어요.</p>
+                <ul style="margin:0;padding:0;list-style:none;color:#4338ca;font-size:14px;line-height:1.7;font-weight:700">
+                    <li>💡 PC는 ← → (또는 A D), 모바일은 화면 왼쪽·오른쪽을 누르고 있는 동안 그쪽으로 움직여요.</li>
+                    <li>💡 도로 양쪽 끝의 벽에 닿아도 체력(❤️)이 줄어요. 가장자리에 붙어 달리지 마세요.</li>
+                    <li>💡 ⚡ 터보 상태에서는 부딪혀도 다치지 않고, 부딪힌 차량마다 점수를 얻어요.</li>
+                </ul>
             </div>
 
             <!-- 게임 영역 -->
@@ -2991,176 +3012,207 @@ if(document.readyState==='loading'){
     })();
     </script>
 
-            <div id="desc" class="p-10" style="scroll-margin-top:70px;">
+            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
+<div class="space-y-8">
+
 <div>
-<h3 class="font-black text-lg text-slate-800 mb-3">🎮 어떤 게임인가</h3>
-<p class="text-slate-600 text-xl leading-relaxed font-medium">
-                            트럭과 장애물을 피하며 최대한 멀리, 오래 달리는 게 목표인 러닝형 레이싱 게임이다. PC에서는 좌우 방향키, 모바일에서는 화면 좌우 탭이나 스와이프로 차선을 옮기는 단순한 조작이라 배우는 데 시간이 안 걸리고, 진행될수록 도로 속도가 빨라지면서 순발력을 요구하는 방식으로 난이도가 올라간다.
-                        </p>
+<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 호호레이싱을 만든 이유</h2>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">옛날 레트로 게임 중에 좌우로 움직이며 자동차를 피하는 레이싱 게임을 정말 재미있게 했어요. 그래서 또 하고 싶었는데, 막상 할 만한 곳이 없더라고요.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">그러다 모바일 게임 ‘차차차’가 떠올랐습니다. 레트로 레이싱의 단순한 차량 피하기와 ‘차차차’를 합쳐 보자는 생각으로, 규칙은 단순하게 두고 피버 모드와 아이템을 더해 차를 피해 달리는 게임을 만들었습니다. 그게 호호레이싱입니다.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">노린 재미는 짜릿한 스트레스 해소예요. 복잡한 생각 없이 좌우로만 움직이며 차를 피해 달리다가, 터보 아이템을 먹는 순간 도로 위의 차들을 날려 보내며 질주하는 쾌감을 느끼도록 만들었어요. 그래서 조작은 좌우뿐이고, 한 판이 끝나면 바로 다시 도전할 수 있게 했습니다.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0">처음에는 3차선 도로에서 여유 있게 시작하지만, 점수가 오를수록 차선이 늘어나고 도로가 휘고 뒤에서 트럭까지 달려옵니다. 피하는 긴장감과 터보로 한꺼번에 몰아치는 짜릿함, 이 두 가지가 호호레이싱의 핵심입니다.</p>
 </div>
-<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:14px 18px;margin:16px 0 0">
-<div style="font-weight:800;color:#4338ca;font-size:13px;margin-bottom:6px">🎯 핵심 시스템</div>
-<div style="color:#475569;font-size:14px;line-height:1.7">시간이 지날수록 도로 진행 속도가 점점 빨라지면서 반응해야 할 여유 시간이 줄어드는 방식으로 난이도가 올라갑니다. 피버 게이지가 자연스럽게 채워지다가 100%에 도달하면 무적에 가까운 피버 모드가 자동으로 발동됩니다. 다른 차량이나 장애물과 충돌하면 그 즉시 게임이 종료되고, 그 판의 최고 기록은 자동으로 명예의 전당에 반영됩니다.</div>
 </div>
-<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:14px 18px;margin:16px 0 0">
-<div style="font-weight:800;color:#b45309;font-size:13px;margin-bottom:6px">📝 에디터 노트</div>
-<div style="color:#78716c;font-size:14px;line-height:1.7">조작은 좌우뿐이라 금방 배우는데, 갈수록 빨라져서 나중엔 정신없어요. 짧게 한 판씩 하기 좋아요. 저도 처음엔 속도가 빨라지는 구간에서 번번이 부딪혔는데, 차선 중앙만 고집하지 않고 항상 옆 차선에 여유를 남겨두는 버릇을 들이고부터는 명예의 전당 상위권에도 몇 번 올라가봤어요. 처음엔 그냥 피하기만 해도 되는데, 뒤로 갈수록 미리 예측하고 움직여야 해서 은근 긴장돼요.</div>
-</div>
-<div class="mt-5 space-y-6">
+
 <div>
-<h3 class="font-black text-lg text-slate-800 mb-3">⚡ 점수를 올리는 요령</h3>
-<ul class="text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside space-y-1">
-<li>속도가 빨라지는 구간에서는 장애물이 나타난 뒤 반응하기보다, 미리 다음 차선을 예측해 여유 있게 이동하세요.</li>
-<li>피버 게이지는 자연스럽게 채워지니, 무리해서 아슬아슬하게 회피하기보다 꾸준히 살아남는 게 결국 더 유리합니다.</li>
-<li>한 차선에만 머무르지 말고 항상 좌우로 빠져나갈 여유 공간을 확보해두세요.</li>
-<li>차선 중앙을 고집하기보다, 항상 옆 차선의 여유 공간 쪽으로 미리 이동해두는 습관을 들이세요.</li>
-<li>최고 기록을 노린다면 초반 저속 구간에서 실수하지 않는 게 무엇보다 중요합니다.</li>
-<li>초반 속도가 느릴 때 장애물 배치 패턴을 미리 익혀두면 후반에 훨씬 유리합니다.</li>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">호호레이싱은 위에서 내려오는 차량을 피하며 최대한 오래, 멀리 달리는 무료 웹 레이싱 게임입니다. 설치나 회원가입 없이 PC와 모바일 브라우저에서 바로 플레이할 수 있고, 조작은 좌우 이동뿐이라 규칙을 따로 익힐 필요가 없습니다. 대신 점수가 오를수록 도로가 점점 복잡해져서, 나중에는 어디로 피할지 빠르게 판단해야 합니다.</p>
+</div>
+
+<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>체력(❤️)은 3칸으로 시작하고, 최대 5칸까지 늘어납니다. 체력은 화면 왼쪽 위에 표시돼요.</li>
+<li>승용차·버스·트럭에 부딪히거나 도로 양쪽 끝의 벽에 닿으면 체력이 1칸씩 줄고, 0칸이 되면 레이스가 끝납니다. 한 번 부딪혔다고 바로 끝나지는 않아요.</li>
+<li>달리는 동안 점수가 계속 올라갑니다. 오래 살아남을수록 점수가 쌓이고, 터보 상태에서는 훨씬 빠르게 올라갑니다.</li>
+<li>레이스가 끝나면 이니셜 3글자를 입력해 기록을 남길 수 있고, 기록은 명예의 전당에 저장됩니다.</li>
 </ul>
 </div>
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 18px">
-<div style="font-weight:800;color:#b91c1c;font-size:13px;margin-bottom:6px">🙅 초보자가 자주 하는 실수</div>
-<ul style="color:#475569;font-size:14px;line-height:1.7;list-style:disc;padding-left:1.1em;margin:0">
-<li>속도가 빨라진 뒤에도 초반과 같은 반응 속도로 대응하려다 늦는 경우가 많습니다.</li>
-<li>한쪽 차선에만 머물러 있다가 갑자기 장애물이 나타나면 피할 공간이 없어 충돌하기도 합니다.</li>
-<li>급조작으로 방향을 크게 꺾다가 오히려 다른 장애물과 부딪히는 경우도 흔합니다.</li>
-</ul>
-</div>
+
 <div>
-<h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎁 아이템 3종</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">터보 상태가 아닐 때 일정한 간격으로 아이템이 도로 위에 하나씩 등장합니다. 아이템도 차량처럼 위에서 내려오기 때문에, 먹으러 갈 때는 주변 차량을 먼저 확인하세요.</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div style="background:#fefce8;border:1px solid #fde68a;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#a16207;font-size:15px;margin-bottom:6px">⚡ 터보 (피버 모드)</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">먹으면 한동안 속도가 크게 빨라지고 도로가 어두워지며 무지개빛 차선이 흐릅니다. 이 동안에는 차량이나 벽에 닿아도 체력이 줄지 않고, 부딪힌 차량은 날아가면서 2,000점이 들어옵니다. 남은 시간은 게이지로 확인할 수 있어요.</p>
+</div>
+<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#0369a1;font-size:15px;margin-bottom:6px">🛡️ 방패</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">차량 또는 벽과 부딪히는 충돌을 딱 한 번 막아 주고 사라집니다. 이미 방패를 가지고 있는 동안에는 방패 아이템이 다시 나오지 않습니다.</p>
+</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#b91c1c;font-size:15px;margin-bottom:6px">❤️ 하트</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">체력을 1칸 회복합니다. 체력이 가득 차 있을 때는 하트가 나오지 않아요.</p>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📈 점수에 따라 달라지는 도로</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">호호레이싱은 레벨을 고르는 방식이 아니라, 점수가 오르면 도로 자체가 바뀌는 방식입니다. 바뀌는 순간에는 화면에 알림 문구(LANE 4! 같은)가 뜹니다.</p>
+<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
+<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 38%;padding:10px 14px">점수</div><div style="flex:1;padding:10px 14px">도로에서 달라지는 점</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">시작 ~ 29,999점</div><div style="flex:1;padding:10px 14px">3차선 직선 도로. 승용차만 나옵니다.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">30,000점부터</div><div style="flex:1;padding:10px 14px">4차선으로 늘어나고, 긴 버스가 등장합니다. 직선 구간과 휘어지는 구간이 번갈아 나옵니다.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">80,000점부터</div><div style="flex:1;padding:10px 14px">5차선. 빨간 경고 표시가 뜬 뒤 뒤에서 달려오는 트럭이 나옵니다.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">150,000점부터</div><div style="flex:1;padding:10px 14px">6차선. 차선 하나의 폭이 더 좁아집니다.</div></div>
+</div>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">여기에 더해 점수가 오를수록 도로의 진행 속도가 조금씩 빨라지고, 차량이 등장하는 간격도 짧아집니다.</p>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">복잡한 규칙 없이 바로 시작할 수 있는 가벼운 게임을 찾는 분, 짧게 한 판 하고 점수를 갱신해 나가는 재미를 좋아하는 분, 옛날 차량 피하기 게임이 생각나는 분에게 잘 맞습니다. PC 키보드로도, 모바일 터치로도 할 수 있어서 쉬는 시간에 가볍게 열어 보기에도 부담이 없어요.</p>
+</div>
+
+</div>
+</div>
+                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">조작은 좌우 이동이 전부입니다. 방향을 누르고 있는 동안 계속 그쪽으로 움직이고, 손을 떼면 멈춥니다. 한 번 누르면 칸 단위로 옮겨 가는 방식이 아니라서, 누르는 시간만큼 이동한다고 생각하면 쉬워요.</p>
 <div class="space-y-3">
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm">Q. 명예의 전당 기록은 어떻게 저장되나요?</p>
-<p class="text-slate-600 text-sm">게임이 끝나면 자동으로 그 판의 최고 기록이 명예의 전당에 반영됩니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm">Q. 모바일에서 조작이 잘 안 먹어요.</p>
-<p class="text-slate-600 text-sm">화면을 짧게 탭하거나 스와이프하는 방식이라, 길게 누르지 말고 짧게 터치해보세요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm">Q. 속도가 점점 빨라지나요?</p>
-<p class="text-slate-600 text-sm">네, 시간이 지날수록 도로 속도가 빨라져 갈수록 긴장감이 커집니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm">Q. 충돌하면 바로 게임이 끝나나요?</p>
-<p class="text-slate-600 text-sm">네, 다른 차량이나 장애물과 충돌하면 그 즉시 게임이 종료됩니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm">Q. 최고 기록은 어디서 확인하나요?</p>
-<p class="text-slate-600 text-sm">게임오버 화면과 명예의 전당에서 지금까지의 최고 기록을 확인할 수 있습니다.</p>
-</div>
-</div>
-</div>
-<div>
-<h3 class="font-black text-lg text-slate-800 mb-3">🎯 이런 분에게</h3>
-<p class="text-slate-600 text-xl leading-relaxed font-medium">
-                                    짧은 시간에 스코어를 갱신해나가는 재미를 좋아하거나, 복잡한 룰 없이 바로 시작할 수 있는 가벼운 게임을 찾는 사람에게 맞는다. 명예의 전당에 기록이 남기 때문에 자기 최고 기록을 조금씩 깨나가는 과정 자체를 즐기는 사람에게도 추천할 만하다.
-                                </p>
-</div>
-</div>
-                </div>
-                <div id="guide" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<p class="text-slate-600 text-lg leading-relaxed font-medium mb-8">
-                        좌우로 차선을 옮겨 다니며 트럭과 장애물을 피하기만 하면 됩니다. PC와 모바일 조작법이 달라서 환경에 맞게 확인해두면 좋습니다.
-                    </p>
-<div class="space-y-4">
-<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-xl text-slate-800">PC 이동</span>
-<div class="flex gap-2">
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">PC 키보드</span>
+<div class="flex items-center gap-2 flex-wrap">
 <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">←</kbd>
 <kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">→</kbd>
+<span class="font-bold text-slate-400 px-1">또는</span>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">A</kbd>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">D</kbd>
 </div>
 </div>
-<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-xl text-slate-800">모바일 이동</span>
-<span class="font-bold text-slate-600">화면 좌우 탭 또는 스와이프</span>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">PC 마우스</span>
+<span class="font-bold text-slate-600">게임 화면의 왼쪽/오른쪽 절반을 누르고 있기</span>
 </div>
-<div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-xl text-slate-800">피버 모드</span>
-<span class="font-bold text-slate-600">피버 게이지 100% 시 자동 발동</span>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">모바일 터치</span>
+<span class="font-bold text-slate-600">화면 왼쪽/오른쪽 절반을 누르고 있기</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">터보 (피버 모드)</span>
+<span class="font-bold text-slate-600">⚡ 아이템을 먹으면 자동 발동</span>
 </div>
 </div>
-                </div>
-                <div id="tips" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-6">
+</div>
+
 <div>
-<h3 class="font-black text-lg text-slate-800 mb-3">📌 공략 팁</h3>
-<ul class="space-y-2 text-slate-600 text-lg leading-relaxed font-medium list-disc list-inside">
-<li>속도가 빨라지는 구간에서는 미리 다음 차선을 예측해 여유 있게 이동하는 게 안전합니다.</li>
-<li>피버 게이지는 자연스럽게 채워지니, 무리해서 아슬아슬하게 회피하기보다 꾸준히 살아남는 게 결국 더 유리합니다.</li>
-<li>최고 기록을 노린다면 초반 저속 구간에서 실수하지 않는 게 무엇보다 중요합니다.</li>
+<h2 class="font-black text-xl text-slate-800 mb-3">🧭 이렇게 해 보세요</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li>두 키를 동시에 누르면 나중에 누른 쪽으로 움직입니다.</li>
+<li>모바일에서는 누른 채로 손가락을 화면 중앙선 건너편으로 끌면 방향이 바로 바뀝니다. 뗐다가 다시 누르지 않아도 돼요.</li>
+<li>게임 화면 위에서 조작하는 동안에는 페이지가 스크롤되지 않습니다. 게임이 끝나면 다시 스크롤할 수 있어요.</li>
 </ul>
 </div>
+
 <div>
-<h3 class="font-black text-lg text-slate-800 mb-3">❓ 자주 묻는 질문</h3>
-<div class="space-y-4">
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1">Q. 명예의 전당 기록은 어떻게 저장되나요?</p>
-<p class="text-slate-600">게임이 끝나면 자동으로 그 판의 최고 기록이 명예의 전당에 반영됩니다.</p>
-</div>
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1">Q. 모바일에서 조작이 잘 안 먹어요.</p>
-<p class="text-slate-600">화면을 짧게 탭하거나 스와이프하는 방식이라, 길게 누르지 말고 짧게 터치해보세요.</p>
-</div>
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1">Q. 속도가 점점 빨라지나요?</p>
-<p class="text-slate-600">네, 시간이 지날수록 도로 속도가 빨라져 갈수록 긴장감이 커집니다.</p>
-</div>
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1">Q. 충돌하면 바로 게임이 끝나나요?</p>
-<p class="text-slate-600">네, 다른 차량이나 장애물과 충돌하면 그 즉시 게임이 종료됩니다.</p>
-</div>
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1">Q. 최고 기록은 어디서 확인하나요?</p>
-<p class="text-slate-600">게임오버 화면과 명예의 전당에서 지금까지의 최고 기록을 확인할 수 있습니다.</p>
-</div>
-</div>
+<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>왼쪽 위 ❤️</b> : 남은 체력입니다. 0이 되면 레이스가 끝나요.</li>
+<li><b>화면 가운데 알림 문구</b> : CRASH!, SHIELD!, TURBO!, LANE 4!, CURVE! 처럼 지금 일어난 일을 알려 줍니다.</li>
+<li><b>빨간 삼각형 경고</b> : 5차선 이후에 나타나며, 표시된 차선으로 뒤에서 트럭이 올라온다는 신호입니다.</li>
+<li><b>터보 게이지</b> : 터보 상태일 때 남은 시간이 줄어드는 모습으로 보입니다.</li>
+</ul>
 </div>
 
 <div>
-<h3 class="font-black text-lg text-slate-800 mb-3">🏆 호호레이싱 완벽 가이드</h3>
-<p class="text-slate-600 text-lg leading-relaxed font-medium">
-    좌우 조작만으로 달리는 캐주얼 레이싱입니다. 시간이 지날수록 속도가 빨라지니, 장애물 패턴을 미리 파악하는 게 중요합니다.
-</p>
-<div class="mt-4 mb-2">
-    <span class="inline-flex items-center gap-2 bg-indigo-600 text-white font-black text-sm px-5 py-3 rounded-full">
-        📖 게임공략 자세히 보기
-    </span>
+<h2 class="font-black text-xl text-slate-800 mb-3">🏆 기록 남기기</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">레이스가 끝나면 이니셜 3글자를 입력하고 ‘기록하기’를 눌러 점수를 남깁니다. 명예의 전당에는 점수가 높은 상위 5개 기록이 표시되고, ‘인증하고 공유하기’ 버튼으로 점수 이미지를 저장하거나 공유할 수 있어요. 이어서 하려면 ‘다시 도전하기’, 기록 화면을 정리하고 처음부터 시작하려면 ‘새로 하기’를 누르세요.</p>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<h4 class="font-black text-slate-800 text-base mb-2">1️⃣ 어떤 게임인지 & 조작법</h4>
-<p class="text-slate-600 leading-relaxed">좌우 방향키(또는 좌우 터치)만으로 차선을 이동하며 장애물을 피하는 캐주얼 레이싱입니다. 시간이 지날수록 도로 진행 속도가 점점 빨라지면서 난이도가 올라갑니다. 다른 차량이나 장애물에 충돌하면 즉시 게임이 종료됩니다.</p>
 </div>
-
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<h4 class="font-black text-slate-800 text-base mb-2">2️⃣ 점수를 올리는 요령</h4>
-<p class="text-slate-600 leading-relaxed">초반 속도가 느릴 때 장애물 배치 패턴을 미리 익혀두면 후반에 훨씬 유리합니다. 한 차선에만 머무르지 말고, 항상 좌우로 빠져나갈 여유 공간을 확보하며 이동하세요. 갑작스러운 장애물엔 급하게 반응하기보다 미리 예측하고 움직이는 게 안전합니다.</p>
 </div>
+                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
 
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<h4 class="font-black text-slate-800 text-base mb-2">3️⃣ 초보자가 자주 하는 실수</h4>
-<p class="text-slate-600 leading-relaxed">속도가 빨라진 뒤에도 초반과 같은 반응 속도로 대응하려다 늦는 경우가 많습니다. 한쪽 차선에만 머물러 있다가 갑자기 장애물이 나타나면 피할 공간이 없어 충돌하기도 합니다. 급조작으로 방향을 크게 꺾다가 오히려 다른 장애물과 부딪히는 경우도 흔합니다.</p>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 점수를 올리는 요령</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>점수의 대부분은 터보에서 나옵니다.</b> 평소에는 달리는 동안 점수가 천천히 오르지만, 터보 상태에서는 오르는 속도가 열 배 넘게 빨라집니다. 오래 살아남는 것만큼 터보를 자주 먹는 것이 기록에 큰 영향을 줍니다.</li>
+<li><b>터보 중에는 피하지 말고 들이받으세요.</b> 체력이 줄지 않고, 부딪힌 차량 하나당 2,000점이 들어옵니다. 차량이 많은 쪽으로 가는 것이 오히려 이득이에요.</li>
+<li><b>터보가 끝나기 전에 마음의 준비를 하세요.</b> 게이지가 거의 줄었다면 슬슬 들이받기를 멈추고, 평소처럼 피할 길을 보는 쪽으로 전환해야 합니다. 터보가 끝난 직후 첫 충돌이 가장 아깝습니다.</li>
+<li><b>아이템은 상황에 맞게 먹으세요.</b> 체력이 가득 차 있으면 하트가, 방패가 있으면 방패가 나오지 않기 때문에 그런 상태에서는 터보가 나올 가능성이 상대적으로 높아집니다.</li>
+<li><b>차선이 늘어나는 순간을 조심하세요.</b> LANE 알림이 뜨면 차선 하나의 폭이 좁아져 틈이 줄어듭니다. 알림이 뜨면 먼저 주변 차량 위치를 다시 확인하세요.</li>
+<li><b>빨간 삼각형이 보이면 그 차선을 비우세요.</b> 5차선부터는 경고 표시가 뜬 차선으로 뒤에서 트럭이 빠르게 올라옵니다. 앞만 보다가 뒤에서 오는 트럭에 부딪히는 경우가 많아요.</li>
+</ul>
 </div>
 
-<div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<h4 class="font-black text-slate-800 text-base mb-2">4️⃣ 한 단계 더</h4>
-<p class="text-slate-600 leading-relaxed">차선 중앙을 고집하기보다, 항상 옆 차선의 여유 공간 쪽으로 미리 이동해두는 습관을 들이세요. 명예의 전당에서 최고 기록을 확인하며 구간별 목표를 세우면 실력이 꾸준히 늘어납니다.</p>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>방향을 누른 채로 도로 끝까지 가서 벽에 닿는 경우. 차량이 아니어도 체력이 줄어듭니다.</li>
+<li>한쪽 차선에만 머물다가 갑자기 차량이 나타나 피할 공간이 없어지는 경우. 늘 양쪽 중 한 곳은 비워 두세요.</li>
+<li>모바일에서 화면을 톡톡 치기만 해서 원하는 만큼 움직이지 못하는 경우. 누르고 있는 동안 이동합니다.</li>
+<li>터보가 끝난 줄 모르고 계속 차량에 돌진하는 경우. 게이지를 보면서 끝나기 전에 평소 모드로 돌아오세요.</li>
+<li>차선이 늘어난 뒤에도 이전과 같은 폭으로 움직이다가 옆 차량과 부딪히는 경우.</li>
+<li>5차선 이후 경고 삼각형을 무시하는 경우.</li>
+</ul>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
+<div class="space-y-3">
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서 조작이 잘 안 먹어요.</p>
+<p class="text-slate-600 text-sm md:text-base">이 게임은 톡 치는 방식이 아니라 누르고 있는 동안 움직이는 방식입니다. 화면 왼쪽을 누르고 있으면 왼쪽으로, 오른쪽을 누르고 있으면 오른쪽으로 이동해요. 짧게 톡 치면 조금밖에 움직이지 않으니 원하는 위치까지 누르고 계세요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 충돌하면 바로 게임이 끝나나요?</p>
+<p class="text-slate-600 text-sm md:text-base">아니요. 체력이 3칸으로 시작하고, 차량이나 벽에 부딪힐 때마다 1칸씩 줄어듭니다. 체력이 0이 되어야 레이스가 끝나요. 방패가 있으면 첫 충돌은 체력이 줄지 않고 방패만 사라집니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 도로 끝에 닿으면 어떻게 되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">도로 양쪽 끝의 벽에 닿아도 차량과 부딪힌 것처럼 체력이 1칸 줄어듭니다. 방향을 누른 채 끝까지 가 버리면 체력이 연달아 깎일 수 있으니 주의하세요. 터보 상태에서는 벽에 닿아도 체력이 줄지 않습니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 체력은 어떻게 회복하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">도로에 나오는 ❤️ 하트를 먹으면 체력이 1칸 회복됩니다. 체력은 최대 5칸까지 늘어나고, 이미 가득 찼을 때는 하트가 나오지 않아요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 터보(피버 모드)는 어떻게 발동하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">⚡ 아이템을 먹으면 발동합니다. 한동안 속도가 빨라지고 체력이 줄지 않으며, 부딪힌 차량이 날아가면서 2,000점씩 얻습니다. 남은 시간은 게이지로 확인할 수 있고, 시간이 끝나면 다시 평소처럼 차량을 피해야 해요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 차선이 왜 점점 늘어나나요?</p>
+<p class="text-slate-600 text-sm md:text-base">점수에 따라 도로가 바뀌도록 만들었기 때문입니다. 30,000점에서 4차선, 80,000점에서 5차선, 150,000점에서 6차선이 되고, 그때마다 알림 문구가 나타납니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 명예의 전당 기록은 어디에 저장되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">지금 사용하는 브라우저의 저장 공간에 저장됩니다. 그래서 다른 기기나 다른 브라우저에서는 보이지 않고, 브라우저의 사이트 데이터를 지우면 기록도 함께 사라져요. 상위 5개 기록만 보관됩니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. PC와 모바일 모두 할 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네, 둘 다 가능합니다. PC는 키보드(← → 또는 A D)나 마우스, 모바일은 화면 터치로 플레이할 수 있어요. 설치나 로그인은 필요하지 않습니다.</p>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
+<div class="flex flex-wrap gap-3">
+<a href="/guides/hoho-racing-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 호호레이싱 공략 전체 보기</a>
+<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
+<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
+</div>
 </div>
 
 </div>
-
-<div class="mt-6 text-center">
-    <a href="/guides/hoho-racing-guide.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition">
-        📄 더 자세한 공략 전체 보기
-    </a>
 </div>
-
-</div>
-</div>
-                </div>
-                <div id="info" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+                <div id="info" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">캔버스 / 자바스크립트</p></div>
@@ -3397,17 +3449,6 @@ if(document.readyState==='loading'){
                     style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;resize:vertical;min-height:100px"></textarea>
             </div>
 
-            <div style="margin-bottom:8px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">보안문자 <span style="color:#f87171">*</span></label>
-                <div style="display:flex;align-items:center;gap:8px">
-                    <div id="iq-captcha-q" style="flex:1;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;color:#334155;text-align:center;user-select:none"></div>
-                    <input id="iq-captcha-a" type="text" inputmode="numeric" autocomplete="off" placeholder="정답"
-                        style="width:90px;flex:none;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;text-align:center">
-                    <button type="button" onclick="refreshInquiryCaptcha()" aria-label="보안문자 새로고침"
-                        style="flex:none;width:44px;height:44px;border-radius:12px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center">↻</button>
-                </div>
-            </div>
-
             <div id="iq-error" style="display:none;margin-top:10px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600"></div>
             <div id="iq-success" style="display:none;margin-top:10px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center">
                 ✅ 메일 앱이 열립니다. 내용을 확인하고 전송해 주세요!
@@ -3428,19 +3469,8 @@ if(document.readyState==='loading'){
     <script>
         const INQUIRY_GAME_NAME = '호호레이싱';
 
-        let iqCaptchaAnswer = 0;
-        function refreshInquiryCaptcha() {
-            const a = Math.floor(Math.random() * 8) + 1;
-            const b = Math.floor(Math.random() * 8) + 1;
-            iqCaptchaAnswer = a + b;
-            const q = document.getElementById('iq-captcha-q');
-            if (q) q.textContent = a + ' + ' + b + ' = ?';
-            const aEl = document.getElementById('iq-captcha-a');
-            if (aEl) aEl.value = '';
-        }
         function openInquiryModal() {
             document.getElementById('inquiry-modal').style.display = 'flex';
-            refreshInquiryCaptcha();
         }
         function closeInquiryModal() {
             document.getElementById('inquiry-modal').style.display = 'none';
@@ -3450,7 +3480,6 @@ if(document.readyState==='loading'){
             const email = document.getElementById('iq-email').value.trim();
             const type = document.getElementById('iq-type').value;
             const msg = document.getElementById('iq-msg').value.trim();
-            const captchaAnswer = document.getElementById('iq-captcha-a').value.trim();
             const err = document.getElementById('iq-error');
             const suc = document.getElementById('iq-success');
             const btn = document.getElementById('iq-btn');
@@ -3460,7 +3489,7 @@ if(document.readyState==='loading'){
             err.style.display = 'none';
             suc.style.display = 'none';
 
-            if (!email || !type || !msg || !captchaAnswer) {
+            if (!email || !type || !msg) {
                 err.textContent = '필수 항목(*)을 모두 입력해 주세요.';
                 err.style.display = 'block';
                 return;
@@ -3468,12 +3497,6 @@ if(document.readyState==='loading'){
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 err.textContent = '올바른 이메일 주소를 입력해 주세요.';
                 err.style.display = 'block';
-                return;
-            }
-            if (parseInt(captchaAnswer, 10) !== iqCaptchaAnswer) {
-                err.textContent = '보안문자가 올바르지 않습니다. 다시 확인해 주세요.';
-                err.style.display = 'block';
-                refreshInquiryCaptcha();
                 return;
             }
 
@@ -3493,7 +3516,6 @@ if(document.readyState==='loading'){
                 document.getElementById('iq-email').value = '';
                 document.getElementById('iq-type').value = '';
                 document.getElementById('iq-msg').value = '';
-                refreshInquiryCaptcha();
             }, 1200);
         }
     </script>
@@ -3505,7 +3527,7 @@ if(document.readyState==='loading'){
             .then(function(html){
                 document.getElementById('footer-placeholder').outerHTML = html;
                 var s = document.createElement('script');
-                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{window.location.href = "/" + page + "/";}}';
+                s.textContent = 'function footerNav(page){if(typeof navigateTo==="function"){navigateTo(page);window.scrollTo({top:0,behavior:"smooth"});}else{sessionStorage.setItem("page",page);window.location.href="index.html";}}';
                 document.body.appendChild(s);
             });
     </script>
