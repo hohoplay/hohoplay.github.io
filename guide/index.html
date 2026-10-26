@@ -148,7 +148,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-    <style>.faq-tab.active{background:#4f46e5;color:#fff;border-color:#4f46e5}.faq-tab.active:hover{color:#fff;border-color:#4f46e5}</style>
+    <style>.faq-tab.active{background:#4f46e5;color:#fff;border-color:#4f46e5}.faq-tab.active:hover{color:#fff;border-color:#4f46e5}.faq-bar-in{scrollbar-width:none}.faq-bar-in::-webkit-scrollbar{display:none}.faq-bar-in>:first-child{margin-left:auto}.faq-bar-in>:last-child{margin-right:auto}</style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -259,9 +259,9 @@
                         <h1 class="text-4xl font-black mb-4">FAQ · 자주 묻는 질문</h1>
                         <p class="text-slate-500 text-lg">HOHO PLAY 이용 중 자주 묻는 질문을 메뉴별로 모았습니다.</p>
                     </div>
-                    <div role="tablist" class="flex flex-wrap justify-center gap-2 mb-10"><button type="button" role="tab" data-faq-tab="faq-game" aria-selected="true" onclick="faqTab('faq-game')" class="faq-tab active px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🎮 게임 · 미니게임</button><button type="button" role="tab" data-faq-tab="faq-vote" aria-selected="false" onclick="faqTab('faq-vote')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🗳️ 익명투표 · 상식테스트</button><button type="button" role="tab" data-faq-tab="faq-fortune" aria-selected="false" onclick="faqTab('faq-fortune')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🔮 운세</button><button type="button" role="tab" data-faq-tab="faq-map" aria-selected="false" onclick="faqTab('faq-map')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🗺️ 아이랑 나들이 지도</button><button type="button" role="tab" data-faq-tab="faq-info" aria-selected="false" onclick="faqTab('faq-info')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">📖 게임공략 · 꿈해몽 사전</button><button type="button" role="tab" data-faq-tab="faq-community" aria-selected="false" onclick="faqTab('faq-community')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">💬 커뮤니티 · 호호 매거진 · 호호픽</button><button type="button" role="tab" data-faq-tab="faq-support" aria-selected="false" onclick="faqTab('faq-support')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🤝 문의 · 제휴 · 정책</button></div>
-                    <div id="faq-game" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12">
-                        <h2 class="text-2xl font-black mb-6">🎮 게임 · 미니게임</h2>
+                    <div class="faq-bar" style="position:sticky;top:56px;z-index:10;background:#fff;border-bottom:1px solid #f1f5f9;margin:0 0 32px;padding:12px 0"><div class="faq-bar-in" style="display:flex;gap:8px;overflow-x:auto"><a href="#faq-game" data-faq-tab="faq-game" onclick="return faqGo('faq-game')" class="faq-tab active px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🎮 게임 · 미니게임</a><a href="#faq-vote" data-faq-tab="faq-vote" onclick="return faqGo('faq-vote')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🗳️ 익명투표 · 상식테스트</a><a href="#faq-fortune" data-faq-tab="faq-fortune" onclick="return faqGo('faq-fortune')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🔮 운세</a><a href="#faq-map" data-faq-tab="faq-map" onclick="return faqGo('faq-map')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🗺️ 아이랑 나들이 지도</a><a href="#faq-info" data-faq-tab="faq-info" onclick="return faqGo('faq-info')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">📖 게임공략 · 꿈해몽 사전</a><a href="#faq-community" data-faq-tab="faq-community" onclick="return faqGo('faq-community')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">💬 커뮤니티 · 호호 매거진 · 호호픽</a><a href="#faq-support" data-faq-tab="faq-support" onclick="return faqGo('faq-support')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🤝 문의 · 제휴 · 정책</a></div></div>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-game" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🎮 게임 · 미니게임</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -335,8 +335,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-vote" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🗳️ 익명투표 · 상식테스트</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-vote" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🗳️ 익명투표 · 상식테스트</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -354,8 +354,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-fortune" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🔮 운세</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-fortune" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🔮 운세</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -401,8 +401,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-map" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🗺️ 아이랑 나들이 지도</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-map" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🗺️ 아이랑 나들이 지도</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -448,8 +448,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-info" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">📖 게임공략 · 꿈해몽 사전</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-info" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">📖 게임공략 · 꿈해몽 사전</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -474,8 +474,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-community" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">💬 커뮤니티 · 호호 매거진 · 호호픽</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-community" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">💬 커뮤니티 · 호호 매거진 · 호호픽</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -507,8 +507,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-support" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🤝 문의 · 제휴 · 정책</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-support" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🤝 문의 · 제휴 · 정책</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -878,9 +878,9 @@
                         <h1 class="text-4xl font-black mb-4">FAQ · 자주 묻는 질문</h1>
                         <p class="text-slate-500 text-lg">HOHO PLAY 이용 중 자주 묻는 질문을 메뉴별로 모았습니다.</p>
                     </div>
-                    <div role="tablist" class="flex flex-wrap justify-center gap-2 mb-10"><button type="button" role="tab" data-faq-tab="faq-game" aria-selected="true" onclick="faqTab('faq-game')" class="faq-tab active px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🎮 게임 · 미니게임</button><button type="button" role="tab" data-faq-tab="faq-vote" aria-selected="false" onclick="faqTab('faq-vote')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🗳️ 익명투표 · 상식테스트</button><button type="button" role="tab" data-faq-tab="faq-fortune" aria-selected="false" onclick="faqTab('faq-fortune')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🔮 운세</button><button type="button" role="tab" data-faq-tab="faq-map" aria-selected="false" onclick="faqTab('faq-map')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🗺️ 아이랑 나들이 지도</button><button type="button" role="tab" data-faq-tab="faq-info" aria-selected="false" onclick="faqTab('faq-info')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">📖 게임공략 · 꿈해몽 사전</button><button type="button" role="tab" data-faq-tab="faq-community" aria-selected="false" onclick="faqTab('faq-community')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">💬 커뮤니티 · 호호 매거진 · 호호픽</button><button type="button" role="tab" data-faq-tab="faq-support" aria-selected="false" onclick="faqTab('faq-support')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition">🤝 문의 · 제휴 · 정책</button></div>
-                    <div id="faq-game" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12">
-                        <h2 class="text-2xl font-black mb-6">🎮 게임 · 미니게임</h2>
+                    <div class="faq-bar" style="position:sticky;top:56px;z-index:10;background:#fff;border-bottom:1px solid #f1f5f9;margin:0 0 32px;padding:12px 0"><div class="faq-bar-in" style="display:flex;gap:8px;overflow-x:auto"><a href="#faq-game" data-faq-tab="faq-game" onclick="return faqGo('faq-game')" class="faq-tab active px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🎮 게임 · 미니게임</a><a href="#faq-vote" data-faq-tab="faq-vote" onclick="return faqGo('faq-vote')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🗳️ 익명투표 · 상식테스트</a><a href="#faq-fortune" data-faq-tab="faq-fortune" onclick="return faqGo('faq-fortune')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🔮 운세</a><a href="#faq-map" data-faq-tab="faq-map" onclick="return faqGo('faq-map')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🗺️ 아이랑 나들이 지도</a><a href="#faq-info" data-faq-tab="faq-info" onclick="return faqGo('faq-info')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">📖 게임공략 · 꿈해몽 사전</a><a href="#faq-community" data-faq-tab="faq-community" onclick="return faqGo('faq-community')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">💬 커뮤니티 · 호호 매거진 · 호호픽</a><a href="#faq-support" data-faq-tab="faq-support" onclick="return faqGo('faq-support')" class="faq-tab px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition" style="text-decoration:none;flex:none;white-space:nowrap">🤝 문의 · 제휴 · 정책</a></div></div>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-game" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🎮 게임 · 미니게임</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -954,8 +954,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-vote" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🗳️ 익명투표 · 상식테스트</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-vote" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🗳️ 익명투표 · 상식테스트</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -973,8 +973,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-fortune" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🔮 운세</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-fortune" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🔮 운세</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -1020,8 +1020,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-map" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🗺️ 아이랑 나들이 지도</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-map" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🗺️ 아이랑 나들이 지도</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -1067,8 +1067,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-info" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">📖 게임공략 · 꿈해몽 사전</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-info" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">📖 게임공략 · 꿈해몽 사전</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -1093,8 +1093,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-community" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">💬 커뮤니티 · 호호 매거진 · 호호픽</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-community" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">💬 커뮤니티 · 호호 매거진 · 호호픽</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -1126,8 +1126,8 @@
                             </details>
                         </div>
                     </div>
-                    <div id="faq-support" data-faq-panel="1" role="tabpanel" class="faq-panel mb-12" style="display:none">
-                        <h2 class="text-2xl font-black mb-6">🤝 문의 · 제휴 · 정책</h2>
+                    <div class="faq-sec mb-12">
+                        <h2 id="faq-support" data-faq-sec="1" class="text-2xl font-black mb-6" style="scroll-margin-top:140px">🤝 문의 · 제휴 · 정책</h2>
                         <div class="space-y-3">
                             <details class="bg-white rounded-2xl border border-slate-100 shadow-sm group">
                                 <summary class="cursor-pointer list-none p-6 font-bold text-slate-800 flex justify-between items-center gap-4">
@@ -1629,25 +1629,42 @@
     //    canvas.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 <script>
-function faqTab(id, keepHash) {
-    var panels = document.querySelectorAll('[data-faq-panel]');
-    var found = false, i;
-    for (i = 0; i < panels.length; i++) { if (panels[i].id === id) found = true; }
-    if (!found) return;
-    for (i = 0; i < panels.length; i++) { panels[i].style.display = (panels[i].id === id) ? '' : 'none'; }
+function faqMark(id) {
     var tabs = document.querySelectorAll('[data-faq-tab]');
-    for (i = 0; i < tabs.length; i++) {
+    var bar = document.querySelector('.faq-bar-in');
+    for (var i = 0; i < tabs.length; i++) {
         var on = tabs[i].getAttribute('data-faq-tab') === id;
-        if (on) { tabs[i].classList.add('active'); } else { tabs[i].classList.remove('active'); }
-        tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on) {
+            if (!tabs[i].classList.contains('active')) {
+                tabs[i].classList.add('active');
+                if (bar && bar.scrollWidth > bar.clientWidth) {
+                    bar.scrollTo({ left: tabs[i].offsetLeft - (bar.clientWidth - tabs[i].offsetWidth) / 2, behavior: 'smooth' });
+                }
+            }
+        } else { tabs[i].classList.remove('active'); }
     }
-    if (!keepHash) { try { history.replaceState(null, '', location.pathname + location.search + '#' + id); } catch (e) {} }
 }
-function faqFromHash() {
+function faqGo(id) {
+    var el = document.getElementById(id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); faqMark(id); }
+    return false;
+}
+function faqSpy() {
+    var secs = document.querySelectorAll('[data-faq-sec]');
+    if (!secs.length) return;
+    var cur = secs[0].id;
+    for (var i = 0; i < secs.length; i++) {
+        if (secs[i].getBoundingClientRect().top <= 160) cur = secs[i].id;
+    }
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = secs[secs.length - 1].id;
+    faqMark(cur);
+}
+window.addEventListener('scroll', faqSpy, { passive: true });
+document.addEventListener('DOMContentLoaded', function () {
     var h = (location.hash || '').replace('#', '');
-    if (h && document.getElementById(h) && document.getElementById(h).hasAttribute('data-faq-panel')) { faqTab(h, true); }
-}
-window.addEventListener('hashchange', faqFromHash);
-document.addEventListener('DOMContentLoaded', faqFromHash);
+    if (h && document.getElementById(h) && document.getElementById(h).hasAttribute('data-faq-sec')) {
+        setTimeout(function () { faqGo(h); }, 100);
+    }
+});
 </script>
 </body>
