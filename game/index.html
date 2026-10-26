@@ -289,7 +289,7 @@
         <h2 style="font-size:1.25rem;font-weight:800;margin:1.25rem 0 .5rem">운세 서비스</h2>
         <p style="line-height:1.8">
             <a href="/fortune/" style="color:#4f46e5;text-decoration:underline">오늘의 운세</a>, 사주, 타로, 별자리 월간운세, 띠별 주간운세, MBTI 결합 콘텐츠와
-            <a href="/fortune-adventure.html" style="color:#4f46e5;text-decoration:underline">오늘의 운세 모험</a> 등을 제공합니다.
+            오늘의 운세 모험 등을 제공합니다.
             AI가 임의로 문장을 지어내는 방식이 아니라, 사주 명리학과 정해진 계산 로직을 바탕으로
             결과를 만들어내며, 입력하신 정보는 외부 서버로 전송되지 않고 브라우저 안에서만 처리됩니다.
             키워드로 꿈의 의미를 찾아보는 <a href="/dream/" style="color:#4f46e5;text-decoration:underline">꿈해몽 사전</a>도 함께 제공합니다.
@@ -458,13 +458,6 @@
             { id: 'g9',  name: 'HOHO DASH', genre: '러닝 액션', desc: '도트 그래픽으로 장애물을 피해 달리는 러닝 게임. 단순하지만 손을 못 떼요.', version: 'v1.0.0', file: '/hoho-dash.html', img: '/data/game9.png' },
             { id: 'g10', name: '낱말퍼즐 던전', genre: '낱말 퍼즐', desc: '던전을 테마로 한 낱말 맞추기 퍼즐. 단어가 막히면 은근 오래 걸려요.', version: 'v1.0.0', file: '/word-puzzle-dungeon.html', img: '/data/game10.png' }
         ];
-        // ★ 배너 설정 (이미지 경로와 링크 URL을 여기서 수정)
-        const bannerConfig = {
-            img: '/data/banner.png',
-            link: '/fortune-adventure.html',  // 독립 파일로 이동
-            alt: '오늘의 운세 모험 시작하기'
-        };
-
         // 게임 목록 페이지 HTML 생성
         function buildIndexPage() {
             function makeCard(game) {
@@ -516,20 +509,10 @@
                 cards = gameData.map(makeCard).join('');
             }
 
-            var hasBanner = bannerConfig.img && bannerConfig.img.trim() !== '';
-            var bannerInner = hasBanner
-                ? '<img src="' + bannerConfig.img + '" alt="' + bannerConfig.alt + '" style="width:100%;height:auto;display:block;">'
-                : '<div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">'
-                  + '<span style="font-size:32px;">\uD83D\uDDBC\uFE0F</span>'
-                  + '<span style="font-size:12px;font-weight:800;color:#a5b4fc;letter-spacing:.07em;">BANNER &nbsp;\u00B7&nbsp; \uAD8C\uC7A5 \uC0AC\uC774\uC988: 1200 \u00D7 240 px</span>'
-                  + '<span style="font-size:11px;color:#c4b5fd;">bannerConfig.img \uC5D0 \uC774\uBBF8\uC9C0 \uACBD\uB85C, bannerConfig.link \uC5D0 URL\uC744 \uC785\uB825\uD558\uC138\uC694</span>'
-                  + '</div>';
-
             return '<div class="page-transition">'
                 + '<style>'
-                + '.top-mobile-banner{display:none;margin-bottom:20px;}'
                 + '.game-icon-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:48px;}'
-                + '@media(max-width:767px){.top-mobile-banner{display:block;}.game-icon-grid{grid-template-columns:1fr;}}'
+                + '@media(max-width:767px){.game-icon-grid{grid-template-columns:1fr;}}'
                 + '@media(min-width:768px) and (max-width:1023px){.game-icon-grid{grid-template-columns:repeat(2,1fr);}}'
                 + '@media(min-width:1024px) and (max-width:1279px){.game-icon-grid{grid-template-columns:repeat(4,1fr);}}'
                 + '@media(min-width:1280px){.game-icon-grid{grid-template-columns:repeat(5,1fr);}}'
