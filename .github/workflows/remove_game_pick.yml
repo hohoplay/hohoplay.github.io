@@ -1,0 +1,33 @@
+# 게임 본 페이지 10개에서 호호픽(HOHO PICK)을 제거하는 일회용 워크플로입니다.
+# 사용법: Actions 탭 → "Remove Game Pick (one-time)" → Run workflow
+# 다 쓰고 나면 이 파일과 scripts/remove_game_pick.py는 지워도 됩니다(여러 번 돌려도 안전합니다).
+name: Remove Game Pick (one-time)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  remove-pick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Remove HOHO PICK from game pages
+        run: python scripts/remove_game_pick.py
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: 게임 본 페이지에서 호호픽 제거"
+          git push
