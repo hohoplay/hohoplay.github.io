@@ -7,6 +7,8 @@
        커뮤니티 · 호호 매거진 · 아이랑 나들이 지도 · 게임공략 · 꿈해몽 사전 · 파트너
      (아이랑 나들이 지도 / 게임공략 / 꿈해몽 사전은 '플레이하기'에서 옮겨온다)
   ② '회사' 안의 '고객지원'을 '약관·정책' 맨 아래로 옮긴다.
+  ③ (2차) '회사' 메뉴(소개 하나만 남음)를 통째로 없애고, 오른쪽 위 '🔮 오늘의 운세' 버튼/아이콘을 없앤 대신
+     '플레이하기'의 상식테스트 아래에 '운세' 항목을 추가한다.
 
 저장소의 모든 .html / .py 파일을 훑어서 메뉴 코드가 있는 곳만 고친다
 (생성 스크립트·템플릿 안에 박힌 메뉴도 같이 고쳐야 자동 생성 페이지가 다시 옛 메뉴로 돌아가지 않는다).
@@ -168,6 +170,97 @@ def process(text, desktop, active_label=None):
     return text, 'ok'
 
 
+
+SUPPORT_OR_ABOUT = {'소개', '고객지원'}
+
+
+def _labels(seg):
+    return re.findall(r'>([^<>]+)</(?:a|button)>', seg)
+
+
+def remove_company_desktop(text):
+    """데스크톱 '회사' 드롭다운 그룹 전체를 지운다. 반환: (text, 상태)."""
+    lines = text.splitlines(keepends=True)
+    k = next((i for i, l in enumerate(lines) if '회사 <svg' in l), None)
+    if k is None:
+        return text, 'none'
+    if k == 0 or not lines[k - 1].lstrip().startswith('<div'):
+        return text, 'fail:회사 그룹 시작 줄을 못 찾음'
+    indent = len(lines[k - 1]) - len(lines[k - 1].lstrip())
+    end = next((i for i in range(k + 1, len(lines))
+                if lines[i].strip() == '</div>' and len(lines[i]) - len(lines[i].lstrip()) == indent), None)
+    if end is None or end - k > 30:
+        return text, 'fail:회사 그룹 끝 줄을 못 찾음'
+    block = ''.join(lines[k - 1:end + 1])
+    if not set(_labels(block)) <= SUPPORT_OR_ABOUT or block.count('<div') != block.count('</div>'):
+        return text, 'fail:회사 그룹 안에 예상 밖 항목이 있음'
+    return ''.join(lines[:k - 1] + lines[end + 1:]), 'ok'
+
+
+MOBILE_COMPANY_RE = re.compile(r'<div[^>]*>[^<>]*회사</div>.*?(?=<div[^>]*>[^<>]*플레이하기</div>)', re.S)
+
+
+def remove_company_mobile(text):
+    m = MOBILE_COMPANY_RE.search(text)
+    if not m:
+        return text, 'none'
+    block = m.group(0)
+    if not set(_labels(block)) <= SUPPORT_OR_ABOUT or len(block) > 3000:
+        return text, 'fail:모바일 회사 블록 안에 예상 밖 항목이 있음'
+    return text[:m.start()] + text[m.end():], 'ok'
+
+
+def add_fortune(text, desktop):
+    """플레이하기의 상식테스트 바로 아래에 '운세' 항목을 추가한다(이미 있으면 그대로)."""
+    pat_play = r'플레이하기 <svg' if desktop else r'플레이하기</div>'
+    pat_next = r'(?:소통(?:·정보)?|약관·정책) <svg' if desktop else r'소통(?:·정보)?</div>'
+    mp = re.search(pat_play, text)
+    if not mp:
+        return text, 'none'
+    mn = re.compile(pat_next).search(text, mp.end())
+    if not mn:
+        return text, 'fail:플레이하기 다음 그룹을 못 찾음'
+    seg = text[mp.start():mn.start()]
+    if '>운세<' in seg:
+        return text, 'ok'
+    quiz = item_line(seg, '상식테스트')
+    if not quiz:
+        return text, 'fail:상식테스트 항목을 못 찾음'
+    new = re.sub(r'href="[^"]*"', 'href="/fortune/"', quiz, count=1)
+    new = re.sub(r'onclick="[^"]*"\s*', '', new, count=1)
+    new = new.replace('>상식테스트<', '>운세<', 1)
+    new_seg = seg.replace(quiz, quiz + new, 1)
+    return text[:mp.start()] + new_seg + text[mn.start():], 'ok'
+
+
+CTA_RE = re.compile(
+    r'(?:[ \t]*<!--[^\n]*-->[ \t]*\n)?'                       # 위에 붙은 주석(있으면)
+    r'[ \t]*<(a|button)\b(?:(?!</\1>).)*?</\1>\s*'              # PC용 '🔮 오늘의 운세' 버튼
+    r'<(a|button)\b[^>]*aria-label="오늘의 운세"[^>]*>.*?</\2>[ \t]*\n?',   # 모바일용 🔮 아이콘
+    re.S)
+
+
+def remove_fortune_cta(text):
+    def repl(m):
+        desktop_el = m.group(0).split('aria-label="오늘의 운세"')[0]
+        return '' if ('오늘의 운세' in desktop_el and ('🔮' in desktop_el or 'U0001F52E' in desktop_el)) else m.group(0)
+    new = CTA_RE.sub(repl, text)
+    return new, ('ok' if new != text or 'aria-label="오늘의 운세"' not in text else 'fail:운세 버튼을 못 찾음')
+
+
+def process_stage_b(text):
+    notes = []
+    for fn in (remove_company_desktop, remove_company_mobile):
+        text, st = fn(text)
+        notes.append(fn.__name__ + ':' + st)
+    for desktop in (True, False):
+        text, st = add_fortune(text, desktop)
+        notes.append(('데스크톱' if desktop else '모바일') + ' 운세:' + st)
+    text, st = remove_fortune_cta(text)
+    notes.append('운세버튼:' + st)
+    return text, notes
+
+
 def main():
     dry = '--dry' in sys.argv
     changed, skipped, failed, untouched = [], [], [], 0
@@ -191,6 +284,8 @@ def main():
             for desktop in (True, False):
                 text, st = process(text, desktop, active)
                 notes.append(('데스크톱' if desktop else '모바일') + ':' + st)
+            text, notes_b = process_stage_b(text)
+            notes += notes_b
             bad = [n for n in notes if 'fail' in n]
             if bad:
                 failed.append((rel, bad))
