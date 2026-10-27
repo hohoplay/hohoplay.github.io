@@ -498,6 +498,7 @@
                 'nav, #footer-placeholder { display: none !important; }',
                 '.page-transition > div:first-child { display: none !important; }',  /* 게임헤더 */
                 '.page-transition > div:last-child { display: none !important; }',   /* 탭패널 */
+                '#game-text, #game-skip { display: none !important; }',  /* 설명 블록·건너뛰기 버튼(게임만 보여주는 임베드 모드) */
                 'body { background: #111 !important; }',
                 'main { padding: 4px 0 0 0 !important; max-width: 100% !important; }',
                 '.page-transition { gap: 0 !important; }',
@@ -659,7 +660,7 @@
                     </a>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="text-5xl font-black text-slate-900 tracking-tight">낱말퍼즐 던전</h1>
-                        <button onclick="return gameNavScroll('desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">📖 게임설명</button>
+                        <button onclick="return gameNavScroll('play-game')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">▶ 바로 게임하기</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -941,8 +942,202 @@
 <li>💡 가로·세로 낱말이 겹치는 칸은 서로의 단서가 됩니다. 아는 낱말부터 채우면 다른 낱말이 쉬워져요.</li>
 <li>💡 시간 제한과 점수는 없습니다. 막히면 힌트 버튼으로 정답을 입력창에 채울 수 있어요.</li>
                 </ul>
+            <div id="game-skip" style="margin-top:12px"><button type="button" onclick="return gameNavScroll('play-game')" style="display:inline-flex;align-items:center;gap:6px;background:#4f46e5;color:#fff;font-weight:900;font-size:14px;padding:10px 18px;border:0;border-radius:999px;cursor:pointer">▶ 설명 건너뛰고 바로 게임하기</button></div>
+            </div>
+</div><!-- /폭 제한 래퍼(설명 블록을 전체 폭으로 두려고 잠시 닫음) -->
+
+            <!-- 탭 패널 -->
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-text" style="margin:1.5rem 0 3rem">
+                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
+            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 만든 이유</h2>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">낱말퍼즐은 누구나 좋아하는 게임이지만, 한 판이 끝나면 다시 스테이지를 고르고 넘어가야 하는 점이 번거롭다고 생각했어요.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">그래서 끝나면 곧바로 다음 퍼즐이 이어지는, 끝없는 낱말퍼즐을 만들었습니다. 한 층을 풀면 잠시 뒤 다음 층이 바로 나타나요.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 0">이름의 던전은 끝이 보이지 않는 무한한 느낌을 주기 위해 붙인 이름입니다. 층이 계속 내려가는 구조라서, 풀 때마다 지하 1층, 2층, 3층으로 깊어져요.</p>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">낱말퍼즐 던전은 5×5 격자 안에 가로·세로로 숨은 한글 낱말을 풀이를 보고 맞히는 낱말퍼즐입니다. 한 층에는 여러 개의 낱말이 있고, 모든 낱말을 맞히면 클리어합니다. 클리어하면 잠시 뒤 곧바로 다음 층이 나타나기 때문에 스테이지를 고르는 화면이 없어요. 시간 제한도 점수도 없어서 부담 없이 원하는 만큼 천천히 내려갈 수 있습니다. 로그인 없이 PC와 모바일에서 바로 플레이할 수 있어요.</p>
+</div>
+<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>격자의 칸은 숫자가 붙은 낱말의 시작 칸과 이어진 칸으로 이루어져 있습니다. 화면 아래의 "→ 가로", "↓ 세로" 목록에서 번호와 글자 수, 풀이를 볼 수 있어요.</li>
+<li>낱말을 고르면 입력창이 열리고, 글자 수에 맞게 입력해 확인을 누르면 채점됩니다. 글자 수가 모자라면 입력창이 빨갛게 깜빡이며 제출되지 않아요.</li>
+<li>맞으면 그 낱말이 풀린 것으로 표시되고, 틀리면 오답 효과와 효과음이 나옵니다. 틀려도 횟수 제한이나 페널티는 없고 몇 번이든 다시 입력할 수 있어요.</li>
+<li>모든 낱말을 맞히면 "✅ 클리어!"가 나오고 약 1초 뒤 다음 층으로 바뀝니다.</li>
+<li>층은 지하 1층에서 시작해 풀 때마다 한 층씩 깊어집니다. 끝이 정해져 있지 않아요.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🧩 교차 칸 활용</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">가로 낱말과 세로 낱말이 만나는 칸은 두 낱말이 같은 글자를 씁니다. 한 낱말을 맞히면 그 글자가 교차하는 낱말의 해당 칸에도 들어가고, 입력창 위에 이미 채워진 글자가 표시돼요. 교차한 글자만 모두 맞게 채워진 낱말도 함께 풀린 것으로 인정됩니다.</p>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#b45309;font-size:14px;margin-bottom:8px">💡 입력창의 글자 표시</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>초록색 글자는 정답 글자와 일치하는 칸입니다.</li>
+<li>주황색 글자는 입력되어 있지만 정답과 다른 칸입니다. 다른 낱말을 잘못 입력해서 들어간 글자일 수 있으니 확인해 보세요.</li>
+<li>회색 ○는 아직 비어 있는 칸입니다.</li>
+</ul>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🧱 층의 구성</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">층마다 격자 모양이 다르고, 총 17가지 패턴이 번갈아 나옵니다. 낱말은 2글자부터 5글자까지 있으며, 패턴에 따라 4글자 낱말이 여러 개 나오는 층도 있고 5글자 낱말이 가로나 세로로 길게 놓이는 층도 있어요. 한 층의 낱말 수는 패턴마다 다르지만 보통 여섯 개 안팎입니다. 같은 낱말은 한동안 다시 나오지 않도록 관리되고, 다음 층은 가능한 경우 앞 층 마지막 낱말(6번)의 끝 글자와 이어지도록 만들어집니다.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🏆 층별 클리어 연출</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">클리어할 때의 연출은 층이 깊어질수록 화려해집니다. 지하 1~9층은 기본 연출, 10~29층은 금빛 파티클, 30~49층은 무지개 파티클, 50층 이후는 가장 화려한 연출이 나와요. 얼마나 깊이 내려갔는지 알 수 있는 이정표 역할을 합니다.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🔍 힌트 기능</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">입력창의 "힌트" 버튼을 누르면 약 1초 뒤 선택한 낱말의 정답이 입력창에 채워집니다. 정답이 채워진 뒤에 확인을 눌러야 제출돼요. 횟수 제한이나 점수 감점은 없지만, 풀이를 보고 직접 떠올리는 것이 이 게임의 재미라서 정말 막힐 때만 쓰기를 권합니다.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">급하게 쫓기지 않고 차분히 머리를 쓰는 퍼즐을 좋아하는 분, 어휘력을 가볍게 시험해 보고 싶은 분에게 맞습니다. 스테이지를 고르는 번거로움 없이 한 층씩 이어서 풀 수 있어서, 짧은 시간에 몇 층만 풀고 쉬어도 좋고 길게 계속 내려가도 좋아요.</p>
+</div>
+</div>
+</div>
+                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">PC에서는 마우스와 키보드, 모바일에서는 터치로 같은 방식으로 플레이합니다.</p>
+<div class="space-y-3">
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">낱말 선택</span>
+<span class="font-bold text-slate-600">격자의 칸 또는 풀이 목록을 클릭(터치)</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">정답 입력</span>
+<span class="font-bold text-slate-600">입력창에 낱말 입력 후 확인</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">제출</span>
+<div class="flex items-center gap-2 flex-wrap"><kbd class="min-w-[2.5rem] h-10 px-2 bg-indigo-600 text-white rounded-lg font-black shadow inline-flex items-center justify-center">Enter</kbd></div>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">힌트</span>
+<span class="font-bold text-slate-600">입력창의 힌트 버튼</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">입력 닫기</span>
+<span class="font-bold text-slate-600">✕ 버튼 또는 입력창 바깥 클릭</span>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🧭 이렇게 해 보세요</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li>격자의 칸을 처음 누르면 그 칸을 지나는 가로 낱말이 선택되고, 같은 칸을 다시 누르면 세로 낱말로 바뀝니다.</li>
+<li>풀이 목록의 칸을 누르면 그 낱말의 입력창이 바로 열립니다. 풀린 낱말은 ✓ 표시가 붙어요.</li>
+<li>입력창에는 낱말 종류(가로 / 세로), 번호, 글자 수, 풀이가 나옵니다. 글자 수가 입력창에 표시되니 길이를 먼저 확인하세요.</li>
+<li>공백은 자동으로 무시됩니다. 띄어쓰기 없이 글자만 입력하세요.</li>
+<li>입력은 한글 낱말로 합니다. 글자 수가 부족한 채로 확인을 누르면 제출되지 않아요.</li>
+<li>모든 낱말이 풀리면 자동으로 다음 층이 나타나니, 별도로 버튼을 누를 필요가 없습니다.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>지하 N층</b> : 지금 풀고 있는 층입니다.</li>
+<li><b>진행 상태 표시</b> : 진행 중이면 "진행 중", 클리어하면 "클리어!"로 바뀝니다.</li>
+<li><b>진행 막대</b> : 지금 층에서 풀린 낱말의 비율을 보여 줍니다.</li>
+<li><b>↺ 처음부터</b> : 지하 1층부터 다시 시작합니다. 누르면 확인 창이 나옵니다.</li>
+<li><b>풀이 목록</b> : → 가로, ↓ 세로 두 칸으로 나뉘어 있고, 번호와 글자 수, 풀이가 보입니다.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🏁 진행과 기록</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">이 게임에는 시간 제한도, 점수도, 기록 저장도 없습니다. 지금 내려온 층은 페이지를 닫거나 새로고침하면 지하 1층부터 다시 시작해요. 더 깊이 내려가고 싶다면 한 번에 오래 이어서 플레이해 보세요.</p>
+</div>
+</div>
+</div>
+                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 푸는 요령</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>교차 칸이 많은 낱말부터.</b> 한 번 맞히면 여러 낱말에 글자가 들어가서 나머지가 쉬워집니다.</li>
+<li><b>2글자 낱말부터 채우세요.</b> 짧은 낱말은 후보가 적어 확신하기 쉽고, 맞히면 긴 낱말의 글자가 하나씩 드러납니다.</li>
+<li><b>아는 낱말부터 먼저.</b> 풀이를 보고 바로 떠오르는 낱말을 먼저 채우고, 모르는 낱말은 나중에 교차 글자를 단서로 풀어 보세요.</li>
+<li><b>풀이와 글자 수를 함께 보세요.</b> 풀이만으로 후보가 여럿이면 글자 수와 교차 글자로 하나씩 걸러 낼 수 있습니다.</li>
+<li><b>틀려도 괜찮습니다.</b> 틀린 입력은 페널티가 없으니, 확신이 없어도 먼저 넣어 보고 교차 글자로 확인해도 됩니다. 다만 틀린 글자가 교차 칸에 들어가니 주황색 글자를 눈여겨보세요.</li>
+<li><b>정 안 떠오르면 힌트를 쓰세요.</b> 시간 제한이 없으니 오래 고민해도 되지만, 막혔을 때는 힌트로 한 낱말만 채우고 나머지를 교차 글자로 풀 수 있어요.</li>
+<li><b>가로·세로를 번갈아 보세요.</b> 한 칸에서 가로 낱말이 막히면 같은 칸의 세로 낱말을 먼저 풀어 보세요.</li>
+</ul>
+</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>글자 수를 확인하지 않고 입력해 제출이 안 되는 경우. 입력창에 표시되는 글자 수를 먼저 보세요.</li>
+<li>교차 칸의 주황색 글자를 무시하는 경우. 다른 낱말을 잘못 입력해서 생긴 틀린 글자일 수 있습니다.</li>
+<li>모르는 낱말 하나에 오래 매달리는 경우. 다른 낱말을 먼저 풀면 교차 글자로 힌트가 생겨요.</li>
+<li>풀이를 끝까지 읽지 않고 첫 느낌으로 입력하는 경우.</li>
+<li>새로고침하면 지하 1층부터 다시 시작한다는 것을 모르고 페이지를 닫는 경우.</li>
+<li>입력 중에 영문으로 쳐서 한글이 입력되지 않는 경우. 한/영 키를 확인하세요.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
+<div class="space-y-3">
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 던전은 끝이 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">끝이 정해져 있지 않습니다. 한 층을 풀면 바로 다음 층이 만들어지고, 풀이는 17가지 패턴과 단어 목록에서 계속 새로 조합돼요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 틀린 답을 입력하면 어떻게 되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">오답 효과가 나오고 낱말이 풀리지 않을 뿐, 페널티는 없습니다. 같은 낱말을 몇 번이든 다시 입력할 수 있어요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 힌트 기능이 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네. 입력창의 힌트 버튼을 누르면 약 1초 뒤 선택한 낱말의 정답이 입력창에 채워집니다. 확인을 눌러 제출하면 풀린 것으로 처리돼요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 시간 제한이 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">아니요. 시간 제한은 없습니다. 원하는 만큼 천천히 풀 수 있어요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 난이도는 어떻게 올라가나요?</p>
+<p class="text-slate-600 text-sm md:text-base">층이 깊어진다고 해서 난이도가 단계적으로 오르지는 않습니다. 층마다 17가지 패턴 중 하나가 무작위로 나와서, 4글자나 5글자 낱말이 많은 층이 더 어렵게 느껴질 수 있어요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 점수나 기록이 저장되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">점수와 기록은 없고, 진행 중인 층도 저장되지 않습니다. 페이지를 새로고침하면 지하 1층부터 다시 시작해요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 처음부터 다시 하려면 어떻게 하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">화면 위의 "처음부터" 버튼을 누르고 확인하면 지하 1층부터 새로 시작합니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서도 플레이할 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네. 격자를 눌러 낱말을 고르고 터치로 입력할 수 있습니다. 입력창이 열릴 때 화면이 밀리지 않도록 처리되어 있어요.</p>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
+<div class="flex flex-wrap gap-3">
+<a href="/guides/word-puzzle-dungeon-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 낱말퍼즐 던전 공략 전체 보기</a>
+<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
+<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
+<a href="/jelly-pop-7.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🍬 젤리팝7</a>
+<a href="/hoho-tile-match.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🀄 호호사천성</a>
+<a href="/hoya-proverb-typing.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📜 호호속담</a>
+</div>
+</div>
+</div>
+</div>
             </div>
 
+            <div id="play-game" style="height:0;margin:0!important;scroll-margin-top:70px"></div>
+<div style="max-width:360px;margin:0 auto;">
 <section style="margin:0;display:flex;justify-content:center;">
 <div id="crossword-app">
   <header id="hdr">
@@ -2203,9 +2398,6 @@ document.getElementById('btn-rst').onclick=()=>{
                 </div>
             </section>
 
-            <!-- 탭 패널 -->
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
                     <!-- ── 게임 결과 피드백 카드 (공용) ── -->
     <div id="hp-feedback-card" style="display:none;max-width:480px;margin:16px auto 0;background:#fff;border:1px solid #e0e7ff;border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(79,70,229,.08)">
         <div id="hp-fb-ask" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2273,191 +2465,8 @@ document.getElementById('btn-rst').onclick=()=>{
     })();
     </script>
 
-            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 만든 이유</h2>
-<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">낱말퍼즐은 누구나 좋아하는 게임이지만, 한 판이 끝나면 다시 스테이지를 고르고 넘어가야 하는 점이 번거롭다고 생각했어요.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">그래서 끝나면 곧바로 다음 퍼즐이 이어지는, 끝없는 낱말퍼즐을 만들었습니다. 한 층을 풀면 잠시 뒤 다음 층이 바로 나타나요.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 0">이름의 던전은 끝이 보이지 않는 무한한 느낌을 주기 위해 붙인 이름입니다. 층이 계속 내려가는 구조라서, 풀 때마다 지하 1층, 2층, 3층으로 깊어져요.</p>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">낱말퍼즐 던전은 5×5 격자 안에 가로·세로로 숨은 한글 낱말을 풀이를 보고 맞히는 낱말퍼즐입니다. 한 층에는 여러 개의 낱말이 있고, 모든 낱말을 맞히면 클리어합니다. 클리어하면 잠시 뒤 곧바로 다음 층이 나타나기 때문에 스테이지를 고르는 화면이 없어요. 시간 제한도 점수도 없어서 부담 없이 원하는 만큼 천천히 내려갈 수 있습니다. 로그인 없이 PC와 모바일에서 바로 플레이할 수 있어요.</p>
-</div>
-<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>격자의 칸은 숫자가 붙은 낱말의 시작 칸과 이어진 칸으로 이루어져 있습니다. 화면 아래의 "→ 가로", "↓ 세로" 목록에서 번호와 글자 수, 풀이를 볼 수 있어요.</li>
-<li>낱말을 고르면 입력창이 열리고, 글자 수에 맞게 입력해 확인을 누르면 채점됩니다. 글자 수가 모자라면 입력창이 빨갛게 깜빡이며 제출되지 않아요.</li>
-<li>맞으면 그 낱말이 풀린 것으로 표시되고, 틀리면 오답 효과와 효과음이 나옵니다. 틀려도 횟수 제한이나 페널티는 없고 몇 번이든 다시 입력할 수 있어요.</li>
-<li>모든 낱말을 맞히면 "✅ 클리어!"가 나오고 약 1초 뒤 다음 층으로 바뀝니다.</li>
-<li>층은 지하 1층에서 시작해 풀 때마다 한 층씩 깊어집니다. 끝이 정해져 있지 않아요.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🧩 교차 칸 활용</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">가로 낱말과 세로 낱말이 만나는 칸은 두 낱말이 같은 글자를 씁니다. 한 낱말을 맞히면 그 글자가 교차하는 낱말의 해당 칸에도 들어가고, 입력창 위에 이미 채워진 글자가 표시돼요. 교차한 글자만 모두 맞게 채워진 낱말도 함께 풀린 것으로 인정됩니다.</p>
-<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#b45309;font-size:14px;margin-bottom:8px">💡 입력창의 글자 표시</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>초록색 글자는 정답 글자와 일치하는 칸입니다.</li>
-<li>주황색 글자는 입력되어 있지만 정답과 다른 칸입니다. 다른 낱말을 잘못 입력해서 들어간 글자일 수 있으니 확인해 보세요.</li>
-<li>회색 ○는 아직 비어 있는 칸입니다.</li>
-</ul>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🧱 층의 구성</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">층마다 격자 모양이 다르고, 총 17가지 패턴이 번갈아 나옵니다. 낱말은 2글자부터 5글자까지 있으며, 패턴에 따라 4글자 낱말이 여러 개 나오는 층도 있고 5글자 낱말이 가로나 세로로 길게 놓이는 층도 있어요. 한 층의 낱말 수는 패턴마다 다르지만 보통 여섯 개 안팎입니다. 같은 낱말은 한동안 다시 나오지 않도록 관리되고, 다음 층은 가능한 경우 앞 층 마지막 낱말(6번)의 끝 글자와 이어지도록 만들어집니다.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🏆 층별 클리어 연출</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">클리어할 때의 연출은 층이 깊어질수록 화려해집니다. 지하 1~9층은 기본 연출, 10~29층은 금빛 파티클, 30~49층은 무지개 파티클, 50층 이후는 가장 화려한 연출이 나와요. 얼마나 깊이 내려갔는지 알 수 있는 이정표 역할을 합니다.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🔍 힌트 기능</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">입력창의 "힌트" 버튼을 누르면 약 1초 뒤 선택한 낱말의 정답이 입력창에 채워집니다. 정답이 채워진 뒤에 확인을 눌러야 제출돼요. 횟수 제한이나 점수 감점은 없지만, 풀이를 보고 직접 떠올리는 것이 이 게임의 재미라서 정말 막힐 때만 쓰기를 권합니다.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">급하게 쫓기지 않고 차분히 머리를 쓰는 퍼즐을 좋아하는 분, 어휘력을 가볍게 시험해 보고 싶은 분에게 맞습니다. 스테이지를 고르는 번거로움 없이 한 층씩 이어서 풀 수 있어서, 짧은 시간에 몇 층만 풀고 쉬어도 좋고 길게 계속 내려가도 좋아요.</p>
-</div>
-</div>
-</div>
-                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">PC에서는 마우스와 키보드, 모바일에서는 터치로 같은 방식으로 플레이합니다.</p>
-<div class="space-y-3">
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">낱말 선택</span>
-<span class="font-bold text-slate-600">격자의 칸 또는 풀이 목록을 클릭(터치)</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">정답 입력</span>
-<span class="font-bold text-slate-600">입력창에 낱말 입력 후 확인</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">제출</span>
-<div class="flex items-center gap-2 flex-wrap"><kbd class="min-w-[2.5rem] h-10 px-2 bg-indigo-600 text-white rounded-lg font-black shadow inline-flex items-center justify-center">Enter</kbd></div>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">힌트</span>
-<span class="font-bold text-slate-600">입력창의 힌트 버튼</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">입력 닫기</span>
-<span class="font-bold text-slate-600">✕ 버튼 또는 입력창 바깥 클릭</span>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🧭 이렇게 해 보세요</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li>격자의 칸을 처음 누르면 그 칸을 지나는 가로 낱말이 선택되고, 같은 칸을 다시 누르면 세로 낱말로 바뀝니다.</li>
-<li>풀이 목록의 칸을 누르면 그 낱말의 입력창이 바로 열립니다. 풀린 낱말은 ✓ 표시가 붙어요.</li>
-<li>입력창에는 낱말 종류(가로 / 세로), 번호, 글자 수, 풀이가 나옵니다. 글자 수가 입력창에 표시되니 길이를 먼저 확인하세요.</li>
-<li>공백은 자동으로 무시됩니다. 띄어쓰기 없이 글자만 입력하세요.</li>
-<li>입력은 한글 낱말로 합니다. 글자 수가 부족한 채로 확인을 누르면 제출되지 않아요.</li>
-<li>모든 낱말이 풀리면 자동으로 다음 층이 나타나니, 별도로 버튼을 누를 필요가 없습니다.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>지하 N층</b> : 지금 풀고 있는 층입니다.</li>
-<li><b>진행 상태 표시</b> : 진행 중이면 "진행 중", 클리어하면 "클리어!"로 바뀝니다.</li>
-<li><b>진행 막대</b> : 지금 층에서 풀린 낱말의 비율을 보여 줍니다.</li>
-<li><b>↺ 처음부터</b> : 지하 1층부터 다시 시작합니다. 누르면 확인 창이 나옵니다.</li>
-<li><b>풀이 목록</b> : → 가로, ↓ 세로 두 칸으로 나뉘어 있고, 번호와 글자 수, 풀이가 보입니다.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🏁 진행과 기록</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">이 게임에는 시간 제한도, 점수도, 기록 저장도 없습니다. 지금 내려온 층은 페이지를 닫거나 새로고침하면 지하 1층부터 다시 시작해요. 더 깊이 내려가고 싶다면 한 번에 오래 이어서 플레이해 보세요.</p>
-</div>
-</div>
-</div>
-                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 푸는 요령</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>교차 칸이 많은 낱말부터.</b> 한 번 맞히면 여러 낱말에 글자가 들어가서 나머지가 쉬워집니다.</li>
-<li><b>2글자 낱말부터 채우세요.</b> 짧은 낱말은 후보가 적어 확신하기 쉽고, 맞히면 긴 낱말의 글자가 하나씩 드러납니다.</li>
-<li><b>아는 낱말부터 먼저.</b> 풀이를 보고 바로 떠오르는 낱말을 먼저 채우고, 모르는 낱말은 나중에 교차 글자를 단서로 풀어 보세요.</li>
-<li><b>풀이와 글자 수를 함께 보세요.</b> 풀이만으로 후보가 여럿이면 글자 수와 교차 글자로 하나씩 걸러 낼 수 있습니다.</li>
-<li><b>틀려도 괜찮습니다.</b> 틀린 입력은 페널티가 없으니, 확신이 없어도 먼저 넣어 보고 교차 글자로 확인해도 됩니다. 다만 틀린 글자가 교차 칸에 들어가니 주황색 글자를 눈여겨보세요.</li>
-<li><b>정 안 떠오르면 힌트를 쓰세요.</b> 시간 제한이 없으니 오래 고민해도 되지만, 막혔을 때는 힌트로 한 낱말만 채우고 나머지를 교차 글자로 풀 수 있어요.</li>
-<li><b>가로·세로를 번갈아 보세요.</b> 한 칸에서 가로 낱말이 막히면 같은 칸의 세로 낱말을 먼저 풀어 보세요.</li>
-</ul>
-</div>
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>글자 수를 확인하지 않고 입력해 제출이 안 되는 경우. 입력창에 표시되는 글자 수를 먼저 보세요.</li>
-<li>교차 칸의 주황색 글자를 무시하는 경우. 다른 낱말을 잘못 입력해서 생긴 틀린 글자일 수 있습니다.</li>
-<li>모르는 낱말 하나에 오래 매달리는 경우. 다른 낱말을 먼저 풀면 교차 글자로 힌트가 생겨요.</li>
-<li>풀이를 끝까지 읽지 않고 첫 느낌으로 입력하는 경우.</li>
-<li>새로고침하면 지하 1층부터 다시 시작한다는 것을 모르고 페이지를 닫는 경우.</li>
-<li>입력 중에 영문으로 쳐서 한글이 입력되지 않는 경우. 한/영 키를 확인하세요.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
-<div class="space-y-3">
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 던전은 끝이 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">끝이 정해져 있지 않습니다. 한 층을 풀면 바로 다음 층이 만들어지고, 풀이는 17가지 패턴과 단어 목록에서 계속 새로 조합돼요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 틀린 답을 입력하면 어떻게 되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">오답 효과가 나오고 낱말이 풀리지 않을 뿐, 페널티는 없습니다. 같은 낱말을 몇 번이든 다시 입력할 수 있어요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 힌트 기능이 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">네. 입력창의 힌트 버튼을 누르면 약 1초 뒤 선택한 낱말의 정답이 입력창에 채워집니다. 확인을 눌러 제출하면 풀린 것으로 처리돼요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 시간 제한이 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">아니요. 시간 제한은 없습니다. 원하는 만큼 천천히 풀 수 있어요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 난이도는 어떻게 올라가나요?</p>
-<p class="text-slate-600 text-sm md:text-base">층이 깊어진다고 해서 난이도가 단계적으로 오르지는 않습니다. 층마다 17가지 패턴 중 하나가 무작위로 나와서, 4글자나 5글자 낱말이 많은 층이 더 어렵게 느껴질 수 있어요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 점수나 기록이 저장되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">점수와 기록은 없고, 진행 중인 층도 저장되지 않습니다. 페이지를 새로고침하면 지하 1층부터 다시 시작해요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 처음부터 다시 하려면 어떻게 하나요?</p>
-<p class="text-slate-600 text-sm md:text-base">화면 위의 "처음부터" 버튼을 누르고 확인하면 지하 1층부터 새로 시작합니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서도 플레이할 수 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">네. 격자를 눌러 낱말을 고르고 터치로 입력할 수 있습니다. 입력창이 열릴 때 화면이 밀리지 않도록 처리되어 있어요.</p>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
-<div class="flex flex-wrap gap-3">
-<a href="/guides/word-puzzle-dungeon-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 낱말퍼즐 던전 공략 전체 보기</a>
-<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
-<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
-<a href="/jelly-pop-7.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🍬 젤리팝7</a>
-<a href="/hoho-tile-match.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🀄 호호사천성</a>
-<a href="/hoya-proverb-typing.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📜 호호속담</a>
-</div>
-</div>
-</div>
-</div>
+
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-info" style="margin-top:2rem">
                 <div id="info" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>

@@ -498,6 +498,7 @@
                 'nav, #footer-placeholder { display: none !important; }',
                 '.page-transition > div:first-child { display: none !important; }',  /* 게임헤더 */
                 '.page-transition > div:last-child { display: none !important; }',   /* 탭패널 */
+                '#game-text, #game-skip { display: none !important; }',  /* 설명 블록·건너뛰기 버튼(게임만 보여주는 임베드 모드) */
                 'body { background: #111 !important; }',
                 'main { padding: 4px 0 0 0 !important; max-width: 100% !important; }',
                 '.page-transition { gap: 0 !important; }',
@@ -659,7 +660,7 @@
                     </a>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="text-5xl font-black text-slate-900 tracking-tight">hohoDash</h1>
-                        <button onclick="return gameNavScroll('desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">📖 게임설명</button>
+                        <button onclick="return gameNavScroll('play-game')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">▶ 바로 게임하기</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1201,8 +1202,227 @@
 <li>💡 🌈 무지개 아이템을 먹으면 피버가 시작되어 장애물을 부수며 달립니다. 피버 중에는 코인이 나오지 않으니 생존에 집중하세요.</li>
 <li>💡 🛡 방패는 한 번의 충돌을 막아 주지만, 방패 없이 장애물에 닿으면 바로 게임이 끝납니다.</li>
                 </ul>
+            <div id="game-skip" style="margin-top:12px"><button type="button" onclick="return gameNavScroll('play-game')" style="display:inline-flex;align-items:center;gap:6px;background:#4f46e5;color:#fff;font-weight:900;font-size:14px;padding:10px 18px;border:0;border-radius:999px;cursor:pointer">▶ 설명 건너뛰고 바로 게임하기</button></div>
+            </div>
+</div><!-- /폭 제한 래퍼(설명 블록을 전체 폭으로 두려고 잠시 닫음) -->
+
+            <!-- 탭 패널 -->
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-text" style="margin:1.5rem 0 3rem">
+                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
+            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 만든 이유</h2>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">쿠키런 같은 런 게임이 한창 유행하던 때가 생각났고, 특히 슈퍼마리오도 갑자기 떠올랐어요. 그래서 도트 형식으로 만들어 보기로 했습니다.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">도트 그래픽은 단순하지만 달리기, 점프, 장애물 피하기라는 동작이 한눈에 보여서 이 장르와 잘 어울린다고 생각했어요.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 0">여기에 코인을 모아 능력을 올리는 성장 요소와, 무지개 아이템으로 짧은 시간 강해지는 피버를 넣어 한 판 한 판 다른 재미를 만들고자 했습니다.</p>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">HOHO DASH는 16비트 도트 감성으로 만든 무한 러닝 게임입니다. 캐릭터가 자동으로 오른쪽으로 달리고, 플레이어는 점프 타이밍만 정하면 돼요. 다가오는 장애물에 닿으면 게임이 끝나고, 닿지 않고 달린 거리가 곧 점수가 됩니다. 달릴수록 속도가 빨라지고 장애물도 점점 다양해져요. 로그인 없이 PC와 모바일에서 바로 플레이할 수 있고, 게임이 끝나면 그 판에 모은 코인으로 아이템 효과를 강화할 수 있습니다.</p>
+</div>
+<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>점수(DISTANCE)는 달린 거리입니다. 오래 살아남을수록 올라가고, 달릴수록 이동 속도도 점점 빨라져요.</li>
+<li>일반 상태에서는 장애물에 닿으면 즉시 게임이 끝납니다. 체력은 따로 없습니다.</li>
+<li>코인(💎 DATA COIN)을 먹으면 모이고, 게임이 끝나면 저장되어 다음 판의 업그레이드에 쓸 수 있습니다.</li>
+<li>방패, 거인, 자석, 무지개 같은 아이템이 공중에 떠서 나옵니다. 아이템을 먹으면 효과가 바로 시작돼요.</li>
+<li>게임 속 단계가 올라가면 화면에 STAGE 알림이 나오고, 잠깐 속도가 빨라진 뒤 원래대로 돌아옵니다.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📈 점수에 따라 달라지는 장애물</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">달린 거리가 늘어날수록 더 크고 복잡한 장애물이 나옵니다. 점수가 100, 400, 800, 1,300에 닿으면 화면에 STAGE 2~5 알림(NETWORK, FIREWALL, CORE, OVERCLOCK)이 나오고, 잠깐 속도가 빨라진 뒤 원래 속도로 돌아옵니다.</p>
+<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
+<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 24%;padding:10px 14px">점수</div><div style="flex:1;padding:10px 14px">주로 나오는 장애물</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">0 ~ 99</div><div style="flex:1;padding:10px 14px">땅에 놓인 단순한 장애물과 작은 떠 있는 발판</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">100 ~ 299</div><div style="flex:1;padding:10px 14px">떠 있는 이동 발판과 삼각형 장애물</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">300 ~ 599</div><div style="flex:1;padding:10px 14px">높은 벽을 포함해 모든 종류가 섞임</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">600 ~ 999</div><div style="flex:1;padding:10px 14px">큰 벽, 육각형, 이동 발판 위주. 위에서 떨어지는 블록이 나오기 시작</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">1,000 ~ 1,499</div><div style="flex:1;padding:10px 14px">육각형, 큰 이동 발판, 큰 벽과 긴 바닥 장애물</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">1,500 이상</div><div style="flex:1;padding:10px 14px">모든 종류가 무작위로 나옴</div></div>
+</div>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">장애물은 낮은 바닥형, 높은 세로 벽, 삼각형, 공중에 떠 있는 육각형, 좌우로 움직이는 발판, 위에서 떨어지는 블록이 있어요. 이동 발판은 윗면에 올라타면 안전하게 지나갈 수 있습니다. 점수가 오르면 여러 장애물이 연달아 붙어 나오는 패턴도 섞입니다.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">✨ 아이템</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">아이템은 공중에 떠서 날아오는 것을 점프로 먹습니다. 점수가 낮을 때는 간격이 길고, 점수가 높아질수록 더 자주 나와요. 200점 미만에서는 자석과 방패만 나오고, 그 뒤부터 거인과 무지개가 더해집니다.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#15803d;font-size:15px;margin-bottom:6px">🛡 SHIELD</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">한 번의 충돌을 막아 줍니다. 부딪힌 장애물은 부서지고 방패는 사라져요. 방패가 있는 동안에는 한 번 더 실수할 수 있습니다.</p>
+</div>
+<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#0369a1;font-size:15px;margin-bottom:6px">👊 MEGA MODE (거인)</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">캐릭터가 커지고 일정 시간 동안 장애물을 부수며 지나갑니다. 지속 시간은 기본 6초이고 거인 업그레이드로 늘어나요.</p>
+</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#b91c1c;font-size:15px;margin-bottom:6px">🧲 DATA MAGNET</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">일정 시간 동안 주변의 코인을 끌어당깁니다. 지속 시간은 기본 6초이고 자석 업그레이드로 늘어나요.</p>
+</div>
+<div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#6d28d9;font-size:15px;margin-bottom:6px">🌈 FEVER (무지개)</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">먹는 즉시 피버가 시작됩니다. 속도가 2배가 되고 장애물을 부수며 달려요. 200점부터 나오기 시작합니다.</p>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🌈 피버 모드</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">피버는 무지개 아이템을 먹으면 시작됩니다. 기본 지속 시간은 7초이고, 피버 업그레이드로 길어져요. 피버 중에는 속도가 빨라지고, 닿는 장애물은 부서지며, 언제든 점프할 수 있습니다. 대신 피버 중에는 새 코인과 아이템이 나오지 않으니, 코인을 모으는 시간이 아니라 거리를 크게 벌리는 시간이에요. 피버가 끝나면 속도가 원래대로 돌아오므로, 끝나는 순간의 장애물 배치에 대비하세요.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🛒 업그레이드 상점</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">게임이 끝나면 모은 코인으로 상점에서 효과를 강화할 수 있습니다. 강화는 4가지이고, 각각 5칸을 채우면 레벨이 1 올라가요. 모두 레벨 1에서 시작합니다.</p>
+<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
+<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 22%;padding:10px 14px">항목</div><div style="flex:1;padding:10px 14px">효과</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">코인</div><div style="flex:1;padding:10px 14px">코인 하나당 얻는 양이 늘어납니다. 레벨 1은 ×1.5, 레벨이 오를 때마다 0.5씩 증가.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">자석</div><div style="flex:1;padding:10px 14px">자석 지속 시간이 레벨당 1초씩 늘어납니다. 레벨 1은 6초.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">거인</div><div style="flex:1;padding:10px 14px">거인(MEGA MODE) 지속 시간이 레벨당 1초씩 늘어납니다. 레벨 1은 6초.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">피버</div><div style="flex:1;padding:10px 14px">피버 지속 시간이 레벨당 1초씩 늘어납니다. 레벨 1은 7초.</div></div>
+</div>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">한 칸을 채우는 비용은 100코인에 현재 레벨 × 50코인이 더해진 값입니다. 레벨 1에서는 150코인이에요. 강화는 브라우저에 저장되어 다음 판에도 이어지고, 상점의 "초기화"를 누르면 코인과 강화가 모두 처음으로 돌아갑니다.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">한 번의 터치로 가볍게 즐기는 러닝 게임을 찾는 분, 도트 그래픽 감성을 좋아하는 분에게 맞습니다. 짧게 한 판씩 하면서 코인을 모아 능력을 키워 가는 반복 플레이를 즐기는 분에게도 어울려요.</p>
+</div>
+</div>
+</div>
+                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">조작은 점프 하나입니다. 어떤 방법으로 눌러도 같은 점프예요.</p>
+<div class="space-y-3">
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">PC 점프</span>
+<div class="flex items-center gap-2 flex-wrap"><kbd class="min-w-[2.5rem] h-10 px-2 bg-indigo-600 text-white rounded-lg font-black shadow inline-flex items-center justify-center">Space</kbd><span class="font-bold text-slate-400 px-1">또는</span><kbd class="min-w-[2.5rem] h-10 px-2 bg-indigo-600 text-white rounded-lg font-black shadow inline-flex items-center justify-center">Enter</kbd></div>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">마우스 점프</span>
+<span class="font-bold text-slate-600">화면 클릭</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">모바일 점프</span>
+<span class="font-bold text-slate-600">화면 탭</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">시작 / 다시 시작</span>
+<span class="font-bold text-slate-600">점프와 같은 입력 (PRESS START)</span>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🧭 점프의 원리</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li>바닥에 있을 때 누르면 점프하고, 공중에서 한 번 더 누르면 2단 점프를 합니다. 2단 점프는 첫 점프보다 조금 낮아요.</li>
+<li>점프는 한 번 뛰고 공중에서 한 번 더, 모두 두 번까지 쓸 수 있습니다. 착지하면 다시 두 번을 쓸 수 있어요. 피버 중에는 횟수 제한 없이 언제든 점프할 수 있습니다.</li>
+<li>떠 있는 이동 발판은 윗면에 올라타면 안전합니다. 옆이나 아래에서 부딪히면 충돌이에요.</li>
+<li>장애물 바로 앞에서 누르는 것보다, 장애물이 가까워졌을 때 누르는 것이 더 정확합니다. 일찍 누르면 착지 지점에서 다음 장애물에 걸리기 쉬워요.</li>
+<li>시작 직후에는 장애물 간격이 넉넉합니다. 이 구간에서 점프의 높이와 거리를 손에 익히세요.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>점수</b> : 달린 거리입니다.</li>
+<li><b>최고 기록</b> : 이번에 페이지를 연 동안의 최고 점수입니다. 새 기록을 세우면 NEW RECORD가 나옵니다.</li>
+<li><b>코인</b> : 보유 중인 코인입니다. 이번 판에 모은 코인이 더해져서 표시돼요.</li>
+<li><b>자석·거인 막대</b> : 효과가 얼마나 남았는지 보여 줍니다.</li>
+<li><b>피버 막대</b> : 피버가 켜져 있는 동안 남은 시간이 줄어듭니다.</li>
+<li><b>STAGE 알림</b> : 단계가 올라갈 때 화면 가운데에 단계 이름이 나타납니다.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🏁 게임 종료와 기록</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">장애물에 닿으면 "CONNECTION LOST" 화면이 나오고, 달린 거리와 보유 코인이 표시됩니다. 같은 화면 아래에 업그레이드 상점이 열려 코인을 바로 쓸 수 있어요. 코인과 업그레이드는 지금 쓰는 브라우저에 저장됩니다. 다른 브라우저나 기기에서는 이어지지 않고, 사이트 데이터를 지우면 사라져요. 최고 점수는 페이지를 새로 열면 0부터 다시 표시되니, 기록을 남기고 싶다면 결과 공유를 활용하세요.</p>
+</div>
+</div>
+</div>
+                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 점수를 올리는 요령</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>점프 타이밍은 가까워졌을 때.</b> 장애물이 화면에 보이자마자 누르면 착지가 너무 일러서 다음 장애물에 걸립니다.</li>
+<li><b>2단 점프는 아껴 두세요.</b> 공중에서 장애물이나 높은 벽을 만났을 때를 위한 여분입니다. 첫 점프로 충분히 넘을 수 있으면 쓰지 않아도 돼요.</li>
+<li><b>방패를 먼저 챙기세요.</b> 방패는 한 번의 실수를 지워 줍니다. 초반에 나오면 우선적으로 먹는 것이 좋아요.</li>
+<li><b>무지개는 어려운 구간 앞에서 먹으세요.</b> 피버 동안 장애물을 부수며 달려서 가장 많은 거리를 벌 수 있습니다.</li>
+<li><b>거인은 장애물이 몰릴 때.</b> 커진 동안 장애물을 부수기 때문에, 여러 장애물이 연달아 나오는 구간에서 효과가 큽니다.</li>
+<li><b>업그레이드는 목표에 맞게.</b> 코인을 더 빨리 모으려면 코인, 안전하게 오래 달리려면 피버와 거인의 지속 시간을 올리세요.</li>
+<li><b>코인은 욕심내지 마세요.</b> 코인은 업그레이드용이고 점수는 거리입니다. 코인을 먹으려다 장애물에 닿으면 손해예요.</li>
+<li><b>600점 이후에는 위도 보세요.</b> 위에서 떨어지는 블록이 나오기 시작합니다.</li>
+</ul>
+</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>코인을 먹으려고 점프하다가 장애물에 닿는 경우.</li>
+<li>↑ 방향키를 눌러도 점프가 안 된다고 당황하는 경우. 점프는 Space, Enter, 클릭, 터치로 합니다.</li>
+<li>업그레이드를 하지 않고 계속 도전만 하는 경우. 코인은 상점에서 써야 효과가 있어요.</li>
+<li>피버 중에 코인을 모으려 하는 경우. 피버 중에는 새 코인이 나오지 않습니다.</li>
+<li>피버가 끝날 때 방심하는 경우. 속도가 갑자기 원래대로 돌아오는 순간이 위험해요.</li>
+<li>2단 점프를 첫 점프 직후에 바로 써서 높이를 낭비하는 경우.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
+<div class="space-y-3">
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모은 코인은 어디서 쓰나요?</p>
+<p class="text-slate-600 text-sm md:text-base">게임이 끝나면 나타나는 업그레이드 상점에서 씁니다. 코인, 자석, 거인, 피버 네 가지를 강화할 수 있어요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 피버 모드는 어떻게 발동하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">공중에 나타나는 🌈 무지개 아이템을 먹으면 즉시 발동합니다. 코인을 연속으로 먹는다고 자동으로 발동하지는 않아요. 무지개 아이템은 점수가 200점이 되면 나오기 시작합니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 캐릭터를 바꿀 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">캐릭터를 바꾸는 기능은 없습니다. 상점에서는 코인, 자석, 거인, 피버 효과를 강화할 수 있어요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 장애물 종류가 여러 가지인가요?</p>
+<p class="text-slate-600 text-sm md:text-base">네. 낮은 바닥형, 높은 벽, 삼각형, 공중의 육각형, 좌우로 움직이는 발판, 위에서 떨어지는 블록이 있고 단계가 오를수록 더 다양하게 섞입니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 무제한으로 이어지나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네. 장애물에 닿지 않는 한 끝나지 않고 계속 달릴 수 있습니다. 거리가 늘수록 속도도 점점 빨라져요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. PC에서 어떤 키로 점프하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">Space 또는 Enter 키, 마우스 클릭입니다. 방향키는 사용하지 않습니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 최고 기록은 저장되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">코인과 업그레이드는 브라우저에 저장되지만, 최고 점수는 페이지를 새로 열면 0부터 다시 시작합니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서도 플레이할 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네. 화면을 탭하면 점프합니다. 플레이 중에는 화면이 확대되거나 스크롤되지 않도록 고정돼요.</p>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
+<div class="flex flex-wrap gap-3">
+<a href="/guides/hoho-dash-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 HOHO DASH 공략 전체 보기</a>
+<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
+<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
+<a href="/hoho-run.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🏃 HOHO RUN</a>
+<a href="/hoho-racing.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🚗 호호레이싱</a>
+<a href="/jelly-pop-7.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🍬 젤리팝7</a>
+</div>
+</div>
+</div>
+</div>
             </div>
 
+            <div id="play-game" style="height:0;margin:0!important;scroll-margin-top:70px"></div>
+<div style="max-width:520px;margin:0 auto;">
 <section style="margin:0;">
 
 
@@ -4135,9 +4355,6 @@
                 </div>
             </section>
 
-            <!-- 탭 패널 -->
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
                     <!-- ── 게임 결과 피드백 카드 (공용) ── -->
     <div id="hp-feedback-card" style="display:none;max-width:480px;margin:16px auto 0;background:#fff;border:1px solid #e0e7ff;border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(79,70,229,.08)">
         <div id="hp-fb-ask" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -4205,216 +4422,8 @@
     })();
     </script>
 
-            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 만든 이유</h2>
-<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">쿠키런 같은 런 게임이 한창 유행하던 때가 생각났고, 특히 슈퍼마리오도 갑자기 떠올랐어요. 그래서 도트 형식으로 만들어 보기로 했습니다.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">도트 그래픽은 단순하지만 달리기, 점프, 장애물 피하기라는 동작이 한눈에 보여서 이 장르와 잘 어울린다고 생각했어요.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 0">여기에 코인을 모아 능력을 올리는 성장 요소와, 무지개 아이템으로 짧은 시간 강해지는 피버를 넣어 한 판 한 판 다른 재미를 만들고자 했습니다.</p>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">HOHO DASH는 16비트 도트 감성으로 만든 무한 러닝 게임입니다. 캐릭터가 자동으로 오른쪽으로 달리고, 플레이어는 점프 타이밍만 정하면 돼요. 다가오는 장애물에 닿으면 게임이 끝나고, 닿지 않고 달린 거리가 곧 점수가 됩니다. 달릴수록 속도가 빨라지고 장애물도 점점 다양해져요. 로그인 없이 PC와 모바일에서 바로 플레이할 수 있고, 게임이 끝나면 그 판에 모은 코인으로 아이템 효과를 강화할 수 있습니다.</p>
-</div>
-<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>점수(DISTANCE)는 달린 거리입니다. 오래 살아남을수록 올라가고, 달릴수록 이동 속도도 점점 빨라져요.</li>
-<li>일반 상태에서는 장애물에 닿으면 즉시 게임이 끝납니다. 체력은 따로 없습니다.</li>
-<li>코인(💎 DATA COIN)을 먹으면 모이고, 게임이 끝나면 저장되어 다음 판의 업그레이드에 쓸 수 있습니다.</li>
-<li>방패, 거인, 자석, 무지개 같은 아이템이 공중에 떠서 나옵니다. 아이템을 먹으면 효과가 바로 시작돼요.</li>
-<li>게임 속 단계가 올라가면 화면에 STAGE 알림이 나오고, 잠깐 속도가 빨라진 뒤 원래대로 돌아옵니다.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📈 점수에 따라 달라지는 장애물</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">달린 거리가 늘어날수록 더 크고 복잡한 장애물이 나옵니다. 점수가 100, 400, 800, 1,300에 닿으면 화면에 STAGE 2~5 알림(NETWORK, FIREWALL, CORE, OVERCLOCK)이 나오고, 잠깐 속도가 빨라진 뒤 원래 속도로 돌아옵니다.</p>
-<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
-<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 24%;padding:10px 14px">점수</div><div style="flex:1;padding:10px 14px">주로 나오는 장애물</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">0 ~ 99</div><div style="flex:1;padding:10px 14px">땅에 놓인 단순한 장애물과 작은 떠 있는 발판</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">100 ~ 299</div><div style="flex:1;padding:10px 14px">떠 있는 이동 발판과 삼각형 장애물</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">300 ~ 599</div><div style="flex:1;padding:10px 14px">높은 벽을 포함해 모든 종류가 섞임</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">600 ~ 999</div><div style="flex:1;padding:10px 14px">큰 벽, 육각형, 이동 발판 위주. 위에서 떨어지는 블록이 나오기 시작</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">1,000 ~ 1,499</div><div style="flex:1;padding:10px 14px">육각형, 큰 이동 발판, 큰 벽과 긴 바닥 장애물</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 24%;padding:10px 14px;font-weight:700">1,500 이상</div><div style="flex:1;padding:10px 14px">모든 종류가 무작위로 나옴</div></div>
-</div>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">장애물은 낮은 바닥형, 높은 세로 벽, 삼각형, 공중에 떠 있는 육각형, 좌우로 움직이는 발판, 위에서 떨어지는 블록이 있어요. 이동 발판은 윗면에 올라타면 안전하게 지나갈 수 있습니다. 점수가 오르면 여러 장애물이 연달아 붙어 나오는 패턴도 섞입니다.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">✨ 아이템</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">아이템은 공중에 떠서 날아오는 것을 점프로 먹습니다. 점수가 낮을 때는 간격이 길고, 점수가 높아질수록 더 자주 나와요. 200점 미만에서는 자석과 방패만 나오고, 그 뒤부터 거인과 무지개가 더해집니다.</p>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#15803d;font-size:15px;margin-bottom:6px">🛡 SHIELD</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">한 번의 충돌을 막아 줍니다. 부딪힌 장애물은 부서지고 방패는 사라져요. 방패가 있는 동안에는 한 번 더 실수할 수 있습니다.</p>
-</div>
-<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#0369a1;font-size:15px;margin-bottom:6px">👊 MEGA MODE (거인)</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">캐릭터가 커지고 일정 시간 동안 장애물을 부수며 지나갑니다. 지속 시간은 기본 6초이고 거인 업그레이드로 늘어나요.</p>
-</div>
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#b91c1c;font-size:15px;margin-bottom:6px">🧲 DATA MAGNET</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">일정 시간 동안 주변의 코인을 끌어당깁니다. 지속 시간은 기본 6초이고 자석 업그레이드로 늘어나요.</p>
-</div>
-<div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#6d28d9;font-size:15px;margin-bottom:6px">🌈 FEVER (무지개)</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">먹는 즉시 피버가 시작됩니다. 속도가 2배가 되고 장애물을 부수며 달려요. 200점부터 나오기 시작합니다.</p>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🌈 피버 모드</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">피버는 무지개 아이템을 먹으면 시작됩니다. 기본 지속 시간은 7초이고, 피버 업그레이드로 길어져요. 피버 중에는 속도가 빨라지고, 닿는 장애물은 부서지며, 언제든 점프할 수 있습니다. 대신 피버 중에는 새 코인과 아이템이 나오지 않으니, 코인을 모으는 시간이 아니라 거리를 크게 벌리는 시간이에요. 피버가 끝나면 속도가 원래대로 돌아오므로, 끝나는 순간의 장애물 배치에 대비하세요.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🛒 업그레이드 상점</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">게임이 끝나면 모은 코인으로 상점에서 효과를 강화할 수 있습니다. 강화는 4가지이고, 각각 5칸을 채우면 레벨이 1 올라가요. 모두 레벨 1에서 시작합니다.</p>
-<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
-<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 22%;padding:10px 14px">항목</div><div style="flex:1;padding:10px 14px">효과</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">코인</div><div style="flex:1;padding:10px 14px">코인 하나당 얻는 양이 늘어납니다. 레벨 1은 ×1.5, 레벨이 오를 때마다 0.5씩 증가.</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">자석</div><div style="flex:1;padding:10px 14px">자석 지속 시간이 레벨당 1초씩 늘어납니다. 레벨 1은 6초.</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">거인</div><div style="flex:1;padding:10px 14px">거인(MEGA MODE) 지속 시간이 레벨당 1초씩 늘어납니다. 레벨 1은 6초.</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 22%;padding:10px 14px;font-weight:700">피버</div><div style="flex:1;padding:10px 14px">피버 지속 시간이 레벨당 1초씩 늘어납니다. 레벨 1은 7초.</div></div>
-</div>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">한 칸을 채우는 비용은 100코인에 현재 레벨 × 50코인이 더해진 값입니다. 레벨 1에서는 150코인이에요. 강화는 브라우저에 저장되어 다음 판에도 이어지고, 상점의 "초기화"를 누르면 코인과 강화가 모두 처음으로 돌아갑니다.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">한 번의 터치로 가볍게 즐기는 러닝 게임을 찾는 분, 도트 그래픽 감성을 좋아하는 분에게 맞습니다. 짧게 한 판씩 하면서 코인을 모아 능력을 키워 가는 반복 플레이를 즐기는 분에게도 어울려요.</p>
-</div>
-</div>
-</div>
-                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">조작은 점프 하나입니다. 어떤 방법으로 눌러도 같은 점프예요.</p>
-<div class="space-y-3">
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">PC 점프</span>
-<div class="flex items-center gap-2 flex-wrap"><kbd class="min-w-[2.5rem] h-10 px-2 bg-indigo-600 text-white rounded-lg font-black shadow inline-flex items-center justify-center">Space</kbd><span class="font-bold text-slate-400 px-1">또는</span><kbd class="min-w-[2.5rem] h-10 px-2 bg-indigo-600 text-white rounded-lg font-black shadow inline-flex items-center justify-center">Enter</kbd></div>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">마우스 점프</span>
-<span class="font-bold text-slate-600">화면 클릭</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">모바일 점프</span>
-<span class="font-bold text-slate-600">화면 탭</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">시작 / 다시 시작</span>
-<span class="font-bold text-slate-600">점프와 같은 입력 (PRESS START)</span>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🧭 점프의 원리</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li>바닥에 있을 때 누르면 점프하고, 공중에서 한 번 더 누르면 2단 점프를 합니다. 2단 점프는 첫 점프보다 조금 낮아요.</li>
-<li>점프는 한 번 뛰고 공중에서 한 번 더, 모두 두 번까지 쓸 수 있습니다. 착지하면 다시 두 번을 쓸 수 있어요. 피버 중에는 횟수 제한 없이 언제든 점프할 수 있습니다.</li>
-<li>떠 있는 이동 발판은 윗면에 올라타면 안전합니다. 옆이나 아래에서 부딪히면 충돌이에요.</li>
-<li>장애물 바로 앞에서 누르는 것보다, 장애물이 가까워졌을 때 누르는 것이 더 정확합니다. 일찍 누르면 착지 지점에서 다음 장애물에 걸리기 쉬워요.</li>
-<li>시작 직후에는 장애물 간격이 넉넉합니다. 이 구간에서 점프의 높이와 거리를 손에 익히세요.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>점수</b> : 달린 거리입니다.</li>
-<li><b>최고 기록</b> : 이번에 페이지를 연 동안의 최고 점수입니다. 새 기록을 세우면 NEW RECORD가 나옵니다.</li>
-<li><b>코인</b> : 보유 중인 코인입니다. 이번 판에 모은 코인이 더해져서 표시돼요.</li>
-<li><b>자석·거인 막대</b> : 효과가 얼마나 남았는지 보여 줍니다.</li>
-<li><b>피버 막대</b> : 피버가 켜져 있는 동안 남은 시간이 줄어듭니다.</li>
-<li><b>STAGE 알림</b> : 단계가 올라갈 때 화면 가운데에 단계 이름이 나타납니다.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🏁 게임 종료와 기록</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">장애물에 닿으면 "CONNECTION LOST" 화면이 나오고, 달린 거리와 보유 코인이 표시됩니다. 같은 화면 아래에 업그레이드 상점이 열려 코인을 바로 쓸 수 있어요. 코인과 업그레이드는 지금 쓰는 브라우저에 저장됩니다. 다른 브라우저나 기기에서는 이어지지 않고, 사이트 데이터를 지우면 사라져요. 최고 점수는 페이지를 새로 열면 0부터 다시 표시되니, 기록을 남기고 싶다면 결과 공유를 활용하세요.</p>
-</div>
-</div>
-</div>
-                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 점수를 올리는 요령</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>점프 타이밍은 가까워졌을 때.</b> 장애물이 화면에 보이자마자 누르면 착지가 너무 일러서 다음 장애물에 걸립니다.</li>
-<li><b>2단 점프는 아껴 두세요.</b> 공중에서 장애물이나 높은 벽을 만났을 때를 위한 여분입니다. 첫 점프로 충분히 넘을 수 있으면 쓰지 않아도 돼요.</li>
-<li><b>방패를 먼저 챙기세요.</b> 방패는 한 번의 실수를 지워 줍니다. 초반에 나오면 우선적으로 먹는 것이 좋아요.</li>
-<li><b>무지개는 어려운 구간 앞에서 먹으세요.</b> 피버 동안 장애물을 부수며 달려서 가장 많은 거리를 벌 수 있습니다.</li>
-<li><b>거인은 장애물이 몰릴 때.</b> 커진 동안 장애물을 부수기 때문에, 여러 장애물이 연달아 나오는 구간에서 효과가 큽니다.</li>
-<li><b>업그레이드는 목표에 맞게.</b> 코인을 더 빨리 모으려면 코인, 안전하게 오래 달리려면 피버와 거인의 지속 시간을 올리세요.</li>
-<li><b>코인은 욕심내지 마세요.</b> 코인은 업그레이드용이고 점수는 거리입니다. 코인을 먹으려다 장애물에 닿으면 손해예요.</li>
-<li><b>600점 이후에는 위도 보세요.</b> 위에서 떨어지는 블록이 나오기 시작합니다.</li>
-</ul>
-</div>
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>코인을 먹으려고 점프하다가 장애물에 닿는 경우.</li>
-<li>↑ 방향키를 눌러도 점프가 안 된다고 당황하는 경우. 점프는 Space, Enter, 클릭, 터치로 합니다.</li>
-<li>업그레이드를 하지 않고 계속 도전만 하는 경우. 코인은 상점에서 써야 효과가 있어요.</li>
-<li>피버 중에 코인을 모으려 하는 경우. 피버 중에는 새 코인이 나오지 않습니다.</li>
-<li>피버가 끝날 때 방심하는 경우. 속도가 갑자기 원래대로 돌아오는 순간이 위험해요.</li>
-<li>2단 점프를 첫 점프 직후에 바로 써서 높이를 낭비하는 경우.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
-<div class="space-y-3">
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모은 코인은 어디서 쓰나요?</p>
-<p class="text-slate-600 text-sm md:text-base">게임이 끝나면 나타나는 업그레이드 상점에서 씁니다. 코인, 자석, 거인, 피버 네 가지를 강화할 수 있어요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 피버 모드는 어떻게 발동하나요?</p>
-<p class="text-slate-600 text-sm md:text-base">공중에 나타나는 🌈 무지개 아이템을 먹으면 즉시 발동합니다. 코인을 연속으로 먹는다고 자동으로 발동하지는 않아요. 무지개 아이템은 점수가 200점이 되면 나오기 시작합니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 캐릭터를 바꿀 수 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">캐릭터를 바꾸는 기능은 없습니다. 상점에서는 코인, 자석, 거인, 피버 효과를 강화할 수 있어요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 장애물 종류가 여러 가지인가요?</p>
-<p class="text-slate-600 text-sm md:text-base">네. 낮은 바닥형, 높은 벽, 삼각형, 공중의 육각형, 좌우로 움직이는 발판, 위에서 떨어지는 블록이 있고 단계가 오를수록 더 다양하게 섞입니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 무제한으로 이어지나요?</p>
-<p class="text-slate-600 text-sm md:text-base">네. 장애물에 닿지 않는 한 끝나지 않고 계속 달릴 수 있습니다. 거리가 늘수록 속도도 점점 빨라져요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. PC에서 어떤 키로 점프하나요?</p>
-<p class="text-slate-600 text-sm md:text-base">Space 또는 Enter 키, 마우스 클릭입니다. 방향키는 사용하지 않습니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 최고 기록은 저장되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">코인과 업그레이드는 브라우저에 저장되지만, 최고 점수는 페이지를 새로 열면 0부터 다시 시작합니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서도 플레이할 수 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">네. 화면을 탭하면 점프합니다. 플레이 중에는 화면이 확대되거나 스크롤되지 않도록 고정돼요.</p>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
-<div class="flex flex-wrap gap-3">
-<a href="/guides/hoho-dash-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 HOHO DASH 공략 전체 보기</a>
-<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
-<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
-<a href="/hoho-run.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🏃 HOHO RUN</a>
-<a href="/hoho-racing.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🚗 호호레이싱</a>
-<a href="/jelly-pop-7.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🍬 젤리팝7</a>
-</div>
-</div>
-</div>
-</div>
+
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-info" style="margin-top:2rem">
                 <div id="info" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
