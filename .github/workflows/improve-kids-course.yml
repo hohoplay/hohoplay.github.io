@@ -1,0 +1,46 @@
+name: Improve Kids Course Pages
+
+# 아이랑 나들이 코스 글(blog/kids-course/*.html 33개) 1회성 품질 개선 작업입니다.
+#   1) 애드센스 로더 제거
+#   2) 33개 글에 똑같이 들어 있던 소개·마무리 문구를 줄이고, 지역별 요약 문단("○○ 코스 한눈에 보기") 추가
+#   3) 운영시간 줄이 빠진 장소 보강(실제 값이 있으면 채우고, 없으면 "운영시간 정보 없음")
+# 장소 목록·주소·요금·링크·메타태그는 바뀌지 않습니다. 여러 번 실행해도 결과는 같습니다.
+#
+# [실행 전 필수] 아래 파일을 먼저 저장소에 올려 주세요.
+#   scripts/improve_kids_course_pages.py
+#
+# 수동 실행(workflow_dispatch)만 가능한 1회성 작업입니다.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 코스 글 개선
+        run: python3 scripts/improve_kids_course_pages.py
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add blog/kids-course
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 아이랑 나들이 코스 글 공통 문구 축소·지역별 요약 추가·광고 로더 제거"
+            git pull --rebase
+            git push
+          fi
