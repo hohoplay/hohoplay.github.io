@@ -677,6 +677,24 @@ def update_footer_latest(posts):
     print(f"  ✓ footer.html 최신 소식 갱신 완료 ({len(latest)}개, {n_subs}곳 반영)")
 
 
+# [ADD] 2026-10-27: 매거진 "목록" 페이지(build_magazine_archive_page)는 /footer.html 을 불러오지 않아,
+# footer.html 에 들어있는 모바일 햄버거 2열(compact) 스타일이 적용되지 않았다. update_nav_menu.py 가
+# 이 파일에 직접 끼워 넣어도 이 페이지는 3시간마다 통째로 다시 써지기 때문에 매번 사라졌다
+# (그래서 "호호 매거진 햄버거 메뉴만 안 바뀜"). 근본 해결로 이 생성기가 매번 같은 블록을 넣는다.
+# footer.html 의 <style id="mm-compact"> 와 규칙이 같다(767px 이하에서만 적용). f-string 밖의 일반
+# 문자열이라 CSS 중괄호를 그대로 쓴다.
+MM_COMPACT_STYLE = """<style id="mm-compact">
+  @media (max-width: 767px) {
+    #mobile-menu > div, #game-mobile-menu > div { display: grid !important; grid-template-columns: 1fr 1fr; gap: 2px 8px !important; padding: 6px 14px 10px !important; }
+    #mobile-menu > div > *, #game-mobile-menu > div > * { margin: 0 !important; min-width: 0; }
+    #mobile-menu > div > div, #game-mobile-menu > div > div { grid-column: 1 / -1; }
+    #mobile-menu > div > div.border-t, #game-mobile-menu > div > div[style*="border-top"] { margin: 4px 0 !important; }
+    #mobile-menu a, #mobile-menu button, #game-mobile-menu a { padding: 9px 12px !important; line-height: 1.3 !important; font-size: 14px !important; }
+  }
+</style>
+"""
+
+
 def build_magazine_archive_page(posts, post_excerpts=None):
     """호호 매거진 카테고리 글 전체를 모은 정적 목록 페이지(blog/board-magazine-260921/index.html)를
     만든다. blog/posts/{id}.html(개별 글, 내용이 안 바뀌므로 이미 있으면 건드리지 않음)과 달리,
@@ -750,7 +768,7 @@ body {{ font-family: 'Noto Sans KR', sans-serif; }}
 .empty {{ color: #94a3b8; font-size: 14px; padding: 40px 0; text-align: center; list-style: none; }}
 .back-link {{ display: inline-block; margin-top: 28px; color: #4f46e5; font-weight: 700; text-decoration: none; font-size: 14px; }}
 </style>
-</head>
+{MM_COMPACT_STYLE}</head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 {SITE_HEADER_HTML}
 <main class="flex-grow max-w-3xl mx-auto w-full px-4 py-10">
