@@ -3099,7 +3099,7 @@ document.getElementById('btn-rst').onclick=()=>{
         }
     })();
     </script>
-    <button id="back-to-game-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="게임 화면으로 이동"
+    <button id="back-to-game-btn" onclick="var g=document.getElementById('play-game');if(g){g.scrollIntoView({behavior:'smooth',block:'start'});}else{window.scrollTo({top:0,behavior:'smooth'});}" title="게임 화면으로 이동"
         style="display:none;position:fixed;right:16px;bottom:24px;z-index:60;width:52px;height:52px;border-radius:16px;border:none;background:#4f46e5;color:#fff;box-shadow:0 8px 20px rgba(79,70,229,.35);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:transform .15s"
         onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><line x1="9" y1="6" x2="15" y2="6"/><circle cx="12" cy="11" r="1.6" fill="#fff" stroke="none"/><circle cx="9" cy="15" r="1" fill="#fff" stroke="none"/><circle cx="12" cy="15" r="1" fill="#fff" stroke="none"/><circle cx="15" cy="15" r="1" fill="#fff" stroke="none"/></svg>
@@ -3108,13 +3108,21 @@ document.getElementById('btn-rst').onclick=()=>{
     <script>
         (function() {
             var btn = document.getElementById('back-to-game-btn');
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 400) {
-                    btn.style.display = 'flex';
-                } else {
-                    btn.style.display = 'none';
-                }
-            });
+            // [2026-10-27] 설명 블록이 게임 위로 올라가서, 버튼은 맨 위가 아니라 게임 위치(#play-game)로 이동한다.
+            // 게임이 이미 화면에 보이는 동안에는 버튼을 숨기고, 설명 구간이나 게임 아래로 벗어났을 때만 보여준다.
+            function gameInView() {
+                var a = document.getElementById('play-game');
+                var b = document.getElementById('game-info');
+                if (!a || !b) return false;
+                var top = a.getBoundingClientRect().top;
+                var bottom = b.getBoundingClientRect().top;
+                return top < window.innerHeight * 0.5 && bottom > window.innerHeight * 0.3;
+            }
+            function updateBackBtn() {
+                btn.style.display = (window.scrollY > 400 && !gameInView()) ? 'flex' : 'none';
+            }
+            window.addEventListener('scroll', updateBackBtn, { passive: true });
+            window.addEventListener('resize', updateBackBtn);
         })();
     </script>
 
