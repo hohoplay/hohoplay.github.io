@@ -70,8 +70,11 @@
   .hint { font-size: 12px; color: #94a3b8; margin-top: 10px; }
   .brhead { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 8px; }
   .brhead h3 { margin: 0; font-size: 15px; font-weight: 900; color: #0f172a; }
-  .br { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; -webkit-overflow-scrolling: touch; }
+  .br { display: flex; gap: 10px; overflow: auto; height: 200px; padding: 4px 2px 6px; margin-bottom: 14px; -webkit-overflow-scrolling: touch; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .br.full { height: auto; overflow-y: visible; background: transparent; border: 0; padding-bottom: 10px; }
+  .brhead.tight { margin: 4px 0 6px; }
   .brc { display: flex; flex-direction: column; flex: 0 0 120px; }
+  .brc.on h4 { color: #4338ca; }
   .brc h4 { font-size: 11px; color: #64748b; text-align: center; margin: 0 0 6px; font-weight: 800; }
   .brl { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 8px; }
   .brm { border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; font-size: 11px; overflow: hidden; }
@@ -118,6 +121,15 @@
     .vs { grid-template-columns: 1fr 40px 1fr; align-items: stretch; }
     .vsb { align-self: center; }
     .ru { grid-template-columns: repeat(3, 1fr); }
+    .br { height: 300px; }
+  }
+  @media (max-width: 719px) {
+    .cand { padding: 13px 14px; }
+    .cname { font-size: 18px; }
+    .cdesc { -webkit-line-clamp: 2; }
+    .cgo { display: none; }
+    .vs { gap: 8px; }
+    .vsb { line-height: 1; margin: -2px 0; }
   }
 </style>
 </head>
@@ -169,14 +181,14 @@
       <div class="rsub" id="rsub">1 / 8 경기</div>
     </div>
     <div class="bar"><i id="barfill"></i></div>
+    <div class="brhead tight"><h3>📋 대진표</h3></div>
+    <div class="br" id="bracket" aria-label="대진표"></div>
     <div class="vs" id="vs"></div>
     <div class="ctl">
       <button type="button" class="btn ghost" id="undoBtn">← 이전 선택으로</button>
       <button type="button" class="btn ghost" id="quitBtn">처음으로</button>
     </div>
     <div class="hint">카드를 누르거나 키보드 ← → (또는 1, 2) 키로 고를 수 있어요.</div>
-    <div class="brhead"><h3>📋 대진표</h3></div>
-    <div class="br" id="bracket" aria-label="대진표"></div>
   </section>
 
   <!-- 3) 결과 -->
@@ -455,6 +467,7 @@
     $('game').style.display = 'block';
     render();
     $('game').scrollIntoView({ block: 'start' });
+    setTimeout(function () { var bt = $('game').getBoundingClientRect().bottom; if (bt > window.innerHeight) window.scrollBy(0, Math.min(bt - window.innerHeight + 8, 200)); }, 60);   // 아래 카드까지 한 화면에 보이게 살짝 내림
   }
   function doneCount() { var c = 0; S.results.forEach(function (a) { c += a.length; }); return c; }
   function render() {
@@ -502,12 +515,26 @@
   }
 
   /* ---------- 대진표 ---------- */
+  // 가로로 스크롤되는 대진표에서 el(현재 라운드 열)이 화면 가운데 오도록 맞춘다.
+  function centerIn(host, el, smooth) {
+    if (!host || !el) return;
+    var hr = host.getBoundingClientRect(), er = el.getBoundingClientRect();
+    if (!hr.width) return;   // 숨겨진 상태면 계산 불가
+    var x = host.scrollLeft + (er.left - hr.left) - (hr.width - er.width) / 2;
+    var y = host.scrollTop + (er.top - hr.top) - (hr.height - er.height) / 2;
+    x = Math.max(0, Math.min(x, host.scrollWidth - host.clientWidth));
+    y = Math.max(0, Math.min(y, host.scrollHeight - host.clientHeight));
+    if (smooth && host.scrollTo) host.scrollTo({ left: x, top: y, behavior: 'smooth' });
+    else { host.scrollLeft = x; host.scrollTop = y; }
+  }
   function renderBracket(final) {
-    var host = $('bracket'); host.innerHTML = '';
+    var host = $('bracket'), prevLeft = host.scrollLeft, prevTop = host.scrollTop, curBox = null;
+    host.innerHTML = '';
     var rounds = Math.log(S.n) / Math.LN2;
     for (var r = 0; r < rounds; r++) {
       var size = S.n / Math.pow(2, r);
       var col = el('div', 'brc');
+      if (!final && r === S.r) col.classList.add('on');
       col.appendChild(el('h4', null, roundName(size)));
       var list = el('div', 'brl');
       for (var m = 0; m < size / 2; m++) {
@@ -521,7 +548,7 @@
           else if (win) row.className = (p === win) ? 'w' : 'l';
           box.appendChild(row);
         });
-        if (!final && r === S.r && m === S.m) box.classList.add('cur');
+        if (!final && r === S.r && m === S.m) { box.classList.add('cur'); curBox = box; }
         list.appendChild(box);
       }
       col.appendChild(list);
@@ -534,6 +561,8 @@
     var champ = S.results[rounds - 1] && S.results[rounds - 1][0];
     cb.appendChild(el('div', null, champ ? '🏆 ' + champ.title : '?'));
     cl.appendChild(cb); cc.appendChild(cl); host.appendChild(cc);
+    host.scrollLeft = prevLeft; host.scrollTop = prevTop;   // 다시 그리면 스크롤이 0으로 돌아가므로 먼저 복원한 뒤
+    centerIn(host, curBox || cb, true);                      // 현재 경기(끝나면 우승 칸)가 가운데 오도록 부드럽게 이동
   }
 
   /* ---------- 결과 ---------- */
@@ -604,12 +633,13 @@
 
     var brh = el('div', 'brhead'); brh.appendChild(el('h3', null, '📋 최종 대진표'));
     res.appendChild(brh);
-    var brClone = $('bracket').cloneNode(true); brClone.removeAttribute('id');
+    var brClone = $('bracket').cloneNode(true); brClone.removeAttribute('id'); brClone.classList.add('full');   // 결과에서는 높이 제한 없이 전체를 보여준다
     res.appendChild(brClone);
 
     $('game').style.display = 'none';
     res.style.display = 'block';
     res.scrollIntoView({ block: 'start' });
+    centerIn(brClone, brClone.querySelector('.brm.champ'), false);   // 결과 화면의 최종 대진표는 우승 칸이 보이게
     loadFestivals(champ);
   }
   function toSetup() {
