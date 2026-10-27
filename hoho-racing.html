@@ -516,6 +516,7 @@ canvas {
                 'nav, #footer-placeholder { display: none !important; }',
                 '.page-transition > div:first-child { display: none !important; }',  /* 게임헤더 */
                 '.page-transition > div:last-child { display: none !important; }',   /* 탭패널 */
+                '#game-text, #game-skip { display: none !important; }',  /* 설명 블록·건너뛰기 버튼(게임만 보여주는 임베드 모드) */
                 'body { background: #111 !important; }',
                 'main { padding: 4px 0 0 0 !important; max-width: 100% !important; }',
                 '.page-transition { gap: 0 !important; }',
@@ -681,7 +682,7 @@ canvas {
                     </a>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="text-5xl font-black text-slate-900 tracking-tight">🏎️ 호호레이싱</h1>
-                        <button onclick="return gameNavScroll('desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">📖 게임설명</button>
+                        <button onclick="return gameNavScroll('play-game')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">▶ 바로 게임하기</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -716,8 +717,215 @@ canvas {
                     <li>💡 도로 양쪽 끝의 벽에 닿아도 체력(❤️)이 줄어요. 가장자리에 붙어 달리지 마세요.</li>
                     <li>💡 ⚡ 터보 상태에서는 부딪혀도 다치지 않고, 부딪힌 차량마다 점수를 얻어요.</li>
                 </ul>
+            <div id="game-skip" style="margin-top:12px"><button type="button" onclick="return gameNavScroll('play-game')" style="display:inline-flex;align-items:center;gap:6px;background:#4f46e5;color:#fff;font-weight:900;font-size:14px;padding:10px 18px;border:0;border-radius:999px;cursor:pointer">▶ 설명 건너뛰고 바로 게임하기</button></div>
             </div>
 
+            <!-- 탭 패널 -->
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-text" style="margin:1.5rem 0 3rem">
+                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
+            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
+<div class="space-y-8">
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 호호레이싱을 만든 이유</h2>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">옛날 레트로 게임 중에 좌우로 움직이며 자동차를 피하는 레이싱 게임을 정말 재미있게 했어요. 그래서 또 하고 싶었는데, 막상 할 만한 곳이 없더라고요.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">그러다 모바일 게임 ‘차차차’가 떠올랐습니다. 레트로 레이싱의 단순한 차량 피하기와 ‘차차차’를 합쳐 보자는 생각으로, 규칙은 단순하게 두고 피버 모드와 아이템을 더해 차를 피해 달리는 게임을 만들었습니다. 그게 호호레이싱입니다.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">노린 재미는 짜릿한 스트레스 해소예요. 복잡한 생각 없이 좌우로만 움직이며 차를 피해 달리다가, 터보 아이템을 먹는 순간 도로 위의 차들을 날려 보내며 질주하는 쾌감을 느끼도록 만들었어요. 그래서 조작은 좌우뿐이고, 한 판이 끝나면 바로 다시 도전할 수 있게 했습니다.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0">처음에는 3차선 도로에서 여유 있게 시작하지만, 점수가 오를수록 차선이 늘어나고 도로가 휘고 뒤에서 트럭까지 달려옵니다. 피하는 긴장감과 터보로 한꺼번에 몰아치는 짜릿함, 이 두 가지가 호호레이싱의 핵심입니다.</p>
+</div>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">호호레이싱은 위에서 내려오는 차량을 피하며 최대한 오래, 멀리 달리는 무료 웹 레이싱 게임입니다. 설치나 회원가입 없이 PC와 모바일 브라우저에서 바로 플레이할 수 있고, 조작은 좌우 이동뿐이라 규칙을 따로 익힐 필요가 없습니다. 대신 점수가 오를수록 도로가 점점 복잡해져서, 나중에는 어디로 피할지 빠르게 판단해야 합니다.</p>
+</div>
+
+<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>체력(❤️)은 3칸으로 시작하고, 최대 5칸까지 늘어납니다. 체력은 화면 왼쪽 위에 표시돼요.</li>
+<li>승용차·버스·트럭에 부딪히거나 도로 양쪽 끝의 벽에 닿으면 체력이 1칸씩 줄고, 0칸이 되면 레이스가 끝납니다. 한 번 부딪혔다고 바로 끝나지는 않아요.</li>
+<li>달리는 동안 점수가 계속 올라갑니다. 오래 살아남을수록 점수가 쌓이고, 터보 상태에서는 훨씬 빠르게 올라갑니다.</li>
+<li>레이스가 끝나면 이니셜 3글자를 입력해 기록을 남길 수 있고, 기록은 명예의 전당에 저장됩니다.</li>
+</ul>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎁 아이템 3종</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">터보 상태가 아닐 때 일정한 간격으로 아이템이 도로 위에 하나씩 등장합니다. 아이템도 차량처럼 위에서 내려오기 때문에, 먹으러 갈 때는 주변 차량을 먼저 확인하세요.</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div style="background:#fefce8;border:1px solid #fde68a;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#a16207;font-size:15px;margin-bottom:6px">⚡ 터보 (피버 모드)</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">먹으면 한동안 속도가 크게 빨라지고 도로가 어두워지며 무지개빛 차선이 흐릅니다. 이 동안에는 차량이나 벽에 닿아도 체력이 줄지 않고, 부딪힌 차량은 날아가면서 2,000점이 들어옵니다. 남은 시간은 게이지로 확인할 수 있어요.</p>
+</div>
+<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#0369a1;font-size:15px;margin-bottom:6px">🛡️ 방패</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">차량 또는 벽과 부딪히는 충돌을 딱 한 번 막아 주고 사라집니다. 이미 방패를 가지고 있는 동안에는 방패 아이템이 다시 나오지 않습니다.</p>
+</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#b91c1c;font-size:15px;margin-bottom:6px">❤️ 하트</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">체력을 1칸 회복합니다. 체력이 가득 차 있을 때는 하트가 나오지 않아요.</p>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📈 점수에 따라 달라지는 도로</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">호호레이싱은 레벨을 고르는 방식이 아니라, 점수가 오르면 도로 자체가 바뀌는 방식입니다. 바뀌는 순간에는 화면에 알림 문구(LANE 4! 같은)가 뜹니다.</p>
+<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
+<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 38%;padding:10px 14px">점수</div><div style="flex:1;padding:10px 14px">도로에서 달라지는 점</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">시작 ~ 29,999점</div><div style="flex:1;padding:10px 14px">3차선 직선 도로. 승용차만 나옵니다.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">30,000점부터</div><div style="flex:1;padding:10px 14px">4차선으로 늘어나고, 긴 버스가 등장합니다. 직선 구간과 휘어지는 구간이 번갈아 나옵니다.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">80,000점부터</div><div style="flex:1;padding:10px 14px">5차선. 빨간 경고 표시가 뜬 뒤 뒤에서 달려오는 트럭이 나옵니다.</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">150,000점부터</div><div style="flex:1;padding:10px 14px">6차선. 차선 하나의 폭이 더 좁아집니다.</div></div>
+</div>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">여기에 더해 점수가 오를수록 도로의 진행 속도가 조금씩 빨라지고, 차량이 등장하는 간격도 짧아집니다.</p>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">복잡한 규칙 없이 바로 시작할 수 있는 가벼운 게임을 찾는 분, 짧게 한 판 하고 점수를 갱신해 나가는 재미를 좋아하는 분, 옛날 차량 피하기 게임이 생각나는 분에게 잘 맞습니다. PC 키보드로도, 모바일 터치로도 할 수 있어서 쉬는 시간에 가볍게 열어 보기에도 부담이 없어요.</p>
+</div>
+
+</div>
+</div>
+                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">조작은 좌우 이동이 전부입니다. 방향을 누르고 있는 동안 계속 그쪽으로 움직이고, 손을 떼면 멈춥니다. 한 번 누르면 칸 단위로 옮겨 가는 방식이 아니라서, 누르는 시간만큼 이동한다고 생각하면 쉬워요.</p>
+<div class="space-y-3">
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">PC 키보드</span>
+<div class="flex items-center gap-2 flex-wrap">
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">←</kbd>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">→</kbd>
+<span class="font-bold text-slate-400 px-1">또는</span>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">A</kbd>
+<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">D</kbd>
+</div>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">PC 마우스</span>
+<span class="font-bold text-slate-600">게임 화면의 왼쪽/오른쪽 절반을 누르고 있기</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">모바일 터치</span>
+<span class="font-bold text-slate-600">화면 왼쪽/오른쪽 절반을 누르고 있기</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">터보 (피버 모드)</span>
+<span class="font-bold text-slate-600">⚡ 아이템을 먹으면 자동 발동</span>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🧭 이렇게 해 보세요</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li>두 키를 동시에 누르면 나중에 누른 쪽으로 움직입니다.</li>
+<li>모바일에서는 누른 채로 손가락을 화면 중앙선 건너편으로 끌면 방향이 바로 바뀝니다. 뗐다가 다시 누르지 않아도 돼요.</li>
+<li>게임 화면 위에서 조작하는 동안에는 페이지가 스크롤되지 않습니다. 게임이 끝나면 다시 스크롤할 수 있어요.</li>
+</ul>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>왼쪽 위 ❤️</b> : 남은 체력입니다. 0이 되면 레이스가 끝나요.</li>
+<li><b>화면 가운데 알림 문구</b> : CRASH!, SHIELD!, TURBO!, LANE 4!, CURVE! 처럼 지금 일어난 일을 알려 줍니다.</li>
+<li><b>빨간 삼각형 경고</b> : 5차선 이후에 나타나며, 표시된 차선으로 뒤에서 트럭이 올라온다는 신호입니다.</li>
+<li><b>터보 게이지</b> : 터보 상태일 때 남은 시간이 줄어드는 모습으로 보입니다.</li>
+</ul>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🏆 기록 남기기</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">레이스가 끝나면 이니셜 3글자를 입력하고 ‘기록하기’를 눌러 점수를 남깁니다. 명예의 전당에는 점수가 높은 상위 5개 기록이 표시되고, ‘인증하고 공유하기’ 버튼으로 점수 이미지를 저장하거나 공유할 수 있어요. 이어서 하려면 ‘다시 도전하기’, 기록 화면을 정리하고 처음부터 시작하려면 ‘새로 하기’를 누르세요.</p>
+</div>
+</div>
+</div>
+                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 점수를 올리는 요령</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>점수의 대부분은 터보에서 나옵니다.</b> 평소에는 달리는 동안 점수가 천천히 오르지만, 터보 상태에서는 오르는 속도가 열 배 넘게 빨라집니다. 오래 살아남는 것만큼 터보를 자주 먹는 것이 기록에 큰 영향을 줍니다.</li>
+<li><b>터보 중에는 피하지 말고 들이받으세요.</b> 체력이 줄지 않고, 부딪힌 차량 하나당 2,000점이 들어옵니다. 차량이 많은 쪽으로 가는 것이 오히려 이득이에요.</li>
+<li><b>터보가 끝나기 전에 마음의 준비를 하세요.</b> 게이지가 거의 줄었다면 슬슬 들이받기를 멈추고, 평소처럼 피할 길을 보는 쪽으로 전환해야 합니다. 터보가 끝난 직후 첫 충돌이 가장 아깝습니다.</li>
+<li><b>아이템은 상황에 맞게 먹으세요.</b> 체력이 가득 차 있으면 하트가, 방패가 있으면 방패가 나오지 않기 때문에 그런 상태에서는 터보가 나올 가능성이 상대적으로 높아집니다.</li>
+<li><b>차선이 늘어나는 순간을 조심하세요.</b> LANE 알림이 뜨면 차선 하나의 폭이 좁아져 틈이 줄어듭니다. 알림이 뜨면 먼저 주변 차량 위치를 다시 확인하세요.</li>
+<li><b>빨간 삼각형이 보이면 그 차선을 비우세요.</b> 5차선부터는 경고 표시가 뜬 차선으로 뒤에서 트럭이 빠르게 올라옵니다. 앞만 보다가 뒤에서 오는 트럭에 부딪히는 경우가 많아요.</li>
+</ul>
+</div>
+
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>방향을 누른 채로 도로 끝까지 가서 벽에 닿는 경우. 차량이 아니어도 체력이 줄어듭니다.</li>
+<li>한쪽 차선에만 머물다가 갑자기 차량이 나타나 피할 공간이 없어지는 경우. 늘 양쪽 중 한 곳은 비워 두세요.</li>
+<li>모바일에서 화면을 톡톡 치기만 해서 원하는 만큼 움직이지 못하는 경우. 누르고 있는 동안 이동합니다.</li>
+<li>터보가 끝난 줄 모르고 계속 차량에 돌진하는 경우. 게이지를 보면서 끝나기 전에 평소 모드로 돌아오세요.</li>
+<li>차선이 늘어난 뒤에도 이전과 같은 폭으로 움직이다가 옆 차량과 부딪히는 경우.</li>
+<li>5차선 이후 경고 삼각형을 무시하는 경우.</li>
+</ul>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
+<div class="space-y-3">
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서 조작이 잘 안 먹어요.</p>
+<p class="text-slate-600 text-sm md:text-base">이 게임은 톡 치는 방식이 아니라 누르고 있는 동안 움직이는 방식입니다. 화면 왼쪽을 누르고 있으면 왼쪽으로, 오른쪽을 누르고 있으면 오른쪽으로 이동해요. 짧게 톡 치면 조금밖에 움직이지 않으니 원하는 위치까지 누르고 계세요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 충돌하면 바로 게임이 끝나나요?</p>
+<p class="text-slate-600 text-sm md:text-base">아니요. 체력이 3칸으로 시작하고, 차량이나 벽에 부딪힐 때마다 1칸씩 줄어듭니다. 체력이 0이 되어야 레이스가 끝나요. 방패가 있으면 첫 충돌은 체력이 줄지 않고 방패만 사라집니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 도로 끝에 닿으면 어떻게 되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">도로 양쪽 끝의 벽에 닿아도 차량과 부딪힌 것처럼 체력이 1칸 줄어듭니다. 방향을 누른 채 끝까지 가 버리면 체력이 연달아 깎일 수 있으니 주의하세요. 터보 상태에서는 벽에 닿아도 체력이 줄지 않습니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 체력은 어떻게 회복하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">도로에 나오는 ❤️ 하트를 먹으면 체력이 1칸 회복됩니다. 체력은 최대 5칸까지 늘어나고, 이미 가득 찼을 때는 하트가 나오지 않아요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 터보(피버 모드)는 어떻게 발동하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">⚡ 아이템을 먹으면 발동합니다. 한동안 속도가 빨라지고 체력이 줄지 않으며, 부딪힌 차량이 날아가면서 2,000점씩 얻습니다. 남은 시간은 게이지로 확인할 수 있고, 시간이 끝나면 다시 평소처럼 차량을 피해야 해요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 차선이 왜 점점 늘어나나요?</p>
+<p class="text-slate-600 text-sm md:text-base">점수에 따라 도로가 바뀌도록 만들었기 때문입니다. 30,000점에서 4차선, 80,000점에서 5차선, 150,000점에서 6차선이 되고, 그때마다 알림 문구가 나타납니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 명예의 전당 기록은 어디에 저장되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">지금 사용하는 브라우저의 저장 공간에 저장됩니다. 그래서 다른 기기나 다른 브라우저에서는 보이지 않고, 브라우저의 사이트 데이터를 지우면 기록도 함께 사라져요. 상위 5개 기록만 보관됩니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. PC와 모바일 모두 할 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네, 둘 다 가능합니다. PC는 키보드(← → 또는 A D)나 마우스, 모바일은 화면 터치로 플레이할 수 있어요. 설치나 로그인은 필요하지 않습니다.</p>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
+<div class="flex flex-wrap gap-3">
+<a href="/guides/hoho-racing-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 호호레이싱 공략 전체 보기</a>
+<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
+<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
+</div>
+</div>
+
+</div>
+</div>
+            </div>
+
+            <div id="play-game" style="height:0;margin:0!important;scroll-margin-top:70px"></div>
             <!-- 게임 영역 -->
 <style>
         /* HOHO PLAY 공통 */
@@ -2932,9 +3140,6 @@ if(document.readyState==='loading'){
                 </div>
             </section>
 
-            <!-- 탭 패널 -->
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
                     <!-- ── 게임 결과 피드백 카드 (공용) ── -->
     <div id="hp-feedback-card" style="display:none;max-width:480px;margin:16px auto 0;background:#fff;border:1px solid #e0e7ff;border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(79,70,229,.08)">
         <div id="hp-fb-ask" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -3002,206 +3207,8 @@ if(document.readyState==='loading'){
     })();
     </script>
 
-            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
-<div class="space-y-8">
 
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 호호레이싱을 만든 이유</h2>
-<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">옛날 레트로 게임 중에 좌우로 움직이며 자동차를 피하는 레이싱 게임을 정말 재미있게 했어요. 그래서 또 하고 싶었는데, 막상 할 만한 곳이 없더라고요.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">그러다 모바일 게임 ‘차차차’가 떠올랐습니다. 레트로 레이싱의 단순한 차량 피하기와 ‘차차차’를 합쳐 보자는 생각으로, 규칙은 단순하게 두고 피버 모드와 아이템을 더해 차를 피해 달리는 게임을 만들었습니다. 그게 호호레이싱입니다.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">노린 재미는 짜릿한 스트레스 해소예요. 복잡한 생각 없이 좌우로만 움직이며 차를 피해 달리다가, 터보 아이템을 먹는 순간 도로 위의 차들을 날려 보내며 질주하는 쾌감을 느끼도록 만들었어요. 그래서 조작은 좌우뿐이고, 한 판이 끝나면 바로 다시 도전할 수 있게 했습니다.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0">처음에는 3차선 도로에서 여유 있게 시작하지만, 점수가 오를수록 차선이 늘어나고 도로가 휘고 뒤에서 트럭까지 달려옵니다. 피하는 긴장감과 터보로 한꺼번에 몰아치는 짜릿함, 이 두 가지가 호호레이싱의 핵심입니다.</p>
-</div>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">호호레이싱은 위에서 내려오는 차량을 피하며 최대한 오래, 멀리 달리는 무료 웹 레이싱 게임입니다. 설치나 회원가입 없이 PC와 모바일 브라우저에서 바로 플레이할 수 있고, 조작은 좌우 이동뿐이라 규칙을 따로 익힐 필요가 없습니다. 대신 점수가 오를수록 도로가 점점 복잡해져서, 나중에는 어디로 피할지 빠르게 판단해야 합니다.</p>
-</div>
-
-<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>체력(❤️)은 3칸으로 시작하고, 최대 5칸까지 늘어납니다. 체력은 화면 왼쪽 위에 표시돼요.</li>
-<li>승용차·버스·트럭에 부딪히거나 도로 양쪽 끝의 벽에 닿으면 체력이 1칸씩 줄고, 0칸이 되면 레이스가 끝납니다. 한 번 부딪혔다고 바로 끝나지는 않아요.</li>
-<li>달리는 동안 점수가 계속 올라갑니다. 오래 살아남을수록 점수가 쌓이고, 터보 상태에서는 훨씬 빠르게 올라갑니다.</li>
-<li>레이스가 끝나면 이니셜 3글자를 입력해 기록을 남길 수 있고, 기록은 명예의 전당에 저장됩니다.</li>
-</ul>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎁 아이템 3종</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">터보 상태가 아닐 때 일정한 간격으로 아이템이 도로 위에 하나씩 등장합니다. 아이템도 차량처럼 위에서 내려오기 때문에, 먹으러 갈 때는 주변 차량을 먼저 확인하세요.</p>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-<div style="background:#fefce8;border:1px solid #fde68a;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#a16207;font-size:15px;margin-bottom:6px">⚡ 터보 (피버 모드)</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">먹으면 한동안 속도가 크게 빨라지고 도로가 어두워지며 무지개빛 차선이 흐릅니다. 이 동안에는 차량이나 벽에 닿아도 체력이 줄지 않고, 부딪힌 차량은 날아가면서 2,000점이 들어옵니다. 남은 시간은 게이지로 확인할 수 있어요.</p>
-</div>
-<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#0369a1;font-size:15px;margin-bottom:6px">🛡️ 방패</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">차량 또는 벽과 부딪히는 충돌을 딱 한 번 막아 주고 사라집니다. 이미 방패를 가지고 있는 동안에는 방패 아이템이 다시 나오지 않습니다.</p>
-</div>
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#b91c1c;font-size:15px;margin-bottom:6px">❤️ 하트</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">체력을 1칸 회복합니다. 체력이 가득 차 있을 때는 하트가 나오지 않아요.</p>
-</div>
-</div>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📈 점수에 따라 달라지는 도로</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">호호레이싱은 레벨을 고르는 방식이 아니라, 점수가 오르면 도로 자체가 바뀌는 방식입니다. 바뀌는 순간에는 화면에 알림 문구(LANE 4! 같은)가 뜹니다.</p>
-<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
-<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 38%;padding:10px 14px">점수</div><div style="flex:1;padding:10px 14px">도로에서 달라지는 점</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">시작 ~ 29,999점</div><div style="flex:1;padding:10px 14px">3차선 직선 도로. 승용차만 나옵니다.</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">30,000점부터</div><div style="flex:1;padding:10px 14px">4차선으로 늘어나고, 긴 버스가 등장합니다. 직선 구간과 휘어지는 구간이 번갈아 나옵니다.</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">80,000점부터</div><div style="flex:1;padding:10px 14px">5차선. 빨간 경고 표시가 뜬 뒤 뒤에서 달려오는 트럭이 나옵니다.</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 38%;padding:10px 14px;font-weight:700">150,000점부터</div><div style="flex:1;padding:10px 14px">6차선. 차선 하나의 폭이 더 좁아집니다.</div></div>
-</div>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">여기에 더해 점수가 오를수록 도로의 진행 속도가 조금씩 빨라지고, 차량이 등장하는 간격도 짧아집니다.</p>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">복잡한 규칙 없이 바로 시작할 수 있는 가벼운 게임을 찾는 분, 짧게 한 판 하고 점수를 갱신해 나가는 재미를 좋아하는 분, 옛날 차량 피하기 게임이 생각나는 분에게 잘 맞습니다. PC 키보드로도, 모바일 터치로도 할 수 있어서 쉬는 시간에 가볍게 열어 보기에도 부담이 없어요.</p>
-</div>
-
-</div>
-</div>
-                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">조작은 좌우 이동이 전부입니다. 방향을 누르고 있는 동안 계속 그쪽으로 움직이고, 손을 떼면 멈춥니다. 한 번 누르면 칸 단위로 옮겨 가는 방식이 아니라서, 누르는 시간만큼 이동한다고 생각하면 쉬워요.</p>
-<div class="space-y-3">
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">PC 키보드</span>
-<div class="flex items-center gap-2 flex-wrap">
-<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">←</kbd>
-<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">→</kbd>
-<span class="font-bold text-slate-400 px-1">또는</span>
-<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">A</kbd>
-<kbd class="w-10 h-10 bg-indigo-600 text-white rounded-lg font-black shadow flex items-center justify-center">D</kbd>
-</div>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">PC 마우스</span>
-<span class="font-bold text-slate-600">게임 화면의 왼쪽/오른쪽 절반을 누르고 있기</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">모바일 터치</span>
-<span class="font-bold text-slate-600">화면 왼쪽/오른쪽 절반을 누르고 있기</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">터보 (피버 모드)</span>
-<span class="font-bold text-slate-600">⚡ 아이템을 먹으면 자동 발동</span>
-</div>
-</div>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🧭 이렇게 해 보세요</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li>두 키를 동시에 누르면 나중에 누른 쪽으로 움직입니다.</li>
-<li>모바일에서는 누른 채로 손가락을 화면 중앙선 건너편으로 끌면 방향이 바로 바뀝니다. 뗐다가 다시 누르지 않아도 돼요.</li>
-<li>게임 화면 위에서 조작하는 동안에는 페이지가 스크롤되지 않습니다. 게임이 끝나면 다시 스크롤할 수 있어요.</li>
-</ul>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>왼쪽 위 ❤️</b> : 남은 체력입니다. 0이 되면 레이스가 끝나요.</li>
-<li><b>화면 가운데 알림 문구</b> : CRASH!, SHIELD!, TURBO!, LANE 4!, CURVE! 처럼 지금 일어난 일을 알려 줍니다.</li>
-<li><b>빨간 삼각형 경고</b> : 5차선 이후에 나타나며, 표시된 차선으로 뒤에서 트럭이 올라온다는 신호입니다.</li>
-<li><b>터보 게이지</b> : 터보 상태일 때 남은 시간이 줄어드는 모습으로 보입니다.</li>
-</ul>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🏆 기록 남기기</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">레이스가 끝나면 이니셜 3글자를 입력하고 ‘기록하기’를 눌러 점수를 남깁니다. 명예의 전당에는 점수가 높은 상위 5개 기록이 표시되고, ‘인증하고 공유하기’ 버튼으로 점수 이미지를 저장하거나 공유할 수 있어요. 이어서 하려면 ‘다시 도전하기’, 기록 화면을 정리하고 처음부터 시작하려면 ‘새로 하기’를 누르세요.</p>
-</div>
-</div>
-</div>
-                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 점수를 올리는 요령</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>점수의 대부분은 터보에서 나옵니다.</b> 평소에는 달리는 동안 점수가 천천히 오르지만, 터보 상태에서는 오르는 속도가 열 배 넘게 빨라집니다. 오래 살아남는 것만큼 터보를 자주 먹는 것이 기록에 큰 영향을 줍니다.</li>
-<li><b>터보 중에는 피하지 말고 들이받으세요.</b> 체력이 줄지 않고, 부딪힌 차량 하나당 2,000점이 들어옵니다. 차량이 많은 쪽으로 가는 것이 오히려 이득이에요.</li>
-<li><b>터보가 끝나기 전에 마음의 준비를 하세요.</b> 게이지가 거의 줄었다면 슬슬 들이받기를 멈추고, 평소처럼 피할 길을 보는 쪽으로 전환해야 합니다. 터보가 끝난 직후 첫 충돌이 가장 아깝습니다.</li>
-<li><b>아이템은 상황에 맞게 먹으세요.</b> 체력이 가득 차 있으면 하트가, 방패가 있으면 방패가 나오지 않기 때문에 그런 상태에서는 터보가 나올 가능성이 상대적으로 높아집니다.</li>
-<li><b>차선이 늘어나는 순간을 조심하세요.</b> LANE 알림이 뜨면 차선 하나의 폭이 좁아져 틈이 줄어듭니다. 알림이 뜨면 먼저 주변 차량 위치를 다시 확인하세요.</li>
-<li><b>빨간 삼각형이 보이면 그 차선을 비우세요.</b> 5차선부터는 경고 표시가 뜬 차선으로 뒤에서 트럭이 빠르게 올라옵니다. 앞만 보다가 뒤에서 오는 트럭에 부딪히는 경우가 많아요.</li>
-</ul>
-</div>
-
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>방향을 누른 채로 도로 끝까지 가서 벽에 닿는 경우. 차량이 아니어도 체력이 줄어듭니다.</li>
-<li>한쪽 차선에만 머물다가 갑자기 차량이 나타나 피할 공간이 없어지는 경우. 늘 양쪽 중 한 곳은 비워 두세요.</li>
-<li>모바일에서 화면을 톡톡 치기만 해서 원하는 만큼 움직이지 못하는 경우. 누르고 있는 동안 이동합니다.</li>
-<li>터보가 끝난 줄 모르고 계속 차량에 돌진하는 경우. 게이지를 보면서 끝나기 전에 평소 모드로 돌아오세요.</li>
-<li>차선이 늘어난 뒤에도 이전과 같은 폭으로 움직이다가 옆 차량과 부딪히는 경우.</li>
-<li>5차선 이후 경고 삼각형을 무시하는 경우.</li>
-</ul>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
-<div class="space-y-3">
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서 조작이 잘 안 먹어요.</p>
-<p class="text-slate-600 text-sm md:text-base">이 게임은 톡 치는 방식이 아니라 누르고 있는 동안 움직이는 방식입니다. 화면 왼쪽을 누르고 있으면 왼쪽으로, 오른쪽을 누르고 있으면 오른쪽으로 이동해요. 짧게 톡 치면 조금밖에 움직이지 않으니 원하는 위치까지 누르고 계세요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 충돌하면 바로 게임이 끝나나요?</p>
-<p class="text-slate-600 text-sm md:text-base">아니요. 체력이 3칸으로 시작하고, 차량이나 벽에 부딪힐 때마다 1칸씩 줄어듭니다. 체력이 0이 되어야 레이스가 끝나요. 방패가 있으면 첫 충돌은 체력이 줄지 않고 방패만 사라집니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 도로 끝에 닿으면 어떻게 되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">도로 양쪽 끝의 벽에 닿아도 차량과 부딪힌 것처럼 체력이 1칸 줄어듭니다. 방향을 누른 채 끝까지 가 버리면 체력이 연달아 깎일 수 있으니 주의하세요. 터보 상태에서는 벽에 닿아도 체력이 줄지 않습니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 체력은 어떻게 회복하나요?</p>
-<p class="text-slate-600 text-sm md:text-base">도로에 나오는 ❤️ 하트를 먹으면 체력이 1칸 회복됩니다. 체력은 최대 5칸까지 늘어나고, 이미 가득 찼을 때는 하트가 나오지 않아요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 터보(피버 모드)는 어떻게 발동하나요?</p>
-<p class="text-slate-600 text-sm md:text-base">⚡ 아이템을 먹으면 발동합니다. 한동안 속도가 빨라지고 체력이 줄지 않으며, 부딪힌 차량이 날아가면서 2,000점씩 얻습니다. 남은 시간은 게이지로 확인할 수 있고, 시간이 끝나면 다시 평소처럼 차량을 피해야 해요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 차선이 왜 점점 늘어나나요?</p>
-<p class="text-slate-600 text-sm md:text-base">점수에 따라 도로가 바뀌도록 만들었기 때문입니다. 30,000점에서 4차선, 80,000점에서 5차선, 150,000점에서 6차선이 되고, 그때마다 알림 문구가 나타납니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 명예의 전당 기록은 어디에 저장되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">지금 사용하는 브라우저의 저장 공간에 저장됩니다. 그래서 다른 기기나 다른 브라우저에서는 보이지 않고, 브라우저의 사이트 데이터를 지우면 기록도 함께 사라져요. 상위 5개 기록만 보관됩니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. PC와 모바일 모두 할 수 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">네, 둘 다 가능합니다. PC는 키보드(← → 또는 A D)나 마우스, 모바일은 화면 터치로 플레이할 수 있어요. 설치나 로그인은 필요하지 않습니다.</p>
-</div>
-</div>
-</div>
-
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
-<div class="flex flex-wrap gap-3">
-<a href="/guides/hoho-racing-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 호호레이싱 공략 전체 보기</a>
-<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
-<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
-</div>
-</div>
-
-</div>
-</div>
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-info" style="margin-top:2rem">
                 <div id="info" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>

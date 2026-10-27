@@ -495,6 +495,7 @@
                 'nav, #footer-placeholder { display: none !important; }',
                 '.page-transition > div:first-child { display: none !important; }',  /* 게임헤더 */
                 '.page-transition > div:last-child { display: none !important; }',   /* 탭패널 */
+                '#game-text, #game-skip { display: none !important; }',  /* 설명 블록·건너뛰기 버튼(게임만 보여주는 임베드 모드) */
                 'body { background: #111 !important; }',
                 'main { padding: 4px 0 0 0 !important; max-width: 100% !important; }',
                 '.page-transition { gap: 0 !important; }',
@@ -657,7 +658,7 @@
                     </a>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="text-5xl font-black text-slate-900 tracking-tight">JELLY POP 7</h1>
-                        <button onclick="return gameNavScroll('desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">📖 게임설명</button>
+                        <button onclick="return gameNavScroll('play-game')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition whitespace-nowrap">▶ 바로 게임하기</button>
                     </div>
                     <p class="text-slate-400 font-semibold mt-1 text-sm">✨ MAGIC COMBINE — 마법 젤리 조합</p>
                 </div>
@@ -1102,8 +1103,219 @@
 <li>💡 합이 정확히 7일 때 손을 떼면 터집니다. 7을 넘기거나 모자란 채로 떼면 터지지 않고 체인이 끊겨요.</li>
 <li>💡 3초 안에 연속으로 터뜨리면 체인이 이어지고, 3연속이 되면 8초 동안 점수 2배인 보너스 타임이 시작됩니다.</li>
                 </ul>
+            <div id="game-skip" style="margin-top:12px"><button type="button" onclick="return gameNavScroll('play-game')" style="display:inline-flex;align-items:center;gap:6px;background:#4f46e5;color:#fff;font-weight:900;font-size:14px;padding:10px 18px;border:0;border-radius:999px;cursor:pointer">▶ 설명 건너뛰고 바로 게임하기</button></div>
             </div>
 
+            <!-- 탭 패널 -->
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-text" style="margin:1.5rem 0 3rem">
+                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
+            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 만든 이유</h2>
+<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">연결해서 없애는 게임은 이미 많이 나와 있어요. 저는 짧게 시간을 때우기 좋은 게임이 필요하다고 생각했습니다.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">그러다 숫자를 더하는 방식을 떠올렸고, 길지 않은 숫자인 7이 떠올랐어요. 숫자들을 이어 7을 만들어 없애는 게임이라면 어떨까 생각했습니다.</p>
+<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 0">기존 퍼즐은 같은 것 세 개를 맞추면 아이템을 주고 스테이지로 넘어가는 단순한 구조가 많았어요. 거기서 벗어나 새롭게 떠올린 것이 행운의 숫자 7로 이어지는 연결 고리였습니다.</p>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">젤리팝7은 숫자가 적힌 젤리를 드래그로 이어서, 선택한 숫자의 합이 정확히 7이 되면 터뜨리는 숫자 퍼즐입니다. 판은 가로 9칸, 세로 12칸이고, 젤리에는 1부터 6까지의 숫자가 적혀 있어요. 젤리가 터지면 위에서 새 젤리가 내려오기 때문에 판이 비는 일 없이 10분 동안 계속 이어서 할 수 있습니다. 혼자서 최고 점수에 도전하는 솔로 모드와, 한 화면에서 번갈아 겨루는 2인 대결 모드가 있고, 로그인 없이 PC와 모바일에서 바로 플레이할 수 있어요.</p>
+</div>
+<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>젤리 하나를 누른 채로 인접한 젤리로 끌어서 이어 갑니다. 위·아래·좌·우뿐 아니라 대각선으로 맞닿은 젤리도 이을 수 있어요.</li>
+<li>이은 젤리의 숫자 합은 위쪽 "합" 배지에 표시됩니다. 7보다 작으면 파랑, 7이면 노랑으로 빛나고, 7을 넘으면 빨강으로 바뀝니다.</li>
+<li>합이 정확히 7인 상태에서 손을 떼면 이은 젤리가 모두 터집니다. 젤리는 두 개 이상 이어야 하고, 한 번 지나간 젤리는 다시 지날 수 없습니다.</li>
+<li>이어 가던 중 바로 앞 젤리로 되돌아가면 마지막 선택이 취소됩니다. 판 밖으로 나가거나 인접하지 않은 곳으로 끌면 선택 전체가 취소돼요.</li>
+<li>게임 시간은 10분입니다. 시간이 끝나면 점수가 정산됩니다.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">✨ 점수 계산</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">터뜨린 젤리 수가 많을수록 점수가 커지고, 4개 이상을 한 번에 이으면 보너스 150점이 더해집니다. 연속 성공에 따라 배율도 붙어요.</p>
+<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
+<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 46%;padding:10px 14px">터뜨린 젤리 수</div><div style="flex:1;padding:10px 14px">기본 점수</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">2개 (예: 1+6, 2+5, 3+4)</div><div style="flex:1;padding:10px 14px">200점</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">3개 (예: 1+2+4)</div><div style="flex:1;padding:10px 14px">300점</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">4개 (예: 1+1+2+3)</div><div style="flex:1;padding:10px 14px">400 + 150 = 550점</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">5개 (예: 1+1+1+2+2)</div><div style="flex:1;padding:10px 14px">500 + 150 = 650점</div></div>
+</div>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">기본 점수는 젤리 수 × 100점이고, 4개 이상이면 150점이 더해집니다. 이 점수에 아래의 체인 배율이 곱해져요.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🔗 CHAIN CAST와 BONUS TIME</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">마지막으로 터뜨린 뒤 3초 안에 다음 조합을 터뜨리면 체인이 이어집니다. 3초가 지나거나 합이 틀린 채로 손을 떼면 체인이 0으로 돌아가요.</p>
+<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
+<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 30%;padding:10px 14px">연속 성공</div><div style="flex:1;padding:10px 14px">효과</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">1연속</div><div style="flex:1;padding:10px 14px">배율 없음 (×1)</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">2연속</div><div style="flex:1;padding:10px 14px">점수 ×1.5</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">3연속</div><div style="flex:1;padding:10px 14px">8초 동안 이어지는 BONUS TIME 시작, 점수 ×2</div></div>
+<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">4연속 이상</div><div style="flex:1;padding:10px 14px">점수 ×2</div></div>
+</div>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">BONUS TIME은 8초 동안 모든 팝의 점수가 2배가 되는 구간입니다. 끝나면 체인이 0으로 돌아가서 다시 2연속부터 쌓아야 해요. 예를 들어 5개를 BONUS TIME 중에 터뜨리면 650 × 2 = 1,300점입니다.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🍬 난이도</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">시작 화면에서 난이도를 고릅니다. 난이도에 따라 새로 내려오는 젤리의 숫자 구성이 달라져요.</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#15803d;font-size:15px;margin-bottom:6px">🟢 쉬움</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">1~4 숫자만 나오고 3이 가장 많습니다. 두세 개로 7을 만들기 쉬워요.</p>
+</div>
+<div style="background:#fefce8;border:1px solid #fde68a;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#a16207;font-size:15px;margin-bottom:6px">🟡 보통</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">시간에 따라 자동으로 바뀝니다. 처음 3분은 쉬움 구성, 3분~7분 사이는 5와 6이 섞이고, 마지막 3분은 작은 숫자가 많은 구성이 됩니다.</p>
+</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px">
+<div style="font-weight:900;color:#b91c1c;font-size:15px;margin-bottom:6px">🔴 어려움</div>
+<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">1과 2 같은 작은 숫자가 많아서 한 번에 여러 개를 길게 이어야 하는 경우가 많습니다.</p>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">👥 2인 대결 모드</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">한 화면에서 두 사람이 번갈아 가며 플레이합니다. PLAYER 1부터 시작하고, 합이 7이 되도록 성공하면 같은 사람이 계속 이어서 할 수 있어요. 합이 틀린 채로 손을 떼면 차례가 상대에게 넘어가고, 5초 동안 아무것도 하지 않아도 자동으로 차례가 넘어갑니다. 10분이 끝났을 때 점수가 더 높은 쪽이 이기며, 같으면 무승부입니다. 판 섞기도 각 플레이어가 한 번씩 쓸 수 있어요.</p>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">짧은 시간 동안 가볍게 머리를 쓰고 싶은 분, 같은 것 세 개를 맞추는 방식과 다른 퍼즐을 찾는 분에게 맞습니다. 숫자 몇 개를 빠르게 더해 보는 느낌이라 암산 연습으로도 좋고, 한 화면에서 번갈아 하는 2인 모드로 친구나 가족과 함께 즐길 수도 있어요.</p>
+</div>
+</div>
+</div>
+                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">PC에서는 마우스, 모바일에서는 터치로 같은 방식으로 플레이합니다.</p>
+<div class="space-y-3">
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">젤리 연결</span>
+<span class="font-bold text-slate-600">젤리를 누른 채로 인접한 젤리로 드래그</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">터뜨리기</span>
+<span class="font-bold text-slate-600">합이 7일 때 손(마우스)을 뗀다</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">판 섞기</span>
+<span class="font-bold text-slate-600">🔄 판 섞기 버튼 (1회)</span>
+</div>
+<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+<span class="font-black text-lg text-slate-800">메뉴로</span>
+<span class="font-bold text-slate-600">🏠 메뉴 버튼</span>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🧭 이렇게 해 보세요</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li>젤리를 누르는 순간 그 젤리가 시작점이 됩니다. 일단 시작점을 정하고, 합이 7이 되는 길을 눈으로 따라가며 끌어 주세요.</li>
+<li>숫자 6은 1하고만, 5는 2나 1+1하고, 4는 3이나 1+2와 어울립니다. 큰 숫자부터 짝을 찾으면 길이 보여요.</li>
+<li>합이 7을 넘어 빨갛게 변하면 되돌아가서 마지막 젤리를 취소하고 다른 경로로 이어 보세요.</li>
+<li>젤리를 하나만 누르고 떼면 아무 일도 일어나지 않습니다. 틀린 게 아니니 체인이 끊기지 않아요. 단, 두 개 이상 이어서 합이 7이 아닌 채로 떼면 체인이 끊깁니다.</li>
+<li>터진 자리에는 위에서 새 젤리가 떨어집니다. 새 젤리가 들어오는 것을 보고 다음 조합을 미리 정해 두세요.</li>
+<li>더 이상 이을 수 있는 조합이 없으면 "움직일 수 있는 조합이 없어 판을 자동으로 섞어줄게요!" 안내와 함께 판이 새로 채워집니다.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>합</b> : 지금 이어 둔 젤리의 숫자 합입니다. 7이 되면 노랗게 빛나요.</li>
+<li><b>MAGIC POINT</b> : 솔로 모드의 현재 점수입니다. 2인 모드에서는 1P, 2P의 점수가 따로 표시됩니다.</li>
+<li><b>CHAIN</b> : 지금 이어지고 있는 연속 성공 횟수입니다.</li>
+<li><b>남은 시간</b> : 10분에서 줄어듭니다. 마지막 1분이 되면 빨간색으로 바뀝니다.</li>
+<li><b>BONUS TIME 표시</b> : 보너스 타임이 켜진 8초 동안 화면에 나타납니다.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">🏁 게임 종료와 기록</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">시간이 끝나면 솔로 모드에서는 "SPELL FAILED" 화면에 MAGIC POINT가 표시되고, 이전 최고 점수를 넘으면 NEW RECORD가 나옵니다. 최고 점수는 난이도별로 따로 저장돼요. 이 기록은 지금 쓰는 브라우저에만 저장되며, 다른 기기나 브라우저에서는 보이지 않습니다. 2인 모드에서는 "SPELL ENDED!" 화면에서 승자와 두 사람의 점수가 나옵니다.</p>
+</div>
+</div>
+</div>
+                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
+<div class="space-y-8">
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 점수를 올리는 요령</h2>
+<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
+<li><b>4개 이상을 노리세요.</b> 4개 이상이면 150점이 더해집니다. 같은 시간에 두 번 터뜨리는 것보다 큰 한 번이 점수가 더 높을 때가 많아요.</li>
+<li><b>체인은 3초가 생명입니다.</b> 터뜨린 직후에 다음 조합을 이미 찾아 두면 3초 안에 이어 가기 쉽습니다.</li>
+<li><b>3연속으로 BONUS TIME을 열어 두세요.</b> 8초 동안 모든 점수가 2배입니다. 이 구간에 큰 조합을 몰아서 터뜨리는 것이 가장 효율적이에요.</li>
+<li><b>BONUS TIME 중에는 쉬운 조합도 빠르게 터뜨리세요.</b> 시간이 8초뿐이라 고민하는 것보다 손이 빠른 것이 이득입니다.</li>
+<li><b>숫자 짝을 외워 두세요.</b> 1+6, 2+5, 3+4는 두 개만으로 7이 됩니다. 급할 때는 이 짝으로 체인을 이어 가세요.</li>
+<li><b>판 섞기는 한 번뿐입니다.</b> 자동으로 섞이는 경우는 따로 있으니, 정말 길이 안 보일 때만 쓰세요.</li>
+<li><b>2인 모드에서는 성공하면 계속합니다.</b> 합을 틀리면 차례가 넘어가니, 확신이 있을 때만 손을 떼세요.</li>
+<li><b>난이도에 맞는 전략을 쓰세요.</b> 어려움은 작은 숫자가 많아서 한 번에 5개 이상 이어야 하는 일이 잦고, 쉬움은 짧은 조합으로 체인을 이어 가는 게 좋습니다.</li>
+</ul>
+</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
+<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
+<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
+<li>합이 7을 넘은 것을 알면서도 그대로 손을 떼서 체인을 끊는 경우. 되돌아가서 마지막 젤리를 취소하세요.</li>
+<li>작은 조합만 반복하다 4개 이상 보너스를 놓치는 경우.</li>
+<li>체인이 끊긴 것을 모르고 다음 조합을 늦게 찾는 경우. 상단의 CHAIN 표시를 확인하세요.</li>
+<li>대각선으로도 이을 수 있다는 점을 모르고 일부러 먼 길로 돌아가는 경우.</li>
+<li>시간이 줄어드는데 너무 신중하게만 플레이하는 경우. 10분은 길지 않습니다.</li>
+<li>2인 모드에서 5초 동안 가만히 있어 차례가 넘어가는 경우.</li>
+</ul>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
+<div class="space-y-3">
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 판이 막히면 어떻게 되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">이을 수 있는 조합이 하나도 없으면 안내와 함께 판이 자동으로 다시 채워집니다. 직접 섞고 싶을 때는 🔄 판 섞기 버튼을 한 번 쓸 수 있어요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 친구와는 어떻게 대결하나요?</p>
+<p class="text-slate-600 text-sm md:text-base">시작 화면에서 2인 대결을 고르면 한 화면에서 번갈아 플레이합니다. 합이 틀리면 차례가 넘어가고, 10분 뒤 점수가 높은 쪽이 이깁니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 숫자 합이 7이 아니어도 터뜨릴 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">아니요. 이어 둔 젤리의 합이 정확히 7일 때만 터집니다. 7보다 작거나 크면 터지지 않아요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 시간 제한은 어떻게 되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">한 판은 10분입니다. 시간이 끝나면 솔로 모드는 점수가 정산되고, 2인 모드는 승패가 결정됩니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 콤보 보너스가 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네. 3초 안에 연속으로 터뜨리면 2연속에 ×1.5, 3연속부터는 ×2가 붙고, 3연속에 8초 동안 이어지는 BONUS TIME이 시작됩니다.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 젤리는 몇 개까지 이을 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">합이 7이어야 하기 때문에 최대 7개입니다. 숫자가 모두 1인 젤리 일곱 개를 이을 때가 가장 길고, 보통은 2~5개를 이어 터뜨려요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 최고 점수는 어디에 저장되나요?</p>
+<p class="text-slate-600 text-sm md:text-base">솔로 모드 최고 점수는 난이도별로 지금 쓰는 브라우저에 저장됩니다. 사이트 데이터를 지우면 사라져요.</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서도 플레이할 수 있나요?</p>
+<p class="text-slate-600 text-sm md:text-base">네. 터치로 젤리를 끌어서 이어 플레이할 수 있습니다. 플레이 중에는 화면이 스크롤되지 않도록 고정돼요.</p>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
+<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
+<div class="flex flex-wrap gap-3">
+<a href="/guides/jelly-pop-7-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 젤리팝7 공략 전체 보기</a>
+<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
+<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
+<a href="/word-puzzle-dungeon.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🧩 낱말퍼즐던전</a>
+<a href="/hoho-tile-match.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🀄 호호사천성</a>
+<a href="/hoho-run.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🏃 HOHO RUN</a>
+</div>
+</div>
+</div>
+</div>
+            </div>
+
+            <div id="play-game" style="height:0;margin:0!important;scroll-margin-top:70px"></div>
 <section style="margin:0;">
 
 <div id="jelly-app">
@@ -2189,9 +2401,6 @@ window._showRetryAd = _showRetryAd;
                 </div>
             </section>
 
-            <!-- 탭 패널 -->
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <div class="flex border-b border-slate-100" style="position:sticky;top:56px;background:#fff;z-index:10"><a href="#desc" onclick="return gameNavScroll('desc')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">📖 게임 설명</a><a href="#guide" onclick="return gameNavScroll('guide')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">🎮 조작 가이드</a><a href="#tips" onclick="return gameNavScroll('tips')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">💡 공략 & FAQ</a><a href="#info" onclick="return gameNavScroll('info')" class="flex-1 py-4 text-center font-black text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition" style="text-decoration:none">ℹ️ 시스템 정보</a></div>
                     <!-- ── 게임 결과 피드백 카드 (공용) ── -->
     <div id="hp-feedback-card" style="display:none;max-width:480px;margin:16px auto 0;background:#fff;border:1px solid #e0e7ff;border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(79,70,229,.08)">
         <div id="hp-fb-ask" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2259,210 +2468,8 @@ window._showRetryAd = _showRetryAd;
     })();
     </script>
 
-            <div id="desc" class="p-6 md:p-10" style="scroll-margin-top:70px;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📝 에디터 노트 – 만든 이유</h2>
-<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:18px 20px">
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">연결해서 없애는 게임은 이미 많이 나와 있어요. 저는 짧게 시간을 때우기 좋은 게임이 필요하다고 생각했습니다.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 12px">그러다 숫자를 더하는 방식을 떠올렸고, 길지 않은 숫자인 7이 떠올랐어요. 숫자들을 이어 7을 만들어 없애는 게임이라면 어떨까 생각했습니다.</p>
-<p style="color:#78716c;font-size:15px;line-height:1.85;margin:0 0 0">기존 퍼즐은 같은 것 세 개를 맞추면 아이템을 주고 스테이지로 넘어가는 단순한 구조가 많았어요. 거기서 벗어나 새롭게 떠올린 것이 행운의 숫자 7로 이어지는 연결 고리였습니다.</p>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎮 어떤 게임인가</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">젤리팝7은 숫자가 적힌 젤리를 드래그로 이어서, 선택한 숫자의 합이 정확히 7이 되면 터뜨리는 숫자 퍼즐입니다. 판은 가로 9칸, 세로 12칸이고, 젤리에는 1부터 6까지의 숫자가 적혀 있어요. 젤리가 터지면 위에서 새 젤리가 내려오기 때문에 판이 비는 일 없이 10분 동안 계속 이어서 할 수 있습니다. 혼자서 최고 점수에 도전하는 솔로 모드와, 한 화면에서 번갈아 겨루는 2인 대결 모드가 있고, 로그인 없이 PC와 모바일에서 바로 플레이할 수 있어요.</p>
-</div>
-<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#4338ca;font-size:14px;margin-bottom:8px">🎯 기본 규칙</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>젤리 하나를 누른 채로 인접한 젤리로 끌어서 이어 갑니다. 위·아래·좌·우뿐 아니라 대각선으로 맞닿은 젤리도 이을 수 있어요.</li>
-<li>이은 젤리의 숫자 합은 위쪽 "합" 배지에 표시됩니다. 7보다 작으면 파랑, 7이면 노랑으로 빛나고, 7을 넘으면 빨강으로 바뀝니다.</li>
-<li>합이 정확히 7인 상태에서 손을 떼면 이은 젤리가 모두 터집니다. 젤리는 두 개 이상 이어야 하고, 한 번 지나간 젤리는 다시 지날 수 없습니다.</li>
-<li>이어 가던 중 바로 앞 젤리로 되돌아가면 마지막 선택이 취소됩니다. 판 밖으로 나가거나 인접하지 않은 곳으로 끌면 선택 전체가 취소돼요.</li>
-<li>게임 시간은 10분입니다. 시간이 끝나면 점수가 정산됩니다.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">✨ 점수 계산</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">터뜨린 젤리 수가 많을수록 점수가 커지고, 4개 이상을 한 번에 이으면 보너스 150점이 더해집니다. 연속 성공에 따라 배율도 붙어요.</p>
-<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
-<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 46%;padding:10px 14px">터뜨린 젤리 수</div><div style="flex:1;padding:10px 14px">기본 점수</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">2개 (예: 1+6, 2+5, 3+4)</div><div style="flex:1;padding:10px 14px">200점</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">3개 (예: 1+2+4)</div><div style="flex:1;padding:10px 14px">300점</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">4개 (예: 1+1+2+3)</div><div style="flex:1;padding:10px 14px">400 + 150 = 550점</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 46%;padding:10px 14px;font-weight:700">5개 (예: 1+1+1+2+2)</div><div style="flex:1;padding:10px 14px">500 + 150 = 650점</div></div>
-</div>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">기본 점수는 젤리 수 × 100점이고, 4개 이상이면 150점이 더해집니다. 이 점수에 아래의 체인 배율이 곱해져요.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🔗 CHAIN CAST와 BONUS TIME</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">마지막으로 터뜨린 뒤 3초 안에 다음 조합을 터뜨리면 체인이 이어집니다. 3초가 지나거나 합이 틀린 채로 손을 떼면 체인이 0으로 돌아가요.</p>
-<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;font-size:14px;line-height:1.6">
-<div style="display:flex;background:#f1f5f9;font-weight:800;color:#334155"><div style="flex:0 0 30%;padding:10px 14px">연속 성공</div><div style="flex:1;padding:10px 14px">효과</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">1연속</div><div style="flex:1;padding:10px 14px">배율 없음 (×1)</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">2연속</div><div style="flex:1;padding:10px 14px">점수 ×1.5</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">3연속</div><div style="flex:1;padding:10px 14px">8초 동안 이어지는 BONUS TIME 시작, 점수 ×2</div></div>
-<div style="display:flex;border-top:1px solid #e2e8f0;color:#475569"><div style="flex:0 0 30%;padding:10px 14px;font-weight:700">4연속 이상</div><div style="flex:1;padding:10px 14px">점수 ×2</div></div>
-</div>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mt-4">BONUS TIME은 8초 동안 모든 팝의 점수가 2배가 되는 구간입니다. 끝나면 체인이 0으로 돌아가서 다시 2연속부터 쌓아야 해요. 예를 들어 5개를 BONUS TIME 중에 터뜨리면 650 × 2 = 1,300점입니다.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🍬 난이도</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">시작 화면에서 난이도를 고릅니다. 난이도에 따라 새로 내려오는 젤리의 숫자 구성이 달라져요.</p>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#15803d;font-size:15px;margin-bottom:6px">🟢 쉬움</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">1~4 숫자만 나오고 3이 가장 많습니다. 두세 개로 7을 만들기 쉬워요.</p>
-</div>
-<div style="background:#fefce8;border:1px solid #fde68a;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#a16207;font-size:15px;margin-bottom:6px">🟡 보통</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">시간에 따라 자동으로 바뀝니다. 처음 3분은 쉬움 구성, 3분~7분 사이는 5와 6이 섞이고, 마지막 3분은 작은 숫자가 많은 구성이 됩니다.</p>
-</div>
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px">
-<div style="font-weight:900;color:#b91c1c;font-size:15px;margin-bottom:6px">🔴 어려움</div>
-<p style="margin:0;color:#475569;font-size:14px;line-height:1.7">1과 2 같은 작은 숫자가 많아서 한 번에 여러 개를 길게 이어야 하는 경우가 많습니다.</p>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">👥 2인 대결 모드</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">한 화면에서 두 사람이 번갈아 가며 플레이합니다. PLAYER 1부터 시작하고, 합이 7이 되도록 성공하면 같은 사람이 계속 이어서 할 수 있어요. 합이 틀린 채로 손을 떼면 차례가 상대에게 넘어가고, 5초 동안 아무것도 하지 않아도 자동으로 차례가 넘어갑니다. 10분이 끝났을 때 점수가 더 높은 쪽이 이기며, 같으면 무승부입니다. 판 섞기도 각 플레이어가 한 번씩 쓸 수 있어요.</p>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🎯 이런 분에게 추천해요</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">짧은 시간 동안 가볍게 머리를 쓰고 싶은 분, 같은 것 세 개를 맞추는 방식과 다른 퍼즐을 찾는 분에게 맞습니다. 숫자 몇 개를 빠르게 더해 보는 느낌이라 암산 연습으로도 좋고, 한 화면에서 번갈아 하는 2인 모드로 친구나 가족과 함께 즐길 수도 있어요.</p>
-</div>
-</div>
-</div>
-                <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🕹️ 조작법</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-5">PC에서는 마우스, 모바일에서는 터치로 같은 방식으로 플레이합니다.</p>
-<div class="space-y-3">
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">젤리 연결</span>
-<span class="font-bold text-slate-600">젤리를 누른 채로 인접한 젤리로 드래그</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">터뜨리기</span>
-<span class="font-bold text-slate-600">합이 7일 때 손(마우스)을 뗀다</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">판 섞기</span>
-<span class="font-bold text-slate-600">🔄 판 섞기 버튼 (1회)</span>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-<span class="font-black text-lg text-slate-800">메뉴로</span>
-<span class="font-bold text-slate-600">🏠 메뉴 버튼</span>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🧭 이렇게 해 보세요</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li>젤리를 누르는 순간 그 젤리가 시작점이 됩니다. 일단 시작점을 정하고, 합이 7이 되는 길을 눈으로 따라가며 끌어 주세요.</li>
-<li>숫자 6은 1하고만, 5는 2나 1+1하고, 4는 3이나 1+2와 어울립니다. 큰 숫자부터 짝을 찾으면 길이 보여요.</li>
-<li>합이 7을 넘어 빨갛게 변하면 되돌아가서 마지막 젤리를 취소하고 다른 경로로 이어 보세요.</li>
-<li>젤리를 하나만 누르고 떼면 아무 일도 일어나지 않습니다. 틀린 게 아니니 체인이 끊기지 않아요. 단, 두 개 이상 이어서 합이 7이 아닌 채로 떼면 체인이 끊깁니다.</li>
-<li>터진 자리에는 위에서 새 젤리가 떨어집니다. 새 젤리가 들어오는 것을 보고 다음 조합을 미리 정해 두세요.</li>
-<li>더 이상 이을 수 있는 조합이 없으면 "움직일 수 있는 조합이 없어 판을 자동으로 섞어줄게요!" 안내와 함께 판이 새로 채워집니다.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">👀 화면 보는 법</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>합</b> : 지금 이어 둔 젤리의 숫자 합입니다. 7이 되면 노랗게 빛나요.</li>
-<li><b>MAGIC POINT</b> : 솔로 모드의 현재 점수입니다. 2인 모드에서는 1P, 2P의 점수가 따로 표시됩니다.</li>
-<li><b>CHAIN</b> : 지금 이어지고 있는 연속 성공 횟수입니다.</li>
-<li><b>남은 시간</b> : 10분에서 줄어듭니다. 마지막 1분이 되면 빨간색으로 바뀝니다.</li>
-<li><b>BONUS TIME 표시</b> : 보너스 타임이 켜진 8초 동안 화면에 나타납니다.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">🏁 게임 종료와 기록</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium">시간이 끝나면 솔로 모드에서는 "SPELL FAILED" 화면에 MAGIC POINT가 표시되고, 이전 최고 점수를 넘으면 NEW RECORD가 나옵니다. 최고 점수는 난이도별로 따로 저장돼요. 이 기록은 지금 쓰는 브라우저에만 저장되며, 다른 기기나 브라우저에서는 보이지 않습니다. 2인 모드에서는 "SPELL ENDED!" 화면에서 승자와 두 사람의 점수가 나옵니다.</p>
-</div>
-</div>
-</div>
-                <div id="tips" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
-<div class="space-y-8">
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">⚡ 점수를 올리는 요령</h2>
-<ul class="text-slate-600 text-base md:text-lg leading-relaxed font-medium list-disc list-inside space-y-2">
-<li><b>4개 이상을 노리세요.</b> 4개 이상이면 150점이 더해집니다. 같은 시간에 두 번 터뜨리는 것보다 큰 한 번이 점수가 더 높을 때가 많아요.</li>
-<li><b>체인은 3초가 생명입니다.</b> 터뜨린 직후에 다음 조합을 이미 찾아 두면 3초 안에 이어 가기 쉽습니다.</li>
-<li><b>3연속으로 BONUS TIME을 열어 두세요.</b> 8초 동안 모든 점수가 2배입니다. 이 구간에 큰 조합을 몰아서 터뜨리는 것이 가장 효율적이에요.</li>
-<li><b>BONUS TIME 중에는 쉬운 조합도 빠르게 터뜨리세요.</b> 시간이 8초뿐이라 고민하는 것보다 손이 빠른 것이 이득입니다.</li>
-<li><b>숫자 짝을 외워 두세요.</b> 1+6, 2+5, 3+4는 두 개만으로 7이 됩니다. 급할 때는 이 짝으로 체인을 이어 가세요.</li>
-<li><b>판 섞기는 한 번뿐입니다.</b> 자동으로 섞이는 경우는 따로 있으니, 정말 길이 안 보일 때만 쓰세요.</li>
-<li><b>2인 모드에서는 성공하면 계속합니다.</b> 합을 틀리면 차례가 넘어가니, 확신이 있을 때만 손을 떼세요.</li>
-<li><b>난이도에 맞는 전략을 쓰세요.</b> 어려움은 작은 숫자가 많아서 한 번에 5개 이상 이어야 하는 일이 잦고, 쉬움은 짧은 조합으로 체인을 이어 가는 게 좋습니다.</li>
-</ul>
-</div>
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px">
-<div style="font-weight:800;color:#b91c1c;font-size:14px;margin-bottom:8px">🙅 초보자가 자주 하는 실수</div>
-<ul style="color:#475569;font-size:15px;line-height:1.8;list-style:disc;padding-left:1.2em;margin:0">
-<li>합이 7을 넘은 것을 알면서도 그대로 손을 떼서 체인을 끊는 경우. 되돌아가서 마지막 젤리를 취소하세요.</li>
-<li>작은 조합만 반복하다 4개 이상 보너스를 놓치는 경우.</li>
-<li>체인이 끊긴 것을 모르고 다음 조합을 늦게 찾는 경우. 상단의 CHAIN 표시를 확인하세요.</li>
-<li>대각선으로도 이을 수 있다는 점을 모르고 일부러 먼 길로 돌아가는 경우.</li>
-<li>시간이 줄어드는데 너무 신중하게만 플레이하는 경우. 10분은 길지 않습니다.</li>
-<li>2인 모드에서 5초 동안 가만히 있어 차례가 넘어가는 경우.</li>
-</ul>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">❓ 자주 묻는 질문</h2>
-<div class="space-y-3">
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 판이 막히면 어떻게 되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">이을 수 있는 조합이 하나도 없으면 안내와 함께 판이 자동으로 다시 채워집니다. 직접 섞고 싶을 때는 🔄 판 섞기 버튼을 한 번 쓸 수 있어요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 친구와는 어떻게 대결하나요?</p>
-<p class="text-slate-600 text-sm md:text-base">시작 화면에서 2인 대결을 고르면 한 화면에서 번갈아 플레이합니다. 합이 틀리면 차례가 넘어가고, 10분 뒤 점수가 높은 쪽이 이깁니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 숫자 합이 7이 아니어도 터뜨릴 수 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">아니요. 이어 둔 젤리의 합이 정확히 7일 때만 터집니다. 7보다 작거나 크면 터지지 않아요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 시간 제한은 어떻게 되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">한 판은 10분입니다. 시간이 끝나면 솔로 모드는 점수가 정산되고, 2인 모드는 승패가 결정됩니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 콤보 보너스가 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">네. 3초 안에 연속으로 터뜨리면 2연속에 ×1.5, 3연속부터는 ×2가 붙고, 3연속에 8초 동안 이어지는 BONUS TIME이 시작됩니다.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 젤리는 몇 개까지 이을 수 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">합이 7이어야 하기 때문에 최대 7개입니다. 숫자가 모두 1인 젤리 일곱 개를 이을 때가 가장 길고, 보통은 2~5개를 이어 터뜨려요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 최고 점수는 어디에 저장되나요?</p>
-<p class="text-slate-600 text-sm md:text-base">솔로 모드 최고 점수는 난이도별로 지금 쓰는 브라우저에 저장됩니다. 사이트 데이터를 지우면 사라져요.</p>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-<p class="font-black text-slate-800 mb-1 text-sm md:text-base">Q. 모바일에서도 플레이할 수 있나요?</p>
-<p class="text-slate-600 text-sm md:text-base">네. 터치로 젤리를 끌어서 이어 플레이할 수 있습니다. 플레이 중에는 화면이 스크롤되지 않도록 고정돼요.</p>
-</div>
-</div>
-</div>
-<div>
-<h2 class="font-black text-xl text-slate-800 mb-3">📚 더 알아보기</h2>
-<p class="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">더 자세한 공략은 공략 페이지에서, 호호플레이의 다른 이야기는 호호 매거진에서 볼 수 있습니다.</p>
-<div class="flex flex-wrap gap-3">
-<a href="/guides/jelly-pop-7-guide.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📄 젤리팝7 공략 전체 보기</a>
-<a href="/guides/index.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🎮 게임공략 모아보기</a>
-<a href="/blog/magazine/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">📰 호호 매거진</a>
-<a href="/word-puzzle-dungeon.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🧩 낱말퍼즐던전</a>
-<a href="/hoho-tile-match.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🀄 호호사천성</a>
-<a href="/hoho-run.html" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-5 py-3 rounded-full transition" style="text-decoration:none">🏃 HOHO RUN</a>
-</div>
-</div>
-</div>
-</div>
+
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm" id="game-info" style="margin-top:2rem">
                 <div id="info" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
 <div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div>
