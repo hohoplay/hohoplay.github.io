@@ -90,7 +90,16 @@ function loadKidsPlaceTitles() {
   return kidsPlaceTitlesLoading;
 }
 
+// [ADD] 2026-10-27: 월드컵 페이지 댓글은 페이지 하나가 스레드 하나라 장소 매핑 없이 고정 라벨을 붙인다.
+const FIXED_GAME_LABELS = {
+  'worldcup-kids': '나들이 월드컵',
+  'worldcup-camping': '캠핑장 월드컵'
+};
+
 function gameIdLabel(gameId) {
+  if (Object.prototype.hasOwnProperty.call(FIXED_GAME_LABELS, gameId)) {
+    return `${escapeHtml(gameId)} (${escapeHtml(FIXED_GAME_LABELS[gameId])})`;
+  }
   const title = kidsPlaceTitles && kidsPlaceTitles[gameId];
   return title ? `${escapeHtml(gameId)} (${escapeHtml(title)})` : escapeHtml(gameId);
 }
