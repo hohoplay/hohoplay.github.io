@@ -1,0 +1,41 @@
+name: Add Roulette Menu
+
+# 상단 메뉴(소통·정보)와 푸터에 '나들이·캠핑장·숲 룰렛' 항목을 추가하는 1회성 작업입니다.
+# 모든 페이지와 자동 생성 스크립트·템플릿 안의 메뉴를 한꺼번에 고치며, 여러 번 실행해도 결과는 같습니다.
+#
+# [실행 전 필수] 먼저 festival/roulette.html 과 캠핑장 월드컵 메뉴(add-camping-menu)가 저장소에 올라가 있어야 합니다(없으면 메뉴가 404로 연결됨).
+# 수동 실행(workflow_dispatch)만 가능합니다.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  add-menu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 메뉴 항목 추가
+        run: python3 scripts/add_roulette_menu.py
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "feat: 상단 메뉴·푸터에 나들이·캠핑장·숲 룰렛 추가"
+            git pull --rebase
+            git push
+          fi
