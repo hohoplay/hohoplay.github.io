@@ -1,0 +1,51 @@
+name: Remove Ads From Thin Pages
+
+# 애드센스 "가치가 별로 없는 콘텐츠" 대응 1회성 정리 작업입니다.
+# 본문이 짧은 자동 생성 페이지에서 광고 코드(adsbygoogle 로더·광고 단위)만 제거합니다.
+#   - festival/detail/*.html  (축제·캠핑장·자연관광지·아이랑 나들이 상세페이지, 약 3,900개)
+#   - blog/posts/*.html 중 noindex 글 (공지사항·업데이트)
+# 본문 글자·링크·메타태그는 바뀌지 않습니다. 여러 번 실행해도 결과는 같습니다.
+#
+# [실행 전 필수] 아래 파일들을 먼저 저장소에 올려 주세요. 특히 fetch_data.py 와
+# kids_detail_template.html 이 예전 버전이면, 이 작업 뒤에 자동 갱신이 돌 때
+# 광고 코드가 다시 들어갑니다.
+#   scripts/remove_ads_from_thin_pages.py
+#   scripts/fetch_data.py
+#   templates/kids_detail_template.html
+#   generate_community_posts.py
+#
+# 수동 실행(workflow_dispatch)만 가능한 1회성 작업입니다.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  remove-ads:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 광고 코드 제거
+        run: python3 scripts/remove_ads_from_thin_pages.py
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add festival/detail blog/posts
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 짧은 자동 생성 페이지(상세·공지)에서 애드센스 코드 제거"
+            git pull --rebase
+            git push
+          fi
