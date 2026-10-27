@@ -927,6 +927,111 @@ def update_map_html(festivals, today):
     print("festival/index.html의 '오늘의 축제' 패널 갱신 완료")
 
 
+# ── 아이랑 나들이 장소 "지역별 요약" (festival/index.html 안내 글 구간, 크롤러용 정적 텍스트) ──
+# [ADD] 2026-10-27: 지도·필터 UI만 있으면 검색봇이 읽을 본문이 부족하다는 지적에 따라, data/kids_places.json 을
+# 지역별로 묶어 festival/index.html 의 KIDS_REGION_SUMMARY 마커 사이에 정적 HTML 로 넣는다.
+# 장소가 충분한 지역(KIDS_SUMMARY_MIN 곳 이상)은 대표 장소 몇 곳을, 적은 지역은 한 줄로 요약한다.
+KIDS_SUMMARY_MIN = 5       # 이 수 이상이면 지역별 상자로 자세히 보여줌
+KIDS_SUMMARY_PICK = 4      # 상자당 대표 장소 수
+KIDS_REGION_LABELS = [
+    # (주소 앞부분 → 표시 이름). 같은 지역의 옛/새 행정명은 한 이름으로 합친다.
+    (('서울',), '서울'), (('경기',), '경기도'), (('인천',), '인천'), (('부산',), '부산'), (('대구',), '대구'),
+    (('대전',), '대전'), (('울산',), '울산'), (('광주',), '광주'), (('세종',), '세종'), (('강원',), '강원'),
+    (('충청북', '충북'), '충청북도'), (('충청남', '충남'), '충청남도'), (('전라북', '전북'), '전라북도'),
+    (('전라남', '전남'), '전라남도'), (('경상북', '경북'), '경상북도'), (('경상남', '경남'), '경상남도'), (('제주',), '제주'),
+]
+KIDS_COST_SHORT = {'완전무료': '무료', '유료(일부 무료 조건 있음)': '일부 무료', '유료': '유료', '확인 필요': '비용 확인 필요'}
+
+
+def _kids_region_of(addr):
+    first = (addr or '').split(' ')[0]
+    for prefixes, label in KIDS_REGION_LABELS:
+        if any(first.startswith(pf) for pf in prefixes):
+            return label
+    return None
+
+
+def build_kids_region_summary_html(places):
+    groups = {}
+    for pl in places:
+        label = _kids_region_of(pl.get('addr', ''))
+        if label:
+            groups.setdefault(label, []).append(pl)
+    total = sum(len(v) for v in groups.values())
+
+    def pick(lst):
+        # 소개글이 충실한 장소를 우선하되, 실외 장소가 있으면 한 곳은 꼭 포함해서 실내 일색이 되지 않게 한다.
+        ranked = sorted(lst, key=lambda x: (not x.get('hasDetail'), -len(x.get('overview', '') or '')))
+        chosen = ranked[:KIDS_SUMMARY_PICK]
+        if chosen and not any(c.get('placeType') == '실외' for c in chosen):
+            outdoor = [x for x in ranked if x.get('placeType') == '실외']
+            if outdoor:
+                chosen[-1] = outdoor[0]
+        return chosen
+
+    def tag(pl):
+        t = KIDS_COST_SHORT.get(pl.get('costTag', ''), '비용 확인 필요')
+        return f"{pl.get('placeType', '')} · {t}".strip(' ·')
+
+    def link(pl):
+        cid = html.escape(str(pl.get('contentid', '')))
+        return f'<a href="/festival/detail/{cid}.html" style="color:#4f46e5; font-weight:700;">{html.escape(pl.get("title", ""))}</a>'
+
+    big = sorted([(k, v) for k, v in groups.items() if len(v) >= KIDS_SUMMARY_MIN], key=lambda kv: -len(kv[1]))
+    small = sorted([(k, v) for k, v in groups.items() if len(v) < KIDS_SUMMARY_MIN], key=lambda kv: -len(kv[1]))
+
+    out = []
+    out.append(f'<p style="margin:0 0 14px;">운영자가 직접 골라 정리한 아이랑 나들이 장소 {total}곳을 지역별로 묶었습니다. '
+               f'지역 이름 옆 숫자는 등록된 장소 수이고, 장소 이름을 누르면 운영시간·요금·위치가 담긴 상세 정보를 볼 수 있습니다. '
+               f'장소가 많은 지역은 대표 장소를, 적은 지역은 한 줄로 소개합니다.</p>')
+    for label, lst in big:
+        indoor = sum(1 for x in lst if x.get('placeType') == '실내')
+        outdoor = sum(1 for x in lst if x.get('placeType') == '실외')
+        both = sum(1 for x in lst if x.get('placeType') == '실내외')
+        free = sum(1 for x in lst if x.get('costTag') == '완전무료')
+        out.append('<div style="margin:0 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">')
+        out.append(f'<p style="margin:0 0 6px; font-weight:800; color:#1e293b;">{html.escape(label)} ({len(lst)}곳)</p>')
+        out.append(f'<p style="margin:0 0 8px; font-size:13px; color:#64748b;">실내 {indoor}곳 · 실외 {outdoor}곳 · 실내외 {both}곳, 완전무료 {free}곳</p>')
+        out.append('<ul style="margin:0; padding-left:20px;">')
+        for pl in pick(lst):
+            desc = (pl.get('desc') or '').strip()
+            tail = f' — {html.escape(desc)}' if len(desc) >= 15 else ''   # "무료" 같은 한두 단어짜리 설명은 생략
+            out.append(f'<li style="margin-bottom:4px;">{link(pl)} <span style="font-size:13px; color:#64748b;">({html.escape(tag(pl))})</span>{tail}</li>')
+        out.append('</ul></div>')
+    if small:
+        parts = []
+        for label, lst in small:
+            names = ', '.join(link(x) for x in sorted(lst, key=lambda x: -len(x.get('overview', '') or ''))[:3])
+            parts.append(f'<strong>{html.escape(label)}</strong>({len(lst)}곳): {names}')
+        out.append('<p style="margin:0 0 14px;"><strong>그 밖의 지역</strong> — 등록된 장소가 아직 많지 않은 지역입니다. ' + ' / '.join(parts) + '</p>')
+    return '\n'.join(out)
+
+
+def update_kids_region_summary():
+    """festival/index.html 의 KIDS_REGION_SUMMARY 마커 사이를 data/kids_places.json 기준으로 갱신한다."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    map_path = os.path.join('festival', 'index.html')
+    if not (os.path.exists(kids_path) and os.path.exists(map_path)):
+        print('kids_places.json 또는 festival/index.html 없음 — 지역별 요약 갱신 건너뜀')
+        return
+    with open(kids_path, 'r', encoding='utf-8') as f:
+        places = json.load(f)
+    with open(map_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    start_marker = '<!-- KIDS_REGION_SUMMARY_START -->'
+    end_marker = '<!-- KIDS_REGION_SUMMARY_END -->'
+    si, ei = content.find(start_marker), content.find(end_marker)
+    if si == -1 or ei == -1:
+        print('KIDS_REGION_SUMMARY 마커를 찾지 못해 지역별 요약 갱신 건너뜀')
+        return
+    new_html = build_kids_region_summary_html(places)
+    updated = content[:si + len(start_marker)] + '\n' + new_html + '\n' + content[ei:]
+    if updated != content:
+        with open(map_path, 'w', encoding='utf-8') as f:
+            f.write(updated)
+    print(f"festival/index.html 지역별 아이랑 장소 요약 갱신 완료 (전체 {len(places)}곳)")
+
+
 def main():
     all_items = fetch_all_items('festival')
 
@@ -1106,6 +1211,7 @@ def main():
     print(f"총 수신 {len(all_items)}건, 진행중/예정 축제 {len(festivals)}건 + 자연관광지 {len(nature_spots)}건 + 캠핑장 {len(camping_spots)}건 + 수상레저 {len(watersports_spots)}건 + 무더위쉼터 {len(shelters)}건 data/festivals.json에 저장 완료.")
 
     update_map_html(all_map_items, TODAY)
+    update_kids_region_summary()
 
     # ── 사이트맵 / 크롤러용 목록 페이지 ──────────────────────────────
     # 지도 마커 안의 상세 링크는 JS로 그려져 검색봇이 발견하지 못하므로,
