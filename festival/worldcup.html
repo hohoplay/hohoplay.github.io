@@ -140,6 +140,11 @@
     <h2 id="setupTitle">① 조건을 골라주세요</h2>
     <div class="lbl">어느 지역으로 갈까요?</div>
     <select id="region" aria-label="지역 선택"><option value="전국">전국 (불러오는 중…)</option></select>
+    <div id="distWrap" style="display:none">
+      <div class="lbl">구·군·시 (선택)</div>
+      <select id="district" aria-label="구·군·시 선택"><option value="all">전체</option></select>
+      <div class="hint" style="margin-top:6px">고른 곳의 장소를 먼저 넣고, 모자라면 같은 지역의 가까운 곳으로 채워요.</div>
+    </div>
     <div class="lbl">실내 / 실외</div>
     <div class="chips" id="typeChips">
       <button type="button" class="chip" data-val="all" aria-pressed="true">상관없어요</button>
@@ -181,7 +186,7 @@
   <section class="about" aria-label="나들이 월드컵 이용 안내">
     <h2>나들이 월드컵은 이렇게 해요</h2>
     <ol>
-      <li>지역, 실내·실외, 예산 세 가지를 고릅니다. 모두 "상관없어요"로 두면 전국에서 뽑습니다.</li>
+      <li>지역, 실내·실외, 예산을 고릅니다. 지역을 고르면 구·군·시까지 고를 수 있고, 모두 "상관없어요"로 두면 전국에서 뽑습니다.</li>
       <li>조건에 맞는 장소 중 16곳이 무작위로 뽑혀 16강 대진표가 만들어집니다. 후보가 적으면 8강이나 4강으로 줄어듭니다.</li>
       <li>화면에 나온 두 곳 중 가고 싶은 곳을 하나씩 고릅니다. 아이에게 직접 골라보게 하면 더 재미있어요.</li>
       <li>결승까지 마치면 우승 장소와 함께 준우승·4강 탈락 장소가 "차선책" 3곳으로 나옵니다. 우승 장소가 마음에 안 들면 이 중에서 고르셔도 됩니다.</li>
@@ -189,7 +194,7 @@
 
     <h2>어떤 장소가 후보에 들어가나요?</h2>
     <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 "아이랑 갈만한 곳"입니다. 운영자가 아이와 함께 가기 좋은 곳을 직접 골라 정리했고, 과학관·박물관·체험관 같은 실내 장소부터 공원·생태공원 같은 실외 장소, 두 가지를 겸하는 장소까지 200곳이 넘게 들어 있습니다. 장소마다 이용 요금에 따라 "무료", "일부 무료", "유료", "비용 확인 필요" 표시가 붙어 있고, 월드컵의 예산 조건은 이 표시를 기준으로 걸러냅니다.</p>
-    <p>비용 정보가 정리된 장소를 먼저 후보로 뽑고, 후보가 모자랄 때만 "비용 확인 필요" 장소로 채웁니다. 장소 수는 지역마다 차이가 큽니다. 경기·부산·대구처럼 많은 곳은 16강까지 가능하지만 적은 지역은 8강이나 4강으로 줄거나, 대진표를 만들 수 없을 수 있어요. 그럴 땐 "전국"으로 넓혀 보세요.</p>
+    <p>비용 정보가 정리된 장소를 먼저 후보로 뽑고, 후보가 모자랄 때만 "비용 확인 필요" 장소로 채웁니다. 장소 수는 지역마다 차이가 큽니다. 경기·부산·대구처럼 많은 곳은 16강까지 가능하지만 적은 지역은 8강이나 4강으로 줄거나, 대진표를 만들 수 없을 수 있어요. 그럴 땐 "전국"으로 넓혀 보세요. 구·군·시를 골랐는데 그곳 장소가 8곳이 안 되면, 같은 지역 안에서 가까운 장소로 채워 8강 이상이 되도록 합니다. 장소 위치가 구·군 중심 좌표로 잡힌 경우가 많아서 "가까운 곳"은 대략적인 기준입니다.</p>
 
     <h2>날씨는 어떻게 반영되나요?</h2>
     <p>지역을 고르면 그 지역의 날씨를 확인해서 비나 눈 소식이 있으면 "실내"를 자동으로 골라드립니다. 위치 권한은 필요하지 않고, 이미 직접 실내·실외를 고르셨다면 그 선택을 그대로 따릅니다. 전국으로 두면 지역 날씨를 확인하지 않습니다. 날씨 정보는 참고용이니 출발 전에 한 번 더 확인해 주세요.</p>
@@ -257,9 +262,14 @@
     return a;
   }
   function roundName(len) { return len === 2 ? '결승' : len + '강'; }
+  // 주소 둘째 토큰이 구·군·시로 끝나면 그것을 구·군·시로 본다(예: "부산광역시 해운대구", "경기도 수원시 영통구" → 수원시). 세종처럼 없으면 null.
+  function districtOf(addr) {
+    var t = String(addr || '').split(' ');
+    return t[1] && /(시|군|구)$/.test(t[1]) ? t[1] : null;
+  }
 
   var places = [];
-  var cond = { region: '전국', type: 'all', budget: 'all' };
+  var cond = { region: '전국', district: 'all', type: 'all', budget: 'all' };
   var typeTouched = false, autoIndoor = false, wxReq = 0, wxCache = {};
   var S = null, locked = false;
 
@@ -267,6 +277,7 @@
     var sv = JSON.parse(localStorage.getItem('hp_worldcup_cond') || 'null');
     if (sv) {
       if (typeof sv.region === 'string') cond.region = sv.region;
+      if (typeof sv.district === 'string') cond.district = sv.district;
       if (sv.type === 'all' || sv.type === '실내' || sv.type === '실외') cond.type = sv.type;
       if (sv.budget === 'all' || sv.budget === 'free1' || sv.budget === 'free2') cond.budget = sv.budget;
     }
@@ -282,7 +293,25 @@
     if (cond.budget === 'free2' && p.costTag !== '완전무료' && p.costTag !== '유료(일부 무료 조건 있음)') return false;
     return true;
   }
-  function currentPool() { return places.filter(matches); }
+  // 후보 풀: 구·군·시를 골랐으면 그곳 장소를 먼저 넣고, 8곳이 안 되면 같은 지역의 가까운 곳으로 8곳까지 채운다.
+  // (좌표 상당수가 구·군 중심 좌표라 '가까운 순'은 구·군 단위 정확도다)
+  function poolInfo() {
+    var base = places.filter(matches), d = cond.district;
+    if (cond.region === '전국' || d === 'all') return { pool: base, inD: base.length, extra: 0, label: '' };
+    var inD = base.filter(function (p) { return p._d === d; });
+    if (inD.length >= 8) return { pool: inD, inD: inD.length, extra: 0, label: d };
+    var ref = places.filter(function (p) { return p._r === cond.region && p._d === d && isFinite(p.lat) && isFinite(p.lng); });
+    if (!ref.length) return { pool: inD, inD: inD.length, extra: 0, label: d };
+    var cy = 0, cx = 0;
+    ref.forEach(function (p) { cy += +p.lat; cx += +p.lng; });
+    cy /= ref.length; cx /= ref.length;
+    var rest = base.filter(function (p) { return p._d !== d && isFinite(p.lat) && isFinite(p.lng); })
+      .map(function (p) { return { p: p, k: dist(cy, cx, +p.lat, +p.lng) }; })
+      .sort(function (a, b) { return a.k - b.k; })
+      .slice(0, 8 - inD.length).map(function (o) { return o.p; });
+    return { pool: inD.concat(rest), inD: inD.length, extra: rest.length, label: d };
+  }
+  function currentPool() { return poolInfo().pool; }
   function sizeFor(n) { return n >= 16 ? 16 : n >= 8 ? 8 : n >= 4 ? 4 : 0; }
   function draw(pool, n) {
     var known = shuffle(pool.filter(function (p) { return p.costTag !== '확인 필요'; }));
@@ -308,12 +337,28 @@
     if (!counts[cond.region] && cond.region !== '전국') cond.region = '전국';
     sel.value = cond.region;
   }
+  function buildDistrict() {
+    var wrap = $('distWrap'), sel = $('district');
+    if (cond.region === '전국') { wrap.style.display = 'none'; cond.district = 'all'; return; }
+    var counts = {};
+    places.forEach(function (p) { if (p._r === cond.region && p._d) counts[p._d] = (counts[p._d] || 0) + 1; });
+    var names = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'ko'); });
+    if (names.length < 2) { wrap.style.display = 'none'; cond.district = 'all'; return; }
+    sel.innerHTML = '';
+    var o = document.createElement('option'); o.value = 'all'; o.textContent = '전체 (' + cond.region + ' 안 모든 곳)'; sel.appendChild(o);
+    names.forEach(function (n) {
+      var op = document.createElement('option'); op.value = n; op.textContent = n + ' (' + counts[n] + '곳)'; sel.appendChild(op);
+    });
+    if (!counts[cond.district]) cond.district = 'all';
+    sel.value = cond.district;
+    wrap.style.display = 'block';
+  }
   function paintChips(id, val) {
     var btns = $(id).querySelectorAll('.chip');
     for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-val') === val ? 'true' : 'false');
   }
   function updatePool() {
-    var n = currentPool().length, sz = sizeFor(n);
+    var pi = poolInfo(), n = pi.pool.length, sz = sizeFor(n);
     var info = $('poolInfo'), btn = $('startBtn');
     if (!places.length) return;
     if (!sz) {
@@ -324,7 +369,13 @@
       btn.disabled = true;
     } else {
       info.className = 'poolinfo';
-      info.textContent = '조건에 맞는 장소 ' + n + '곳 중 ' + sz + '곳으로 ' + roundName(sz) + '부터 시작합니다.';
+      if (pi.label && pi.extra > 0) {
+        info.textContent = pi.label + (pi.inD ? ' ' + pi.inD + '곳' : '에는 조건에 맞는 곳이 없어') + (pi.inD ? ' + ' : ', ') + '가까운 곳 ' + pi.extra + '곳으로 ' + roundName(sz) + ' 대진표를 만들어요.';
+      } else if (pi.label) {
+        info.textContent = pi.label + ' 조건에 맞는 장소 ' + n + '곳 중 ' + sz + '곳으로 ' + roundName(sz) + '부터 시작합니다.';
+      } else {
+        info.textContent = '조건에 맞는 장소 ' + n + '곳 중 ' + sz + '곳으로 ' + roundName(sz) + '부터 시작합니다.';
+      }
       btn.disabled = false;
     }
   }
@@ -349,7 +400,7 @@
   function checkWeather() {
     var req = ++wxReq;
     if (cond.region === '전국') { showWx(false); if (autoIndoor && !typeTouched) setType('all', false); return; }
-    var list = places.filter(function (p) { return p._r === cond.region && isFinite(p.lat) && isFinite(p.lng); });
+    var list = places.filter(function (p) { return p._r === cond.region && (cond.district === 'all' || p._d === cond.district) && isFinite(p.lat) && isFinite(p.lng); });
     if (!list.length) { showWx(false); return; }
     var lat = 0, lng = 0;
     list.forEach(function (p) { lat += +p.lat; lng += +p.lng; });
@@ -395,9 +446,10 @@
 
   /* ---------- 게임 진행 ---------- */
   function newGame() {
-    var pool = currentPool(), n = sizeFor(pool.length);
+    var pi = poolInfo(), pool = pi.pool, n = sizeFor(pool.length);
     if (!n) return;
-    S = { n: n, rounds: [draw(pool, n)], results: [[]], r: 0, m: 0 };
+    var entries = pi.extra > 0 ? shuffle(pool.slice(0, n)) : draw(pool, n);   // 채움 풀은 '고른 곳 → 가까운 순' 정렬이라 앞에서부터 쓴다
+    S = { n: n, rounds: [entries], results: [[]], r: 0, m: 0 };
     $('setup').style.display = 'none';
     $('result').style.display = 'none';
     $('game').style.display = 'block';
@@ -614,7 +666,10 @@
 
   /* ---------- 이벤트 연결 ---------- */
   $('region').addEventListener('change', function () {
-    cond.region = this.value; saveCond(); updatePool(); checkWeather();
+    cond.region = this.value; cond.district = 'all'; buildDistrict(); saveCond(); updatePool(); checkWeather();
+  });
+  $('district').addEventListener('change', function () {
+    cond.district = this.value; saveCond(); updatePool(); checkWeather();
   });
   $('typeChips').addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
@@ -637,8 +692,9 @@
 
   /* ---------- 데이터 로드 ---------- */
   fetch('/data/kids_places.json').then(function (r) { return r.json(); }).then(function (list) {
-    places = (list || []).filter(function (p) { return p && p.title && p.contentid; }).map(function (p) { p._r = regionOf(p.addr); return p; });
+    places = (list || []).filter(function (p) { return p && p.title && p.contentid; }).map(function (p) { p._r = regionOf(p.addr); p._d = districtOf(p.addr); return p; });
     buildRegionSelect();
+    buildDistrict();
     paintChips('typeChips', cond.type);
     paintChips('budgetChips', cond.budget);
     updatePool();
