@@ -43,7 +43,7 @@
   .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
   .btn.sub { background: #eef2ff; color: #4338ca; font-size: 14px; padding: 10px 16px; }
   .btn.ghost { background: #fff; color: #475569; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px 16px; }
-  .startrow { margin-top: 14px; }
+  .startrow { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
   #game, #result { display: none; }
   .gh { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .rname { font-size: 22px; font-weight: 900; color: #4338ca; }
@@ -56,6 +56,10 @@
   .cand:hover, .cand:focus-visible { border-color: #818cf8; background: #f5f7ff; outline: none; }
   .cand.sel { border-color: #4f46e5; background: #eef2ff; transform: scale(1.015); }
   .cand.out { opacity: .35; }
+  .cand.flash { border-color: #f59e0b; background: #fffbeb; }
+  .vs.lock .cand { pointer-events: none; }
+  .ctl.rnd { margin-top: 12px; }
+  .btn.sub:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
   .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
   .bd { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569; }
   .bd.in { background: #e0f2fe; color: #0369a1; }
@@ -219,7 +223,8 @@
     </div>
     <div class="wx" id="wx" role="status"></div>
     <div class="poolinfo" id="poolInfo" role="status">장소 목록을 불러오는 중입니다…</div>
-    <div class="startrow"><button type="button" class="btn" id="startBtn" disabled>🏁 월드컵 시작!</button></div>
+    <div class="startrow"><button type="button" class="btn" id="startBtn" disabled>🏁 월드컵 시작!</button>
+      <button type="button" class="btn sub" id="randStartBtn" disabled>🎲 랜덤으로 바로 정하기</button></div>
   </section>
 
   <!-- 2) 대진 -->
@@ -233,6 +238,10 @@
     <div class="rv" id="roundview"></div>
     <div class="br" id="bracket" aria-label="전체 대진표"></div>
     <div class="vs" id="vs"></div>
+    <div class="ctl rnd">
+      <button type="button" class="btn sub" id="randBtn">🎲 이 경기 랜덤</button>
+      <button type="button" class="btn sub" id="autoBtn" aria-pressed="false">⏩ 남은 경기 자동</button>
+    </div>
     <div class="ctl">
       <button type="button" class="btn ghost" id="undoBtn">← 이전 선택으로</button>
       <button type="button" class="btn ghost" id="quitBtn">처음으로</button>
@@ -250,6 +259,7 @@
       <li>지역, 실내·실외, 예산을 고릅니다. 지역을 고르면 구·군·시까지 고를 수 있고, 모두 "상관없어요"로 두면 전국에서 뽑습니다.</li>
       <li>조건에 맞는 장소 중 16곳이 무작위로 뽑혀 16강 대진표가 만들어집니다. 후보가 적으면 8강이나 4강으로 줄어듭니다.</li>
       <li>화면에 나온 두 곳 중 가고 싶은 곳을 하나씩 고릅니다. 아이에게 직접 골라보게 하면 더 재미있어요.</li>
+      <li>고르기 어렵다면 "🎲 이 경기 랜덤"으로 한 경기를 맡기거나, "⏩ 남은 경기 자동"으로 결승까지 한 번에 진행해 볼 수 있습니다. 설정 화면의 "🎲 랜덤으로 바로 정하기"는 조건만 고르고 바로 자동으로 진행합니다. 자동 진행 중에는 "⏹ 멈추기"로 언제든 멈추고 직접 이어서 고를 수 있어요.</li>
       <li>결승까지 마치면 우승 장소와 함께 준우승·4강 탈락 장소가 "차선책" 3곳으로 나옵니다. 우승 장소가 마음에 안 들면 이 중에서 고르셔도 됩니다.</li>
     </ol>
 
@@ -327,6 +337,7 @@
     <div class="faq"><b>Q. 우리 동네 장소가 없어요.</b><p>후보는 운영자가 정리한 곳이라 모든 장소가 들어 있지는 않습니다. 가고 싶은 곳이 있다면 <a href="/contact/">문의 페이지</a>나 아래 댓글로 알려 주세요. <a href="/festival/">아이랑 나들이 지도</a>에서는 지역별로 직접 둘러볼 수 있습니다.</p></div>
     <div class="faq"><b>Q. 우승 장소는 예약이 꼭 필요한가요?</b><p>장소마다 다릅니다. 예약 없이 들어갈 수 있는 곳도 있고, 체험 프로그램만 예약을 받는 곳도 있어요. 상세 페이지의 안내와 공식 연락처로 확인해 주세요.</p></div>
     <div class="faq"><b>Q. 아이랑 나들이 지도와 월드컵은 뭐가 다른가요?</b><p>지도는 지역에서 장소를 직접 찾아보는 도구이고, 월드컵은 가고 싶은 곳이 너무 많거나 가족 의견이 갈릴 때 대진표로 하나를 정하는 도구입니다. 같은 장소 정보를 쓰기 때문에 두 가지를 번갈아 쓰셔도 됩니다.</p></div>
+    <div class="faq"><b>Q. 랜덤으로 고르면 확률이 같나요?</b><p>네. 두 곳 중 하나를 같은 확률로 고릅니다. 다만 후보 16곳을 뽑는 단계에서는 비용 정보가 정리된 장소를 먼저 뽑기 때문에, 랜덤이라도 그 안에서 결과가 정해집니다. 마음에 안 들면 "다시 하기"로 새로 뽑을 수 있어요.</p></div>
 
     <div class="links">
       <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
@@ -527,6 +538,7 @@
       }
       btn.disabled = false;
     }
+    $('randStartBtn').disabled = btn.disabled;
   }
   function setType(v, auto) {
     cond.type = v; autoIndoor = !!auto; paintChips('typeChips', v); updatePool();
@@ -589,7 +601,7 @@
     b.appendChild(el('div', 'cloc', '📍 ' + locText(p)));
     b.appendChild(el('div', 'cdesc', p.desc || ''));
     b.appendChild(el('div', 'cgo', '이곳으로 가고 싶어요 →'));
-    b.addEventListener('click', function () { pick(idx); });
+    b.addEventListener('click', function () { if (autoOn || rolling) return; pick(idx); });
     return b;
   }
 
@@ -597,6 +609,7 @@
   function newGame() {
     var pi = poolInfo(), pool = pi.pool, n = sizeFor(pool.length);
     if (!n) return;
+    stopAuto(); cancelRoll();
     var entries = pi.extra > 0 ? shuffle(pool.slice(0, n)) : draw(pool, n);   // 채움 풀은 '고른 곳 → 가까운 순' 정렬이라 앞에서부터 쓴다
     S = { n: n, rounds: [entries], results: [[]], r: 0, m: 0 };
     $('bracket').classList.remove('open'); $('treeBtn').textContent = '전체 보기'; $('treeBtn').setAttribute('aria-expanded', 'false');
@@ -611,18 +624,18 @@
   function render() {
     var ents = S.rounds[S.r], total = ents.length / 2;
     $('rname').textContent = roundName(ents.length);
-    $('rsub').textContent = (S.m + 1) + ' / ' + total + ' 경기';
+    $('rsub').textContent = rsubText();
     $('barfill').style.width = (doneCount() / (S.n - 1) * 100) + '%';
     var vs = $('vs'); vs.innerHTML = '';
     vs.appendChild(buildCard(ents[S.m * 2], 0));
     vs.appendChild(el('div', 'vsb', 'VS'));
     vs.appendChild(buildCard(ents[S.m * 2 + 1], 1));
-    $('undoBtn').disabled = (S.r === 0 && S.m === 0);
     renderRound();
     renderBracket();
+    syncRandUi();
   }
   function pick(i) {
-    if (locked || !S) return;
+    if (locked || rolling || !S) return;
     locked = true;
     var cards = $('vs').querySelectorAll('.cand');
     if (cards[i]) cards[i].classList.add('sel');
@@ -641,8 +654,98 @@
       locked = false;
     }, 260);
   }
+  /* ---------- 랜덤 선택: 이 경기 랜덤 / 남은 경기 자동 진행 ---------- */
+  var rolling = false, rollTimer = null, autoOn = false, autoTimer = null, flashTimer = null;
+  var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function rndPick() { return Math.random() < 0.5 ? 0 : 1; }
+  function rsubText() {
+    var e = S.rounds[S.r];
+    return (S.m + 1) + ' / ' + (e.length / 2) + ' 경기' + (autoOn ? ' · 🎲 자동 진행 중' : '');
+  }
+  function clearFlash() {
+    if (flashTimer) { clearInterval(flashTimer); flashTimer = null; }
+    var f = $('vs').querySelectorAll('.cand.flash');
+    for (var i = 0; i < f.length; i++) f[i].classList.remove('flash');
+  }
+  // 두 카드가 번갈아 반짝이는 룰렛 효과
+  function startFlash() {
+    clearFlash();
+    var cards = $('vs').querySelectorAll('.cand'), k = Math.random() < 0.5 ? 0 : 1;
+    if (cards.length < 2) return;
+    flashTimer = setInterval(function () {
+      cards[0].classList.toggle('flash', k % 2 === 0);
+      cards[1].classList.toggle('flash', k % 2 === 1);
+      k++;
+    }, 120);
+  }
+  // 버튼 상태·진행 중 표시를 한곳에서 맞춘다(render 끝에서도 부른다)
+  function syncRandUi() {
+    var busy = autoOn || rolling;
+    $('randBtn').disabled = busy || !S;
+    $('autoBtn').disabled = rolling && !autoOn;
+    $('autoBtn').textContent = autoOn ? '⏹ 멈추기' : '⏩ 남은 경기 자동';
+    $('autoBtn').setAttribute('aria-pressed', autoOn ? 'true' : 'false');
+    $('vs').classList.toggle('lock', busy);
+    $('undoBtn').disabled = busy || !S || (S.r === 0 && S.m === 0);
+    if (S && S.rounds[S.r] && S.m * 2 < S.rounds[S.r].length) $('rsub').textContent = rsubText();
+  }
+  function cancelRoll() {
+    if (rollTimer) { clearTimeout(rollTimer); rollTimer = null; }
+    rolling = false; clearFlash();
+    if (S) syncRandUi();
+  }
+  function stopAuto() {
+    if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+    autoOn = false; clearFlash();
+    if (S) syncRandUi();
+  }
+  function rollOnce() {
+    if (!S || locked || rolling || autoOn) return;
+    if (reduceMotion) { pick(rndPick()); return; }
+    rolling = true; syncRandUi(); startFlash();
+    rollTimer = setTimeout(function () {
+      rollTimer = null; rolling = false; clearFlash();
+      pick(rndPick());
+    }, 750);
+  }
+  // 동작 줄이기 설정이면 애니메이션 없이 결승까지 바로 진행한다
+  function autoInstant() {
+    var ents;
+    while (S) {
+      ents = S.rounds[S.r];
+      S.results[S.r].push(ents[S.m * 2 + rndPick()]);
+      S.m++;
+      if (S.m * 2 >= ents.length) {
+        if (ents.length === 2) { finish(); return; }
+        S.rounds.push(S.results[S.r].slice());
+        S.results.push([]);
+        S.r++; S.m = 0;
+      }
+    }
+  }
+  function autoTick() {
+    autoTimer = null;
+    if (!autoOn || !S || $('game').style.display !== 'block') { stopAuto(); return; }
+    var len = S.rounds[S.r].length;
+    var think = len <= 2 ? 1500 : len <= 4 ? 1000 : 450;   // 4강·결승은 뜸을 들인다
+    if (len <= 4) startFlash();
+    autoTimer = setTimeout(function () {
+      autoTimer = null;
+      clearFlash();
+      if (!autoOn || !S) return;
+      pick(rndPick());                        // 260ms 뒤 다음 경기(또는 결과)로 넘어간다
+      autoTimer = setTimeout(autoTick, 360);
+    }, think);
+  }
+  function startAuto() {
+    if (!S || autoOn || rolling) return;
+    if (reduceMotion) { autoInstant(); return; }
+    autoOn = true; syncRandUi();
+    autoTimer = setTimeout(autoTick, 350);
+  }
+
   function undo() {
-    if (locked || !S) return;
+    if (locked || rolling || autoOn || !S) return;
     if (S.m > 0) { S.m--; S.results[S.r].pop(); }
     else if (S.r > 0) {
       S.rounds.length = S.r; S.results.length = S.r;
@@ -748,6 +851,7 @@
     return box;
   }
   function finish() {
+    stopAuto(); cancelRoll();
     var rounds = S.results.length;
     var champ = S.results[rounds - 1][0];
     var finalEnts = S.rounds[rounds - 1];
@@ -810,6 +914,7 @@
     loadFestivals(champ);
   }
   function toSetup() {
+    stopAuto(); cancelRoll();
     $('game').style.display = 'none'; $('result').style.display = 'none'; $('setup').style.display = 'block';
     S = null;
     $('setup').scrollIntoView({ block: 'start' });
@@ -883,10 +988,15 @@
     if (open) centerIn(tree, tree.querySelector('.brm.cur'), false);
   });
   $('startBtn').addEventListener('click', newGame);
+  $('randStartBtn').addEventListener('click', function () { newGame(); if (S) setTimeout(startAuto, 450); });
+  $('randBtn').addEventListener('click', rollOnce);
+  $('autoBtn').addEventListener('click', function () { if (autoOn) stopAuto(); else startAuto(); });
   $('undoBtn').addEventListener('click', undo);
   $('quitBtn').addEventListener('click', toSetup);
   document.addEventListener('keydown', function (e) {
     if ($('game').style.display !== 'block') return;
+    if (autoOn) { if (e.key === 'Escape') stopAuto(); return; }
+    if (rolling) return;
     var tag = (e.target && e.target.tagName) || '';
     if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
     if (e.key === 'ArrowLeft' || e.key === '1') { e.preventDefault(); pick(0); }
