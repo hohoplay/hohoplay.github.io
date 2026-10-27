@@ -157,6 +157,35 @@
     .brhead.tight .rv-trk { display: flex; margin: 0 8px 0 0; }
     .hint { display: none; }
   }
+
+  /* 공유·댓글 카드 (호호플레이 다른 페이지와 같은 구성) */
+  .share { margin: 22px 0 16px; padding: 16px; background: #f1f5f9; border-radius: 16px; text-align: center; }
+  .share .st { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 10px; }
+  .share .sr { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .sb { width: 42px; height: 42px; border-radius: 50%; border: 0; padding: 0; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; }
+  .sb.fb { background: #1877f2; font-size: 18px; }
+  .sb.x { background: #000; }
+  .sb.kk { background: #fee500; color: #3c1e1e; font-size: 18px; }
+  .sb.nv { background: #03c75a; }
+  .sb.bd { background: #00c73c; font-size: 12px; }
+  .sb.ln { background: #06c755; font-size: 12px; }
+  .cmt { margin: 0 0 16px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; scroll-margin-top: 12px; }
+  .cmt h2 { margin: 0 0 4px; font-size: 16px; font-weight: 900; color: #1e293b; }
+  .cmt .cs { margin: 0 0 14px; font-size: 12px; color: #94a3b8; }
+  .cmt .cf { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .cmt input, .cmt textarea { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; font-family: inherit; color: #1e293b; background: #fff; }
+  .cmt textarea { resize: vertical; }
+  .cmt .cr { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+  .cmt .cst { font-size: 12px; color: #94a3b8; }
+  .cmt .cbtn { padding: 9px 20px; border: 0; border-radius: 10px; background: #15803d; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .cmt .cbtn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .cmt .cl { display: flex; flex-direction: column; gap: 10px; }
+  .cmt .ci { padding: 12px 14px; background: #f8fafc; border-radius: 12px; }
+  .cmt .ch { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .cmt .cn { font-weight: 800; font-size: 13px; color: #334155; }
+  .cmt .ct { font-size: 11px; color: #94a3b8; }
+  .cmt .cc { font-size: 14px; color: #475569; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
+  .cmt .ce { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
 </style>
 </head>
 <body>
@@ -231,9 +260,64 @@
     <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 전국 캠핑장 700여 곳입니다. 한국관광공사 TourAPI에 등록된 오토캠핑장, 글램핑, 카라반, 일반 캠핑장과 야영장이 모두 들어 있고, 경기·강원·충남처럼 캠핑장이 많은 지역은 시·군 단위로도 고를 수 있습니다.</p>
     <p>캠핑 유형은 캠핑장 이름에 들어간 말("오토캠핑", "글램핑", "카라반")을 기준으로 나눈 것입니다. 이름에 아무 표시가 없으면 "일반 캠핑장·야영장"으로 분류하기 때문에, 실제 시설과 다를 수 있어요. 사진이 등록되지 않은 캠핑장은 사진 대신 아이콘이 나옵니다.</p>
 
+    <h2>지금 후보는 이렇게 구성돼 있어요</h2>
+    <!-- WC_CAMP_STATS_START -->
+<p>현재 후보로 등록된 캠핑장은 <strong>738곳</strong>이고, 그중 729곳에 사진이 등록돼 있습니다. 이름 기준 유형은 오토캠핑 119곳, 글램핑 78곳, 카라반 26곳이고, 이름에 유형 표시가 없는 일반 캠핑장·야영장이 522곳입니다. 이름에 두 가지 이상이 들어간 곳은 각 유형에 모두 셉니다. 이 숫자는 데이터가 갱신될 때 함께 바뀝니다.</p>
+<p>지역별로는 경기도 213곳, 강원 100곳, 충청남도 95곳, 경상남도 64곳, 전라북도 62곳, 충청북도 51곳, 경상북도 50곳, 전남·광주 39곳 순으로 많습니다. 유형을 따로 고르지 않았을 때 16강까지 가능한 지역은 경기도, 강원, 충청남도, 경상남도, 전라북도, 충청북도, 경상북도, 전남·광주, 인천입니다. 8강까지 가능한 지역은 대구, 부산입니다. 울산, 제주, 대전, 서울, 세종처럼 후보가 8곳보다 적은 지역은 4강으로 줄거나 대진표를 만들 수 없으니, 그럴 땐 "전국"으로 넓혀 주세요. 유형까지 고르면 후보가 줄어듭니다. 예를 들어 카라반은 전국 26곳이라 지역을 좁히면 8강이나 4강으로 줄 수 있어요.</p>
+<!-- WC_CAMP_STATS_END -->
+
+    <h2>캠핑 유형, 무엇이 다를까요?</h2>
+    <p>월드컵의 유형 선택은 캠핑장 이름에 들어간 말을 기준으로 합니다. 각 유형의 일반적인 특징은 아래와 같고, 같은 유형이어도 캠핑장마다 시설과 요금 차이가 커서 예약 전에 꼭 확인해야 합니다.</p>
+    <ul>
+      <li><b>오토캠핑</b> — 차량을 사이트 가까이에 세우고 텐트와 장비를 직접 설치하는 방식입니다. 장비가 있다면 자유도가 높고, 짐을 차로 옮기니 부피가 큰 장비도 실을 수 있습니다. 전기 사용 여부, 개수대·화장실·샤워장의 위치는 캠핑장마다 다릅니다.</li>
+      <li><b>글램핑</b> — 이미 설치된 텐트나 시설을 빌려 쓰는 방식입니다. 장비를 사거나 설치할 부담이 적어서 처음 캠핑을 가는 가족이 많이 찾습니다. 다만 침구, 난방, 취사 도구가 어디까지 제공되는지, 추가 요금이 있는지는 곳마다 다릅니다.</li>
+      <li><b>카라반</b> — 캠핑카처럼 바퀴가 달린 숙박 시설입니다. 실내에서 잘 수 있어 날씨 영향을 덜 받는 편이지만, 취사와 화장실, 난방이 시설 안에 있는지, 수용 인원이 몇 명인지는 곳마다 달라 꼼꼼히 확인해야 합니다.</li>
+      <li><b>일반 캠핑장·야영장</b> — 이름에 위 세 가지 말이 없는 곳입니다. 야영장, 휴양림 안의 캠핑 시설, 농원이나 파크가 운영하는 캠핑장 등이 섞여 있어 시설 수준이 다양합니다.</li>
+    </ul>
+
+    <h2>처음 가는 가족은 이렇게 골라 보세요</h2>
+    <p>장비가 없거나 아이가 어리다면 글램핑이나 카라반처럼 시설이 갖춰진 곳으로 시작하고, 캠핑에 익숙해지면 오토캠핑으로 넓혀 가는 경우가 많습니다. 월드컵에서 유형을 하나 고르면 그 안에서만 후보가 나오니, 유형으로 범위를 먼저 좁히는 것이 가장 쉬운 방법입니다.</p>
+    <p>아이와 함께 갈 때는 다음을 살펴보세요.</p>
+    <ul>
+      <li>화장실과 샤워실이 사이트에서 얼마나 먼지: 밤에 아이와 함께 오가는 거리입니다.</li>
+      <li>사이트 바닥의 경사와 배수: 비가 올 때 물이 고이는지 확인합니다.</li>
+      <li>계곡이나 물가가 가까운지: 가깝다면 안전 시설이나 안전 요원이 있는지 확인합니다.</li>
+      <li>매너타임과 화로대 사용 규칙: 소등 시간, 불을 피울 수 있는 위치와 방법입니다.</li>
+      <li>체크인·체크아웃 시간: 아이가 지치기 전에 도착하고 정리할 여유가 있는지 봅니다.</li>
+      <li>반려동물 동반 여부와 취소·환불 규정입니다.</li>
+    </ul>
+
+    <h2>계절별로 확인할 것</h2>
+    <ul>
+      <li><b>봄·가을</b> — 낮에는 따뜻해도 밤 기온이 크게 떨어지는 날이 많아 침낭과 겉옷을 넉넉히 챙기세요. 날씨가 좋은 주말에는 예약이 일찍 차는 곳이 많습니다.</li>
+      <li><b>여름</b> — 갑작스러운 소나기와 폭우, 계곡물이 불어나는 상황에 대비해야 합니다. 하천이나 계곡 바로 옆 사이트는 비 예보가 있으면 피하고, 그늘과 벌레 대책을 준비하세요.</li>
+      <li><b>겨울</b> — 운영하지 않거나 물, 샤워장 같은 시설 일부를 막아 두는 곳이 있어서 운영 기간을 꼭 확인해야 합니다. 텐트 안에서 숯이나 가스 난로를 쓰면 일산화탄소 중독 위험이 있으니 캠핑장의 안전 안내를 따르고, 일산화탄소 경보기를 챙기면 안전합니다.</li>
+    </ul>
+
     <h2>결과를 본 뒤에는</h2>
     <p>결과 화면에는 캠핑장 소개와 위치 정보를 보여줍니다. 다만 이 서비스의 데이터에는 이용 요금, 부대시설, 예약 가능 여부, 반려동물 동반 여부가 들어 있지 않습니다. 가기로 정했다면 지도 앱에서 캠핑장을 찾아 공식 홈페이지나 전화로 요금, 예약, 운영 기간, 화로대·소음 같은 이용 규칙을 꼭 확인해 주세요. 겨울에는 운영하지 않는 곳도 있습니다.</p>
     <p>아이와 함께 간다면 계곡이나 물가 근처, 경사가 심한 사이트, 화로대 위치를 미리 확인하고, 비가 오면 배수와 취소 규정도 알아두시길 권합니다.</p>
+
+    <h2>예약하기 전 물어볼 질문</h2>
+    <p>지도 앱이나 캠핑장 공식 안내에서 아래를 확인하면 현장에서 당황할 일이 줄어듭니다.</p>
+    <ol>
+      <li>원하는 날짜에 예약할 수 있는지, 예약 방식(사이트 지정·선착순)은 무엇인지</li>
+      <li>1박 요금과 인원 추가 요금, 주차 대수 제한</li>
+      <li>전기, 온수, 난방, 침구가 어디까지 제공되는지</li>
+      <li>화로대, 장작, 숯의 사용 규칙과 판매 여부</li>
+      <li>반려동물과 어린이를 데려갈 때의 제한</li>
+      <li>매너타임과 체크인·체크아웃 시간</li>
+      <li>비가 올 때의 취소·환불 규정</li>
+      <li>음식물과 쓰레기를 처리하는 방법</li>
+    </ol>
+
+    <h2>월드컵을 캠핑 계획에 활용하는 법</h2>
+    <ul>
+      <li>가족이 각자 후보를 골라 보세요. 사진을 보며 하면 취향 차이가 눈에 보여서 의견을 모으기 쉽습니다.</li>
+      <li>지역을 먼저, 그다음 시·군, 마지막으로 유형 순으로 좁히면 후보가 빠르게 정리됩니다.</li>
+      <li>우승 캠핑장의 예약이 어렵다면 차선책 3곳을 이어서 확인해 보세요. 준우승과 4강에 오른 곳이라 마음에 들 가능성이 높습니다.</li>
+      <li>결과를 단체 대화방에 공유하고, 다녀온 분은 이 페이지 아래 댓글에 후기를 남겨 주세요.</li>
+    </ul>
 
     <h2>날씨는 어떻게 반영되나요?</h2>
     <p>지역을 고르면 그 지역의 날씨를 확인해서 비나 눈 소식이 있으면 안내 문구를 보여드립니다. 위치 권한은 필요하지 않고, 캠핑 유형이나 후보를 날씨로 바꾸지는 않습니다. 날씨는 참고용이니 출발하기 전에 한 번 더 확인해 주세요.</p>
@@ -245,11 +329,44 @@
     <div class="faq"><b>Q. 위치 정보를 수집하나요?</b><p>아니요. 내 위치를 묻지 않고, 고른 지역의 대략적인 중심 좌표로만 날씨를 조회합니다. 마지막으로 고른 조건은 편의를 위해 이 브라우저에만 저장됩니다.</p></div>
     <div class="faq"><b>Q. 캠핑장 정보가 틀렸어요.</b><p>운영 정보는 바뀔 수 있습니다. <a href="/contact/">문의 페이지</a>로 알려주시면 확인 후 반영하겠습니다.</p></div>
 
+    <div class="faq"><b>Q. 이름에 '캠핑장'만 있는데 글램핑도 할 수 있나요?</b><p>유형은 이름에 들어간 말로 나눈 것이라 실제 시설과 다를 수 있습니다. 상세 페이지와 캠핑장 공식 안내에서 객실·사이트 종류를 확인해 주세요.</p></div>
+    <div class="faq"><b>Q. 반려동물과 함께 갈 수 있는 곳만 고를 수 있나요?</b><p>이 서비스의 데이터에는 반려동물 동반 여부가 없어서 조건으로 고를 수 없습니다. 우승 캠핑장이 정해지면 예약 전에 꼭 문의해 주세요.</p></div>
+    <div class="faq"><b>Q. 인원이 많은 단체인데 쓸 수 있나요?</b><p>대진표는 이름과 사진, 지역으로 고르는 방식이라 사이트 크기나 수용 인원 정보는 없습니다. 후보를 고른 뒤 단체 이용이 가능한지 캠핑장에 문의하세요.</p></div>
+    <div class="faq"><b>Q. 캠핑장을 지도에서 직접 보고 싶어요.</b><p><a href="/festival/">아이랑 나들이 지도</a>에서 전국 캠핑장을 지도 위에서 찾아볼 수 있습니다. 위치가 궁금하면 월드컵 결과 화면의 지도 링크도 이용해 보세요.</p></div>
+
     <div class="links">
       <a href="/festival/worldcup.html">🏆 아이랑 나들이 월드컵</a>
       <a href="/festival/">🗺️ 아이랑 나들이 지도</a>
       <a href="/blog/magazine/">📰 호호 매거진</a>
     </div>
+  </section>
+
+  <!-- 공유 (다른 호호플레이 페이지와 같은 형식) -->
+  <section class="share" aria-label="공유하기">
+    <div class="st">🔗 이 페이지 공유하기</div>
+    <div class="sr">
+      <button type="button" class="sb fb" data-sns="facebook" aria-label="페이스북 공유">f</button>
+      <button type="button" class="sb x" data-sns="x" aria-label="X 공유">X</button>
+      <button type="button" class="sb kk" data-sns="kakaot" aria-label="카카오톡 공유">💬</button>
+      <button type="button" class="sb nv" data-sns="naver" aria-label="네이버 공유">N</button>
+      <button type="button" class="sb bd" data-sns="band" aria-label="밴드 공유">밴드</button>
+      <button type="button" class="sb ln" data-sns="line" aria-label="라인 공유">라인</button>
+    </div>
+  </section>
+
+  <!-- 댓글 (사이트 공용 댓글 API, game_id=worldcup-camping) -->
+  <section class="cmt" id="cmtCard" aria-label="댓글">
+    <h2>💬 댓글</h2>
+    <p class="cs">다녀온 캠핑장 후기나 추천하고 싶은 곳을 남겨 주세요. 광고·욕설·개인정보가 담긴 글은 삭제될 수 있어요.</p>
+    <div class="cf">
+      <input id="cmtNick" type="text" placeholder="닉네임" maxlength="20" autocomplete="nickname">
+      <textarea id="cmtContent" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"></textarea>
+      <div class="cr">
+        <span class="cst" id="cmtStatus" role="status"></span>
+        <button type="button" class="cbtn" id="cmtSubmit">등록</button>
+      </div>
+    </div>
+    <div class="cl" id="cmtList"><div class="ce">댓글을 불러오는 중...</div></div>
   </section>
 </div>
 
@@ -665,6 +782,9 @@
     var d = el('a', 'btn', '📄 상세 정보 보기'); d.href = detailUrl(champ); acts.appendChild(d);
     var k = el('a', 'btn sub', '🗺️ 카카오맵에서 찾기'); k.href = 'https://map.kakao.com/?q=' + encodeURIComponent(searchQuery(champ)); k.target = '_blank'; k.rel = 'noopener'; acts.appendChild(k);
     var nv = el('a', 'btn sub', '네이버지도'); nv.href = 'https://map.naver.com/p/search/' + encodeURIComponent(searchQuery(champ)); nv.target = '_blank'; nv.rel = 'noopener'; acts.appendChild(nv);
+    var cm = el('button', 'btn sub', '💬 후기·추천 남기기'); cm.type = 'button';
+    cm.addEventListener('click', function () { if (window.hpCommentPrefill) window.hpCommentPrefill('🏆 우승: ' + champ.title + ' — '); });
+    acts.appendChild(cm);
     win.appendChild(acts);
     var note = el('div', 'note', '요금, 예약 가능 여부, 운영 기간, 반려동물 동반 여부는 이 서비스에 없어요. 캠핑장 공식 홈페이지나 전화로 꼭 확인하세요.');
     win.appendChild(note);
@@ -776,6 +896,120 @@
     $('poolInfo').className = 'poolinfo bad';
     $('poolInfo').textContent = '캠핑장 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
   });
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+  var GID = 'worldcup-camping';
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- 공유 (다른 호호플레이 페이지와 같은 동작) ---------- */
+  function snsShare(type) {
+    var pageUrl = window.location.href;
+    var shareUrl = encodeURIComponent(pageUrl);
+    var title = document.title;
+    var shareTitle = encodeURIComponent(title);
+    if (type === 'kakaot') {
+      // 모바일은 OS 공유시트, PC는 링크를 직접 보여줘 복사하게 한다(카드 방식이 엉뚱한 페이지로 새는 문제 때문)
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile && navigator.share) { navigator.share({ title: title, url: pageUrl }).catch(function () {}); return; }
+      window.prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
+      return;
+    }
+    var map = {
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl,
+      x: 'https://twitter.com/intent/tweet?text=' + shareTitle + '&url=' + shareUrl,
+      naver: 'https://share.naver.com/web/shareView.nhn?url=' + shareUrl + '&title=' + shareTitle,
+      band: 'https://band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + shareUrl,
+      line: 'https://social-plugins.line.me/lineit/share?url=' + shareUrl + '&text=' + shareTitle
+    };
+    if (map[type]) window.open(map[type], '_blank');
+  }
+  var sbs = document.querySelectorAll('.share [data-sns]');
+  for (var i = 0; i < sbs.length; i++) {
+    sbs[i].addEventListener('click', function () { snsShare(this.getAttribute('data-sns')); });
+  }
+
+  /* ---------- 댓글 ---------- */
+  function fmtTime(ts) {
+    var diff = Date.now() - ts, min = Math.floor(diff / 60000);
+    if (min < 1) return '방금 전';
+    if (min < 60) return min + '분 전';
+    var hr = Math.floor(min / 60);
+    if (hr < 24) return hr + '시간 전';
+    var day = Math.floor(hr / 24);
+    if (day < 7) return day + '일 전';
+    return new Date(ts).toLocaleDateString('ko-KR');
+  }
+  function msg(text, cls) {
+    var d = document.createElement('div'); d.className = 'ce'; d.textContent = text;
+    if (cls) d.style.color = cls;
+    return d;
+  }
+  var loaded = false;
+  function load() {
+    loaded = true;
+    var box = $('cmtList');
+    fetch(API + '?game_id=' + encodeURIComponent(GID))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        box.innerHTML = '';
+        var list = data && data.comments ? data.comments : [];
+        if (!list.length) { box.appendChild(msg('아직 댓글이 없어요. 첫 댓글을 남겨보세요!')); return; }
+        list.forEach(function (c) {
+          var item = document.createElement('div'); item.className = 'ci';
+          var h = document.createElement('div'); h.className = 'ch';
+          var n = document.createElement('span'); n.className = 'cn'; n.textContent = c.nickname;
+          var t = document.createElement('span'); t.className = 'ct'; t.textContent = fmtTime(c.created_at);
+          h.appendChild(n); h.appendChild(t);
+          var body = document.createElement('div'); body.className = 'cc'; body.textContent = c.content;
+          item.appendChild(h); item.appendChild(body);
+          box.appendChild(item);
+        });
+      })
+      .catch(function () { box.innerHTML = ''; box.appendChild(msg('댓글을 불러오지 못했어요.', '#f87171')); });
+  }
+  // 도구만 쓰고 가는 방문자가 많아서, 댓글 영역이 화면 근처에 올 때 불러온다.
+  var card = $('cmtCard');
+  if (card && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting && !loaded) { io.disconnect(); load(); }
+    }, { rootMargin: '300px' });
+    io.observe(card);
+  } else { load(); }
+
+  try { var nk = localStorage.getItem('hp_cmt_nick'); if (nk) $('cmtNick').value = nk; } catch (e) {}
+
+  $('cmtSubmit').addEventListener('click', function () {
+    var nickEl = $('cmtNick'), contentEl = $('cmtContent'), st = $('cmtStatus'), btn = this;
+    var nickname = nickEl.value.trim(), content = contentEl.value.trim();
+    if (!nickname || !content) { st.textContent = '닉네임과 댓글을 모두 입력해주세요'; st.style.color = '#f87171'; return; }
+    btn.disabled = true; st.textContent = '등록 중...'; st.style.color = '#94a3b8';
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game_id: GID, nickname: nickname, content: content }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) { st.textContent = (res.d && res.d.error) || '등록에 실패했어요'; st.style.color = '#f87171'; btn.disabled = false; return; }
+        try { localStorage.setItem('hp_cmt_nick', nickname); } catch (e) {}
+        contentEl.value = ''; st.textContent = '등록됐어요!'; st.style.color = '#22c55e';
+        load();
+        setTimeout(function () { st.textContent = ''; btn.disabled = false; }, 30000);   // 연속 등록 방지
+      })
+      .catch(function () { st.textContent = '네트워크 오류가 발생했어요'; st.style.color = '#f87171'; btn.disabled = false; });
+  });
+
+  // 결과 화면의 "후기·추천 남기기" 버튼이 부른다: 댓글 영역으로 이동하고 우승 장소 문구를 미리 채운다.
+  window.hpCommentPrefill = function (text) {
+    var ta = $('cmtContent');
+    if (!card || !ta) return;
+    if (!ta.value.trim()) ta.value = String(text).slice(0, 300);
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () {
+      try { ta.focus({ preventScroll: true }); var n = ta.value.length; ta.setSelectionRange(n, n); } catch (e) {}
+    }, 500);
+  };
 })();
 </script>
 
