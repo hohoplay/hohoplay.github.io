@@ -18,8 +18,18 @@
 </style>
 <div style="text-align:center;margin-bottom:20px;">
     <span style="display:inline-block;background:#eef2ff;color:#4f46e5;font-size:12px;font-weight:900;padding:5px 14px;border-radius:999px;letter-spacing:.05em;">🎯 HOHO PICK</span>
-    <p id="hoho-pick-tagline" style="font-size:13px;color:#94a3b8;margin-top:8px;">축제·게임공략·커뮤니티·매거진, 호호플레이가 골라봤어요</p>
+    <p id="hoho-pick-tagline" style="font-size:13px;color:#94a3b8;margin-top:8px;">매거진·커뮤니티·축제·아이랑 갈만한 곳·게임공략, 호호플레이가 골라봤어요</p>
 </div>
+
+<section id="hoho-pick-magazine" class="curated-board" style="margin-bottom:24px;">
+    <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">✨ 호호 매거진</h2><a href="/blog/magazine/" class="curated-more">매거진 전체 보기 →</a></div>
+    <div id="hoho-pick-magazine-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>
+</section>
+
+<section id="hoho-pick-community" class="curated-board" style="margin-bottom:24px;">
+    <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">💬 커뮤니티</h2><a href="/blog/" class="curated-more">전체 글 보기 →</a></div>
+    <div id="hoho-pick-community-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>
+</section>
 
 <section id="hoho-pick-festival" class="curated-board" style="margin-bottom:24px;">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">🎪 오늘 어디 갈까요</h2><a href="/festival/" class="curated-more">지도에서 보기 →</a></div>
@@ -34,7 +44,7 @@
     <div id="hoho-pick-kids-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>
 </section>
 
-<section id="hoho-pick-guide" class="curated-board" style="margin-bottom:24px;">
+<section id="hoho-pick-guide" class="curated-board">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">📖 게임공략</h2><a href="/guides/index.html" class="curated-more">전체 공략 보기 →</a></div>
     <div id="hoho-pick-guide-body" class="curated-board-body">
         <a href="/guides/hoya-typing-rpg-guide.html" class="curated-item">
@@ -70,16 +80,6 @@
     </div>
 </section>
 
-<section id="hoho-pick-community" class="curated-board" style="margin-bottom:24px;">
-    <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">💬 커뮤니티</h2><a href="/blog/" class="curated-more">전체 글 보기 →</a></div>
-    <div id="hoho-pick-community-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>
-</section>
-
-<section id="hoho-pick-magazine" class="curated-board">
-    <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">✨ 호호 매거진</h2><a href="/blog/magazine/" class="curated-more">매거진 전체 보기 →</a></div>
-    <div id="hoho-pick-magazine-body" class="curated-board-body"><div style="color:#94a3b8;font-size:13px;padding:20px;text-align:center;">불러오는 중...</div></div>
-</section>
-
 <script>
 (function(){
     // ── 이 파일을 fetch해서 끼워넣은 페이지의 #hoho-pick-placeholder 요소에서
@@ -108,7 +108,9 @@
         if (el) el.style.display = 'none';
     });
 
-    var order = ['festival', 'kids', 'guide', 'community', 'magazine'];
+    // [CHANGE] 2026-10-27: 노출 순서를 호호 매거진 → 커뮤니티 → 오늘 어디 갈까요 → 아이랑 어디 갈까요 → 게임공략 으로 변경.
+    // 위 <section> 순서(화면 순서)와 태그라인 문구 순서가 항상 같아야 한다.
+    var order = ['magazine', 'community', 'festival', 'kids', 'guide'];
     var visibleLabels = order.filter(function(k){ return excludeList.indexOf(k) === -1; })
         .map(function(k){ return sectionMap[k].label; });
     var taglineEl = document.getElementById('hoho-pick-tagline');
