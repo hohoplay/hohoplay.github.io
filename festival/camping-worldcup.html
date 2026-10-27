@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑장 월드컵 - 가고 싶은 캠핑장 대진표로 고르기 | HOHO PLAY</title>
+<meta name="description" content="어느 캠핑장으로 갈지 못 정했다면 대진표로 골라보세요. 지역·시군과 캠핑 유형(오토캠핑·글램핑·카라반)을 고르면 16강부터 결승까지 사진을 보며 두 곳씩 비교해 최종 캠핑장이 정해집니다.">
+<link rel="canonical" href="https://hohoplaylab.com/festival/camping-worldcup.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="캠핑장 월드컵 - 가고 싶은 캠핑장 대진표로 고르기">
+<meta property="og:description" content="사진을 보며 두 곳씩 고르다 보면 결승에서 이번 캠핑 장소가 정해집니다.">
+<meta property="og:url" content="https://hohoplaylab.com/festival/camping-worldcup.html">
+<meta property="og:image" content="https://hohoplaylab.com/data/festival-og-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hohoplaylab.com/data/festival-og-banner.png">
+<link rel="icon" href="/favicon.svg">
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  /* 푸터가 Tailwind(CDN)를 쓰기 때문에 Tailwind 기본 리셋이 뒤늦게 덮어써도 이 페이지가 그대로 보이도록
+     body·링크·목록·문단은 선택자를 한 단계 더 구체적으로 지정한다. */
+  html body { margin: 0; background: #f8fafc; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+  .about a, .note a, .info a, .ns a { color: #15803d; text-decoration: underline; }
+  .ns a { color: #991b1b; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 16px 16px 56px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 14px; font-weight: 700; }
+  .topbar a { text-decoration: none; color: #15803d; }
+  .hero { background: linear-gradient(135deg, #15803d, #0f766e); color: #fff; border-radius: 20px; padding: 24px 22px; margin-bottom: 18px; }
+  .hero h1 { margin: 0 0 6px; font-size: 26px; font-weight: 900; line-height: 1.3; }
+  .hero p { margin: 0; font-size: 15px; opacity: .95; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 12px; font-size: 17px; font-weight: 900; color: #0f172a; }
+  .lbl { font-size: 13px; font-weight: 800; color: #475569; margin: 14px 0 6px; }
+  .lbl:first-of-type { margin-top: 0; }
+  select { width: 100%; padding: 12px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; color: #1e293b; font-family: inherit; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 800; font-size: 14px; padding: 9px 15px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+  .chip[aria-pressed="true"] { background: #15803d; border-color: #15803d; color: #fff; }
+  .wx { display: none; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 14px; font-weight: 700; }
+  .poolinfo { margin-top: 14px; font-size: 14px; font-weight: 800; color: #334155; min-height: 22px; }
+  .poolinfo.bad { color: #b91c1c; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; cursor: pointer; font-family: inherit; font-weight: 900; font-size: 16px; padding: 14px 24px; border-radius: 999px; background: #15803d; color: #fff; text-decoration: none; }
+  .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .btn.sub { background: #dcfce7; color: #166534; font-size: 14px; padding: 10px 16px; }
+  .btn.ghost { background: #fff; color: #475569; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px 16px; }
+  .startrow { margin-top: 14px; }
+  #game, #result { display: none; }
+  .gh { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .rname { font-size: 22px; font-weight: 900; color: #166534; }
+  .rsub { font-size: 14px; font-weight: 800; color: #64748b; }
+  .bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 10px 0 14px; }
+  .bar > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #22c55e, #0d9488); transition: width .25s; }
+  .vs { display: grid; grid-template-columns: 1fr; gap: 10px; position: relative; }
+  .vsb { text-align: center; font-weight: 900; color: #94a3b8; font-size: 14px; letter-spacing: .1em; }
+  /* 후보 카드: 모바일은 사진 썸네일 + 글(가로), PC는 사진이 위(세로) */
+  .cand { display: flex; flex-direction: row; align-items: stretch; gap: 12px; text-align: left; border: 2px solid #e2e8f0; background: #fff; border-radius: 16px; padding: 10px; cursor: pointer; font-family: inherit; color: inherit; transition: transform .15s, border-color .15s, background .15s, opacity .2s; width: 100%; }
+  .cand:hover, .cand:focus-visible { border-color: #4ade80; background: #f0fdf4; outline: none; }
+  .cand.sel { border-color: #15803d; background: #dcfce7; transform: scale(1.015); }
+  .cand.out { opacity: .35; }
+  .ph { flex: 0 0 96px; width: 96px; height: 96px; border-radius: 12px; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+  .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cb { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .bd { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569; }
+  .bd.auto { background: #dcfce7; color: #15803d; }
+  .bd.glam { background: #fae8ff; color: #a21caf; }
+  .bd.van { background: #e0f2fe; color: #0369a1; }
+  .bd.gen { background: #fef9c3; color: #a16207; }
+  .cname { font-size: 18px; font-weight: 900; color: #0f172a; line-height: 1.35; margin: 0 0 2px; word-break: keep-all; overflow-wrap: anywhere; }
+  .cloc { font-size: 13px; font-weight: 700; color: #64748b; }
+  .cdesc { font-size: 13px; color: #64748b; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cgo { margin-top: 10px; font-size: 14px; font-weight: 900; color: #15803d; display: none; }
+  .ctl { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .hint { font-size: 12px; color: #94a3b8; margin-top: 10px; }
+  .brhead { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 8px; }
+  .brhead h3 { margin: 0; font-size: 15px; font-weight: 900; color: #0f172a; }
+  .br { display: flex; gap: 10px; overflow-x: auto; padding: 4px 6px 10px; margin-bottom: 14px; -webkit-overflow-scrolling: touch; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .br.full { height: auto; overflow-y: visible; background: transparent; border: 0; padding-bottom: 10px; }
+  .brhead.tight { margin: 4px 0 8px; }
+  #treeBtn { display: none; padding: 6px 12px; font-size: 12px; flex: 0 0 auto; white-space: nowrap; }
+  .rv { display: none; margin-bottom: 14px; }
+  .rv-trk { display: none; align-items: center; gap: 3px; flex: 1; min-width: 0; margin: 0 8px; }
+  .rv-chip { font-size: 12px; font-weight: 800; color: #94a3b8; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; white-space: nowrap; }
+  .rv-chip.done { background: #dcfce7; color: #166534; }
+  .rv-chip.on { background: #15803d; color: #fff; }
+  .rv-arr { color: #cbd5e1; font-weight: 900; }
+  .rv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-height: 240px; align-content: center; }
+  .rv-grid.one { grid-template-columns: 1fr; }
+  .rvm div { font-size: 12px; padding: 3px 8px; line-height: 1.35; }
+  .rv-grid.mid .rvm div { font-size: 13px; padding: 7px 10px; }
+  .rv-grid.big .rvm div { font-size: 14px; padding: 9px 12px; }
+  .brc { display: flex; flex-direction: column; flex: 0 0 120px; }
+  .brc.on h4 { color: #166534; }
+  .brc h4 { font-size: 11px; color: #64748b; text-align: center; margin: 0 0 6px; font-weight: 800; }
+  .brl { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 8px; }
+  .brm { border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; font-size: 11px; overflow: hidden; }
+  .brm div { padding: 4px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.45; color: #334155; }
+  .brm div + div { border-top: 1px solid #f1f5f9; }
+  .brm .w { font-weight: 900; color: #166534; background: #f0fdf4; }
+  .brm .l { color: #94a3b8; text-decoration: line-through; }
+  .brm .q { color: #cbd5e1; }
+  .brm.cur { border-color: #15803d; box-shadow: 0 0 0 2px #bbf7d0; }
+  .brm.champ { border-color: #f59e0b; }
+  .brm.champ div { font-weight: 900; color: #b45309; background: #fffbeb; }
+  .win { border: 2px solid #f59e0b; background: #fffbeb; border-radius: 18px; padding: 20px; }
+  .win h2 { margin: 0 0 8px; font-size: 14px; font-weight: 900; color: #b45309; }
+  .win .wph { width: 100%; height: 200px; border-radius: 14px; overflow: hidden; background: #e2e8f0; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+  .win .wph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .win .cname { font-size: 26px; }
+  .win .cloc { margin: 2px 0 8px; }
+  .credit { font-size: 11px; color: #94a3b8; margin: -6px 0 10px; }
+  .ov { margin: 10px 0 0; font-size: 14px; color: #475569; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
+  .info { margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; color: #334155; }
+  .info li { padding: 6px 0; border-top: 1px solid #fde68a; display: flex; gap: 10px; }
+  .info b { flex: 0 0 62px; color: #92400e; }
+  .info span { flex: 1; min-width: 0; word-break: break-all; }
+  .note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; font-size: 13px; color: #166534; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .ru { display: grid; gap: 10px; grid-template-columns: 1fr; }
+  .rui { border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; background: #fff; }
+  .rui .t { font-size: 12px; font-weight: 900; color: #64748b; }
+  .rui a.n { display: block; font-size: 16px; font-weight: 900; color: #0f172a; text-decoration: none; margin: 2px 0; }
+  .rui .d { font-size: 13px; color: #64748b; }
+  .about h2 { margin: 26px 0 8px; font-size: 18px; font-weight: 900; color: #0f172a; }
+  .about p, .about li { font-size: 15px; color: #475569; }
+  .about p { margin: 0 0 12px; }
+  .about ul, .about ol { padding-left: 1.4em; margin: 6px 0 12px; }
+  .about ol { list-style: decimal; }
+  .about ul { list-style: disc; }
+  .about li { margin: 4px 0; }
+  .faq { border: 1px solid #e2e8f0; background: #fff; border-radius: 12px; padding: 12px 14px; margin: 8px 0; }
+  .faq b { display: block; color: #0f172a; margin-bottom: 2px; font-size: 15px; }
+  .faq p { margin: 0; font-size: 14px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .about .links a { text-decoration: none; font-weight: 800; font-size: 14px; padding: 9px 16px; border-radius: 999px; background: #dcfce7; color: #166534; }
+  .ns { padding: 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; color: #991b1b; font-size: 14px; }
+  @media (min-width: 720px) {
+    .hero h1 { font-size: 32px; }
+    .vs { grid-template-columns: 1fr 40px 1fr; align-items: stretch; }
+    .vsb { align-self: center; }
+    .ru { grid-template-columns: repeat(3, 1fr); }
+    .cand { flex-direction: column; padding: 0; gap: 0; overflow: hidden; }
+    .ph { flex: none; width: 100%; height: 160px; border-radius: 0; }
+    .cb { padding: 14px 16px 16px; justify-content: flex-start; }
+    .cname { font-size: 20px; }
+    .cgo { display: block; }
+  }
+  @media (max-width: 719px) {
+    .vs { gap: 8px; }
+    .vsb { line-height: 1; margin: -2px 0; }
+    /* 모바일: 전체 트리 대신 '이번 라운드 전체'를 한눈에 보여준다. 전체 트리는 버튼으로 펼친다. */
+    .br { display: none; }
+    .br.open { display: flex; }
+    .rv { display: block; }
+    #treeBtn { display: inline-flex; }
+    .brhead.tight h3 { display: none; }
+    .brhead.tight .rv-trk { display: flex; margin: 0 8px 0 0; }
+    .hint { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a href="/festival/worldcup.html">← 아이랑 나들이 월드컵</a>
+    <a href="/">🏠 홈</a>
+  </div>
+
+  <div class="hero">
+    <h1>🏕️ 캠핑장 월드컵</h1>
+    <p>어느 캠핑장으로 갈지 못 정했다면, 대진표로 정해보세요. 사진을 보며 두 곳 중 하나씩 고르다 보면 결승에서 이번 캠핑 장소가 정해집니다.</p>
+  </div>
+
+  <noscript><div class="ns">월드컵을 하려면 자바스크립트가 필요합니다. 브라우저 설정을 확인하시거나 <a href="/festival/">나들이 지도</a>에서 캠핑장을 직접 찾아보세요.</div></noscript>
+
+  <!-- 1) 조건 선택 -->
+  <section id="setup" class="card" aria-labelledby="setupTitle">
+    <h2 id="setupTitle">① 조건을 골라주세요</h2>
+    <div class="lbl">어느 지역으로 갈까요?</div>
+    <select id="region" aria-label="지역 선택"><option value="전국">전국 (불러오는 중…)</option></select>
+    <div id="distWrap" style="display:none">
+      <div class="lbl">시·군·구 (선택)</div>
+      <select id="district" aria-label="시·군·구 선택"><option value="all">전체</option></select>
+      <div class="hint" style="margin-top:6px">고른 곳의 캠핑장을 먼저 넣고, 모자라면 같은 지역의 가까운 곳으로 채워요.</div>
+    </div>
+    <div class="lbl">캠핑 유형</div>
+    <div class="chips" id="typeChips">
+      <button type="button" class="chip" data-val="all" aria-pressed="true">상관없어요</button>
+      <button type="button" class="chip" data-val="오토캠핑" aria-pressed="false">🚗 오토캠핑</button>
+      <button type="button" class="chip" data-val="글램핑" aria-pressed="false">✨ 글램핑</button>
+      <button type="button" class="chip" data-val="카라반" aria-pressed="false">🚐 카라반</button>
+      <button type="button" class="chip" data-val="일반" aria-pressed="false">⛺ 일반 캠핑장·야영장</button>
+    </div>
+    <div class="wx" id="wx" role="status"></div>
+    <div class="poolinfo" id="poolInfo" role="status">캠핑장 목록을 불러오는 중입니다…</div>
+    <div class="startrow"><button type="button" class="btn" id="startBtn" disabled>🏁 월드컵 시작!</button></div>
+  </section>
+
+  <!-- 2) 대진 -->
+  <section id="game" class="card" aria-live="polite">
+    <div class="gh">
+      <div class="rname" id="rname">16강</div>
+      <div class="rsub" id="rsub">1 / 8 경기</div>
+    </div>
+    <div class="bar"><i id="barfill"></i></div>
+    <div class="brhead tight"><h3>📋 대진표</h3><div class="rv-trk" id="rvTrk"></div><button type="button" class="btn ghost" id="treeBtn" aria-expanded="false">전체 보기</button></div>
+    <div class="rv" id="roundview"></div>
+    <div class="br" id="bracket" aria-label="전체 대진표"></div>
+    <div class="vs" id="vs"></div>
+    <div class="ctl">
+      <button type="button" class="btn ghost" id="undoBtn">← 이전 선택으로</button>
+      <button type="button" class="btn ghost" id="quitBtn">처음으로</button>
+    </div>
+    <div class="hint">카드를 누르거나 키보드 ← → (또는 1, 2) 키로 고를 수 있어요.</div>
+  </section>
+
+  <!-- 3) 결과 -->
+  <section id="result" aria-live="polite"></section>
+
+  <!-- 이용 안내 (검색·접근성을 위해 항상 보이는 정적 텍스트) -->
+  <section class="about" aria-label="캠핑장 월드컵 이용 안내">
+    <h2>캠핑장 월드컵은 이렇게 해요</h2>
+    <ol>
+      <li>지역과 캠핑 유형을 고릅니다. 지역을 고르면 시·군·구까지 고를 수 있고, 모두 "상관없어요"로 두면 전국에서 뽑습니다.</li>
+      <li>조건에 맞는 캠핑장 중 16곳이 무작위로 뽑혀 16강 대진표가 만들어집니다. 후보가 적으면 8강이나 4강으로 줄어듭니다.</li>
+      <li>사진과 이름, 주소를 보고 두 곳 중 가고 싶은 곳을 하나씩 고릅니다. 가족이나 친구와 함께 고르면 더 재미있어요.</li>
+      <li>결승까지 마치면 최종 캠핑장과 함께 준우승·4강 탈락 캠핑장이 "차선책" 3곳으로 나옵니다. 예약이 어려우면 차선책 중에서 고르셔도 됩니다.</li>
+    </ol>
+
+    <h2>어떤 캠핑장이 후보에 들어가나요?</h2>
+    <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 전국 캠핑장 700여 곳입니다. 한국관광공사 TourAPI에 등록된 오토캠핑장, 글램핑, 카라반, 일반 캠핑장과 야영장이 모두 들어 있고, 경기·강원·충남처럼 캠핑장이 많은 지역은 시·군 단위로도 고를 수 있습니다.</p>
+    <p>캠핑 유형은 캠핑장 이름에 들어간 말("오토캠핑", "글램핑", "카라반")을 기준으로 나눈 것입니다. 이름에 아무 표시가 없으면 "일반 캠핑장·야영장"으로 분류하기 때문에, 실제 시설과 다를 수 있어요. 사진이 등록되지 않은 캠핑장은 사진 대신 아이콘이 나옵니다.</p>
+
+    <h2>결과를 본 뒤에는</h2>
+    <p>결과 화면에는 캠핑장 소개와 위치 정보를 보여줍니다. 다만 이 서비스의 데이터에는 이용 요금, 부대시설, 예약 가능 여부, 반려동물 동반 여부가 들어 있지 않습니다. 가기로 정했다면 지도 앱에서 캠핑장을 찾아 공식 홈페이지나 전화로 요금, 예약, 운영 기간, 화로대·소음 같은 이용 규칙을 꼭 확인해 주세요. 겨울에는 운영하지 않는 곳도 있습니다.</p>
+    <p>아이와 함께 간다면 계곡이나 물가 근처, 경사가 심한 사이트, 화로대 위치를 미리 확인하고, 비가 오면 배수와 취소 규정도 알아두시길 권합니다.</p>
+
+    <h2>날씨는 어떻게 반영되나요?</h2>
+    <p>지역을 고르면 그 지역의 날씨를 확인해서 비나 눈 소식이 있으면 안내 문구를 보여드립니다. 위치 권한은 필요하지 않고, 캠핑 유형이나 후보를 날씨로 바꾸지는 않습니다. 날씨는 참고용이니 출발하기 전에 한 번 더 확인해 주세요.</p>
+
+    <h2>자주 묻는 질문</h2>
+    <div class="faq"><b>Q. 요금이나 예약도 여기서 할 수 있나요?</b><p>아니요. 이 월드컵은 어디로 갈지 고르는 데까지만 도와드립니다. 요금과 예약은 각 캠핑장의 공식 안내에서 확인해 주세요.</p></div>
+    <div class="faq"><b>Q. 할 때마다 결과가 달라지나요?</b><p>네. 후보 16곳을 매번 무작위로 뽑고 대진 순서도 섞기 때문에 같은 조건이어도 결과가 달라질 수 있어요. 사진이 있는 캠핑장을 먼저 뽑습니다.</p></div>
+    <div class="faq"><b>Q. 사진은 어디서 가져오나요?</b><p>한국관광공사 TourAPI에 등록된 사진을 그대로 보여줍니다. 사진이 없거나 불러오지 못한 곳은 아이콘으로 표시합니다.</p></div>
+    <div class="faq"><b>Q. 위치 정보를 수집하나요?</b><p>아니요. 내 위치를 묻지 않고, 고른 지역의 대략적인 중심 좌표로만 날씨를 조회합니다. 마지막으로 고른 조건은 편의를 위해 이 브라우저에만 저장됩니다.</p></div>
+    <div class="faq"><b>Q. 캠핑장 정보가 틀렸어요.</b><p>운영 정보는 바뀔 수 있습니다. <a href="/contact/">문의 페이지</a>로 알려주시면 확인 후 반영하겠습니다.</p></div>
+
+    <div class="links">
+      <a href="/festival/worldcup.html">🏆 아이랑 나들이 월드컵</a>
+      <a href="/festival/">🗺️ 아이랑 나들이 지도</a>
+      <a href="/blog/magazine/">📰 호호 매거진</a>
+    </div>
+  </section>
+</div>
+
+<div id="site-footer"></div>
+<!-- 푸터(footer.html)가 Tailwind 클래스로 만들어져 있어 다른 상세 페이지처럼 CDN을 불러온다. 본문 뒤에서 불러 본문 표시를 막지 않는다. -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var WEATHER_API = 'https://festival-api-proxy.vercel.app/api/weather';
+  var DETAIL_API = 'https://festival-api-proxy.vercel.app/api/detail';
+  // 주소 첫 단어 → 표시 지역. (전남·광주는 행정통합으로 한 이름 "전남광주통합특별시"로 들어오므로 하나로 묶는다)
+  var REGIONS = [
+    ['경기도', ['경기']], ['강원', ['강원']], ['충청남도', ['충청남', '충남']], ['경상남도', ['경상남', '경남']],
+    ['전라북도', ['전라북', '전북']], ['충청북도', ['충청북', '충북']], ['경상북도', ['경상북', '경북']],
+    ['전남·광주', ['전남광주', '전라남', '전남', '광주']],
+    ['인천', ['인천']], ['대구', ['대구']], ['부산', ['부산']], ['울산', ['울산']], ['제주', ['제주']],
+    ['대전', ['대전']], ['서울', ['서울']], ['세종', ['세종']]
+  ];
+  var TYPE_LABEL = { '오토캠핑': '🚗 오토캠핑', '글램핑': '✨ 글램핑', '카라반': '🚐 카라반', '일반': '⛺ 일반 캠핑장' };
+  var TYPE_CLASS = { '오토캠핑': 'auto', '글램핑': 'glam', '카라반': 'van', '일반': 'gen' };
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function regionOf(addr) {
+    var first = String(addr || '').split(' ')[0];
+    for (var i = 0; i < REGIONS.length; i++) {
+      var pf = REGIONS[i][1];
+      for (var j = 0; j < pf.length; j++) { if (first.indexOf(pf[j]) === 0) return REGIONS[i][0]; }
+    }
+    return '기타';
+  }
+  // 주소 둘째 토큰이 시·군·구로 끝나면 그것을 시·군·구로 본다(없으면 null)
+  function districtOf(addr) {
+    var t = String(addr || '').split(' ');
+    return t[1] && /(시|군|구)$/.test(t[1]) ? t[1] : null;
+  }
+  // 이름에 들어간 말로 캠핑 유형을 나눈다(여러 개면 모두). 아무것도 없으면 '일반'.
+  function tagsOf(title) {
+    var t = [];
+    ['오토캠핑', '글램핑', '카라반'].forEach(function (k) { if (String(title).indexOf(k) !== -1) t.push(k); });
+    return t.length ? t : ['일반'];
+  }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function roundName(len) { return len === 2 ? '결승' : len + '강'; }
+  function httpsUrl(u) { return String(u || '').replace(/^http:\/\//, 'https://'); }
+
+  var places = [];
+  var cond = { region: '전국', district: 'all', type: 'all' };
+  var wxReq = 0, wxCache = {};
+  var S = null, locked = false;
+
+  try {
+    var sv = JSON.parse(localStorage.getItem('hp_campwc_cond') || 'null');
+    if (sv) {
+      if (typeof sv.region === 'string') cond.region = sv.region;
+      if (typeof sv.district === 'string') cond.district = sv.district;
+      if (['all', '오토캠핑', '글램핑', '카라반', '일반'].indexOf(sv.type) !== -1) cond.type = sv.type;
+    }
+  } catch (e) { /* 저장값이 없거나 막혀 있어도 기본값으로 동작 */ }
+  function saveCond() { try { localStorage.setItem('hp_campwc_cond', JSON.stringify(cond)); } catch (e) {} }
+
+  /* ---------- 후보 풀 ---------- */
+  function matches(p) {
+    if (cond.region !== '전국' && p._r !== cond.region) return false;
+    if (cond.type !== 'all' && p._t.indexOf(cond.type) === -1) return false;
+    return true;
+  }
+  function sizeFor(n) { return n >= 16 ? 16 : n >= 8 ? 8 : n >= 4 ? 4 : 0; }
+  // 후보 풀: 시·군·구를 골랐으면 그곳 캠핑장을 먼저 넣고, 8곳이 안 되면 같은 지역의 가까운 곳으로 8곳까지 채운다.
+  function poolInfo() {
+    var base = places.filter(matches), d = cond.district;
+    if (cond.region === '전국' || d === 'all') return { pool: base, inD: base.length, extra: 0, label: '' };
+    var inD = base.filter(function (p) { return p._d === d; });
+    if (inD.length >= 8) return { pool: inD, inD: inD.length, extra: 0, label: d };
+    var ref = places.filter(function (p) { return p._r === cond.region && p._d === d && isFinite(p._lat) && isFinite(p._lng); });
+    if (!ref.length) return { pool: inD, inD: inD.length, extra: 0, label: d };
+    var cy = 0, cx = 0;
+    ref.forEach(function (p) { cy += p._lat; cx += p._lng; });
+    cy /= ref.length; cx /= ref.length;
+    var rest = base.filter(function (p) { return p._d !== d && isFinite(p._lat) && isFinite(p._lng); })
+      .map(function (p) { return { p: p, k: dist(cy, cx, p._lat, p._lng) }; })
+      .sort(function (a, b) { return a.k - b.k; })
+      .slice(0, 8 - inD.length).map(function (o) { return o.p; });
+    return { pool: inD.concat(rest), inD: inD.length, extra: rest.length, label: d };
+  }
+  function dist(a, b, c, d) {
+    var R = 6371, rad = Math.PI / 180;
+    var dLat = (c - a) * rad, dLng = (d - b) * rad;
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a * rad) * Math.cos(c * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  // 사진이 있는 캠핑장을 먼저 뽑는다(사진 없이 이름만으로는 비교가 어렵다)
+  function draw(pool, n) {
+    var withImg = shuffle(pool.filter(function (p) { return p.image; }));
+    var noImg = shuffle(pool.filter(function (p) { return !p.image; }));
+    return shuffle(withImg.concat(noImg).slice(0, n));
+  }
+
+  /* ---------- 조건 UI ---------- */
+  function buildRegionSelect() {
+    var sel = $('region'), counts = {};
+    places.forEach(function (p) { counts[p._r] = (counts[p._r] || 0) + 1; });
+    sel.innerHTML = '';
+    var o = document.createElement('option');
+    o.value = '전국'; o.textContent = '전국 (' + places.length + '곳)';
+    sel.appendChild(o);
+    REGIONS.map(function (r) { return r[0]; }).filter(function (n) { return counts[n]; })
+      .sort(function (a, b) { return counts[b] - counts[a]; })
+      .forEach(function (n) {
+        var op = document.createElement('option');
+        op.value = n; op.textContent = n + ' (' + counts[n] + '곳)';
+        sel.appendChild(op);
+      });
+    if (!counts[cond.region] && cond.region !== '전국') cond.region = '전국';
+    sel.value = cond.region;
+  }
+  function buildDistrict() {
+    var wrap = $('distWrap'), sel = $('district');
+    if (cond.region === '전국') { wrap.style.display = 'none'; cond.district = 'all'; return; }
+    var counts = {};
+    places.forEach(function (p) { if (p._r === cond.region && p._d) counts[p._d] = (counts[p._d] || 0) + 1; });
+    var names = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'ko'); });
+    if (names.length < 2) { wrap.style.display = 'none'; cond.district = 'all'; return; }
+    sel.innerHTML = '';
+    var o = document.createElement('option'); o.value = 'all'; o.textContent = '전체 (' + cond.region + ' 안 모든 곳)'; sel.appendChild(o);
+    names.forEach(function (n) {
+      var op = document.createElement('option'); op.value = n; op.textContent = n + ' (' + counts[n] + '곳)'; sel.appendChild(op);
+    });
+    if (!counts[cond.district]) cond.district = 'all';
+    sel.value = cond.district;
+    wrap.style.display = 'block';
+  }
+  function paintChips(val) {
+    var btns = $('typeChips').querySelectorAll('.chip');
+    for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-val') === val ? 'true' : 'false');
+  }
+  function updatePool() {
+    var pi = poolInfo(), n = pi.pool.length, sz = sizeFor(n);
+    var info = $('poolInfo'), btn = $('startBtn');
+    if (!places.length) return;
+    if (!sz) {
+      info.className = 'poolinfo bad';
+      info.textContent = n === 0
+        ? '조건에 맞는 캠핑장이 없어요. 조건을 넓혀 보세요.'
+        : '조건에 맞는 캠핑장이 ' + n + '곳뿐이라 대진표를 만들 수 없어요. 지역을 "전국"으로 바꾸거나 조건을 넓혀 보세요.';
+      btn.disabled = true;
+    } else {
+      info.className = 'poolinfo';
+      if (pi.label && pi.extra > 0) {
+        info.textContent = pi.label + (pi.inD ? ' ' + pi.inD + '곳' : '에는 조건에 맞는 곳이 없어') + (pi.inD ? ' + ' : ', ') + '가까운 곳 ' + pi.extra + '곳으로 ' + roundName(sz) + ' 대진표를 만들어요.';
+      } else if (pi.label) {
+        info.textContent = pi.label + ' 조건에 맞는 캠핑장 ' + n + '곳 중 ' + sz + '곳으로 ' + roundName(sz) + '부터 시작합니다.';
+      } else {
+        info.textContent = '조건에 맞는 캠핑장 ' + n + '곳 중 ' + sz + '곳으로 ' + roundName(sz) + '부터 시작합니다.';
+      }
+      btn.disabled = false;
+    }
+  }
+
+  /* ---------- 날씨 ---------- */
+  function showWx(rain) {
+    var box = $('wx');
+    if (rain) { box.style.display = 'block'; box.textContent = '☔ 이 지역은 비·눈 소식이 있어요. 출발 전 날씨와 캠핑장의 우천 취소 규정을 확인하세요.'; }
+    else { box.style.display = 'none'; box.textContent = ''; }
+  }
+  function checkWeather() {
+    var req = ++wxReq;
+    if (cond.region === '전국') { showWx(false); return; }
+    var list = places.filter(function (p) { return p._r === cond.region && (cond.district === 'all' || p._d === cond.district) && isFinite(p._lat) && isFinite(p._lng); });
+    if (!list.length) { showWx(false); return; }
+    var lat = 0, lng = 0;
+    list.forEach(function (p) { lat += p._lat; lng += p._lng; });
+    lat = (lat / list.length).toFixed(2); lng = (lng / list.length).toFixed(2);
+    var key = lat + ',' + lng;
+    if (key in wxCache) { showWx(wxCache[key]); return; }
+    fetch(WEATHER_API + '?lat=' + lat + '&lng=' + lng)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var rain = !!(d && d.willRain);
+        wxCache[key] = rain;
+        if (req === wxReq) showWx(rain);
+      })
+      .catch(function () { if (req === wxReq) showWx(false); });
+  }
+
+  /* ---------- 카드 ---------- */
+  function photo(p, cls) {
+    var box = el('div', cls || 'ph');
+    function fallback() { box.innerHTML = ''; box.textContent = '🏕️'; }
+    if (p.image) {
+      var im = document.createElement('img');
+      im.src = httpsUrl(p.image); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async';
+      im.referrerPolicy = 'no-referrer';
+      im.addEventListener('error', fallback);
+      box.appendChild(im);
+    } else fallback();
+    return box;
+  }
+  function typeBadges(p) {
+    var bs = el('div', 'badges');
+    p._t.forEach(function (t) { bs.appendChild(el('span', 'bd ' + TYPE_CLASS[t], TYPE_LABEL[t])); });
+    return bs;
+  }
+  function locText(p) { return p._r + (p._d ? ' · ' + p._d : ''); }
+  function buildCard(p, idx) {
+    var b = el('button', 'cand');
+    b.type = 'button';
+    b.setAttribute('data-i', idx);
+    b.appendChild(photo(p));
+    var cb = el('div', 'cb');
+    cb.appendChild(typeBadges(p));
+    cb.appendChild(el('div', 'cname', p.title));
+    cb.appendChild(el('div', 'cloc', '📍 ' + locText(p)));
+    cb.appendChild(el('div', 'cdesc', p.addr || ''));
+    cb.appendChild(el('div', 'cgo', '이곳으로 가고 싶어요 →'));
+    b.appendChild(cb);
+    b.addEventListener('click', function () { pick(idx); });
+    return b;
+  }
+
+  /* ---------- 게임 진행 ---------- */
+  function newGame() {
+    var pi = poolInfo(), pool = pi.pool, n = sizeFor(pool.length);
+    if (!n) return;
+    var entries = pi.extra > 0 ? shuffle(pool.slice(0, n)) : draw(pool, n);   // 채움 풀은 '고른 곳 → 가까운 순' 정렬이라 앞에서부터 쓴다
+    S = { n: n, rounds: [entries], results: [[]], r: 0, m: 0 };
+    $('bracket').classList.remove('open'); $('treeBtn').textContent = '전체 보기'; $('treeBtn').setAttribute('aria-expanded', 'false');
+    $('setup').style.display = 'none';
+    $('result').style.display = 'none';
+    $('game').style.display = 'block';
+    render();
+    $('game').scrollIntoView({ block: 'start' });
+    setTimeout(function () { var bt = $('game').getBoundingClientRect().bottom; if (bt > window.innerHeight) window.scrollBy(0, Math.min(bt - window.innerHeight + 8, 200)); }, 60);
+  }
+  function doneCount() { var c = 0; S.results.forEach(function (a) { c += a.length; }); return c; }
+  function render() {
+    var ents = S.rounds[S.r], total = ents.length / 2;
+    $('rname').textContent = roundName(ents.length);
+    $('rsub').textContent = (S.m + 1) + ' / ' + total + ' 경기';
+    $('barfill').style.width = (doneCount() / (S.n - 1) * 100) + '%';
+    var vs = $('vs'); vs.innerHTML = '';
+    vs.appendChild(buildCard(ents[S.m * 2], 0));
+    vs.appendChild(el('div', 'vsb', 'VS'));
+    vs.appendChild(buildCard(ents[S.m * 2 + 1], 1));
+    $('undoBtn').disabled = (S.r === 0 && S.m === 0);
+    renderRound();
+    renderBracket();
+  }
+  function pick(i) {
+    if (locked || !S) return;
+    locked = true;
+    var cards = $('vs').querySelectorAll('.cand');
+    if (cards[i]) cards[i].classList.add('sel');
+    if (cards[1 - i]) cards[1 - i].classList.add('out');
+    setTimeout(function () {
+      var ents = S.rounds[S.r];
+      S.results[S.r].push(ents[S.m * 2 + i]);
+      S.m++;
+      if (S.m * 2 >= ents.length) {
+        if (ents.length === 2) { locked = false; finish(); return; }
+        S.rounds.push(S.results[S.r].slice());
+        S.results.push([]);
+        S.r++; S.m = 0;
+      }
+      render();
+      locked = false;
+    }, 260);
+  }
+  function undo() {
+    if (locked || !S) return;
+    if (S.m > 0) { S.m--; S.results[S.r].pop(); }
+    else if (S.r > 0) {
+      S.rounds.length = S.r; S.results.length = S.r;
+      S.r--; S.results[S.r].pop(); S.m = S.results[S.r].length;
+    } else return;
+    $('result').style.display = 'none';
+    $('game').style.display = 'block';
+    render();
+  }
+
+  /* ---------- 모바일용: 이번 라운드 전체를 한눈에 ---------- */
+  function renderRound() {
+    var host = $('roundview'); host.innerHTML = '';
+    var rounds = Math.round(Math.log(S.n) / Math.LN2);
+    var trk = $('rvTrk'); trk.innerHTML = '';
+    for (var r = 0; r < rounds; r++) {
+      trk.appendChild(el('span', 'rv-chip' + (r < S.r ? ' done' : r === S.r ? ' on' : ''), roundName(S.n / Math.pow(2, r))));
+      if (r < rounds - 1) trk.appendChild(el('span', 'rv-arr', '›'));
+    }
+    var ents = S.rounds[S.r], total = ents.length / 2;
+    var grid = el('div', 'rv-grid' + (total === 1 ? ' one' : '') + (total <= 2 ? ' big' : total <= 4 ? ' mid' : ''));
+    for (var m = 0; m < total; m++) {
+      var box = el('div', 'brm rvm');
+      var win = m < S.results[S.r].length ? S.results[S.r][m] : null;
+      [ents[m * 2], ents[m * 2 + 1]].forEach(function (p) {
+        var row = el('div', null, p.title); row.title = p.title;
+        if (win) row.className = (p === win) ? 'w' : 'l';
+        box.appendChild(row);
+      });
+      if (m === S.m) box.classList.add('cur');
+      grid.appendChild(box);
+    }
+    host.appendChild(grid);
+  }
+
+  /* ---------- 대진표 ---------- */
+  // 가로로 스크롤되는 대진표에서 el(현재 경기 칸)이 화면 가운데 오도록 맞춘다.
+  function centerIn(host, node, smooth) {
+    if (!host || !node) return;
+    var hr = host.getBoundingClientRect(), er = node.getBoundingClientRect();
+    if (!hr.width) return;   // 숨겨진 상태면 계산 불가
+    var x = host.scrollLeft + (er.left - hr.left) - (hr.width - er.width) / 2;
+    var y = host.scrollTop + (er.top - hr.top) - (hr.height - er.height) / 2;
+    x = Math.max(0, Math.min(x, host.scrollWidth - host.clientWidth));
+    y = Math.max(0, Math.min(y, host.scrollHeight - host.clientHeight));
+    if (smooth && host.scrollTo) host.scrollTo({ left: x, top: y, behavior: 'smooth' });
+    else { host.scrollLeft = x; host.scrollTop = y; }
+  }
+  function renderBracket(final) {
+    var host = $('bracket'), prevLeft = host.scrollLeft, prevTop = host.scrollTop, curBox = null;
+    host.innerHTML = '';
+    var rounds = Math.round(Math.log(S.n) / Math.LN2);
+    for (var r = 0; r < rounds; r++) {
+      var size = S.n / Math.pow(2, r);
+      var col = el('div', 'brc');
+      if (!final && r === S.r) col.classList.add('on');
+      col.appendChild(el('h4', null, roundName(size)));
+      var list = el('div', 'brl');
+      for (var m = 0; m < size / 2; m++) {
+        var box = el('div', 'brm');
+        var a = S.rounds[r] ? S.rounds[r][m * 2] : null;
+        var b = S.rounds[r] ? S.rounds[r][m * 2 + 1] : null;
+        var win = S.results[r] && m < S.results[r].length ? S.results[r][m] : null;
+        [a, b].forEach(function (p) {
+          var row = el('div', null, p ? p.title : '?');
+          if (!p) row.className = 'q';
+          else if (win) row.className = (p === win) ? 'w' : 'l';
+          box.appendChild(row);
+        });
+        if (!final && r === S.r && m === S.m) { box.classList.add('cur'); curBox = box; }
+        list.appendChild(box);
+      }
+      col.appendChild(list);
+      host.appendChild(col);
+    }
+    var cc = el('div', 'brc');
+    cc.appendChild(el('h4', null, '우승'));
+    var cl = el('div', 'brl');
+    var cb = el('div', 'brm champ');
+    var champ = S.results[rounds - 1] && S.results[rounds - 1][0];
+    cb.appendChild(el('div', null, champ ? '🏆 ' + champ.title : '?'));
+    cl.appendChild(cb); cc.appendChild(cl); host.appendChild(cc);
+    host.scrollLeft = prevLeft; host.scrollTop = prevTop;   // 다시 그리면 스크롤이 0으로 돌아가므로 먼저 복원한 뒤
+    centerIn(host, curBox || cb, true);                      // 현재 경기(끝나면 우승 칸)가 가운데 오도록 부드럽게 이동
+  }
+
+  /* ---------- 결과 ---------- */
+  function detailUrl(p) { return '/festival/detail/' + encodeURIComponent(p.contentid) + '.html'; }
+  function searchQuery(p) { return p.title + ' ' + (p._d || p._r); }
+  function li(label, value) {
+    if (!value) return null;
+    var row = el('li');
+    row.appendChild(el('b', null, label));
+    row.appendChild(el('span', null, value));
+    return row;
+  }
+  function runnerUp(title, p) {
+    var box = el('div', 'rui');
+    box.appendChild(el('div', 't', title));
+    var a = el('a', 'n', p.title); a.href = detailUrl(p); box.appendChild(a);
+    box.appendChild(el('div', 'd', locText(p) + ' · ' + p._t.map(function (t) { return TYPE_LABEL[t]; }).join(' ')));
+    return box;
+  }
+  function finish() {
+    var rounds = S.results.length;
+    var champ = S.results[rounds - 1][0];
+    var finalEnts = S.rounds[rounds - 1];
+    var second = finalEnts[0] === champ ? finalEnts[1] : finalEnts[0];
+    var semi = S.rounds[rounds - 2] || [];
+    var semiWin = S.results[rounds - 2] || [];
+    var semiLosers = semi.filter(function (p) { return semiWin.indexOf(p) === -1; });
+    $('barfill').style.width = '100%';
+    renderBracket(true);
+
+    var res = $('result'); res.innerHTML = '';
+    var win = el('div', 'win');
+    win.appendChild(el('h2', null, '🏆 이번 캠핑은 여기!'));
+    win.appendChild(photo(champ, 'wph'));
+    if (champ.image) win.appendChild(el('div', 'credit', '사진: 한국관광공사'));
+    win.appendChild(typeBadges(champ));
+    win.appendChild(el('div', 'cname', champ.title));
+    win.appendChild(el('div', 'cloc', '📍 ' + (champ.addr || locText(champ))));
+    var ov = el('p', 'ov', '소개를 불러오는 중…'); win.appendChild(ov);
+    var ul = el('ul', 'info');
+    var tel = li('전화', '');
+    ul.style.display = 'none'; win.appendChild(ul);
+    var acts = el('div', 'acts');
+    var d = el('a', 'btn', '📄 상세 정보 보기'); d.href = detailUrl(champ); acts.appendChild(d);
+    var k = el('a', 'btn sub', '🗺️ 카카오맵에서 찾기'); k.href = 'https://map.kakao.com/?q=' + encodeURIComponent(searchQuery(champ)); k.target = '_blank'; k.rel = 'noopener'; acts.appendChild(k);
+    var nv = el('a', 'btn sub', '네이버지도'); nv.href = 'https://map.naver.com/p/search/' + encodeURIComponent(searchQuery(champ)); nv.target = '_blank'; nv.rel = 'noopener'; acts.appendChild(nv);
+    win.appendChild(acts);
+    var note = el('div', 'note', '요금, 예약 가능 여부, 운영 기간, 반려동물 동반 여부는 이 서비스에 없어요. 캠핑장 공식 홈페이지나 전화로 꼭 확인하세요.');
+    win.appendChild(note);
+    res.appendChild(win);
+    loadOverview(champ, ov, ul);
+
+    var h = el('h2', null, '🥈 이런 캠핑장도 좋아요 (차선책)');
+    h.style.cssText = 'margin:22px 0 10px;font-size:17px;font-weight:900;color:#0f172a';
+    res.appendChild(h);
+    var ru = el('div', 'ru');
+    ru.appendChild(runnerUp('🥈 준우승', second));
+    semiLosers.slice(0, 2).forEach(function (p) { ru.appendChild(runnerUp('🥉 4강 탈락', p)); });
+    res.appendChild(ru);
+
+    var ctl = el('div', 'ctl'); ctl.style.marginTop = '18px';
+    var again = el('button', 'btn', '🔄 같은 조건으로 다시 하기'); again.type = 'button'; again.addEventListener('click', newGame);
+    var share = el('button', 'btn sub', '📤 결과 공유하기'); share.type = 'button';
+    share.addEventListener('click', function () { shareResult(champ, share); });
+    var back = el('button', 'btn ghost', '조건 바꾸기'); back.type = 'button'; back.addEventListener('click', toSetup);
+    var undoB = el('button', 'btn ghost', '← 마지막 선택 취소'); undoB.type = 'button'; undoB.addEventListener('click', undo);
+    ctl.appendChild(again); ctl.appendChild(share); ctl.appendChild(back); ctl.appendChild(undoB);
+    res.appendChild(ctl);
+
+    var brh = el('div', 'brhead'); brh.appendChild(el('h3', null, '📋 최종 대진표'));
+    res.appendChild(brh);
+    var brClone = $('bracket').cloneNode(true); brClone.removeAttribute('id'); brClone.classList.add('full', 'open');
+    res.appendChild(brClone);
+
+    $('game').style.display = 'none';
+    res.style.display = 'block';
+    res.scrollIntoView({ block: 'start' });
+    centerIn(brClone, brClone.querySelector('.brm.champ'), false);
+  }
+  // 결과 장소의 소개글(TourAPI)을 불러온다. 실패해도 결과 표시엔 영향이 없다.
+  function loadOverview(p, ovEl, ulEl) {
+    fetch(DETAIL_API + '?contentId=' + encodeURIComponent(p.contentid))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data && !data.error && data.overview ? String(data.overview).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+        if (text) {
+          if (text.length > 380) text = text.slice(0, 380).trimEnd() + '…';
+          ovEl.textContent = text;
+        } else ovEl.style.display = 'none';
+        var tel = data && !data.error && data.tel ? String(data.tel).replace(/<[^>]*>/g, ' ').trim() : '';
+        if (tel) { var row = li('전화', tel); if (row) { ulEl.appendChild(row); ulEl.style.display = 'block'; } }
+      })
+      .catch(function () { ovEl.style.display = 'none'; });
+  }
+  function toSetup() {
+    $('game').style.display = 'none'; $('result').style.display = 'none'; $('setup').style.display = 'block';
+    S = null;
+    $('setup').scrollIntoView({ block: 'start' });
+  }
+  function shareResult(p, btn) {
+    var url = location.origin + location.pathname;
+    var text = '이번 캠핑은 「' + p.title + '」! 🏕️ 캠핑장 월드컵으로 정했어요.';
+    function done(msg) { var old = btn.textContent; btn.textContent = msg; setTimeout(function () { btn.textContent = old; }, 1800); }
+    if (navigator.share) {
+      navigator.share({ title: '캠핑장 월드컵', text: text, url: url }).catch(function () {});
+      return;
+    }
+    var full = text + ' ' + url;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(full).then(function () { done('✅ 복사했어요'); }, function () { window.prompt('아래 문장을 복사해 공유하세요', full); });
+    } else { window.prompt('아래 문장을 복사해 공유하세요', full); }
+  }
+
+  /* ---------- 이벤트 연결 ---------- */
+  $('region').addEventListener('change', function () {
+    cond.region = this.value; cond.district = 'all'; buildDistrict(); saveCond(); updatePool(); checkWeather();
+  });
+  $('district').addEventListener('change', function () {
+    cond.district = this.value; saveCond(); updatePool(); checkWeather();
+  });
+  $('typeChips').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
+    cond.type = b.getAttribute('data-val'); paintChips(cond.type); saveCond(); updatePool();
+  });
+  $('treeBtn').addEventListener('click', function () {
+    var tree = $('bracket'), open = tree.classList.toggle('open');
+    this.textContent = open ? '접기' : '전체 보기';
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) centerIn(tree, tree.querySelector('.brm.cur'), false);
+  });
+  $('startBtn').addEventListener('click', newGame);
+  $('undoBtn').addEventListener('click', undo);
+  $('quitBtn').addEventListener('click', toSetup);
+  document.addEventListener('keydown', function (e) {
+    if ($('game').style.display !== 'block') return;
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft' || e.key === '1') { e.preventDefault(); pick(0); }
+    else if (e.key === 'ArrowRight' || e.key === '2') { e.preventDefault(); pick(1); }
+  });
+
+  /* ---------- 데이터 로드 (festivals.json 중 캠핑장만) ---------- */
+  fetch('/data/festivals.json').then(function (r) { return r.json(); }).then(function (list) {
+    places = (list || []).filter(function (p) { return p && p.type === 'camping' && p.title && p.contentid; }).map(function (p) {
+      p._r = regionOf(p.addr); p._d = districtOf(p.addr); p._t = tagsOf(p.title);
+      p._lat = parseFloat(p.lat); p._lng = parseFloat(p.lng);
+      return p;
+    });
+    buildRegionSelect();
+    buildDistrict();
+    paintChips(cond.type);
+    updatePool();
+    checkWeather();
+  }).catch(function () {
+    $('poolInfo').className = 'poolinfo bad';
+    $('poolInfo').textContent = '캠핑장 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+  });
+})();
+</script>
+
+<script>
+    fetch('/footer.html')
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+            var footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                var newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 본문 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

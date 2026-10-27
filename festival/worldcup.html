@@ -70,9 +70,21 @@
   .hint { font-size: 12px; color: #94a3b8; margin-top: 10px; }
   .brhead { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 8px; }
   .brhead h3 { margin: 0; font-size: 15px; font-weight: 900; color: #0f172a; }
-  .br { display: flex; gap: 10px; overflow: auto; height: 200px; padding: 4px 2px 6px; margin-bottom: 14px; -webkit-overflow-scrolling: touch; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .br { display: flex; gap: 10px; overflow-x: auto; padding: 4px 6px 10px; margin-bottom: 14px; -webkit-overflow-scrolling: touch; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
   .br.full { height: auto; overflow-y: visible; background: transparent; border: 0; padding-bottom: 10px; }
-  .brhead.tight { margin: 4px 0 6px; }
+  .brhead.tight { margin: 4px 0 8px; }
+  #treeBtn { display: none; padding: 6px 12px; font-size: 12px; flex: 0 0 auto; white-space: nowrap; }
+  .rv { display: none; margin-bottom: 14px; }
+  .rv-trk { display: none; align-items: center; gap: 3px; flex: 1; min-width: 0; margin: 0 8px; }
+  .rv-chip { font-size: 12px; font-weight: 800; color: #94a3b8; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; white-space: nowrap; }
+  .rv-chip.done { background: #e0e7ff; color: #4338ca; }
+  .rv-chip.on { background: #4f46e5; color: #fff; }
+  .rv-arr { color: #cbd5e1; font-weight: 900; }
+  .rv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-height: 240px; align-content: center; }
+  .rv-grid.one { grid-template-columns: 1fr; }
+  .rvm div { font-size: 12px; padding: 3px 8px; line-height: 1.35; }
+  .rv-grid.mid .rvm div { font-size: 13px; padding: 7px 10px; }
+  .rv-grid.big .rvm div { font-size: 14px; padding: 9px 12px; }
   .brc { display: flex; flex-direction: column; flex: 0 0 120px; }
   .brc.on h4 { color: #4338ca; }
   .brc h4 { font-size: 11px; color: #64748b; text-align: center; margin: 0 0 6px; font-weight: 800; }
@@ -121,7 +133,6 @@
     .vs { grid-template-columns: 1fr 40px 1fr; align-items: stretch; }
     .vsb { align-self: center; }
     .ru { grid-template-columns: repeat(3, 1fr); }
-    .br { height: 300px; }
   }
   @media (max-width: 719px) {
     .cand { padding: 13px 14px; }
@@ -130,6 +141,14 @@
     .cgo { display: none; }
     .vs { gap: 8px; }
     .vsb { line-height: 1; margin: -2px 0; }
+    /* 모바일: 전체 트리 대신 '이번 라운드 전체'를 한눈에 보여준다. 전체 트리는 버튼으로 펼친다. */
+    .br { display: none; }
+    .br.open { display: flex; }
+    .rv { display: block; }
+    #treeBtn { display: inline-flex; }
+    .brhead.tight h3 { display: none; }
+    .brhead.tight .rv-trk { display: flex; margin: 0 8px 0 0; }
+    .hint { display: none; }
   }
 </style>
 </head>
@@ -181,8 +200,9 @@
       <div class="rsub" id="rsub">1 / 8 경기</div>
     </div>
     <div class="bar"><i id="barfill"></i></div>
-    <div class="brhead tight"><h3>📋 대진표</h3></div>
-    <div class="br" id="bracket" aria-label="대진표"></div>
+    <div class="brhead tight"><h3>📋 대진표</h3><div class="rv-trk" id="rvTrk"></div><button type="button" class="btn ghost" id="treeBtn" aria-expanded="false">전체 보기</button></div>
+    <div class="rv" id="roundview"></div>
+    <div class="br" id="bracket" aria-label="전체 대진표"></div>
     <div class="vs" id="vs"></div>
     <div class="ctl">
       <button type="button" class="btn ghost" id="undoBtn">← 이전 선택으로</button>
@@ -221,6 +241,7 @@
     <div class="faq"><b>Q. 장소 정보가 틀렸어요.</b><p>운영 정보는 바뀔 수 있습니다. <a href="/contact/">문의 페이지</a>로 알려주시면 확인 후 반영하겠습니다.</p></div>
 
     <div class="links">
+      <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
       <a href="/festival/">🗺️ 아이랑 나들이 지도</a>
       <a href="/festival/#about-map">📍 지역별 장소 한눈에 보기</a>
       <a href="/blog/magazine/">📰 호호 매거진</a>
@@ -462,6 +483,7 @@
     if (!n) return;
     var entries = pi.extra > 0 ? shuffle(pool.slice(0, n)) : draw(pool, n);   // 채움 풀은 '고른 곳 → 가까운 순' 정렬이라 앞에서부터 쓴다
     S = { n: n, rounds: [entries], results: [[]], r: 0, m: 0 };
+    $('bracket').classList.remove('open'); $('treeBtn').textContent = '전체 보기'; $('treeBtn').setAttribute('aria-expanded', 'false');
     $('setup').style.display = 'none';
     $('result').style.display = 'none';
     $('game').style.display = 'block';
@@ -480,6 +502,7 @@
     vs.appendChild(el('div', 'vsb', 'VS'));
     vs.appendChild(buildCard(ents[S.m * 2 + 1], 1));
     $('undoBtn').disabled = (S.r === 0 && S.m === 0);
+    renderRound();
     renderBracket();
   }
   function pick(i) {
@@ -512,6 +535,31 @@
     $('result').style.display = 'none';
     $('game').style.display = 'block';
     render();
+  }
+
+  /* ---------- 모바일용: 이번 라운드 전체를 한눈에 ---------- */
+  function renderRound() {
+    var host = $('roundview'); host.innerHTML = '';
+    var rounds = Math.round(Math.log(S.n) / Math.LN2);
+    var trk = $('rvTrk'); trk.innerHTML = '';
+    for (var r = 0; r < rounds; r++) {
+      trk.appendChild(el('span', 'rv-chip' + (r < S.r ? ' done' : r === S.r ? ' on' : ''), roundName(S.n / Math.pow(2, r))));
+      if (r < rounds - 1) trk.appendChild(el('span', 'rv-arr', '›'));
+    }
+    var ents = S.rounds[S.r], total = ents.length / 2;
+    var grid = el('div', 'rv-grid' + (total === 1 ? ' one' : '') + (total <= 2 ? ' big' : total <= 4 ? ' mid' : ''));
+    for (var m = 0; m < total; m++) {
+      var box = el('div', 'brm rvm');
+      var win = m < S.results[S.r].length ? S.results[S.r][m] : null;
+      [ents[m * 2], ents[m * 2 + 1]].forEach(function (p) {
+        var row = el('div', null, p.title); row.title = p.title;
+        if (win) row.className = (p === win) ? 'w' : 'l';
+        box.appendChild(row);
+      });
+      if (m === S.m) box.classList.add('cur');
+      grid.appendChild(box);
+    }
+    host.appendChild(grid);
   }
 
   /* ---------- 대진표 ---------- */
@@ -633,7 +681,7 @@
 
     var brh = el('div', 'brhead'); brh.appendChild(el('h3', null, '📋 최종 대진표'));
     res.appendChild(brh);
-    var brClone = $('bracket').cloneNode(true); brClone.removeAttribute('id'); brClone.classList.add('full');   // 결과에서는 높이 제한 없이 전체를 보여준다
+    var brClone = $('bracket').cloneNode(true); brClone.removeAttribute('id'); brClone.classList.add('full', 'open');   // 결과에서는 높이 제한 없이 전체를 보여준다
     res.appendChild(brClone);
 
     $('game').style.display = 'none';
@@ -708,6 +756,12 @@
   $('budgetChips').addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
     cond.budget = b.getAttribute('data-val'); paintChips('budgetChips', cond.budget); saveCond(); updatePool();
+  });
+  $('treeBtn').addEventListener('click', function () {
+    var tree = $('bracket'), open = tree.classList.toggle('open');
+    this.textContent = open ? '접기' : '전체 보기';
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) centerIn(tree, tree.querySelector('.brm.cur'), false);
   });
   $('startBtn').addEventListener('click', newGame);
   $('undoBtn').addEventListener('click', undo);
