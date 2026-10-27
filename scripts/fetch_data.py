@@ -1173,6 +1173,101 @@ def update_worldcup_stats():
             print('캠핑장 데이터가 너무 적어(수신 실패 의심) 캠핑장 월드컵 후보 현황 갱신 건너뜀')
 
 
+RL_START = '<!-- RL_STATS_START -->'
+RL_END = '<!-- RL_STATS_END -->'
+
+
+def _forest_kinds(title):
+    """roulette.html 의 forestKindsOf 와 같은 기준: 이름에 들어간 말로 숲·수목원·휴양림을 나눈다(해변·해수욕장은 제외)."""
+    t = title or ''
+    if '해수욕장' in t or '해변' in t:
+        return []
+    kinds = []
+    if '휴양림' in t:
+        kinds.append('휴양림')
+    if any(w in t for w in ('수목원', '식물원', '정원')):
+        kinds.append('수목원·정원')
+    if any(w in t for w in ('숲', '산림')):
+        kinds.append('숲·산림')
+    return kinds
+
+
+def _rl_region_counts(items):
+    counts = {}
+    for it in items:
+        lb = _camp_region_of(it.get('addr', ''))
+        if lb:
+            counts[lb] = counts.get(lb, 0) + 1
+    return counts
+
+
+def _rl_tier_paragraph(label, counts):
+    """룰렛 칸 수 기준(최대 10칸, 최소 4칸)으로 지역을 나눠 한 문단으로 쓴다."""
+    ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    t10 = [kv for kv in ordered if kv[1] >= 10]
+    t8 = [kv for kv in ordered if 8 <= kv[1] < 10]
+    t4 = [kv for kv in ordered if 4 <= kv[1] < 8]
+    low = [kv for kv in ordered if kv[1] < 4]
+    parts = []
+    if t10:
+        parts.append(f'10칸까지 돌릴 수 있는 지역은 {_wc_fmt(t10, False)}입니다.')
+    if t8:
+        parts.append(f'후보가 8~9곳이라 칸이 8~9개까지인 지역은 {_wc_fmt(t8, False)}입니다.')
+    if t4:
+        parts.append(f'후보가 4~7곳이라 칸이 그만큼 줄어드는 지역은 {_wc_fmt(t4, False)}입니다.')
+    if low:
+        parts.append(f'후보가 4곳보다 적어 룰렛을 만들 수 없는 지역은 {_wc_fmt(low, False)}입니다. 이럴 땐 "전국"으로 넓혀 주세요.')
+    return f'<p><strong>{html.escape(label)}</strong> — ' + ' '.join(parts) + '</p>'
+
+
+def build_roulette_stats_html(kids, camps, forests):
+    pt, ct = {}, {}
+    for pl in kids:
+        pt[pl.get('placeType', '')] = pt.get(pl.get('placeType', ''), 0) + 1
+    tc = {w: 0 for w in CAMP_TYPE_WORDS}
+    plain = 0
+    for c in camps:
+        hit = [w for w in CAMP_TYPE_WORDS if w in c.get('title', '')]
+        for w in hit:
+            tc[w] += 1
+        if not hit:
+            plain += 1
+    kc = {'휴양림': 0, '수목원·정원': 0, '숲·산림': 0}
+    for f in forests:
+        for k in _forest_kinds(f.get('title', '')):
+            kc[k] += 1
+    p1 = (f'<p>현재 룰렛 후보는 아이랑 나들이 장소 <strong>{len(kids)}곳</strong>(실내 {pt.get("실내", 0)}곳, 실외 {pt.get("실외", 0)}곳, '
+          f'실내외 {pt.get("실내외", 0)}곳), 캠핑장 <strong>{len(camps)}곳</strong>(오토캠핑 {tc["오토캠핑"]}곳, 글램핑 {tc["글램핑"]}곳, '
+          f'카라반 {tc["카라반"]}곳, 일반 캠핑장·야영장 {plain}곳), 숲·수목원·휴양림 <strong>{len(forests)}곳</strong>'
+          f'(자연휴양림 {kc["휴양림"]}곳, 수목원·식물원·정원 {kc["수목원·정원"]}곳, 숲·산림욕장 {kc["숲·산림"]}곳)입니다. '
+          f'이름에 두 가지 이상이 들어간 곳은 각 유형에 모두 세기 때문에 유형별 합이 전체보다 클 수 있고, 이 숫자는 데이터가 갱신될 때 함께 바뀝니다.</p>')
+    p2 = _rl_tier_paragraph('아이랑 나들이', _rl_region_counts(kids))
+    p3 = _rl_tier_paragraph('캠핑장', _rl_region_counts(camps))
+    p4 = _rl_tier_paragraph('숲·수목원·휴양림', _rl_region_counts(forests))
+    p5 = '<p>위는 지역만 고르고 다른 조건은 "상관없어요"로 둔 경우입니다. 유형이나 비용, 실내·실외 같은 조건을 더하면 후보가 줄어들고, 비 소식이 있는 지역에서 실외를 뺀 경우에도 줄어듭니다.</p>'
+    return '\n'.join([p1, p2, p3, p4, p5])
+
+
+def update_roulette_stats():
+    """룰렛 안내 글의 '후보 현황' 구간을 데이터 기준으로 갱신한다."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    fest_path = os.path.join('data', 'festivals.json')
+    if not (os.path.exists(kids_path) and os.path.exists(fest_path)):
+        print('룰렛 후보 현황: 데이터 파일이 없어 갱신 건너뜀')
+        return
+    with open(kids_path, 'r', encoding='utf-8') as f:
+        kids = json.load(f)
+    with open(fest_path, 'r', encoding='utf-8') as f:
+        items = json.load(f)
+    camps = [it for it in items if it.get('type') == 'camping' and it.get('title') and it.get('contentid')]
+    forests = [it for it in items if it.get('type') == 'park' and it.get('title') and it.get('contentid') and _forest_kinds(it.get('title', ''))]
+    if len(kids) < 20 or len(camps) < 50 or len(forests) < 20:
+        print('룰렛 후보 현황: 데이터가 너무 적어(수신 실패 의심) 갱신 건너뜀')
+        return
+    _replace_between_markers(os.path.join('festival', 'roulette.html'), RL_START, RL_END,
+                             build_roulette_stats_html(kids, camps, forests), '룰렛 후보 현황')
+
+
 def main():
     all_items = fetch_all_items('festival')
 
@@ -1354,6 +1449,7 @@ def main():
     update_map_html(all_map_items, TODAY)
     update_kids_region_summary()
     update_worldcup_stats()
+    update_roulette_stats()
 
     # ── 사이트맵 / 크롤러용 목록 페이지 ──────────────────────────────
     # 지도 마커 안의 상세 링크는 JS로 그려져 검색봇이 발견하지 못하므로,

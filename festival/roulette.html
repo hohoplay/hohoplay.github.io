@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나들이·캠핑장·숲 룰렛 - 오늘 어디 갈지 돌려서 정하기 | HOHO PLAY</title>
+<meta name="description" content="어디 갈지 못 정했다면 룰렛을 돌려보세요. 지역을 고르고 아이랑 나들이·캠핑장·숲·수목원·휴양림 중 하나를 정하면 후보 칸이 만들어지고, 비 소식이 있으면 실내 장소로 안내해 드려요.">
+<link rel="canonical" href="https://hohoplaylab.com/festival/roulette.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="나들이·캠핑장·숲 룰렛 - 오늘 어디 갈지 돌려서 정하기">
+<meta property="og:description" content="지역만 고르고 룰렛을 돌리면 오늘 갈 곳이 정해져요. 비 소식이 있으면 실내 장소로 바꿔 돌릴 수도 있어요.">
+<meta property="og:url" content="https://hohoplaylab.com/festival/roulette.html">
+<meta property="og:image" content="https://hohoplaylab.com/data/festival-og-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hohoplaylab.com/data/festival-og-banner.png">
+<link rel="icon" href="/favicon.svg">
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  /* 푸터가 Tailwind(CDN)를 쓰기 때문에 Tailwind 기본 리셋이 뒤늦게 덮어써도 이 페이지가 그대로 보이도록
+     body·링크·목록·문단은 선택자를 한 단계 더 구체적으로 지정한다. */
+  html body { margin: 0; background: #f8fafc; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+  .about a, .note a, .info a, .ns a { color: #15803d; text-decoration: underline; }
+  .ns a { color: #991b1b; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 16px 16px 56px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 14px; font-weight: 700; }
+  .topbar a { text-decoration: none; color: #15803d; }
+  .hero { background: linear-gradient(135deg, #15803d, #0f766e); color: #fff; border-radius: 20px; padding: 24px 22px; margin-bottom: 18px; }
+  .hero h1 { margin: 0 0 6px; font-size: 26px; font-weight: 900; line-height: 1.3; }
+  .hero p { margin: 0; font-size: 15px; opacity: .95; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 12px; font-size: 17px; font-weight: 900; color: #0f172a; }
+  .lbl { font-size: 13px; font-weight: 800; color: #475569; margin: 14px 0 6px; }
+  .lbl.first { margin-top: 0; }
+  select { width: 100%; padding: 12px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; color: #1e293b; font-family: inherit; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 800; font-size: 14px; padding: 9px 15px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+  .chip[aria-pressed="true"] { background: #15803d; border-color: #15803d; color: #fff; }
+  .wx { display: none; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 14px; font-weight: 700; }
+  .wx .wxt { display: block; }
+  .wx .wxa { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .wxb { border: 1px solid #93c5fd; background: #fff; color: #1d4ed8; font-weight: 800; font-size: 13px; padding: 7px 13px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+  .poolinfo { margin-top: 14px; font-size: 14px; font-weight: 800; color: #334155; min-height: 22px; }
+  .poolinfo.bad { color: #b91c1c; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; cursor: pointer; font-family: inherit; font-weight: 900; font-size: 16px; padding: 14px 24px; border-radius: 999px; background: #15803d; color: #fff; text-decoration: none; }
+  .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .btn.sub { background: #dcfce7; color: #166534; font-size: 14px; padding: 10px 16px; }
+  .btn.sub:disabled { background: #e2e8f0; color: #94a3b8; }
+  .btn.ghost { background: #fff; color: #475569; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px 16px; }
+  .btn.ghost:disabled { color: #94a3b8; background: #f8fafc; }
+  .btn.warn { background: #fef3c7; color: #92400e; font-size: 14px; padding: 10px 16px; }
+  .btn.big { font-size: 20px; padding: 16px 40px; }
+  .startrow { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  #stage, #result { display: none; }
+  .sh { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .stitle { font-size: 18px; font-weight: 900; color: #166534; }
+  .ssub { font-size: 13px; font-weight: 800; color: #64748b; }
+  .snote { display: none; margin: 10px 0 0; padding: 9px 13px; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 13px; font-weight: 700; }
+  /* 룰렛 */
+  .wheelbox { position: relative; width: min(88vw, 340px); margin: 18px auto 14px; }
+  /* 회전하는 요소는 transform 때문에 스크롤 가능 영역을 넓히므로, 원형 틀(overflow hidden) 안에서 돌린다 */
+  .wheelclip { width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; overflow: hidden; box-shadow: 0 6px 20px rgba(15, 23, 42, .18); }
+  .wheelrot { width: 100%; height: 100%; will-change: transform; }
+  .wheelrot svg { width: 100%; height: 100%; display: block; }
+  .wheelrot .sl { stroke: #fff; stroke-width: 2; }
+  .wheelrot .sl.hit { stroke: #0f172a; stroke-width: 4; }
+  .wheelrot text { fill: #fff; font-weight: 800; font-family: inherit; pointer-events: none; paint-order: stroke; stroke: rgba(15, 23, 42, .35); stroke-width: 2px; }
+  .pointer { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 13px solid transparent; border-right: 13px solid transparent; border-top: 28px solid #0f172a; z-index: 2; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3)); }
+  .hub { position: absolute; top: 50%; left: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: #fff; border: 4px solid #0f172a; z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 18px; pointer-events: none; }
+  .spinrow { text-align: center; margin: 4px 0 6px; }
+  .spinrow .hintline { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+  .wlist { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .wlist li { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #f8fafc; }
+  .wlist li.hit { border-color: #0f172a; background: #fffbeb; font-weight: 900; }
+  .wlist i { flex: 0 0 12px; width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .wlist .wn { flex: 1; min-width: 0; font-weight: 800; color: #0f172a; word-break: keep-all; overflow-wrap: anywhere; }
+  .wlist .wl { flex: 0 0 auto; font-size: 12px; color: #64748b; font-weight: 700; }
+  .ctl { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .hint { font-size: 12px; color: #94a3b8; margin-top: 10px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .bd { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569; }
+  .bd.auto { background: #dcfce7; color: #15803d; }
+  .bd.glam { background: #fae8ff; color: #a21caf; }
+  .bd.van { background: #e0f2fe; color: #0369a1; }
+  .bd.gen { background: #fef9c3; color: #a16207; }
+  .bd.in { background: #dbeafe; color: #1d4ed8; }
+  .bd.out { background: #ffedd5; color: #c2410c; }
+  .bd.both { background: #f3e8ff; color: #7e22ce; }
+  .bd.free { background: #dcfce7; color: #15803d; }
+  .bd.forest { background: #ecfccb; color: #4d7c0f; }
+  .cname { font-size: 18px; font-weight: 900; color: #0f172a; line-height: 1.35; margin: 0 0 2px; word-break: keep-all; overflow-wrap: anywhere; }
+  .cloc { font-size: 13px; font-weight: 700; color: #64748b; }
+  .cdesc { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .win { border: 2px solid #f59e0b; background: #fffbeb; border-radius: 18px; padding: 20px; }
+  .win h2 { margin: 0 0 8px; font-size: 14px; font-weight: 900; color: #b45309; }
+  .win .wph { width: 100%; height: 200px; border-radius: 14px; overflow: hidden; background: #e2e8f0; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+  .win .wph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .win .cname { font-size: 26px; }
+  .win .cloc { margin: 2px 0 8px; }
+  .credit { font-size: 11px; color: #94a3b8; margin: -6px 0 10px; }
+  .ov { margin: 10px 0 0; font-size: 14px; color: #475569; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
+  .info { margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; color: #334155; }
+  .info li { padding: 6px 0; border-top: 1px solid #fde68a; display: flex; gap: 10px; }
+  .info b { flex: 0 0 62px; color: #92400e; }
+  .info span { flex: 1; min-width: 0; word-break: break-all; }
+  .note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; font-size: 13px; color: #166534; }
+  .rainwarn { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; color: #1e40af; }
+  .rainwarn .wxa { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .about h2 { margin: 26px 0 8px; font-size: 18px; font-weight: 900; color: #0f172a; }
+  .about p, .about li { font-size: 15px; color: #475569; }
+  .about p { margin: 0 0 12px; }
+  .about ul, .about ol { padding-left: 1.4em; margin: 6px 0 12px; }
+  .about ol { list-style: decimal; }
+  .about ul { list-style: disc; }
+  .about li { margin: 4px 0; }
+  .faq { border: 1px solid #e2e8f0; background: #fff; border-radius: 12px; padding: 12px 14px; margin: 8px 0; }
+  .faq b { display: block; color: #0f172a; margin-bottom: 2px; font-size: 15px; }
+  .faq p { margin: 0; font-size: 14px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .about .links a { text-decoration: none; font-weight: 800; font-size: 14px; padding: 9px 16px; border-radius: 999px; background: #dcfce7; color: #166534; }
+  .ns { padding: 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; color: #991b1b; font-size: 14px; }
+  @media (min-width: 720px) {
+    .hero h1 { font-size: 32px; }
+    .wlist { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* 공유·댓글 카드 (호호플레이 다른 페이지와 같은 구성) */
+  .share { margin: 22px 0 16px; padding: 16px; background: #f1f5f9; border-radius: 16px; text-align: center; }
+  .share .st { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 10px; }
+  .share .sr { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .sb { width: 42px; height: 42px; border-radius: 50%; border: 0; padding: 0; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; }
+  .sb.fb { background: #1877f2; font-size: 18px; }
+  .sb.x { background: #000; }
+  .sb.kk { background: #fee500; color: #3c1e1e; font-size: 18px; }
+  .sb.nv { background: #03c75a; }
+  .sb.bd { background: #00c73c; font-size: 12px; }
+  .sb.ln { background: #06c755; font-size: 12px; }
+  .cmt { margin: 0 0 16px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; scroll-margin-top: 12px; }
+  .cmt h2 { margin: 0 0 4px; font-size: 16px; font-weight: 900; color: #1e293b; }
+  .cmt .cs { margin: 0 0 14px; font-size: 12px; color: #94a3b8; }
+  .cmt .cf { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .cmt input, .cmt textarea { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; font-family: inherit; color: #1e293b; background: #fff; }
+  .cmt textarea { resize: vertical; }
+  .cmt .cr { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+  .cmt .cst { font-size: 12px; color: #94a3b8; }
+  .cmt .cbtn { padding: 9px 20px; border: 0; border-radius: 10px; background: #15803d; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .cmt .cbtn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .cmt .cl { display: flex; flex-direction: column; gap: 10px; }
+  .cmt .ci { padding: 12px 14px; background: #f8fafc; border-radius: 12px; }
+  .cmt .ch { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .cmt .cn { font-weight: 800; font-size: 13px; color: #334155; }
+  .cmt .ct { font-size: 11px; color: #94a3b8; }
+  .cmt .cc { font-size: 14px; color: #475569; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
+  .cmt .ce { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a href="/festival/worldcup.html">← 아이랑 나들이 월드컵</a>
+    <a href="/">🏠 홈</a>
+  </div>
+
+  <div class="hero">
+    <h1>🎡 나들이·캠핑장·숲 룰렛</h1>
+    <p>어디 갈지 못 정했다면 돌려서 정해보세요. 지역만 고르면 후보 칸이 만들어지고, 비 소식이 있으면 실내 장소로 바꿔 돌릴 수도 있어요.</p>
+  </div>
+
+  <noscript><div class="ns">룰렛을 돌리려면 자바스크립트가 필요합니다. 브라우저 설정을 확인하시거나 <a href="/festival/">나들이 지도</a>에서 장소를 직접 찾아보세요.</div></noscript>
+
+  <!-- 1) 조건 선택 -->
+  <section id="setup" class="card" aria-labelledby="setupTitle">
+    <h2 id="setupTitle">① 어디로 갈지 골라주세요</h2>
+    <div class="lbl first">어느 지역으로 갈까요?</div>
+    <select id="region" aria-label="지역 선택"><option value="전국">전국 (불러오는 중…)</option></select>
+    <div id="distWrap" style="display:none">
+      <div class="lbl">시·군·구 (선택)</div>
+      <select id="district" aria-label="시·군·구 선택"><option value="all">전체</option></select>
+      <div class="hint" style="margin-top:6px">고른 곳의 장소가 4곳보다 적으면 같은 지역의 가까운 곳으로 채워요.</div>
+    </div>
+    <div class="lbl">무엇을 고를까요?</div>
+    <div class="chips" id="catChips">
+      <button type="button" class="chip" data-val="kids" aria-pressed="true">🧸 아이랑 나들이</button>
+      <button type="button" class="chip" data-val="camp" aria-pressed="false">🏕️ 캠핑장</button>
+      <button type="button" class="chip" data-val="forest" aria-pressed="false">🌲 숲·수목원·휴양림</button>
+    </div>
+    <div id="subWrap"></div>
+    <div class="lbl">룰렛 칸 수</div>
+    <div class="chips" id="nChips">
+      <button type="button" class="chip" data-val="6" aria-pressed="false">6칸</button>
+      <button type="button" class="chip" data-val="8" aria-pressed="true">8칸</button>
+      <button type="button" class="chip" data-val="10" aria-pressed="false">10칸</button>
+    </div>
+    <div class="wx" id="wx" role="status"></div>
+    <div class="poolinfo" id="poolInfo" role="status">목록을 불러오는 중입니다…</div>
+    <div class="startrow"><button type="button" class="btn" id="startBtn" disabled>🎡 룰렛 만들기</button></div>
+  </section>
+
+  <!-- 2) 룰렛 -->
+  <section id="stage" class="card" aria-live="polite">
+    <div class="sh">
+      <div class="stitle" id="stitle">룰렛</div>
+      <div class="ssub" id="ssub"></div>
+    </div>
+    <div class="snote" id="snote" role="status"></div>
+    <div class="wheelbox">
+      <div class="pointer" aria-hidden="true"></div>
+      <div class="wheelclip"><div class="wheelrot" id="wheelRot" role="img" aria-label="후보가 칸으로 나뉜 룰렛"></div></div>
+      <div class="hub" aria-hidden="true">🎯</div>
+    </div>
+    <div class="spinrow">
+      <button type="button" class="btn big" id="spinBtn">🎡 돌리기!</button>
+      <div class="hintline">위쪽 화살표가 멈춘 칸이 오늘의 장소예요.</div>
+    </div>
+    <ol class="wlist" id="wlist" aria-label="이번 룰렛 후보"></ol>
+    <div class="ctl">
+      <button type="button" class="btn ghost" id="redrawBtn">🎲 새 후보로 다시 뽑기</button>
+      <button type="button" class="btn ghost" id="backBtn">조건 바꾸기</button>
+    </div>
+  </section>
+
+  <!-- 3) 결과 -->
+  <section id="result" aria-live="polite"></section>
+
+  <!-- 이용 안내 (검색·접근성을 위해 항상 보이는 정적 텍스트) -->
+  <section class="about" aria-label="룰렛 이용 안내">
+    <h2>룰렛은 이렇게 돌려요</h2>
+    <ol>
+      <li>지역을 먼저 고르고, 아이랑 나들이·캠핑장·숲·수목원·휴양림 중 무엇을 고를지 정합니다. 지역을 고르면 시·군·구까지 좁힐 수 있고, "전국"으로 두면 전국에서 뽑습니다.</li>
+      <li>조건에 맞는 장소 중 6곳, 8곳, 10곳(기본 8곳)이 무작위로 뽑혀 룰렛 칸이 됩니다. 후보가 적으면 칸이 줄어들고, 4곳보다 적으면 룰렛을 만들 수 없어요.</li>
+      <li>"🎡 돌리기!"를 누르면 룰렛이 돌아가고, 위쪽 화살표가 가리키는 칸이 오늘의 장소가 됩니다.</li>
+      <li>마음에 들지 않으면 "한 번 더 돌리기", 그 장소만 빼고 싶으면 "여기 빼고 다시 돌리기", 후보를 통째로 바꾸고 싶으면 "새 후보로 다시 뽑기"를 누르세요.</li>
+      <li>결과 화면에서 상세 정보, 지도 링크, 후기 남기기 버튼을 쓸 수 있고, 지금 조건 그대로 친구에게 공유할 수도 있습니다.</li>
+    </ol>
+
+    <h2>어떤 장소가 칸에 들어가나요?</h2>
+    <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 장소입니다. 세 가지로 나뉩니다.</p>
+    <ul>
+      <li><b>아이랑 나들이</b> — 호호플레이가 직접 정리한 아이와 가기 좋은 장소입니다. 실내·실외·실내외로 나뉘어 있고 요금이 무료인지, 유료인지도 구분해 두었습니다. 실내를 고르면 실외 장소는 빠지고, 비용에서 "무료만"을 고르면 완전 무료로 표시된 곳만 남습니다.</li>
+      <li><b>캠핑장</b> — 한국관광공사 TourAPI에 등록된 오토캠핑장, 글램핑, 카라반, 일반 캠핑장과 야영장입니다. 유형은 이름에 들어간 말("오토캠핑", "글램핑", "카라반")로 나눈 것이라 실제 시설과 다를 수 있습니다.</li>
+      <li><b>숲·수목원·휴양림</b> — 한국관광공사에 공원으로 등록된 곳 가운데 이름에 휴양림, 수목원·식물원·정원, 숲·산림이 들어간 곳을 모았습니다. 이름으로 가려낸 것이어서 규모나 시설은 곳마다 크게 다르고, 해수욕장이나 해변 이름이 붙은 곳은 뺐습니다.</li>
+    </ul>
+
+    <h2>지금 후보는 이렇게 구성돼 있어요</h2>
+    <!-- RL_STATS_START -->
+<p>현재 룰렛 후보는 아이랑 나들이 장소 <strong>246곳</strong>(실내 173곳, 실외 49곳, 실내외 24곳), 캠핑장 <strong>738곳</strong>(오토캠핑 119곳, 글램핑 78곳, 카라반 26곳, 일반 캠핑장·야영장 522곳), 숲·수목원·휴양림 <strong>113곳</strong>(자연휴양림 45곳, 수목원·식물원·정원 23곳, 숲·산림욕장 47곳)입니다. 이름에 두 가지 이상이 들어간 곳은 각 유형에 모두 세기 때문에 유형별 합이 전체보다 클 수 있고, 이 숫자는 데이터가 갱신될 때 함께 바뀝니다.</p>
+<p><strong>아이랑 나들이</strong> — 10칸까지 돌릴 수 있는 지역은 경기도, 부산, 대구, 인천, 울산, 강원, 세종입니다. 후보가 8~9곳이라 칸이 8~9개까지인 지역은 충청북도입니다. 후보가 4~7곳이라 칸이 그만큼 줄어드는 지역은 서울, 제주, 대전, 경상북도입니다. 후보가 4곳보다 적어 룰렛을 만들 수 없는 지역은 경상남도, 전남·광주, 전라북도입니다. 이럴 땐 "전국"으로 넓혀 주세요.</p>
+<p><strong>캠핑장</strong> — 10칸까지 돌릴 수 있는 지역은 경기도, 강원, 충청남도, 경상남도, 전라북도, 충청북도, 경상북도, 전남·광주, 인천입니다. 후보가 8~9곳이라 칸이 8~9개까지인 지역은 대구, 부산입니다. 후보가 4~7곳이라 칸이 그만큼 줄어드는 지역은 울산, 제주, 대전입니다. 후보가 4곳보다 적어 룰렛을 만들 수 없는 지역은 서울, 세종입니다. 이럴 땐 "전국"으로 넓혀 주세요.</p>
+<p><strong>숲·수목원·휴양림</strong> — 10칸까지 돌릴 수 있는 지역은 경기도, 전남·광주, 경상북도, 충청남도, 전라북도입니다. 후보가 8~9곳이라 칸이 8~9개까지인 지역은 강원, 충청북도입니다. 후보가 4~7곳이라 칸이 그만큼 줄어드는 지역은 경상남도, 부산, 제주입니다. 후보가 4곳보다 적어 룰렛을 만들 수 없는 지역은 대구, 서울, 인천, 대전, 울산입니다. 이럴 땐 "전국"으로 넓혀 주세요.</p>
+<p>위는 지역만 고르고 다른 조건은 "상관없어요"로 둔 경우입니다. 유형이나 비용, 실내·실외 같은 조건을 더하면 후보가 줄어들고, 비 소식이 있는 지역에서 실외를 뺀 경우에도 줄어듭니다.</p>
+<!-- RL_STATS_END -->
+
+    <h2>왜 지역을 먼저 고르나요?</h2>
+    <p>룰렛은 월드컵과 달리 한 번에 결과가 나오기 때문에, 후보가 전국에 흩어져 있으면 "결과는 나왔는데 너무 멀다"는 일이 생기기 쉽습니다. 그래서 어느 지역으로 갈지를 먼저 정하고, 그 안에서 룰렛으로 고르도록 만들었습니다. 이동 시간이 부담스럽다면 시·군·구까지 좁혀 보세요.</p>
+    <p>지역을 정하지 못했다면 "전국"으로 돌린 뒤, 나온 장소가 있는 지역에서 다시 한 번 돌리는 방법도 있습니다. 먼저 지역을 정하고, 그 지역 안에서 장소를 정하는 두 단계로 나누면 고민이 한결 가벼워집니다.</p>
+
+    <h2>비가 오면 어떻게 되나요?</h2>
+    <p>지역을 고르면(전국 제외) 그 지역의 날씨 예보를 확인해서 비나 눈 소식이 있을 때 안내합니다. 내 위치를 묻지 않고, 고른 지역의 대략적인 중심 좌표로만 조회합니다. 예보는 바뀔 수 있으니 출발하기 전에 한 번 더 확인해 주세요. 비 소식이 있으면 장소 종류에 따라 이렇게 달라집니다.</p>
+    <ul>
+      <li><b>아이랑 나들이</b> — 실내·실외를 따로 고르지 않았다면 실외 장소는 기본으로 빼고, 실내와 실내외 장소만 룰렛에 넣습니다. 뺀 곳은 "그래도 실외 포함" 버튼으로 다시 넣을 수 있어요. 직접 "실외"를 고르셨다면 선택을 바꾸지 않고 안내만 보여드립니다. 실내외 장소는 일부가 야외라서 "일부 실외"라고 표시합니다.</li>
+      <li><b>캠핑장·숲·수목원·휴양림</b> — 야외에서 보내는 시간이 길어서 후보를 바꾸지는 않고 비 소식이 있다는 안내와 함께 "오늘은 실내 나들이 룰렛" 버튼을 보여드립니다. 누르면 같은 지역의 실내 장소로 바로 돌려볼 수 있습니다.</li>
+      <li><b>결과 확인</b> — 비 소식이 있는 지역에서 야외 장소가 나오면 결과 화면에 안내가 함께 나오고, "실내로 다시 돌리기"로 바로 다시 돌릴 수 있습니다.</li>
+      <li><b>실내 장소가 부족할 때</b> — 그 지역에 실내 후보가 4곳보다 적으면 룰렛을 만들 수 없다고 알려 드립니다. 이럴 땐 지역을 "전국"으로 넓히거나 이웃 지역으로 바꿔 보세요.</li>
+      <li><b>날씨를 못 불러올 때</b> — 날씨 정보를 가져오지 못하면 비 관련 안내 없이 평소처럼 돌아갑니다.</li>
+    </ul>
+    <p>실내 장소라고 해서 언제나 이용할 수 있는 것은 아닙니다. 휴관일이나 예약 여부, 요금은 가기 전에 꼭 확인해 주세요.</p>
+
+    <h2>룰렛 결과를 믿어도 될까요?</h2>
+    <p>돌리기를 누르는 순간 어느 칸에 멈출지가 먼저 무작위로 정해지고, 룰렛은 그 칸에 맞춰 멈춥니다. 모든 칸의 크기가 같아서 어느 칸이든 걸릴 확률이 같습니다. 후보 8곳을 뽑는 단계도 조건에 맞는 장소 중에서 무작위입니다. 룰렛이 "가장 좋은 곳"을 골라 주는 것은 아니고, 오래 고민하던 선택을 끝내게 도와주는 도구에 가깝습니다.</p>
+    <p>결과가 영 마음에 들지 않는다면 억지로 따르지 않으셔도 됩니다. 돌리는 순간 "아쉽다"는 마음이 든다면 그게 진짜 가고 싶은 곳이 어디인지 알려 주는 신호이기도 하니까요.</p>
+
+    <h2>월드컵과 어떻게 다른가요?</h2>
+    <p>룰렛은 빠르게 정하고 싶을 때, 월드컵은 비교하면서 취향을 확인하고 싶을 때 어울립니다. 룰렛은 한 번 돌리면 끝나고, 월드컵은 두 곳씩 비교하면서 16강부터 결승까지 고르는 방식이라 시간이 더 걸리는 대신 내가 무엇을 좋아하는지 보입니다. 후보를 좁히고 싶다면 월드컵을, 막판 결정이 안 될 때는 룰렛을 쓰세요.</p>
+    <div class="links">
+      <a href="/festival/worldcup.html">🏆 아이랑 나들이 월드컵</a>
+      <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
+    </div>
+
+    <h2>룰렛으로 정한 뒤에는</h2>
+    <p>결과 화면에는 장소의 위치와 소개를 보여줍니다. 가기로 했다면 아래를 확인해 주세요.</p>
+    <ul>
+      <li>운영 시간과 휴관일: 같은 요일이라도 계절에 따라 달라질 수 있습니다.</li>
+      <li>요금과 예약: 캠핑장과 휴양림의 숙박·야영 시설은 미리 예약해야 하는 곳이 많습니다.</li>
+      <li>주차와 이동 시간: 지도 앱에서 출발지부터 걸리는 시간을 확인하세요.</li>
+      <li>날씨와 준비물: 야외라면 비 예보와 기온, 아이와 함께라면 여벌 옷과 간식을 챙기세요.</li>
+      <li>반려동물 동반, 취사, 화로대 같은 이용 규칙은 곳마다 달라서 공식 안내를 확인해야 합니다.</li>
+    </ul>
+
+    <h2>숲·수목원·휴양림에 갈 때 챙길 것</h2>
+    <ul>
+      <li>입장 가능 시간과 휴관 요일을 확인하세요. 수목원과 식물원은 휴관하는 요일이 있는 곳이 많습니다.</li>
+      <li>산불 예방 등을 이유로 입산이나 출입이 제한되는 시기와 구간이 있을 수 있으니, 가기 전에 해당 기관의 안내를 확인하세요.</li>
+      <li>숙박이나 야영을 하려면 시설 예약이 필요한 경우가 많습니다.</li>
+      <li>비가 온 뒤에는 흙길과 나무 데크가 미끄러울 수 있어서 바닥이 단단한 신발이 좋습니다.</li>
+      <li>여름에는 벌레와 햇빛, 겨울에는 바닥이 어는 것을 대비하세요.</li>
+      <li>쓰레기는 가져오고, 식물과 열매를 함부로 채취하지 않는 것이 기본 예절입니다.</li>
+    </ul>
+
+    <h2>이럴 때 써보세요</h2>
+    <ul>
+      <li>주말 아침까지도 어디 갈지 못 정했을 때: 지역만 정하고 한 번 돌려 보세요.</li>
+      <li>가족이 서로 양보하다 결정이 늦어질 때: 아이가 직접 "돌리기"를 누르게 하면 결과를 받아들이기 쉽습니다.</li>
+      <li>친구 모임에서 장소를 정할 때: 단체 대화방에 결과를 공유하면 빠르게 정리됩니다.</li>
+      <li>이미 후보가 두세 곳으로 좁혀졌을 때: 지역을 시·군·구로 좁히고 "다시 뽑기"를 돌리면 비슷한 지역의 다른 곳도 만날 수 있어요.</li>
+    </ul>
+
+    <h2>바로 돌려보기</h2>
+    <p>아래 링크는 조건이 미리 골라진 상태로 룰렛 화면을 엽니다.</p>
+    <div class="links">
+      <a href="/festival/roulette.html?cat=kids&amp;region=경기도">🧸 경기도 나들이</a>
+      <a href="/festival/roulette.html?cat=kids&amp;region=서울">🧸 서울 나들이</a>
+      <a href="/festival/roulette.html?cat=kids&amp;region=부산">🧸 부산 나들이</a>
+      <a href="/festival/roulette.html?cat=camp&amp;region=경기도">🏕️ 경기도 캠핑장</a>
+      <a href="/festival/roulette.html?cat=camp&amp;region=강원">🏕️ 강원 캠핑장</a>
+      <a href="/festival/roulette.html?cat=forest&amp;region=전국">🌲 전국 숲·수목원</a>
+      <a href="/festival/roulette.html?cat=forest&amp;region=경기도">🌲 경기도 숲·수목원</a>
+    </div>
+
+    <h2>자주 묻는 질문</h2>
+    <div class="faq"><b>Q. 같은 장소가 계속 나와요.</b><p>후보가 적은 지역이나 조건에서는 칸 수가 줄어서 같은 곳이 자주 나옵니다. 시·군·구를 "전체"로 바꾸거나 지역을 넓히면 후보가 늘어납니다.</p></div>
+    <div class="faq"><b>Q. 실내 장소만 고를 수 있나요?</b><p>네. 아이랑 나들이에서 "실내"를 고르면 실외 장소가 빠집니다. 비 소식이 있는 지역에서는 따로 고르지 않아도 실외 장소를 먼저 빼 드려요.</p></div>
+    <div class="faq"><b>Q. 비 소식은 어떻게 아나요? 위치를 수집하나요?</b><p>내 위치는 묻지 않습니다. 고른 지역의 대략적인 중심 좌표로 날씨 예보를 조회하고, 예보 기준이라 실제와 다를 수 있습니다. 마지막으로 고른 조건은 편의를 위해 이 브라우저에만 저장됩니다.</p></div>
+    <div class="faq"><b>Q. 요금이나 예약도 여기서 할 수 있나요?</b><p>아니요. 이 룰렛은 어디로 갈지 정하는 데까지만 도와드립니다. 요금과 예약은 각 장소의 공식 안내에서 확인해 주세요.</p></div>
+    <div class="faq"><b>Q. 숲·수목원·휴양림 분류가 정확한가요?</b><p>장소 이름에 들어간 말로 나눈 것이라 정확하지 않을 수 있습니다. 예를 들어 이름에 "정원"이 들어가면 수목원·정원으로 묶이지만 실제로는 공원이나 체험 시설일 수 있어요. 가기 전에 상세 페이지와 공식 안내를 확인해 주세요.</p></div>
+    <div class="faq"><b>Q. 반려동물과 함께 갈 수 있는 곳만 고를 수 있나요?</b><p>데이터에 반려동물 동반 여부가 없어서 조건으로 고를 수 없습니다. 장소가 정해진 뒤 문의해 주세요.</p></div>
+    <div class="faq"><b>Q. 결과를 친구에게 보내려면요?</b><p>결과 화면의 "결과 공유하기" 버튼을 누르면 지금 고른 조건이 담긴 링크가 함께 공유됩니다. 받은 사람은 같은 조건의 룰렛 화면을 열 수 있어요.</p></div>
+    <div class="faq"><b>Q. 정보가 틀렸어요.</b><p>운영 정보는 바뀔 수 있습니다. <a href="/contact/">문의 페이지</a>로 알려주시면 확인 후 반영하겠습니다.</p></div>
+
+    <div class="links">
+      <a href="/festival/">🗺️ 아이랑 나들이 지도</a>
+      <a href="/festival/worldcup.html">🏆 나들이 월드컵</a>
+      <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
+      <a href="/blog/magazine/">📰 호호 매거진</a>
+    </div>
+  </section>
+
+  <!-- 공유 (다른 호호플레이 페이지와 같은 형식) -->
+  <section class="share" aria-label="공유하기">
+    <div class="st">🔗 이 페이지 공유하기</div>
+    <div class="sr">
+      <button type="button" class="sb fb" data-sns="facebook" aria-label="페이스북 공유">f</button>
+      <button type="button" class="sb x" data-sns="x" aria-label="X 공유">X</button>
+      <button type="button" class="sb kk" data-sns="kakaot" aria-label="카카오톡 공유">💬</button>
+      <button type="button" class="sb nv" data-sns="naver" aria-label="네이버 공유">N</button>
+      <button type="button" class="sb bd" data-sns="band" aria-label="밴드 공유">밴드</button>
+      <button type="button" class="sb ln" data-sns="line" aria-label="라인 공유">라인</button>
+    </div>
+  </section>
+
+  <!-- 댓글 (사이트 공용 댓글 API, game_id=roulette) -->
+  <section class="cmt" id="cmtCard" aria-label="댓글">
+    <h2>💬 댓글</h2>
+    <p class="cs">룰렛으로 정한 곳의 후기나 추천하고 싶은 곳을 남겨 주세요. 광고·욕설·개인정보가 담긴 글은 삭제될 수 있어요.</p>
+    <div class="cf">
+      <input id="cmtNick" type="text" placeholder="닉네임" maxlength="20" autocomplete="nickname">
+      <textarea id="cmtContent" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"></textarea>
+      <div class="cr">
+        <span class="cst" id="cmtStatus" role="status"></span>
+        <button type="button" class="cbtn" id="cmtSubmit">등록</button>
+      </div>
+    </div>
+    <div class="cl" id="cmtList"><div class="ce">댓글을 불러오는 중...</div></div>
+  </section>
+</div>
+
+<div id="site-footer"></div>
+<!-- 푸터(footer.html)가 Tailwind 클래스로 만들어져 있어 다른 상세 페이지처럼 CDN을 불러온다. 본문 뒤에서 불러 본문 표시를 막지 않는다. -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var WEATHER_API = 'https://festival-api-proxy.vercel.app/api/weather';
+  var DETAIL_API = 'https://festival-api-proxy.vercel.app/api/detail';
+  // 주소 첫 단어 → 표시 지역. (전남·광주는 행정통합으로 한 이름 "전남광주통합특별시"로 들어오므로 하나로 묶는다)
+  var REGIONS = [
+    ['경기도', ['경기']], ['강원', ['강원']], ['충청남도', ['충청남', '충남']], ['경상남도', ['경상남', '경남']],
+    ['전라북도', ['전라북', '전북']], ['충청북도', ['충청북', '충북']], ['경상북도', ['경상북', '경북']],
+    ['전남·광주', ['전남광주', '전라남', '전남', '광주']],
+    ['인천', ['인천']], ['대구', ['대구']], ['부산', ['부산']], ['울산', ['울산']], ['제주', ['제주']],
+    ['대전', ['대전']], ['서울', ['서울']], ['세종', ['세종']]
+  ];
+  var CATS = {
+    kids: { icon: '🧸', name: '아이랑 나들이', noun: '나들이 장소' },
+    camp: { icon: '🏕️', name: '캠핑장', noun: '캠핑장' },
+    forest: { icon: '🌲', name: '숲·수목원·휴양림', noun: '숲·수목원·휴양림' }
+  };
+  var SUBS = {
+    kids: [
+      { key: 'kidsType', label: '어디서 놀까요?', opts: [['all', '상관없어요'], ['실내', '🏠 실내'], ['실외', '🌳 실외']] },
+      { key: 'budget', label: '비용', opts: [['all', '상관없어요'], ['free1', '💚 무료만']] }
+    ],
+    camp: [
+      { key: 'campType', label: '캠핑 유형', opts: [['all', '상관없어요'], ['오토캠핑', '🚗 오토캠핑'], ['글램핑', '✨ 글램핑'], ['카라반', '🚐 카라반'], ['일반', '⛺ 일반 캠핑장·야영장']] }
+    ],
+    forest: [
+      { key: 'forestKind', label: '어떤 곳을 찾으세요?', opts: [['all', '상관없어요'], ['휴양림', '🌲 자연휴양림'], ['수목원·정원', '🌿 수목원·식물원·정원'], ['숲·산림', '🍃 숲·산림욕장']] }
+    ]
+  };
+  var CAMP_LABEL = { '오토캠핑': '🚗 오토캠핑', '글램핑': '✨ 글램핑', '카라반': '🚐 카라반', '일반': '⛺ 일반 캠핑장' };
+  var CAMP_CLASS = { '오토캠핑': 'auto', '글램핑': 'glam', '카라반': 'van', '일반': 'gen' };
+  var FOREST_LABEL = { '휴양림': '🌲 자연휴양림', '수목원·정원': '🌿 수목원·정원', '숲·산림': '🍃 숲·산림' };
+  var COST_SHORT = { '완전무료': '무료', '유료(일부 무료 조건 있음)': '일부 무료', '유료': '유료', '확인 필요': '비용 확인 필요' };
+  var PALETTE = ['#15803d', '#0369a1', '#b45309', '#7c3aed', '#be185d', '#0f766e', '#1d4ed8', '#b91c1c', '#4d7c0f', '#0e7490'];
+
+  function $(id) { return document.getElementById(id); }
+  // 받침 유무로 이/가를 붙인다
+  function iga(w) { var c = w.charCodeAt(w.length - 1) - 0xAC00; return w + (c >= 0 && c <= 11171 && c % 28 !== 0 ? '이' : '가'); }
+  function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function regionOf(addr) {
+    var first = String(addr || '').split(' ')[0];
+    for (var i = 0; i < REGIONS.length; i++) {
+      var pf = REGIONS[i][1];
+      for (var j = 0; j < pf.length; j++) { if (first.indexOf(pf[j]) === 0) return REGIONS[i][0]; }
+    }
+    return '기타';
+  }
+  // 주소 둘째 토큰이 시·군·구로 끝나면 그것을 시·군·구로 본다(없으면 null)
+  function districtOf(addr) {
+    var t = String(addr || '').split(' ');
+    return t[1] && /(시|군|구)$/.test(t[1]) ? t[1] : null;
+  }
+  function campTagsOf(title) {
+    var t = [];
+    ['오토캠핑', '글램핑', '카라반'].forEach(function (k) { if (String(title).indexOf(k) !== -1) t.push(k); });
+    return t.length ? t : ['일반'];
+  }
+  // 숲·수목원·휴양림: 이름에 들어간 말로 나눈다(여러 개면 모두). 해변·해수욕장 이름이 붙은 곳은 뺀다.
+  function forestKindsOf(title) {
+    var s = String(title);
+    if (/해수욕장|해변/.test(s)) return [];
+    var k = [];
+    if (s.indexOf('휴양림') !== -1) k.push('휴양림');
+    if (/수목원|식물원|정원/.test(s)) k.push('수목원·정원');
+    if (/숲|산림/.test(s)) k.push('숲·산림');
+    return k;
+  }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function httpsUrl(u) { return String(u || '').replace(/^http:\/\//, 'https://'); }
+  function dist(a, b, c, d) {
+    var R = 6371, rad = Math.PI / 180;
+    var dLat = (c - a) * rad, dLng = (d - b) * rad;
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a * rad) * Math.cos(c * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  function locText(p) { return p._r + (p._d ? ' · ' + p._d : ''); }
+  function detailUrl(p) { return p.hasDetail === false ? '/festival/' : '/festival/detail/' + encodeURIComponent(p.contentid) + '.html'; }
+  function searchQuery(p) { return p.title + ' ' + (p._d || p._r); }
+
+  var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var DATA = { kids: null, camp: null, forest: null };
+  var cond = { cat: 'kids', region: '전국', district: 'all', kidsType: 'all', budget: 'all', campType: 'all', forestKind: 'all', n: 8 };
+  var rain = { state: null };       // true: 비·눈 예보 / false: 없음 / null: 모름(전국·조회 실패)
+  var incOut = false;               // 비 소식이 있어도 실외를 넣을지(이번 방문 동안만)
+  var wxReq = 0, wxCache = {}, catReq = 0;
+  var W = null;                     // 지금 룰렛 { items, pool, filled, removed, rot, spinning, winner, title }
+
+  var preset = {};
+  try {
+    var qs = new URLSearchParams(location.search);
+    ['cat', 'region', 'district'].forEach(function (k) { var v = qs.get(k); if (v) preset[k] = v.slice(0, 20); });
+  } catch (e) { /* 구형 브라우저면 프리셋 없이 동작 */ }
+
+  try {
+    var sv = JSON.parse(localStorage.getItem('hp_roulette_cond') || 'null');
+    if (sv) {
+      if (has(CATS, sv.cat)) cond.cat = sv.cat;
+      if (typeof sv.region === 'string') cond.region = sv.region;
+      if (typeof sv.district === 'string') cond.district = sv.district;
+      if (['all', '실내', '실외'].indexOf(sv.kidsType) !== -1) cond.kidsType = sv.kidsType;
+      if (['all', 'free1'].indexOf(sv.budget) !== -1) cond.budget = sv.budget;
+      if (['all', '오토캠핑', '글램핑', '카라반', '일반'].indexOf(sv.campType) !== -1) cond.campType = sv.campType;
+      if (['all', '휴양림', '수목원·정원', '숲·산림'].indexOf(sv.forestKind) !== -1) cond.forestKind = sv.forestKind;
+      if ([6, 8, 10].indexOf(sv.n) !== -1) cond.n = sv.n;
+    }
+  } catch (e) { /* 저장값이 없거나 막혀 있어도 기본값으로 동작 */ }
+  if (has(CATS, preset.cat)) cond.cat = preset.cat;
+  if (preset.region) { cond.region = preset.region; cond.district = preset.district || 'all'; }
+  function saveCond() { try { localStorage.setItem('hp_roulette_cond', JSON.stringify(cond)); } catch (e) {} }
+
+  /* ---------- 데이터 ---------- */
+  var festPromise = null;
+  function prep(p) {
+    p._r = regionOf(p.addr); p._d = districtOf(p.addr);
+    p._lat = parseFloat(p.lat); p._lng = parseFloat(p.lng);
+    return p;
+  }
+  function loadCat(cat) {
+    if (DATA[cat]) return Promise.resolve(DATA[cat]);
+    if (cat === 'kids') {
+      return fetch('/data/kids_places.json').then(function (r) { return r.json(); }).then(function (list) {
+        DATA.kids = (list || []).filter(function (p) { return p && p.title && p.contentid; }).map(prep);
+        return DATA.kids;
+      });
+    }
+    if (!festPromise) {
+      festPromise = fetch('/data/festivals.json').then(function (r) { return r.json(); }).then(function (list) {
+        list = list || [];
+        DATA.camp = list.filter(function (p) { return p && p.type === 'camping' && p.title && p.contentid; }).map(function (p) { prep(p); p._t = campTagsOf(p.title); return p; });
+        DATA.forest = list.filter(function (p) { return p && p.type === 'park' && p.title && p.contentid; }).map(function (p) { prep(p); p._k = forestKindsOf(p.title); return p; })
+          .filter(function (p) { return p._k.length; });
+      }).catch(function (e) { festPromise = null; throw e; });
+    }
+    return festPromise.then(function () { return DATA[cat]; });
+  }
+  function cur() { return DATA[cond.cat] || []; }
+
+  /* ---------- 후보 풀 ---------- */
+  function rainOn() { return rain.state === true && cond.region !== '전국'; }
+  function baseMatch(p) {
+    if (cond.region !== '전국' && p._r !== cond.region) return false;
+    if (cond.cat === 'kids') {
+      if (cond.kidsType === '실내' && p.placeType === '실외') return false;
+      if (cond.kidsType === '실외' && p.placeType === '실내') return false;
+      if (cond.budget === 'free1' && p.costTag !== '완전무료') return false;
+    } else if (cond.cat === 'camp') {
+      if (cond.campType !== 'all' && p._t.indexOf(cond.campType) === -1) return false;
+    } else if (cond.cat === 'forest') {
+      if (cond.forestKind !== 'all' && p._k.indexOf(cond.forestKind) === -1) return false;
+    }
+    return true;
+  }
+  // 비 소식이 있으면 실외 나들이 장소를 뺀다(실내·실외를 따로 고르지 않았고, 사용자가 '그래도 실외 포함'을 누르지 않았을 때)
+  function rainExcludes(p) {
+    return cond.cat === 'kids' && rainOn() && cond.kidsType === 'all' && !incOut && p.placeType === '실외';
+  }
+  // 후보 풀: 시·군·구를 골랐으면 그곳을 먼저, 4곳이 안 되면 같은 지역의 가까운 곳으로 6곳까지 채운다.
+  function poolInfo() {
+    var list = cur(), base = list.filter(function (p) { return baseMatch(p) && !rainExcludes(p); }), d = cond.district;
+    if (cond.region === '전국' || d === 'all') return { pool: base, filled: false, inD: base.length, extra: 0, label: '' };
+    var inD = base.filter(function (p) { return p._d === d; });
+    if (inD.length >= 4) return { pool: inD, filled: false, inD: inD.length, extra: 0, label: d };
+    var ref = list.filter(function (p) { return p._r === cond.region && p._d === d && isFinite(p._lat) && isFinite(p._lng); });
+    if (!ref.length) return { pool: inD, filled: false, inD: inD.length, extra: 0, label: d };
+    var cy = 0, cx = 0;
+    ref.forEach(function (p) { cy += p._lat; cx += p._lng; });
+    cy /= ref.length; cx /= ref.length;
+    var rest = base.filter(function (p) { return p._d !== d && isFinite(p._lat) && isFinite(p._lng); })
+      .map(function (p) { return { p: p, k: dist(cy, cx, p._lat, p._lng) }; })
+      .sort(function (a, b) { return a.k - b.k; })
+      .slice(0, 6 - inD.length).map(function (o) { return o.p; });
+    return { pool: inD.concat(rest), filled: true, inD: inD.length, extra: rest.length, label: d };
+  }
+  function slicesFor(poolLen) { return Math.min(cond.n, poolLen); }
+  function excludedCount() {
+    if (!(cond.cat === 'kids' && rainOn() && cond.kidsType === 'all' && !incOut)) return 0;
+    return cur().filter(function (p) { return baseMatch(p) && p.placeType === '실외' && (cond.district === 'all' || p._d === cond.district); }).length;
+  }
+
+  /* ---------- 조건 UI ---------- */
+  function paintChips(box, val) {
+    var btns = box.querySelectorAll('.chip');
+    for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-val') === String(val) ? 'true' : 'false');
+  }
+  function buildSub() {
+    var wrap = $('subWrap'); wrap.innerHTML = '';
+    SUBS[cond.cat].forEach(function (g) {
+      wrap.appendChild(el('div', 'lbl', g.label));
+      var chips = el('div', 'chips'); chips.setAttribute('data-key', g.key);
+      g.opts.forEach(function (o) {
+        var b = el('button', 'chip', o[1]); b.type = 'button';
+        b.setAttribute('data-val', o[0]);
+        b.setAttribute('aria-pressed', String(cond[g.key]) === o[0] ? 'true' : 'false');
+        chips.appendChild(b);
+      });
+      wrap.appendChild(chips);
+    });
+  }
+  function buildRegionSelect() {
+    var sel = $('region'), counts = Object.create(null), list = cur();
+    list.forEach(function (p) { counts[p._r] = (counts[p._r] || 0) + 1; });
+    sel.innerHTML = '';
+    var o = document.createElement('option');
+    o.value = '전국'; o.textContent = '전국 (' + list.length + '곳)';
+    sel.appendChild(o);
+    REGIONS.map(function (r) { return r[0]; }).filter(function (n) { return counts[n]; })
+      .sort(function (a, b) { return counts[b] - counts[a]; })
+      .forEach(function (n) {
+        var op = document.createElement('option');
+        op.value = n; op.textContent = n + ' (' + counts[n] + '곳)';
+        sel.appendChild(op);
+      });
+    if (!counts[cond.region] && cond.region !== '전국') { cond.region = '전국'; cond.district = 'all'; }
+    sel.value = cond.region;
+  }
+  function buildDistrict() {
+    var wrap = $('distWrap'), sel = $('district');
+    if (cond.region === '전국') { wrap.style.display = 'none'; cond.district = 'all'; return; }
+    var counts = Object.create(null);
+    cur().forEach(function (p) { if (p._r === cond.region && p._d) counts[p._d] = (counts[p._d] || 0) + 1; });
+    var names = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'ko'); });
+    if (names.length < 2) { wrap.style.display = 'none'; cond.district = 'all'; return; }
+    sel.innerHTML = '';
+    var o = document.createElement('option'); o.value = 'all'; o.textContent = '전체 (' + cond.region + ' 안 모든 곳)'; sel.appendChild(o);
+    names.forEach(function (n) {
+      var op = document.createElement('option'); op.value = n; op.textContent = n + ' (' + counts[n] + '곳)'; sel.appendChild(op);
+    });
+    if (!counts[cond.district]) cond.district = 'all';
+    sel.value = cond.district;
+    wrap.style.display = 'block';
+  }
+  function updatePool() {
+    var info = $('poolInfo'), btn = $('startBtn');
+    if (!cur().length) { return; }
+    var pi = poolInfo(), n = pi.pool.length, k = slicesFor(n), noun = CATS[cond.cat].noun;
+    if (k < 4) {
+      info.className = 'poolinfo bad';
+      var msg = n === 0
+        ? '조건에 맞는 ' + iga(noun) + ' 없어요. 조건을 넓혀 보세요.'
+        : '조건에 맞는 ' + iga(noun) + ' ' + n + '곳뿐이라 룰렛을 만들 수 없어요(최소 4곳). 지역을 "전국"으로 바꾸거나 조건을 넓혀 보세요.';
+      var ex = excludedCount();
+      if (ex > 0) msg += ' 비 소식 때문에 실외 ' + ex + '곳을 뺐어요. "그래도 실외 포함"을 누르면 다시 들어갑니다.';
+      info.textContent = msg;
+      btn.disabled = true;
+    } else {
+      info.className = 'poolinfo';
+      if (pi.filled && pi.extra > 0) {
+        info.textContent = pi.label + (pi.inD ? ' ' + pi.inD + '곳' : '에는 조건에 맞는 곳이 없어') + (pi.inD ? ' + ' : ', ') + '가까운 곳 ' + pi.extra + '곳으로 ' + k + '칸 룰렛을 만들어요.';
+      } else {
+        info.textContent = (pi.label ? pi.label + ' ' : '') + '조건에 맞는 ' + noun + ' ' + n + '곳 중 ' + k + '곳으로 ' + k + '칸 룰렛을 만들어요.';
+      }
+      btn.disabled = false;
+    }
+    renderWx();
+  }
+
+  /* ---------- 날씨 / 비 대응 ---------- */
+  function wxButton(text, fn) {
+    var b = el('button', 'wxb', text); b.type = 'button'; b.addEventListener('click', fn); return b;
+  }
+  function renderWx() {
+    var box = $('wx');
+    if (!rainOn()) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    box.innerHTML = '';
+    var t = el('span', 'wxt'), acts = el('div', 'wxa');
+    if (cond.cat === 'kids') {
+      if (cond.kidsType === 'all') {
+        var ex = excludedCount();
+        if (!incOut) {
+          t.textContent = '☔ 이 지역은 비·눈 소식이 있어요(예보 기준). ' + (ex ? '실외 장소 ' + ex + '곳을' : '실외 장소를') + ' 빼고 실내·실내외 장소로 룰렛을 만들어요.';
+          acts.appendChild(wxButton('그래도 실외 포함', function () { incOut = true; updatePool(); }));
+        } else {
+          t.textContent = '☔ 비·눈 소식이 있지만 실외 장소도 룰렛에 넣었어요. 출발 전 예보를 꼭 다시 확인하세요.';
+          acts.appendChild(wxButton('실외 다시 빼기', function () { incOut = false; updatePool(); }));
+        }
+      } else if (cond.kidsType === '실내') {
+        t.textContent = '☔ 이 지역은 비·눈 소식이 있어요(예보 기준). 실내 장소만 골라서 돌립니다.';
+      } else {
+        t.textContent = '☔ 이 지역은 비·눈 소식이 있어요(예보 기준). 실외 장소만 고르셨는데, 출발 전 예보를 꼭 확인하세요.';
+        acts.appendChild(wxButton('실내로 바꾸기', function () { setSub('kidsType', '실내'); }));
+      }
+    } else {
+      t.textContent = '☔ 이 지역은 비·눈 소식이 있어요(예보 기준). ' + (cond.cat === 'camp' ? '캠핑은' : '숲·수목원·휴양림은') + ' 야외 시간이 길어서 불편할 수 있어요. 후보는 그대로 두었고, 출발 전 예보와 우천 시 규정을 확인하세요.';
+      acts.appendChild(wxButton('🏛️ 오늘은 실내 나들이 룰렛', function () { rerollIndoor(); }));
+    }
+    box.appendChild(t);
+    if (acts.childNodes.length) box.appendChild(acts);
+    box.style.display = 'block';
+  }
+  function checkWeather() {
+    var req = ++wxReq;
+    if (cond.region === '전국') { rain.state = null; renderWx(); updatePool(); return; }
+    var list = cur().filter(function (p) { return p._r === cond.region && (cond.district === 'all' || p._d === cond.district) && isFinite(p._lat) && isFinite(p._lng); });
+    if (!list.length) { rain.state = null; renderWx(); updatePool(); return; }
+    var lat = 0, lng = 0;
+    list.forEach(function (p) { lat += p._lat; lng += p._lng; });
+    lat = (lat / list.length).toFixed(2); lng = (lng / list.length).toFixed(2);
+    var key = lat + ',' + lng;
+    function apply(v) { if (req !== wxReq) return; rain.state = v; updatePool(); }
+    if (key in wxCache) { apply(wxCache[key]); return; }
+    fetch(WEATHER_API + '?lat=' + lat + '&lng=' + lng)
+      .then(function (r) { return r.json(); })
+      .then(function (d) { var v = !!(d && d.willRain); wxCache[key] = v; apply(v); })
+      .catch(function () { apply(null); });
+  }
+
+  /* ---------- 카테고리·조건 변경 ---------- */
+  function setSub(key, val) {
+    cond[key] = val;
+    incOut = false;
+    var chips = $('subWrap').querySelector('[data-key="' + key + '"]');
+    if (chips) paintChips(chips, val);
+    saveCond(); updatePool();
+  }
+  // 카테고리를 바꾼다(데이터를 아직 못 받았으면 받은 뒤). 다 바뀐 다음 after를 부른다.
+  function setCat(cat, after) {
+    var token = ++catReq;
+    $('poolInfo').className = 'poolinfo'; $('poolInfo').textContent = '목록을 불러오는 중입니다…';
+    $('startBtn').disabled = true;
+    return loadCat(cat).then(function () {
+      if (token !== catReq) return;
+      cond.cat = cat; incOut = false;
+      paintChips($('catChips'), cat);
+      buildSub(); buildRegionSelect(); buildDistrict(); saveCond();
+      updatePool(); checkWeather();
+      if (after) after();
+    }).catch(function () {
+      if (token !== catReq) return;
+      $('poolInfo').className = 'poolinfo bad';
+      $('poolInfo').textContent = '목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    });
+  }
+
+  /* ---------- 룰렛 ---------- */
+  function polar(c, r, deg) {
+    var a = (deg - 90) * Math.PI / 180;
+    return [c + r * Math.cos(a), c + r * Math.sin(a)];
+  }
+  function cut(s, max) { s = String(s); return s.length > max ? s.slice(0, max - 1) + '…' : s; }
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function drawWheel() {
+    var host = $('wheelRot'); host.innerHTML = '';
+    var n = W.items.length, sw = 360 / n, C = 150, R = 146;
+    var svg = svgEl('svg', { viewBox: '0 0 300 300', 'aria-hidden': 'true' });
+    var fs = n > 8 ? 11.5 : 13, maxc = n > 8 ? 8 : 7;
+    W.items.forEach(function (p, i) {
+      var a0 = i * sw, a1 = (i + 1) * sw, p0 = polar(C, R, a0), p1 = polar(C, R, a1);
+      var path = svgEl('path', { d: 'M' + C + ',' + C + ' L' + p0[0].toFixed(2) + ',' + p0[1].toFixed(2) + ' A' + R + ',' + R + ' 0 ' + (sw > 180 ? 1 : 0) + ' 1 ' + p1[0].toFixed(2) + ',' + p1[1].toFixed(2) + ' Z', fill: PALETTE[i % PALETTE.length] });
+      path.setAttribute('class', 'sl'); path.setAttribute('data-i', i);
+      var tt = svgEl('title', {}); tt.textContent = p.title; path.appendChild(tt);
+      svg.appendChild(path);
+      var mid = a0 + sw / 2, pt = polar(C, R - 10, mid), left = mid > 180;
+      var tx = svgEl('text', { x: pt[0].toFixed(2), y: pt[1].toFixed(2), 'font-size': fs, 'text-anchor': left ? 'start' : 'end', 'dominant-baseline': 'central', transform: 'rotate(' + (left ? mid + 90 : mid - 90).toFixed(2) + ' ' + pt[0].toFixed(2) + ' ' + pt[1].toFixed(2) + ')' });
+      tx.textContent = cut(p.title, maxc);
+      svg.appendChild(tx);
+    });
+    host.appendChild(svg);
+    host.style.transition = 'none';
+    host.style.transform = 'rotate(' + W.rot + 'deg)';
+    host.setAttribute('aria-label', W.items.length + '칸 룰렛: ' + W.items.map(function (p) { return p.title; }).join(', '));
+  }
+  function drawList(winIdx) {
+    var ol = $('wlist'); ol.innerHTML = '';
+    W.items.forEach(function (p, i) {
+      var li = el('li', i === winIdx ? 'hit' : '');
+      var dot = el('i'); dot.style.background = PALETTE[i % PALETTE.length];
+      li.appendChild(dot);
+      li.appendChild(el('span', 'wn', p.title));
+      li.appendChild(el('span', 'wl', locText(p) + (cond.cat === 'kids' && p.placeType === '실내외' && rainOn() ? ' · 일부 실외' : '')));
+      ol.appendChild(li);
+    });
+  }
+  function syncUi() {
+    var busy = !!(W && W.spinning);
+    $('spinBtn').disabled = busy || !W;
+    $('spinBtn').textContent = busy ? '🎡 돌아가는 중…' : (W && W.winner >= 0 ? '🎡 한 번 더 돌리기' : '🎡 돌리기!');
+    var canRedraw = W && W.pool.filter(function (p) { return W.removed.indexOf(p) === -1; }).length > W.items.length;
+    $('redrawBtn').disabled = busy || !canRedraw;
+    $('backBtn').disabled = busy;
+    var rb = $('rmBtn'); if (rb) rb.disabled = busy || !canRemove();
+    var ag = $('againBtn'); if (ag) ag.disabled = busy;
+    $('wheelRot').parentNode.setAttribute('aria-busy', busy ? 'true' : 'false');
+  }
+  function pickItems() {
+    var avail = W.pool.filter(function (p) { return W.removed.indexOf(p) === -1; });
+    return shuffle(avail).slice(0, slicesFor(W.pool.length));
+  }
+  function stageTitle() {
+    var c = CATS[cond.cat], where = cond.region === '전국' ? '전국' : cond.region + (cond.district !== 'all' ? ' ' + cond.district : '');
+    return c.icon + ' ' + where + ' ' + c.name + ' 룰렛';
+  }
+  function makeWheel(autoSpin) {
+    var pi = poolInfo(), k = slicesFor(pi.pool.length);
+    if (k < 4) return false;
+    W = { pool: pi.pool, filled: pi.filled, removed: [], rot: 0, spinning: false, winner: -1, items: [], t: null, title: stageTitle() };
+    W.items = pi.filled ? shuffle(pi.pool).slice(0, k) : pickItems();
+    $('setup').style.display = 'none';
+    $('result').style.display = 'none'; $('result').innerHTML = '';
+    $('stage').style.display = 'block';
+    $('stitle').textContent = W.title;
+    $('ssub').textContent = W.items.length + '칸';
+    var note = $('snote');
+    if (rainOn() && cond.cat === 'kids' && cond.kidsType === 'all' && !incOut) { note.style.display = 'block'; note.textContent = '☔ 비·눈 소식(예보 기준)이 있어 실외 장소는 뺐어요.'; }
+    else if (rainOn()) { note.style.display = 'block'; note.textContent = '☔ 이 지역은 비·눈 소식이 있어요(예보 기준). 출발 전 다시 확인하세요.'; }
+    else { note.style.display = 'none'; note.textContent = ''; }
+    drawWheel(); drawList(-1); syncUi();
+    $('stage').scrollIntoView({ block: 'start' });
+    if (autoSpin) setTimeout(spin, 450);
+    return true;
+  }
+  function spin() {
+    if (!W || W.spinning) return;
+    $('result').style.display = 'none'; $('result').innerHTML = '';
+    var sls = $('wheelRot').querySelectorAll('.sl.hit');
+    for (var s = 0; s < sls.length; s++) sls[s].setAttribute('class', 'sl');
+    drawList(-1);
+    var n = W.items.length, sw = 360 / n, idx = Math.floor(Math.random() * n);
+    var center = (idx + 0.5) * sw + (Math.random() - 0.5) * sw * 0.7;   // 칸 안에서도 매번 다른 자리에 멈춘다
+    var delta = (((-center - W.rot) % 360) + 360) % 360;
+    var target = W.rot + delta + (reduceMotion ? 0 : 360 * (5 + Math.floor(Math.random() * 2)));
+    var rot = $('wheelRot');
+    W.spinning = true; W.winner = idx; syncUi();
+    if (reduceMotion) {
+      rot.style.transition = 'none'; rot.style.transform = 'rotate(' + target + 'deg)'; W.rot = target;
+      endSpin(); return;
+    }
+    rot.style.transition = 'transform 4.4s cubic-bezier(.12,.62,.08,1)';
+    void rot.offsetWidth;
+    rot.style.transform = 'rotate(' + target + 'deg)'; W.rot = target;
+    var finished = false;
+    function end() {
+      if (finished) return; finished = true;
+      rot.removeEventListener('transitionend', onEnd);
+      if (W && W.t) { clearTimeout(W.t); W.t = null; }
+      endSpin();
+    }
+    function onEnd(e) { if (e.target === rot && e.propertyName === 'transform') end(); }
+    rot.addEventListener('transitionend', onEnd);
+    W.t = setTimeout(end, 4900);
+  }
+  function endSpin() {
+    if (!W) return;
+    W.spinning = false;
+    var p = W.items[W.winner];
+    var sl = $('wheelRot').querySelector('.sl[data-i="' + W.winner + '"]');
+    if (sl) sl.setAttribute('class', 'sl hit');
+    drawList(W.winner);
+    syncUi();
+    showResult(p);
+  }
+  function redraw() {
+    if (!W || W.spinning) return;
+    W.removed = []; W.rot = 0; W.winner = -1;
+    W.items = W.filled ? shuffle(W.pool).slice(0, W.items.length) : pickItems();
+    $('result').style.display = 'none'; $('result').innerHTML = '';
+    $('ssub').textContent = W.items.length + '칸';
+    drawWheel(); drawList(-1); syncUi();
+  }
+  function canRemove() {
+    if (!W || W.winner < 0) return false;
+    var spare = W.pool.filter(function (p) { return W.removed.indexOf(p) === -1 && W.items.indexOf(p) === -1; }).length;
+    return spare > 0 || W.items.length > 4;
+  }
+  // 이번 결과만 빼고 다시: 대신 들어올 후보가 남아 있으면 그 칸을 바꿔 칸 수를 유지하고, 없으면 칸을 줄인다(최소 4칸).
+  function removeWinner() {
+    if (!W || W.spinning || !canRemove()) return;
+    var gone = W.items[W.winner];
+    W.removed.push(gone);
+    var spare = W.pool.filter(function (p) { return W.removed.indexOf(p) === -1 && W.items.indexOf(p) === -1; });
+    if (spare.length) W.items[W.winner] = spare[Math.floor(Math.random() * spare.length)];
+    else W.items.splice(W.winner, 1);
+    W.winner = -1; W.rot = 0;
+    $('ssub').textContent = W.items.length + '칸';
+    drawWheel(); drawList(-1);
+    $('result').style.display = 'none'; $('result').innerHTML = '';
+    syncUi();
+    setTimeout(spin, 300);
+  }
+
+  /* ---------- 결과 ---------- */
+  function photo(p, cls) {
+    var box = el('div', cls || 'wph');
+    function fallback() { box.innerHTML = ''; box.textContent = cond.cat === 'forest' ? '🌲' : '🏕️'; }
+    if (p.image) {
+      var im = document.createElement('img');
+      im.src = httpsUrl(p.image); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async';
+      im.referrerPolicy = 'no-referrer';
+      im.addEventListener('error', fallback);
+      box.appendChild(im);
+    } else fallback();
+    return box;
+  }
+  function badgesOf(p) {
+    var bs = el('div', 'badges');
+    if (cond.cat === 'kids') {
+      var cls = p.placeType === '실내' ? 'in' : p.placeType === '실외' ? 'out' : 'both';
+      bs.appendChild(el('span', 'bd ' + cls, p.placeType === '실내외' || !p.placeType ? '실내외(일부 실외)' : p.placeType));
+      bs.appendChild(el('span', 'bd' + (p.costTag === '완전무료' ? ' free' : ''), COST_SHORT[p.costTag] || '비용 확인 필요'));
+    } else if (cond.cat === 'camp') {
+      p._t.forEach(function (t) { bs.appendChild(el('span', 'bd ' + CAMP_CLASS[t], CAMP_LABEL[t])); });
+    } else {
+      p._k.forEach(function (k) { bs.appendChild(el('span', 'bd forest', FOREST_LABEL[k])); });
+    }
+    return bs;
+  }
+  function li(label, value, href) {
+    if (!value) return null;
+    var row = el('li');
+    row.appendChild(el('b', null, label));
+    var sp = el('span');
+    if (href) { var a = el('a', null, value); a.href = href; sp.appendChild(a); } else sp.textContent = value;
+    row.appendChild(sp);
+    return row;
+  }
+  function isOutdoorResult(p) {
+    return cond.cat !== 'kids' || p.placeType === '실외';
+  }
+  function showResult(p) {
+    var res = $('result'); res.innerHTML = '';
+    var win = el('div', 'win');
+    win.appendChild(el('h2', null, '🎯 오늘은 여기로!'));
+    if (cond.cat !== 'kids') {
+      win.appendChild(photo(p));
+      if (p.image) win.appendChild(el('div', 'credit', '사진: 한국관광공사'));
+    }
+    win.appendChild(badgesOf(p));
+    win.appendChild(el('div', 'cname', p.title));
+    win.appendChild(el('div', 'cloc', '📍 ' + (p.addr || locText(p))));
+    var ov = null, ul = el('ul', 'info');
+    if (cond.cat === 'kids') {
+      if (p.desc) win.appendChild(el('div', 'cdesc', p.desc));
+      [li('요금', p.fee), li('운영시간', p.hours), li('전화', p.tel, p.tel ? 'tel:' + String(p.tel).replace(/[^0-9+]/g, '') : null)]
+        .forEach(function (x) { if (x) ul.appendChild(x); });
+      if (!ul.childNodes.length) ul.style.display = 'none';
+      win.appendChild(ul);
+    } else {
+      ov = el('p', 'ov', '소개를 불러오는 중…'); win.appendChild(ov);
+      ul.style.display = 'none'; win.appendChild(ul);
+    }
+    var acts = el('div', 'acts');
+    var d = el('a', 'btn', '📄 상세 정보 보기'); d.href = detailUrl(p); acts.appendChild(d);
+    var k = el('a', 'btn sub', '🗺️ 카카오맵에서 찾기'); k.href = 'https://map.kakao.com/?q=' + encodeURIComponent(searchQuery(p)); k.target = '_blank'; k.rel = 'noopener'; acts.appendChild(k);
+    var nv = el('a', 'btn sub', '네이버지도'); nv.href = 'https://map.naver.com/p/search/' + encodeURIComponent(searchQuery(p)); nv.target = '_blank'; nv.rel = 'noopener'; acts.appendChild(nv);
+    var cm = el('button', 'btn sub', '💬 후기·추천 남기기'); cm.type = 'button';
+    cm.addEventListener('click', function () { if (window.hpCommentPrefill) window.hpCommentPrefill('🎯 룰렛 결과: ' + p.title + ' — '); });
+    acts.appendChild(cm);
+    win.appendChild(acts);
+
+    // 비 소식이 있는데 야외 장소가 걸렸을 때의 안전망
+    if (rainOn() && isOutdoorResult(p)) {
+      var rw = el('div', 'rainwarn');
+      rw.appendChild(el('span', null, '☔ 이 지역은 비·눈 소식이 있어요(예보 기준). 야외 일정이라면 우천 시 계획을 미리 생각해 두세요.'));
+      var ra = el('div', 'wxa');
+      var ib = el('button', 'btn warn', '🏛️ 실내로 다시 돌리기'); ib.type = 'button'; ib.id = 'indoorBtn';
+      ib.addEventListener('click', function () { rerollIndoor(); });
+      ra.appendChild(ib); rw.appendChild(ra);
+      win.appendChild(rw);
+    } else if (rainOn() && cond.cat === 'kids' && p.placeType === '실내외') {
+      win.appendChild(el('div', 'rainwarn', '☔ 비·눈 소식이 있어요. 이곳은 실내외 장소라 일부 공간은 야외일 수 있어요.'));
+    }
+    win.appendChild(el('div', 'note', cond.cat === 'kids'
+      ? '요금과 운영시간은 바뀔 수 있어요. 가기 전에 공식 안내나 전화로 한 번 더 확인하세요.'
+      : '요금, 예약 가능 여부, 운영 기간, 반려동물 동반 여부는 이 서비스에 없어요. 공식 홈페이지나 전화로 꼭 확인하세요.'));
+    res.appendChild(win);
+
+    var ctl = el('div', 'ctl'); ctl.style.marginTop = '18px';
+    var again = el('button', 'btn', '🎡 한 번 더 돌리기'); again.type = 'button'; again.id = 'againBtn'; again.addEventListener('click', spin);
+    var rm = el('button', 'btn sub', '🚫 여기 빼고 다시 돌리기'); rm.type = 'button'; rm.id = 'rmBtn'; rm.addEventListener('click', removeWinner);
+    var share = el('button', 'btn sub', '📤 결과 공유하기'); share.type = 'button';
+    share.addEventListener('click', function () { shareResult(p, share); });
+    var back = el('button', 'btn ghost', '조건 바꾸기'); back.type = 'button'; back.addEventListener('click', toSetup);
+    ctl.appendChild(again); ctl.appendChild(rm); ctl.appendChild(share); ctl.appendChild(back);
+    res.appendChild(ctl);
+    var hn = el('div', 'hint', '"한 번 더 돌리기"는 같은 후보로, "여기 빼고 다시 돌리기"는 이 장소를 뺀 채로 돌려요.');
+    res.appendChild(hn);
+
+    res.style.display = 'block';
+    syncUi();
+    res.scrollIntoView({ block: 'start' });
+    if (ov) loadOverview(p, ov, ul);
+  }
+  function loadOverview(p, ovEl, ulEl) {
+    fetch(DETAIL_API + '?contentId=' + encodeURIComponent(p.contentid))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data && !data.error && data.overview ? String(data.overview).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+        if (text) {
+          if (text.length > 380) text = text.slice(0, 380).trimEnd() + '…';
+          ovEl.textContent = text;
+        } else ovEl.style.display = 'none';
+        var tel = data && !data.error && data.tel ? String(data.tel).replace(/<[^>]*>/g, ' ').trim() : '';
+        if (tel) { var row = li('전화', tel); if (row) { ulEl.appendChild(row); ulEl.style.display = 'block'; } }
+      })
+      .catch(function () { ovEl.style.display = 'none'; });
+  }
+  // 실내 나들이로 다시 돌린다. 아이랑 나들이 안이면 실외를 빼고, 캠핑장·숲이면 같은 지역의 실내 나들이로 바꾼다.
+  function rerollIndoor() {
+    function go() {
+      var pi = poolInfo();
+      if (slicesFor(pi.pool.length) < 4) { showIndoorShort(pi.pool.length); return; }
+      makeWheel(true);
+    }
+    if (cond.cat === 'kids') {
+      if (cond.kidsType === '실외') cond.kidsType = '실내';
+      incOut = false; buildSub(); saveCond(); updatePool(); go();
+    } else {
+      cond.kidsType = '실내'; cond.budget = 'all';
+      setCat('kids', function () {
+        var pi = poolInfo();
+        if (slicesFor(pi.pool.length) < 4) { if ($('stage').style.display === 'block') showIndoorShort(pi.pool.length); return; }
+        makeWheel(true);
+      });
+    }
+  }
+  function showIndoorShort(n) {
+    var res = $('result'); res.innerHTML = '';
+    var box = el('div', 'rainwarn');
+    box.appendChild(el('span', null, '☔ ' + (cond.region === '전국' ? '전국' : cond.region) + '에는 ' + (n ? '실내 나들이 후보가 ' + n + '곳뿐이라' : '실내 나들이 후보가 없어서') + ' 룰렛을 만들 수 없어요(최소 4곳). 범위를 넓혀 보세요.'));
+    var a = el('div', 'wxa');
+    if (cond.region !== '전국') {
+      var wide = el('button', 'btn warn', '전국에서 실내 룰렛 돌리기'); wide.type = 'button';
+      wide.addEventListener('click', function () { cond.region = '전국'; cond.district = 'all'; buildRegionSelect(); buildDistrict(); saveCond(); updatePool(); checkWeather(); if (slicesFor(poolInfo().pool.length) >= 4) makeWheel(true); });
+      a.appendChild(wide);
+    }
+    var back = el('button', 'btn ghost', '조건 바꾸기'); back.type = 'button'; back.addEventListener('click', toSetup);
+    a.appendChild(back); box.appendChild(a);
+    res.appendChild(box); res.style.display = 'block';
+    res.scrollIntoView({ block: 'start' });
+  }
+  function toSetup() {
+    if (W && W.t) { clearTimeout(W.t); W.t = null; }
+    W = null;
+    $('stage').style.display = 'none'; $('result').style.display = 'none'; $('result').innerHTML = '';
+    $('setup').style.display = 'block';
+    $('setup').scrollIntoView({ block: 'start' });
+    updatePool();
+  }
+  function shareResult(p, btn) {
+    var q = '?cat=' + cond.cat + (cond.region !== '전국' ? '&region=' + encodeURIComponent(cond.region) : '');
+    var url = location.origin + location.pathname + q;
+    var text = '오늘은 「' + p.title + '」! 🎡 룰렛을 돌려서 정했어요.';
+    function done(msg) { var old = btn.textContent; btn.textContent = msg; setTimeout(function () { btn.textContent = old; }, 1800); }
+    if (navigator.share) {
+      navigator.share({ title: '나들이·캠핑장·숲 룰렛', text: text, url: url }).catch(function () {});
+      return;
+    }
+    var full = text + ' ' + url;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(full).then(function () { done('✅ 복사했어요'); }, function () { window.prompt('아래 문장을 복사해 공유하세요', full); });
+    } else { window.prompt('아래 문장을 복사해 공유하세요', full); }
+  }
+
+  /* ---------- 이벤트 연결 ---------- */
+  $('catChips').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
+    var cat = b.getAttribute('data-val');
+    if (cat !== cond.cat) setCat(cat);
+  });
+  $('subWrap').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
+    var box = b.parentNode; setSub(box.getAttribute('data-key'), b.getAttribute('data-val'));
+  });
+  $('nChips').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
+    cond.n = parseInt(b.getAttribute('data-val'), 10); paintChips($('nChips'), cond.n); saveCond(); updatePool();
+  });
+  $('region').addEventListener('change', function () {
+    cond.region = this.value; cond.district = 'all'; incOut = false; buildDistrict(); saveCond(); updatePool(); checkWeather();
+  });
+  $('district').addEventListener('change', function () {
+    cond.district = this.value; incOut = false; saveCond(); updatePool(); checkWeather();
+  });
+  $('startBtn').addEventListener('click', function () { makeWheel(false); });
+  $('spinBtn').addEventListener('click', spin);
+  $('redrawBtn').addEventListener('click', redraw);
+  $('backBtn').addEventListener('click', toSetup);
+
+  /* ---------- 시작 ---------- */
+  paintChips($('nChips'), cond.n);
+  loadCat(cond.cat).then(function () {
+    paintChips($('catChips'), cond.cat);
+    buildSub(); buildRegionSelect(); buildDistrict();
+    updatePool(); checkWeather();
+  }).catch(function () {
+    $('poolInfo').className = 'poolinfo bad';
+    $('poolInfo').textContent = '목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+  });
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+  var GID = 'roulette';
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- 공유 (다른 호호플레이 페이지와 같은 동작) ---------- */
+  function snsShare(type) {
+    var pageUrl = window.location.href;
+    var shareUrl = encodeURIComponent(pageUrl);
+    var title = document.title;
+    var shareTitle = encodeURIComponent(title);
+    if (type === 'kakaot') {
+      // 모바일은 OS 공유시트, PC는 링크를 직접 보여줘 복사하게 한다(카드 방식이 엉뚱한 페이지로 새는 문제 때문)
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile && navigator.share) { navigator.share({ title: title, url: pageUrl }).catch(function () {}); return; }
+      window.prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
+      return;
+    }
+    var map = {
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl,
+      x: 'https://twitter.com/intent/tweet?text=' + shareTitle + '&url=' + shareUrl,
+      naver: 'https://share.naver.com/web/shareView.nhn?url=' + shareUrl + '&title=' + shareTitle,
+      band: 'https://band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + shareUrl,
+      line: 'https://social-plugins.line.me/lineit/share?url=' + shareUrl + '&text=' + shareTitle
+    };
+    if (map[type]) window.open(map[type], '_blank');
+  }
+  var sbs = document.querySelectorAll('.share [data-sns]');
+  for (var i = 0; i < sbs.length; i++) {
+    sbs[i].addEventListener('click', function () { snsShare(this.getAttribute('data-sns')); });
+  }
+
+  /* ---------- 댓글 ---------- */
+  function fmtTime(ts) {
+    var diff = Date.now() - ts, min = Math.floor(diff / 60000);
+    if (min < 1) return '방금 전';
+    if (min < 60) return min + '분 전';
+    var hr = Math.floor(min / 60);
+    if (hr < 24) return hr + '시간 전';
+    var day = Math.floor(hr / 24);
+    if (day < 7) return day + '일 전';
+    return new Date(ts).toLocaleDateString('ko-KR');
+  }
+  function msg(text, cls) {
+    var d = document.createElement('div'); d.className = 'ce'; d.textContent = text;
+    if (cls) d.style.color = cls;
+    return d;
+  }
+  var loaded = false;
+  function load() {
+    loaded = true;
+    var box = $('cmtList');
+    fetch(API + '?game_id=' + encodeURIComponent(GID))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        box.innerHTML = '';
+        var list = data && data.comments ? data.comments : [];
+        if (!list.length) { box.appendChild(msg('아직 댓글이 없어요. 첫 댓글을 남겨보세요!')); return; }
+        list.forEach(function (c) {
+          var item = document.createElement('div'); item.className = 'ci';
+          var h = document.createElement('div'); h.className = 'ch';
+          var n = document.createElement('span'); n.className = 'cn'; n.textContent = c.nickname;
+          var t = document.createElement('span'); t.className = 'ct'; t.textContent = fmtTime(c.created_at);
+          h.appendChild(n); h.appendChild(t);
+          var body = document.createElement('div'); body.className = 'cc'; body.textContent = c.content;
+          item.appendChild(h); item.appendChild(body);
+          box.appendChild(item);
+        });
+      })
+      .catch(function () { box.innerHTML = ''; box.appendChild(msg('댓글을 불러오지 못했어요.', '#f87171')); });
+  }
+  // 도구만 쓰고 가는 방문자가 많아서, 댓글 영역이 화면 근처에 올 때 불러온다.
+  var card = $('cmtCard');
+  if (card && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting && !loaded) { io.disconnect(); load(); }
+    }, { rootMargin: '300px' });
+    io.observe(card);
+  } else { load(); }
+
+  try { var nk = localStorage.getItem('hp_cmt_nick'); if (nk) $('cmtNick').value = nk; } catch (e) {}
+
+  $('cmtSubmit').addEventListener('click', function () {
+    var nickEl = $('cmtNick'), contentEl = $('cmtContent'), st = $('cmtStatus'), btn = this;
+    var nickname = nickEl.value.trim(), content = contentEl.value.trim();
+    if (!nickname || !content) { st.textContent = '닉네임과 댓글을 모두 입력해주세요'; st.style.color = '#f87171'; return; }
+    btn.disabled = true; st.textContent = '등록 중...'; st.style.color = '#94a3b8';
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game_id: GID, nickname: nickname, content: content }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) { st.textContent = (res.d && res.d.error) || '등록에 실패했어요'; st.style.color = '#f87171'; btn.disabled = false; return; }
+        try { localStorage.setItem('hp_cmt_nick', nickname); } catch (e) {}
+        contentEl.value = ''; st.textContent = '등록됐어요!'; st.style.color = '#22c55e';
+        load();
+        setTimeout(function () { st.textContent = ''; btn.disabled = false; }, 30000);   // 연속 등록 방지
+      })
+      .catch(function () { st.textContent = '네트워크 오류가 발생했어요'; st.style.color = '#f87171'; btn.disabled = false; });
+  });
+
+  // 결과 화면의 "후기·추천 남기기" 버튼이 부른다: 댓글 영역으로 이동하고 결과 장소 문구를 미리 채운다.
+  window.hpCommentPrefill = function (text) {
+    var ta = $('cmtContent');
+    if (!card || !ta) return;
+    if (!ta.value.trim()) ta.value = String(text).slice(0, 300);
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () {
+      try { ta.focus({ preventScroll: true }); var n = ta.value.length; ta.setSelectionRange(n, n); } catch (e) {}
+    }, 500);
+  };
+})();
+</script>
+
+<script>
+    fetch('/footer.html')
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+            var footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                var newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 본문 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>
