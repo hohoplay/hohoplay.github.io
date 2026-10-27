@@ -1,910 +1,254 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <!-- ═══ Kakao SDK (실제 공유 기능) ═══ -->
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
-      crossorigin="anonymous"></script>
-    <script>
-      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
-    </script>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>호호플레이(HOHO PLAY) | 궁금한 점 검색 · 무료 웹게임 · 운세 · 아이랑 나들이</title>
-    <meta name="description" content="호호플레이(HOHO PLAY)에서 게임 공략, 운세, 꿈해몽, 아이랑 나들이 장소까지 궁금한 점을 한 번에 검색하세요. 설치·가입 없이 즐기는 무료 웹게임도 만나보세요.">
-    <link rel="canonical" href="https://hohoplaylab.com/">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="HOHO PLAY">
-    <meta property="og:title" content="호호플레이(HOHO PLAY) | 궁금한 점 검색 · 무료 웹게임 · 운세 · 아이랑 나들이">
-    <meta property="og:description" content="게임 공략, 운세, 꿈해몽, 아이랑 나들이 장소까지 궁금한 점을 한 번에 검색하세요.">
-    <meta property="og:url" content="https://hohoplaylab.com/">
-    <meta property="og:image" content="https://hohoplaylab.com/data/banner.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="호호플레이(HOHO PLAY) | 궁금한 점 검색 · 무료 웹게임 · 운세 · 아이랑 나들이">
-    <meta name="twitter:description" content="게임 공략, 운세, 꿈해몽, 아이랑 나들이 장소까지 궁금한 점을 한 번에 검색하세요.">
-    <meta name="twitter:image" content="https://hohoplaylab.com/data/banner.png">
-    <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"WebSite","name":"HOHO PLAY","alternateName":"호호플레이","url":"https://hohoplaylab.com/","inLanguage":"ko","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://hohoplaylab.com/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
-    </script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VGTXTM4R91');
-    </script>
-    <!-- 캐시 방지: 제작자가 파일 수정 시 항상 최신 버전 로드 -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- ═══ Google AdSense ═══ -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans KR', sans-serif; }
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 5px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4338ca; }
-
-        /* ═══ 배너 슬라이드 ═══ */
-        .bn-wrap { position: relative; margin: 0 -16px 22px; }
-        .bn-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; }
-        .bn-track::-webkit-scrollbar { display: none; }
-        .bn-slide {
-            flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow: hidden;
-            min-height: 310px; display: flex; align-items: center; color: #fff; padding: 38px 26px 62px; box-sizing: border-box;
-        }
-        .bn-slide::before { content: ""; position: absolute; inset: 0; pointer-events: none;
-            background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.22), transparent 46%), radial-gradient(circle at 92% 100%, rgba(255,255,255,.16), transparent 42%); }
-        .bn-s1 { background: linear-gradient(135deg, #1e1b4b 0%, #5b21b6 55%, #db2777 100%); }
-        .bn-s2 { background: linear-gradient(135deg, #064e3b 0%, #0f766e 50%, #0ea5e9 100%); }
-        .bn-s3 { background: linear-gradient(135deg, #1e3a8a 0%, #4f46e5 55%, #a855f7 100%); }
-        .bn-s4 { background: linear-gradient(135deg, #7c2d12 0%, #ea580c 55%, #f59e0b 100%); }
-        .bn-deco { position: absolute; right: -6px; bottom: -22px; font-size: 168px; line-height: 1; opacity: .24; pointer-events: none; transform: rotate(-8deg); }
-        .bn-txt { position: relative; z-index: 2; max-width: 540px; }
-        .bn-tag {
-            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; margin-bottom: 14px;
-            font-size: 12px; font-weight: 800; letter-spacing: .03em; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
-            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-        }
-        .bn-title { font-size: clamp(1.65rem, 6.4vw, 2.8rem); font-weight: 900; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 10px; }
-        .bn-title em { font-style: normal; background: linear-gradient(90deg, #fde68a, #fbcfe8, #a5f3fc, #fde68a); background-size: 200% 100%;
-            -webkit-background-clip: text; background-clip: text; color: transparent; animation: shShine 5s linear infinite; }
-        .bn-sub { font-size: clamp(.88rem, 3.3vw, 1.05rem); color: rgba(255,255,255,.9); line-height: 1.65; margin: 0 0 20px; }
-        .bn-btns { display: flex; flex-wrap: wrap; gap: 8px; }
-        .bn-cta { display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border-radius: 999px; background: #fff; color: #1e1b4b;
-            font-weight: 900; font-size: 14px; text-decoration: none; box-shadow: 0 8px 22px rgba(0,0,0,.22); transition: transform .15s; }
-        .bn-cta:hover { transform: translateY(-2px); }
-        .bn-cta.ghost { background: rgba(255,255,255,.16); color: #fff; border: 1px solid rgba(255,255,255,.45); box-shadow: none; }
-        .bn-dots { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 8px; z-index: 3; }
-        .bn-dot { width: 8px; height: 8px; padding: 0; border: none; border-radius: 999px; background: rgba(255,255,255,.5); cursor: pointer; transition: width .25s, background .25s; }
-        .bn-dot.on { width: 26px; background: #fff; }
-        .bn-arrow { display: none; }
-        @media (min-width: 768px) {
-            .bn-wrap { margin: 0 0 26px; }
-            .bn-track { border-radius: 28px; }
-            .bn-slide { min-height: 370px; padding: 52px 72px 68px; }
-            .bn-deco { right: 56px; bottom: -34px; font-size: 280px; opacity: .3; }
-            .bn-arrow { display: flex; position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 44px; height: 44px; border-radius: 50%;
-                align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 18px;
-                background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-            .bn-arrow:hover { background: rgba(255,255,255,.35); }
-            .bn-prev { left: 18px; } .bn-next { right: 18px; }
-        }
-
-        /* ═══ 검색 바 (배너 아래) ═══ */
-        .sb-wrap { position: relative; z-index: 20; margin: 0 0 22px; }
-        .sb-label { display: flex; align-items: center; gap: 6px; margin: 0 6px 10px; font-size: 14px; font-weight: 900; color: #4c1d95; }
-        .sh-box { position: relative; text-align: left; }
-        .sh-ring {
-            padding: 3px; border-radius: 999px;
-            background: linear-gradient(90deg, #f472b6, #a78bfa, #60a5fa, #34d399, #fde68a, #f472b6);
-            background-size: 300% 100%;
-            animation: shFlow 7s linear infinite;
-            box-shadow: 0 0 0 5px rgba(167,139,250,.14), 0 12px 32px rgba(124,58,237,.25);
-            transition: box-shadow .25s, transform .25s;
-        }
-        .sh-ring:focus-within { box-shadow: 0 0 0 6px rgba(167,139,250,.28), 0 0 40px rgba(167,139,250,.7), 0 14px 36px rgba(124,58,237,.3); transform: translateY(-1px); }
-        .sh-field { position: relative; display: flex; align-items: center; background: #fff; border-radius: 999px; }
-        .sh-lead { flex: none; padding-left: 20px; display: flex; color: #7c3aed; }
-        .sh-input {
-            flex: 1; min-width: 0; border: none; outline: none; background: transparent;
-            padding: 16px 10px 16px 12px; font-size: 16px; font-weight: 500; color: #0f172a; font-family: inherit;
-        }
-        .sh-input::placeholder { color: #94a3b8; font-weight: 400; }
-        .sh-go {
-            flex: none; margin: 5px; height: 44px; padding: 0 22px; border: none; cursor: pointer; border-radius: 999px;
-            font-family: inherit; font-weight: 900; font-size: 15px; color: #fff; display: flex; align-items: center; gap: 6px;
-            background: linear-gradient(135deg, #7c3aed, #db2777);
-            box-shadow: 0 6px 18px rgba(124,58,237,.45);
-            transition: transform .15s, box-shadow .15s;
-        }
-        .sh-go:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(219,39,119,.5); }
-        .sh-go:active { transform: scale(.97); }
-        .sh-go span.t { display: inline; }
-        @media (max-width: 480px) {
-            .sh-go { padding: 0; width: 44px; justify-content: center; }
-            .sh-go span.t { display: none; }
-            .sh-lead { padding-left: 15px; }
-            .sh-input { padding: 15px 6px 15px 8px; }
-        }
-
-        .sh-recent {
-            display: none; position: absolute; top: calc(100% + 10px); left: 0; right: 0; z-index: 30;
-            background: #fff; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 20px;
-            box-shadow: 0 20px 48px rgba(15,23,42,.28); overflow: hidden;
-        }
-        .sh-recent-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid #f1f5f9; }
-        .sh-recent-head b { font-size: 12px; font-weight: 800; color: #94a3b8; }
-        .sh-recent-head button { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: 700; padding: 2px 4px; }
-        .sh-recent-row { display: flex; align-items: center; gap: 10px; padding: 11px 18px; cursor: pointer; }
-        .sh-recent-row:hover { background: #f5f3ff; }
-        .sh-recent-row span { flex: 1; font-size: 14px; color: #334155; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .sh-recent-row button { background: none; border: none; cursor: pointer; color: #cbd5e1; font-size: 18px; line-height: 1; padding: 4px; }
-        .sh-hotbox { padding: 14px 18px 16px; border-top: 1px solid #f1f5f9; }
-        .sh-hotbox:first-child { border-top: none; }
-        .sh-hotbox b { display: block; font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 10px; }
-        .sh-hotchips { display: flex; flex-wrap: wrap; gap: 8px; }
-        .sh-chip {
-            border: 1px solid #ddd6fe; background: #f5f3ff; color: #6d28d9;
-            padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-            transition: background .15s, color .15s, transform .15s;
-        }
-        .sh-chip:hover { background: #7c3aed; color: #fff; transform: translateY(-2px); }
-
-        /* 바로가기: 모바일 4x2, PC 8x1 */
-        .sh-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 30px; }
-        .sh-link {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 2px 12px; min-width: 0;
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; text-decoration: none;
-            font-size: 12px; font-weight: 800; color: #334155; text-align: center; line-height: 1.3; word-break: keep-all;
-            transition: transform .15s, border-color .15s, box-shadow .15s;
-        }
-        .sh-link i { font-style: normal; font-size: 24px; line-height: 1; }
-        .sh-link:hover { transform: translateY(-3px); border-color: #a5b4fc; box-shadow: 0 10px 24px rgba(79,70,229,.14); color: #4338ca; }
-        @media (min-width: 768px) {
-            .sh-links { grid-template-columns: repeat(8, 1fr); gap: 10px; margin-bottom: 34px; }
-        }
-
-        /* 결과 */
-        #sh-results { display: none; margin: 0 0 30px; }
-        .sh-res-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .sh-res-head h2 { font-size: 15px; font-weight: 900; color: #1e293b; margin: 0; }
-        .sh-res-head h2 b { color: #7c3aed; }
-        .sh-res-head button { background: #f1f5f9; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 800; color: #64748b; cursor: pointer; font-family: inherit; }
-        .sh-res-head button:hover { background: #e2e8f0; }
-        .sh-res {
-            display: flex; align-items: center; gap: 14px; padding: 16px 18px; margin-bottom: 8px; border-radius: 16px;
-            background: #fff; border: 1px solid #eef2f7; text-decoration: none; color: inherit;
-            transition: box-shadow .15s, border-color .15s, transform .15s;
-        }
-        a.sh-res:hover { box-shadow: 0 8px 24px rgba(79,70,229,.12); border-color: #c7d2fe; transform: translateY(-1px); }
-        .sh-res .ic { font-size: 24px; flex: none; }
-        .sh-res .bd { flex: 1; min-width: 0; }
-        .sh-res .nm { font-weight: 800; font-size: 14px; color: #1e293b; margin-bottom: 2px; }
-        .sh-res .sn { font-size: 12px; color: #94a3b8; line-height: 1.55; }
-        .sh-empty { text-align: center; padding: 44px 0; color: #94a3b8; font-size: 14px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 16px; }
-
-        @keyframes shFlow { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
-        @keyframes shShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-        @media (prefers-reduced-motion: reduce) {
-            .sh-ring, .bn-title em { animation: none !important; }
-        }
-
-        /* 소개 */
-        .home-about { color: #475569; line-height: 1.85; font-size: 14px; }
-        .home-about h2 { font-size: 1.1rem; font-weight: 900; color: #1e293b; margin: 0 0 8px; }
-        .home-about a { color: #4f46e5; text-decoration: underline; }
-    </style>
-    <!-- ═══ 캐시 버스팅 & 자동 업데이트 감지 ═══ -->
-    <script>
-    (function() {
-        var CHECK_INTERVAL = 2 * 60 * 1000;
-        var _lastChecked = 0;
-        function checkVersion(force) {
-            var now = Date.now();
-            if (!force && now - _lastChecked < 10000) return;
-            _lastChecked = now;
-            fetch('/version.json?_=' + now, {
-                cache: 'no-store',
-                headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
-            })
-            .then(function(r) { if (!r.ok) throw new Error('fetch fail'); return r.json(); })
-            .then(function(data) {
-                var stored = sessionStorage.getItem('_app_version');
-                if (!stored) {
-                    sessionStorage.setItem('_app_version', data.version);
-                } else if (stored !== data.version) {
-                    sessionStorage.setItem('_app_version', data.version);
-                    var banner = document.getElementById('_update_banner');
-                    if (banner) banner.style.display = 'flex';
-                }
-            })
-            .catch(function() { /* 로컬/오프라인 무시 */ });
-        }
-        window.addEventListener('load', function() {
-            setTimeout(function(){ checkVersion(true); }, 1000);
-            setInterval(function(){ checkVersion(false); }, CHECK_INTERVAL);
-        });
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') checkVersion(true);
-        });
-        window.addEventListener('focus', function() { checkVersion(true); });
-    })();
-    </script>
-  <meta name="build-version" content="20261026172052_7738ead0">
+<!-- [ADD] 2026-10-10: 애드센스 광고 코드가 개별 글(community_post_template.html)에는
+     있는데 이 매거진 "목록" 페이지에는 빠져있었음 — 애드센스 품질 심사에서
+     "광고 코드가 누락되었거나 불완전한 경우"로 잡힐 수 있어 개별 글과 동일하게 추가. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VGTXTM4R91');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티</title>
+<meta name="description" content="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.">
+<link rel="canonical" href="https://hohoplaylab.com/blog/magazine/">
+<meta property="og:title" content="호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티">
+<meta property="og:description" content="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.">
+<meta property="og:url" content="https://hohoplaylab.com/blog/magazine/">
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+body { font-family: 'Noto Sans KR', sans-serif; }
+.post-list { list-style: none; padding: 0; margin: 0; }
+.post-item { display: block; padding: 16px 0; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit; }
+.post-title { font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+.post-excerpt {
+    font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 8px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.post-meta { font-size: 12px; color: #94a3b8; }
+.post-meta span { margin-right: 10px; }
+.empty { color: #94a3b8; font-size: 14px; padding: 40px 0; text-align: center; list-style: none; }
+.back-link { display: inline-block; margin-top: 28px; color: #4f46e5; font-weight: 700; text-decoration: none; font-size: 14px; }
+</style>
+<!-- [ADD] 2026-10-27: 이 목록 페이지는 /footer.html 을 불러오지 않아 공통 모바일 2열 메뉴 CSS(mm-compact)가
+     적용되지 않았음 — footer.html 의 동일 블록을 head 에 직접 넣는다. 767px 이하에서만 적용. -->
+<style id="mm-compact">
+  @media (max-width: 767px) {
+    #mobile-menu > div, #game-mobile-menu > div { display: grid !important; grid-template-columns: 1fr 1fr; gap: 2px 8px !important; padding: 6px 14px 10px !important; }
+    #mobile-menu > div > *, #game-mobile-menu > div > * { margin: 0 !important; min-width: 0; }
+    #mobile-menu > div > div, #game-mobile-menu > div > div { grid-column: 1 / -1; }
+    #mobile-menu > div > div.border-t, #game-mobile-menu > div > div[style*="border-top"] { margin: 4px 0 !important; }
+    #mobile-menu a, #mobile-menu button, #game-mobile-menu a { padding: 9px 12px !important; line-height: 1.3 !important; font-size: 14px !important; }
+  }
+</style>
+  <meta name="build-version" content="20261027023809_dbadad06">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
-
-    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="location.href='/'">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
-                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                </div>
-                <div class="hidden md:flex space-x-2 items-center">
-                    <div class="relative group">
-                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="absolute left-0 top-full mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <button onclick="location.href='/game/'" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</button>
-                            <a href="/vote/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
-                            <a href="/quiz/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
-                            <a href="/fortune/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">운세</a>
-                        </div>
-                    </div>
-                    <div class="relative group">
-                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <button onclick="navigateTo('blog')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</button>
-                            <button onclick="location.href = '/blog/magazine/'" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">호호 매거진</button>
-                            <a href="/festival/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
-                            <a href="/guides/index.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
-                            <a href="/dream/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
-                            <button onclick="navigateTo('partner')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</button>
-                        </div>
-                    </div>
-                    <div class="relative group">
-                        <button class="text-slate-400 hover:text-slate-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <button onclick="navigateTo('terms')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">이용약관</button>
-                            <button onclick="navigateTo('privacy')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">개인정보처리방침</button>
-                            <button onclick="navigateTo('copyright')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">저작권·콘텐츠 정책</button>
-                            <button onclick="navigateTo('guide')" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">FAQ</button>
-                        </div>
+<nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20 items-center">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
+                <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+            </a>
+            <div class="hidden md:flex space-x-2 items-center">
+                <div class="relative group">
+                    <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                    <div class="absolute left-0 top-full mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <a href="/game/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</a>
+                        <a href="/vote/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
+                        <a href="/quiz/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
+                        <a href="/fortune/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">운세</a>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 sm:gap-3">
-
-                    <!-- 검색 바로가기 아이콘 -->
-                    <button type="button" onclick="shFocusBar()" aria-label="검색" class="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                    </button>
-                    <!-- 햄버거 버튼 (모바일) -->
-                    <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
-                        <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
-                        <span id="bar2" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
-                        <span id="bar3" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- 모바일 드롭다운 메뉴 -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t shadow-lg">
-            <div class="px-4 py-4 space-y-1">
-                
-                <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">🎮 플레이하기</div>
-                <button onclick="location.href='/game/'" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</button>
-                <a href="/vote/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">익명투표</a>
-                <a href="/quiz/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">상식테스트</a>
-                <a href="/fortune/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">운세</a>
-
-                <div class="border-t my-2"></div>
-                <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">💬 소통·정보</div>
-                <button onclick="mobileNav('blog')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</button>
-                <button onclick="toggleMenu(); location.href = '/blog/magazine/'" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">호호 매거진</button>
-                <a href="/festival/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">아이랑 나들이 지도</a>
-                <a href="/guides/index.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">게임공략</a>
-                <a href="/dream/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">꿈해몽 사전</a>
-                <button onclick="mobileNav('partner')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</button>
-
-                <div class="border-t my-2"></div>
-                <button onclick="mobileNav('terms')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">이용약관</button>
-                <button onclick="mobileNav('privacy')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">개인정보처리방침</button>
-                <button onclick="mobileNav('copyright')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">저작권·콘텐츠 정책</button>
-                <button onclick="mobileNav('guide')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">FAQ</button>
-            </div>
-        </div>
-    </nav>
-    <!-- 모바일 메뉴 오버레이 (햄버거 열릴 때 게임 클릭 방지) -->
-    <div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
-
-    <!-- 메인 콘텐츠 영역 -->
-    <main id="content" class="flex-grow max-w-5xl mx-auto w-full px-4 pt-0 md:pt-6 pb-8">
-        <h1 class="sr-only">호호플레이(HOHO PLAY) - 무료 웹게임 · 운세 · 아이랑 나들이 통합 검색</h1>
-
-        <!-- 배너 슬라이드 -->
-        <section class="bn-wrap" aria-roledescription="carousel" aria-label="호호플레이 추천">
-            <div class="bn-track" id="bn-track">
-                <div class="bn-slide bn-s1" aria-label="1 / 4">
-                    <span class="bn-deco" aria-hidden="true">🔮</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🔮 오늘의 운세</span>
-                        <h2 class="bn-title">오늘의 운세 <em>모험</em>,<br>시작해 볼까요?</h2>
-                        <p class="bn-sub">오늘 하루를 모험처럼! 지금 바로 시작해 보세요.</p>
-                        <div class="bn-btns">
-                            <a class="bn-cta" href="/fortune-adventure.html">모험 시작하기 →</a>
-                            <a class="bn-cta ghost" href="/fortune/">오늘의 운세 보기</a>
-                        </div>
+                <div class="relative group">
+                    <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                    <div class="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <a href="/blog/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</a>
+                        <a href="/blog/magazine/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-indigo-600 bg-indigo-50 transition">호호 매거진</a>
+                        <a href="/festival/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
+                        <a href="/guides/index.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
+                        <a href="/dream/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
+                        <a href="#" onclick="goPartner();return false;" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</a>
                     </div>
                 </div>
-                <div class="bn-slide bn-s2" aria-label="2 / 4">
-                    <span class="bn-deco" aria-hidden="true">🎪</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🗺️ 아이랑 나들이 지도</span>
-                        <h2 class="bn-title">이번 주말,<br>아이랑 <em>어디 갈까요?</em></h2>
-                        <p class="bn-sub">전국의 축제와 가볼 만한 곳을 지도에서 지역별로 찾아보세요.</p>
-                        <div class="bn-btns"><a class="bn-cta" href="/festival/">지도 열기 →</a></div>
-                    </div>
-                </div>
-                <div class="bn-slide bn-s3" aria-label="3 / 4">
-                    <span class="bn-deco" aria-hidden="true">🎮</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🎮 무료 웹게임</span>
-                        <h2 class="bn-title">설치 없이 바로 즐기는<br><em>웹게임 10종</em></h2>
-                        <p class="bn-sub">타이핑·퍼즐·러닝·레이싱까지, 가입 없이 브라우저에서 바로.</p>
-                        <div class="bn-btns"><a class="bn-cta" href="/game/">게임 하러 가기 →</a></div>
-                    </div>
-                </div>
-                <div class="bn-slide bn-s4" aria-label="4 / 4">
-                    <span class="bn-deco" aria-hidden="true">🗳️</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🧠 이번 주 코너</span>
-                        <h2 class="bn-title">투표하고, <em>퀴즈</em> 풀고</h2>
-                        <p class="bn-sub">매주 새 주제로 열리는 익명투표와 5문제 상식테스트.</p>
-                        <div class="bn-btns">
-                            <a class="bn-cta" href="/vote/">익명투표 →</a>
-                            <a class="bn-cta ghost" href="/quiz/">상식테스트</a>
-                        </div>
+                <div class="relative group">
+                    <button class="text-slate-400 hover:text-slate-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                    <div class="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <a href="/terms/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">이용약관</a>
+                        <a href="/privacy/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">개인정보처리방침</a>
+                        <a href="/copyright/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">저작권·콘텐츠 정책</a>
+                        <a href="/guide/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">FAQ</a>
                     </div>
                 </div>
             </div>
-            <button type="button" class="bn-arrow bn-prev" id="bn-prev" aria-label="이전 배너">&#10094;</button>
-            <button type="button" class="bn-arrow bn-next" id="bn-next" aria-label="다음 배너">&#10095;</button>
-            <div class="bn-dots" id="bn-dots">
-                <button type="button" class="bn-dot on" aria-label="배너 1"></button>
-                <button type="button" class="bn-dot" aria-label="배너 2"></button>
-                <button type="button" class="bn-dot" aria-label="배너 3"></button>
-                <button type="button" class="bn-dot" aria-label="배너 4"></button>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
+                    <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                    <span id="bar2" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                    <span id="bar3" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                </button>
             </div>
-        </section>
-
-        <!-- 검색 바 + 결과 -->
-        <section class="sb-wrap" id="sb-wrap" aria-label="호호플레이 검색">
-            <div class="sb-label">🔎 궁금한 점, 호호플레이에서 바로 찾아보세요</div>
-            <form class="sh-box" id="sh-form" role="search" onsubmit="return shSubmit(event)">
-                <div class="sh-ring">
-                    <div class="sh-field">
-                        <span class="sh-lead" aria-hidden="true">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                        </span>
-                        <input id="sh-input" class="sh-input" type="search" name="q" autocomplete="off" enterkeyhint="search"
-                               placeholder="호호플레이 궁금한 점을 검색해보세요" aria-label="호호플레이 궁금한 점 검색"
-                               onfocus="shShowRecent();shFocusScroll()" onblur="shHideRecentLater()">
-                        <button type="submit" class="sh-go" aria-label="검색">
-                            <span class="t">검색</span>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                        </button>
-                    </div>
-                </div>
-                <div id="sh-recent" class="sh-recent"></div>
-            </form>
-        </section>
-
-        <!-- 검색 결과 (검색 바 바로 아래) -->
-        <section id="sh-results" aria-live="polite"></section>
-
-        <!-- 바로가기 -->
-        <nav class="sh-links" aria-label="바로가기">
-            <a class="sh-link" href="/game/"><i>🎮</i>전체게임</a>
-            <a class="sh-link" href="/fortune/"><i>🔮</i>오늘의 운세</a>
-            <a class="sh-link" href="/dream/"><i>💭</i>꿈해몽 사전</a>
-            <a class="sh-link" href="/festival/"><i>🗺️</i>아이랑 나들이 지도</a>
-            <a class="sh-link" href="/vote/"><i>🗳️</i>익명투표</a>
-            <a class="sh-link" href="/quiz/"><i>🧠</i>상식테스트</a>
-            <a class="sh-link" href="/guides/index.html"><i>📖</i>게임공략</a>
-            <a class="sh-link" href="/blog/magazine/"><i>📰</i>호호 매거진</a>
-        </nav>
-
-        <!-- 호호픽 -->
-        <div id="hoho-pick-placeholder" style="margin-bottom:40px;"></div>
-
-        <!-- 소개 (크롤러·사용자 모두에게 보이는 정적 텍스트) -->
-        <section class="home-about" style="margin-bottom:24px;">
-            <h2>호호플레이는 이런 곳이에요</h2>
-            <p style="margin:0 0 10px;">
-                호호플레이(HOHO PLAY)는 회원가입이나 설치 없이 브라우저에서 바로 즐기는 무료 웹게임 포털입니다.
-                <a href="/game/">타이핑·퍼즐·러닝·레이싱 게임 10종</a>과 간단히 즐기는 미니게임 10종을 직접 만들어 제공하고,
-                사주·타로 등 계산 로직을 바탕으로 한 <a href="/fortune/">운세</a>와 키워드로 찾는 <a href="/dream/">꿈해몽 사전</a>도 함께 운영합니다.
-            </p>
-            <p style="margin:0;">
-                주말에 아이와 어디 갈지 고민될 때는 <a href="/festival/">아이랑 나들이 지도</a>에서 전국의 축제와 가볼 만한 곳을 지역별로 찾아보세요.
-                매주 새 주제로 열리는 <a href="/vote/">익명투표</a>, 5문제 <a href="/quiz/">상식테스트</a>,
-                <a href="/blog/magazine/">호호 매거진</a>도 준비되어 있습니다.
-            </p>
-        </section>
-    </main>
-
-    <div id="inquiry-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:20px;overflow-y:auto">
-        <div style="background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);max-width:520px;width:100%;padding:32px;position:relative;margin:auto">
-            <button onclick="closeInquiryModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;line-height:1">×</button>
-            <div style="text-align:center;margin-bottom:24px">
-                <span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:8px">Contact</span>
-                <h2 style="font-size:1.4rem;font-weight:900;color:#1e293b;margin:8px 0 4px">문의하기</h2>
-                <p style="font-size:13px;color:#94a3b8;margin:0">호호플레이에 대한 의견·제안·오류를 남겨주세요</p>
-            </div>
-            <div style="margin-bottom:16px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">이메일 <span style="color:#f87171">*</span></label>
-                <input id="iq-email" type="email" placeholder="example@email.com"
-                    style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box">
-            </div>
-            <div style="margin-bottom:16px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">문의 유형 <span style="color:#f87171">*</span></label>
-                <select id="iq-type"
-                    style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box">
-                    <option value="">선택해 주세요</option>
-                    <option value="bug">버그 신고</option>
-                    <option value="idea">개선 제안·아이디어</option>
-                    <option value="other">기타 문의</option>
-                </select>
-            </div>
-            <div style="margin-bottom:8px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">내용 <span style="color:#f87171">*</span></label>
-                <textarea id="iq-msg" rows="5" placeholder="어떤 기기·브라우저에서 발생했는지 함께 적어주시면 더 빠르게 확인할 수 있어요."
-                    style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;resize:vertical;min-height:100px"></textarea>
-            </div>
-            <!-- [ADD] 2026-10-19: 스팸 방지용 간단한 숫자 보안문자. 참고 사이트(alwayscorp.co.kr)의
-                 "4 + 5 = ?" 방식과 동일하게, 두 한 자리 숫자를 더하는 문제를 모달 열 때마다
-                 새로 뽑아서 보여주고, 제출 시 정답과 맞는지 확인한다. -->
-            <div style="margin-bottom:8px">
-                <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">보안문자 <span style="color:#f87171">*</span></label>
-                <div style="display:flex;align-items:center;gap:8px">
-                    <div id="iq-captcha-q" style="flex:1;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;color:#334155;text-align:center;user-select:none"></div>
-                    <input id="iq-captcha-a" type="text" inputmode="numeric" autocomplete="off" placeholder="정답"
-                        style="width:90px;flex:none;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;color:#1e293b;background:#fafafa;outline:none;box-sizing:border-box;text-align:center">
-                    <button type="button" onclick="refreshInquiryCaptcha()" aria-label="보안문자 새로고침"
-                        style="flex:none;width:44px;height:44px;border-radius:12px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center">↻</button>
-                </div>
-            </div>
-            <div id="iq-error" style="display:none;margin-top:10px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600"></div>
-            <div id="iq-success" style="display:none;margin-top:10px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center">
-                메일 앱이 열립니다. 내용을 확인하고 전송해 주세요!
-            </div>
-            <button id="iq-btn" onclick="submitInquiry()"
-                style="margin-top:18px;width:100%;background:#4f46e5;color:#fff;padding:14px;border-radius:14px;font-weight:900;font-size:15px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-                <span id="iq-btn-text">문의 보내기</span>
-                <span id="iq-spin" style="display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:iqSpin .7s linear infinite"></span>
-            </button>
         </div>
     </div>
-    <style>@keyframes iqSpin { to { transform:rotate(360deg); } }</style>
-    <script>
-        const INQUIRY_GAME_NAME = "호호플레이";
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t shadow-lg">
+        <div class="px-4 py-4 space-y-1">
+            <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">🎮 플레이하기</div>
+            <a href="/game/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</a>
+            <a href="/vote/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
+            <a href="/quiz/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
+            <a href="/fortune/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">운세</a>
+            <div class="border-t my-2"></div>
+            <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">💬 소통·정보</div>
+            <a href="/blog/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</a>
+            <a href="/blog/magazine/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-indigo-600 bg-indigo-50 transition">호호 매거진</a>
+            <a href="/festival/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
+            <a href="/guides/index.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
+            <a href="/dream/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
+            <a href="#" onclick="goPartner();return false;" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</a>
+            <div class="border-t my-2"></div>
+            <a href="/terms/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">이용약관</a>
+            <a href="/privacy/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">개인정보처리방침</a>
+            <a href="/copyright/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">저작권·콘텐츠 정책</a>
+            <a href="/guide/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">FAQ</a>
+        </div>
+    </div>
+</nav>
+<div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
+<main class="flex-grow max-w-3xl mx-auto w-full px-4 py-10">
+<h1 style="font-size:1.6rem;font-weight:900;margin-bottom:6px">📖 호호 매거진</h1>
+<p class="intro">호호플레이(HOHO PLAY)의 호호 매거진 게시글을 모아봅니다.</p>
+<ul class="post-list">
+<li><a class="post-item" href="/blog/magazine/41.html"><div class="post-title">같은 타로 카드가 나와도 결과가 180도 다른 이유: MBTI 4대 기질별 &#x27;전차&#x27; 카드 해석 비교</div><p class="post-excerpt">같은 타로 카드가 나와도 결과가 180도 다른 이유: MBTI 4대 기질별 &#x27;전차&#x27; 카드 해석 비교 1. 왜 똑같은 카드가 나와도 사람마다 다르게 느껴질까?: 타로와 MBTI 결합의 본질 우리는 삶의 중요한 기로에 서거나 마음속 깊은 고민을 안게 될 때 방향을 잡기 위해 타로 카드를 펼쳐 들곤 합니다. 하지만 누구나 한 번쯤 &quot;이 카드, 지난번에도 나왔는데</p><div class="post-meta"><span>2026.10.26</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/40.html"><div class="post-title">쿠키리스(Cookie-less) 시대와 웹 프라이버시: 내 정보는 왜 자꾸 수집될까?</div><p class="post-excerpt">쿠키리스(Cookie-less) 시대와 웹 프라이버시: 내 정보는 왜 자꾸 수집될까? 인터넷을 이용하다 보면 누구나 한 번쯤 기이한 경험을 하곤 합니다. 낮에 검색창에 검색했던 상품이나 관심사가 잠시 후 접속한 뉴스 기사 하단, SNS 피드, 혹은 전혀 관련 없는 웹사이트의 포너 광고로 그대로 노출되는 현상입니다. &quot;내 휴대폰이 내 목소리나 화면을 도청하고</p><div class="post-meta"><span>2026.10.24</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/39.html"><div class="post-title">아이와 함께하는 나들이 필수 체크리스트 &amp; 실패 없는 준비 팁</div><p class="post-excerpt">아이와 함께하는 나들이 필수 체크리스트 &amp;amp; 실패 없는 준비 팁 1. 실패 없는 나들이를 위한 연령별 필수 가방 짐 싸기 체크리스트 어린 자녀를 동반한 나들이는 준비해야 할 짐부터 이동 동선, 현장 변수까지 챙겨야 할 요소가 많습니다. 특히 현장에 도착해서야 여벌 옷이나 젖병을 두고 온 사실을 깨달았을 때 부모가 겪는 당황스러움은 큽니다. 부모의 철저</p><div class="post-meta"><span>2026.10.23</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/38.html"><div class="post-title">뇌 풀기 미니게임의 과학: 퍼즐과 타자 게임이 두뇌에 미치는 긍정적 영향</div><p class="post-excerpt">뇌 풀기 미니게임의 과학: 퍼즐과 타자 게임이 두뇌에 미치는 긍정적 영향 매일 아침 복잡한 대중교통에 시달리며 출근하고, 모니터 앞에서 쏟아지는 업무와 메일을 처리하다 보면 오후 즈음 머리가 멍해지고 집중력이 뚝 떨어지는 경험을 누구나 해보았을 것입니다. 3040 직장인이나 육아와 가사를 병행하는 학부모들에게 일상의 피로는 단순히 신체적인 지침을 넘어, 뇌</p><div class="post-meta"><span>2026.10.21</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/37.html"><div class="post-title">궁합과 운세: 사주로 보는 관계의 합과 현대적 해석</div><p class="post-excerpt">궁합과 운세: 사주로 보는 관계의 합과 현대적 해석 인간은 사회적 동물로서 태어나 평생 동안 수많은 사람들과 관계를 맺으며 살아갑니다. 가족, 연인, 친구, 그리고 직장 동료에 이르기까지 타인과 관계를 형성하고 소통하는 과정은 우리의 삶에서 가장 큰 비중을 차지하는 동시에 깊은 고민의 원천이 되기도 합니다. &quot;저 사람과는 왜 유독 마음이 잘 통할까?&quot;, 반</p><div class="post-meta"><span>2026.10.18</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/36.html"><div class="post-title">아이와 함께 떠나는 전국 축제 여행: 호호플레이 나들이 안내</div><p class="post-excerpt">아이와 함께 떠나는 전국 축제 여행: 호호플레이 나들이 안내 주말이나 휴일이 다가오면 어린 자녀를 둔 부모들의 고민은 깊어집니다. &quot;이번 주말에는 아이와 함께 어디로 가야 재미있고 유익한 시간을 보낼 수 있을까?&quot;라는 질문은 대한민국 부모들의 공통된 숙제이기도 합니다. 단순히 아이들의 에너지 발산에 그치는 장소가 아니라, 다양한 오감 체험과 온 가족이 함께</p><div class="post-meta"><span>2026.10.17</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/35.html"><div class="post-title">호호플레이 게임 아카이브: 설치 없는 웹 기반 캐주얼 미니게임의 매력과 가치</div><p class="post-excerpt">호호플레이 게임 아카이브: 설치 없는 웹 기반 캐주얼 미니게임의 매력과 가치 컴퓨터 앞에 앉아 픽셀 그래픽으로 이루어진 화면을 바라보며 키보드를 두드리던 시절의 기억은 누구나 가슴 한켠에 아련한 추억으로 자리 잡고 있습니다. 기술이 비약적으로 발전하고 스마트폰 하나로 초고화질의 3D 게임을 즐길 수 있는 시대가 되었음에도 불구하고, 오락실의 불빛이나 덜 다</p><div class="post-meta"><span>2026.10.15</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/34.html"><div class="post-title">호플레이(HoHoPlay)란 어떤 서비스인가요? 프라이버시와 투명성을 담은 디지털 콘텐츠 연구소</div><p class="post-excerpt">호호플레이(HoHoPlay)란 어떤 서비스인가요? 프라이버시와 투명성을 담은 디지털 콘텐츠 연구소 아침마다 가볍게 오늘의 운세를 확인하고, 마음이 복잡할 때 타로 카드를 펼쳐보며, 간밤에 꾼 꿈의 의미를 찾아보는 일은 현대인들이 일상 속에서 소소한 위안과 재미를 찾는 대표적인 방법입니다. 하지만 대다수의 인터넷 운세나 심리 테스트 사이트들은 과도한 광고를 </p><div class="post-meta"><span>2026.10.15</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/32.html"><div class="post-title">MBTI와 타로의 만남: 성격 유형에 따라 카드 해석과 행동 가이드가 완전히 달라지는 이유</div><p class="post-excerpt">MBTI와 타로의 만남: 성격 유형에 따라 카드 해석과 행동 가이드가 완전히 달라지는 이유 1. 타로 카드와 성격 심리학의 결합: MBTI가 더해져 완벽해지는 이유 우리는 삶의 중요한 선택 기로에 서거나 가벼운 호기심이 들 때 타로 카드를 펼쳐 들곤 합니다. 하지만 누구나 한 번쯤 &quot;똑같은 카드가 나왔는데, 내 성향이나 고민의 결에 왜 와닿지 않고 모호하게</p><div class="post-meta"><span>2026.10.13</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/31.html"><div class="post-title">꿈해몽에 MBTI를 더하다: 전통 해몽과 현대 성격 심리학의 만남</div><p class="post-excerpt">[상식] 꿈해몽에 MBTI를 더하다: 전통 해몽과 현대 성격 심리학의 만남 아침에 눈을 떴을 때 간밤에 꾼 생생한 꿈의 여운이 하루 종일 머릿속을 맴돌 때가 있습니다. 누군가에게는 단순한 무의식의 찌꺼기처럼 느껴지기도 하고, 또 다른 누군가에게는 앞으로 다가올 일에 대한 은밀한 경고나 예지처럼 다가오기도 합니다. 인류 역사상 가장 오래된 심리 탐구 수단 중</p><div class="post-meta"><span>2026.10.13</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/30.html"><div class="post-title">타로 카드 한 장에 과거·현재·미래가 담기는 이유</div><p class="post-excerpt">타로 카드 한 장에 과거·현재·미래가 담기는 이유 아침에 일어나 커피 한 잔을 마시며 오늘의 심리 상태를 점검하거나, 연애나 직장 문제로 마음이 복잡할 때 가볍게 펼쳐보는 타로 카드는 이제 많은 이들에게 친숙한 일상의 카운슬러가 되었습니다. 화려한 그림 속에 담긴 상징을 통해 내면의 무의식을 들여다보고 다가올 미래의 힌트를 얻는 타로 리딩은 단순한 미신을 </p><div class="post-meta"><span>2026.10.13</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/29.html"><div class="post-title">오늘의 운세, AI가 멋대로 지어내지 않는 이유</div><p class="post-excerpt">오늘의 운세, AI가 멋대로 지어내지 않는 이유 아침에 눈을 떠서 스마트폰을 켜고 가장 먼저 확인하는 콘텐츠 중 하나는 단연 &#x27;오늘의 운세&#x27;입니다. 하루의 시작을 가볍게 열어주는 활력소가 되기도 하고, 중요한 결정을 앞두고 마음의 위안을 얻는 작은 참고서가 되기도 합니다. 하지만 누구나 한 번쯤 &quot;이 수많은 운세 글들이 과연 진짜 내 사주를 계산해서 나오는</p><div class="post-meta"><span>2026.10.13</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/28.html"><div class="post-title">옛날에는 꿈해몽, 지금은 오늘운세: 인간의 미래 예측 문화와 운세 콘텐츠의 시대적 변천사</div><p class="post-excerpt">옛날에는 꿈해몽, 지금은 오늘운세: 인간의 미래 예측 문화와 운세 콘텐츠의 시대적 변천사 우리가 잠자는 동안 꾸는 기이한 꿈 내용을 해몽하며 하루의 길흉을 점치던 시대에서, 이제는 아침에 눈을 뜨자마자 스마트폰으로 오늘의 운세를 가볍게 확인하는 시대가 되었습니다. 미래를 미리 알고 불안감을 해소하고자 하는 인간의 본성은 변하지 않았지만, 이를 해독하고 소비</p><div class="post-meta"><span>2026.10.12</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/27.html"><div class="post-title">종이 만세력에서 AI 알고리즘까지: 오늘운세 계산기 시스템의 역사와 작동 원리</div><p class="post-excerpt">종이 만세력에서 AI 알고리즘까지: 오늘운세 계산기 시스템의 역사와 작동 원리 아침에 일어나 스마트폰 앱을 열고 생년월시를 입력하거나 클릭 몇 번으로 &#x27;오늘의 운세&#x27;를 확인하는 일은 많은 현대인들에게 익숙한 일상입니다. 과거에는 역술가나 무속인을 찾아가 복채를 내고 상담을 받아야 했던 명리학적 분석이, 이제는 누구나 손쉽게 디지털 기기로 접근할 수 있는 서</p><div class="post-meta"><span>2026.10.11</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/24.html"><div class="post-title">오락실을 주름잡던 추억의 명작: 서유기 게임(서유항마록)과 고인돌(Prehistorik) 게임의 역사</div><p class="post-excerpt">오락실을 주름잡던 추억의 명작: 서유기 게임(서유항마록)과 고인돌(Prehistorik) 게임의 역사 1980년대 후반부터 1990년대 초반, 오락실의 동전 쌓는 소리와 초창기 가정용 DOS PC의 삐- 소리는 당대 게이머들에게 잊을 수 없는 추억의 배경음이었습니다. 그 시절 오락실을 거쳐간 유저라면 누구나 여의봉을 휘두르던 손오공 게임을 기억할 것이며, </p><div class="post-meta"><span>2026.10.10</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/23.html"><div class="post-title">파라파 더 라퍼부터 리듬 세상까지: 리듬 게임(Rhythm Game)의 역사와 진화</div><p class="post-excerpt">파라파 더 라퍼부터 리듬 세상까지: 리듬 게임(Rhythm Game)의 역사와 진화 음악의 비트에 맞춰 정해진 타이밍에 버튼을 누르고 노트(Note)를 맞추는 &#x27;리듬 게임(Rhythm Game)&#x27;은 신나는 음악과 정교한 조작감이 결합하여 게이머들에게 독보적인 몰입감과 카타르시스를 선사하는 장르입니다. 시각적 반응 속도와 청각적 리듬감을 동시에 사용하는 이 </p><div class="post-meta"><span>2026.10.10</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/22.html"><div class="post-title">뉴욕 타임스부터 스마트폰 퍼즐까지: 십자말풀이(낱말퍼즐)의 역사와 진화</div><p class="post-excerpt">뉴욕 타임스부터 스마트폰 퍼즐까지: 십자말풀이(낱말퍼즐)의 역사와 진화 가로와 세로의 격자 판 위에 힌트를 바탕으로 단어를 채워 넣는 &#x27;낱말퍼즐(십자말풀이/Crossword Puzzle)&#x27;은 언어적 지식과 논리적 추론이 어우러진 대표적인 두뇌 퍼즐 장르입니다. 특별한 기기나 장치 없이 종이와 연필만으로 즐길 수 있었던 이 퍼즐은 신문 매체의 활황기와 디지털</p><div class="post-meta"><span>2026.10.05</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/21.html"><div class="post-title">슈퍼 마리오부터 쿠키런까지: 횡스크롤 달리기 게임(Endless Runner)의 역사와 진화</div><p class="post-excerpt">[매일 읽는 게임 상식] 슈퍼 마리오부터 쿠키런까지: 횡스크롤 달리기 게임(Endless Runner)의 역사와 진화 캐릭터가 멈추지 않고 앞으로 달려가며 장애물을 피하고 코인을 모으는 &#x27;횡스크롤 달리기 게임&#x27;은 단순한 조작만으로 극상의 몰입감을 선사하는 퍼즐 및 액션 플랫폼 장르입니다. 복잡한 튜토리얼 없이도 점프와 슬라이딩만으로 누구나 직관적으로 플레이</p><div class="post-meta"><span>2026.10.01</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/20.html"><div class="post-title">[게임 상식] 2048부터 스도쿠까지: 조합 숫자 퍼즐 게임의 역사와 규칙의 진화</div><p class="post-excerpt">[게임 상식] 2048부터 스도쿠까지: 조합 숫자 퍼즐 게임의 역사와 규칙의 진화 숫자를 더하고 조합하며 정해진 목표를 달성하는 &#x27;조합 숫자 퍼즐&#x27;은 화면 위의 간단한 숫자 배치를 통해 극상의 두뇌 재미를 선사하는 퍼즐 장르입니다. 복잡한 그래픽이나 화려한 연출 없이도 오직 논리와 계산, 그리고 공간 활용 능력만으로 플레이어를 몰입시키는 매력을 가지고 있습</p><div class="post-meta"><span>2026.09.30</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/16.html"><div class="post-title">[게임 상식] 마작 패에서 PC·모바일 국민 게임으로: 사천성(Shisen-Sho) 게임의 역사와 발전</div><p class="post-excerpt">[매일 읽는 게임 상식] 마작 패에서 PC·모바일 국민 게임으로: 사천성(Shisen-Sho) 게임의 역사와 발전 같은 그림의 패 두 개를 찾아 꺾이는 선으로 연결하여 제거하는 &#x27;사천성&#x27;은 직관적인 규칙과 강한 중독성으로 수십 년간 큰 사랑을 받아온 퍼즐 장르입니다. 마작 패를 사용하는 외형 때문에 중국이나 전통 보드게임에서 유래된 것으로 오해받기도 하지만</p><div class="post-meta"><span>2026.09.28</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/15.html"><div class="post-title">[게임 상식] 동키콩부터 점프킹까지: 점프 게임(Platformer)의 역사와 가로·세로 스크롤의 진화</div><p class="post-excerpt">[매일 읽는 게임 상식] 동키콩부터 점프킹까지: 점프 게임(Platformer)의 역사와 가로·세로 스크롤의 진화 게임을 즐기면서 캐릭터를 공중으로 점프시켜 장애물을 넘거나 발판을 밟고 올라가는 경험은 모든 게이머에게 가장 익숙한 플레이 방식 중 하나입니다. 이러한 메커니즘을 가진 장르를 보통 &#x27;플랫폼 게임(Platformer)&#x27; 또는 직관적으로 &#x27;점프 게</p><div class="post-meta"><span>2026.09.26</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/14.html"><div class="post-title">[게임 상식] 오락실에서 콘솔까지: 레트로 레이싱 게임의 역사와 명작들의 매력</div><p class="post-excerpt">[게임 상식] 오락실에서 콘솔까지: 레트로 레이싱 게임의 역사와 명작들의 매력 화려한 엔진 소리와 시원하게 펼쳐지는 도로를 따라 달리며 속도감을 즐기는 레이싱 장르는 게임 역사에서 가장 오랜 기간 사랑받아 온 핵심 분야 중 하나입니다. 특히 1980년대부터 1990년대 오락실과 가정용 콘솔을 풍미했던 레트로 레이싱 게임들은 제한된 기술력 속에서도 독창적인 </p><div class="post-meta"><span>2026.09.25</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/13.html"><div class="post-title">[게임 상식] 한컴 타자연습부터 3D 액션까지: 타자 게임(Typing Game)의 역사와 장르적 매력</div><p class="post-excerpt">한컴 타자연습부터 3D 액션까지: 타자 게임(Typing Game)의 역사와 장르적 매력 컴퓨터 앞에 앉아 키보드를 익힐 때 누구나 한 번쯤 경험해 보는 게임 장르가 있습니다. 화면 위에서 떨어지는 단어를 빠르게 입력해 지우거나, 밀려오는 적을 키보드 타이핑으로 물리치는 &#x27;타자 게임(Typing Game)&#x27;이 바로 그 주인공입니다. 타자 게임은 단순히 키보</p><div class="post-meta"><span>2026.09.23</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/12.html"><div class="post-title">[게임 상식] 게임 플레이 파밍(Farming)의 뜻과 효율적인 루팅 시스템 구조</div><p class="post-excerpt">[게임 상식] 게임 플레이 파밍(Farming)의 뜻과 효율적인 루팅 시스템 구조 게임을 즐기다 보면 캐릭터의 능력치를 높이거나 새로운 장비를 제작하기 위해 수많은 몬스터를 잡고 맵 곳곳을 탐색하는 시간을 보내게 됩니다. 이때 게이머들이 가장 흔하게 사용하는 용어가 바로 &#x27;파밍&#x27;입니다. 농사를 지어 곡식을 수확하듯, 시간과 노력을 들여 게임 내 재화나 아이</p><div class="post-meta"><span>2026.09.22</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/11.html"><div class="post-title">[게임 상식]2026년 최신 게임 상식 총정리: 초보 게이머가 자주 틀리는 용어와 최신 트렌드 완벽 가이드</div><p class="post-excerpt">2026년 최신 게임 상식 총정리: 초보 게이머가 자주 틀리는 용어와 최신 트렌드 완벽 가이드 최근 게임을 플레이하다 보면 줄임말이나 낯선 게임용어가 너무 많아 당황하는 경우가 많습니다. 게임 시장이 매년 성장하고 다변화되면서 게이머들 사이에서 사용되는 전문 용어와 시스템 메커니즘도 점점 복잡해지고 있습니다. 이번 가이드에서는 초보 게이머부터 플레이 경험이</p><div class="post-meta"><span>2026.09.21</span><span>👤 HOHO PLAY</span></div></a></li>
+<li><a class="post-item" href="/blog/magazine/10.html"><div class="post-title">[게임 상식] 웹브라우저 게임의 역사: 플래시 게임에서 HTML5 게임까지</div><p class="post-excerpt">[게임 상식] 웹브라우저 게임의 역사: 플래시 게임에서 HTML5 게임까지 웹브라우저 게임은 별도의 복잡한 설치 과정 없이 인터넷 연결과 브라우저만 있으면 언제 어디서나 즐길 수 있는 접근성을 바탕으로 성장해 왔습니다. 1990년대 후반 텍스트 기반의 인터랙티브 환경에서 출발하여, 플래시(Flash) 시대의 폭발적인 황금기를 거쳐 현대의 HTML5 플랫폼으</p><div class="post-meta"><span>2026.09.17</span><span>👤 HOHO PLAY</span></div></a></li>
+</ul>
+<a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>
 
-        // [ADD] 2026-10-19: 보안문자(스팸 방지용 간단 산수 문제) 정답을 들고 있는 변수.
-        // 모달을 열 때, 새로고침 버튼을 누를 때, 제출에 실패(오답)했을 때마다 새로 뽑는다.
-        let iqCaptchaAnswer = 0;
-        function refreshInquiryCaptcha() {
-            const a = Math.floor(Math.random() * 8) + 1;
-            const b = Math.floor(Math.random() * 8) + 1;
-            iqCaptchaAnswer = a + b;
-            const q = document.getElementById('iq-captcha-q');
-            if (q) q.textContent = a + ' + ' + b + ' = ?';
-            const aEl = document.getElementById('iq-captcha-a');
-            if (aEl) aEl.value = '';
-        }
-
-        function openInquiryModal() { document.getElementById('inquiry-modal').style.display = 'flex'; refreshInquiryCaptcha(); }
-        function closeInquiryModal() { document.getElementById('inquiry-modal').style.display = 'none'; }
-        function submitInquiry() {
-            const email = document.getElementById('iq-email').value.trim();
-            const type = document.getElementById('iq-type').value;
-            const msg = document.getElementById('iq-msg').value.trim();
-            const captchaAnswer = document.getElementById('iq-captcha-a').value.trim();
-            const err = document.getElementById('iq-error');
-            const suc = document.getElementById('iq-success');
-            const btn = document.getElementById('iq-btn');
-            const tx = document.getElementById('iq-btn-text');
-            const sp = document.getElementById('iq-spin');
-            err.style.display = 'none';
-            suc.style.display = 'none';
-            if (!email || !type || !msg || !captchaAnswer) {
-                err.textContent = '필수 항목(*)을 모두 입력해 주세요.';
-                err.style.display = 'block';
-                return;
+<!-- [ADD] 2026-10-17: 게임공략 페이지 하단과 같은 방식으로 HOHO PICK을 붙인다.
+     data-exclude="magazine"은 hoho-pick.html 쪽에서 "이 페이지가 이미 다루는
+     섹션(호호 매거진)은 추천 목록에서 또 보여주지 않는다"는 뜻으로 읽는 값이다
+     (게임공략 페이지가 data-exclude="guide"를 쓰는 것과 같은 패턴). -->
+<div id="hoho-pick-placeholder" data-exclude="magazine" style="margin-top:24px;"></div>
+<script>
+(function(){
+    var ph = document.getElementById('hoho-pick-placeholder');
+    if (!ph) return;
+    fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+        ph.innerHTML = html;
+        var scripts = ph.querySelectorAll('script');
+        for (var i = 0; i < scripts.length; i++) {
+            var old = scripts[i];
+            var s = document.createElement('script');
+            for (var j = 0; j < old.attributes.length; j++) {
+                s.setAttribute(old.attributes[j].name, old.attributes[j].value);
             }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                err.textContent = '올바른 이메일 주소를 입력해 주세요.';
-                err.style.display = 'block';
-                return;
-            }
-            if (parseInt(captchaAnswer, 10) !== iqCaptchaAnswer) {
-                err.textContent = '보안문자가 올바르지 않습니다. 다시 확인해 주세요.';
-                err.style.display = 'block';
-                refreshInquiryCaptcha();
-                return;
-            }
-            btn.disabled = true;
-            tx.textContent = '전송 중...';
-            sp.style.display = 'inline-block';
-            const typeLabel = { bug: '버그 신고', idea: '개선 제안·아이디어', other: '기타 문의' }[type] || type;
-            const body = '[' + INQUIRY_GAME_NAME + ' 문의]\n답장받을 이메일: ' + email + '\n유형: ' + typeLabel + '\n\n' + msg;
-            window.location.href = 'mailto:lyh0929mm@gmail.com?subject=' + encodeURIComponent('[' + INQUIRY_GAME_NAME + ' 문의] ' + typeLabel) + '&body=' + encodeURIComponent(body);
-            setTimeout(() => {
-                btn.disabled = false;
-                tx.textContent = '문의 보내기';
-                sp.style.display = 'none';
-                suc.style.display = 'block';
-                document.getElementById('iq-email').value = '';
-                document.getElementById('iq-type').value = '';
-                document.getElementById('iq-msg').value = '';
-                refreshInquiryCaptcha();
-            }, 1200);
+            s.textContent = old.textContent;
+            old.parentNode.replaceChild(s, old);
         }
-    </script>
-
-
-    <div id="footer-placeholder"></div>
-    <script>
-        fetch('/footer.html')
-            .then(r => r.text())
-            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
-    </script>
-
-    <script>
-        // ═══ 메뉴·내비게이션 (정적 페이지용) ═══
-        // ※ outerHTML 삽입된 footer.html의 script는 브라우저가 실행하지 않으므로
-        //    footerNav는 이 페이지에 반드시 정의해야 함
-        var PAGE_URL = { index: '/game/', about: '/about/', fortune: '/fortune/', guide: '/guide/', blog: '/blog/',
-                         terms: '/terms/', privacy: '/privacy/', copyright: '/copyright/', partner: '/partner/' };
-        function navigateTo(page) { window.location.href = PAGE_URL[page] || ('/' + page + '/'); }
-        function footerNav(page) { navigateTo(page); }
-        function mobileNav(page) { toggleMenu(); navigateTo(page); }
-        function toggleMenu() {
-            var menu = document.getElementById('mobile-menu');
-            var overlay = document.getElementById('menu-overlay');
-            var bar1 = document.getElementById('bar1');
-            var bar2 = document.getElementById('bar2');
-            var bar3 = document.getElementById('bar3');
-            var isOpen = !menu.classList.contains('hidden');
-            if (isOpen) {
-                menu.classList.add('hidden');
-                if (overlay) overlay.style.display = 'none';
-                bar1.style.transform = ''; bar2.style.opacity = '1'; bar3.style.transform = '';
-            } else {
-                menu.classList.remove('hidden');
-                if (overlay) overlay.style.display = 'block';
-                bar1.style.transform = 'translateY(8px) rotate(45deg)';
-                bar2.style.opacity = '0';
-                bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
-            }
-        }
-    </script>
-
-    <script>
-        // ═══════════════════════════════
-        //  통합 검색 — /data/encyclopedia_index.json (게임·운세·코너·사이트 정보)
-        //  결과는 이 페이지 안에서 바로 보여주고, 주소창은 /?q=검색어 로 갱신(공유 가능)
-        // ═══════════════════════════════
-        var SH_KEY = 'hohoRecentSearches';   // 기존 검색 기록 키 그대로 사용
-        var SH_MAX = 8;
-        var shIndexPromise = null;
-
-        function shEsc(s) {
-            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-        function shEscJs(s) {
-            // onmousedown="...('값')" 안에 넣을 문자열
-            return shEsc(String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
-        }
-
-        function shGetRecent() {
-            try {
-                var raw = localStorage.getItem(SH_KEY);
-                var arr = raw ? JSON.parse(raw) : [];
-                return Array.isArray(arr) ? arr : [];
-            } catch (e) { return []; }
-        }
-        function shSaveRecent(q) {
-            if (!q) return;
-            try {
-                var list = shGetRecent().filter(function (t) { return t !== q; });
-                list.unshift(q);
-                if (list.length > SH_MAX) list = list.slice(0, SH_MAX);
-                localStorage.setItem(SH_KEY, JSON.stringify(list));
-            } catch (e) {}
-        }
-        function shRemoveRecent(term) {
-            try {
-                var list = shGetRecent().filter(function (t) { return t !== term; });
-                localStorage.setItem(SH_KEY, JSON.stringify(list));
-            } catch (e) {}
-            shShowRecent();
-        }
-        function shClearRecent() {
-            try { localStorage.removeItem(SH_KEY); } catch (e) {}
-            shShowRecent();
-        }
-        var SH_HOT = ['타자', '운세', '꿈해몽', '사다리', '축제', '아이랑 코스'];
-        function shShowRecent() {
-            var dd = document.getElementById('sh-recent');
-            if (!dd) return;
-            var list = shGetRecent();
-            var html = '';
-            if (list.length) {
-                html += '<div class="sh-recent-head"><b>최근 검색어</b>'
-                    + '<button type="button" onmousedown="event.preventDefault();shClearRecent()">전체삭제</button></div>';
-                html += list.map(function (t) {
-                    return '<div class="sh-recent-row" onmousedown="event.preventDefault();shSearch(\'' + shEscJs(t) + '\')">'
-                        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
-                        + '<span>' + shEsc(t) + '</span>'
-                        + '<button type="button" aria-label="삭제" onmousedown="event.preventDefault();event.stopPropagation();shRemoveRecent(\'' + shEscJs(t) + '\')">×</button>'
-                        + '</div>';
-                }).join('');
-            }
-            html += '<div class="sh-hotbox"><b>🔥 많이 찾는 검색어</b><div class="sh-hotchips">'
-                + SH_HOT.map(function (w) {
-                    return '<button type="button" class="sh-chip" onmousedown="event.preventDefault();shSearch(\'' + shEscJs(w) + '\')">' + shEsc(w) + '</button>';
-                }).join('')
-                + '</div></div>';
-            dd.innerHTML = html;
-            dd.style.display = 'block';
-        }
-        function shHideRecentLater() {
-            setTimeout(function () {
-                var dd = document.getElementById('sh-recent');
-                if (dd) dd.style.display = 'none';
-            }, 150);
-        }
-
-        function shLoadIndex() {
-            if (!shIndexPromise) {
-                shIndexPromise = fetch('/data/encyclopedia_index.json')
-                    .then(function (r) { if (!r.ok) throw new Error('index fetch failed'); return r.json(); })
-                    .catch(function (e) { shIndexPromise = null; throw e; });
-            }
-            return shIndexPromise;
-        }
-
-        // 검색 바를 상단 메뉴 바로 아래로 올려서 결과가 바로 보이게
-        function shBarTop() {
-            var w = document.getElementById('sb-wrap');
-            var nav = document.querySelector('nav');
-            var navH = nav ? nav.getBoundingClientRect().height : 80;
-            return w.getBoundingClientRect().top + window.pageYOffset - navH - 12;
-        }
-        function shScrollToBar() {
-            try { window.scrollTo({ top: Math.max(0, shBarTop()), behavior: 'smooth' }); } catch (e) {}
-        }
-        // 모바일: 입력창을 누르면 키보드에 가려지지 않도록 검색 바를 위로 올림
-        function shFocusScroll() {
-            try {
-                if (window.matchMedia('(max-width: 767px)').matches) {
-                    var d = Math.abs(shBarTop() - window.pageYOffset);
-                    if (d > 24) shScrollToBar();
-                }
-            } catch (e) {}
-        }
-        // 상단 검색 아이콘
-        function shFocusBar() {
-            shScrollToBar();
-            var input = document.getElementById('sh-input');
-            if (input) setTimeout(function () { try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); } }, 350);
-        }
-
-        function shSubmit(e) {
-            if (e) e.preventDefault();
-            shSearch(document.getElementById('sh-input').value);
-            return false;
-        }
-
-        function shSearch(raw, opts) {
-            opts = opts || {};
-            var q = String(raw || '').trim();
-            var input = document.getElementById('sh-input');
-            var box = document.getElementById('sh-results');
-            if (input) { input.value = q; input.blur(); }
-            var dd = document.getElementById('sh-recent');
-            if (dd) dd.style.display = 'none';
-            if (!q) { shClose(); return; }
-            if (!opts.silent) {
-                shSaveRecent(q);
-                try { history.replaceState(null, '', '/?q=' + encodeURIComponent(q)); } catch (e) {}
-            }
-            box.style.display = 'block';
-            box.innerHTML = '<div class="sh-empty">검색하는 중...</div>';
-            if (!opts.noScroll) shScrollToBar();
-            shLoadIndex().then(function (items) {
-                box.innerHTML = shRender(q, items);
-            }).catch(function () {
-                box.innerHTML = '<div class="sh-empty">검색 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>';
-            });
-        }
-
-        function shClose() {
-            var box = document.getElementById('sh-results');
-            box.style.display = 'none';
-            box.innerHTML = '';
-            var input = document.getElementById('sh-input');
-            if (input) input.value = '';
-            try { history.replaceState(null, '', '/'); } catch (e) {}
-        }
-
-        var SH_STOP = ['뭐','뭔가','뭐야','있어','있나요','있나','있는','인가요','인가','무엇','어떤','좀','그','저','이','을','를','은','는','이다','인지','알려줘','알려주세요','해줘','해주세요','찾아줘','싶어','싶어요'];
-        function shTokenHits(text, token) {
-            if (!text) return false;
-            var minN = Math.min(token.length, Math.max(3, Math.ceil(token.length * 0.7)));
-            for (var n = token.length; n >= minN; n--) {
-                if (text.indexOf(token.slice(0, n)) !== -1) return true;
-            }
-            return false;
-        }
-        function shDest(it) {
-            if (it.url) return it.url;
-            if (it.type === 'fortune') return '/fortune/';
-            if (it.type === 'corner') return '/' + it.id + '/';
-            if (it.id === 'site-about') return '/about/';
-            return '';
-        }
-        function shRender(q, items) {
-            var lq = q.toLowerCase();
-            var tokens = lq.split(/\s+/).filter(function (t) { return t.length >= 2 && SH_STOP.indexOf(t) === -1; });
-            if (!tokens.length) tokens = [lq];
-
-            var scored = items.map(function (it) {
-                var text = ((it.searchText || '') + ' ' + (it.name || '')).toLowerCase();
-                var nameText = (it.name || '').toLowerCase();
-                var score = 0;
-                tokens.forEach(function (t) {
-                    if (shTokenHits(nameText, t)) score += 3;
-                    else if (shTokenHits(text, t)) score += 1;
-                });
-                // 띄어쓰기 없이 붙여 쓴 검색어("대전코스") 대응: 이름이 검색어 안에 통째로 들어있으면 강한 매칭
-                if (nameText.length >= 2 && lq.indexOf(nameText) !== -1) score += 3;
-                return { item: it, hits: score };
-            }).filter(function (s) { return s.hits > 0; });
-            scored.sort(function (a, b) { return b.hits - a.hits; });
-
-            var head = '<div class="sh-res-head"><h2>‘' + shEsc(q) + '’ 검색 결과 <b>' + scored.length + '</b>건</h2>'
-                + '<button type="button" onclick="shClose()">닫기 ✕</button></div>';
-            if (!scored.length) {
-                return head + '<div class="sh-empty">‘' + shEsc(q) + '’ 검색 결과가 없어요.<br>'
-                    + '<span style="font-size:12px">다른 검색어를 입력하거나 아래 바로가기를 이용해 보세요.</span></div>';
-            }
-
-            function snippet(it) {
-                if (it.type !== 'game') return it.summary || '';
-                var faqs = it.faq || [];
-                for (var i = 0; i < faqs.length; i++) {
-                    var qa = faqs[i];
-                    var qaText = ((qa.q || '') + ' ' + (qa.a || '')).toLowerCase();
-                    if (tokens.some(function (t) { return shTokenHits(qaText, t); })) {
-                        return 'Q. ' + (qa.q || '').replace(/^Q\.\s*/, '') + ' — ' + (qa.a || '');
-                    }
-                }
-                var fields = [it.tips, it.controls, it.playPoints, it.summary];
-                for (var j = 0; j < fields.length; j++) {
-                    var f = fields[j];
-                    if (f && tokens.some(function (t) { return shTokenHits(String(f).toLowerCase(), t); })) {
-                        return f.length > 90 ? f.slice(0, 90) + '...' : f;
-                    }
-                }
-                return it.summary || it.genre || '';
-            }
-
-            var iconOf = { game: '🎮', fortune: '🔮', site: 'ℹ️', corner: '✨' };
-            return head + scored.map(function (s) {
-                var it = s.item;
-                var dest = shDest(it);
-                var inner = '<span class="ic">' + (iconOf[it.type] || '📄') + '</span>'
-                    + '<div class="bd"><div class="nm">' + shEsc(it.name) + '</div><div class="sn">' + shEsc(snippet(it)) + '</div></div>'
-                    + (dest ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" style="flex:none"><path d="M9 18l6-6-6-6"/></svg>' : '');
-                if (!dest) return '<div class="sh-res">' + inner + '</div>';
-                // 순수 사주/타로 탭류(url 없음)는 운세 페이지에서 해당 탭이 열리도록 힌트를 남김
-                var jump = (!it.url && it.type === 'fortune')
-                    ? ' onclick="try{sessionStorage.setItem(\'fortuneJumpTab\',\'' + shEscJs(String(it.id).replace('fortune-', '')) + '\')}catch(e){}"'
-                    : '';
-                return '<a class="sh-res" href="' + shEsc(dest) + '"' + jump + '>' + inner + '</a>';
-            }).join('');
-        }
-
-        // 좁은 화면에서는 안내 문구가 잘리지 않도록 짧게
-        try { if (window.matchMedia('(max-width: 480px)').matches) document.getElementById('sh-input').placeholder = '궁금한 점을 검색해보세요'; } catch (e) {}
-        // /?q=검색어 로 들어오면 바로 검색
-        (function () {
-            try {
-                var q = new URLSearchParams(location.search).get('q');
-                if (q && q.trim()) shSearch(q, { silent: true, noScroll: false });
-            } catch (e) {}
-        })();
-    </script>
-
-    <script>
-        // ═══ 배너 슬라이드 (스와이프 + 자동 넘김) ═══
-        (function () {
-            var track = document.getElementById('bn-track');
-            if (!track) return;
-            var dots = document.querySelectorAll('#bn-dots .bn-dot');
-            var n = track.children.length, cur = 0, hold = false, inView = true, timer = null, resumeT = null;
-            var reduced = false;
-            try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-
-            function mark(i) {
-                for (var k = 0; k < dots.length; k++) { dots[k].classList.toggle('on', k === i); }
-            }
-            function go(i, instant) {
-                cur = (i + n) % n;
-                try { track.scrollTo({ left: cur * track.clientWidth, behavior: instant ? 'auto' : 'smooth' }); }
-                catch (e) { track.scrollLeft = cur * track.clientWidth; }
-                mark(cur);
-            }
-            track.addEventListener('scroll', function () {
-                var i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
-                if (i !== cur && i >= 0 && i < n) { cur = i; mark(i); }
-            }, { passive: true });
-            for (var d = 0; d < dots.length; d++) {
-                (function (idx) { dots[idx].addEventListener('click', function () { pause(); go(idx); }); })(d);
-            }
-            var prev = document.getElementById('bn-prev'), next = document.getElementById('bn-next');
-            if (prev) prev.addEventListener('click', function () { pause(); go(cur - 1); });
-            if (next) next.addEventListener('click', function () { pause(); go(cur + 1); });
-
-            function pause() {
-                hold = true;
-                clearTimeout(resumeT);
-                resumeT = setTimeout(function () { hold = false; }, 8000);
-            }
-            track.addEventListener('touchstart', pause, { passive: true });
-            track.addEventListener('pointerdown', pause);
-            track.addEventListener('mouseenter', function () { hold = true; clearTimeout(resumeT); });
-            track.addEventListener('mouseleave', function () { hold = false; });
-            track.addEventListener('focusin', function () { hold = true; clearTimeout(resumeT); });
-            track.addEventListener('focusout', function () { hold = false; });
-
-            if ('IntersectionObserver' in window) {
-                new IntersectionObserver(function (es) { inView = es[0].isIntersecting; }, { threshold: 0.35 }).observe(track);
-            }
-            if (!reduced) {
-                timer = setInterval(function () {
-                    if (!hold && inView && document.visibilityState === 'visible') go(cur + 1);
-                }, 5500);
-            }
-            window.addEventListener('resize', function () { go(cur, true); });
-        })();
-    </script>
-
-    <script>
-        // ═══ 호호픽 (공유 파셜) ═══
-        (function () {
-            var ph = document.getElementById('hoho-pick-placeholder');
-            if (!ph) return;
-            fetch('/hoho-pick.html')
-                .then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.text(); })
-                .then(function (html) {
-                    ph.innerHTML = html;
-                    ph.querySelectorAll('script').forEach(function (oldScript) {
-                        var newScript = document.createElement('script');
-                        if (oldScript.src) newScript.src = oldScript.src;
-                        newScript.textContent = oldScript.textContent;
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
-                    });
-                })
-                .catch(function () { ph.style.display = 'none'; });
-        })();
-    </script>
+    }).catch(function(){});
+})();
+</script>
+</main>
+<footer class="bg-slate-900 text-slate-400 py-16">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+        <div class="col-span-1 md:col-span-2">
+            <h4 class="font-black text-2xl mb-6 uppercase tracking-wider"><span class="text-indigo-400">HOHO</span><span class="text-violet-400"> PLAY</span></h4>
+            <p class="text-lg leading-relaxed mb-6">로그인 없이 즉기는 무한한 즉거움, HOHO PLAY은 웹 표준 기술을 이용한 고성능 브라우저 게임 플랫폼입니다.</p>
+            <p class="text-sm text-slate-500 mb-6">개인 운영 서비스 · Since 2026 · 문의: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a></p>
+            <div class="flex justify-center md:justify-start gap-4">
+                <a href="https://www.threads.com/@hohoplay.io" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 쓰레드" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 192 192"><path d="M141.537 88.988a66.667 66.667 0 0 0-2.518-1.143c-1.482-27.307-16.403-42.94-41.457-43.1h-.34c-14.986 0-27.449 6.396-35.12 18.036l13.779 9.452c5.73-8.695 14.724-10.548 21.348-10.548h.229c8.249.053 14.474 2.452 18.503 7.129 2.932 3.405 4.893 8.111 5.864 14.05-7.314-1.243-15.224-1.626-23.68-1.14-23.82 1.371-39.134 15.264-38.105 34.568.522 9.792 5.4 18.216 13.735 23.719 7.047 4.652 16.124 6.927 25.557 6.412 12.458-.683 22.231-5.436 29.049-14.127 5.178-6.6 8.452-15.153 9.899-25.93 5.937 3.583 10.337 8.298 12.767 13.966 4.132 9.635 4.373 25.468-8.546 38.376-11.319 11.308-24.925 16.2-45.488 16.351-22.809-.169-40.06-7.484-51.275-21.741C35.232 139.966 29.522 120.682 29.3 96c.222-24.682 5.932-43.966 16.981-57.317C57.496 24.425 74.747 17.11 97.556 16.94c22.976.17 40.56 7.52 52.256 21.845 5.75 7.09 10.093 16.016 12.94 26.402l16.345-4.363c-3.43-12.682-8.856-23.716-16.232-32.927C147.036 9.972 125.202.195 97.688 0h-.384C69.866.195 48.284 10.012 33.536 29.19 20.395 46.081 13.528 69.513 13.301 95.932L13.3 96v.068c.228 26.419 7.095 49.851 20.236 66.742 14.748 19.178 36.33 28.995 64.112 29.19h.384c24.737-.173 42.135-6.662 56.416-20.931 18.459-18.423 18.131-40.974 11.97-55.049-4.598-10.724-13.263-19.5-25.881-25.032zm-37.45 44.31c-10.458.588-21.286-5.192-21.82-14.121-.392-6.872 4.89-14.536 20.683-15.468 1.807-.104 3.583-.155 5.328-.155 6.195 0 11.988.601 17.286 1.748-1.968 24.48-11.151 27.435-21.477 27.996z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/hohoplay.io" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 인스타그램" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.975.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.851s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.975.975-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.975-.975-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.975-.975 2.242-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.014 7.052.072 5.197.157 3.355.673 2.014 2.014.673 3.355.157 5.197.072 7.052.014 8.332 0 8.741 0 12c0 3.259.014 3.668.072 4.948.085 1.855.601 3.697 1.942 5.038 1.341 1.341 3.183 1.857 5.038 1.942C8.332 23.986 8.741 24 12 24s3.668-.014 4.948-.072c1.855-.085 3.697-.601 5.038-1.942 1.341-1.341 1.857-3.183 1.942-5.038.058-1.28.072-1.689.072-4.948s-.014-3.668-.072-4.948c-.085-1.855-.601-3.697-1.942-5.038C20.645.673 18.803.157 16.948.072 15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@HOHOPLAY2026" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 유튜브" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-red-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                </a>
+                <a href="https://naver.me/GXFVLneY" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 네이버클립" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-green-600 transition cursor-pointer text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5z"/></svg>
+                </a>
+                <a href="https://blog.naver.com/hohologtv/" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 네이버블로그" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-green-600 transition cursor-pointer text-white">
+                    <span style="font-weight:900;font-size:16px;line-height:1">N</span>
+                </a>
+            </div>
+        </div>
+        <div>
+            <h4 class="text-white font-bold mb-4">고객 센터</h4>
+            <p class="text-sm">이메일: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a></p>
+        </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-slate-800 text-center text-sm font-medium tracking-wide">
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 text-slate-500">
+            <a href="/terms/" class="hover:text-white transition">이용약관</a>
+            <span>·</span>
+            <a href="/about/" class="hover:text-white transition">소개</a>
+            <span>·</span>
+            <a href="/privacy/" class="hover:text-white transition font-bold text-slate-300">개인정보처리방침</a>
+            <span>·</span>
+            <a href="/copyright/" class="hover:text-white transition">저작권·콘텐츠 정책</a>
+            <span>·</span>
+            <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">문의</a>
+        </div>
+        &copy; 2026 HOHO PLAY. All rights reserved.
+    </div>
+</footer>
+<script>
+function toggleMenu() {
+    var menu = document.getElementById('mobile-menu');
+    var overlay = document.getElementById('menu-overlay');
+    var bar1 = document.getElementById('bar1');
+    var bar2 = document.getElementById('bar2');
+    var bar3 = document.getElementById('bar3');
+    var isOpen = !menu.classList.contains('hidden');
+    if (isOpen) {
+        menu.classList.add('hidden');
+        if (overlay) overlay.style.display = 'none';
+        bar1.style.transform = '';
+        bar2.style.opacity = '1';
+        bar3.style.transform = '';
+    } else {
+        menu.classList.remove('hidden');
+        if (overlay) overlay.style.display = 'block';
+        bar1.style.transform = 'translateY(8px) rotate(45deg)';
+        bar2.style.opacity = '0';
+        bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
+    }
+}
+function goPartner() {
+    location.href = '/partner/';
+}
+</script>
 </body>
 </html>
