@@ -290,7 +290,6 @@ def build_detail_page_html(festival, overview, intro):
      지도 자체(사람이 보는 화면)는 그대로다 — 크롤링/색인 신호만 바꾸는 것. -->
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="/favicon.svg">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   * {{ box-sizing: border-box; }}
@@ -360,29 +359,21 @@ def generate_detail_pages(festivals):
     이미 만들어진 페이지는 다시 만들지 않고, 새로 나타난 contentid만 생성한다 —
     축제 상세 정보(요금·주최 등)는 한 번 생성되면 바뀔 일이 거의 없고,
     매일 전체를 다시 만들면 TourAPI 호출만 불필요하게 늘어나기 때문.
-    다만 애드센스 코드처럼 "이미 있는 페이지에도 나중에 새로 추가된 태그"가
-    빠져있는 경우, TourAPI를 다시 부르지 않고 그 자리에서 코드만 삽입해 보정한다."""
+    [2026-10-27] 예전에는 이미 있는 페이지에 애드센스 코드가 빠져 있으면 자동으로
+    끼워넣었지만, 본문이 짧은 자동 생성 페이지라 "가치가 별로 없는 콘텐츠" 지적을
+    받아 상세페이지에는 광고 코드를 넣지 않기로 했다(보정 로직도 제거)."""
     detail_dir = os.path.join('festival', 'detail')
     os.makedirs(detail_dir, exist_ok=True)
 
-    ADSENSE_TAG = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>'
 
     new_count = 0
-    patched_count = 0
     for f in festivals:
         content_id = f.get('contentid')
         if not content_id:
             continue
         out_path = os.path.join(detail_dir, f'{content_id}.html')
         if os.path.exists(out_path):
-            with open(out_path, 'r', encoding='utf-8') as fp:
-                existing = fp.read()
-            if ADSENSE_TAG not in existing and '</head>' in existing:
-                existing = existing.replace('</head>', f'{ADSENSE_TAG}\n</head>')
-                with open(out_path, 'w', encoding='utf-8') as fp:
-                    fp.write(existing)
-                patched_count += 1
-            continue  # 애드센스 보정 외에는 이미 생성된 페이지를 건드리지 않음
+            continue  # 이미 생성된 페이지는 건드리지 않음
 
         overview = f.get('overview')  # 수동 등록 축제는 이미 설명이 주어져 있어 TourAPI를 안 부름
         if overview is None:
@@ -408,7 +399,7 @@ def generate_detail_pages(festivals):
         new_count += 1
         time.sleep(0.3)  # TourAPI에 과도하게 연속 호출하지 않도록 약간의 간격
 
-    print(f"상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건 (festival/detail/)")
+    print(f"상세페이지 신규 생성: {new_count}건 (festival/detail/)")
 
 
 def patch_existing_detail_pages():
@@ -514,7 +505,6 @@ def build_nature_page_html(spot, overview, page_label='자연공원·수목원')
      상세페이지도 축제 상세페이지와 같은 이유로 noindex 처리. -->
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="/favicon.svg">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body{{font-family:'Noto Sans KR',sans-serif;max-width:640px;margin:0 auto;padding:20px 16px;color:#1e293b}}
@@ -542,8 +532,8 @@ body{{font-family:'Noto Sans KR',sans-serif;max-width:640px;margin:0 auto;paddin
 
 def generate_nature_detail_pages(spots, max_new=40, page_label='자연공원·수목원', log_label='자연관광지'):
     """상시 개방 장소(자연관광지·캠핑장·수상레저 등)의 상세페이지를 생성한다.
-    generate_detail_pages()와 동일한 원칙(이미 있는 페이지는 재생성하지 않고,
-    애드센스 코드 누락만 보정)을 따른다.
+    generate_detail_pages()와 동일한 원칙(이미 있는 페이지는 재생성하지 않음)을 따른다.
+    [2026-10-27] 상세페이지에는 애드센스 코드를 넣지 않는다.
 
     max_new: 이번 실행에서 새로 만들 상세페이지 개수 상한. 축제(searchFestival2)와
     이 함수를 쓰는 모든 종류(areaBasedList2+detailCommon2)가 같은 TourAPI 일일
@@ -553,10 +543,8 @@ def generate_nature_detail_pages(spots, max_new=40, page_label='자연공원·�
     detail_dir = os.path.join('festival', 'detail')
     os.makedirs(detail_dir, exist_ok=True)
 
-    ADSENSE_TAG = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>'
 
     new_count = 0
-    patched_count = 0
     skipped_for_quota = 0
     for spot in spots:
         content_id = spot.get('contentid')
@@ -564,13 +552,6 @@ def generate_nature_detail_pages(spots, max_new=40, page_label='자연공원·�
             continue
         out_path = os.path.join(detail_dir, f'{content_id}.html')
         if os.path.exists(out_path):
-            with open(out_path, 'r', encoding='utf-8') as fp:
-                existing = fp.read()
-            if ADSENSE_TAG not in existing and '</head>' in existing:
-                existing = existing.replace('</head>', f'{ADSENSE_TAG}\n</head>')
-                with open(out_path, 'w', encoding='utf-8') as fp:
-                    fp.write(existing)
-                patched_count += 1
             continue
 
         if new_count >= max_new:
@@ -585,7 +566,7 @@ def generate_nature_detail_pages(spots, max_new=40, page_label='자연공원·�
         time.sleep(0.3)
 
     remaining_note = f", 다음 실행으로 이월: {skipped_for_quota}건" if skipped_for_quota else ""
-    print(f"{log_label} 상세페이지 신규 생성: {new_count}건, 애드센스 코드 보정: {patched_count}건{remaining_note}")
+    print(f"{log_label} 상세페이지 신규 생성: {new_count}건{remaining_note}")
 
 
 def _pick_field(item, candidates, default=''):

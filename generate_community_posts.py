@@ -562,6 +562,13 @@ def render_post_html(template, post, magazine_titles=None):
     # 따라가게 한다. canonical 줄을 못 찾으면(템플릿 변경 등) 조용히 건너뛰지 않고 로그를
     # 남겨서 Actions 화면에서 바로 알 수 있게 한다.
     if post.get("category") in NOINDEX_CATEGORIES:
+        # [ADD] 2026-10-27: 색인에서 뺀 짧은 글(공지·업데이트)에는 애드센스 로더도 넣지 않는다
+        # ("가치가 별로 없는 콘텐츠" 대응 — 본문이 짧은 페이지에 광고 코드가 있으면 불리).
+        html_out = re.sub(
+            r'[ \t]*<script\b[^>]*pagead2\.googlesyndication\.com/pagead/js/adsbygoogle\.js[^>]*>\s*</script>[ \t]*\n?',
+            "",
+            html_out,
+        )
         canonical_line = f'<link rel="canonical" href="{post_output_url(post)}">'
         if canonical_line in html_out:
             html_out = html_out.replace(
