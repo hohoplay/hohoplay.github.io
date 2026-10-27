@@ -1032,6 +1032,147 @@ def update_kids_region_summary():
     print(f"festival/index.html 지역별 아이랑 장소 요약 갱신 완료 (전체 {len(places)}곳)")
 
 
+# ── 월드컵 두 페이지의 "후보 현황" (festival/worldcup.html, festival/camping-worldcup.html 안내 글 구간) ──
+# [ADD] 2026-10-27: 나들이 월드컵·캠핑장 월드컵 안내 글 안의 후보 수치(장소 수, 유형별, 지역별, 16강 가능 지역)가
+# 데이터가 바뀌어도 낡지 않도록, 아래 마커 사이를 data/kids_places.json / data/festivals.json 기준으로 다시 쓴다.
+# 마커가 없거나 데이터가 비정상적으로 적으면(수신 실패 등) 건드리지 않고 건너뛴다.
+WC_KIDS_START = '<!-- WC_KIDS_STATS_START -->'
+WC_KIDS_END = '<!-- WC_KIDS_STATS_END -->'
+WC_CAMP_START = '<!-- WC_CAMP_STATS_START -->'
+WC_CAMP_END = '<!-- WC_CAMP_STATS_END -->'
+CAMP_REGION_LABELS = [
+    # camping-worldcup.html 의 REGIONS 와 같은 기준(주소 첫 단어 앞부분 → 표시 이름). 전남·광주는 한 이름으로 묶는다.
+    (('경기',), '경기도'), (('강원',), '강원'), (('충청남', '충남'), '충청남도'), (('경상남', '경남'), '경상남도'),
+    (('전라북', '전북'), '전라북도'), (('충청북', '충북'), '충청북도'), (('경상북', '경북'), '경상북도'),
+    (('전남광주', '전라남', '전남', '광주'), '전남·광주'),
+    (('인천',), '인천'), (('대구',), '대구'), (('부산',), '부산'), (('울산',), '울산'), (('제주',), '제주'),
+    (('대전',), '대전'), (('서울',), '서울'), (('세종',), '세종'),
+]
+CAMP_TYPE_WORDS = ('오토캠핑', '글램핑', '카라반')
+
+
+def _camp_region_of(addr):
+    first = (addr or '').split(' ')[0]
+    for prefixes, label in CAMP_REGION_LABELS:
+        if any(first.startswith(pf) for pf in prefixes):
+            return label
+    return None
+
+
+def _wc_region_tiers(counts):
+    """지역별 장소 수 → (많은 순 목록, 16강 가능 목록, 8강 가능 목록, 8곳 미만 목록). 동수는 이름순."""
+    ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    t16 = [kv for kv in ordered if kv[1] >= 16]
+    t8 = [kv for kv in ordered if 8 <= kv[1] < 16]
+    low = [kv for kv in ordered if kv[1] < 8]
+    return ordered, t16, t8, low
+
+
+def _wc_fmt(items, with_count=True):
+    if with_count:
+        return ', '.join(f'{html.escape(k)} {v}곳' for k, v in items)
+    return ', '.join(html.escape(k) for k, _ in items)
+
+
+def _wc_tier_sentence(t16, t8, low):
+    parts = []
+    if t16:
+        parts.append(f'16강까지 가능한 지역은 {_wc_fmt(t16, False)}')
+    if t8:
+        parts.append(f'8강까지 가능한 지역은 {_wc_fmt(t8, False)}')
+    s = ' '.join(p + '입니다.' for p in parts)
+    if low:
+        s += (' ' if s else '') + f'{_wc_fmt(low, False)}처럼 후보가 8곳보다 적은 지역은 4강으로 줄거나 대진표를 만들 수 없으니, 그럴 땐 "전국"으로 넓혀 주세요.'
+    return s
+
+
+def build_wc_kids_stats_html(places):
+    total = len(places)
+    pt, ct, counts = {}, {}, {}
+    for pl in places:
+        pt[pl.get('placeType', '')] = pt.get(pl.get('placeType', ''), 0) + 1
+        ct[pl.get('costTag', '')] = ct.get(pl.get('costTag', ''), 0) + 1
+        lb = _kids_region_of(pl.get('addr', ''))
+        if lb:
+            counts[lb] = counts.get(lb, 0) + 1
+    ordered, t16, t8, low = _wc_region_tiers(counts)
+    top = ordered[:6]
+    p1 = (f'<p>현재 후보로 등록된 아이랑 나들이 장소는 <strong>{total}곳</strong>입니다. 장소 유형은 실내 {pt.get("실내", 0)}곳, '
+          f'실외 {pt.get("실외", 0)}곳, 실내외 {pt.get("실내외", 0)}곳이고, 비용은 완전무료 {ct.get("완전무료", 0)}곳, '
+          f'일부 무료 조건이 있는 곳 {ct.get("유료(일부 무료 조건 있음)", 0)}곳, 유료 {ct.get("유료", 0)}곳, '
+          f'비용 확인이 필요한 곳 {ct.get("확인 필요", 0)}곳입니다. 장소는 운영자가 추가·정리하는 대로 늘어나며, 이 숫자도 함께 갱신됩니다.</p>')
+    p2 = (f'<p>지역별로는 {_wc_fmt(top)} 순으로 많습니다. 실내·실외와 비용 조건을 따로 두지 않았을 때 {_wc_tier_sentence(t16, t8, low)} '
+          f'조건을 함께 고르면 후보가 더 줄어드니, 대진표가 만들어지지 않는다면 조건부터 넓혀 보세요.</p>')
+    return p1 + '\n' + p2
+
+
+def build_wc_camping_stats_html(camps):
+    total = len(camps)
+    with_img = sum(1 for c in camps if c.get('image'))
+    tc = {w: 0 for w in CAMP_TYPE_WORDS}
+    plain = 0
+    counts = {}
+    for c in camps:
+        title = c.get('title', '')
+        hit = [w for w in CAMP_TYPE_WORDS if w in title]
+        for w in hit:
+            tc[w] += 1
+        if not hit:
+            plain += 1
+        lb = _camp_region_of(c.get('addr', ''))
+        if lb:
+            counts[lb] = counts.get(lb, 0) + 1
+    ordered, t16, t8, low = _wc_region_tiers(counts)
+    top = ordered[:8]
+    p1 = (f'<p>현재 후보로 등록된 캠핑장은 <strong>{total}곳</strong>이고, 그중 {with_img}곳에 사진이 등록돼 있습니다. '
+          f'이름 기준 유형은 오토캠핑 {tc["오토캠핑"]}곳, 글램핑 {tc["글램핑"]}곳, 카라반 {tc["카라반"]}곳이고, '
+          f'이름에 유형 표시가 없는 일반 캠핑장·야영장이 {plain}곳입니다. 이름에 두 가지 이상이 들어간 곳은 각 유형에 모두 셉니다. '
+          f'이 숫자는 데이터가 갱신될 때 함께 바뀝니다.</p>')
+    p2 = (f'<p>지역별로는 {_wc_fmt(top)} 순으로 많습니다. 유형을 따로 고르지 않았을 때 {_wc_tier_sentence(t16, t8, low)} '
+          f'유형까지 고르면 후보가 줄어듭니다. 예를 들어 카라반은 전국 {tc["카라반"]}곳이라 지역을 좁히면 8강이나 4강으로 줄 수 있어요.</p>')
+    return p1 + '\n' + p2
+
+
+def _replace_between_markers(path, start_marker, end_marker, new_html, label):
+    if not os.path.exists(path):
+        print(f'{path} 없음 — {label} 갱신 건너뜀')
+        return
+    with open(path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    si, ei = content.find(start_marker), content.find(end_marker)
+    if si == -1 or ei == -1 or ei < si:
+        print(f'{path} 에서 {label} 마커를 찾지 못해 갱신 건너뜀')
+        return
+    updated = content[:si + len(start_marker)] + '\n' + new_html + '\n' + content[ei:]
+    if updated != content:
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(updated)
+    print(f'{path} {label} 갱신 완료')
+
+
+def update_worldcup_stats():
+    """나들이 월드컵·캠핑장 월드컵 안내 글의 '후보 현황' 구간을 데이터 기준으로 갱신한다."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    fest_path = os.path.join('data', 'festivals.json')
+    if os.path.exists(kids_path):
+        with open(kids_path, 'r', encoding='utf-8') as f:
+            places = json.load(f)
+        if len(places) >= 20:
+            _replace_between_markers(os.path.join('festival', 'worldcup.html'), WC_KIDS_START, WC_KIDS_END,
+                                     build_wc_kids_stats_html(places), '나들이 월드컵 후보 현황')
+        else:
+            print('kids_places.json 장소가 너무 적어 나들이 월드컵 후보 현황 갱신 건너뜀')
+    if os.path.exists(fest_path):
+        with open(fest_path, 'r', encoding='utf-8') as f:
+            items = json.load(f)
+        camps = [it for it in items if it.get('type') == 'camping' and it.get('title') and it.get('contentid')]
+        if len(camps) >= 50:
+            _replace_between_markers(os.path.join('festival', 'camping-worldcup.html'), WC_CAMP_START, WC_CAMP_END,
+                                     build_wc_camping_stats_html(camps), '캠핑장 월드컵 후보 현황')
+        else:
+            print('캠핑장 데이터가 너무 적어(수신 실패 의심) 캠핑장 월드컵 후보 현황 갱신 건너뜀')
+
+
 def main():
     all_items = fetch_all_items('festival')
 
@@ -1212,6 +1353,7 @@ def main():
 
     update_map_html(all_map_items, TODAY)
     update_kids_region_summary()
+    update_worldcup_stats()
 
     # ── 사이트맵 / 크롤러용 목록 페이지 ──────────────────────────────
     # 지도 마커 안의 상세 링크는 JS로 그려져 검색봇이 발견하지 못하므로,
