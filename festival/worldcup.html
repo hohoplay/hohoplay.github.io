@@ -150,6 +150,35 @@
     .brhead.tight .rv-trk { display: flex; margin: 0 8px 0 0; }
     .hint { display: none; }
   }
+
+  /* 공유·댓글 카드 (호호플레이 다른 페이지와 같은 구성) */
+  .share { margin: 22px 0 16px; padding: 16px; background: #f1f5f9; border-radius: 16px; text-align: center; }
+  .share .st { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 10px; }
+  .share .sr { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .sb { width: 42px; height: 42px; border-radius: 50%; border: 0; padding: 0; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; }
+  .sb.fb { background: #1877f2; font-size: 18px; }
+  .sb.x { background: #000; }
+  .sb.kk { background: #fee500; color: #3c1e1e; font-size: 18px; }
+  .sb.nv { background: #03c75a; }
+  .sb.bd { background: #00c73c; font-size: 12px; }
+  .sb.ln { background: #06c755; font-size: 12px; }
+  .cmt { margin: 0 0 16px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; scroll-margin-top: 12px; }
+  .cmt h2 { margin: 0 0 4px; font-size: 16px; font-weight: 900; color: #1e293b; }
+  .cmt .cs { margin: 0 0 14px; font-size: 12px; color: #94a3b8; }
+  .cmt .cf { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .cmt input, .cmt textarea { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; font-family: inherit; color: #1e293b; background: #fff; }
+  .cmt textarea { resize: vertical; }
+  .cmt .cr { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+  .cmt .cst { font-size: 12px; color: #94a3b8; }
+  .cmt .cbtn { padding: 9px 20px; border: 0; border-radius: 10px; background: #4f46e5; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .cmt .cbtn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .cmt .cl { display: flex; flex-direction: column; gap: 10px; }
+  .cmt .ci { padding: 12px 14px; background: #f8fafc; border-radius: 12px; }
+  .cmt .ch { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .cmt .cn { font-weight: 800; font-size: 13px; color: #334155; }
+  .cmt .ct { font-size: 11px; color: #94a3b8; }
+  .cmt .cc { font-size: 14px; color: #475569; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
+  .cmt .ce { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
 </style>
 </head>
 <body>
@@ -228,11 +257,65 @@
     <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 "아이랑 갈만한 곳"입니다. 운영자가 아이와 함께 가기 좋은 곳을 직접 골라 정리했고, 과학관·박물관·체험관 같은 실내 장소부터 공원·생태공원 같은 실외 장소, 두 가지를 겸하는 장소까지 200곳이 넘게 들어 있습니다. 장소마다 이용 요금에 따라 "무료", "일부 무료", "유료", "비용 확인 필요" 표시가 붙어 있고, 월드컵의 예산 조건은 이 표시를 기준으로 걸러냅니다.</p>
     <p>비용 정보가 정리된 장소를 먼저 후보로 뽑고, 후보가 모자랄 때만 "비용 확인 필요" 장소로 채웁니다. 장소 수는 지역마다 차이가 큽니다. 경기·부산·대구처럼 많은 곳은 16강까지 가능하지만 적은 지역은 8강이나 4강으로 줄거나, 대진표를 만들 수 없을 수 있어요. 그럴 땐 "전국"으로 넓혀 보세요. 구·군·시를 골랐는데 그곳 장소가 8곳이 안 되면, 같은 지역 안에서 가까운 장소로 채워 8강 이상이 되도록 합니다. 장소 위치가 구·군 중심 좌표로 잡힌 경우가 많아서 "가까운 곳"은 대략적인 기준입니다.</p>
 
+    <h2>지금 후보는 이렇게 구성돼 있어요</h2>
+    <!-- WC_KIDS_STATS_START -->
+<p>현재 후보로 등록된 아이랑 나들이 장소는 <strong>246곳</strong>입니다. 장소 유형은 실내 173곳, 실외 49곳, 실내외 24곳이고, 비용은 완전무료 108곳, 일부 무료 조건이 있는 곳 52곳, 유료 51곳, 비용 확인이 필요한 곳 35곳입니다. 장소는 운영자가 추가·정리하는 대로 늘어나며, 이 숫자도 함께 갱신됩니다.</p>
+<p>지역별로는 경기도 54곳, 부산 48곳, 대구 36곳, 인천 29곳, 울산 18곳, 강원 12곳 순으로 많습니다. 실내·실외와 비용 조건을 따로 두지 않았을 때 16강까지 가능한 지역은 경기도, 부산, 대구, 인천, 울산입니다. 8강까지 가능한 지역은 강원, 세종, 충청북도입니다. 서울, 제주, 대전, 경상북도, 경상남도, 전라남도, 전라북도처럼 후보가 8곳보다 적은 지역은 4강으로 줄거나 대진표를 만들 수 없으니, 그럴 땐 "전국"으로 넓혀 주세요. 조건을 함께 고르면 후보가 더 줄어드니, 대진표가 만들어지지 않는다면 조건부터 넓혀 보세요.</p>
+<!-- WC_KIDS_STATS_END -->
+
+    <h2>실내와 실외, 무엇을 고를까요?</h2>
+    <p>기준은 그날의 날씨와 아이의 컨디션입니다. 비가 오거나 미세먼지가 심한 날, 한여름 낮과 한겨울에는 실내가 편하고, 날씨가 좋은 날에는 실외에서 마음껏 뛰어놀게 하는 편이 아이에게도 좋습니다.</p>
+    <ul>
+      <li><b>실내</b> — 과학관, 박물관, 체험관처럼 날씨 영향을 덜 받는 곳입니다. 대신 주말에는 입장 인원이 몰리거나 체험 시간이 정해져 있는 경우가 있어서, 사전 예약이 필요한지 미리 확인하면 좋습니다.</li>
+      <li><b>실외</b> — 공원, 생태공원처럼 몸을 쓰며 노는 곳입니다. 자외선 차단제, 모자, 편한 신발, 여벌 옷, 물을 챙기고 그늘과 화장실 위치를 먼저 봐 두면 편합니다.</li>
+      <li><b>실내외</b> — 실내 전시와 야외 공간을 함께 갖춘 곳입니다. 날씨가 애매한 날에 선택지가 넓고, 가족 의견이 갈릴 때 무난합니다.</li>
+    </ul>
+    <p>"상관없어요"를 고르면 실내와 실외가 섞여서 나옵니다. 날씨를 따로 확인하기 번거롭다면 지역을 먼저 고르세요. 비나 눈 소식이 있으면 실내를 자동으로 골라 드립니다.</p>
+
+    <h2>비용 표시는 이렇게 읽어요</h2>
+    <p>장소 카드에는 비용이 네 가지로 표시됩니다. 예산 조건에서 "무료·일부 무료"나 "완전 무료만"을 고르면 이 표시를 기준으로 후보를 거릅니다.</p>
+    <ul>
+      <li><b>무료</b> — 입장료가 없다고 정리된 곳입니다. 그래도 주차비, 체험 재료비, 먹거리는 따로 들 수 있습니다.</li>
+      <li><b>일부 무료</b> — 어린이나 특정 조건에서만 무료이거나, 일부 시설만 무료인 곳입니다. 어떤 조건인지는 상세 페이지의 요금 항목에서 확인해 주세요.</li>
+      <li><b>유료</b> — 입장료나 체험비가 있는 곳입니다. 예산이 정해져 있다면 상세 페이지에서 어른·어린이 요금을 먼저 보세요.</li>
+      <li><b>비용 확인 필요</b> — 요금 정보를 확인하지 못한 곳입니다. 방문 전에 전화나 공식 안내로 직접 확인해야 합니다.</li>
+    </ul>
+
+    <h2>아이 나이에 따라 달라지는 장소 고르기</h2>
+    <p>나이별로 후보를 따로 나누지는 않습니다. 결과가 나온 뒤 아래 기준으로 한 번 더 살펴보면 실패가 줄어듭니다. 아이마다 다르니 참고로만 봐 주세요.</p>
+    <ul>
+      <li><b>영유아</b> — 이동 시간이 길면 아이도 보호자도 지칩니다. 낮잠 시간을 피해 일정을 잡고, 유모차가 다닐 수 있는지, 수유실과 기저귀 갈이대가 있는지는 방문 전에 전화로 확인하는 편이 안전합니다. 이 서비스의 데이터에는 이런 시설 정보가 들어 있지 않습니다.</li>
+      <li><b>미취학 아동</b> — 직접 만지고 움직이는 체험형 장소가 잘 맞는 경우가 많습니다. 한 곳에서 오래 머물기보다 2~3시간 안쪽으로 계획하고, 아이가 흥미를 잃으면 일정을 줄일 여유를 두세요.</li>
+      <li><b>초등학생</b> — 과학관, 박물관처럼 배운 내용을 직접 확인해 볼 수 있는 곳이 호응을 얻는 경우가 많습니다. 체험 프로그램에는 연령이나 키 제한, 사전 예약이 있을 수 있으니 확인해 주세요.</li>
+    </ul>
+
     <h2>날씨는 어떻게 반영되나요?</h2>
     <p>지역을 고르면 그 지역의 날씨를 확인해서 비나 눈 소식이 있으면 "실내"를 자동으로 골라드립니다. 위치 권한은 필요하지 않고, 이미 직접 실내·실외를 고르셨다면 그 선택을 그대로 따릅니다. 전국으로 두면 지역 날씨를 확인하지 않습니다. 날씨 정보는 참고용이니 출발 전에 한 번 더 확인해 주세요.</p>
 
     <h2>결과를 본 뒤에는</h2>
     <p>우승 장소의 상세 페이지에서 운영시간, 이용 요금, 전화번호, 소개를 볼 수 있습니다. 휴관일이나 요금은 바뀔 수 있어 방문 전에 전화나 공식 안내로 한 번 더 확인하시길 권합니다. 일부 장소는 연령이나 키 제한, 사전 예약이 필요할 수 있습니다. 결과 근처에서 오늘 열리는 축제가 있으면 함께 알려드립니다. 축제 정보는 한국관광공사 TourAPI 데이터를 하루 몇 차례 자동으로 갱신해 보여줍니다.</p>
+
+    <h2>나들이 가기 전 체크리스트</h2>
+    <p>우승 장소가 정해졌다면 출발 전에 아래만 확인해도 헛걸음을 크게 줄일 수 있습니다.</p>
+    <ol>
+      <li><b>휴관일과 운영시간</b> — 정기 휴관일과 입장 마감 시간을 확인합니다. 마감 한두 시간 전에 도착하면 아이가 충분히 놀지 못할 수 있어요.</li>
+      <li><b>예약 여부</b> — 입장이나 체험이 예약제인지, 당일 현장 접수가 가능한지 확인합니다.</li>
+      <li><b>요금</b> — 어른과 어린이 요금, 주차비, 체험 재료비를 따로 받는지 확인합니다.</li>
+      <li><b>주차와 교통</b> — 주차할 수 있는지, 주말에 많이 붐비는 시간대는 언제인지 알아 둡니다.</li>
+      <li><b>먹거리</b> — 도시락이나 음료를 가져갈 수 있는지, 가까이에 식사할 곳이 있는지 확인합니다.</li>
+      <li><b>준비물</b> — 물, 간식, 여벌 옷, 물티슈, 개인 상비약, 보호자 연락처를 적은 메모나 팔찌를 챙깁니다.</li>
+      <li><b>날씨와 대안</b> — 출발 직전에 예보를 다시 보고, 차선책 중 한 곳을 비 올 때의 대안으로 정해 둡니다.</li>
+      <li><b>귀가 시간</b> — 아이가 지치는 시간을 생각해서 돌아오는 시간에 여유를 둡니다.</li>
+    </ol>
+
+    <h2>가족과 함께 월드컵을 더 재미있게 하는 법</h2>
+    <ul>
+      <li>아이가 직접 고르게 해 보세요. 왜 그곳을 골랐는지 물어보면 나들이에 대한 기대도 커집니다.</li>
+      <li>형제자매가 있다면 라운드를 나눠 번갈아 고르거나, 4강부터는 한 사람이 한 번씩 고르는 식으로 규칙을 정하면 다툼이 줄어듭니다.</li>
+      <li>부모에게 "거부권 한 번"을 주는 것도 방법입니다. 이동 거리나 예산 같은 현실적인 조건은 지키면서 아이의 선택을 존중할 수 있습니다.</li>
+      <li>우승 장소만 보지 말고 차선책 3곳도 메모해 두세요. 날씨가 나쁘거나 휴관일에 걸렸을 때 바로 쓸 대안이 되고, 다음 주말의 후보가 됩니다.</li>
+      <li>다녀온 뒤에는 이 페이지 아래 댓글에 장소 이름과 함께 후기를 남겨 주세요. 다른 가족이 고를 때 참고가 됩니다.</li>
+    </ul>
 
     <h2>자주 묻는 질문</h2>
     <div class="faq"><b>Q. 할 때마다 결과가 달라지나요?</b><p>네. 후보 16곳을 매번 무작위로 뽑고 대진 순서도 섞기 때문에 같은 조건이어도 결과가 달라질 수 있어요. 마음에 드는 결과가 나올 때까지 "다시 하기"를 눌러도 됩니다.</p></div>
@@ -240,12 +323,45 @@
     <div class="faq"><b>Q. 위치 정보를 수집하나요?</b><p>아니요. 내 위치를 묻지 않고, 고른 지역의 대략적인 중심 좌표로만 날씨를 조회합니다. 마지막으로 고른 조건은 편의를 위해 이 브라우저에만 저장됩니다.</p></div>
     <div class="faq"><b>Q. 장소 정보가 틀렸어요.</b><p>운영 정보는 바뀔 수 있습니다. <a href="/contact/">문의 페이지</a>로 알려주시면 확인 후 반영하겠습니다.</p></div>
 
+    <div class="faq"><b>Q. 실내를 골랐는데 날씨가 좋으면 어떡하죠?</b><p>실내를 고르면 실외 장소는 후보에 들어가지 않습니다. 야외로 나가고 싶다면 "실외"나 "상관없어요"로 바꿔 다시 시작해 보세요.</p></div>
+    <div class="faq"><b>Q. 우리 동네 장소가 없어요.</b><p>후보는 운영자가 정리한 곳이라 모든 장소가 들어 있지는 않습니다. 가고 싶은 곳이 있다면 <a href="/contact/">문의 페이지</a>나 아래 댓글로 알려 주세요. <a href="/festival/">아이랑 나들이 지도</a>에서는 지역별로 직접 둘러볼 수 있습니다.</p></div>
+    <div class="faq"><b>Q. 우승 장소는 예약이 꼭 필요한가요?</b><p>장소마다 다릅니다. 예약 없이 들어갈 수 있는 곳도 있고, 체험 프로그램만 예약을 받는 곳도 있어요. 상세 페이지의 안내와 공식 연락처로 확인해 주세요.</p></div>
+    <div class="faq"><b>Q. 아이랑 나들이 지도와 월드컵은 뭐가 다른가요?</b><p>지도는 지역에서 장소를 직접 찾아보는 도구이고, 월드컵은 가고 싶은 곳이 너무 많거나 가족 의견이 갈릴 때 대진표로 하나를 정하는 도구입니다. 같은 장소 정보를 쓰기 때문에 두 가지를 번갈아 쓰셔도 됩니다.</p></div>
+
     <div class="links">
       <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
       <a href="/festival/">🗺️ 아이랑 나들이 지도</a>
       <a href="/festival/#about-map">📍 지역별 장소 한눈에 보기</a>
       <a href="/blog/magazine/">📰 호호 매거진</a>
     </div>
+  </section>
+
+  <!-- 공유 (다른 호호플레이 페이지와 같은 형식) -->
+  <section class="share" aria-label="공유하기">
+    <div class="st">🔗 이 페이지 공유하기</div>
+    <div class="sr">
+      <button type="button" class="sb fb" data-sns="facebook" aria-label="페이스북 공유">f</button>
+      <button type="button" class="sb x" data-sns="x" aria-label="X 공유">X</button>
+      <button type="button" class="sb kk" data-sns="kakaot" aria-label="카카오톡 공유">💬</button>
+      <button type="button" class="sb nv" data-sns="naver" aria-label="네이버 공유">N</button>
+      <button type="button" class="sb bd" data-sns="band" aria-label="밴드 공유">밴드</button>
+      <button type="button" class="sb ln" data-sns="line" aria-label="라인 공유">라인</button>
+    </div>
+  </section>
+
+  <!-- 댓글 (사이트 공용 댓글 API, game_id=worldcup-kids) -->
+  <section class="cmt" id="cmtCard" aria-label="댓글">
+    <h2>💬 댓글</h2>
+    <p class="cs">다녀온 나들이 후기나 추천하고 싶은 장소를 남겨 주세요. 광고·욕설·개인정보가 담긴 글은 삭제될 수 있어요.</p>
+    <div class="cf">
+      <input id="cmtNick" type="text" placeholder="닉네임" maxlength="20" autocomplete="nickname">
+      <textarea id="cmtContent" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"></textarea>
+      <div class="cr">
+        <span class="cst" id="cmtStatus" role="status"></span>
+        <button type="button" class="cbtn" id="cmtSubmit">등록</button>
+      </div>
+    </div>
+    <div class="cl" id="cmtList"><div class="ce">댓글을 불러오는 중...</div></div>
   </section>
 </div>
 
@@ -657,6 +773,9 @@
     var d = el('a', 'btn', '📄 상세 정보 보기'); d.href = detailUrl(champ); acts.appendChild(d);
     var k = el('a', 'btn sub', '🗺️ 카카오맵에서 찾기'); k.href = 'https://map.kakao.com/?q=' + encodeURIComponent(champ.title); k.target = '_blank'; k.rel = 'noopener'; acts.appendChild(k);
     var nv = el('a', 'btn sub', '네이버지도'); nv.href = 'https://map.naver.com/p/search/' + encodeURIComponent(champ.title); nv.target = '_blank'; nv.rel = 'noopener'; acts.appendChild(nv);
+    var cm = el('button', 'btn sub', '💬 후기·추천 남기기'); cm.type = 'button';
+    cm.addEventListener('click', function () { if (window.hpCommentPrefill) window.hpCommentPrefill('🏆 우승: ' + champ.title + ' — '); });
+    acts.appendChild(cm);
     win.appendChild(acts);
     var fest = el('div', 'fest'); fest.style.display = 'none'; fest.id = 'festBox';
     win.appendChild(fest);
@@ -787,6 +906,120 @@
     $('poolInfo').className = 'poolinfo bad';
     $('poolInfo').textContent = '장소 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
   });
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+  var GID = 'worldcup-kids';
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- 공유 (다른 호호플레이 페이지와 같은 동작) ---------- */
+  function snsShare(type) {
+    var pageUrl = window.location.href;
+    var shareUrl = encodeURIComponent(pageUrl);
+    var title = document.title;
+    var shareTitle = encodeURIComponent(title);
+    if (type === 'kakaot') {
+      // 모바일은 OS 공유시트, PC는 링크를 직접 보여줘 복사하게 한다(카드 방식이 엉뚱한 페이지로 새는 문제 때문)
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile && navigator.share) { navigator.share({ title: title, url: pageUrl }).catch(function () {}); return; }
+      window.prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
+      return;
+    }
+    var map = {
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl,
+      x: 'https://twitter.com/intent/tweet?text=' + shareTitle + '&url=' + shareUrl,
+      naver: 'https://share.naver.com/web/shareView.nhn?url=' + shareUrl + '&title=' + shareTitle,
+      band: 'https://band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + shareUrl,
+      line: 'https://social-plugins.line.me/lineit/share?url=' + shareUrl + '&text=' + shareTitle
+    };
+    if (map[type]) window.open(map[type], '_blank');
+  }
+  var sbs = document.querySelectorAll('.share [data-sns]');
+  for (var i = 0; i < sbs.length; i++) {
+    sbs[i].addEventListener('click', function () { snsShare(this.getAttribute('data-sns')); });
+  }
+
+  /* ---------- 댓글 ---------- */
+  function fmtTime(ts) {
+    var diff = Date.now() - ts, min = Math.floor(diff / 60000);
+    if (min < 1) return '방금 전';
+    if (min < 60) return min + '분 전';
+    var hr = Math.floor(min / 60);
+    if (hr < 24) return hr + '시간 전';
+    var day = Math.floor(hr / 24);
+    if (day < 7) return day + '일 전';
+    return new Date(ts).toLocaleDateString('ko-KR');
+  }
+  function msg(text, cls) {
+    var d = document.createElement('div'); d.className = 'ce'; d.textContent = text;
+    if (cls) d.style.color = cls;
+    return d;
+  }
+  var loaded = false;
+  function load() {
+    loaded = true;
+    var box = $('cmtList');
+    fetch(API + '?game_id=' + encodeURIComponent(GID))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        box.innerHTML = '';
+        var list = data && data.comments ? data.comments : [];
+        if (!list.length) { box.appendChild(msg('아직 댓글이 없어요. 첫 댓글을 남겨보세요!')); return; }
+        list.forEach(function (c) {
+          var item = document.createElement('div'); item.className = 'ci';
+          var h = document.createElement('div'); h.className = 'ch';
+          var n = document.createElement('span'); n.className = 'cn'; n.textContent = c.nickname;
+          var t = document.createElement('span'); t.className = 'ct'; t.textContent = fmtTime(c.created_at);
+          h.appendChild(n); h.appendChild(t);
+          var body = document.createElement('div'); body.className = 'cc'; body.textContent = c.content;
+          item.appendChild(h); item.appendChild(body);
+          box.appendChild(item);
+        });
+      })
+      .catch(function () { box.innerHTML = ''; box.appendChild(msg('댓글을 불러오지 못했어요.', '#f87171')); });
+  }
+  // 도구만 쓰고 가는 방문자가 많아서, 댓글 영역이 화면 근처에 올 때 불러온다.
+  var card = $('cmtCard');
+  if (card && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting && !loaded) { io.disconnect(); load(); }
+    }, { rootMargin: '300px' });
+    io.observe(card);
+  } else { load(); }
+
+  try { var nk = localStorage.getItem('hp_cmt_nick'); if (nk) $('cmtNick').value = nk; } catch (e) {}
+
+  $('cmtSubmit').addEventListener('click', function () {
+    var nickEl = $('cmtNick'), contentEl = $('cmtContent'), st = $('cmtStatus'), btn = this;
+    var nickname = nickEl.value.trim(), content = contentEl.value.trim();
+    if (!nickname || !content) { st.textContent = '닉네임과 댓글을 모두 입력해주세요'; st.style.color = '#f87171'; return; }
+    btn.disabled = true; st.textContent = '등록 중...'; st.style.color = '#94a3b8';
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game_id: GID, nickname: nickname, content: content }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) { st.textContent = (res.d && res.d.error) || '등록에 실패했어요'; st.style.color = '#f87171'; btn.disabled = false; return; }
+        try { localStorage.setItem('hp_cmt_nick', nickname); } catch (e) {}
+        contentEl.value = ''; st.textContent = '등록됐어요!'; st.style.color = '#22c55e';
+        load();
+        setTimeout(function () { st.textContent = ''; btn.disabled = false; }, 30000);   // 연속 등록 방지
+      })
+      .catch(function () { st.textContent = '네트워크 오류가 발생했어요'; st.style.color = '#f87171'; btn.disabled = false; });
+  });
+
+  // 결과 화면의 "후기·추천 남기기" 버튼이 부른다: 댓글 영역으로 이동하고 우승 장소 문구를 미리 채운다.
+  window.hpCommentPrefill = function (text) {
+    var ta = $('cmtContent');
+    if (!card || !ta) return;
+    if (!ta.value.trim()) ta.value = String(text).slice(0, 300);
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () {
+      try { ta.focus({ preventScroll: true }); var n = ta.value.length; ta.setSelectionRange(n, n); } catch (e) {}
+    }, 500);
+  };
 })();
 </script>
 
