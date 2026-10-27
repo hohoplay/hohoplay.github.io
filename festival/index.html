@@ -419,6 +419,7 @@
              자연스러운 문장 형태로 지역 커버리지를 알린다. -->
         <p style="font-size:12px; color:#64748b; margin-bottom:10px; line-height:1.5;">
             서울·대전·대구·부산·광주를 비롯한 전국 어디서나, 아이랑 가볼만한 곳과 지금 열리는 축제를 한 지도에서 찾아보세요.
+            <a href="#about-map" style="color:#4f46e5; font-weight:700; white-space:nowrap;">이용 안내 ↓</a>
         </p>
         <!-- [ADD] 2026-10-10: 지역별 추천 코스(1단계) 토글. 누르면 아래 목록이 "오늘의
              축제/장소" 개별 목록 대신, 같은 구/군에 모인 아이랑 장소를 묶은 코스 카드로
@@ -594,6 +595,83 @@
         </div>
     </div>
 </div>
+
+<!-- [ADD] 2026-10-27: 지도 아래 정적 안내 구간. 크롤러가 지도 UI 외에 "이 지도가 무엇인지, 데이터는 어디서 오고
+     얼마나 자주 바뀌는지, 어떻게 쓰는지"를 읽을 수 있게 하는 설명 글이다. TODAY_FESTIVALS_START/END 구간(fetch_data.py가
+     자동 갱신) 바깥에 있어 동기화 때 지워지지 않는다. 데이터 출처·갱신 주기·기능이 바뀌면 이 글도 같이 고칠 것. -->
+<section id="about-map" style="max-width:56rem; margin:0 auto; padding:40px 20px 48px; color:#334155; line-height:1.85; font-size:15px;">
+    <h2 style="font-size:22px; font-weight:900; color:#1e293b; margin:0 0 14px;">아이랑 나들이 지도 소개</h2>
+    <p style="margin:0 0 14px;">
+        아이랑 나들이 지도는 지금 열리는 전국 축제와 아이와 함께 가기 좋은 장소를 한 장의 지도에 모아 보여주는 호호플레이의 무료 서비스입니다.
+        주말에 어디로 갈지 정할 때 지역마다 검색을 따로 하는 대신, 가려는 지역이나 내 위치를 고르면 오늘 갈 수 있는 곳이 지도와 목록으로 함께 나옵니다.
+        로그인이나 회원가입은 필요 없습니다.
+    </p>
+
+    <h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">어떤 장소가 담겨 있나요</h2>
+    <ul style="margin:0 0 14px; padding-left:22px;">
+        <li style="margin-bottom:8px;"><strong>축제·행사</strong> — 한국관광공사 TourAPI(공공데이터포털)의 행사 정보 가운데 진행 중이거나 예정된 것입니다. 이미 시작해서 진행 중인 축제도 포함하고, 끝난 축제는 지도 목록에서 빠집니다.</li>
+        <li style="margin-bottom:8px;"><strong>자연공원·수목원, 캠핑장, 수상레저</strong> — 같은 TourAPI의 상시 개방 장소입니다. 기간이 따로 없어 날짜와 상관없이 지도에 표시됩니다. 자연공원·수목원은 1,000곳 이상, 캠핑장은 700곳 이상이 들어 있습니다.</li>
+        <li style="margin-bottom:8px;"><strong>아이랑 갈 만한 곳</strong> — 운영자가 실내·실외·실내외로 나누어 직접 골라 정리한 약 250곳입니다(실내 장소가 가장 많습니다). 비용은 완전무료, 유료(일부 무료 조건 있음), 유료, 확인 필요 네 가지로 표시합니다.</li>
+        <li style="margin-bottom:8px;"><strong>무더위쉼터</strong> — 공공데이터포털의 무더위쉼터 정보입니다. 폭염 기간인 매년 7월~9월에만 테마 선택에 나타납니다.</li>
+    </ul>
+
+    <h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">데이터 기준과 갱신 주기</h2>
+    <p style="margin:0 0 14px;">
+        데이터는 매일 새벽에 자동으로 갱신합니다. 공공 서버 사정으로 새벽 갱신이 실패하면 같은 날 오전과 오후에 다시 시도합니다.
+        기간 필터는 이렇게 동작합니다. <strong>오늘</strong>은 오늘 날짜가 행사 기간 안에 들어가는 행사, <strong>이번달·다음달</strong>은 해당 월과 행사 기간이 하루라도 겹치는 행사,
+        <strong>전체 예정</strong>은 아직 끝나지 않은 모든 행사를 보여줍니다.
+        일정·요금·운영시간은 주최 측 사정으로 바뀔 수 있으니, 출발하기 전에 상세 페이지와 주최 측 공식 안내에서 한 번 더 확인해 주세요.
+    </p>
+
+    <h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">이렇게 사용해 보세요</h2>
+    <ol style="margin:0 0 14px; padding-left:22px;">
+        <li style="margin-bottom:8px;"><strong>지역 고르기</strong> — 전국 17개 시·도 가운데 가려는 곳을 선택합니다.</li>
+        <li style="margin-bottom:8px;"><strong>테마·비용 좁히기</strong> — 벚꽃, 단풍, 특산물, 불꽃, 겨울/눈, 꽃, 수목원/공원, 캠핑장, 수상레저 중에서 고르고, 무료만 또는 유료만으로 나눌 수 있습니다. 실내만 보기도 지원합니다.</li>
+        <li style="margin-bottom:8px;"><strong>이름 검색·내 주변 보기</strong> — 가고 싶은 곳의 이름으로 찾거나, 위치 권한을 허용하면 가까운 곳부터 볼 수 있습니다. 위치 권한은 이 버튼을 눌렀을 때만 브라우저가 묻습니다.</li>
+        <li style="margin-bottom:8px;"><strong>비 오는 날</strong> — 지도를 지역 단위로 확대해서 볼 때 그 지역에 비가 올 것으로 예보되면 안내 배너가 뜨고 실내만 보기가 자동으로 켜집니다. 필요하면 직접 끌 수 있습니다.</li>
+        <li style="margin-bottom:8px;"><strong>상세 정보 보기</strong> — 지도의 표시나 목록을 누르면 사진·기간·주소가 나오고, 상세보기에서 소개글과 이용 정보를 읽을 수 있습니다.</li>
+        <li style="margin-bottom:8px;"><strong>코스 추천</strong> — 같은 구·군에 모여 있는 아이랑 장소를 묶어서 코스 카드로 보여줍니다.</li>
+    </ol>
+
+    <h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">자주 묻는 질문</h2>
+    <div style="margin:0 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+        <p style="margin:0 0 4px; font-weight:800; color:#1e293b;">Q. 입장료와 운영시간은 정확한가요?</p>
+        <p style="margin:0;">공공 관광정보와 운영자가 확인한 내용을 바탕으로 정리했지만, 요금과 휴무일은 바뀔 수 있습니다. 특히 유료 시설은 출발 전에 공식 안내로 확인하시길 권합니다.</p>
+    </div>
+    <div style="margin:0 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+        <p style="margin:0 0 4px; font-weight:800; color:#1e293b;">Q. 비용 표시의 "확인 필요"는 무슨 뜻인가요?</p>
+        <p style="margin:0;">무료인지 유료인지 확정할 근거가 부족한 곳입니다. 비용을 지어내지 않고 확인이 필요하다고 표시해 두었으니, 방문 전에 시설에 직접 문의해 주세요.</p>
+    </div>
+    <div style="margin:0 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+        <p style="margin:0 0 4px; font-weight:800; color:#1e293b;">Q. 지도에 없는 행사나 잘못된 정보를 알려드리려면요?</p>
+        <p style="margin:0;">페이지 맨 아래 문의 메뉴나 <a href="mailto:lyh0929mm@gmail.com" style="color:#4f46e5; font-weight:700;">이메일</a>로 알려 주세요. 확인한 뒤 반영합니다.</p>
+    </div>
+    <div style="margin:0 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+        <p style="margin:0 0 4px; font-weight:800; color:#1e293b;">Q. 스마트폰에서도 쓸 수 있나요?</p>
+        <p style="margin:0;">네. 별도 앱 설치 없이 모바일 브라우저에서 그대로 동작합니다. 모바일에서는 목록이 옆에서 열고 닫는 패널로 나옵니다.</p>
+    </div>
+
+    <h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">함께 보면 좋은 글</h2>
+    <ul style="margin:0; padding-left:22px;">
+        <li style="margin-bottom:6px;"><a href="/blog/magazine/36.html" style="color:#4f46e5; font-weight:700;">아이와 함께 떠나는 전국 축제 여행: 호호플레이 나들이 안내</a></li>
+        <li style="margin-bottom:6px;"><a href="/blog/magazine/39.html" style="color:#4f46e5; font-weight:700;">아이와 함께하는 나들이 필수 체크리스트 &amp; 실패 없는 준비 팁</a></li>
+        <li style="margin-bottom:6px;"><a href="/festival/list.html" style="color:#4f46e5; font-weight:700;">이번 달 전국 축제·자연관광지 전체 목록</a></li>
+        <li style="margin-bottom:6px;"><a href="/blog/magazine/" style="color:#4f46e5; font-weight:700;">호호 매거진 전체 보기</a></li>
+    </ul>
+</section>
+<script>
+    // 지도 아래 안내 글을 읽을 때는 우하단 리모컨 메뉴(고정 위치)가 글자를 가리지 않도록, 지도가 화면에 보이는 동안에만 보여준다.
+    (function () {
+        try {
+            var menu = document.querySelector('.remote-menu');
+            var mapEl = document.querySelector('.map-wrapper');
+            if (!menu || !mapEl || !('IntersectionObserver' in window)) return;
+            new IntersectionObserver(function (entries) {
+                menu.style.display = entries[0].isIntersecting ? '' : 'none';
+            }, { threshold: 0.05 }).observe(mapEl);
+        } catch (e) {}
+    })();
+</script>
 
 <footer class="bg-slate-900 text-slate-400 py-16">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
