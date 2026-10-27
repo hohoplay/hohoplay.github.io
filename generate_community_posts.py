@@ -372,7 +372,155 @@ def plain_text_excerpt(content, length=200):
     return plain[:length]
 
 
-def render_post_html(template, post):
+# ───────────────────────────────────────────────────────────────────────────
+# [ADD] 2026-10-27: 호호 매거진 글 하단 "함께 보면 좋은 페이지" 박스.
+# 매거진 글 본문에는 게임·운세·나들이로 넘어가는 링크가 없어서(메뉴 제외) 색인되는 페이지끼리
+# 서로 이어지지 않았다. 글 주제에 맞는 공략/운세/꿈해몽/나들이/다른 매거진 글 링크를 글 하단에
+# 자동으로 붙인다. 이 생성기가 3시간마다 모든 글을 다시 렌더링하므로, 기존 글에도 자동 반영된다.
+#  - 글 id별로 직접 정한 목록(MAGAZINE_RELATED_MAP)이 있으면 그걸 쓰고,
+#  - 새로 올린 글(목록에 없는 id)은 제목 키워드로 자동 선택(_related_keys_by_title)한다.
+#  - "m:숫자"는 다른 매거진 글(이번 실행에 실제로 존재하는 글만 표시, 자기 자신은 제외).
+#  - 링크 대상은 전부 색인되는 페이지(공략·운세·꿈해몽·나들이·소개·개인정보)로만 구성.
+# ───────────────────────────────────────────────────────────────────────────
+RELATED_LINK_CATALOG = {
+    "g_rpg":     ("game", "/guides/hoya-typing-rpg-guide.html", "호호타자RPG 공략", "웨이브당 비석 16개와 보스 타수 계산, 성장 카드 우선순위와 코인 사용 기준을 정리한 공략입니다."),
+    "g_proverb": ("game", "/guides/hoya-proverb-typing-guide.html", "호호속담 공략", "10라운드 점수식과 길이별 라운드 전략, 연습 루틴을 담은 공략입니다."),
+    "g_cherry":  ("game", "/guides/hoho-cherry-blossom-typing-guide.html", "호호벚꽃타자 공략", "SHIELD 3칸을 지키는 방법과 CHAIN 10 피버, 보스 보너스 계산을 다룬 공략입니다."),
+    "g_fps":     ("game", "/guides/hoho-typing-fps-guide.html", "호호타자FPS 공략", "CHAIN 배율별 점수표와 보스 등장 점수 일정, 코어 보스 처리 순서를 정리한 공략입니다."),
+    "g_racing":  ("game", "/guides/hoho-racing-guide.html", "호호레이싱 공략", "점수 구간별 차선 확장과 트럭 경고 대응, 체력·방패 관리법을 담은 공략입니다."),
+    "g_run":     ("game", "/guides/hoho-run-guide.html", "HOHO RUN 공략", "높이 구간별 장애물과 화염구, 상점 비용과 부활 티켓 사용 시점을 정리한 공략입니다."),
+    "g_tile":    ("game", "/guides/hoho-tile-match-guide.html", "호호사천성 공략", "AI 단계별 속도와 공격 비용, 통찰·결계재편 사용 기준을 계산한 공략입니다."),
+    "g_jelly":   ("game", "/guides/jelly-pop-7-guide.html", "JELLY POP 7 공략", "조합 개수별 젤리당 점수와 CHAIN CAST 사이클, 2인 대결 요령을 다룬 공략입니다."),
+    "g_dash":    ("game", "/guides/hoho-dash-guide.html", "HOHO DASH 공략", "거리 구간별 STAGE 변화와 아이템 판단 기준, 상점 업그레이드 순서를 정리한 공략입니다."),
+    "g_dungeon": ("game", "/guides/word-puzzle-dungeon-guide.html", "낱말퍼즐 던전 공략", "풀이 5단계 순서와 교차 칸으로 후보를 거르는 법, 힌트를 쓸 위치를 설명한 공략입니다."),
+    "hub":       ("game", "/guides/index.html", "게임공략 모음", "호호플레이 게임 10종의 완벽 공략을 한곳에 모은 목록입니다."),
+    "mini":      ("game", "/guides/minigames-guide.html", "미니게임 10종 공략", "사다리·동전 던지기부터 두더지 잡기까지 미니게임 10종의 공략을 한 페이지에 모았습니다."),
+    "game":      ("game", "/game/", "전체 게임", "설치·가입 없이 무료로 즐기는 호호플레이 게임 모음입니다."),
+    "fortune":   ("fortune", "/fortune/", "오늘의 운세 · 타로 · MBTI", "오늘의 운세와 타로, MBTI 조합 풀이를 무료로 볼 수 있습니다."),
+    "dream":     ("fortune", "/dream/", "꿈해몽 사전", "키워드로 찾아보는 꿈해몽 사전입니다."),
+    "festival":  ("kids", "/festival/", "아이랑 나들이 지도", "전국 축제와 아이랑 가볼 만한 곳을 지도에서 찾아보세요."),
+    "about":     ("info", "/about/", "호호플레이 소개", "호호플레이가 어떤 서비스인지 소개합니다."),
+    "privacy":   ("info", "/privacy/", "개인정보처리방침", "호호플레이가 어떤 정보를 어떻게 다루는지 확인할 수 있습니다."),
+}
+RELATED_KIND_LABEL = {
+    "game": "🎮 게임", "fortune": "🔮 운세", "kids": "🎪 아이랑 나들이",
+    "mag": "📖 호호 매거진", "info": "ℹ️ 안내",
+}
+MAGAZINE_RELATED_MAP = {
+    10: ["hub", "game", "m:35", "m:11"],
+    11: ["hub", "game", "m:10", "mini"],
+    12: ["g_rpg", "hub", "m:11"],
+    13: ["g_rpg", "g_cherry", "g_fps", "g_proverb"],
+    14: ["g_racing", "g_dash", "m:21", "game"],
+    15: ["g_run", "g_dash", "m:21", "m:10"],
+    16: ["g_tile", "g_jelly", "m:20", "hub"],
+    20: ["g_jelly", "g_tile", "g_dungeon", "m:22"],
+    21: ["g_dash", "g_run", "m:15", "m:14"],
+    22: ["g_dungeon", "g_jelly", "m:20", "hub"],
+    23: ["g_cherry", "g_fps", "m:13", "game"],
+    24: ["g_rpg", "g_dash", "m:15", "game"],
+    27: ["fortune", "m:29", "m:28", "dream"],
+    28: ["dream", "fortune", "m:31", "m:27"],
+    29: ["fortune", "m:27", "m:28", "m:37"],
+    30: ["fortune", "m:32", "m:41", "dream"],
+    31: ["dream", "fortune", "m:32", "m:28"],
+    32: ["fortune", "m:41", "m:30", "m:31"],
+    34: ["about", "hub", "fortune", "festival"],
+    35: ["game", "hub", "mini", "m:38"],
+    36: ["festival", "m:39", "game", "fortune"],
+    37: ["fortune", "m:29", "m:28", "m:32"],
+    38: ["g_cherry", "g_jelly", "mini", "m:35"],
+    39: ["festival", "m:36", "game"],
+    40: ["privacy", "about", "m:34", "game"],
+    41: ["fortune", "m:32", "m:30", "dream"],
+}
+RELATED_BOX_MAX = 4
+
+
+def _related_keys_by_title(title):
+    """목록(MAGAZINE_RELATED_MAP)에 없는 새 매거진 글: 제목 키워드로 관련 링크를 고른다."""
+    t = title or ""
+    keys = []
+
+    def add(*ks):
+        for k in ks:
+            if k not in keys:
+                keys.append(k)
+
+    if "꿈" in t:
+        add("dream", "fortune")
+    if any(w in t for w in ("운세", "사주", "궁합", "타로", "MBTI", "mbti", "별자리")):
+        add("fortune")
+    if any(w in t for w in ("나들이", "축제", "아이와", "아이랑", "육아", "체험")):
+        add("festival")
+    if "레이싱" in t:
+        add("g_racing")
+    if "사천성" in t or "마작" in t:
+        add("g_tile")
+    if "타자" in t or "타이핑" in t:
+        add("g_rpg", "g_cherry", "g_fps", "g_proverb")
+    if "낱말" in t or "십자말" in t:
+        add("g_dungeon")
+    if any(w in t for w in ("숫자 퍼즐", "2048", "스도쿠")):
+        add("g_jelly")
+    if any(w in t for w in ("러닝", "달리기", "점프", "플랫폼")):
+        add("g_dash", "g_run")
+    if any(w in t for w in ("개인정보", "프라이버시", "쿠키")):
+        add("privacy")
+    if any(w in t for w in ("미니게임", "사다리", "룰렛", "주사위")):
+        add("mini")
+    # 어떤 키워드도 안 맞으면 사이트 전체를 이어주는 기본 묶음
+    if not keys:
+        add("hub", "game", "fortune", "festival")
+    else:
+        add("hub", "game")
+    return keys
+
+
+def build_related_box_html(post, magazine_titles):
+    """호호 매거진 글 하단 '함께 보면 좋은 페이지' 박스 HTML. 매거진이 아니면 빈 문자열."""
+    if post.get("category") != MAGAZINE_CATEGORY:
+        return ""
+    pid = post.get("id")
+    keys = MAGAZINE_RELATED_MAP.get(pid)
+    if keys is None:
+        keys = _related_keys_by_title(post.get("title", ""))
+    items = []
+    for k in keys:
+        if k.startswith("m:"):
+            try:
+                mid = int(k[2:])
+            except ValueError:
+                continue
+            if mid == pid or mid not in magazine_titles:
+                continue  # 자기 자신이거나 이번 실행에 없는(삭제된) 글은 건너뜀
+            items.append(("mag", f"/blog/{MAGAZINE_ARCHIVE_SLUG}/{mid}.html",
+                          magazine_titles[mid], "호호 매거진의 관련 글입니다."))
+        elif k in RELATED_LINK_CATALOG:
+            items.append(RELATED_LINK_CATALOG[k])
+    items = items[:RELATED_BOX_MAX]
+    if not items:
+        return ""
+    rows = []
+    for kind, href, title, desc in items:
+        rows.append(
+            f'<a href="{html_lib.escape(href)}" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;'
+            f'border-radius:12px;background:#f8fafc;text-decoration:none">'
+            f'<span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;'
+            f'padding:2px 9px;border-radius:999px">{RELATED_KIND_LABEL[kind]}</span>'
+            f'<div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">{html_lib.escape(title)}</div>'
+            f'<div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">{html_lib.escape(desc)}</div>'
+            f'</a>'
+        )
+    return (
+        '<aside aria-label="함께 보면 좋은 페이지" style="margin-top:36px;padding:18px;border:1px solid #e2e8f0;'
+        'border-radius:16px;background:#fff">'
+        '<div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:12px">🔗 함께 보면 좋은 페이지</div>'
+        '<div style="display:grid;gap:10px">' + "".join(rows) + '</div></aside>'
+    )
+
+
+def render_post_html(template, post, magazine_titles=None):
     # [FIX] 2026-09-21: post["content"]를 html_lib.escape()로 감싸고 있었음 — writer.html이
     # 실제 <h1>/<h2>/<p>/<ul><li>/<strong> 등 진짜 HTML 태그로 저장한 본문을 여기서 다시
     # 이스케이프하면, 브라우저에는 제목·문단·목록이 아니라 "<h1>...</h1>" 글자가 그대로
@@ -399,6 +547,8 @@ def render_post_html(template, post):
     html_out = html_out.replace("{{DATE}}", format_date(post["created_at"]))
     html_out = html_out.replace("{{EXCERPT}}", html_lib.escape(excerpt))
     html_out = html_out.replace("{{CONTENT_HTML}}", content_html)
+    # [ADD] 2026-10-27: 매거진 글 하단 관련 링크 박스(템플릿의 {{RELATED_HTML}} 자리, 매거진 외 카테고리는 빈 문자열)
+    html_out = html_out.replace("{{RELATED_HTML}}", build_related_box_html(post, magazine_titles or {}))
     # [ADD] 2026-09-21: 글 카테고리에 따라 실제 파일 위치(주소)가 blog/posts/ 또는
     # blog/magazine/ 로 갈라지게 되어, 템플릿이 canonical/og:url 태그에 쓸 수 있도록
     # 이 글의 "진짜 전체 주소"를 넘겨준다. (템플릿에 {{POST_URL}}이 없으면 그냥
@@ -456,6 +606,8 @@ def generate_post_pages(posts):
     # 받아오고 있어서, 매거진 목록을 만들 때 같은 본문을 또 fetch하지 않도록
     # 여기서 한 번만 받아온 걸 모아뒀다가 넘겨준다.
     post_excerpts = {}
+    # [ADD] 2026-10-27: 매거진 글 하단 관련 링크 박스에서 쓰는 {id: 제목} (이번 실행에 실제 존재하는 매거진 글만)
+    magazine_titles = {p["id"]: p["title"] for p in posts if p.get("category") == MAGAZINE_CATEGORY}
     for p in posts:
         target_dir = post_output_dir(p)
         target_path = os.path.join(target_dir, f"{p['id']}.html")
@@ -486,7 +638,7 @@ def generate_post_pages(posts):
         if not detail:
             continue
         post_excerpts[p["id"]] = plain_text_excerpt(detail.get("content", ""))
-        html_out = render_post_html(template, detail)
+        html_out = render_post_html(template, detail, magazine_titles)
         with open(target_path, "w", encoding="utf-8") as f:
             f.write(html_out)
         if was_existing:
