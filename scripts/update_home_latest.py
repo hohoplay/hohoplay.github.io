@@ -29,7 +29,7 @@ import re
 import sys
 
 LATEST_COUNT = 5
-EXCERPT_MAX = 90
+EXCERPT_MAX = 240  # 홈 카드에서 3~4줄로 보이는 길이(호호 매거진 카드와 비슷하게)
 START = '<!-- HOME_LATEST_START -->'
 END = '<!-- HOME_LATEST_END -->'
 SOURCES = [
@@ -91,7 +91,11 @@ def parse_post(path, badge, url_dir):
                 desc = desc[len(title):].strip()
             desc = re.sub(r'^[\s:：\-–—]+', '', desc)
     if len(desc) > EXCERPT_MAX:
-        desc = desc[:EXCERPT_MAX].rstrip(' ,.·') + '…'
+        cut = desc[:EXCERPT_MAX]
+        sp = cut.rfind(' ')
+        if sp >= EXCERPT_MAX - 25:  # 단어 중간에서 끊기지 않게 마지막 공백에서 자른다
+            cut = cut[:sp]
+        desc = cut.rstrip(' ,.·') + '…'
     stem = os.path.splitext(os.path.basename(path))[0]
     sort_id = int(stem) if stem.isdigit() else 0
     return {
