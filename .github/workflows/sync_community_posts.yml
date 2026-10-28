@@ -23,6 +23,10 @@ jobs:
       - name: 커뮤니티 게시글 동기화 실행
         run: python generate_community_posts.py
 
+      - name: 홈 최신 소식 갱신 (실패해도 동기화는 계속)
+        continue-on-error: true
+        run: python scripts/update_home_latest.py
+
       - name: 변경 사항 커밋 & 푸시
         run: |
           git config user.name "github-actions[bot]"
