@@ -149,8 +149,18 @@
     }
     if (excludeList.indexOf('guide') === -1) shuffleChildrenWeekly('hoho-pick-guide-body', 11);
 
-    // ── 커뮤니티·매거진: 전체 게시글을 Worker API(old-rain-16f7)에서 직접 받아와
-    //    개수 제한 없이, 최신 작성순 그대로 보여준다(목록 전용 응답이라 본문 발췌는 없음).
+    // [CHANGE] 2026-10-28: 각 섹션은 5개만 보여준다(홈이 너무 길어지지 않게).
+    // 게임공략은 날짜가 없는 고정 카드라, 주간으로 섞인 순서의 앞 5개만 남긴다(주가 바뀌면 다른 카드가 보인다).
+    var PICK_LIMIT = 5;
+    function limitChildren(containerId, limit) {
+        var body = document.getElementById(containerId);
+        if (!body) return;
+        Array.prototype.slice.call(body.children, limit).forEach(function (el) { el.parentNode.removeChild(el); });
+    }
+    if (excludeList.indexOf('guide') === -1) limitChildren('hoho-pick-guide-body', PICK_LIMIT);
+
+    // ── 커뮤니티·매거진: 게시글을 Worker API(old-rain-16f7)에서 직접 받아와
+    //    최신 작성순으로 각각 5개만 보여준다(목록 전용 응답이라 본문 발췌는 없음). 나머지는 "전체 보기" 링크로.
     var WORKER_API = 'https://old-rain-16f7.lyh0929mm.workers.dev';
     var MAGAZINE_CATEGORY = '호호 매거진';
     var CATEGORY_BADGE = {
@@ -282,11 +292,17 @@
             .then(function (results) {
                 var posts = (results[0] && results[0].posts) || [];
                 var excerptMap = results[1] || {};
+                // 최신 작성순(created_at 내림차순)으로 정렬한 뒤 PICK_LIMIT개만 사용
+                function newestFirst(a, b) {
+                    var ta = new Date(a.created_at).getTime() || 0;
+                    var tb = new Date(b.created_at).getTime() || 0;
+                    return tb - ta;
+                }
                 if (needMagazine) {
-                    renderPostCards('hoho-pick-magazine-body', posts.filter(function (p) { return p.category === MAGAZINE_CATEGORY; }), excerptMap);
+                    renderPostCards('hoho-pick-magazine-body', posts.filter(function (p) { return p.category === MAGAZINE_CATEGORY; }).sort(newestFirst).slice(0, PICK_LIMIT), excerptMap);
                 }
                 if (needCommunity) {
-                    renderPostCards('hoho-pick-community-body', posts.filter(function (p) { return p.category !== MAGAZINE_CATEGORY; }));
+                    renderPostCards('hoho-pick-community-body', posts.filter(function (p) { return p.category !== MAGAZINE_CATEGORY; }).sort(newestFirst).slice(0, PICK_LIMIT));
                     attachCommunityExcerpts('hoho-pick-community', 'hoho-pick-community-body');
                 }
             })
