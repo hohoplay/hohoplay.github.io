@@ -15,11 +15,28 @@
 .festival-thumb-wrap{width:64px;height:64px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#eef2ff;}
 .festival-item-text{flex:1;min-width:0;}
 .festival-item .curated-title{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px;}
+.curated-board{scroll-margin-top:84px;}
+.hp-jump{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 auto 22px;max-width:760px;}
+.hp-jump a{display:inline-block;padding:8px 14px;border-radius:999px;background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6;font-size:13px;font-weight:800;text-decoration:none;line-height:1.2;transition:background .15s,transform .15s;}
+.hp-jump a:hover{background:#ede9fe;transform:translateY(-1px);}
+.hp-jump a:active{transform:none;}
+.hp-jump a:focus-visible{outline:2px solid #4f46e5;outline-offset:2px;}
+#hoho-pick-top-btn{display:none;position:fixed;right:16px;bottom:24px;z-index:60;width:52px;height:52px;border-radius:16px;border:none;background:#4f46e5;color:#fff;box-shadow:0 8px 20px rgba(79,70,229,.35);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:2px;padding:0;transition:transform .15s;}
+#hoho-pick-top-btn:hover{transform:scale(1.06);}
+#hoho-pick-top-btn span{font-size:9px;font-weight:800;line-height:1;}
 </style>
-<div style="text-align:center;margin-bottom:20px;">
+<div style="text-align:center;margin-bottom:14px;">
     <span style="display:inline-block;background:#eef2ff;color:#4f46e5;font-size:12px;font-weight:900;padding:5px 14px;border-radius:999px;letter-spacing:.05em;">🎯 HOHO PICK</span>
     <p id="hoho-pick-tagline" style="font-size:13px;color:#94a3b8;margin-top:8px;">매거진·커뮤니티·축제·아이랑 갈만한 곳·게임공략, 호호플레이가 골라봤어요</p>
 </div>
+
+<nav id="hoho-pick-jump" class="hp-jump" aria-label="호호픽 바로가기">
+    <a href="#hoho-pick-magazine" data-jump="magazine">✨ 호호 매거진</a>
+    <a href="#hoho-pick-community" data-jump="community">💬 커뮤니티</a>
+    <a href="#hoho-pick-festival" data-jump="festival">🎪 오늘 어디 갈까요</a>
+    <a href="#hoho-pick-kids" data-jump="kids">🧸 아이랑 어디 갈까요</a>
+    <a href="#hoho-pick-guide" data-jump="guide">📖 게임공략</a>
+</nav>
 
 <section id="hoho-pick-magazine" class="curated-board" style="margin-bottom:24px;">
     <div class="curated-board-head"><h2 class="text-lg font-black text-slate-800">✨ 호호 매거진</h2><a href="/blog/magazine/" class="curated-more">매거진 전체 보기 →</a></div>
@@ -115,6 +132,74 @@
         .map(function(k){ return sectionMap[k].label; });
     var taglineEl = document.getElementById('hoho-pick-tagline');
     if (taglineEl) taglineEl.textContent = visibleLabels.join('·') + ', 호호플레이가 골라봤어요';
+
+    // ── [ADD] 2026-10-28: 바로가기 메뉴 — 눌러서 해당 섹션으로 부드럽게 이동.
+    //    · 순서는 order(화면 순서)와 같고, data-exclude 로 숨긴 섹션의 버튼은 같이 숨긴다.
+    //    · 데이터가 없어 섹션이 나중에 숨겨지는 경우(style.display='none')도 감시해서 버튼을 숨긴다.
+    //    · 보이는 섹션이 2개 미만이면 메뉴 자체가 필요 없으므로 통째로 숨긴다.
+    var jumpNav = document.getElementById('hoho-pick-jump');
+    if (jumpNav) {
+        var jumpLinks = {};
+        Array.prototype.forEach.call(jumpNav.querySelectorAll('a[data-jump]'), function (a) {
+            jumpLinks[a.getAttribute('data-jump')] = a;
+        });
+        order.forEach(function (k) { if (jumpLinks[k]) jumpNav.appendChild(jumpLinks[k]); });
+        var syncJump = function () {
+            var shown = 0;
+            order.forEach(function (k) {
+                var a = jumpLinks[k];
+                var sec = document.getElementById(sectionMap[k].id);
+                if (!a) return;
+                var hidden = !sec || sec.style.display === 'none' || excludeList.indexOf(k) !== -1;
+                a.style.display = hidden ? 'none' : '';
+                if (!hidden) shown++;
+            });
+            jumpNav.style.display = shown < 2 ? 'none' : '';
+        };
+        jumpNav.addEventListener('click', function (e) {
+            var a = e.target && e.target.closest ? e.target.closest('a[data-jump]') : null;
+            if (!a) return;
+            var sec = document.getElementById(sectionMap[a.getAttribute('data-jump')].id);
+            if (!sec) return;
+            e.preventDefault();
+            try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            catch (err) { sec.scrollIntoView(true); }
+        });
+        syncJump();
+        if (window.MutationObserver) {
+            var mo = new MutationObserver(syncJump);
+            order.forEach(function (k) {
+                var sec = document.getElementById(sectionMap[k].id);
+                if (sec) mo.observe(sec, { attributes: true, attributeFilter: ['style'] });
+            });
+        }
+    }
+
+    // ── [ADD] 2026-10-28: 맨 위로 버튼 — 게임 페이지의 "게임화면" 플로팅 버튼과 같은 모양.
+    //    스크롤을 600px 이상 내렸을 때만 나타나고, 누르면 맨 위로 부드럽게 올라간다.
+    //    이 파일이 여러 번 실행돼도 버튼은 하나만 만든다(id 검사).
+    if (!document.getElementById('hoho-pick-top-btn')) {
+        var topBtn = document.createElement('button');
+        topBtn.id = 'hoho-pick-top-btn';
+        topBtn.type = 'button';
+        topBtn.title = '맨 위로 이동';
+        topBtn.setAttribute('aria-label', '맨 위로 이동');
+        topBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 14 12 8 18 14"/><line x1="12" y1="8" x2="12" y2="20"/><line x1="6" y1="4" x2="18" y2="4"/></svg><span>맨 위</span>';
+        topBtn.addEventListener('click', function () {
+            try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (err) { window.scrollTo(0, 0); }
+        });
+        document.body.appendChild(topBtn);
+        var topTicking = false;
+        var updateTop = function () {
+            topTicking = false;
+            var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+            topBtn.style.display = y > 600 ? 'flex' : 'none';
+        };
+        window.addEventListener('scroll', function () {
+            if (!topTicking) { topTicking = true; window.requestAnimationFrame(updateTop); }
+        }, { passive: true });
+        updateTop();
+    }
 
     // ── 게임공략: 매주(7일마다) 카드 순서를 자동으로 랜덤하게 바꾼다.
     //    서버/자동화 없이, 현재 보이는 카드들만 그대로 두고 순서만 섞는다.
