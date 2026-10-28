@@ -160,6 +160,17 @@ def is_redirect_stub(file_path: str) -> bool:
     return has_refresh
 
 
+def is_noindex(file_path: str) -> bool:
+    """<meta name="robots" content="...noindex..."> 가 head에 있는 페이지인지 확인.
+    [ADD] 2026-10-28: noindex 페이지는 sitemap에 올리지 않는 게 원칙이라 자동 추가 대상에서 제외."""
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            head = f.read(4000)
+    except OSError:
+        return False
+    return bool(re.search(r'<meta\s+name=["\']robots["\']\s+content=["\'][^"\']*noindex', head, re.I))
+
+
 def load_sitemap(sitemap_path: str):
     """sitemap.xml을 파싱해서 loc -> {element, lastmod, changefreq, priority} 딕셔너리로."""
     tree = ET.parse(sitemap_path)
@@ -251,6 +262,8 @@ def main():
         full_path = os.path.join(root, rel_path)
         if is_redirect_stub(full_path):
             continue  # 리다이렉트 스텁은 sitemap에 올리지 않음
+        if is_noindex(full_path):
+            continue  # noindex 페이지도 sitemap에 올리지 않음
         if in_watched_dir:
             new_el = make_url_element(loc, today, DEFAULT_CHANGEFREQ, DEFAULT_PRIORITY)
             root_el.append(new_el)
