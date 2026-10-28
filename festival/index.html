@@ -192,6 +192,46 @@
         }
         .remote-btn .label { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
 
+        /* [ADD] 2026-10-28: 리모컨 메뉴의 "고르기" 버튼 — 누르면 왼쪽으로 월드컵·캠핑장 월드컵·룰렛 알약 3개가 펼쳐진다.
+           알약은 진짜 <a href> 링크라서 크롤러도 따라가고, 접힌 상태에서는 화면에서만 숨긴다(visibility).
+           기존 전체 목록/코스 추천 라디오 버튼 동작(.remote-radio-btn, syncCourseModeUI)과는 독립이다. */
+        .remote-pick { position: relative; }
+        .remote-pick-list {
+            position: absolute; right: calc(100% + 10px); bottom: 0;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+            opacity: 0; visibility: hidden; transform: translateX(10px); pointer-events: none;
+            transition: opacity .18s, transform .18s, visibility 0s linear .18s;
+        }
+        .remote-pick.open .remote-pick-list {
+            opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+            transition: opacity .18s, transform .18s, visibility 0s;
+        }
+        .remote-pick-item {
+            display: inline-block; white-space: nowrap; padding: 10px 14px; border-radius: 999px;
+            background: #fff; color: #3730a3; font-size: 13px; font-weight: 800; line-height: 1.2;
+            text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+        .remote-pick-item:hover, .remote-pick-item:focus-visible { background: #eef2ff; }
+        .remote-pick.open #remotePickBtn { background: #4338ca; color: #fff; }
+        .remote-pick.open #remotePickBtn .label { color: #fff; }
+
+        /* [ADD] 2026-10-28: 지도 아래 안내 글의 "나들이 고르기 도구" 카드 3장 */
+        .fest-tools { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 0 0 8px; }
+        @media (min-width: 768px) { .fest-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+        .fest-tool {
+            display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 16px; border-radius: 20px;
+            text-decoration: none; color: #334155; border: 1px solid transparent;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .fest-tool:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15,23,42,.10); }
+        .fest-tool-ico { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 14px; background: #fff; font-size: 22px; box-shadow: 0 2px 8px rgba(15,23,42,.08); }
+        .fest-tool-ttl { font-size: 16px; font-weight: 900; color: #1e293b; line-height: 1.35; margin-top: 4px; }
+        .fest-tool-dsc { font-size: 13.5px; line-height: 1.7; color: #475569; flex: 1; }
+        .fest-tool-go { font-size: 13px; font-weight: 900; }
+        .fest-tool.t-wc { background: #eef2ff; border-color: #c7d2fe; } .fest-tool.t-wc .fest-tool-go { color: #4338ca; }
+        .fest-tool.t-camp { background: #dcfce7; border-color: #bbf7d0; } .fest-tool.t-camp .fest-tool-go { color: #15803d; }
+        .fest-tool.t-roul { background: #fef3c7; border-color: #fde68a; } .fest-tool.t-roul .fest-tool-go { color: #b45309; }
+
         /* 오늘의 축제 패널 (기본 화면은 매일 자동 생성되는 정적 텍스트 — SEO용.
            지역을 선택하면 아래 스크립트가 festivals.json을 걸러서 다시 그려준다) */
         .today-panel {
@@ -590,6 +630,17 @@
             <button type="button" id="remoteCourseBtn" class="remote-btn remote-radio-btn" onclick="setCourseModeFromRemote(true)" aria-label="아이랑 나들이 추천 코스 보기">
                 <span>🗺️</span><span class="label">코스 추천</span>
             </button>
+            <!-- [ADD] 2026-10-28: "고르기" — 월드컵·캠핑장 월드컵·룰렛 도구 페이지로 가는 링크 3개를 펼친다. -->
+            <div class="remote-pick" id="remotePick">
+                <button type="button" id="remotePickBtn" class="remote-btn" aria-label="나들이 고르기 도구 열기" aria-expanded="false" aria-controls="remotePickList">
+                    <span>🎲</span><span class="label">고르기</span>
+                </button>
+                <div class="remote-pick-list" id="remotePickList">
+                    <a href="/festival/worldcup.html" class="remote-pick-item">🏆 나들이 월드컵</a>
+                    <a href="/festival/camping-worldcup.html" class="remote-pick-item">⛺ 캠핑장 월드컵</a>
+                    <a href="/festival/roulette.html" class="remote-pick-item">🎰 나들이 룰렛</a>
+                </div>
+            </div>
             <a href="https://hohoplaylab.com/" class="remote-btn" aria-label="홈으로 가기">
                 <span>🏠</span><span class="label">홈</span>
             </a>
@@ -772,17 +823,59 @@
         <p style="margin:0;">네. 별도 앱 설치 없이 모바일 브라우저에서 그대로 동작합니다. 모바일에서는 목록이 옆에서 열고 닫는 패널로 나옵니다.</p>
     </div>
 
+    <h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">오늘 어디 갈지 골라 주는 도구</h2>
+    <p style="margin:0 0 14px;">지도에서 후보를 봤는데도 정하기 어렵다면, 아래 도구로 가볍게 골라 보세요. 모두 무료이고 로그인이 필요 없습니다.</p>
+    <div class="fest-tools">
+        <a href="/festival/worldcup.html" class="fest-tool t-wc">
+            <span class="fest-tool-ico" aria-hidden="true">🏆</span>
+            <span class="fest-tool-ttl">아이랑 나들이 월드컵</span>
+            <span class="fest-tool-dsc">두 곳씩 비교하며 대진표를 올라가면 오늘 갈 곳이 정해져요.</span>
+            <span class="fest-tool-go">시작하기 →</span>
+        </a>
+        <a href="/festival/camping-worldcup.html" class="fest-tool t-camp">
+            <span class="fest-tool-ico" aria-hidden="true">⛺</span>
+            <span class="fest-tool-ttl">캠핑장 월드컵</span>
+            <span class="fest-tool-dsc">마음에 드는 캠핑장을 두 곳씩 겨뤄서 이번 캠핑 장소를 골라요.</span>
+            <span class="fest-tool-go">시작하기 →</span>
+        </a>
+        <a href="/festival/roulette.html" class="fest-tool t-roul">
+            <span class="fest-tool-ico" aria-hidden="true">🎰</span>
+            <span class="fest-tool-ttl">나들이·캠핑장·숲 룰렛</span>
+            <span class="fest-tool-dsc">지역만 고르면 후보 중에서 룰렛이 돌려서 정해 줘요.</span>
+            <span class="fest-tool-go">돌려보기 →</span>
+        </a>
+    </div>
+
     <h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">함께 보면 좋은 글</h2>
     <ul style="margin:0; padding-left:22px;">
-        <li style="margin-bottom:6px;"><a href="/festival/worldcup.html" style="color:#4f46e5; font-weight:700;">아이랑 나들이 월드컵: 대진표로 오늘 갈 곳 고르기</a></li>
-        <li style="margin-bottom:6px;"><a href="/festival/camping-worldcup.html" style="color:#4f46e5; font-weight:700;">캠핑장 월드컵: 대진표로 이번 캠핑 장소 고르기</a></li>
-        <li style="margin-bottom:6px;"><a href="/festival/roulette.html" style="color:#4f46e5; font-weight:700;">나들이·캠핑장·숲 룰렛: 지역만 고르고 돌려서 정하기</a></li>
         <li style="margin-bottom:6px;"><a href="/blog/magazine/36.html" style="color:#4f46e5; font-weight:700;">아이와 함께 떠나는 전국 축제 여행: 호호플레이 나들이 안내</a></li>
         <li style="margin-bottom:6px;"><a href="/blog/magazine/39.html" style="color:#4f46e5; font-weight:700;">아이와 함께하는 나들이 필수 체크리스트 &amp; 실패 없는 준비 팁</a></li>
         <li style="margin-bottom:6px;"><a href="/festival/list.html" style="color:#4f46e5; font-weight:700;">이번 달 전국 축제·자연관광지 전체 목록</a></li>
         <li style="margin-bottom:6px;"><a href="/blog/magazine/" style="color:#4f46e5; font-weight:700;">호호 매거진 전체 보기</a></li>
     </ul>
 </section>
+<script>
+    // [ADD] 2026-10-28: 리모컨 "고르기" 버튼 — 눌러서 월드컵/룰렛 알약을 펼치고 접는다.
+    (function () {
+        try {
+            var box = document.getElementById('remotePick');
+            var btn = document.getElementById('remotePickBtn');
+            if (!box || !btn) return;
+            function setOpen(open) {
+                box.classList.toggle('open', open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+            btn.addEventListener('click', function () { setOpen(!box.classList.contains('open')); });
+            // 지도·다른 버튼을 누르거나 Esc를 누르면 접는다(지도 위 터치도 잡히도록 capture 단계에서 듣는다).
+            document.addEventListener('pointerdown', function (e) {
+                if (box.classList.contains('open') && !box.contains(e.target)) setOpen(false);
+            }, true);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && box.classList.contains('open')) { setOpen(false); btn.focus(); }
+            });
+        } catch (e) {}
+    })();
+</script>
 <script>
     // 지도 아래 안내 글을 읽을 때는 우하단 리모컨 메뉴(고정 위치)가 글자를 가리지 않도록, 지도가 화면에 보이는 동안에만 보여준다.
     (function () {
