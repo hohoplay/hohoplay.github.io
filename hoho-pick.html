@@ -15,17 +15,22 @@
 .festival-thumb-wrap{width:64px;height:64px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#eef2ff;}
 .festival-item-text{flex:1;min-width:0;}
 .festival-item .curated-title{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px;}
-.curated-board{scroll-margin-top:84px;}
-.hp-jump{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 auto 22px;max-width:760px;}
-.hp-jump a{display:inline-block;padding:8px 14px;border-radius:999px;background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6;font-size:13px;font-weight:800;text-decoration:none;line-height:1.2;transition:background .15s,transform .15s;}
-.hp-jump a:hover{background:#ede9fe;transform:translateY(-1px);}
-.hp-jump a:active{transform:none;}
+.curated-board{scroll-margin-top:var(--hp-scroll-margin,130px);}
+.hp-jump{position:sticky;top:var(--hp-jump-top,0px);z-index:45;display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:8px;margin:0 0 18px;padding:8px 6px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:16px;transition:background .2s,box-shadow .2s;}
+.hp-jump::-webkit-scrollbar{display:none;}
+.hp-jump a:first-child{margin-left:auto;}
+.hp-jump a:last-child{margin-right:auto;}
+.hp-jump.stuck{background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 18px rgba(79,70,229,.12);border-radius:0 0 16px 16px;}
+.hp-jump a{flex:0 0 auto;display:inline-block;padding:8px 14px;border-radius:999px;background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6;font-size:13px;font-weight:800;text-decoration:none;line-height:1.2;white-space:nowrap;transition:background .15s,color .15s,transform .15s;}
+.hp-jump a:hover{background:#ede9fe;}
+.hp-jump a.on{background:#4f46e5;border-color:#4f46e5;color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.3);}
 .hp-jump a:focus-visible{outline:2px solid #4f46e5;outline-offset:2px;}
+@media(max-width:520px){.hp-jump{gap:6px;}.hp-jump a{padding:8px 12px;font-size:12px;}}
 #hoho-pick-top-btn{display:none;position:fixed;right:16px;bottom:24px;z-index:60;width:52px;height:52px;border-radius:16px;border:none;background:#4f46e5;color:#fff;box-shadow:0 8px 20px rgba(79,70,229,.35);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:2px;padding:0;transition:transform .15s;}
 #hoho-pick-top-btn:hover{transform:scale(1.06);}
 #hoho-pick-top-btn span{font-size:9px;font-weight:800;line-height:1;}
 </style>
-<div style="text-align:center;margin-bottom:14px;">
+<div style="text-align:center;margin-bottom:10px;">
     <span style="display:inline-block;background:#eef2ff;color:#4f46e5;font-size:12px;font-weight:900;padding:5px 14px;border-radius:999px;letter-spacing:.05em;">🎯 HOHO PICK</span>
     <p id="hoho-pick-tagline" style="font-size:13px;color:#94a3b8;margin-top:8px;">매거진·커뮤니티·축제·아이랑 갈만한 곳·게임공략, 호호플레이가 골라봤어요</p>
 </div>
@@ -136,7 +141,9 @@
     // ── [ADD] 2026-10-28: 바로가기 메뉴 — 5개 버튼은 어떤 경우에도 없어지지 않는다.
     //    · 그 섹션이 이 페이지에 보이면: 눌렀을 때 해당 섹션으로 부드럽게 이동(#앵커).
     //    · 이 페이지에서 숨겨졌으면(data-exclude, 데이터 없음 등): 같은 이름의 목록 페이지로 이동.
-    //    · 섹션이 나중에 숨겨지거나 다시 보이는 경우(style.display 변경)도 감시해서 이동 대상만 바꾼다.
+    //    · [ADD] 호호픽 영역 안에서는 메뉴 줄이 사이트 상단 메뉴 바로 아래에 고정(sticky)되어 따라온다.
+    //      (부모가 #hoho-pick-placeholder 이므로 호호픽 영역이 끝나면 같이 풀린다.)
+    //    · 지금 보고 있는 섹션의 버튼은 진하게(.on) 표시한다.
     var jumpFallback = {
         magazine: '/blog/magazine/',
         community: '/blog/',
@@ -151,15 +158,74 @@
             jumpLinks[a.getAttribute('data-jump')] = a;
         });
         order.forEach(function (k) { if (jumpLinks[k]) jumpNav.appendChild(jumpLinks[k]); });
+
+        var isOnPage = function (k) {
+            var sec = document.getElementById(sectionMap[k].id);
+            return !!(sec && sec.style.display !== 'none' && excludeList.indexOf(k) === -1);
+        };
         var syncJump = function () {
             order.forEach(function (k) {
                 var a = jumpLinks[k];
-                if (!a) return;
-                var sec = document.getElementById(sectionMap[k].id);
-                var onPage = sec && sec.style.display !== 'none' && excludeList.indexOf(k) === -1;
-                a.setAttribute('href', onPage ? '#' + sectionMap[k].id : jumpFallback[k]);
+                if (a) a.setAttribute('href', isOnPage(k) ? '#' + sectionMap[k].id : jumpFallback[k]);
             });
+            spy();
         };
+
+        // 사이트 상단에 고정된 메뉴(nav/header)의 높이를 재서, 그 바로 아래에 붙인다.
+        var siteBarHeight = function () {
+            var best = 0;
+            Array.prototype.forEach.call(document.querySelectorAll('nav, header'), function (el) {
+                if (el === jumpNav || jumpNav.contains(el)) return;
+                var cs = window.getComputedStyle(el);
+                if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+                var r = el.getBoundingClientRect();
+                if (r.top > 1 || r.top < -1 || r.height <= 0 || r.height > 200 || r.width < window.innerWidth * 0.5) return;
+                if (r.bottom > best) best = r.bottom;
+            });
+            return Math.round(best);
+        };
+        var layoutJump = function () {
+            var top = siteBarHeight();
+            jumpNav.style.setProperty('--hp-jump-top', top + 'px');
+            document.documentElement.style.setProperty('--hp-scroll-margin', (top + jumpNav.offsetHeight + 12) + 'px');
+        };
+
+        var lockKey = null, lockTimer = null;
+        var setOn = function (key) {
+            order.forEach(function (k) {
+                var a = jumpLinks[k];
+                if (!a) return;
+                var on = (k === key);
+                if (a.classList.contains('on') !== on) a.classList.toggle('on', on);
+                if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+            });
+            var cur = key && jumpLinks[key];
+            // 메뉴 줄이 옆으로 밀리는 좁은 화면에서는, 선택된 버튼이 보이도록 줄 안에서만 옮긴다.
+            if (cur && jumpNav.scrollWidth > jumpNav.clientWidth + 2) {
+                var want = cur.offsetLeft - (jumpNav.clientWidth - cur.offsetWidth) / 2;
+                if (Math.abs(jumpNav.scrollLeft - want) > 4) {
+                    try { jumpNav.scrollTo({ left: want, behavior: 'smooth' }); } catch (err) { jumpNav.scrollLeft = want; }
+                }
+            }
+        };
+        var lastTop = -1;
+        function spy() {
+            var top = siteBarHeight();
+            if (top !== lastTop) { lastTop = top; layoutJump(); } // Tailwind 등이 늦게 적용돼 상단 메뉴 높이가 바뀐 경우 보정
+            var navTop = jumpNav.getBoundingClientRect().top;
+            var stuck = navTop <= top + 1 && window.pageYOffset > 0;
+            if (jumpNav.classList.contains('stuck') !== stuck) jumpNav.classList.toggle('stuck', stuck);
+            if (lockKey) return;
+            var line = top + jumpNav.offsetHeight + 24;
+            var active = null;
+            order.forEach(function (k) {
+                if (!isOnPage(k)) return;
+                var r = document.getElementById(sectionMap[k].id).getBoundingClientRect();
+                if (r.top <= line && r.bottom > line) active = k;
+            });
+            setOn(active);
+        }
+
         jumpNav.addEventListener('click', function (e) {
             var a = e.target && e.target.closest ? e.target.closest('a[data-jump]') : null;
             if (!a) return;
@@ -168,10 +234,28 @@
             var sec = document.getElementById(href.slice(1));
             if (!sec) return;
             e.preventDefault();
+            layoutJump();
+            lockKey = a.getAttribute('data-jump');
+            setOn(lockKey);
+            clearTimeout(lockTimer);
+            lockTimer = setTimeout(function () { lockKey = null; spy(); }, 1100);
             try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
             catch (err) { sec.scrollIntoView(true); }
         });
+        // 사용자가 직접 스크롤하면 잠금을 풀어 바로 현재 위치를 따라가게 한다.
+        ['wheel', 'touchstart', 'keydown'].forEach(function (ev) {
+            window.addEventListener(ev, function () { if (lockKey) { lockKey = null; clearTimeout(lockTimer); } }, { passive: true });
+        });
+
+        var spyTicking = false;
+        window.addEventListener('scroll', function () {
+            if (!spyTicking) { spyTicking = true; window.requestAnimationFrame(function () { spyTicking = false; spy(); }); }
+        }, { passive: true });
+        window.addEventListener('resize', function () { layoutJump(); spy(); });
+        window.addEventListener('load', function () { layoutJump(); spy(); });
+        layoutJump();
         syncJump();
+        setTimeout(function () { layoutJump(); spy(); }, 400);
         if (window.MutationObserver) {
             var mo = new MutationObserver(syncJump);
             order.forEach(function (k) {
