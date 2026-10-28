@@ -133,10 +133,17 @@
     var taglineEl = document.getElementById('hoho-pick-tagline');
     if (taglineEl) taglineEl.textContent = visibleLabels.join('·') + ', 호호플레이가 골라봤어요';
 
-    // ── [ADD] 2026-10-28: 바로가기 메뉴 — 눌러서 해당 섹션으로 부드럽게 이동.
-    //    · 순서는 order(화면 순서)와 같고, data-exclude 로 숨긴 섹션의 버튼은 같이 숨긴다.
-    //    · 데이터가 없어 섹션이 나중에 숨겨지는 경우(style.display='none')도 감시해서 버튼을 숨긴다.
-    //    · 보이는 섹션이 2개 미만이면 메뉴 자체가 필요 없으므로 통째로 숨긴다.
+    // ── [ADD] 2026-10-28: 바로가기 메뉴 — 5개 버튼은 어떤 경우에도 없어지지 않는다.
+    //    · 그 섹션이 이 페이지에 보이면: 눌렀을 때 해당 섹션으로 부드럽게 이동(#앵커).
+    //    · 이 페이지에서 숨겨졌으면(data-exclude, 데이터 없음 등): 같은 이름의 목록 페이지로 이동.
+    //    · 섹션이 나중에 숨겨지거나 다시 보이는 경우(style.display 변경)도 감시해서 이동 대상만 바꾼다.
+    var jumpFallback = {
+        magazine: '/blog/magazine/',
+        community: '/blog/',
+        festival: '/festival/',
+        kids: '/festival/',
+        guide: '/guides/index.html'
+    };
     var jumpNav = document.getElementById('hoho-pick-jump');
     if (jumpNav) {
         var jumpLinks = {};
@@ -145,21 +152,20 @@
         });
         order.forEach(function (k) { if (jumpLinks[k]) jumpNav.appendChild(jumpLinks[k]); });
         var syncJump = function () {
-            var shown = 0;
             order.forEach(function (k) {
                 var a = jumpLinks[k];
-                var sec = document.getElementById(sectionMap[k].id);
                 if (!a) return;
-                var hidden = !sec || sec.style.display === 'none' || excludeList.indexOf(k) !== -1;
-                a.style.display = hidden ? 'none' : '';
-                if (!hidden) shown++;
+                var sec = document.getElementById(sectionMap[k].id);
+                var onPage = sec && sec.style.display !== 'none' && excludeList.indexOf(k) === -1;
+                a.setAttribute('href', onPage ? '#' + sectionMap[k].id : jumpFallback[k]);
             });
-            jumpNav.style.display = shown < 2 ? 'none' : '';
         };
         jumpNav.addEventListener('click', function (e) {
             var a = e.target && e.target.closest ? e.target.closest('a[data-jump]') : null;
             if (!a) return;
-            var sec = document.getElementById(sectionMap[a.getAttribute('data-jump')].id);
+            var href = a.getAttribute('href') || '';
+            if (href.charAt(0) !== '#') return; // 목록 페이지로 이동하는 링크는 기본 동작 그대로
+            var sec = document.getElementById(href.slice(1));
             if (!sec) return;
             e.preventDefault();
             try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
