@@ -374,6 +374,33 @@
 </div>
 </div>
 </div>
+                <!-- 광고: 설명 글 중간 1곳 (게임 화면·조작 버튼과 떨어진 위치). PC/모바일 중 한 곳에만 표시됩니다. -->
+                <div class="hoho-content-ad" style="padding:8px 24px 16px;text-align:center;">
+                    <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.08em;margin-bottom:4px;">광고</div>
+                    <div id="hoho-content-ad-slot"></div>
+                </div>
+                <style>.hoho-content-ad:has(ins[data-ad-status="unfilled"]){display:none}</style>
+                <script>
+                (function(){
+                    // PC/모바일에서 서로 다른 광고 단위를 쓰려면 아래 두 번호만 바꾸면 됩니다.
+                    var PC_SLOT = '8741532582';
+                    var MOBILE_SLOT = '8741532582';
+                    try {
+                        var box = document.getElementById('hoho-content-ad-slot');
+                        if (!box) return;
+                        var mobile = window.matchMedia('(max-width: 767px)').matches;
+                        var ins = document.createElement('ins');
+                        ins.className = 'adsbygoogle';
+                        ins.style.display = 'block';
+                        ins.setAttribute('data-ad-client', 'ca-pub-7990191075290055');
+                        ins.setAttribute('data-ad-slot', mobile ? MOBILE_SLOT : PC_SLOT);
+                        ins.setAttribute('data-ad-format', 'auto');
+                        ins.setAttribute('data-full-width-responsive', 'true');
+                        box.appendChild(ins);
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    } catch (e) {}
+                })();
+                </script>
                 <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="space-y-8">
 <div>
