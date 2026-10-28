@@ -216,14 +216,29 @@
         }
 
         /* 소개 */
-        .home-about { color: #475569; line-height: 1.85; font-size: 14px; }
-        .home-about h2 { font-size: 1.1rem; font-weight: 900; color: #1e293b; margin: 0 0 8px; }
-        .home-about a { color: #4f46e5; text-decoration: underline; }
-        .home-about h3 { font-size: 1rem; font-weight: 900; color: #1e293b; margin: 18px 0 6px; }
-        .home-games { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: 1fr; gap: 4px 24px; }
-        @media (min-width: 768px) { .home-games { grid-template-columns: 1fr 1fr; } }
-        .home-games li { padding: 3px 0; }
-        .home-games a { font-weight: 800; }
+        /* 소개 — 카드 3개 (호호플레이는 이런 곳이에요 / 아이랑 나들이 / 웹게임 10종) */
+        .home-about { margin-bottom: 24px; }
+        .ha-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        @media (min-width: 768px) { .ha-grid { grid-template-columns: 1fr 1fr; gap: 16px; } .ha-wide { grid-column: 1 / -1; } }
+        @media (min-width: 1024px) { .ha-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ha-wide { grid-column: auto; } }
+        .ha-card { background: #fff; border: 1px solid #e8ecf4; border-radius: 22px; padding: 20px 22px 22px; color: #475569; font-size: 14px; line-height: 1.85; box-shadow: 0 2px 12px rgba(79,70,229,.05); }
+        .ha-card h2 { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 900; color: #1e293b; margin: 0 0 12px; line-height: 1.4; }
+        .ha-ic { flex: none; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; line-height: 1; }
+        .ha-card p { margin: 0 0 10px; word-break: keep-all; }
+        .ha-card p:last-child { margin-bottom: 0; }
+        .ha-card a { color: #4f46e5; text-decoration: underline; text-underline-offset: 2px; }
+        .ha-games { list-style: none; margin: 0 0 14px; padding: 0; display: grid; grid-template-columns: 1fr; gap: 6px; }
+        @media (min-width: 768px) and (max-width: 1023px) { .ha-games { grid-template-columns: 1fr 1fr; gap: 10px; } }
+        .ha-games li { background: #f8fafc; border: 1px solid #eef2f7; border-radius: 12px; padding: 8px 12px; line-height: 1.5; min-width: 0; }
+        .ha-games a { font-weight: 800; font-size: 14px; text-decoration: none; }
+        .ha-games a:hover { text-decoration: underline; }
+        .ha-games em { display: block; font-style: normal; font-size: 12px; color: #64748b; margin-top: 2px; word-break: keep-all; }
+        .ha-pc { display: inline-block; font-size: 10px; font-weight: 800; color: #b45309; background: #fef3c7; border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: 1px; }
+        .ha-mini { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 10px; }
+        .ha-mini { margin-top: 14px; }
+        .ha-mini > span { flex: 0 0 100%; font-size: 13px; font-weight: 800; color: #1e293b; }
+        .ha-mini a { display: inline-block; font-size: 12px; font-weight: 700; text-decoration: none; color: #4338ca; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 999px; padding: 3px 11px; line-height: 1.5; }
+        .ha-mini a:hover { background: #e0e7ff; }
 
         /* [ADD] 2026-10-28: 최신 소식 — scripts/update_home_latest.py 가 HOME_LATEST 표식 사이를 정적 HTML로 채움 */
         .home-latest { margin: 0 0 34px; }
@@ -276,7 +291,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20261028021912_8b57aadc">
+  <meta name="build-version" content="20261028025753_ccf9769f">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -493,46 +508,73 @@
         <!-- 호호픽 -->
         <div id="hoho-pick-placeholder" style="margin-bottom:40px;"></div>
 
-        <!-- 소개 (크롤러·사용자 모두에게 보이는 정적 텍스트) -->
-        <section class="home-about" style="margin-bottom:24px;">
-            <h2>호호플레이는 이런 곳이에요</h2>
-            <p style="margin:0 0 10px;">
-                호호플레이(HOHO PLAY)는 회원가입이나 설치 없이 브라우저에서 바로 즐기는 무료 웹게임 포털입니다.
-                <a href="/game/">타이핑·퍼즐·러닝·레이싱 게임 10종</a>과 간단히 즐기는 미니게임 10종을 직접 만들어 제공하고,
-                사주·타로 등 계산 로직을 바탕으로 한 <a href="/fortune/">운세</a>와 키워드로 찾는 <a href="/dream/">꿈해몽 사전</a>도 함께 운영합니다.
-            </p>
-            <p style="margin:0;">
-                주말에 아이와 어디 갈지 고민될 때는 <a href="/festival/">아이랑 나들이 지도</a>에서 전국의 축제와 가볼 만한 곳을 지역별로 찾아보세요.
-                매주 새 주제로 열리는 <a href="/vote/">익명투표</a>, 5문제 <a href="/quiz/">상식테스트</a>,
-                <a href="/blog/magazine/">호호 매거진</a>도 준비되어 있습니다.
-            </p>
+        <!-- 소개 (크롤러·사용자 모두에게 보이는 정적 텍스트) — 카드 3개 -->
+        <section class="home-about" aria-label="호호플레이 소개">
+            <div class="ha-grid">
+                <article class="ha-card">
+                    <h2><span class="ha-ic" style="background:#eef2ff">🎮</span>호호플레이는 이런 곳이에요</h2>
+                    <p>
+                        호호플레이(HOHO PLAY)는 회원가입이나 설치 없이 브라우저에서 바로 즐기는 무료 웹게임 포털입니다.
+                        <a href="/game/">타이핑·퍼즐·러닝·레이싱 게임 10종</a>과 간단히 즐기는 미니게임 10종을 직접 만들어 제공하고,
+                        사주·타로 등 계산 로직을 바탕으로 한 <a href="/fortune/">운세</a>와 키워드로 찾는 <a href="/dream/">꿈해몽 사전</a>도 함께 운영합니다.
+                    </p>
+                    <p>
+                        주말에 아이와 어디 갈지 고민될 때는 <a href="/festival/">아이랑 나들이 지도</a>에서 전국의 축제와 가볼 만한 곳을 지역별로 찾아보세요.
+                        매주 새 주제로 열리는 <a href="/vote/">익명투표</a>, 5문제 <a href="/quiz/">상식테스트</a>,
+                        <a href="/blog/magazine/">호호 매거진</a>도 준비되어 있습니다.
+                    </p>
+                    <div class="ha-mini">
+                        <span>잠깐 즐기기 좋은 미니게임</span>
+                    <a href="/mgame1.html">사다리게임</a>
+                    <a href="/mgame2.html">동전 던지기</a>
+                    <a href="/mgame3.html">주사위 굴리기</a>
+                    <a href="/mgame4.html">행운의 룰렛</a>
+                    <a href="/mgame5.html">가위바위보</a>
+                    <a href="/mgame6.html">숫자 야구</a>
+                    <a href="/mgame7.html">틱택토</a>
+                    <a href="/mgame8.html">반응속도 테스트</a>
+                    <a href="/mgame9.html">카드 짝맞추기</a>
+                    <a href="/mgame10.html">두더지 잡기</a>
+                    </div>
+                </article>
 
-            <h3>아이랑 나들이, 이렇게 활용하세요</h3>
-            <p style="margin:0 0 10px;">
-                먼저 <a href="/festival/">아이랑 나들이 지도</a>에서 지역을 고르면 그 지역의 축제와 아이랑 가볼 만한 곳을 지도에서 한눈에 볼 수 있습니다.
-                하루 일정이 필요하면 <a href="/blog/kids-course/">아이랑 나들이 코스</a>에서 지역별 코스 글을 읽어 보세요.
-                비가 오거나 미세먼지가 심한 날에는 <a href="/blog/indoor-kids/">비 오는 날 아이랑 실내 나들이</a>에서 시·도별 실내 장소를 확인할 수 있고,
-                어디로 갈지 정하기 어렵다면 <a href="/festival/worldcup.html">나들이 월드컵</a>, <a href="/festival/camping-worldcup.html">캠핑장 월드컵</a>,
-                <a href="/festival/roulette.html">나들이·캠핑장·숲 룰렛</a>으로 가볍게 골라 볼 수 있습니다.
-            </p>
+                <article class="ha-card">
+                    <h2><span class="ha-ic" style="background:#dcfce7">🗺️</span>아이랑 나들이, 이렇게 활용하세요</h2>
+                    <p>
+                        먼저 <a href="/festival/">아이랑 나들이 지도</a>에서 지역을 고르면 그 지역의 축제와 아이랑 가볼 만한 곳을 지도에서 한눈에 볼 수 있습니다.
+                        하루 일정이 필요하면 <a href="/blog/kids-course/">아이랑 나들이 코스</a>에서 지역별 코스 글을 읽어 보세요.
+                        비가 오거나 미세먼지가 심한 날에는 <a href="/blog/indoor-kids/">비 오는 날 아이랑 실내 나들이</a>에서 시·도별 실내 장소를 확인할 수 있고,
+                        어디로 갈지 정하기 어렵다면 <a href="/festival/worldcup.html">나들이 월드컵</a>, <a href="/festival/camping-worldcup.html">캠핑장 월드컵</a>,
+                        <a href="/festival/roulette.html">나들이·캠핑장·숲 룰렛</a>으로 가볍게 골라 볼 수 있습니다.
+                    </p>
+                    <div class="ha-mini">
+                        <span>바로가기</span>
+                        <a href="/festival/">나들이 지도</a>
+                        <a href="/blog/kids-course/">나들이 코스</a>
+                        <a href="/blog/indoor-kids/">실내 나들이</a>
+                        <a href="/festival/worldcup.html">나들이 월드컵</a>
+                        <a href="/festival/camping-worldcup.html">캠핑장 월드컵</a>
+                        <a href="/festival/roulette.html">나들이·캠핑장·숲 룰렛</a>
+                    </div>
+                </article>
 
-            <h3>웹게임 10종 한눈에 보기</h3>
-            <ul class="home-games">
-                <li><a href="/hoya-typing-rpg.html">호호타자RPG</a> — 숲을 탐험하며 단어를 입력해 몬스터를 물리치는 타이핑 액션 RPG (PC 전용)</li>
-                <li><a href="/hoya-proverb-typing.html">호호속담</a> — 한국 속담을 정해진 라운드 안에 정확히 입력하는 속담 타자 게임</li>
-                <li><a href="/hoho-cherry-blossom-typing.html">호호벚꽃타자</a> — 벚꽃이 흩날리는 화면에서 떨어지는 단어를 입력해 없애는 타자 게임 (PC 전용)</li>
-                <li><a href="/hoho-typing-fps.html">호호타자FPS</a> — 단어를 입력해 바이러스를 격파하는 1인칭 타이핑 슈터 (PC 전용)</li>
-                <li><a href="/hoho-racing.html">호호레이싱</a> — 트럭과 장애물을 피해 최대한 오래 달리는 러닝형 레이싱 게임</li>
-                <li><a href="/hoho-run.html">HOHO RUN</a> — 좌우 벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션 게임</li>
-                <li><a href="/hoho-tile-match.html">호호사천성</a> — AI와 실시간으로 타일을 연결해 없애는 대결형 사천성 퍼즐</li>
-                <li><a href="/jelly-pop-7.html">JELLY POP 7</a> — 마법 결정을 드래그로 이어 합이 7이 되게 터뜨리는 매치3 퍼즐</li>
-                <li><a href="/hoho-dash.html">HOHO DASH</a> — 화면을 탭해 점프하며 장애물을 피하는 16비트 도트 무한 러너</li>
-                <li><a href="/word-puzzle-dungeon.html">낱말퍼즐 던전</a> — 5×5 격자 속 한국어 단어를 찾으며 던전을 내려가는 낱말 퍼즐</li>
-            </ul>
-            <p style="margin:0 0 10px;">
-                잠깐 즐기기 좋은 미니게임도 있습니다: <a href="/mgame1.html">사다리게임</a>, <a href="/mgame2.html">동전 던지기</a>, <a href="/mgame3.html">주사위 굴리기</a>, <a href="/mgame4.html">행운의 룰렛</a>, <a href="/mgame5.html">가위바위보</a>, <a href="/mgame6.html">숫자 야구</a>, <a href="/mgame7.html">틱택토</a>, <a href="/mgame8.html">반응속도 테스트</a>, <a href="/mgame9.html">카드 짝맞추기</a>, <a href="/mgame10.html">두더지 잡기</a>.
-                게임이 막힐 때는 <a href="/guides/index.html">게임공략</a>에서 조작법과 점수 올리는 요령을 확인해 보세요.
-            </p>
+                <article class="ha-card ha-wide">
+                    <h2><span class="ha-ic" style="background:#fef3c7">🕹️</span>웹게임 10종 한눈에 보기</h2>
+                    <ul class="ha-games">
+                    <li><a href="/hoya-typing-rpg.html">호호타자RPG</a><span class="ha-pc">PC 전용</span><em>숲을 탐험하며 단어를 입력해 몬스터를 물리치는 타이핑 액션 RPG</em></li>
+                    <li><a href="/hoya-proverb-typing.html">호호속담</a><em>한국 속담을 정해진 라운드 안에 정확히 입력하는 속담 타자 게임</em></li>
+                    <li><a href="/hoho-cherry-blossom-typing.html">호호벚꽃타자</a><span class="ha-pc">PC 전용</span><em>벚꽃이 흩날리는 화면에서 떨어지는 단어를 입력해 없애는 타자 게임</em></li>
+                    <li><a href="/hoho-typing-fps.html">호호타자FPS</a><span class="ha-pc">PC 전용</span><em>단어를 입력해 바이러스를 격파하는 1인칭 타이핑 슈터</em></li>
+                    <li><a href="/hoho-racing.html">호호레이싱</a><em>트럭과 장애물을 피해 최대한 오래 달리는 러닝형 레이싱 게임</em></li>
+                    <li><a href="/hoho-run.html">HOHO RUN</a><em>좌우 벽 사이를 튕기며 최대한 높이 올라가는 러닝 액션 게임</em></li>
+                    <li><a href="/hoho-tile-match.html">호호사천성</a><em>AI와 실시간으로 타일을 연결해 없애는 대결형 사천성 퍼즐</em></li>
+                    <li><a href="/jelly-pop-7.html">JELLY POP 7</a><em>마법 결정을 드래그로 이어 합이 7이 되게 터뜨리는 매치3 퍼즐</em></li>
+                    <li><a href="/hoho-dash.html">HOHO DASH</a><em>화면을 탭해 점프하며 장애물을 피하는 16비트 도트 무한 러너</em></li>
+                    <li><a href="/word-puzzle-dungeon.html">낱말퍼즐 던전</a><em>5×5 격자 속 한국어 단어를 찾으며 던전을 내려가는 낱말 퍼즐</em></li>
+                    </ul>
+                    <p>게임이 막힐 때는 <a href="/guides/index.html">게임공략</a>에서 조작법과 점수 올리는 요령을 확인해 보세요.</p>
+                </article>
+            </div>
         </section>
     </main>
 
