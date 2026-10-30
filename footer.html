@@ -40,7 +40,7 @@
         <div class="footer-col-d">
             <h4 class="text-white font-bold mb-4">소통·정보</h4>
             <ul class="space-y-2 text-sm">
-                <li><a href="#" onclick="footerNav('blog');return false;" class="hover:text-white transition">커뮤니티</a></li>
+                <li><a href="/blog/" onclick="if(typeof footerNav==='function'){footerNav('blog');return false;}" class="hover:text-white transition">커뮤니티</a></li>
                 <li><a href="/blog/magazine/" class="hover:text-white transition">호호 매거진</a></li>
                 <li><a href="/festival/" class="hover:text-white transition">아이랑 나들이 지도</a></li>
                 <li><a href="/festival/worldcup.html" class="hover:text-white transition">나들이 월드컵</a></li>
@@ -48,7 +48,7 @@
                 <li><a href="/festival/roulette.html" class="hover:text-white transition">나들이·캠핑장·숲 룰렛</a></li>
                 <li><a href="/guides/index.html" class="hover:text-white transition">게임공략</a></li>
                 <li><a href="/dream/" class="hover:text-white transition">꿈해몽 사전</a></li>
-                <li><a href="#" onclick="footerNav('partner');return false;" class="hover:text-white transition">파트너</a></li>
+                <li><a href="/partner/" onclick="if(typeof footerNav==='function'){footerNav('partner');return false;}" class="hover:text-white transition">파트너</a></li>
             </ul>
         </div>
         <div class="footer-col-d">
@@ -75,6 +75,9 @@
     <!-- [FIX] 2026-10-31: 데스크톱 메뉴 열(플레이하기·소통·정보·고객 센터)이 일부 페이지에서 사라지던 문제.
          원인: 낱말퍼즐 던전·호야 타자 RPG 등 페이지 자체 CSS에 .hidden{display:none!important}(모달 숨김용)가 있어서
          Tailwind 의 'hidden md:block'(PC에서 보이기)을 !important 로 덮어썼다. 페이지 CSS 와 겹치지 않는 전용 클래스로 교체. -->
+    <!-- [FIX] 2026-10-31: 하단 약관·소개·FAQ·커뮤니티·파트너 링크가 href="#" + footerNav() 방식이라,
+         footer 를 outerHTML 로만 끼워 넣는 페이지(호호 매거진 글 등)에서는 footerNav 가 정의되지 않아 눌러도 반응이 없었다.
+         실제 주소(href)를 넣고, footerNav/openInquiryModal 이 있는 페이지(SPA·게임·상세 페이지)에서는 기존 동작을 그대로 쓰도록 했다. -->
     <style>
         .footer-col-d{display:none}
         @media (min-width:768px){.footer-col-d{display:block}}
@@ -109,7 +112,7 @@
         <details>
             <summary>소통·정보</summary>
             <ul style="list-style:none;margin:0;padding:0 4px 18px;display:flex;flex-direction:column;gap:14px">
-                <li><a href="#" onclick="footerNav('blog');return false;" style="font-size:13px;color:#cbd5e1;text-decoration:none">커뮤니티</a></li>
+                <li><a href="/blog/" onclick="if(typeof footerNav==='function'){footerNav('blog');return false;}" style="font-size:13px;color:#cbd5e1;text-decoration:none">커뮤니티</a></li>
                 <li><a href="/blog/magazine/" style="font-size:13px;color:#cbd5e1;text-decoration:none">호호 매거진</a></li>
                 <li><a href="/festival/" style="font-size:13px;color:#cbd5e1;text-decoration:none">아이랑 나들이 지도</a></li>
                 <li><a href="/festival/worldcup.html" style="font-size:13px;color:#cbd5e1;text-decoration:none">나들이 월드컵</a></li>
@@ -117,7 +120,7 @@
                 <li><a href="/festival/roulette.html" style="font-size:13px;color:#cbd5e1;text-decoration:none">나들이·캠핑장·숲 룰렛</a></li>
                 <li><a href="/guides/index.html" style="font-size:13px;color:#cbd5e1;text-decoration:none">게임공략</a></li>
                 <li><a href="/dream/" style="font-size:13px;color:#cbd5e1;text-decoration:none">꿈해몽 사전</a></li>
-                <li><a href="#" onclick="footerNav('partner');return false;" style="font-size:13px;color:#cbd5e1;text-decoration:none">파트너</a></li>
+                <li><a href="/partner/" onclick="if(typeof footerNav==='function'){footerNav('partner');return false;}" style="font-size:13px;color:#cbd5e1;text-decoration:none">파트너</a></li>
             </ul>
         </details>
     </div>
@@ -127,17 +130,17 @@
 
     <div class="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-slate-800 text-center text-sm font-medium tracking-wide">
         <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 text-slate-500">
-            <a href="#" onclick="footerNav('terms');return false;" class="hover:text-white transition">이용약관</a>
+            <a href="/terms/" onclick="if(typeof footerNav==='function'){footerNav('terms');return false;}" class="hover:text-white transition">이용약관</a>
             <span>·</span>
-            <a href="#" onclick="footerNav('about');return false;" class="hover:text-white transition">소개</a>
+            <a href="/about/" onclick="if(typeof footerNav==='function'){footerNav('about');return false;}" class="hover:text-white transition">소개</a>
             <span>·</span>
-            <a href="#" onclick="footerNav('privacy');return false;" class="hover:text-white transition font-bold text-slate-300">개인정보처리방침</a>
+            <a href="/privacy/" onclick="if(typeof footerNav==='function'){footerNav('privacy');return false;}" class="hover:text-white transition font-bold text-slate-300">개인정보처리방침</a>
             <span>·</span>
-            <a href="#" onclick="footerNav('copyright');return false;" class="hover:text-white transition">저작권·콘텐츠 정책</a>
+            <a href="/copyright/" onclick="if(typeof footerNav==='function'){footerNav('copyright');return false;}" class="hover:text-white transition">저작권·콘텐츠 정책</a>
             <span>·</span>
-            <a href="#" onclick="footerNav('guide');return false;" class="hover:text-white transition">FAQ</a>
+            <a href="/guide/" onclick="if(typeof footerNav==='function'){footerNav('guide');return false;}" class="hover:text-white transition">FAQ</a>
             <span>·</span>
-            <a href="#" onclick="openInquiryModal();return false;" class="hover:text-white transition">문의</a>
+            <a href="mailto:lyh0929mm@gmail.com" onclick="if(typeof openInquiryModal==='function'){openInquiryModal();return false;}" class="hover:text-white transition">문의</a>
         </div>
         &copy; 2026 HOHO PLAY. All rights reserved.
     </div>
