@@ -47,7 +47,7 @@ CANONICAL_RE = re.compile(r'(<link rel="canonical" href="[^"]*">)')
 ROBOTS = '<meta name="robots" content="noindex,follow">'
 
 # 장소 3곳 이하이고 본문이 2,000자 미만이던 글 (2026-10-28 기준).
-NOINDEX_FILES = {'busan-buk.html', 'busan-suyeong.html', 'busan-yeongdo.html', 'daejeon-yuseong.html'}
+NOINDEX_FILES = {'busan-buk.html', 'busan-suyeong.html', 'busan-yeongdo.html'}
 
 DAYS = '월화수목금토일'
 DAYS_G = '[월화수목금토일]'
