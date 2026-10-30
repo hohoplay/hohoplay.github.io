@@ -161,6 +161,7 @@ def main():
             .replace("{{CANONICAL_URL}}", canonical_url)
             .replace("{{IMAGE_HTML}}", image_html)
             .replace("{{BACK_URL}}", html_escape(back_url))
+            .replace("{{CONTENTID}}", html_escape(cid))
         )
 
         out_path = out_dir / f"{cid}.html"
