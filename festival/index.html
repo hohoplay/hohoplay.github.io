@@ -307,6 +307,37 @@
             white-space: nowrap;
         }
         .course-place-name { font-size: 12px; color: #1e293b; font-weight: 600; }
+        /* [ADD] 2026-11-01: 날짜별 코스 — 날짜 선택 바 / 예상 시간 표시 */
+        .course-date-bar { flex-direction: column; gap: 6px; margin: 0 0 8px; }
+        .course-date-row { display: flex; align-items: stretch; gap: 6px; }
+        .course-date-nav {
+            flex: 0 0 38px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: #fff;
+            color: #334155; font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .course-date-nav:disabled { opacity: .35; cursor: default; }
+        .course-date-pick {
+            position: relative; flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center;
+            border: 1.5px solid #c7d2fe; border-radius: 10px; background: #eef2ff; color: #3730a3;
+            font-size: 13px; font-weight: 800; padding: 9px 8px; cursor: pointer; overflow: hidden;
+        }
+        .course-date-pick input[type="date"] {
+            position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+        }
+        .course-date-chips { display: flex; gap: 6px; }
+        .course-date-chip {
+            flex: 1; border: 1.5px solid #e2e8f0; border-radius: 999px; background: #fff; color: #475569;
+            font-size: 12px; font-weight: 700; padding: 6px 0; cursor: pointer;
+        }
+        .course-date-chip.active { background: #4338ca; border-color: #4338ca; color: #fff; }
+        .course-place-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .course-place-time { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 11px; }
+        .course-time { color: #4338ca; font-weight: 800; }
+        .course-time-sub { color: #94a3b8; }
+        .course-time-unknown { color: #b45309; font-weight: 700; }
+        .course-tag { font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 999px; }
+        .course-tag-warn { background: #ffedd5; color: #c2410c; }
+        .course-note { list-style: none; font-size: 11px; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 7px 10px; line-height: 1.45; }
+        .course-note-late { background: #eef2ff; color: #3730a3; }
 
         /* [REMOVED] 2026-10-11: 선택한 핀 강조 표시(퍼지는 빨간 원 → 통통 튀는 핀)를
            요청에 따라 완전히 제거. 이제 핀을 선택해도 별도 강조 연출 없이 기본
@@ -519,6 +550,24 @@
             <!-- [ADD] 2026-10-19: 비 오는 날용 실내 장소 필터(리스트·코스 모드 공통). -->
             <button type="button" id="indoorToggleBtn" class="indoor-toggle-btn" onclick="toggleIndoorOnly()" aria-pressed="false" title="실내에서 놀 수 있는 곳만 보기">☔ 실내만</button>
         </div>
+        <!-- [ADD] 2026-11-01: 코스 모드 전용 날짜 선택 바. syncCourseModeUI()가 코스 모드일 때만 보이게 한다.
+             고른 날짜에 "열려 있는" 축제 + 그 요일에 문 연 아이랑 장소로 코스를 만든다. -->
+        <div id="courseDateBar" class="course-date-bar" style="display:none;">
+            <div class="course-date-row">
+                <button type="button" id="courseDatePrev" class="course-date-nav" onclick="shiftCourseDate(-1)" aria-label="전날">◀</button>
+                <label class="course-date-pick">
+                    <span id="courseDateLabel">📅 오늘</span>
+                    <input type="date" id="courseDateInput" onchange="onCourseDateInput(this)" aria-label="날짜 선택">
+                </label>
+                <button type="button" id="courseDateNext" class="course-date-nav" onclick="shiftCourseDate(1)" aria-label="다음날">▶</button>
+            </div>
+            <div class="course-date-chips">
+                <button type="button" id="courseDateChip_today" class="course-date-chip" onclick="setCourseDateChip('today')">오늘</button>
+                <button type="button" id="courseDateChip_tomorrow" class="course-date-chip" onclick="setCourseDateChip('tomorrow')">내일</button>
+                <button type="button" id="courseDateChip_sat" class="course-date-chip" onclick="setCourseDateChip('sat')">이번 토</button>
+                <button type="button" id="courseDateChip_sun" class="course-date-chip" onclick="setCourseDateChip('sun')">이번 일</button>
+            </div>
+        </div>
         <!-- [ADD] 2026-10-19: 날씨 연동 배너. 지도에서 보고 있는 지역에 비 예보가 있으면
              자동으로 나타나고, "☔ 실내만" 필터를 함께 켠다(checkWeatherForCurrentView). -->
         <div id="weatherBanner" class="weather-banner">
@@ -545,7 +594,7 @@
         </div>
         <ul class="today-list">
             <!-- TODAY_FESTIVALS_START -->
-<li class="today-item" data-cid="3113995" onclick="focusFestival(37.8335530000, 126.9897980000); closeTodayPanel();"><span class="today-region">서울·인천·경기</span><strong>경기‧양주‧지작사 드론봇 페스티벌</strong><span class="today-date">📅 2026.10.30 ~ 2026.11.01</span><span class="today-addr">📍 경기도 양주시 광적면 삼일로 52</span><p class="today-desc">경기‧양주‧지작사 드론봇 페스티벌은 경기도, 양주시, 지상작전사령부가 공동 주최하는 민ㆍ관ㆍ군 상생 페스티벌이다. 2026년 10월 30일부터 11월 1일까지 3일간 양주시 광적면 가납리비행장에서 개최된다. 본 축제는 「양주시 드론산업 육성 및 지원에 관한 조례」와 「가납리 비행장 민·…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3113995.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B2%BD%EA%B8%B0%E2%80%A7%EC%96%91%EC%A3%BC%E2%80%A7%EC%A7%80%EC%9E%91%EC%82%AC%20%EB%93%9C%EB%A1%A0%EB%B4%87%20%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,37.8335530000,126.9897980000" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3306590" onclick="focusFestival(36.6545173576, 127.4913174723); closeTodayPanel();"><span class="today-region">세종·대전·충청</span><strong>청춘마이크 충청권 특별공연</strong><span class="today-date">📅 2026.10.31 ~ 2026.11.01</span><span class="today-addr">📍 충청북도 청주시 청원구 덕벌로 30 (내덕동)</span><p class="today-desc">‘충청권 28개 지역문화여행’을 주제로 공연, 체험, 음식, 포토 등 4개 분야의 프로그램을 운영하며, 각 지역의 문화적 특성을 다양한 방식으로 경험할 수 있도록 구성한다. 관객과 예술가의 소통과 공감을 이끄는 공간과 다양한 예술 장르가 결합하여 참여 예술가들이 예술의 경계를 넘나드는…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3306590.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%B2%AD%EC%B6%98%EB%A7%88%EC%9D%B4%ED%81%AC%20%EC%B6%A9%EC%B2%AD%EA%B6%8C%20%ED%8A%B9%EB%B3%84%EA%B3%B5%EC%97%B0,36.6545173576,127.4913174723" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="141105" onclick="focusFestival(35.0533072967, 128.3915143393); closeTodayPanel();"><span class="today-region">경상도</span><strong>경남고성공룡세계엑스포</strong><span class="today-date">📅 2026.09.22 ~ 2026.11.01</span><span class="today-addr">📍 경상남도 고성군 당항만로 1116</span><p class="today-desc">경남고성공룡세계엑스포는 대한민국 경상남도 고성군 회화면 당항포관광지에서 개최되는 공룡을 주제로 한 축제이다. 고성군은 세계 3대 공룡발자국 화석 원산지로 널리 알려진 지역으로 여러 지역에서 발견된 크고 작은 공룡화석의 가치를 알리고 관광산업을 알리기 위하여 2006년부터 개최되어 왔다.…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/141105.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B2%BD%EB%82%A8%EA%B3%A0%EC%84%B1%EA%B3%B5%EB%A3%A1%EC%84%B8%EA%B3%84%EC%97%91%EC%8A%A4%ED%8F%AC,35.0533072967,128.3915143393" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3553639" onclick="focusFestival(35.1482942929, 126.9224510104); closeTodayPanel();"><span class="today-region">광주·전라도</span><strong>동명커피산책</strong><span class="today-date">📅 2026.10.31 ~ 2026.11.01</span><span class="today-addr">📍 전남광주통합특별시 동구 제봉로110번길 4 (장동)</span><p class="today-desc">동명커피산책은 전남광주통합특별시 동구 동명동 일원에서 열리는 커피 문화 축제이다. 2021년에 시작하여 2026년에 제6회를 맞이하는 행사로, 지역 카페와 로컬 브랜드가 참여하여 커피와 디저트, 문화 프로그램을 함께 즐길 수 있는 것이 특징이다. 축제는 단순한 시음 행사에 그치지 않고…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3553639.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%8F%99%EB%AA%85%EC%BB%A4%ED%94%BC%EC%82%B0%EC%B1%85,35.1482942929,126.9224510104" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2728613" onclick="focusFestival(33.3049276506, 126.3151497973); closeTodayPanel();"><span class="today-region">제주</span><strong>귀몽 제주신화월드</strong><span class="today-date">📅 2026.09.18 ~ 2026.11.01</span><span class="today-addr">📍 제주특별자치도 서귀포시 안덕면 신화역사로304번길 98</span><p class="today-desc">귀몽은 제주신화월드 테마파크에서 운영되는 야외 공포 체험 콘텐르로, 주요 프로그램은 공포체험의 고스트존과 다양한 체험의 세이브존, 야간 놀이시설 체험으로 그성된다. 공포체험은 실제 자연지형을 배경으로 하며, 참가자는 어둠 속을 따라 이동하며 다양한 공포 연출과 마주하게 된다. 귀몽은 자…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2728613.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EA%B7%80%EB%AA%BD%20%EC%A0%9C%EC%A3%BC%EC%8B%A0%ED%99%94%EC%9B%94%EB%93%9C,33.3049276506,126.3151497973" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li>
+<li class="today-item" data-cid="3537267" onclick="focusFestival(37.6417208880, 127.0259140093); closeTodayPanel();"><span class="today-region">서울·인천·경기</span><strong>백년나이트 야시장 「26년 10월 : WICKED」</strong><span class="today-date">📅 2026.10.30 ~ 2026.10.31</span><span class="today-addr">📍 서울특별시 강북구 한천로144길 16 (수유동)</span><p class="today-desc">먹고, 놀고, 모으면 시장을 즐기는 재미가 한 번 더 돌아온다. 2025년 인증 전국 최우수 야시장 ‘백년나이트’가 2026년 10월 30일부터 31일까지 오후 4시부터 9시까지 서울 강북구 백년시장에서 열린다. 이번 행사는 10월 말의 오싹한 분위기를 담은 ‘WICKED’를 테마로,…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3537267.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%B0%B1%EB%85%84%EB%82%98%EC%9D%B4%ED%8A%B8%20%EC%95%BC%EC%8B%9C%EC%9E%A5%20%E3%80%8C26%EB%85%84%2010%EC%9B%94%20%3A%20WICKED%E3%80%8D,37.6417208880,127.0259140093" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2766000" onclick="focusFestival(37.36457643111233, 127.83403799313135); closeTodayPanel();"><span class="today-region">강원</span><strong>나오라쇼</strong><span class="today-date">📅 2026.04.25 ~ 2026.10.31</span><span class="today-addr">📍 강원특별자치도 원주시 지정면 소금산길 12</span><p class="today-desc">나오라쇼 - 나이트 오브 라이트(Night of Light Show)는 &quot;간현에 나와 빛의 밤을 즐기자&quot;라는 주제로 잔잔하게 흐르는 강물과 기암절벽이 어루러져 절경을 이루는 간현관광지에서 밤에 내리는 아름다운 조명과 신비한 이야기를 아름다운 음악과 즐기며 특별한 추억과…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2766000.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EB%82%98%EC%98%A4%EB%9D%BC%EC%87%BC,37.36457643111233,127.83403799313135" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="639648" onclick="focusFestival(36.6390415000, 126.8019627000); closeTodayPanel();"><span class="today-region">세종·대전·충청</span><strong>예산사과축제</strong><span class="today-date">📅 2026.10.30 ~ 2026.10.31</span><span class="today-addr">📍 충남 예산군 응봉면 후사리 39</span><p class="today-desc">이번 제23회 예산사과축제는 국대 최대 규모를 자랑하는 예당호 출렁다리의 장관과 함께 남녀노소 누구나 즐길 수 있는 다채로운 사과 체험 프로그램으로 진행될 예정이다. &#x27;예당호출렁다리&#x27;라는 지역의 관광자원을 활용하고 올해 개최지로 정함으로써, 지역의 상징적인 예당호 전망…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/639648.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%98%88%EC%82%B0%EC%82%AC%EA%B3%BC%EC%B6%95%EC%A0%9C,36.6390415000,126.8019627000" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="4106717" onclick="focusFestival(36.6958501961, 128.8432435883); closeTodayPanel();"><span class="today-region">경상도</span><strong>제13회 21세기 인문가치포럼</strong><span class="today-date">📅 2026.10.29 ~ 2026.10.31</span><span class="today-addr">📍 경상북도 안동시 도산면 월천길 301</span><p class="today-desc">제13회 21세기 인문가치포럼은 &#x27;흔들리는 세계, 변하지 않는 것들&#x27;을 주제로 안동국제컨벤션센터 및 안동시 일원에서 3일간 펼쳐지는 인문 문화 행사이다. 개회식 기조강연과 인문가치대상 시상식으로 막을 올리고, 폐회식에서는 안동선언문을 선포하며 대미를 장식한다. 국내외…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/4106717.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/%EC%A0%9C13%ED%9A%8C%2021%EC%84%B8%EA%B8%B0%20%EC%9D%B8%EB%AC%B8%EA%B0%80%EC%B9%98%ED%8F%AC%EB%9F%BC,36.6958501961,128.8432435883" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="2737313" onclick="focusFestival(35.1919618078, 127.3775139215); closeTodayPanel();"><span class="today-region">광주·전라도</span><strong>2026섬진강국제실험예술제(SIEAF)</strong><span class="today-date">📅 2026.09.22 ~ 2026.10.30</span><span class="today-addr">📍 전남광주통합특별시 곡성군 죽곡면 섬진강로 1012</span><p class="today-desc">2026 섬진강국제실험예술제는 전남 곡성의 섬진강과 대황강, 숲, 논, 정원 등 지역의 자연과 생활 공간을 무대로 진행되는 국제실험예술축제이다. 주요 프로그램은 아카이브전, SIEAF 콜로키움, 논두렁 패션쇼, 개막 프로그램 ‘WITH 도깨비 &amp; 두꺼비’, 움직임 치유 워크숍,…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/2737313.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%EC%84%AC%EC%A7%84%EA%B0%95%EA%B5%AD%EC%A0%9C%EC%8B%A4%ED%97%98%EC%98%88%EC%88%A0%EC%A0%9C%28SIEAF%29,35.1919618078,127.3775139215" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li><li class="today-item" data-cid="3512205" onclick="focusFestival(33.24708081676599, 126.56445889201075); closeTodayPanel();"><span class="today-region">제주</span><strong>2026 서귀포 원도심 문화페스티벌</strong><span class="today-date">📅 2026.04.11 ~ 2026.10.30</span><span class="today-addr">📍 제주특별자치도 서귀포시 이중섭로 11 (서귀동)</span><p class="today-desc">2026 서귀포 원도심 문화페스티벌’은 서귀포 이중섭로에서 펼쳐지는 야간 문화공연이다. 화려한 조명 아래 음악, 댄스, 퍼포먼스 등 다양한 장르의 공연이 관객들들에게 다양한 볼거리를 제공한다. 일상에서 벗어나 예술과 여유가 어우러진 특별한 추억을 남기고 싶은 이들에게 적극 추천하는 행사…</p><div style="display:flex; gap:12px; margin-top:2px;"><a class="today-map-link" href="/festival/detail/3512205.html">상세보기 →</a><a class="today-map-link" href="https://map.kakao.com/link/map/2026%20%EC%84%9C%EA%B7%80%ED%8F%AC%20%EC%9B%90%EB%8F%84%EC%8B%AC%20%EB%AC%B8%ED%99%94%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C,33.24708081676599,126.56445889201075" target="_blank" rel="noopener" onclick="event.stopPropagation()">지도에서 보기 →</a></div></li>
 <!-- TODAY_FESTIVALS_END -->
         </ul>
         <!-- [ADD] 2026-10-15: <head> 맨 앞에서 붙인 js-loading 클래스가 있는 동안엔 위
@@ -692,10 +741,10 @@
     <!-- [ADD] 2026-10-27: 아래 KIDS_REGION_SUMMARY 구간은 scripts/fetch_data.py 의 update_kids_region_summary() 가
          data/kids_places.json 을 읽어 매번 자동으로 다시 채운다. 이 마커 사이는 손으로 고치지 말 것. -->
     <!-- KIDS_REGION_SUMMARY_START -->
-<p style="margin:0 0 14px;">운영자가 직접 골라 정리한 아이랑 나들이 장소 298곳을 지역별로 묶었습니다. 지역 이름 옆 숫자는 등록된 장소 수이고, 장소 이름을 누르면 운영시간·요금·위치가 담긴 상세 정보를 볼 수 있습니다. 장소가 많은 지역은 대표 장소를, 적은 지역은 한 줄로 소개합니다.</p>
+<p style="margin:0 0 14px;">운영자가 직접 골라 정리한 아이랑 나들이 장소 288곳을 지역별로 묶었습니다. 지역 이름 옆 숫자는 등록된 장소 수이고, 장소 이름을 누르면 운영시간·요금·위치가 담긴 상세 정보를 볼 수 있습니다. 장소가 많은 지역은 대표 장소를, 적은 지역은 한 줄로 소개합니다.</p>
 <div style="margin:0 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
-<p style="margin:0 0 6px; font-weight:800; color:#1e293b;">경기도 (64곳)</p>
-<p style="margin:0 0 8px; font-size:13px; color:#64748b;">실내 36곳 · 실외 18곳 · 실내외 10곳, 완전무료 27곳</p>
+<p style="margin:0 0 6px; font-weight:800; color:#1e293b;">경기도 (54곳)</p>
+<p style="margin:0 0 8px; font-size:13px; color:#64748b;">실내 28곳 · 실외 18곳 · 실내외 8곳, 완전무료 22곳</p>
 <ul style="margin:0; padding-left:20px;">
 <li style="margin-bottom:4px;"><a href="/festival/detail/kids-0160.html" style="color:#4f46e5; font-weight:700;">해우재</a> <span style="font-size:13px; color:#64748b;">(실내외 · 무료)</span> — 화장실 테마 박물관, 국내 유일. 입장 무료</li>
 <li style="margin-bottom:4px;"><a href="/festival/detail/kids-0164.html" style="color:#4f46e5; font-weight:700;">트라이아스 타임빌라스 수원점</a> <span style="font-size:13px; color:#64748b;">(실내 · 일부 무료)</span> — 공룡 테마 패밀리 레스토랑, 식사가 곧 체험</li>
@@ -1372,6 +1421,12 @@
         const courseParam = urlParams.get('course');
         if (courseParam === '0') {
             setCourseMode(false);
+        }
+        // [ADD] 2026-11-01: ?date=YYYYMMDD 로 특정 날짜 코스를 바로 열 수 있다(오늘보다 과거면 오늘).
+        const dateParam = urlParams.get('date');
+        if (/^\d{8}$/.test(dateParam || '')) {
+            courseDateStr = dateParam;
+            updateCourseDateBar();
         }
         if (regionParam && REGION_ORDER.indexOf(regionParam) !== -1) {
             filterRegion(regionParam);
@@ -2156,7 +2211,9 @@
         // 성인 전용/나이트 성격의 음악 행사
         '나이트', '클럽', 'EDM', '성인가요제', '19세 이상', '19禁',
         // 위험성이 알려진 전통/민속 행사(불을 다루거나 투우/투계류)
-        '산불', '불놓기', '달집태우기', '깡통열차', '투우', '투계'
+        '산불', '불놓기', '달집태우기', '깡통열차', '투우', '투계',
+        // [ADD] 2026-11-01: 업계 종사자 대상 박람회(B2B) — 아이랑 나들이 코스에는 맞지 않음
+        '뷰티썸'
     ];
     // [ADD] 2026-10-16: 위 키워드 목록은 완전하지 않을 수 있다 — 축제 제목에 키워드가
     // 안 들어가면 걸러지지 않고, 반대로 키워드만 보고 판단해서 실제로는 괜찮은 행사를
@@ -2166,18 +2223,359 @@
         return COURSE_EXCLUDE_KEYWORDS.some(function (kw) { return item.title.includes(kw); });
     }
 
+    // ═══ [ADD] 2026-11-01 날짜별 코스: 운영시간 읽기 · 요일 휴관 · 시간표 계산 ═══════════════════
+    // 코스 모드에서 고른 날짜(courseDateStr) 기준으로 ① 그날 열리는 축제만 묶고 ② 그 요일에 쉬는
+    // 아이랑 장소를 빼고 ③ "오전 10:00~11:30 예상" 같은 시간표를 계산한다. 전체 보기(리스트 모드)는
+    // 이 코드를 쓰지 않는다. 운영시간 문구는 사람이 쓴 자유 텍스트라서, 읽을 수 있는 것만 읽고
+    // 애매하면 "시간 확인 필요"(window=null)로 둔다 — 시간을 지어내지 않는다.
+    // closedDaysFromHours 는 scripts/add_kids_course_route.py 의 closed_days() 와 같은 규칙이다
+    // (두 곳을 고칠 땐 같이 고칠 것).
+    const CT_D = '[월화수목금토일]';
+    const CT_DL = CT_D + '(?:\\s*요일)?(?:\\s*[·,/]\\s*' + CT_D + '(?:\\s*요일)?)*';
+    const CT_RE_P1 = new RegExp('매주\\s*(' + CT_DL + ')([^/;\\n운영개방~]{0,40}?)(?:휴관|휴무|휴일)', 'g');
+    const CT_RE_P2 = new RegExp('(^|[^가-힣0-9~])(' + CT_DL + ')\\s*(?:[·,]\\s*(?:법정)?공휴일)?\\s*(?:정기\\s*)?(?:휴관|휴무)', 'g');
+    const CT_RE_P3 = new RegExp('(^|[^가-힣0-9])(' + CT_D + ')\\s*~\\s*(' + CT_D + ')\\s*(?:요일)?\\s*(?:정기\\s*)?(?:휴관|휴무)', 'g');
+    const CT_RE_P4 = new RegExp('^\\s*(' + CT_D + ')\\s*~\\s*(' + CT_D + ')\\s*(?:요일)?\\s*\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}\\s*(?:\\([^)]*\\))?\\s*$');
+    const CT_DAYS = '월화수목금토일';
+
+    function ctDaysOf(s) {
+        const out = [];
+        const clean = String(s).replace(/요일/g, '');   // '월요일'의 '일'을 요일 '일'로 읽지 않도록 먼저 지운다
+        for (let i = 0; i < clean.length; i++) if (CT_DAYS.indexOf(clean.charAt(i)) >= 0) out.push(clean.charAt(i));
+        return out;
+    }
+
+    // 반환: { closed: ['월', ...], known: true/false }. known=false 면 휴관 요일을 판단할 수 없다는 뜻.
+    function closedDaysFromHours(hours) {
+        const h = String(hours || '').trim();
+        if (!h || h.indexOf('확인되지 않') >= 0 || h.indexOf('확인 필요') >= 0 || h.indexOf('확인필요') >= 0) return { closed: [], known: false };
+        const closed = {};
+        const partial = function (idx) {
+            return /째|마지막\s*주|격주|비수기|성수기|하절기|동절기/.test(h.slice(Math.max(0, idx - 12), idx));
+        };
+        let m;
+        CT_RE_P1.lastIndex = 0;
+        while ((m = CT_RE_P1.exec(h)) !== null) {
+            if (/\d{1,2}:\d{2}/.test(m[2]) || partial(m.index)) continue;
+            ctDaysOf(m[1]).forEach(function (d) { closed[d] = true; });
+        }
+        CT_RE_P2.lastIndex = 0;
+        while ((m = CT_RE_P2.exec(h)) !== null) {
+            if (partial(m.index + m[1].length)) continue;
+            ctDaysOf(m[2]).forEach(function (d) { closed[d] = true; });
+        }
+        CT_RE_P3.lastIndex = 0;
+        while ((m = CT_RE_P3.exec(h)) !== null) {
+            const a = CT_DAYS.indexOf(m[2]), b = CT_DAYS.indexOf(m[3]);
+            if (a <= b) for (let i = a; i <= b; i++) closed[CT_DAYS.charAt(i)] = true;
+        }
+        m = CT_RE_P4.exec(h);
+        if (m) {
+            const a = CT_DAYS.indexOf(m[1]), b = CT_DAYS.indexOf(m[2]);
+            if (a <= b) for (let i = 0; i < CT_DAYS.length; i++) if (i < a || i > b) closed[CT_DAYS.charAt(i)] = true;
+        }
+        const list = Object.keys(closed);
+        if (list.length) return { closed: list, known: true };
+        if (/연중무휴|매일|상시 개방|상시개방/.test(h)) return { closed: [], known: true };
+        return { closed: [], known: false };
+    }
+
+    // 요일 숫자(JS getDay: 0=일) → '일월화수목금토' 글자
+    function ctDowChar(dow) { return '일월화수목금토'.charAt(dow); }
+
+    function ctToMin(h, m, isClose) {
+        let v = parseInt(h, 10) * 60 + parseInt(m, 10);
+        if (isClose && v === 0) v = 1440;
+        return v;
+    }
+    const CT_RANGE_SRC = '(\\d{1,2}):(\\d{2})\\s*[~～∼–\\-]\\s*(\\d{1,2}):(\\d{2})';
+
+    function ctMakeWin(h1, m1, h2, m2) {
+        const open = ctToMin(h1, m1, false);
+        let close = ctToMin(h2, m2, true);
+        if (close <= open) close += 1440;     // 자정을 넘기는 경우
+        return { open: open, close: close };
+    }
+
+    // 운영시간/행사시간 문구에서 그 날짜(요일·월)에 해당하는 "열고 닫는 시각(분)"을 읽는다.
+    // 읽을 수 없으면 null. 우선순위: ① "3~10월 09:00~18:00" 같은 계절 구간 → ② "평일/주말", "월~목", "토·일"
+    // 같은 요일 라벨 구간 → ③ 시간 범위가 하나뿐 → ④ 여러 개면 가장 보수적인(늦게 열고 일찍 닫는) 값.
+    function parseHoursWindow(text, dow, month) {
+        const t = String(text || '').replace(/<[^>]*>/g, ' ');
+        if (!t.trim()) return null;
+        if (/시설별로 다름|시설별 상이|별도 운영|운영시간이 다름|곳마다/.test(t) && !new RegExp(CT_RANGE_SRC).test(t)) return null;
+        let m;
+        // ① 계절 구간
+        const seasonRe = new RegExp('(\\d{1,2})\\s*~\\s*(\\d{1,2})\\s*월[^\\d]{0,12}?' + CT_RANGE_SRC, 'g');
+        // 문구에서 "맨 처음 나오는 시간 범위"가 계절 구간 안에 있을 때만 계절 규칙을 쓴다.
+        // (예: "화~일 09:30~16:30 (동절기 11~2월 09:30~12:20 체험 운영)"처럼 계절 표기가 부가 설명이면 건너뜀)
+        const firstRange = new RegExp(CT_RANGE_SRC).exec(t);
+        let seasonFound = false;
+        while ((m = seasonRe.exec(t)) !== null) {
+            if (!seasonFound && firstRange && !(firstRange.index >= m.index && firstRange.index < m.index + m[0].length)) break;
+            seasonFound = true;
+            const a = parseInt(m[1], 10), b = parseInt(m[2], 10);
+            const inside = a <= b ? (month >= a && month <= b) : (month >= a || month <= b);
+            if (inside) return ctMakeWin(m[3], m[4], m[5], m[6]);
+        }
+        if (seasonFound) return null;
+        // ② 요일 라벨 구간
+        const dc = ctDowChar(dow);
+        const isWeekend = (dow === 0 || dow === 6);
+        const labelRe = new RegExp('(^|[^\\d가-힣])(평일|주중|주말(?:\\s*[·,]\\s*공휴일)?|' + CT_D + '(?:\\s*요일)?(?:\\s*[~·,/]\\s*' + CT_D + '(?:\\s*요일)?)*)\\s*(?:\\([^)]*\\))?\\s*' + CT_RANGE_SRC, 'g');
+        let labeled = 0;
+        const hits = [];
+        while ((m = labelRe.exec(t)) !== null) {
+            labeled++;
+            const lab = m[2];
+            let match = false;
+            if (lab === '평일' || lab === '주중') match = !isWeekend;
+            else if (lab.indexOf('주말') === 0) match = isWeekend;
+            else if (lab.indexOf('~') >= 0 && /^[월화수목금토일]\s*(?:요일)?\s*~\s*[월화수목금토일]/.test(lab)) {
+                const ab = lab.replace(/요일/g, '').replace(/\s/g, '').split(/[·,/]/)[0].split('~');
+                const a = CT_DAYS.indexOf(ab[0]), b = CT_DAYS.indexOf(ab[1]);
+                const pos = CT_DAYS.indexOf(dc);
+                match = a <= b ? (pos >= a && pos <= b) : false;
+                if (!match) { const rest = lab.replace(/요일/g, '').split(/[·,/]/).slice(1).join(''); match = rest.indexOf(dc) >= 0; }
+            } else {
+                match = ctDaysOf(lab).indexOf(dc) >= 0;
+            }
+            // "화~토 09:30~11:30 / 13:30~15:30"처럼 라벨 뒤에 시간대가 이어지면 하나의 운영 구간(회차제)으로 합친다
+            let win = ctMakeWin(m[3], m[4], m[5], m[6]);
+            const contRe = new RegExp('^\\s*[/·,]\\s*' + CT_RANGE_SRC);
+            let rest = t.slice(labelRe.lastIndex), cm;
+            while ((cm = contRe.exec(rest)) !== null) {
+                const w2 = ctMakeWin(cm[1], cm[2], cm[3], cm[4]);
+                win = { open: Math.min(win.open, w2.open), close: Math.max(win.close, w2.close) };
+                labelRe.lastIndex += cm[0].length;
+                rest = t.slice(labelRe.lastIndex);
+            }
+            if (match) hits.push(win);
+        }
+        if (labeled > 0) {
+            if (!hits.length) return null;   // 라벨은 있는데 그 날짜에 해당하는 구간이 없으면 판단 불가
+            // 같은 날짜에 해당하는 구간이 여러 개(시설별 시간 등)면 가장 보수적인 값(늦게 열고 일찍 닫음)을 쓴다
+            let o = -1, c = 1e9;
+            hits.forEach(function (w) { o = Math.max(o, w.open); c = Math.min(c, w.close); });
+            return (c - o >= 90) ? { open: o, close: c } : hits[0];
+        }
+        // ③④ 라벨 없는 범위
+        const rangeRe = new RegExp(CT_RANGE_SRC, 'g');
+        const wins = [];
+        while ((m = rangeRe.exec(t)) !== null) {
+            const before = t.slice(Math.max(0, m.index - 10), m.index);
+            const after = t.slice(m.index + m[0].length, m.index + m[0].length + 12);
+            if (/점심|휴게|브레이크|주차|프로그램|휴식|정비|청소|라스트오더|야간경관|조명/.test(before) || /휴게|미운영|브레이크|휴식|정비/.test(after)) continue;
+            wins.push(ctMakeWin(m[1], m[2], m[3], m[4]));
+        }
+        if (!wins.length) return null;
+        if (wins.length === 1) return wins[0];
+        let open = -1, close = 1e9, minOpen = 1e9, maxClose = -1;
+        wins.forEach(function (w) {
+            open = Math.max(open, w.open); close = Math.min(close, w.close);
+            minOpen = Math.min(minOpen, w.open); maxClose = Math.max(maxClose, w.close);
+        });
+        // 보수적 교집합이 말이 되면 그것을, 아니면(회차제처럼 따로 떨어진 시간대) 전체 폭을 쓴다
+        return (close - open >= 90) ? { open: open, close: close } : { open: minOpen, close: maxClose };
+    }
+
+    const CT_EVENING_RE = /야간|야시장|야경|나이트|불빛|빛축제|빛의|라이트|조명|일루미|루미나|등불|등축제|점등|별빛|달빛/;
+    function isEveningFestival(item) {
+        return item.type !== 'kids' && CT_EVENING_RE.test(item.title || '');
+    }
+
+    // 장소 하나의 그날 이용 가능 시간(분). known=false 면 시간 정보를 읽지 못해 "예상 기본값"을 쓴 것.
+    function getItemWindow(item, ctx) {
+        const txt = item.type === 'kids' ? item.hours : item.playTime;
+        const w = txt ? parseHoursWindow(txt, ctx.dow, ctx.month) : null;
+        const eveTitle = isEveningFestival(item);
+        if (w) return { open: w.open, close: w.close, known: true, evening: w.open >= 1020 };
+        if (item.type === 'kids') return { open: 600, close: 1080, known: false, evening: false };
+        return eveTitle ? { open: 1050, close: 1320, known: false, evening: true }
+                        : { open: 600, close: 1020, known: false, evening: false };
+    }
+
+    function getStayMin(item) {
+        if (item.type !== 'kids') return 90;
+        return item.placeType === '실외' ? 60 : 90;
+    }
+    function ctFmt(min) {
+        const v = ((min % 1440) + 1440) % 1440;
+        return String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0');
+    }
+    function ctSlotLabel(startMin) {
+        if (startMin < 660) return '오전';
+        if (startMin < 750) return '점심';
+        if (startMin < 1050) return '오후';
+        return '저녁';
+    }
+    const CT_DAY_START = 600;   // 10:00 출발 가정
+
+    // items: 코스에 담을 장소(최대 4곳). 반환: [{ item, start, end, label, win, late }] (방문 순서대로)
+    // 규칙: 마감이 이른 곳(17:30 이전 종료, 낮 축제 포함)을 먼저, 그다음 가까운 순. 저녁에만 여는 곳은 맨 뒤.
+    function scheduleCourseItems(items, ctx) {
+        items.forEach(function (it) { it._distToNextKm = undefined; });   // 이전 계산 값이 남지 않게 초기화
+        const infos = items.map(function (it) {
+            return { it: it, win: getItemWindow(it, ctx), stay: getStayMin(it) };
+        });
+        const precise = infos.filter(function (x) { return isPreciseCoord(x.it); });
+        const rest = infos.filter(function (x) { return !isPreciseCoord(x.it); });
+        const out = [];
+        let cur = (ctx && ctx.startMin) || CT_DAY_START, pos = null;
+        const take = function (x, travel, dist) {
+            const arrive = cur + travel;
+            const start = Math.max(arrive, x.win.open);
+            const end = start + x.stay;
+            if (pos && dist !== null && out.length) out[out.length - 1].item._distToNextKm = dist;
+            out.push({ item: x.it, start: start, end: end, label: ctSlotLabel(start), win: x.win, late: end > x.win.close });
+            cur = end;
+            pos = x.it;
+        };
+        const remaining = precise.slice();
+        while (remaining.length) {
+            const cands = remaining.map(function (x) {
+                const dist = pos ? haversineDistanceKm(pos.lat, pos.lng, x.it.lat, x.it.lng) : 0;
+                const travel = pos ? Math.min(90, Math.max(10, Math.round(dist * 1.3 / 25 * 60))) : 0;
+                const arrive = cur + travel;
+                const start = Math.max(arrive, x.win.open);
+                return { x: x, dist: dist, travel: travel, wait: start - arrive, ok: start + x.stay <= x.win.close };
+            });
+            let pool = cands.filter(function (c) { return c.ok && c.wait <= 45; });
+            if (!pool.length) pool = cands.filter(function (c) { return c.ok; });
+            if (!pool.length) pool = cands;
+            pool.sort(function (a, b) {
+                const ca = a.x.win.close <= 1050 ? 0 : 1, cb = b.x.win.close <= 1050 ? 0 : 1;
+                if (ca !== cb) return ca - cb;
+                if (a.dist !== b.dist) return a.dist - b.dist;
+                return a.x.win.close - b.x.win.close;
+            });
+            const best = pool[0];
+            remaining.splice(remaining.indexOf(best.x), 1);
+            take(best.x, best.travel, pos ? best.dist : null);
+        }
+        rest.forEach(function (x) { take(x, out.length ? 20 : 0, null); });
+        return out;
+    }
+
+    // 저녁 칸 보장: 고른 장소 중 19:30 이후까지 하는 곳이 없고, 그런 아이랑 장소가 이 지역에 있으면 마지막 아이랑 장소와 바꾼다.
+    function ensureEveningPick(picked, candidates, ctx) {
+        const late = function (it) { const w = getItemWindow(it, ctx); return w.close >= 1170; };
+        if (picked.some(late)) return picked;
+        const extra = candidates.filter(function (it) { return picked.indexOf(it) < 0 && it.type === 'kids' && getItemWindow(it, ctx).known && late(it); });
+        if (!extra.length) return picked;
+        let idx = -1;
+        for (let i = picked.length - 1; i >= 0; i--) if (picked[i].type === 'kids') { idx = i; break; }
+        if (idx < 0) return picked;
+        const anchor = picked[0];
+        extra.sort(function (a, b) {
+            const da = (isPreciseCoord(a) && isPreciseCoord(anchor)) ? haversineDistanceKm(anchor.lat, anchor.lng, a.lat, a.lng) : 99;
+            const db = (isPreciseCoord(b) && isPreciseCoord(anchor)) ? haversineDistanceKm(anchor.lat, anchor.lng, b.lat, b.lng) : 99;
+            return da - db;
+        });
+        const out = picked.slice();
+        out[idx] = extra[0];
+        return out;
+    }
+
+    // ── 날짜 선택 상태/도우미 (코스 모드 전용) ─────────────────────────────────
+    // 한국 시간(KST) 기준 "오늘". 브라우저가 해외 시간대여도 한국 여행 코스는 한국 날짜로 본다.
+    function ctKstNow() { return new Date(Date.now() + 9 * 3600 * 1000); }   // getUTC* 로 읽으면 KST
+    function ctPad(n) { return String(n).padStart(2, '0'); }
+    function ctKstTodayStr() { const d = ctKstNow(); return '' + d.getUTCFullYear() + ctPad(d.getUTCMonth() + 1) + ctPad(d.getUTCDate()); }
+    function ctKstNowMin() { const d = ctKstNow(); return d.getUTCHours() * 60 + d.getUTCMinutes(); }
+    function ctParseDate(str) { return new Date(Date.UTC(parseInt(str.slice(0, 4), 10), parseInt(str.slice(4, 6), 10) - 1, parseInt(str.slice(6, 8), 10))); }
+    function ctDateStr(d) { return '' + d.getUTCFullYear() + ctPad(d.getUTCMonth() + 1) + ctPad(d.getUTCDate()); }
+    function ctShiftDate(str, n) { const d = ctParseDate(str); d.setUTCDate(d.getUTCDate() + n); return ctDateStr(d); }
+    function ctDateLabel(str) {
+        const d = ctParseDate(str);
+        return (d.getUTCMonth() + 1) + '월 ' + d.getUTCDate() + '일(' + ctDowChar(d.getUTCDay()) + ')';
+    }
+    function ctMD(str) { return parseInt(str.slice(4, 6), 10) + '/' + parseInt(str.slice(6, 8), 10); }
+    // 오늘 이후 가장 가까운 토(6)/일(0). 오늘이 그 요일이면 오늘.
+    function ctNextDow(targetDow) {
+        const today = ctKstTodayStr();
+        const cur = ctParseDate(today).getUTCDay();
+        return ctShiftDate(today, (targetDow - cur + 7) % 7);
+    }
+
+    let courseDateStr = null;   // null 이면 "오늘(KST)". 선택 날짜는 YYYYMMDD.
+    function getCourseDate() {
+        const today = ctKstTodayStr();
+        if (!courseDateStr || courseDateStr < today) courseDateStr = today;   // 자정을 넘겨 켜둔 경우에도 과거 날짜는 오늘로
+        return courseDateStr;
+    }
+    function setCourseDate(str) {
+        if (!/^\d{8}$/.test(str || '')) return;
+        courseDateStr = str < ctKstTodayStr() ? ctKstTodayStr() : str;
+        updateCourseDateBar();
+        renderMainPanel();
+    }
+    function shiftCourseDate(n) { setCourseDate(ctShiftDate(getCourseDate(), n)); }
+    function setCourseDateChip(kind) {
+        const today = ctKstTodayStr();
+        if (kind === 'today') setCourseDate(today);
+        else if (kind === 'tomorrow') setCourseDate(ctShiftDate(today, 1));
+        else if (kind === 'sat') setCourseDate(ctNextDow(6));
+        else if (kind === 'sun') setCourseDate(ctNextDow(0));
+    }
+    function onCourseDateInput(el) {
+        // <input type="date"> 값은 YYYY-MM-DD
+        const v = (el && el.value || '').replace(/-/g, '');
+        if (v) setCourseDate(v);
+    }
+    function updateCourseDateBar() {
+        const cur = getCourseDate(), today = ctKstTodayStr();
+        const label = document.getElementById('courseDateLabel');
+        if (label) label.textContent = '📅 ' + ctDateLabel(cur) + (cur === today ? ' · 오늘' : '');
+        const input = document.getElementById('courseDateInput');
+        if (input) {
+            input.min = today.slice(0, 4) + '-' + today.slice(4, 6) + '-' + today.slice(6, 8);
+            input.value = cur.slice(0, 4) + '-' + cur.slice(4, 6) + '-' + cur.slice(6, 8);
+        }
+        const prev = document.getElementById('courseDatePrev');
+        if (prev) prev.disabled = cur <= today;
+        const chipDates = { today: today, tomorrow: ctShiftDate(today, 1), sat: ctNextDow(6), sun: ctNextDow(0) };
+        Object.keys(chipDates).forEach(function (k) {
+            const b = document.getElementById('courseDateChip_' + k);
+            if (b) b.classList.toggle('active', chipDates[k] === cur);
+        });
+    }
+
+    // [CHANGE] 2026-11-01: 코스는 이제 "고른 날짜"(기본 오늘, 한국 시간) 기준으로 만든다.
+    //  ① 그날 열려 있는 축제(startDate ≤ 날짜 ≤ endDate) — 예전엔 시작월의 계절로 묶었음
+    //  ② 그 요일에 쉬는 아이랑 장소는 제외(운영시간 문구에서 읽을 수 있는 경우만)
+    //  ③ 방문 순서·"10:00~11:30 예상" 시간표는 scheduleCourseItems 로 계산
+    // 전체 목록(리스트 모드)은 이 함수를 쓰지 않으므로 그대로다.
+    const COURSE_MAX_FESTIVALS = 2;   // 낮 시간대 축제가 4곳 다 차면 "아이랑 장소"가 빠져서, 코스당 축제는 2곳까지(부족하면 더 채움)
     function buildCourses(regionKey) {
-        const season = getCurrentSeason();
-        // 아이랑 장소(kids)는 계절과 무관하게 항상 포함하고, 축제는 지금 계절에 열리는
-        // 것만 포함한다. 공원/쉼터/캠핑장/수상레저(THEME_GATED_TYPES)는 테마를 직접
-        // 고를 때만 보이는 성격이 강해 1단계 코스에서는 제외한다(너무 많이 섞여
-        // "아이랑 갈만한 곳" 중심이라는 코스의 취지가 흐려지는 걸 막기 위함). 술/성인
-        // 전용/위험 행사로 보이는 축제(COURSE_EXCLUDE_KEYWORDS)도 코스에서는 제외한다.
+        const dateStr = getCourseDate();
+        const dObj = ctParseDate(dateStr);
+        const dow = dObj.getUTCDay();
+        const dowChar = ctDowChar(dow);
+        const isToday = dateStr === ctKstTodayStr();
+        // 오늘이면 지금 시각(30분 단위 올림) 이후부터, 다른 날이면 10:00 출발로 계산한다.
+        const startMin = isToday ? Math.max(CT_DAY_START, Math.ceil(ctKstNowMin() / 30) * 30) : CT_DAY_START;
+        const ctx = { dow: dow, month: dObj.getUTCMonth() + 1, startMin: startMin, dateStr: dateStr };
+        // 오늘인데 20:30 이후면 더 이상 갈 코스가 없다(내일 코스를 안내).
+        if (isToday && startMin >= 1230) return [];
         let pool = getFilteredData().filter(function (item) {
-            if (item.type === 'kids') return true;
-            if (isThemeGatedType(item.type)) return false;
-            if (item.type !== 'kids' && isCourseExcludedFestival(item)) return false;
-            return getFestivalSeason(item) === season;
+            if (item.type === 'kids') {
+                // 그 요일에 쉬는 곳(예: "매주 월요일 휴관")은 뺀다. 휴관 요일을 읽을 수 없으면 그대로 둔다.
+                const cd = closedDaysFromHours(item.hours);
+                if (cd.known && cd.closed.indexOf(dowChar) >= 0) return false;
+            } else {
+                if (isThemeGatedType(item.type)) return false;
+                if (isCourseExcludedFestival(item)) return false;
+                // 그날 열려 있는 축제만 (그날 "시작"하는 축제만이 아니라 진행 중인 것 전부)
+                if (!item.startDate || !item.endDate) return false;
+                if (!(item.startDate <= dateStr && dateStr <= item.endDate)) return false;
+            }
+            // 오늘이라면 이미 문 닫은 곳은 뺀다(운영시간을 읽은 경우만 판단).
+            if (isToday) {
+                const w = getItemWindow(item, ctx);
+                if (w.known && w.close <= startMin + 30) return false;
+            }
+            return true;
         });
         if (regionKey !== 'all') {
             const kws = REGION_KEYWORDS[regionKey] || [];
@@ -2218,24 +2616,41 @@
         const courses = [];
         groups.forEach(function (group) {
             if (group.items.length < MIN_COURSE_PLACES) return;
-            // 같은 코스 안에서는 축제를 먼저 보여주고(계절 한정이라 더 눈에 띄어야 함),
-            // 그 다음 아이랑 장소 순으로 정렬한다.
+            // 축제를 먼저(그날 열리는 한정 행사라 눈에 띄어야 함), 그 다음 아이랑 장소 순.
             const sortedItems = group.items.slice().sort(function (a, b) {
                 const aFes = a.type !== 'kids' ? 0 : 1;
                 const bFes = b.type !== 'kids' ? 0 : 1;
                 return aFes - bFes;
             });
-            // 보여줄 최대 개수(MAX_COURSE_PLACES)만큼 먼저 고르고(축제 우선 — "코스에
-            // 뭐가 들어갈지"는 그대로), 그 안에서만 가까운 순서로 다시 줄을 세운다
-            // ("순서를 어떻게 보여줄지"만 2단계에서 바뀜).
-            const picked = sortedItems.slice(0, MAX_COURSE_PLACES);
-            const ordered = orderItemsByProximity(picked);
+            const fests = sortedItems.filter(function (it) { return it.type !== 'kids'; });
+            const kidsOnly = sortedItems.filter(function (it) { return it.type === 'kids'; });
+            // 축제 최대 2곳 + 아이랑 장소로 채우고, 모자라면 남은 축제로 채운다.
+            let pref = fests.slice(0, COURSE_MAX_FESTIVALS).concat(kidsOnly).concat(fests.slice(COURSE_MAX_FESTIVALS));
+            let schedule = [];
+            // 시간표를 짜 봤는데 도착했을 때 이미 문 닫을 시간인 곳(운영시간을 읽은 곳, 또는 아이랑 장소의 기본 가정)은
+            // 빼고 다음 후보로 바꿔 다시 짠다. 후보가 모자라면(3곳 미만) 그 지역 코스는 만들지 않는다.
+            for (let tries = 0; tries < 12; tries++) {
+                let picked = pref.slice(0, MAX_COURSE_PLACES);
+                // 늦게까지 하는 아이랑 장소가 이 지역에 있으면 저녁 칸에 쓸 수 있게 한 곳을 바꿔 넣는다.
+                picked = ensureEveningPick(picked, pref, ctx);
+                schedule = scheduleCourseItems(picked, ctx);
+                const bad = schedule.filter(function (x) {
+                    return ((x.win.known || x.item.type === 'kids') && x.start + 30 > x.win.close) || x.end > 1410;   // 23:30을 넘기는 일정도 제외
+                }).map(function (x) { return x.item; });
+                if (!bad.length) break;
+                pref = pref.filter(function (it) { return bad.indexOf(it) < 0; });
+                if (pref.length < MIN_COURSE_PLACES) { schedule = []; break; }
+            }
+            if (schedule.length < MIN_COURSE_PLACES) return;
+            const ordered = schedule.map(function (x) { return x.item; });
             const totalDistanceKm = ordered.reduce(function (sum, it) {
                 return sum + (typeof it._distToNextKm === 'number' ? it._distToNextKm : 0);
             }, 0);
             courses.push({
                 subRegion: group.label,
                 items: ordered,
+                schedule: schedule,
+                dateStr: dateStr,
                 // [FIX] 2026-10-10: 카드엔 최대 MAX_COURSE_PLACES(4)곳만 보여주지만,
                 // "지도에서 전체보기"는 그 지역에 묶인 장소 전부(그 외 N곳 포함)를
                 // 보여줘야 한다. items만 쓰면 "그 외 2곳"이 지도에서 빠지는 버그가 있었음.
@@ -2245,7 +2660,7 @@
                 totalDistanceKm: totalDistanceKm
             });
         });
-        // 이번 계절 축제가 껴 있는 코스를 먼저, 그 다음 장소가 많이 모인(=완성도 높은) 순.
+        // 그날 열리는 축제가 껴 있는 코스를 먼저, 그 다음 장소가 많이 모인(=완성도 높은) 순.
         courses.sort(function (a, b) {
             if (a.hasFestival !== b.hasFestival) return a.hasFestival ? -1 : 1;
             return b.total - a.total;
@@ -2320,9 +2735,30 @@
             // 축제는 🎪, 아이랑 상시 장소는 🧒로 구분해서 한눈에 "이번 계절 한정"인지
             // "언제 가도 되는 곳"인지 알 수 있게 한다.
             const icon = item.type === 'kids' ? '🧒' : '🎪';
+            // [CHANGE] 2026-11-01: 날짜별 코스 — 예상 시간(운영시간·이동시간으로 계산한 대략치)과 주의 문구를 함께 보여준다.
+            const sc = course.schedule && course.schedule[i];
+            let slot = getTimeSlotLabel(i, course.items.length);
+            let timeHtml = '';
+            if (sc) {
+                slot = sc.label;
+                const parts = [];
+                if (sc.win.known) {
+                    parts.push('<span class="course-time">' + ctFmt(sc.start) + '~' + ctFmt(sc.end) + ' 예상</span>');
+                    parts.push('<span class="course-time-sub">운영 ' + ctFmt(sc.win.open) + '~' + ctFmt(sc.win.close) + '</span>');
+                } else {
+                    parts.push('<span class="course-time-unknown">시간 확인 필요</span>');
+                }
+                if (item.type !== 'kids' && item.endDate) {
+                    parts.push(item.endDate === course.dateStr
+                        ? '<span class="course-tag course-tag-warn">오늘 마지막 날</span>'
+                        : '<span class="course-time-sub">~' + ctMD(item.endDate) + '까지</span>');
+                }
+                if (sc.win.known && sc.late) parts.push('<span class="course-tag course-tag-warn">마감이 빠듯해요</span>');
+                timeHtml = '<span class="course-place-time">' + parts.join('') + '</span>';
+            }
             const li = '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
-                + '<span class="course-place-num">' + getTimeSlotLabel(i, course.items.length) + '</span>'
-                + '<span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>'
+                + '<span class="course-place-num">' + slot + '</span>'
+                + '<span class="course-place-body"><span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>' + timeHtml + '</span>'
                 + '</li>';
             // [ADD] 2026-10-10: 2단계 — 정확한 좌표끼리는 바로 다음 장소까지의 대략적인
             // 직선거리를 다음 항목 사이에 작게 보여준다(차로 이동 거리가 아니라 직선거리라
@@ -2342,8 +2778,8 @@
             ? ' · 이동 약 ' + course.totalDistanceKm.toFixed(1) + 'km'
             : '';
         const seasonBadge = course.hasFestival
-            ? '<span class="today-date">' + escapeHtml(SEASON_LABELS[getCurrentSeason()]) + ' 축제 포함 · ' + course.items.length + '곳' + distanceNote + '</span>'
-            : '<span class="today-date">🧒 상시 이용 가능 · ' + course.items.length + '곳' + distanceNote + '</span>';
+            ? '<span class="today-date">' + escapeHtml(ctDateLabel(course.dateStr || getCourseDate())) + ' 열리는 축제 포함 · ' + course.items.length + '곳' + distanceNote + '</span>'
+            : '<span class="today-date">🧒 ' + escapeHtml(ctDateLabel(course.dateStr || getCourseDate())) + ' 이용 가능 · ' + course.items.length + '곳' + distanceNote + '</span>';
         // [ADD] 2026-10-15: 이 지역의 정적 글(COURSE_ARTICLE_SLUGS)이 있으면 "자세히
         // 보기" 링크를 함께 보여준다 — 검색봇뿐 아니라 실제로 지도를 보는 사람도 글로
         // 넘어가 전체 장소 설명과 댓글을 볼 수 있게 연결한다.
@@ -2379,10 +2815,18 @@
         renderMarkers(allCourseItems);
         if (regionKey === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
         if (currentCourses.length === 0) {
-            listEl.innerHTML = '<li class="today-empty">이 지역은 아직 코스로 묶을 만큼 장소가 모이지 않았어요. 다른 지역을 선택해보세요!</li>';
+            const dl = ctDateLabel(getCourseDate());
+            listEl.innerHTML = (getCourseDate() === ctKstTodayStr() && ctKstNowMin() >= 1170)
+                ? '<li class="today-empty">🌙 오늘은 시간이 늦어 갈 수 있는 코스가 없어요.<br>위의 <b>내일</b> 버튼으로 내일 코스를 확인해보세요!</li>'
+                : '<li class="today-empty">' + dl + '에는 코스로 묶을 만큼 장소가 모이지 않았어요.<br>다른 날짜나 다른 지역을 선택해보세요!</li>';
             return;
         }
-        listEl.innerHTML = currentCourses.map(function (course, idx) { return buildCourseCardHtml(course, idx); }).join('');
+        // 오늘인데 이미 저녁이면, 오늘 코스는 남은 시간 기준이라는 점과 내일 코스를 안내한다.
+        let note = '<li class="course-note">⏱ 예상 시간은 운영시간과 이동시간(직선거리 기준)으로 계산한 대략치예요. 방문 전 공식 운영시간을 꼭 확인하세요.</li>';
+        if (getCourseDate() === ctKstTodayStr() && ctKstNowMin() >= 840) {
+            note = '<li class="course-note course-note-late">🌙 지금(' + ctFmt(ctKstNowMin()) + ' 이후) 갈 수 있는 곳 기준이에요. 문 닫은 곳은 뺐고, 내일 코스는 위 <b>내일</b> 버튼에서 볼 수 있어요.</li>' + note;
+        }
+        listEl.innerHTML = note + currentCourses.map(function (course, idx) { return buildCourseCardHtml(course, idx); }).join('');
     }
 
     // 코스 카드의 "지도에서 전체보기" — 그 코스에 속한 장소들만 지도에 표시하고 화면을 맞춘다.
@@ -2428,6 +2872,10 @@
         // 코스 모드가 다루므로).
         const costFilterSelect = document.getElementById('costFilterSelect');
         if (costFilterSelect) costFilterSelect.style.display = courseModeActive ? '' : 'none';
+        // [ADD] 2026-11-01: 날짜 선택 바는 코스 모드에서만 보인다(전체 목록은 기존 기간 탭 사용).
+        const dateBar = document.getElementById('courseDateBar');
+        if (dateBar) dateBar.style.display = courseModeActive ? 'flex' : 'none';
+        if (courseModeActive) updateCourseDateBar();
         // [ADD] 2026-10-15: 지도 우하단 플로팅 메뉴(.remote-menu)의 "전체 목록"/"코스
         // 추천" 두 버튼은 서로 배타적인 모드 전환이라, 지금 모드에 맞는 쪽만 active로
         // 강조한다.

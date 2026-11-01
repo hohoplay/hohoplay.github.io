@@ -4,6 +4,7 @@ import json
 import time
 import html
 import math
+import re
 from urllib.parse import quote
 import requests
 
@@ -393,6 +394,10 @@ def generate_detail_pages(festivals):
             }
         else:
             intro = fetch_intro_fields(content_id)
+            # [ADD] 2026-11-01: 이미 받아온 부가정보에서 행사 시간대(playtime)도 같이 기억해 둔다(추가 호출 없음).
+            # 조회 실패({})일 땐 기록하지 않아 attach_play_times()가 다음 실행에서 다시 시도한다.
+            if intro:
+                f['playTime'] = clean_play_time(intro.get('playtime'))
         page_html = build_detail_page_html(f, overview, intro)
         with open(out_path, 'w', encoding='utf-8') as fp:
             fp.write(page_html)
@@ -400,6 +405,69 @@ def generate_detail_pages(festivals):
         time.sleep(0.3)  # TourAPI에 과도하게 연속 호출하지 않도록 약간의 간격
 
     print(f"상세페이지 신규 생성: {new_count}건 (festival/detail/)")
+
+
+def clean_play_time(raw):
+    """TourAPI playtime(행사 시간대) 문구를 한 줄 텍스트로 정리한다.
+    HTML 줄바꿈/태그를 공백으로 바꾸고 연속 공백을 줄이며, 너무 길면 자른다."""
+    if not raw:
+        return ''
+    s = re.sub(r'<br\s*/?>', ' ', str(raw), flags=re.I)
+    s = re.sub(r'<[^>]+>', ' ', s)
+    s = html.unescape(s)
+    s = re.sub(r'\s+', ' ', s).strip()
+    return s[:160]
+
+
+# 한 번 실행에 새로 조회할 최대 건수. 지도의 축제는 150건 안팎이라 처음 며칠에 걸쳐 채워지고,
+# 이후엔 새로 생긴 축제만 조회하므로 TourAPI 호출량이 거의 늘지 않는다.
+PLAY_TIME_MAX_NEW_PER_RUN = 70
+
+
+def attach_play_times(festivals, prev_path=os.path.join('data', 'festivals.json')):
+    """[ADD] 2026-11-01: 지도 코스에서 "이 행사는 몇 시에 끝나는지"를 계산할 수 있도록
+    축제마다 playTime(행사 시간대 문구)을 붙인다.
+      - 지난번 festivals.json 에 이미 playTime 키가 있으면(빈 문자열 포함) 그대로 재사용한다.
+        → 별도 캐시 파일이 필요 없고(워크플로 git add 목록 변경 불필요), 한 번 조회한 건 다시 안 부른다.
+      - 키가 없는 축제만 부가정보(detailIntro2)를 조회하되, 한 번에 PLAY_TIME_MAX_NEW_PER_RUN건까지만.
+      - 조회가 실패하면({}) 키를 넣지 않아 다음 실행에서 다시 시도한다.
+    실패해도 전체 파이프라인은 멈추지 않는다."""
+    prev = {}
+    try:
+        if os.path.exists(prev_path):
+            with open(prev_path, 'r', encoding='utf-8') as fp:
+                for x in json.load(fp):
+                    if isinstance(x, dict) and x.get('type') == 'festival' and 'playTime' in x and x.get('contentid'):
+                        prev[x['contentid']] = x['playTime']
+    except Exception as e:
+        print(f"이전 festivals.json 읽기 실패(playTime 재사용 생략): {e}")
+
+    reused = fetched = failed = 0
+    for f in festivals:
+        cid = f.get('contentid')
+        if not cid:
+            continue
+        if 'playTime' in f:
+            continue  # 수동 등록 축제 또는 이번 실행에서 상세페이지를 만들며 이미 받은 값
+        if cid in prev:
+            f['playTime'] = prev[cid]
+            reused += 1
+            continue
+        if fetched >= PLAY_TIME_MAX_NEW_PER_RUN:
+            continue
+        try:
+            intro = fetch_intro_fields(cid)
+        except Exception as e:
+            print(f"행사시간 조회 중 오류(contentId={cid}): {e}")
+            intro = {}
+        if intro:
+            f['playTime'] = clean_play_time(intro.get('playtime'))
+            fetched += 1
+        else:
+            failed += 1
+        time.sleep(0.3)
+    filled = sum(1 for f in festivals if f.get('playTime'))
+    print(f"행사시간(playTime): 재사용 {reused}건, 신규 조회 {fetched}건, 실패 {failed}건, 값이 있는 축제 {filled}/{len(festivals)}건")
 
 
 def patch_existing_detail_pages():
@@ -1321,7 +1389,9 @@ def main():
                 'sponsor2': m.get('sponsor2', ''),
                 'program': m.get('program', ''),
                 'eventplace': m.get('eventplace', ''),
-                'homepage': m.get('homepage', '')
+                'homepage': m.get('homepage', ''),
+                # [ADD] 2026-11-01: 행사 시간대(예: "10:00~17:00"). 적어두면 지도 코스에서 시간 계산에 쓰고, 비우면 "시간 확인 필요"로 표시된다.
+                'playTime': m.get('playTime', '')
             }
             festivals.append(entry)
         print(f"수동 등록 축제 {len(manual_list)}건 확인, 이 중 유효 기간 내: {sum(1 for m in manual_list if not m.get('endDate') or m.get('endDate') >= TODAY)}건 반영")
@@ -1424,6 +1494,7 @@ def main():
     # 무더위쉼터는 지역 클러스터라 개별 상세페이지 자체가 없음(클릭 시 지역 목록을
     # data/shelters/에서 바로 불러오는 방식이라 hasDetail은 항상 False로 계산됨 — 정상).
     generate_detail_pages(festivals)
+    attach_play_times(festivals)  # [ADD] 2026-11-01: 행사 시간대(지도 코스 시간 계산용)
     generate_nature_detail_pages(nature_spots)
     generate_nature_detail_pages(camping_spots, page_label='캠핑장', log_label='캠핑장')
     generate_nature_detail_pages(watersports_spots, page_label='수상레저', log_label='수상레저')
