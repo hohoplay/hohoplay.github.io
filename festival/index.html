@@ -474,6 +474,10 @@
 
         /* [ADD] 2026-10-19: 비 예보 배너. 지도에서 보고 있는 지역의 강수확률이 높으면
            뜬다(api/weather.js 호출 결과로 표시 여부가 정해짐). */
+        .course-weather-loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 36px 12px; color: #64748b; font-size: 14px; font-weight: 600; list-style: none; }
+        .cw-spinner { width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #4338ca; border-radius: 50%; animation: cwspin .8s linear infinite; flex: none; }
+        @keyframes cwspin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .cw-spinner { animation-duration: 2.4s; } }
         .weather-banner {
             display: none; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 10px;
             background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px;
@@ -1161,14 +1165,19 @@
         if (item.isAd) return item.placeType !== '실외';
         return item.placeType === '실내' || item.placeType === '실내외';
     }
-    function toggleIndoorOnly(isAutoFromWeather) {
-        indoorOnly = !indoorOnly;
-        if (!isAutoFromWeather) indoorAutoEnabledByWeather = false;
+    // [ADD] 2026-11-01: 상태·버튼만 바꾸고 목록은 다시 그리지 않는 버전(코스 모드에서 날씨 확인 직후
+    // "실내만"을 먼저 켜 두고 코스를 한 번만 그리기 위해 쓴다).
+    function setIndoorOnlyState(on) {
+        indoorOnly = !!on;
         const btn = document.getElementById('indoorToggleBtn');
         if (btn) {
             btn.classList.toggle('active', indoorOnly);
             btn.setAttribute('aria-pressed', indoorOnly ? 'true' : 'false');
         }
+    }
+    function toggleIndoorOnly(isAutoFromWeather) {
+        if (!isAutoFromWeather) indoorAutoEnabledByWeather = false;
+        setIndoorOnlyState(!indoorOnly);
         if (gpsModeActive) {
             renderNearbyPanel();
         } else {
@@ -1230,6 +1239,7 @@
         const deferToggle = isFestivalCardOpen();
         pendingWeatherData = deferToggle ? data : null;
         if (data && data.willRain) {
+            setWeatherBannerText('오늘 비 예보 — 실내 장소를 먼저 보여드려요');
             banner.style.display = 'flex';
             if (!indoorOnly && !deferToggle) {
                 toggleIndoorOnly(true);
@@ -1245,6 +1255,10 @@
     }
 
     function checkWeatherForCurrentView() {
+        // [CHANGE] 2026-11-01: 코스 모드에서는 지역·날짜를 고를 때 코스를 그리기 "전에" 날씨를 먼저
+        // 확인한다(renderCoursePanel). 지도가 멈춘 뒤 또 조회하면 코스가 뜬 다음에 목록이 바뀌어
+        // 헷갈리므로, 코스 모드(내 주변 보기 제외)에서는 이 사후 조회를 건너뛴다.
+        if (courseModeActive && !gpsModeActive) return;
         // 레벨 10 이상(전국/광역 단위로 넓게 보는 중)이면 특정 지역 날씨를 보여줄
         // 의미가 없으므로 배너를 숨기고 건너뛴다.
         if (map.getLevel() >= 10) {
@@ -1264,6 +1278,97 @@
             .then(function (res) { return res.json(); })
             .then(applyWeatherResult)
             .catch(function () { /* 날씨 조회 실패해도 지도 기능엔 영향 없음 — 조용히 무시 */ });
+    }
+
+    // ── 코스 모드: 날씨를 먼저 확인하고 코스를 한 번만 그린다 ─────────────────────
+    // [ADD] 2026-11-01: 지역을 고르면 코스를 먼저 그린 뒤 1~2초 후 날씨가 와서 "실내만"이 켜지며 목록이
+    // 바뀌어 헷갈렸다. 이제는 ① "날씨 확인 중" 표시 → ② 날씨 조회 → ③ 비 예보면 "실내만"을 먼저
+    // 켜고 → ④ 코스를 한 번만 그린다. 비 판단은 "선택한 날짜"의 강수확률(낮 시간대 9~21시, 60% 이상)
+    // 기준이다. 조회가 3초 넘게 걸리거나 실패하면 날씨 반영 없이 평소대로 코스를 보여 준다.
+    const COURSE_WEATHER_TIMEOUT_MS = 3000;
+    const COURSE_WEATHER_TTL_MS = 10 * 60 * 1000;
+    const COURSE_RAIN_THRESHOLD = 60;
+    const courseWeatherCache = {};       // "lat,lng" -> { at, data }
+    let courseRenderToken = 0;           // 지역·날짜를 빠르게 바꿀 때 늦게 온 응답을 버리기 위한 번호
+    let lastCourseWeatherCtx = null;     // 마지막으로 날씨를 자동 반영한 "지역|날짜|좌표" — 같으면 사용자가 직접 바꾼 "실내만"을 건드리지 않는다
+
+    function setWeatherBannerText(t) {
+        const el = document.getElementById('weatherBannerText');
+        if (el) el.textContent = t;
+    }
+
+    // 그 지역 장소들의 중심 좌표(0.1도 단위로 반올림). 전체('all')는 날씨를 볼 의미가 없어 null.
+    function courseWeatherPoint(regionKey) {
+        if (regionKey === 'all') return null;
+        const kws = REGION_KEYWORDS[regionKey] || [];
+        let sumLat = 0, sumLng = 0, n = 0;
+        festivalData.forEach(function (item) {
+            const la = parseFloat(item.lat), ln = parseFloat(item.lng);
+            if (!isFinite(la) || !isFinite(ln) || !item.addr) return;
+            if (!kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); })) return;
+            sumLat += la; sumLng += ln; n++;
+        });
+        if (!n) return null;
+        return { lat: roundCoord(sumLat / n), lng: roundCoord(sumLng / n) };
+    }
+
+    // 선택한 날짜의 비 예보 여부. 예보가 그 날짜를 못 덮으면(너무 먼 날짜) null(모름).
+    function courseRainForDate(data, dateStr) {
+        if (!data) return null;
+        const isToday = dateStr === ctKstTodayStr();
+        if (Array.isArray(data.forecast) && data.forecast.length) {
+            const nowHH = ('0' + Math.floor(ctKstNowMin() / 60)).slice(-2) + '00';
+            const from = isToday && nowHH > '0900' ? nowHH : '0900';
+            const rows = data.forecast.filter(function (f) {
+                return f && f.date === dateStr && String(f.time) >= from && String(f.time) <= '2100' && isFinite(f.pop);
+            });
+            if (rows.length) {
+                let maxPop = 0;
+                rows.forEach(function (f) { if (f.pop > maxPop) maxPop = f.pop; });
+                return { rain: maxPop >= COURSE_RAIN_THRESHOLD, maxPop: maxPop };
+            }
+            if (!isToday) return null;
+        }
+        if (isToday && typeof data.willRain === 'boolean') return { rain: data.willRain, maxPop: data.maxPop };
+        return null;
+    }
+
+    function fetchCourseWeather(pt) {
+        const key = pt.lat + ',' + pt.lng;
+        const hit = courseWeatherCache[key];
+        if (hit && Date.now() - hit.at < COURSE_WEATHER_TTL_MS) return Promise.resolve(hit.data);
+        const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, COURSE_WEATHER_TIMEOUT_MS) : null;
+        return fetch(WEATHER_API_URL + '?lat=' + pt.lat + '&lng=' + pt.lng, ctrl ? { signal: ctrl.signal } : undefined)
+            .then(function (res) { if (!res.ok) throw new Error('weather ' + res.status); return res.json(); })
+            .then(function (data) {
+                if (timer) clearTimeout(timer);
+                if (data && !data.error) courseWeatherCache[key] = { at: Date.now(), data: data };
+                return data;
+            })
+            .catch(function (e) { if (timer) clearTimeout(timer); throw e; });
+    }
+
+    // 날씨 결과를 "코스를 그리기 전에" 반영한다(목록은 다시 그리지 않음).
+    function applyCourseWeatherBeforeDraw(regionKey, pt, data) {
+        const banner = document.getElementById('weatherBanner');
+        const dateStr = getCourseDate();
+        const ctx = regionKey + '|' + dateStr + '|' + (pt ? pt.lat + ',' + pt.lng : '');
+        const info = pt ? courseRainForDate(data, dateStr) : null;
+        const changed = ctx !== lastCourseWeatherCtx;
+        lastCourseWeatherCtx = ctx;
+        if (info && info.rain) {
+            const when = dateStr === ctKstTodayStr() ? '오늘' : ctDateLabel(dateStr).replace(/\(.\)$/, '');
+            setWeatherBannerText(when + ' 비 예보' + (isFinite(info.maxPop) ? '(강수확률 ' + info.maxPop + '%)' : '') + ' — 실내 장소를 먼저 보여드려요');
+            if (banner) banner.style.display = 'flex';
+            if (changed && !indoorOnly) { setIndoorOnlyState(true); indoorAutoEnabledByWeather = true; }
+        } else {
+            if (banner) banner.style.display = 'none';
+            if (changed && indoorAutoEnabledByWeather) {
+                if (indoorOnly) setIndoorOnlyState(false);
+                indoorAutoEnabledByWeather = false;
+            }
+        }
     }
 
     function scheduleWeatherCheck() {
@@ -2922,6 +3027,34 @@
     function renderCoursePanel(regionKey) {
         const listEl = document.querySelector('.today-list');
         if (!listEl || festivalData.length === 0) return;
+        const token = ++courseRenderToken;
+        const pt = courseWeatherPoint(regionKey);
+        if (!pt) {
+            applyCourseWeatherBeforeDraw(regionKey, null, null);
+            drawCoursePanel(regionKey);
+            return;
+        }
+        const hit = courseWeatherCache[pt.lat + ',' + pt.lng];
+        if (hit && Date.now() - hit.at < COURSE_WEATHER_TTL_MS) {
+            // 이미 조회해 둔 지역이면 기다릴 필요 없이 바로 반영하고 그린다.
+            applyCourseWeatherBeforeDraw(regionKey, pt, hit.data);
+            drawCoursePanel(regionKey);
+            return;
+        }
+        listEl.innerHTML = '<li class="course-weather-loading" role="status" aria-live="polite"><span class="cw-spinner" aria-hidden="true"></span><span>날씨 확인 중…</span></li>';
+        let drawn = false;
+        function finish(data) {
+            if (drawn || token !== courseRenderToken) return;
+            drawn = true;
+            applyCourseWeatherBeforeDraw(regionKey, data ? pt : null, data);
+            drawCoursePanel(regionKey);
+        }
+        fetchCourseWeather(pt).then(finish, function () { finish(null); });
+    }
+
+    function drawCoursePanel(regionKey) {
+        const listEl = document.querySelector('.today-list');
+        if (!listEl) return;
         currentCourses = buildCourses(regionKey);
         // [FIX] 2026-10-10: 코스 카드 안 장소를 눌렀을 때 지도가 그 위치로 이동은 하는데
         // 핀(마커)이 하나도 안 보이는 버그 — 코스 모드에서는 renderMainPanel()이
