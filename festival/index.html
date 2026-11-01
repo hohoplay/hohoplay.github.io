@@ -2546,6 +2546,41 @@
     //  ② 그 요일에 쉬는 아이랑 장소는 제외(운영시간 문구에서 읽을 수 있는 경우만)
     //  ③ 방문 순서·"10:00~11:30 예상" 시간표는 scheduleCourseItems 로 계산
     // 전체 목록(리스트 모드)은 이 함수를 쓰지 않으므로 그대로다.
+    // [ADD] 2026-11-01: 같은 시·군·구로 묶여도 파주시처럼 넓은 곳은 코스 한 개가 55km씩 되는 문제가 있었다.
+    // 정확한 좌표를 가진 장소끼리 COURSE_MAX_RADIUS_KM 안에 모이는 것끼리 따로 코스로 나눈다.
+    // 좌표가 구/군 중심으로 뭉친(부정확한) 장소는 위치를 알 수 없으므로 가장 큰 덩어리에 붙인다.
+    const COURSE_MAX_RADIUS_KM = 10;
+    function splitGroupByDistance(items) {
+        const precise = items.filter(isPreciseCoord);
+        const imprecise = items.filter(function (it) { return !isPreciseCoord(it); });
+        const clusters = [];
+        let rest = precise.slice();
+        while (rest.length) {
+            let best = null, bestMembers = null;
+            rest.forEach(function (a) {
+                const members = rest.filter(function (b) {
+                    return b === a || haversineDistanceKm(a.lat, a.lng, b.lat, b.lng) <= COURSE_MAX_RADIUS_KM;
+                });
+                if (!bestMembers || members.length > bestMembers.length) { best = a; bestMembers = members; }
+            });
+            clusters.push({ anchor: best, items: bestMembers });
+            rest = rest.filter(function (it) { return bestMembers.indexOf(it) < 0; });
+        }
+        if (!clusters.length) return [{ anchor: null, items: imprecise }];
+        clusters.sort(function (a, b) { return b.items.length - a.items.length; });
+        clusters[0].items = clusters[0].items.concat(imprecise);
+        return clusters;
+    }
+    // 같은 시·군·구가 여러 코스로 나뉠 때 구분용 이름: 앵커 주소의 읍/면/동, 없으면 앵커 장소명 + " 일대"
+    function courseAreaName(anchor) {
+        if (!anchor) return '';
+        const toks = String(anchor.addr || '').replace(/[(),]/g, ' ').split(/\s+/);
+        for (let i = 2; i < toks.length; i++) {
+            if (/^[가-힣0-9]+(읍|면|동)$/.test(toks[i]) && toks[i].length >= 2) return toks[i];
+        }
+        return (anchor.title || '').replace(/\s*\([^)]*\)\s*/g, ' ').trim() + ' 일대';
+    }
+
     const COURSE_MAX_FESTIVALS = 2;   // 낮 시간대 축제가 4곳 다 차면 "아이랑 장소"가 빠져서, 코스당 축제는 2곳까지(부족하면 더 채움)
     function buildCourses(regionKey) {
         const dateStr = getCourseDate();
@@ -2614,7 +2649,21 @@
             if (item.type !== 'kids') group.hasFestival = true;
         });
         const courses = [];
+        // 같은 시·군·구 안에서도 멀리 떨어진 곳끼리는 다른 코스로 나눈다(splitGroupByDistance).
+        const subGroups = [];
         groups.forEach(function (group) {
+            const sorted = group.items.slice().sort(function (a, b) { return (a.type !== 'kids' ? 0 : 1) - (b.type !== 'kids' ? 0 : 1); });
+            const parts = splitGroupByDistance(sorted).filter(function (c) { return c.items.length >= MIN_COURSE_PLACES; });
+            parts.forEach(function (c) {
+                subGroups.push({
+                    label: parts.length > 1 ? group.label + ' · ' + courseAreaName(c.anchor) : group.label,
+                    baseLabel: group.label,
+                    items: c.items,
+                    hasFestival: c.items.some(function (it) { return it.type !== 'kids'; })
+                });
+            });
+        });
+        subGroups.forEach(function (group) {
             if (group.items.length < MIN_COURSE_PLACES) return;
             // 축제를 먼저(그날 열리는 한정 행사라 눈에 띄어야 함), 그 다음 아이랑 장소 순.
             const sortedItems = group.items.slice().sort(function (a, b) {
@@ -2648,6 +2697,7 @@
             }, 0);
             courses.push({
                 subRegion: group.label,
+                baseLabel: group.baseLabel,
                 items: ordered,
                 schedule: schedule,
                 dateStr: dateStr,
@@ -2783,9 +2833,9 @@
         // [ADD] 2026-10-15: 이 지역의 정적 글(COURSE_ARTICLE_SLUGS)이 있으면 "자세히
         // 보기" 링크를 함께 보여준다 — 검색봇뿐 아니라 실제로 지도를 보는 사람도 글로
         // 넘어가 전체 장소 설명과 댓글을 볼 수 있게 연결한다.
-        const articleSlug = COURSE_ARTICLE_SLUGS[course.subRegion];
+        const articleSlug = COURSE_ARTICLE_SLUGS[course.baseLabel || course.subRegion];
         const articleLink = articleSlug
-            ? '<a class="today-map-link" href="/blog/kids-course/' + articleSlug + '.html">📖 ' + escapeHtml(course.subRegion) + ' 아이랑 갈만한 곳 모음</a>'
+            ? '<a class="today-map-link" href="/blog/kids-course/' + articleSlug + '.html">📖 ' + escapeHtml(course.baseLabel || course.subRegion) + ' 아이랑 갈만한 곳 모음</a>'
             : '';
         return '<li class="today-item course-card">'
             + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
