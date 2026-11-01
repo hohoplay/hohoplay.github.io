@@ -1308,12 +1308,11 @@
     // 그 지역 장소들의 중심 좌표(0.1도 단위로 반올림). 전체('all')는 날씨를 볼 의미가 없어 null.
     function courseWeatherPoint(regionKey) {
         if (regionKey === 'all') return null;
-        const kws = REGION_KEYWORDS[regionKey] || [];
         let sumLat = 0, sumLng = 0, n = 0;
         festivalData.forEach(function (item) {
             const la = parseFloat(item.lat), ln = parseFloat(item.lng);
             if (!isFinite(la) || !isFinite(ln) || !item.addr) return;
-            if (!kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); })) return;
+            if (!itemInRegion(item, regionKey)) return;
             sumLat += la; sumLng += ln; n++;
         });
         if (!n) return null;
@@ -1495,6 +1494,49 @@
         }
         return a.indexOf(keyword) === 0;
     }
+    // [ADD] 2026-11-01: 충청·전라 4개 도는 "충청북도/전라남도" 단위가 너무 넓은데 아이랑 장소는 도시마다 1~3곳뿐이라
+    // 도 단위로는 코스가 안 나왔다. 지역 선택을 도 대신 시·군(충주·천안·공주…)으로 나눈다.
+    // key 는 '도키:시군이름'(예: 'chungbuk:충주시'). 도 단위 키(chungbuk 등)는 예전 링크(?region=chungbuk)용으로 남겨 둔다.
+    const CITY_PROVINCE_PREFIX = {
+        chungbuk: ['충청북도', '충북'],
+        chungnam: ['충청남도', '충남'],
+        jeonbuk: ['전북특별자치도', '전라북도', '전북'],
+        jeonnam: ['전남광주통합특별시', '전라남도', '전남']
+    };
+    const CITY_REGION_GROUPS = [
+        { province: 'chungbuk', label: '충청북도', cities: ['청주시', '충주시', '제천시', '단양군', '괴산군', '진천군', '음성군', '증평군', '보은군', '옥천군', '영동군'] },
+        { province: 'chungnam', label: '충청남도', cities: ['천안시', '공주시', '부여군', '태안군', '아산시', '보령시', '서산시', '당진시', '논산시', '계룡시', '서천군', '홍성군', '예산군', '청양군', '금산군'] },
+        { province: 'jeonbuk', label: '전북특별자치도', cities: ['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', '완주군', '진안군', '무주군', '장수군', '임실군', '순창군', '고창군', '부안군'] },
+        { province: 'jeonnam', label: '전라남도', cities: ['여수시', '순천시', '목포시', '광양시', '나주시', '담양군', '곡성군', '구례군', '고흥군', '보성군', '화순군', '장흥군', '강진군', '해남군', '영암군', '무안군', '함평군', '영광군', '장성군', '완도군', '진도군', '신안군'] }
+    ];
+    const CITY_REGIONS = {};   // key -> { province, city, short }
+    CITY_REGION_GROUPS.forEach(function (g) {
+        g.cities.forEach(function (c) {
+            CITY_REGIONS[g.province + ':' + c] = { province: g.province, city: c, short: c.replace(/[시군]$/, '') };
+        });
+    });
+    // 전남광주통합특별시 주소의 광주 서구(구 단위)는 전라남도 목록에서도 고를 수 있게 따로 둔다.
+    CITY_REGIONS['jeonnam:광주서구'] = { province: 'jeonnam', city: '광주서구', short: '광주 서구', gwangjuSeo: true };
+    CITY_REGION_GROUPS[3].cities.push('광주서구');
+    function isCityRegion(key) { return Object.prototype.hasOwnProperty.call(CITY_REGIONS, key); }
+    function cityRegionLabel(key) { return isCityRegion(key) ? CITY_REGIONS[key].short : ''; }
+    function addrInCity(addr, def) {
+        if (!addr) return false;
+        const t = addr.trim().split(/\s+/);
+        if (def.gwangjuSeo) {
+            return (t[0] === '전남광주통합특별시' || t[0] === '광주광역시' || t[0] === '광주') && (t[1] === '서구');
+        }
+        const prefixes = CITY_PROVINCE_PREFIX[def.province] || [];
+        if (!prefixes.some(function (pf) { return t[0] === pf; })) return false;
+        return t[1] === def.city;
+    }
+    // 지역 키 하나(전체 제외)에 이 장소가 속하는지 — 시·군 키와 도 단위 키를 모두 처리한다.
+    function itemInRegion(item, key) {
+        if (!item || !item.addr) return false;
+        if (isCityRegion(key)) return addrInCity(item.addr, CITY_REGIONS[key]);
+        const kws = REGION_KEYWORDS[key] || [];
+        return kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); });
+    }
     // Vercel 프록시 주소를 브라우저에서 직접 호출 (지역 선택 시 설명 문구를 즉시 받아오기 위함)
     const DETAIL_PROXY_URL = 'https://festival-api-proxy.vercel.app/api/detail';
     // [ADD] 2026-10-19: 날씨 연동(api/weather.js, 같은 Vercel 프록시 프로젝트에 추가됨).
@@ -1597,7 +1639,7 @@
             courseAutoNext = true;
             updateCourseDateBar();
         }
-        if (regionParam && REGION_ORDER.indexOf(regionParam) !== -1) {
+        if (regionParam && (REGION_ORDER.indexOf(regionParam) !== -1 || isCityRegion(regionParam))) {
             filterRegion(regionParam);
         } else {
             renderMainPanel();
@@ -2143,9 +2185,8 @@
 
     // 특정 지역 선택: 그 지역의(이미 기간/테마로 걸러진) 축제를 마감임박순으로 최대 5개
     function pickRegionList(list, key) {
-        const kws = REGION_KEYWORDS[key] || [];
         const inRegion = list.filter(function (item) {
-            return item.addr && kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); });
+            return itemInRegion(item, key);
         });
         inRegion.sort(compareByUrgency);
         return inRegion.slice(0, 5);
@@ -2244,8 +2285,7 @@
             // 원래부터 이렇게 엄격하게 걸렀고, 여기 목록만 느슨했다).
             let regionScoped = periodFiltered;
             if (key !== 'all') {
-                const keywords = REGION_KEYWORDS[key] || [];
-                regionScoped = regionScoped.filter(item => keywords.some(kw => addrMatchesRegion(item.addr, kw)));
+                regionScoped = regionScoped.filter(item => itemInRegion(item, key));
             } else {
                 showRegionTag = true;
             }
@@ -2570,8 +2610,14 @@
 
     const CT_EVENING_RE = /야간|야시장|야경|나이트|불빛|빛축제|빛의|라이트|조명|일루미|루미나|등불|등축제|점등|별빛|달빛/;
     function isEveningFestival(item) {
-        return item.type !== 'kids' && CT_EVENING_RE.test(item.title || '');
+        return item.type !== 'kids' && item.type !== 'park' && CT_EVENING_RE.test(item.title || '');
     }
+    // [ADD] 2026-11-01: 시·군을 고른 코스에는 ① 그날 열리는 축제 ② 아이랑 갈만한 곳 ③ 자연관광지(park)가 들어간다.
+    // 예전엔 kids 가 아니면 전부 "축제"로 봤는데 자연관광지는 축제가 아니므로 구분한다. 순서는 축제 → 아이랑 → 자연관광지.
+    function isCourseFestival(item) { return item.type !== 'kids' && item.type !== 'park'; }
+    function courseRank(item) { return item.type === 'park' ? 2 : (item.type === 'kids' ? 1 : 0); }
+    const CT_PORT_RE = /(항|포구|선착장|등대|항구|도선장)(\s*\([^)]*\))?$/;
+    function normCourseTitle(t) { return String(t || '').replace(/\([^)]*\)|\[[^\]]*\]/g, '').replace(/[\s·\-_.,:：]/g, ''); }
 
     // 장소 하나의 그날 이용 가능 시간(분). known=false 면 시간 정보를 읽지 못해 "예상 기본값"을 쓴 것.
     function getItemWindow(item, ctx) {
@@ -2585,6 +2631,7 @@
     }
 
     function getStayMin(item) {
+        if (item.type === 'park') return 60;
         if (item.type !== 'kids') return 90;
         return item.placeType === '실외' ? 60 : 90;
     }
@@ -2746,7 +2793,11 @@
     // 정확한 좌표를 가진 장소끼리 COURSE_MAX_RADIUS_KM 안에 모이는 것끼리 따로 코스로 나눈다.
     // 좌표가 구/군 중심으로 뭉친(부정확한) 장소는 위치를 알 수 없으므로 가장 큰 덩어리에 붙인다.
     const COURSE_MAX_RADIUS_KM = 10;
-    function splitGroupByDistance(items) {
+    // [ADD] 2026-11-01: 시·군 하나에 3곳이 안 모여서 코스가 안 나오던 지역(충주·제천·단양처럼 작은 도시들)은,
+    // 같은 시·도 안에서 가까운(이 반경 안) 이웃 시·군의 장소끼리 묶어 "제천시·단양군" 같은 한 코스로 만든다.
+    const COURSE_NEIGHBOR_RADIUS_KM = 25;
+    function splitGroupByDistance(items, radiusKm) {
+        const RADIUS = radiusKm || COURSE_MAX_RADIUS_KM;
         const precise = items.filter(isPreciseCoord);
         const imprecise = items.filter(function (it) { return !isPreciseCoord(it); });
         const clusters = [];
@@ -2755,7 +2806,7 @@
             let best = null, bestMembers = null;
             rest.forEach(function (a) {
                 const members = rest.filter(function (b) {
-                    return b === a || haversineDistanceKm(a.lat, a.lng, b.lat, b.lng) <= COURSE_MAX_RADIUS_KM;
+                    return b === a || haversineDistanceKm(a.lat, a.lng, b.lat, b.lng) <= RADIUS;
                 });
                 if (!bestMembers || members.length > bestMembers.length) { best = a; bestMembers = members; }
             });
@@ -2789,11 +2840,17 @@
         const ctx = { dow: dow, month: dObj.getUTCMonth() + 1, startMin: startMin, dateStr: dateStr };
         // 오늘인데 20:30 이후면 더 이상 갈 코스가 없다(내일 코스를 안내).
         if (isToday && startMin >= 1230) return [];
+        // 시·군을 고른 경우(city region)에는 1~2곳이어도 코스로 보여 주고, 자연관광지도 함께 넣는다.
+        const cityMode = isCityRegion(regionKey);
+        const minPlaces = cityMode ? 1 : MIN_COURSE_PLACES;
         let pool = getFilteredData().filter(function (item) {
             if (item.type === 'kids') {
                 // 그 요일에 쉬는 곳(예: "매주 월요일 휴관")은 뺀다. 휴관 요일을 읽을 수 없으면 그대로 둔다.
                 const cd = closedDaysFromHours(item.hours);
                 if (cd.known && cd.closed.indexOf(dowChar) >= 0) return false;
+            } else if (item.type === 'park') {
+                if (!cityMode) return false;                 // 자연관광지는 시·군을 고른 코스에서만
+                if (CT_PORT_RE.test(item.title || '')) return false;   // 항구·선착장·등대는 제외
             } else {
                 if (isThemeGatedType(item.type)) return false;
                 if (isCourseExcludedFestival(item)) return false;
@@ -2809,9 +2866,21 @@
             return true;
         });
         if (regionKey !== 'all') {
-            const kws = REGION_KEYWORDS[regionKey] || [];
             pool = pool.filter(function (item) {
-                return item.addr && kws.some(function (kw) { return addrMatchesRegion(item.addr, kw); });
+                return itemInRegion(item, regionKey);
+            });
+        }
+        // 같은 장소가 아이랑 장소와 자연관광지에 둘 다 있으면(이름이 겹치거나 300m 안) 자연관광지 쪽을 뺀다.
+        if (cityMode) {
+            const solid = pool.filter(function (it) { return it.type !== 'park'; });
+            pool = pool.filter(function (it) {
+                if (it.type !== 'park') return true;
+                const nt = normCourseTitle(it.title);
+                return !solid.some(function (o) {
+                    const no = normCourseTitle(o.title);
+                    if (nt && no && (nt.indexOf(no) >= 0 || no.indexOf(nt) >= 0)) return true;
+                    return isPreciseCoord(it) && isPreciseCoord(o) && haversineDistanceKm(it.lat, it.lng, o.lat, o.lng) < 0.3;
+                });
             });
         }
         const groups = new Map(); // "광역지역키|소지역" -> { label, items[], hasFestival }
@@ -2838,39 +2907,64 @@
             const groupKey = itemRegionKey + '|' + (sub || '__whole__');
             if (!groups.has(groupKey)) {
                 const label = sub ? (REGION_LABELS[itemRegionKey] + ' ' + sub) : (REGION_LABELS[itemRegionKey] + ' 전체');
-                groups.set(groupKey, { label: label, items: [], hasFestival: false });
+                groups.set(groupKey, { label: label, items: [], hasFestival: false, regionKey: itemRegionKey });
             }
             const group = groups.get(groupKey);
             group.items.push(item);
-            if (item.type !== 'kids') group.hasFestival = true;
+            if (isCourseFestival(item)) group.hasFestival = true;
         });
         const courses = [];
         // 같은 시·군·구 안에서도 멀리 떨어진 곳끼리는 다른 코스로 나눈다(splitGroupByDistance).
         const subGroups = [];
+        const leftovers = {};   // 광역 지역키 -> 시·군 단위로는 3곳이 안 모인 장소들(좌표가 정확한 것만)
         groups.forEach(function (group) {
-            const sorted = group.items.slice().sort(function (a, b) { return (a.type !== 'kids' ? 0 : 1) - (b.type !== 'kids' ? 0 : 1); });
-            const parts = splitGroupByDistance(sorted).filter(function (c) { return c.items.length >= MIN_COURSE_PLACES; });
+            const sorted = group.items.slice().sort(function (a, b) { return courseRank(a) - courseRank(b); });
+            const allParts = splitGroupByDistance(sorted, cityMode ? COURSE_NEIGHBOR_RADIUS_KM : undefined);
+            const parts = allParts.filter(function (c) { return c.items.length >= minPlaces; });
+            allParts.forEach(function (c) {
+                if (c.items.length >= minPlaces) return;
+                const arr = leftovers[group.regionKey] || (leftovers[group.regionKey] = []);
+                c.items.forEach(function (it) { if (isPreciseCoord(it)) arr.push(it); });
+            });
+            const usedLabels = {};
             parts.forEach(function (c) {
+                // 같은 시·군 안에서 읍·면이 같아 이름이 겹치면(예: 여수 삼산면 두 곳) 대표 장소 이름으로 구분한다.
+                let areaName = courseAreaName(c.anchor);
+                if (parts.length > 1 && usedLabels[areaName]) areaName = (c.anchor && c.anchor.title ? c.anchor.title.replace(/\s*\([^)]*\)\s*/g, ' ').trim() : areaName) + ' 일대';
+                usedLabels[areaName] = true;
                 subGroups.push({
-                    label: parts.length > 1 ? group.label + ' · ' + courseAreaName(c.anchor) : group.label,
+                    label: parts.length > 1 ? group.label + ' · ' + areaName : group.label,
                     baseLabel: group.label,
+                    items: c.items,
+                    hasFestival: c.items.some(isCourseFestival)
+                });
+            });
+        });
+        // 위에서 코스가 못 된 장소들을 같은 시·도 안에서 가까운 것끼리 다시 묶는다(이웃 시·군 합치기).
+        Object.keys(leftovers).forEach(function (rk) {
+            splitGroupByDistance(leftovers[rk], COURSE_NEIGHBOR_RADIUS_KM).forEach(function (c) {
+                if (c.items.length < MIN_COURSE_PLACES) return;
+                const cnt = {};
+                c.items.forEach(function (it) { const sub = extractSubRegion(it.addr) || '전체'; cnt[sub] = (cnt[sub] || 0) + 1; });
+                const names = Object.keys(cnt).sort(function (a, b) { return cnt[b] - cnt[a]; });
+                const label = REGION_LABELS[rk] + ' ' + names.join('·') + (names.length > 1 ? ' 일대' : '');
+                subGroups.push({
+                    label: label,
+                    baseLabel: label,
                     items: c.items,
                     hasFestival: c.items.some(function (it) { return it.type !== 'kids'; })
                 });
             });
         });
         subGroups.forEach(function (group) {
-            if (group.items.length < MIN_COURSE_PLACES) return;
-            // 축제를 먼저(그날 열리는 한정 행사라 눈에 띄어야 함), 그 다음 아이랑 장소 순.
-            const sortedItems = group.items.slice().sort(function (a, b) {
-                const aFes = a.type !== 'kids' ? 0 : 1;
-                const bFes = b.type !== 'kids' ? 0 : 1;
-                return aFes - bFes;
-            });
-            const fests = sortedItems.filter(function (it) { return it.type !== 'kids'; });
+            if (group.items.length < minPlaces) return;
+            // 축제를 먼저(그날 열리는 한정 행사라 눈에 띄어야 함), 그 다음 아이랑 장소, 마지막에 자연관광지 순.
+            const sortedItems = group.items.slice().sort(function (a, b) { return courseRank(a) - courseRank(b); });
+            const fests = sortedItems.filter(isCourseFestival);
             const kidsOnly = sortedItems.filter(function (it) { return it.type === 'kids'; });
-            // 축제 최대 2곳 + 아이랑 장소로 채우고, 모자라면 남은 축제로 채운다.
-            let pref = fests.slice(0, COURSE_MAX_FESTIVALS).concat(kidsOnly).concat(fests.slice(COURSE_MAX_FESTIVALS));
+            const natureOnly = sortedItems.filter(function (it) { return it.type === 'park'; });
+            // 축제 최대 2곳 + 아이랑 장소로 채우고, 모자라면 남은 축제, 그다음 자연관광지로 채운다.
+            let pref = fests.slice(0, COURSE_MAX_FESTIVALS).concat(kidsOnly).concat(fests.slice(COURSE_MAX_FESTIVALS)).concat(natureOnly);
             let schedule = [];
             // 시간표를 짜 봤는데 도착했을 때 이미 문 닫을 시간인 곳(운영시간을 읽은 곳, 또는 아이랑 장소의 기본 가정)은
             // 빼고 다음 후보로 바꿔 다시 짠다. 후보가 모자라면(3곳 미만) 그 지역 코스는 만들지 않는다.
@@ -2884,9 +2978,9 @@
                 }).map(function (x) { return x.item; });
                 if (!bad.length) break;
                 pref = pref.filter(function (it) { return bad.indexOf(it) < 0; });
-                if (pref.length < MIN_COURSE_PLACES) { schedule = []; break; }
+                if (pref.length < minPlaces) { schedule = []; break; }
             }
-            if (schedule.length < MIN_COURSE_PLACES) return;
+            if (schedule.length < minPlaces) return;
             const ordered = schedule.map(function (x) { return x.item; });
             const totalDistanceKm = ordered.reduce(function (sum, it) {
                 return sum + (typeof it._distToNextKm === 'number' ? it._distToNextKm : 0);
@@ -2911,6 +3005,7 @@
             if (a.hasFestival !== b.hasFestival) return a.hasFestival ? -1 : 1;
             return b.total - a.total;
         });
+        if (cityMode && courses.length > 8) courses.length = 8;   // 태안처럼 장소가 아주 많은 곳은 큰 코스 8개까지만
         return courses;
     }
 
@@ -2980,7 +3075,7 @@
             const lng = item.lng || '';
             // 축제는 🎪, 아이랑 상시 장소는 🧒로 구분해서 한눈에 "이번 계절 한정"인지
             // "언제 가도 되는 곳"인지 알 수 있게 한다.
-            const icon = item.type === 'kids' ? '🧒' : '🎪';
+            const icon = item.type === 'kids' ? '🧒' : (item.type === 'park' ? '🌳' : '🎪');
             // [CHANGE] 2026-11-01: 날짜별 코스 — 예상 시간(운영시간·이동시간으로 계산한 대략치)과 주의 문구를 함께 보여준다.
             const sc = course.schedule && course.schedule[i];
             let slot = getTimeSlotLabel(i, course.items.length);
@@ -2994,6 +3089,7 @@
                 } else {
                     parts.push('<span class="course-time-unknown">시간 확인 필요</span>');
                 }
+                if (item.type === 'park') parts.push('<span class="course-time-sub">자연관광지</span>');
                 if (item.type !== 'kids' && item.endDate) {
                     parts.push(item.endDate === course.dateStr
                         ? '<span class="course-tag course-tag-warn">오늘 마지막 날</span>'
@@ -3092,7 +3188,9 @@
             const dl = ctDateLabel(getCourseDate());
             listEl.innerHTML = (getCourseDate() === ctKstTodayStr() && ctKstNowMin() >= 1170)
                 ? '<li class="today-empty">🌙 오늘은 시간이 늦어 갈 수 있는 코스가 없어요.<br>위의 <b>내일</b> 버튼으로 내일 코스를 확인해보세요!</li>'
-                : '<li class="today-empty">' + dl + '에는 코스로 묶을 만큼 장소가 모이지 않았어요.<br>다른 날짜나 다른 지역을 선택해보세요!</li>';
+                : (isCityRegion(regionKey)
+                    ? '<li class="today-empty">' + escapeHtml(cityRegionLabel(regionKey)) + '에는 ' + dl + '에 갈 수 있는 곳이 아직 등록되지 않았어요.<br>다른 날짜나 가까운 다른 지역을 선택해보세요!</li>'
+                    : '<li class="today-empty">' + dl + '에는 코스로 묶을 만큼 장소가 모이지 않았어요.<br>다른 날짜나 다른 지역을 선택해보세요!</li>');
             return;
         }
         // 오늘인데 이미 저녁이면, 오늘 코스는 남은 시간 기준이라는 점과 내일 코스를 안내한다.
@@ -3426,6 +3524,28 @@
         }
     }
 
+    // [ADD] 2026-11-01: 충북·충남·전북·전남 4개 도 항목을 시·군 목록(optgroup)으로 바꾼다.
+    function buildCityRegionOptions() {
+        ['regionSelect', 'regionSelectPanel'].forEach(function (id) {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            CITY_REGION_GROUPS.forEach(function (g) {
+                const old = sel.querySelector('option[value="' + g.province + '"]');
+                const grp = document.createElement('optgroup');
+                grp.label = g.label;
+                g.cities.forEach(function (c) {
+                    const key = g.province + ':' + c;
+                    const op = document.createElement('option');
+                    op.value = key;
+                    op.textContent = CITY_REGIONS[key].short;
+                    grp.appendChild(op);
+                });
+                if (old && old.parentNode) old.parentNode.replaceChild(grp, old); else sel.appendChild(grp);
+            });
+        });
+    }
+    buildCityRegionOptions();
+
     function syncRegionSelectors(key) {
         const sel1 = document.getElementById('regionSelect');
         const sel2 = document.getElementById('regionSelectPanel');
@@ -3439,8 +3559,7 @@
     function applyRegionAndThemeToMarkers(key) {
         let filtered = getFilteredData();
         if (key !== 'all') {
-            const keywords = REGION_KEYWORDS[key] || [];
-            filtered = filtered.filter(item => keywords.some(kw => addrMatchesRegion(item.addr, kw)));
+            filtered = filtered.filter(item => itemInRegion(item, key));
         }
         filtered = filtered.filter(item => matchesTheme(item, currentThemes));
         renderMarkers(filtered);
