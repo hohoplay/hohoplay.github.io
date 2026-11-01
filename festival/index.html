@@ -301,6 +301,35 @@
         /* [CHANGE] 2026-10-11: 순번 원형 배지(1,2,3,4) 대신 "오전/점심/오후/저녁" 같은
            시간대 라벨을 넣기로 해서, 동그라미 대신 글자 길이에 맞는 알약(pill) 모양으로
            바꿈. 2글자(점심/오후 등)가 들어가도 안 잘리게 min-width+padding으로 변경. */
+        /* [ADD] 2026-11-01: 코스 번호 핀(지도)과 코스 카드의 같은 번호 배지 */
+        .course-pin-no {
+            display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+            margin-right: 4px; border-radius: 50%; background: #334155; color: #fff;
+            font-size: 11px; font-weight: 800; line-height: 1; vertical-align: 1px;
+        }
+        .cpin { position: relative; width: 28px; height: 28px; }
+        .cpin-no {
+            display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%;
+            background: #334155; color: #fff; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+            font-size: 14px; font-weight: 800; line-height: 1; cursor: pointer; box-sizing: border-box;
+        }
+        .cpin-name {
+            position: absolute; left: 32px; top: 50%; transform: translateY(-50%); max-width: 130px;
+            padding: 2px 7px; border-radius: 6px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1;
+            color: #1e293b; font-size: 11px; font-weight: 700; line-height: 1.4; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 3px rgba(0,0,0,0.15); cursor: pointer;
+        }
+        .course-map-summary {
+            position: absolute; top: 108px; left: 50%; transform: translateX(-50%); z-index: 10;
+            display: flex; align-items: center; gap: 8px; max-width: 92%; padding: 7px 8px 7px 12px;
+            background: #fff; border-radius: 18px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            font-size: 12px; font-weight: 700; color: #1e293b; line-height: 1.4;
+        }
+        .course-map-summary .cms-text { min-width: 0; }
+        .course-map-summary button {
+            flex-shrink: 0; border: 0; border-radius: 999px; padding: 4px 9px; background: #eef2ff; color: #4338ca;
+            font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;
+        }
         .course-place-num {
             flex-shrink: 0; min-width: 34px; height: 18px; padding: 0 6px; border-radius: 9px; background: #4338ca;
             color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
@@ -1361,6 +1390,9 @@
 
     let festivalData = [];
     let allMarkers = [];
+    // [ADD] 2026-11-01: 코스 "지도에서 전체보기"용 번호 핀·점선 경로·요약 줄(아래 showCourseOnMap 참고)
+    let courseOverlays = [];
+    let coursePolyline = null;
 
     // [FIX] 2026-10-08: "아이랑 갈만한 곳"과 "축제"를 더 이상 별도 모드로 전환하지 않고,
     // 하나의 목록/지도에 함께 보여주도록 합쳤다. festivalData에 축제+아이랑 장소가
@@ -1797,6 +1829,7 @@
     kakao.maps.event.addListener(map, 'zoom_changed', updatePlaceLabels);
 
     function renderMarkers(data) {
+        clearCourseMapOverlays();   // 코스 번호 핀은 다른 마커 화면으로 바뀔 때마다 걷어낸다
         if (!allMarkersCache) buildAllMarkersOnce(festivalData);
         clusterer.clear();
         // 여러 item이 같은(그룹) 마커를 가리킬 수 있어서, Set으로 중복 추가를 막는다
@@ -2846,7 +2879,7 @@
             }
             const li = '<li class="course-place-item" onclick="focusFestivalItem(' + lat + ', ' + lng + ', \'' + escapeHtml(item.contentid || '') + '\'); closeTodayPanel();">'
                 + '<span class="course-place-num">' + slot + '</span>'
-                + '<span class="course-place-body"><span class="course-place-name">' + icon + ' ' + escapeHtml(item.title) + '</span>' + timeHtml + '</span>'
+                + '<span class="course-place-body"><span class="course-place-name"><span class="course-pin-no">' + (i + 1) + '</span>' + icon + ' ' + escapeHtml(item.title) + '</span>' + timeHtml + '</span>'
                 + '</li>';
             // [ADD] 2026-10-10: 2단계 — 정확한 좌표끼리는 바로 다음 장소까지의 대략적인
             // 직선거리를 다음 항목 사이에 작게 보여준다(차로 이동 거리가 아니라 직선거리라
@@ -2917,20 +2950,111 @@
         listEl.innerHTML = note + currentCourses.map(function (course, idx) { return buildCourseCardHtml(course, idx); }).join('');
     }
 
-    // 코스 카드의 "지도에서 전체보기" — 그 코스에 속한 장소들만 지도에 표시하고 화면을 맞춘다.
+    // 코스 카드의 "지도에서 전체보기" — 그 코스의 장소를 방문 순서대로 번호 핀(①②③④)으로 찍고,
+    // 점선으로 이어 주고, 지도 위에 요약 줄(장소 수·이동 거리·예상 시간)을 띄운다.
+    // [CHANGE] 2026-11-01: 예전엔 같은 모양 핀만 찍었다. 같은 좌표에 여러 곳이 겹치면(같은 건물 등)
+    // 네이버 지도처럼 번호 핀을 대각선으로 살짝 비켜 쌓는다. 선은 도로 경로가 아니라 직선이다.
+    function clearCourseMapOverlays() {
+        courseOverlays.forEach(function (o) { try { o.setMap(null); } catch (e) {} });
+        courseOverlays = [];
+        if (coursePolyline) { try { coursePolyline.setMap(null); } catch (e) {} coursePolyline = null; }
+        const el = document.getElementById('courseMapSummary');
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    // 요약 줄의 "닫기": 번호 핀을 걷어내고, 코스 목록을 그렸을 때와 같은 일반 마커 화면으로 되돌린다.
+    function exitCourseMapView() {
+        closeFestivalCard();
+        const all = [];
+        currentCourses.forEach(function (course) { all.push.apply(all, course.items); });
+        renderMarkers(all);   // 안에서 번호 핀·요약 줄도 함께 정리된다
+        if (currentRegionKey === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
+    }
+
     function showCourseOnMap(idx) {
         const course = currentCourses[idx];
         if (!course) return;
-        // [FIX] 2026-10-10: 어떤 장소를 선택해 상세카드+빨간 핀 표시가 떠 있는 상태에서
-        // 다른 코스의 "지도에서 전체보기"를 누르면, 그 이전 선택 표시가 안 지워지고
-        // 엉뚱하게 새 코스 지역 위에 그대로 남아있던 문제. 코스를 바꿀 때는 이전 선택을
-        // 먼저 정리한다(closeFestivalCard가 카드와 빨간 핀 표시를 함께 지움).
+        // [FIX] 2026-10-10: 이전 선택(카드·빨간 핀 표시)이 새 코스 위에 남지 않도록 먼저 정리한다.
         closeFestivalCard();
-        // [FIX] 2026-10-10: course.items는 카드에 보이는 최대 4곳짜리 축약본이라, 그걸
-        // 그대로 쓰면 "그 외 N곳 더 있어요"가 지도에서 빠졌다. 전체보기는 allItems(그
-        // 지역에 묶인 장소 전부)를 써야 "4곳 표시 + 2곳 더 있음 = 지도엔 6곳"이 맞는다.
-        renderMarkers(course.allItems || course.items);
-        fitToMarkers(allMarkers);
+        const numbered = (course.items || []).filter(function (it) { return it.lat && it.lng; });
+        const numberedSet = new Set(numbered);
+        // 카드에 안 나온 "그 외" 장소는 번호 없이 일반 마커로 보여준다(예전과 같은 동작).
+        const extras = (course.allItems || course.items || []).filter(function (it) { return !numberedSet.has(it); });
+        renderMarkers(extras);   // 안에서 이전 번호 핀·요약 줄을 지운다
+
+        // 같은 자리(소수 4자리 ≈ 11m)에 있는 번호 핀은 대각선으로 12px씩 비켜 쌓는다. 번호가 큰 쪽이 위.
+        const seen = {};
+        const path = [];
+        numbered.forEach(function (item, i) {
+            const lat = Number(item.lat), lng = Number(item.lng);
+            const key = lat.toFixed(4) + ',' + lng.toFixed(4);
+            const k = seen[key] || 0;
+            seen[key] = k + 1;
+            const pos = new kakao.maps.LatLng(lat, lng);
+            path.push(pos);
+            const wrap = document.createElement('div');
+            wrap.className = 'cpin';
+            wrap.style.transform = 'translate(' + (k * 12) + 'px,' + (-k * 12) + 'px)';
+            wrap.innerHTML = '<div class="cpin-no">' + (i + 1) + '</div><div class="cpin-name"></div>';
+            wrap.lastChild.textContent = item.title || '';
+            wrap.addEventListener('click', function (ev) {
+                ev.stopPropagation();
+                showFestivalCardSingle(item);
+            });
+            const overlay = new kakao.maps.CustomOverlay({
+                position: pos, content: wrap, xAnchor: 0.5, yAnchor: 0.5, zIndex: 10 + i, clickable: true
+            });
+            overlay.setMap(map);
+            courseOverlays.push(overlay);
+        });
+        if (path.length >= 2) {
+            coursePolyline = new kakao.maps.Polyline({
+                path: path, strokeWeight: 3, strokeColor: '#4338ca', strokeOpacity: 0.8, strokeStyle: 'dash'
+            });
+            coursePolyline.setMap(map);
+        }
+
+        // 요약 줄
+        const wrapEl = document.querySelector('.map-wrapper');
+        if (wrapEl && numbered.length) {
+            const parts = ['📍 ' + course.subRegion, numbered.length + '곳'];
+            if (course.totalDistanceKm > 0) parts.push('직선 약 ' + course.totalDistanceKm.toFixed(1) + 'km');
+            if (course.schedule && course.schedule.length) {
+                const first = course.schedule[0], last = course.schedule[course.schedule.length - 1];
+                parts.push(ctFmt(first.start) + '~' + ctFmt(last.end) + ' 예상');
+            }
+            const bar = document.createElement('div');
+            bar.id = 'courseMapSummary';
+            bar.className = 'course-map-summary';
+            const text = document.createElement('span');
+            text.className = 'cms-text';
+            text.textContent = parts.join(' · ');
+            const close = document.createElement('button');
+            close.type = 'button';
+            close.textContent = '✕ 닫기';
+            close.addEventListener('click', exitCourseMapView);
+            bar.appendChild(text);
+            bar.appendChild(close);
+            wrapEl.appendChild(bar);
+        }
+
+        // 화면 맞춤: 코스 장소 전부가 들어오게(위쪽은 요약 줄, 아래쪽은 카드 자리를 비운다).
+        const pts = [];
+        (course.allItems || course.items || []).forEach(function (it) {
+            if (it.lat && it.lng) pts.push([Number(it.lat), Number(it.lng)]);
+        });
+        const uniq = {};
+        pts.forEach(function (q) { uniq[q[0].toFixed(4) + ',' + q[1].toFixed(4)] = 1; });
+        if (Object.keys(uniq).length <= 1 && pts.length) {
+            map.setLevel(4);
+            map.setCenter(new kakao.maps.LatLng(pts[0][0], pts[0][1]));
+        } else if (pts.length) {
+            const bounds = new kakao.maps.LatLngBounds();
+            pts.forEach(function (q) { bounds.extend(new kakao.maps.LatLng(q[0], q[1])); });
+            map.setBounds(bounds, 150, 50, 130, 50);
+        } else {
+            fitToMarkers(allMarkers);
+        }
         closeTodayPanel();
     }
 
