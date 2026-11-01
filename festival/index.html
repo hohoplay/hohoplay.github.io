@@ -1327,7 +1327,7 @@
                 rows.forEach(function (f) { if (f.pop > maxPop) maxPop = f.pop; });
                 return { rain: maxPop >= COURSE_RAIN_THRESHOLD, maxPop: maxPop };
             }
-            if (!isToday) return null;
+            return null;   // 그 날짜(또는 남은 시간대)의 예보가 없으면 "모름" — 이미 지난 시간대 값으로 판단하지 않는다
         }
         if (isToday && typeof data.willRain === 'boolean') return { rain: data.willRain, maxPop: data.maxPop };
         return null;
