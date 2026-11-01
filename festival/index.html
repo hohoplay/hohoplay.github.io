@@ -1850,7 +1850,13 @@
     // 테마 판정: 축제 제목에 해당 테마의 키워드가 있는지로 본다.
     // themeSet이 비어있으면 "전체 보기"(공원 제외)와 같다.
     // 하나 이상 체크되어 있으면, 그중 하나라도 맞는 항목을 전부 보여준다(OR 조건).
+    // [ADD] 2026-11-01: 제목 키워드만으로는 잡히지 않는 장소를 테마에 직접 연결한다.
+    //  - 데이터 쪽: kids_places.json 항목의 themes 배열(예: ["foliage"])
+    //  - 예외 목록: festivals.json 의 공원 항목처럼 데이터를 바꾸기 어려운 것은 contentid 로 지정
+    const THEME_EXTRA_IDS = { foliage: ['2676837'] }; // 2676837 = 단양 보발재
     function matchesOneTheme(item, themeKey) {
+        if (Array.isArray(item.themes) && item.themes.indexOf(themeKey) !== -1) return true;
+        if ((THEME_EXTRA_IDS[themeKey] || []).indexOf(String(item.contentid)) !== -1) return true;
         if (themeKey === 'park') return item.type === 'park';
         if (themeKey === 'shelter') return item.type === 'shelter';
         if (themeKey === 'camping') return item.type === 'camping';
