@@ -1186,18 +1186,29 @@
         if (banner) banner.style.display = 'none';
     }
 
+    // [FIX] 2026-11-01: 코스·목록에서 장소를 누르면 지도가 그 위치로 이동하고(idle) → 날씨 조회 →
+    // 비 예보 지역이면 "실내만"이 자동으로 켜지면서 renderMainPanel()이 호출돼, 방금 연 하단 카드가
+    // 바로 닫히고 코스도 처음 상태로 다시 그려졌다(비 예보가 다른 지역을 오갈 때마다 반복).
+    // 하단 카드가 열려 있는 동안에는 자동 전환을 미뤄 두었다가, 카드를 닫은 뒤에 적용한다.
+    let pendingWeatherData = null;
+    function isFestivalCardOpen() {
+        const el = document.getElementById('festivalCard');
+        return !!(el && el.classList.contains('active'));
+    }
     function applyWeatherResult(data) {
         const banner = document.getElementById('weatherBanner');
         if (!banner) return;
+        const deferToggle = isFestivalCardOpen();
+        pendingWeatherData = deferToggle ? data : null;
         if (data && data.willRain) {
             banner.style.display = 'flex';
-            if (!indoorOnly) {
+            if (!indoorOnly && !deferToggle) {
                 toggleIndoorOnly(true);
                 indoorAutoEnabledByWeather = true;
             }
         } else {
             banner.style.display = 'none';
-            if (indoorAutoEnabledByWeather) {
+            if (indoorAutoEnabledByWeather && !deferToggle) {
                 if (indoorOnly) toggleIndoorOnly(true);
                 indoorAutoEnabledByWeather = false;
             }
@@ -1924,6 +1935,12 @@
         currentCardGroup = null;
         const navEl = document.getElementById('cardGroupNav');
         if (navEl) navEl.style.display = 'none';
+        // [FIX] 2026-11-01: 카드가 열려 있는 동안 미뤄 둔 날씨 자동 전환(실내만 켜기/끄기)을 카드가 닫힌 뒤에 적용한다.
+        if (pendingWeatherData) {
+            const d = pendingWeatherData;
+            pendingWeatherData = null;
+            setTimeout(function () { applyWeatherResult(d); }, 0);
+        }
     }
 
     // [REMOVED] 2026-10-11: 선택한 핀 강조 표시 기능(showSelectedPinBounce, 이전엔
