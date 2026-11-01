@@ -324,6 +324,7 @@
             position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
         }
         .course-date-chips { display: flex; gap: 6px; }
+        .course-date-note { margin: 0; padding: 6px 10px; border-radius: 8px; background: #eef2ff; color: #4338ca; font-size: 12px; line-height: 1.4; }
         .course-date-chip {
             flex: 1; border: 1.5px solid #e2e8f0; border-radius: 999px; background: #fff; color: #475569;
             font-size: 12px; font-weight: 700; padding: 6px 0; cursor: pointer;
@@ -567,6 +568,8 @@
                 <button type="button" id="courseDateChip_sat" class="course-date-chip" onclick="setCourseDateChip('sat')">이번 토</button>
                 <button type="button" id="courseDateChip_sun" class="course-date-chip" onclick="setCourseDateChip('sun')">이번 일</button>
             </div>
+            <!-- [ADD] 2026-11-01: 저녁 7시 이후 접속하면 자동으로 "내일"을 골라 둔다 — 그 이유를 알려주는 한 줄 -->
+            <div id="courseAutoNote" class="course-date-note" style="display:none;">🌙 저녁 7시가 지나 내일 코스를 먼저 보여드려요. 위의 <b>오늘</b>을 누르면 오늘 코스도 볼 수 있어요.</div>
         </div>
         <!-- [ADD] 2026-10-19: 날씨 연동 배너. 지도에서 보고 있는 지역에 비 예보가 있으면
              자동으로 나타나고, "☔ 실내만" 필터를 함께 켠다(checkWeatherForCurrentView). -->
@@ -1426,6 +1429,11 @@
         const dateParam = urlParams.get('date');
         if (/^\d{8}$/.test(dateParam || '')) {
             courseDateStr = dateParam;
+            updateCourseDateBar();
+        } else if (ctKstNowMin() >= COURSE_NEXT_DAY_FROM_MIN) {
+            // [ADD] 2026-11-01: 저녁 7시 이후 → "내일"로 시작
+            courseDateStr = ctShiftDate(ctKstTodayStr(), 1);
+            courseAutoNext = true;
             updateCourseDateBar();
         }
         if (regionParam && REGION_ORDER.indexOf(regionParam) !== -1) {
@@ -2505,6 +2513,10 @@
     }
 
     let courseDateStr = null;   // null 이면 "오늘(KST)". 선택 날짜는 YYYYMMDD.
+    // [ADD] 2026-11-01: 한국 시간 19:00 이후에 처음 열면 날짜를 "내일"로 시작한다(오늘 코스는 거의 남지 않아서).
+    // ?date= 로 날짜를 직접 지정한 링크는 그 날짜를 우선한다. 사용자가 날짜를 직접 바꾸면 안내 문구는 사라진다.
+    const COURSE_NEXT_DAY_FROM_MIN = 19 * 60;
+    let courseAutoNext = false;
     function getCourseDate() {
         const today = ctKstTodayStr();
         if (!courseDateStr || courseDateStr < today) courseDateStr = today;   // 자정을 넘겨 켜둔 경우에도 과거 날짜는 오늘로
@@ -2513,6 +2525,7 @@
     function setCourseDate(str) {
         if (!/^\d{8}$/.test(str || '')) return;
         courseDateStr = str < ctKstTodayStr() ? ctKstTodayStr() : str;
+        courseAutoNext = false;
         updateCourseDateBar();
         renderMainPanel();
     }
@@ -2540,6 +2553,8 @@
         }
         const prev = document.getElementById('courseDatePrev');
         if (prev) prev.disabled = cur <= today;
+        const autoNote = document.getElementById('courseAutoNote');
+        if (autoNote) autoNote.style.display = (courseAutoNext && cur !== today) ? '' : 'none';
         const chipDates = { today: today, tomorrow: ctShiftDate(today, 1), sat: ctNextDow(6), sun: ctNextDow(0) };
         Object.keys(chipDates).forEach(function (k) {
             const b = document.getElementById('courseDateChip_' + k);
