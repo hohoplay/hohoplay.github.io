@@ -79,6 +79,17 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); outline: none; cursor: pointer;
         }
         .panel-region-select { margin-bottom: 16px; box-shadow: none; }
+        /* [ADD] 2026-11-02: 지역 이름 검색 입력창(시·군이 100개가 넘어 드롭다운만으로는 찾기 힘들어서) */
+        .region-search-wrap { position: relative; margin-bottom: 10px; }
+        .region-search-input { width: 100%; box-sizing: border-box; padding: 9px 34px 9px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a; outline: none; }
+        .region-search-input::-webkit-search-cancel-button, .region-search-input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
+        .region-search-input:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,.15); }
+        .region-search-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: #94a3b8; font-size: 16px; cursor: pointer; padding: 4px 6px; display: none; }
+        .region-search-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 30; margin: 0; padding: 4px; list-style: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(15,23,42,.14); max-height: 260px; overflow-y: auto; display: none; }
+        .region-search-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 8px; font-size: 13px; color: #0f172a; cursor: pointer; }
+        .region-search-list li.active, .region-search-list li:hover { background: #eef2ff; }
+        .region-search-list .rs-sub { font-size: 11px; color: #94a3b8; white-space: nowrap; }
+        .region-search-list .rs-empty { color: #94a3b8; cursor: default; }
         /* [ADD] 2026-10-16: 지도 위 "전국 전체보기" 드롭다운(.filter-container) 바로
            아래, 버튼 사용법을 알려주는 안내문구 티커. 지도 위에 떠 있는 요소라 드롭다운과
            같은 방식(position:absolute, 가운데 정렬)으로 겹치지 않게 그 아래에 배치한다.
@@ -368,6 +379,7 @@
         .course-tag-warn { background: #ffedd5; color: #c2410c; }
         .course-note { list-style: none; font-size: 11px; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 7px 10px; line-height: 1.45; }
         .course-note-late { background: #eef2ff; color: #3730a3; }
+        .course-closed-note { margin-top: 6px; font-size: 11px; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 6px 10px; line-height: 1.45; }
 
         /* [REMOVED] 2026-10-11: 선택한 핀 강조 표시(퍼지는 빨간 원 → 통통 튀는 핀)를
            요청에 따라 완전히 제거. 이제 핀을 선택해도 별도 강조 연출 없이 기본
@@ -535,6 +547,11 @@
              바뀐다. 지역 선택(위/아래 select)은 코스 모드에서도 그대로 재사용된다. -->
         <!-- [FIX] 지역 선택과 테마 선택을 각각 한 줄씩 차지하던 걸, 한 줄(가로)에 나란히
              배치하도록 바꿨다 — 기능은 그대로(필터 두 개는 여전히 따로 동작), 레이아웃만 변경. -->
+        <div class="region-search-wrap">
+            <input type="search" id="regionSearchInput" class="region-search-input" placeholder="🔍 지역·장소 검색 (예: 진천, 해운대, 에코팜)" autocomplete="off" enterkeyhint="search" aria-label="지역 또는 장소 검색">
+            <button type="button" id="regionSearchClear" class="region-search-clear" aria-label="검색어 지우기">✕</button>
+            <ul id="regionSearchList" class="region-search-list" role="listbox"></ul>
+        </div>
         <div style="display:flex; gap:8px; margin-bottom:10px;">
             <select id="regionSelectPanel" class="region-select panel-region-select" style="flex:1; min-width:0; padding:10px 8px; font-size:13px;" onchange="filterRegion(this.value)">
                 <option value="all">전국 전체보기</option>
@@ -2848,11 +2865,16 @@
         // 시·군을 고른 경우(city region)에는 1~2곳이어도 코스로 보여 주고, 자연관광지도 함께 넣는다.
         const cityMode = isCityRegion(regionKey);
         const minPlaces = cityMode ? 1 : MIN_COURSE_PLACES;
+        // [ADD] 2026-11-02: 그 요일에 쉬어서 코스에서 뺀 아이랑 장소를 기억해 두었다가, 코스 카드에 "오늘 휴관으로 제외" 안내로 보여준다.
+        const closedKids = [];
         let pool = getFilteredData().filter(function (item) {
             if (item.type === 'kids') {
                 // 그 요일에 쉬는 곳(예: "매주 월요일 휴관")은 뺀다. 휴관 요일을 읽을 수 없으면 그대로 둔다.
                 const cd = closedDaysFromHours(item.hours);
-                if (cd.known && cd.closed.indexOf(dowChar) >= 0) return false;
+                if (cd.known && cd.closed.indexOf(dowChar) >= 0) {
+                    if (!item.isAd) closedKids.push(item);
+                    return false;
+                }
             } else if (item.type === 'park') {
                 if (!cityMode) return false;                 // 자연관광지는 시·군을 고른 코스에서만
                 if (CT_PORT_RE.test(item.title || '')) return false;   // 항구·선착장·등대는 제외
@@ -3005,6 +3027,22 @@
                 totalDistanceKm: totalDistanceKm
             });
         });
+        // [ADD] 2026-11-02: 각 코스 근처(직선 15km 안)에서 그날 휴관이라 빠진 아이랑 장소를 코스에 붙인다.
+        if (closedKids.length) {
+            const dayLabel = isToday ? '오늘' : (dowChar + '요일');
+            courses.forEach(function (course) {
+                const near = closedKids.filter(function (k) {
+                    if (!k.lat || !k.lng) return false;
+                    if (regionKey !== 'all' && !itemInRegion(k, regionKey)) return false;
+                    return course.allItems.some(function (it) {
+                        return it.lat && it.lng && haversineDistanceKm(k.lat, k.lng, it.lat, it.lng) <= 15;
+                    });
+                });
+                if (near.length) {
+                    course.closedNote = { dayLabel: dayLabel, titles: near.map(function (k) { return k.title; }) };
+                }
+            });
+        }
         // 그날 열리는 축제가 껴 있는 코스를 먼저, 그 다음 장소가 많이 모인(=완성도 높은) 순.
         courses.sort(function (a, b) {
             if (a.hasFestival !== b.hasFestival) return a.hasFestival ? -1 : 1;
@@ -3134,10 +3172,18 @@
         const articleLink = articleSlug
             ? '<a class="today-map-link" href="/blog/kids-course/' + articleSlug + '.html">📖 ' + escapeHtml(course.baseLabel || course.subRegion) + ' 아이랑 갈만한 곳 모음</a>'
             : '';
+        // [ADD] 2026-11-02: 그날 휴관이라 코스에서 뺀 근처 아이랑 장소 안내(최대 3곳 이름 + 나머지는 "외 N곳").
+        let closedNoteHtml = '';
+        if (course.closedNote && course.closedNote.titles.length) {
+            const ct = course.closedNote.titles;
+            const shown = ct.slice(0, 3).map(escapeHtml).join(', ') + (ct.length > 3 ? ' 외 ' + (ct.length - 3) + '곳' : '');
+            closedNoteHtml = '<div class="course-closed-note">🚫 ' + escapeHtml(course.closedNote.dayLabel) + ' 휴관이라 제외: ' + shown + '</div>';
+        }
         return '<li class="today-item course-card">'
             + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
             + seasonBadge
             + '<ol class="course-place-list">' + placesHtml + '</ol>'
+            + closedNoteHtml
             + '<div style="display:flex; flex-wrap:wrap; gap:6px 12px; margin-top:6px;">'
             + '<button type="button" class="today-map-link" onclick="showCourseOnMap(' + idx + ')">지도에서 전체보기 →</button>'
             + articleLink
@@ -3550,6 +3596,141 @@
         });
     }
     buildCityRegionOptions();
+
+    // [ADD] 2026-11-02: 지역·장소 이름 검색. "진천"만 쳐도 충북 진천군 코스로 바로 이동한다.
+    // 후보는 (1) 드롭다운의 도·시·군 (2) 데이터 주소에서 뽑은 구·군(부산 해운대구 등) (3) 아이랑 장소 이름.
+    let regionSearchIndex = null, regionSearchIndexSize = -1;
+    function regionKeyForAddr(addr) {
+        const ck = Object.keys(CITY_REGIONS);
+        for (let i = 0; i < ck.length; i++) { if (addrInCity(addr, CITY_REGIONS[ck[i]])) return ck[i]; }
+        for (let i = 0; i < REGION_ORDER.length; i++) {
+            const key = REGION_ORDER[i];
+            if (REGION_KEYWORDS[key].some(function (kw) { return addrMatchesRegion(addr, kw); })) return key;
+        }
+        return null;
+    }
+    function regionSearchNorm(t) { return String(t || '').toLowerCase().replace(/[\s·\-\(\)]/g, ''); }
+    function buildRegionSearchIndex() {
+        const map = new Map();
+        const add = function (kind, key, label, sub, aliases) {
+            const id = kind + '|' + key + '|' + label;
+            if (map.has(id)) return;
+            map.set(id, { kind: kind, key: key, label: label, sub: sub || '', hay: [label].concat(aliases || []).map(regionSearchNorm).filter(Boolean).join('|') });
+        };
+        // 도·시·군 (드롭다운 항목)
+        const sel = document.getElementById('regionSelectPanel');
+        if (sel) {
+            Array.prototype.forEach.call(sel.querySelectorAll('option'), function (op) {
+                if (!op.value || op.value === 'all') return;
+                const grp = op.parentNode && op.parentNode.tagName === 'OPTGROUP' ? op.parentNode.label : '';
+                const full = isCityRegion(op.value) ? ((grp || '') + ' ' + (CITY_REGIONS[op.value].city === '광주서구' ? '광주 서구' : CITY_REGIONS[op.value].city)).trim() : op.textContent;
+                add('region', op.value, isCityRegion(op.value) ? op.textContent + (grp ? '' : '') : op.textContent, isCityRegion(op.value) ? grp : '', [full, grp, isCityRegion(op.value) ? (REGION_LABELS[CITY_REGIONS[op.value].province] || '') : '']);
+            });
+        }
+        // 구·군 (시·군으로 나뉘지 않은 지역의 하위 지역) + 아이랑 장소 이름
+        const seenSub = {};
+        festivalData.forEach(function (item) {
+            if (!item || !item.addr) return;
+            const key = regionKeyForAddr(item.addr);
+            if (!key) return;
+            if (!isCityRegion(key)) {
+                const sub = extractSubRegion(item.addr);
+                if (sub && !seenSub[key + sub]) {
+                    seenSub[key + sub] = true;
+                    add('region', key, (REGION_LABELS[key] || '') + ' ' + sub, '', [sub, sub.replace(/[시군구]$/, '')]);
+                }
+            }
+            if (item.type === 'kids' && !item.isAd && item.title) {
+                const where = isCityRegion(key) ? (REGION_LABELS[CITY_REGIONS[key].province] + ' ' + CITY_REGIONS[key].short) : ((REGION_LABELS[key] || '') + ' ' + (extractSubRegion(item.addr) || ''));
+                add('place', key, item.title, where.trim());
+            }
+        });
+        return Array.from(map.values());
+    }
+    function getRegionSearchIndex() {
+        if (!regionSearchIndex || regionSearchIndexSize !== festivalData.length) {
+            regionSearchIndex = buildRegionSearchIndex();
+            regionSearchIndexSize = festivalData.length;
+        }
+        return regionSearchIndex;
+    }
+    function searchRegions(q) {
+        const n = regionSearchNorm(q);
+        if (!n) return [];
+        const scored = [];
+        getRegionSearchIndex().forEach(function (e) {
+            const i = e.hay.indexOf(n);
+            if (i < 0) return;
+            const ln = regionSearchNorm(e.label);
+            // 지역(📍)이 장소(🧒)보다 위, 이름이 정확히 같거나 앞부분이 같을수록 위, 별칭(도 이름 등)만 맞으면 그다음.
+            const mt = ln === n ? 0 : (ln.indexOf(n) === 0 ? 1 : (ln.indexOf(n) > 0 ? 2 : 3));
+            let score = (e.kind === 'region' ? 0 : 10) + mt * 2 + Math.min(e.label.length, 9) / 10;
+            scored.push({ e: e, score: score });
+        });
+        scored.sort(function (a, b) { return a.score - b.score; });
+        return scored.slice(0, 8).map(function (x) { return x.e; });
+    }
+    let regionSearchActive = -1, regionSearchResults = [];
+    function renderRegionSearchList() {
+        const list = document.getElementById('regionSearchList');
+        const input = document.getElementById('regionSearchInput');
+        const clr = document.getElementById('regionSearchClear');
+        if (!list || !input) return;
+        const q = input.value.trim();
+        if (clr) clr.style.display = q ? 'block' : 'none';
+        if (!q) { list.style.display = 'none'; list.innerHTML = ''; regionSearchResults = []; return; }
+        regionSearchResults = searchRegions(q);
+        regionSearchActive = regionSearchResults.length ? 0 : -1;
+        list.innerHTML = regionSearchResults.length
+            ? regionSearchResults.map(function (r, i) {
+                return '<li role="option" data-i="' + i + '"' + (i === 0 ? ' class="active"' : '') + '><span>' + (r.kind === 'place' ? '🧒 ' : '📍 ') + escapeHtml(r.label) + '</span><span class="rs-sub">' + escapeHtml(r.kind === 'place' ? r.sub : (r.sub || '')) + '</span></li>';
+            }).join('')
+            : '<li class="rs-empty">찾는 지역이 없어요. 위 드롭다운에서 골라 주세요.</li>';
+        list.style.display = 'block';
+    }
+    function pickRegionSearch(i) {
+        const r = regionSearchResults[i];
+        if (!r) return;
+        const input = document.getElementById('regionSearchInput');
+        const list = document.getElementById('regionSearchList');
+        if (input) { input.value = r.label; input.blur(); }
+        if (list) list.style.display = 'none';
+        const clr = document.getElementById('regionSearchClear');
+        if (clr) clr.style.display = 'block';
+        filterRegion(r.key);
+    }
+    (function initRegionSearch() {
+        const input = document.getElementById('regionSearchInput');
+        const list = document.getElementById('regionSearchList');
+        const clr = document.getElementById('regionSearchClear');
+        if (!input || !list) return;
+        input.addEventListener('input', renderRegionSearchList);
+        input.addEventListener('focus', function () { if (input.value.trim()) renderRegionSearchList(); });
+        input.addEventListener('keydown', function (ev) {
+            if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+                if (!regionSearchResults.length) return;
+                ev.preventDefault();
+                regionSearchActive = (regionSearchActive + (ev.key === 'ArrowDown' ? 1 : -1) + regionSearchResults.length) % regionSearchResults.length;
+                Array.prototype.forEach.call(list.children, function (li, idx) { li.classList.toggle('active', idx === regionSearchActive); });
+            } else if (ev.key === 'Enter') {
+                ev.preventDefault();
+                if (!regionSearchResults.length) renderRegionSearchList();
+                if (regionSearchResults.length) pickRegionSearch(Math.max(regionSearchActive, 0));
+            } else if (ev.key === 'Escape') {
+                list.style.display = 'none';
+            }
+        });
+        list.addEventListener('mousedown', function (ev) {
+            const li = ev.target.closest ? ev.target.closest('li[data-i]') : null;
+            if (li) { ev.preventDefault(); pickRegionSearch(Number(li.getAttribute('data-i'))); }
+        });
+        list.addEventListener('touchstart', function (ev) {
+            const li = ev.target.closest ? ev.target.closest('li[data-i]') : null;
+            if (li) { ev.preventDefault(); pickRegionSearch(Number(li.getAttribute('data-i'))); }
+        }, { passive: false });
+        if (clr) clr.addEventListener('click', function () { input.value = ''; renderRegionSearchList(); input.focus(); });
+        input.addEventListener('blur', function () { setTimeout(function () { list.style.display = 'none'; }, 150); });
+    })();
 
     function syncRegionSelectors(key) {
         const sel1 = document.getElementById('regionSelect');
