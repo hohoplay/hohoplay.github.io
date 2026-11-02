@@ -2642,6 +2642,44 @@
     // [ADD] 2026-11-02: "매월 N째 X요일"처럼 TourAPI 운영시간에는 없고 공식 안내로만 확인된 개최 요일(contentid 기준).
     //  - 2786391 광안리 M(Marvelous) 드론 라이트쇼: 매월 첫째·셋째 토요일 (공식 홈페이지 해상 통제 안내 기준)
     const FESTIVAL_NTH_WEEKDAY_RULES = { '2786391': { dow: '토', nth: [1, 3] } };
+    // [ADD] 2026-11-03: "프로그램별 상이"처럼 시각 없이 일정이 정해져 있지 않다고만 적힌 행사는 그날 열리는지 알 수 없다.
+    // (예: 유성온날 — 상세의 프로그램 날짜는 10월에 끝났는데 기간(~12/11)만 보고 코스에 들어갔다.)
+    // 시각(HH:MM)이 하나도 없고 상이·별도·추후·미정·변동·회차 같은 문구만 있으면 코스에서 뺀다(전체 목록에는 그대로 보인다).
+    function isVariableScheduleOnly(text) {
+        const t = String(text || '');
+        if (!t.trim()) return false;
+        if (/\d{1,2}\s*:\s*\d{2}/.test(t)) return false;
+        return /상이|별도|추후|미정|변동|회차/.test(t);
+    }
+    // [ADD] 2026-11-03: "14:00 / 17:00 / 20:00", "- 1회차: 10:30 - 2회차: 14:30"처럼 범위 없이 공연 시작 시각만 적힌 행사.
+    // 시작 시각이 2개 이상일 때만 회차로 읽는다(시각 1개짜리는 운영 시작인지 공연인지 몰라서 그대로 "시간 확인 필요").
+    function parseShowTimes(text) {
+        const t = String(text || '').replace(/<[^>]*>/g, ' ');
+        if (!/^[\s\-·•*]*(?:\d{1,2}:\d{2}|\d{1,2}\s*회차)/.test(t)) return null;
+        if (new RegExp(CT_RANGE_SRC).test(t)) return null;   // 시간 범위가 있으면 기존 규칙으로 읽는다
+        const re = /(\d{1,2}):(\d{2})/g;
+        const times = [];
+        let m;
+        while ((m = re.exec(t)) !== null) {
+            const before = t.slice(Math.max(0, m.index - 8), m.index);
+            const after = t.slice(m.index + m[0].length, m.index + m[0].length + 8);
+            if (/마감|라스트|입장|종료/.test(before) || /마감|종료/.test(after)) continue;
+            const h = parseInt(m[1], 10), mi = parseInt(m[2], 10);
+            if (h > 23 || mi > 59) continue;
+            const v = h * 60 + mi;
+            if (times.indexOf(v) < 0) times.push(v);
+        }
+        times.sort(function (x, y) { return x - y; });
+        return times.length >= 2 ? times : null;
+    }
+    // 회차가 있는 행사는 도착 시각 이후 가장 가까운 회차 시작에 맞춘다(없으면 도착 시각 그대로 — 마감 판정에서 걸러진다).
+    function ctStartAt(win, arrive) {
+        if (win.shows) {
+            for (let i = 0; i < win.shows.length; i++) if (win.shows[i] >= arrive) return win.shows[i];
+            return arrive;
+        }
+        return Math.max(arrive, win.open);
+    }
     function festivalNthWeekdayAllows(item, dowChar, dateObj) {
         const r = FESTIVAL_NTH_WEEKDAY_RULES[String((item && item.contentid) || '')];
         if (!r) return true;
@@ -2756,7 +2794,7 @@
                 const ab = lab.replace(/요일/g, '').replace(/\s/g, '').split(/[·,/]/)[0].split('~');
                 const a = CT_DAYS.indexOf(ab[0]), b = CT_DAYS.indexOf(ab[1]);
                 const pos = CT_DAYS.indexOf(dc);
-                match = a <= b ? (pos >= a && pos <= b) : false;
+                match = a <= b ? (pos >= a && pos <= b) : (pos >= a || pos <= b);   // [FIX] 2026-11-03: "일요일~화요일"처럼 일요일을 넘어가는 범위
                 if (!match) { const rest = lab.replace(/요일/g, '').split(/[·,/]/).slice(1).join(''); match = rest.indexOf(dc) >= 0; }
             } else {
                 match = ctDaysOf(lab).indexOf(dc) >= 0;
@@ -2823,6 +2861,11 @@
         const w = txt ? parseHoursWindow(txt, ctx.dow, ctx.month) : null;
         const eveTitle = isEveningFestival(item);
         if (w) return { open: w.open, close: w.close, known: true, evening: w.open >= 1020 };
+        // [ADD] 2026-11-03: 범위 없이 회차 시각만 있는 행사(공연·투어)는 회차 시작에 맞춰 배치한다.
+        if (item.type !== 'kids' && item.type !== 'park') {
+            const st = parseShowTimes(txt);
+            if (st) return { open: st[0], close: st[st.length - 1] + 90, known: true, evening: st[0] >= 1020, shows: st };
+        }
         if (item.type === 'kids') return { open: 600, close: 1080, known: false, evening: false };
         return eveTitle ? { open: 1050, close: 1320, known: false, evening: true }
                         : { open: 600, close: 1020, known: false, evening: false };
@@ -2863,7 +2906,7 @@
         let cur = (ctx && ctx.startMin) || CT_DAY_START, pos = null;
         const take = function (x, travel, dist) {
             const arrive = cur + travel;
-            const start = Math.max(arrive, x.win.open);
+            const start = ctStartAt(x.win, arrive);
             const end = start + x.stay;
             if (pos && dist !== null && out.length) out[out.length - 1].item._distToNextKm = dist;
             out.push({ item: x.it, start: start, end: end, label: ctSlotLabel(start), win: x.win, late: end > x.win.close });
@@ -2876,7 +2919,7 @@
                 const dist = pos ? haversineDistanceKm(pos.lat, pos.lng, x.it.lat, x.it.lng) : 0;
                 const travel = pos ? Math.min(90, Math.max(10, Math.round(dist * 1.3 / 25 * 60))) : 0;
                 const arrive = cur + travel;
-                const start = Math.max(arrive, x.win.open);
+                const start = ctStartAt(x.win, arrive);
                 return { x: x, dist: dist, travel: travel, wait: start - arrive, ok: start + x.stay <= x.win.close };
             });
             let pool = cands.filter(function (c) { return c.ok && c.wait <= 45; });
@@ -3070,6 +3113,7 @@
                 // [ADD] 2026-11-02: 열리는 요일이 정해진 축제는 그 요일에만(위 openOnlyDaysFromText 참고)
                 const dayTxt = getFestivalDayText(item);
                 if (dayTxt) {
+                    if (isVariableScheduleOnly(dayTxt)) return false;
                     const cdF = closedDaysFromHours(dayTxt);
                     if (cdF.known && cdF.closed.indexOf(dowChar) >= 0) return false;
                     const onlyDays = openOnlyDaysFromText(dayTxt);
@@ -3179,6 +3223,13 @@
             // 축제를 먼저(그날 열리는 한정 행사라 눈에 띄어야 함), 그 다음 아이랑 장소, 마지막에 자연관광지 순.
             const sortedItems = group.items.slice().sort(function (a, b) { return courseRank(a) - courseRank(b); });
             const fests = sortedItems.filter(isCourseFestival);
+            // [ADD] 2026-11-03: 시간을 읽은 행사·기간이 짧은 한정 행사를 앞에 둔다(시간 모르는 장기 행사가 매번 첫 자리를 차지하지 않게).
+            const festRank = function (it) {
+                const w = getItemWindow(it, ctx);
+                const span = (it.startDate && it.endDate) ? (ctParseDate(it.endDate) - ctParseDate(it.startDate)) / 86400000 : 0;
+                return (w.known ? 0 : 2) + (span > 60 ? 1 : 0);
+            };
+            fests.sort(function (a, b) { return festRank(a) - festRank(b); });
             const kidsOnly = sortedItems.filter(function (it) { return it.type === 'kids'; });
             const natureOnly = sortedItems.filter(function (it) { return it.type === 'park'; });
             // 축제 최대 2곳 + 아이랑 장소로 채우고, 모자라면 남은 축제, 그다음 자연관광지로 채운다.
@@ -3319,7 +3370,7 @@
                 const parts = [];
                 if (sc.win.known) {
                     parts.push('<span class="course-time">' + ctFmtApprox(sc.start) + '~' + ctFmtApprox(sc.end) + ' 예상</span>');
-                    parts.push('<span class="course-time-sub">' + (sc.win.allDay ? '상시 개방' : '운영 ' + ctFmt(sc.win.open) + '~' + ctFmt(sc.win.close)) + '</span>');
+                    parts.push('<span class="course-time-sub">' + (sc.win.allDay ? '상시 개방' : (sc.win.shows ? '회차 ' + sc.win.shows.map(ctFmt).join('·') : '운영 ' + ctFmt(sc.win.open) + '~' + ctFmt(sc.win.close))) + '</span>');
                 } else {
                     parts.push('<span class="course-time-unknown">시간 확인 필요</span>');
                 }
