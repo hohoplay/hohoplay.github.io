@@ -15,6 +15,9 @@ create_knowledge.py — '운세상식' 카테고리 정보성 글 자동 생성/
     이 스크립트가 새로 만드는 파일은 data/knowledge_state.json 하나뿐이고,
     이건 '어느 주제까지 발행했는지' 기록하는 용도의 신규 파일입니다.
 
+SEO 프롬프트 v7.6(22장 정보형 블로그 모듈) 적용: 공백 제외 2,000자 이상 + FAQ 5개 + 안내 문구를
+코드에서 검증하고, 미달이면 재생성/보충하며 끝내 못 채우면 발행하지 않습니다.
+
 실행:
   python scripts/create_knowledge.py             # 1개 생성/발행 (주간 cron 기본값)
   python scripts/create_knowledge.py --count 5   # 초기 시드 배치용 — 5개 연속 생성/발행
@@ -30,12 +33,15 @@ import os
 import sys
 import json
 import csv
+import re
+import html as _html
 import time
 import argparse
 from datetime import datetime, timezone
 
 import requests
 from google import genai
+from google.genai import types
 
 # ─────────────────────────────────────────
 # 인증 — create_post.py의 get_access_token()과 동일한 로직을 복사
@@ -138,6 +144,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 .card h2{font-size:18px;color:#4c1d95;margin:22px 0 10px}
 .card h2:first-child{margin-top:0}
 .card p{font-size:15px;line-height:1.9;color:#374151;margin-bottom:14px}
+.card h3{font-size:16px;color:#4c1d95;margin:18px 0 6px;line-height:1.5}
+.card ul{margin:0 0 14px 20px;font-size:15px;line-height:1.9;color:#374151}
+.faq{background:#faf8ff;border-radius:12px;padding:6px 16px 2px;margin:8px 0 14px}
 .badge{display:inline-block;background:#f0eaff;color:#6c3483;padding:3px 10px;border-radius:20px;font-size:12px;margin-bottom:10px}
 .tag-cloud{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .tag{background:#eef2ff;color:#5c6bc0;padding:4px 10px;border-radius:20px;font-size:11px}
@@ -150,8 +159,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding
 # 더 추가하고 싶으면 이 리스트에 딕셔너리만 이어서 넣으면 됨.
 # ─────────────────────────────────────────
 # ─────────────────────────────────────────
-# 하단 관련 콘텐츠 링크 — 2026-10-21: 발행을 멈춘 개별 띠운세·별자리운세 링크를 빼고,
-# 지금 실제로 발행되는 글(별자리 주간운세·띠별 월간운세·별과띠 주간판·오늘의 명언)로 교체.
+# 하단 관련 콘텐츠 링크 4개 — 현재 발행 중인 카테고리(별자리 주간, 띠별 월간, 별과띠 주간판, 오늘의 명언)로 고정.
 # (label, url, gradient) — url은 실제 create_post.py가 붙이는 라벨과 정확히 일치해야 함
 # ─────────────────────────────────────────
 _RELATED_LINKS = [
@@ -193,38 +201,105 @@ _COUPANG_DISCLOSURE = (
 )
 
 
-def build_prompt(topic, style="info"):
-    base = f"""당신은 사주·별자리·풍수 등 전통·점성 문화를 알기 쉽게 설명하는 블로그 필자입니다.
-아래 주제로 블로그 정보성 글을 작성해 주세요.
+# ─────────────────────────────────────────
+# SEO 프롬프트 v7.6 (22장 정보형 블로그 모듈 — 운세상식) 기준 상수
+# ─────────────────────────────────────────
+MIN_CHARS      = 2000   # 공백·HTML 태그 제외, FAQ 포함 최소 글자 수 (v7.6 22.2)
+MAX_ATTEMPTS   = 3      # 기준 미달 시 전체 재생성 최대 횟수 (v7.6 22.8-2)
+FAQ_COUNT      = 5      # FAQ 정확히 5개 (v7.6 11.4)
+MAX_OUT_TOKENS = 16384  # 한국어 3,000자 이상이 잘리지 않도록 넉넉히 (v7.6 22.8-7)
+
+# 글마다 바꿔 쓰는 관점 — 같은 주제가 순환해 다시 나올 때 다른 글이 되도록 (v7.6 22.7)
+PERSPECTIVES = [
+    "기본 개념 정리",
+    "일상 속 활용",
+    "흔한 오해 바로잡기",
+    "역사와 유래",
+    "상황별 가이드",
+    "체크리스트",
+]
+
+# v7.6 4.1 공통 금지 표현 — 하나라도 있으면 재생성
+_BANNED_HARD = ["최고", "무조건", "100%", "완치", "효과 보장", "완벽 보장", "단번에 해결", "역대급", "인생 맛집"]
+# v7.6 4.3 AI 문장 표현 — 재시도 여유가 있으면 다시 쓰게 하고, 마지막 시도에서는 허용
+_BANNED_SOFT = ["매우 중요합니다", "다양한", "효과적인", "알아보겠습니다", "결론적으로", "마무리하며",
+                "도움이 되셨으면"]
+
+
+def build_prompt(topic, style="info", perspective="기본 개념 정리", recent_topics=None):
+    recent_note = ""
+    if recent_topics:
+        recent_note = "\n최근 발행한 글 제목(도입 문장·소제목이 겹치지 않게 하세요): " + " / ".join(recent_topics)
+
+    base = f"""당신은 사주·별자리·풍수 등 전통·점성 문화를 알기 쉽게 설명하는 정보형 블로그 필자입니다.
+검색해서 들어온 독자가 한 가지 질문에 끝까지 답을 얻고 가는 글을 작성하세요.
 
 주제: {topic}
+이번 글의 관점: {perspective}{recent_note}
 
-[구조 규칙 — 검색해서 들어온 독자가 원하는 건 이야기가 아니라 정보입니다]
-1. 순수 HTML 조각만 출력하세요. <html>, <head>, <body> 태그나 코드블록(```)은 절대 포함하지 마세요.
-2. 소제목은 <h2>, 문단은 <p> 태그를 사용하세요. 마크다운 기호(##, **)는 사용하지 마세요.
-3. 전체 분량은 공백 제외 1,500자 이상으로 풍성하게 작성하세요.
-4. <h2> 소제목 3개 내외로 구성하세요 (도입 → 본론 2~3개 → 마무리). 소제목만 훑어봐도 글의 핵심이 파악되게 하세요.
-5. "💭" 같은 감정 이모지나 "오늘 이야기를 들려드리겠습니다" 식의 이야기체 도입은 쓰지 마세요. 이 글은 매일 바뀌는 개인 운세가 아니라, 검색해서 정보를 찾는 독자를 위한 글입니다.
+[출력 형식 — 순수 HTML 조각만 출력]
+- <html>, <head>, <body>, <h1> 태그나 코드블록(```), 마크다운 기호(##, **)는 절대 쓰지 마세요.
+- 아래 순서와 태그를 정확히 지키세요.
+  1) 도입: <p> 1~2개 (150~250자). 소제목 없이 시작합니다.
+  2) 본문: <h2> 소제목 4~5개. 각 섹션은 <p> 2~3개로 300~450자.
+  3) <h2>자주 묻는 질문</h2> 바로 아래에 <div class="faq"> 안에 질문 5개.
+     각 질문은 <h3>Q. 질문 문장</h3> 다음 <p>답변</p> 형식입니다.
+  4) <h2>마무리</h2> 아래 <p> 1~2개 (100~200자).
+- 전체 분량은 공백·HTML 태그를 제외하고 2,000자 이상(FAQ 포함)이어야 하며, 2,300~2,800자를 목표로 하세요.
+  분량은 같은 말의 반복이 아니라 새로운 정보와 구체적인 예시로 채우세요. 3,000자를 넘기지 마세요.
 
-[문장 톤 규칙 — 정보를 나열하되 사람이 관찰하고 쓴 것처럼]
-6. 어조는 "~합니다", "~해보세요"체의 다정하고 담백한 존댓말을 사용하세요. "~에요", "~죠", "~잖아요" 같은 구어체는 쓰지 마세요.
-7. 첫 문단은 사전적 정의("○○는 ~한 성격입니다")로 시작하지 말고, 일상에서 마주칠 법한 구체적인 장면이나 관찰로 여세요.
-   예시: "회사에서 유독 야근을 마다 않고 묵묵히 일을 끝내는 동료가 있다면, 소띠일 가능성이 높습니다." 처럼
-   추상적 설명이 아니라 눈에 그려지는 상황에서 시작하세요. 이런 구체적 장면 열기는 도입부뿐 아니라
-   본론의 각 <h2> 섹션 첫 문장에도 최소 1곳 이상 적용하세요.
-8. "A는 ~합니다. 또한 B합니다. 그리고 C합니다." 같은 단순 나열식 문장 반복은 피하세요. 문장 길이와 구조를
-   문단마다 다르게 가져가세요 (짧은 문장과 긴 문장을 섞고, 이유·비유·예시를 번갈아 사용하세요).
-9. 같은 문장 종결 패턴이 두 문장 이상 연속으로 이어지지 않게 하세요.
-10. 첫 <p> 문단 안에 이 주제와 어울리는 짧은 격언이나 속담을 자연스럽게 녹여서 함께 배치하세요.
-11. 마지막 문단은 독자를 다정하게 응원하는 한두 문장으로 마무리하세요.
-12. 사실 관계(신화, 유래, 방위 등)는 무리해서 확신하지 말고 통상적으로 알려진 내용 위주로 서술하세요."""
+[도입 규칙 — 답 먼저]
+- 첫 3문장 안에 이 글에서 얻을 수 있는 핵심 답이나 결론을 쓰세요.
+- 인사말, "오늘은 ~에 대해 알아보겠습니다" 같은 예고 문장으로 시작하지 마세요. 감정 이모지도 쓰지 마세요.
+- 독자의 상황을 한 문장으로 짚고 → 결론 → 이 글에서 다룰 내용 순으로 쓰세요.
+
+[본문 규칙]
+- 소제목(<h2>)은 독자가 실제로 검색할 법한 말로 쓰세요. 예: "물병자리는 어떤 성격으로 해석되나요?"
+  소제목을 모두 같은 문형으로 만들지 마세요.
+- 본문 섹션은 다음 흐름에서 주제에 맞게 4~5개를 고르세요: 기본 개념·정의 / 원리·유래·과정 /
+  구체적인 상황 예시 / 생활 속 적용 방법 / 흔한 오해·주의.
+- 각 섹션은 "주장 → 설명 → 구체적 예시 또는 적용" 순서로 쓰고, 섹션마다 독자가 새로 알게 되는 정보가 하나 이상 있어야 합니다.
+- 구체적 예시는 지어낸 일화나 실존 인물 이야기가 아니라 누구나 겪을 법한 일반적인 상황으로 쓰세요.
+- 한 문단은 2~4문장으로 짧게 끊어, 모바일에서 읽기 쉽게 하세요.
+
+[사실과 신뢰 규칙 — 가장 중요]
+- 확실하게 쓸 수 있는 사실: 별자리의 날짜 구간, 12띠의 순서와 연도 주기, 십이지·오행 등 전통 체계의 용어와 기본 구조.
+- 성격·운명·건강·재물·연애에 대한 내용은 단정하지 말고 "~라고 해석합니다", "전통적으로 ~라고 봅니다", "~라고 알려져 있습니다"로 쓰세요.
+- 통계, 연구 결과, 전문가 발언, 책·고서의 구절, 철학자나 실존 인물의 말을 근거로 들지 마세요. 출처를 댈 수 없는 "전문가들은", "연구에 따르면"도 쓰지 마세요.
+- 신화·유래·방위·날짜는 통상적으로 널리 알려진 내용만 쓰고, 확신이 없으면 그 내용은 쓰지 않거나 "전해집니다" 정도로 한정하세요.
+- 운세 결과로 투자, 계약, 진료 중단 같은 중요한 결정을 하라고 권하지 마세요.
+- 효과를 보장하는 표현은 금지입니다.
+
+[문장 규칙]
+- 어조는 "~합니다", "~해보세요"체의 담백한 존댓말입니다. "~에요", "~죠", "~잖아요"는 쓰지 마세요.
+- 금지 표현: 최고, 무조건, 100%, 완치, 효과 보장, 완벽 보장, 단번에 해결, 역대급, 인생 맛집,
+  "~는 매우 중요합니다", 다양한, 효과적인, "~에 대해 알아보겠습니다", 결론적으로, 마무리하며, "도움이 되셨으면 좋겠습니다".
+  "새로운 가치를 만듭니다" 같은 막연한 구호도 쓰지 마세요.
+- 같은 어미로 세 문장 이상 이어 쓰지 말고, 짧은 문장과 긴 문장을 섞으세요.
+- 같은 내용을 도입·본문·마무리에서 되풀이해 분량을 채우지 마세요.
+
+[FAQ 규칙 — 질문 정확히 5개, 질문마다 문형을 다르게]
+질문은 주제어를 넣어 독자가 실제로 검색할 문장으로 쓰고, 다음 5가지 유형을 이 순서로 하나씩 다루세요.
+  1. 정의·개념: 이 주제가 무엇이며 어떤 의미로 쓰이는가
+  2. 원리·방법: 어떻게 정해지거나 어떤 순서로 진행되는가
+  3. 생활 적용: 일상에서 어떻게 참고하거나 활용하는가
+  4. 대상·상황: 어떤 사람이나 상황에서 특히 참고하기 좋은가
+  5. 주의·오해: 흔한 오해나 꼭 알아둘 주의사항은 무엇인가
+- 답변은 120~220자로 쓰고, 첫 문장에서 바로 답하세요.
+- 답변은 본문 문장을 복사하지 말고 본문과 다른 각도의 보충 설명으로 쓰세요.
+
+[마무리 규칙]
+- 2~3문장으로 핵심 한 줄 정리와 독자가 바로 해볼 수 있는 행동 한 가지를 쓰세요.
+- 마무리 안에 "재미로 참고하는 운세·풍수 정보이며 실제 결정은 본인의 판단으로 하세요"라는 취지의 안내를 한 문장 넣되,
+  표현은 이 글에 맞게 자연스럽게 바꿔 쓰세요."""
 
     if style == "checklist":
         base += """
-13. 이 글은 특정 상황(수험생 학부모, 이직 준비생, 신혼부부 등)에 놓인 독자를 위한 실천 가이드입니다.
-    본론 소제목 중 최소 하나는 <ul><li> 목록을 사용해 바로 실천할 수 있는 행동 체크리스트 3~5개를
-    제시하세요 (예: "오늘부터 해볼 수 있는 것 3가지"). 다만 목록만으로 소제목을 채우지 말고,
-    목록 앞뒤에 설명 문단을 붙여 정보성 글의 구조(도입 → 본론 → 마무리)는 그대로 유지하세요."""
+
+[체크리스트 규칙]
+- 이 글은 특정 상황(수험생 학부모, 이직 준비생, 신혼부부 등)에 놓인 독자를 위한 실천 가이드입니다.
+  본문 소제목 중 하나는 <ul><li> 목록으로 바로 실천할 수 있는 행동 3~5개를 제시하세요.
+  목록 앞뒤에 설명 문단을 붙여 도입 → 본문 → FAQ → 마무리 구조는 그대로 유지하세요."""
 
     return base
 
@@ -240,25 +315,167 @@ GEMINI_MODEL_CANDIDATES = [
 ]
 
 
-def generate_knowledge_html(topic, style="info"):
+def _clean_model_text(text):
+    """코드블록·마크다운 잔여물 제거."""
+    text = (text or "").strip()
+    text = text.replace("```html", "").replace("```", "").strip()
+    return text
+
+
+def _call_gemini(prompt):
+    """모델 후보를 차례로 시도해 텍스트 한 덩어리를 돌려준다. 전부 실패하면 RuntimeError."""
     client = genai.Client(api_key=GEMINI_API_KEY)
-    prompt = build_prompt(topic, style=style)
+    cfg = types.GenerateContentConfig(max_output_tokens=MAX_OUT_TOKENS, temperature=0.8)
     last_err = None
 
     for model_name in GEMINI_MODEL_CANDIDATES:
         try:
-            resp = client.models.generate_content(model=model_name, contents=prompt)
-            text = (resp.text or "").strip()
+            resp = client.models.generate_content(model=model_name, contents=prompt, config=cfg)
+            text = _clean_model_text(resp.text)
             if not text:
                 raise ValueError("빈 응답")
-            # 혹시 모델이 코드블록으로 감싸서 응답하면 제거
-            text = text.replace("```html", "").replace("```", "").strip()
             return text
         except Exception as e:
             print(f"  ⚠️ 모델 '{model_name}' 실패: {e} — 다음 후보로 재시도합니다.")
             last_err = e
 
     raise RuntimeError(f"모든 Gemini 모델 후보가 실패했습니다. 마지막 에러: {last_err}")
+
+
+def count_chars(html_text):
+    """공백·줄바꿈·HTML 태그·<style> 제외 글자 수 (v7.6 22.2)."""
+    t = re.sub(r"<style.*?</style>", "", html_text, flags=re.S | re.I)
+    t = re.sub(r"<[^>]+>", "", t)
+    t = _html.unescape(t)
+    return len(re.sub(r"\s+", "", t))
+
+
+def validate_html(html_text):
+    """(hard, soft) 문제 목록을 돌려준다.
+    hard = 이대로는 발행하면 안 되는 문제, soft = 재시도 여유가 있을 때만 고치게 하는 문제."""
+    hard, soft = [], []
+    chars = count_chars(html_text)
+    plain = _html.unescape(re.sub(r"<[^>]+>", "", html_text))
+
+    if chars < MIN_CHARS:
+        hard.append(f"글자 수 부족: 현재 {chars}자 (공백·태그 제외, 최소 {MIN_CHARS}자)")
+
+    faq_n = len(re.findall(r"<h3\b", html_text, flags=re.I))
+    if faq_n != FAQ_COUNT:
+        hard.append(f"FAQ 질문 수가 {faq_n}개입니다 (정확히 {FAQ_COUNT}개여야 함)")
+
+    if not re.search(r"<h2[^>]*>\s*자주 묻는 질문", html_text):
+        hard.append("<h2>자주 묻는 질문</h2> 섹션이 없습니다")
+    if not re.search(r"<h2[^>]*>\s*마무리", html_text):
+        hard.append("<h2>마무리</h2> 섹션이 없습니다")
+    elif not html_text.rstrip().endswith(">"):
+        hard.append("글이 중간에 잘린 것 같습니다 (마지막이 태그로 끝나지 않음)")
+
+    if "재미" not in plain:
+        hard.append("'재미로 참고하는 정보' 취지의 안내 문구가 없습니다")
+
+    if re.search(r"<h1\b|<script|<html|<body", html_text, flags=re.I):
+        hard.append("허용되지 않은 태그(h1/script/html/body)가 있습니다")
+
+    found = [w for w in _BANNED_HARD if w in plain]
+    if found:
+        hard.append("금지 표현 포함: " + ", ".join(found))
+
+    h2_n = len(re.findall(r"<h2\b", html_text, flags=re.I))
+    if not (6 <= h2_n <= 7):
+        soft.append(f"<h2>가 {h2_n}개입니다 (본문 4~5개 + 자주 묻는 질문 + 마무리 = 6~7개여야 함)")
+
+    found_soft = [w for w in _BANNED_SOFT if w in plain]
+    if found_soft:
+        soft.append("피해야 할 표현 포함: " + ", ".join(found_soft))
+
+    if "##" in html_text or "**" in html_text:
+        soft.append("마크다운 기호(##, **)가 남아 있습니다")
+
+    if chars > 3600:
+        soft.append(f"글이 너무 깁니다 ({chars}자) — 3,000자 안팎으로 줄이세요")
+
+    return hard, soft
+
+
+def _append_extra_section(topic, html_text, need_chars):
+    """그래도 모자랄 때 — 부족한 분량만큼 본문 섹션 1개를 추가 생성해 FAQ 앞에 붙인다 (v7.6 22.8-3)."""
+    titles = re.findall(r"<h2[^>]*>(.*?)</h2>", html_text, flags=re.S)
+    prompt = f"""블로그 글 '{topic}'에 본문 섹션 1개를 추가하려고 합니다.
+이미 있는 소제목: {' / '.join(re.sub('<[^>]+>', '', t) for t in titles)}
+
+규칙:
+- 위 소제목과 겹치지 않는 새로운 관점의 <h2> 소제목 1개와 <p> 문단 2~3개만 출력하세요. 다른 태그와 코드블록은 쓰지 마세요.
+- 분량은 공백 제외 {need_chars + 150}자 안팎입니다.
+- 어조는 "~합니다"체. 통계·연구·전문가 발언·책 구절·실존 인물 인용은 쓰지 말고, 단정하지 않는 표현("~라고 해석합니다", "전통적으로")을 쓰세요.
+- 금지: 최고, 무조건, 100%, 완치, 효과 보장, 다양한, 효과적인, 결론적으로.
+- 기존 글의 내용을 반복하지 말고, 독자가 새로 알게 되는 정보와 일반적인 상황 예시를 담으세요."""
+    extra = _call_gemini(prompt)
+    extra = re.sub(r"<h1\b[^>]*>.*?</h1>", "", extra, flags=re.S | re.I)
+    m = re.search(r"<h2[^>]*>\s*자주 묻는 질문", html_text)
+    if not m:
+        return html_text
+    return html_text[:m.start()] + extra + "\n" + html_text[m.start():]
+
+
+def generate_knowledge_html(topic, style="info", perspective="기본 개념 정리", recent_topics=None):
+    """v7.6 22.8 규칙: 생성 → 글자 수·구조 검증 → 최대 3회 재생성 → 보충 섹션 → 그래도 안 되면 None."""
+    base_prompt = build_prompt(topic, style=style, perspective=perspective, recent_topics=recent_topics)
+    prompt = base_prompt
+    best = None  # hard 문제는 있어도 가장 글이 긴 후보 (보충 섹션용)
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        text = _call_gemini(prompt)
+        hard, soft = validate_html(text)
+        chars = count_chars(text)
+        print(f"  📏 시도 {attempt}/{MAX_ATTEMPTS}: {chars}자 · "
+              f"hard {len(hard)} / soft {len(soft)}")
+
+        if best is None or chars > count_chars(best):
+            best = text
+
+        if not hard and not soft:
+            return text
+        if not hard and attempt == MAX_ATTEMPTS:
+            print("  ℹ️ 사소한 문체 문제만 남았지만 마지막 시도라 그대로 사용합니다: " + "; ".join(soft))
+            return text
+
+        problems = hard + soft
+        for pmsg in problems:
+            print(f"     - {pmsg}")
+        if attempt < MAX_ATTEMPTS:
+            prompt = (base_prompt
+                      + "\n\n[직전 결과의 문제점 — 반드시 고쳐서 처음부터 다시 작성하세요]\n- "
+                      + "\n- ".join(problems)
+                      + "\n\n[직전 결과 (참고용)]\n" + text
+                      + f"\n\n위 문제를 모두 해결하고 공백·태그 제외 {MIN_CHARS}자 이상이 되도록 H2 섹션과 FAQ 답변에 "
+                        "구체적인 설명을 추가해 전체 글을 다시 출력하세요.")
+            time.sleep(2)
+
+    # 재생성으로도 기준 미달 — 글자 수만 모자란 경우에 한해 보충 섹션 시도
+    if best is not None:
+        hard, _soft = validate_html(best)
+        only_short = hard and all(h.startswith("글자 수 부족") for h in hard)
+        if only_short:
+            chars = count_chars(best)
+            if chars >= MIN_CHARS - 800:
+                print(f"  ➕ 보충 섹션 추가 시도 (현재 {chars}자)")
+                for _ in range(2):
+                    chars = count_chars(best)
+                    if chars >= MIN_CHARS:
+                        break
+                    try:
+                        best = _append_extra_section(topic, best, MIN_CHARS - chars)
+                    except Exception as e:
+                        print(f"  ⚠️ 보충 섹션 생성 실패: {e}")
+                        break
+                hard, _soft = validate_html(best)
+                if not hard:
+                    print(f"  ✅ 보충 후 {count_chars(best)}자로 기준 충족")
+                    return best
+
+    print("  ❌ 기준(2,000자·FAQ 5개·안내 문구)을 채우지 못했습니다 — 이 글은 발행하지 않습니다.")
+    return None
 
 
 def load_state():
@@ -345,15 +562,24 @@ def run(count=1):
             if idx == 0 and state["last_index"] != -1 else ""
         print(f"[{i+1}/{count}] 주제 #{idx}: {topic}{cycle_note}")
 
+        # 주제가 한 바퀴 돌아 다시 나올 때는 다른 관점으로 쓰게 한다 (v7.6 22.7)
+        cycle_no    = len(state.get("history", [])) // n
+        perspective = PERSPECTIVES[(idx + cycle_no) % len(PERSPECTIVES)]
+        recent_topics = [h.get("topic", "") for h in state.get("history", [])[-8:] if h.get("topic")]
+        print(f"  🎯 관점: {perspective}")
+
         try:
-            body_html = generate_knowledge_html(topic, style=style)
+            body_html = generate_knowledge_html(topic, style=style, perspective=perspective,
+                                                recent_topics=recent_topics)
         except Exception as e:
             print(f"  ⚠️ Gemini 생성 실패: {e} — 이 주제는 건너뜁니다.")
             continue
 
-        if len(body_html) < 300:
-            print(f"  ⚠️ 생성된 글이 너무 짧습니다 ({len(body_html)}자) — 발행을 건너뜁니다.")
+        if not body_html:
+            # 2,000자·FAQ 5개 기준 미달 — 기준 미달 글을 올리느니 건너뛴다 (인덱스 미저장 → 다음 실행 때 같은 주제 재시도)
+            print("  ⚠️ 품질 기준 미달 — 발행을 건너뜁니다.")
             continue
+        print(f"  ✅ 최종 {count_chars(body_html)}자")
 
         kw_list  = [topic] + tags + ["운세상식"]
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
@@ -401,7 +627,7 @@ def run(count=1):
     <p style="font-size:12px;color:#9ca3af;margin:0 0 12px">🔗 더 궁금하시다면</p>
     {related_html}
   </div>
-  <div class="meta"><p>※ 참고용으로 정리한 정보성 콘텐츠입니다</p></div>
+  <div class="meta"><p>※ 재미와 참고를 위해 정리한 전통 문화 정보이며, 중요한 결정은 본인의 판단으로 하세요</p></div>
 </div>"""
 
         slug_number = state["next_slug_number"]
@@ -413,6 +639,7 @@ def run(count=1):
             state["history"].append({
                 "index":     idx,
                 "topic":     topic,
+                "perspective": perspective,
                 "slug":      str(slug_number),
                 "posted_at": datetime.now(timezone.utc).isoformat(),
             })
