@@ -337,6 +337,11 @@
             font-size: 12px; font-weight: 700; color: #1e293b; line-height: 1.4;
         }
         .course-map-summary .cms-text { min-width: 0; }
+        /* [ADD] 2026-11-02: 점선은 방문 순서일 뿐 도로가 아니라는 안내 한 줄 */
+        .course-map-summary .cms-sub { display: block; margin-top: 1px; font-size: 10.5px; font-weight: 600; color: #64748b; }
+        /* [ADD] 2026-11-02: 핀이 가까워 이름표가 겹치면 이름표만 숨기고(번호는 유지), 핀에 마우스를 올리면 다시 보인다. */
+        .cpin-name.cpin-name-off { display: none; }
+        .cpin:hover .cpin-name.cpin-name-off { display: block; z-index: 5; }
         .course-map-summary button {
             flex-shrink: 0; border: 0; border-radius: 999px; padding: 4px 9px; background: #eef2ff; color: #4338ca;
             font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;
@@ -1609,6 +1614,8 @@
     let allMarkers = [];
     // [ADD] 2026-11-01: 코스 "지도에서 전체보기"용 번호 핀·점선 경로·요약 줄(아래 showCourseOnMap 참고)
     let courseOverlays = [];
+    let coursePinInfos = [];        // 이름표 겹침 정리용(번호 핀별 위치·이름표 요소)
+    let coursePinIdleHandler = null;
     let coursePolyline = null;
 
     // [FIX] 2026-10-08: "아이랑 갈만한 곳"과 "축제"를 더 이상 별도 모드로 전환하지 않고,
@@ -2696,6 +2703,11 @@
         const v = ((min % 1440) + 1440) % 1440;
         return String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0');
     }
+    // [ADD] 2026-11-02: 예상 시간은 직선거리 기준 대략치라 분 단위까지 보이면 정확한 값처럼 오해하기 쉽다.
+    // 10분 단위로 반올림해서 보여준다(운영시간처럼 확정된 값은 ctFmt 그대로 쓴다).
+    function ctFmtApprox(min) {
+        return ctFmt(Math.round(min / 10) * 10);
+    }
     function ctSlotLabel(startMin) {
         if (startMin < 660) return '오전';
         if (startMin < 750) return '점심';
@@ -3162,7 +3174,7 @@
                 slot = sc.label;
                 const parts = [];
                 if (sc.win.known) {
-                    parts.push('<span class="course-time">' + ctFmt(sc.start) + '~' + ctFmt(sc.end) + ' 예상</span>');
+                    parts.push('<span class="course-time">' + ctFmtApprox(sc.start) + '~' + ctFmtApprox(sc.end) + ' 예상</span>');
                     parts.push('<span class="course-time-sub">운영 ' + ctFmt(sc.win.open) + '~' + ctFmt(sc.win.close) + '</span>');
                 } else {
                     parts.push('<span class="course-time-unknown">시간 확인 필요</span>');
@@ -3296,9 +3308,39 @@
         courseViewItemIds = null;
         courseOverlays.forEach(function (o) { try { o.setMap(null); } catch (e) {} });
         courseOverlays = [];
+        coursePinInfos = [];
+        if (coursePinIdleHandler) { try { kakao.maps.event.removeListener(map, 'idle', coursePinIdleHandler); } catch (e) {} coursePinIdleHandler = null; }
         if (coursePolyline) { try { coursePolyline.setMap(null); } catch (e) {} coursePolyline = null; }
         const el = document.getElementById('courseMapSummary');
         if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    // [ADD] 2026-11-02: 번호 핀이 가까워 이름표가 다른 핀·이름표를 가리면, 번호 순서대로 보고
+    // 겹치는 이름표만 숨긴다(번호는 항상 보인다). 줌이 바뀌면 다시 계산한다.
+    function declutterCoursePinLabels() {
+        if (!coursePinInfos.length || !map) return;
+        let proj;
+        try { proj = map.getProjection(); } catch (e) { return; }
+        if (!proj || !proj.containerPointFromCoords) return;
+        const centers = coursePinInfos.map(function (p) {
+            const pt = proj.containerPointFromCoords(p.pos);
+            return { x: pt.x + p.dx, y: pt.y + p.dy };
+        });
+        const hit = function (a, b) { return a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t; };
+        const shownLabels = [];
+        coursePinInfos.forEach(function (p, i) {
+            const c = centers[i];
+            const w = Math.min(130, p.name.length * 11 + 16);
+            const label = { l: c.x + 18, r: c.x + 18 + w, t: c.y - 10, b: c.y + 10 };
+            let hide = shownLabels.some(function (r) { return hit(label, r); });
+            if (!hide) {
+                hide = centers.some(function (o, j) {
+                    return j !== i && hit(label, { l: o.x - 14, r: o.x + 14, t: o.y - 14, b: o.y + 14 });
+                });
+            }
+            p.nameEl.classList.toggle('cpin-name-off', hide);
+            if (!hide) shownLabels.push(label);
+        });
     }
 
     // 요약 줄의 "닫기": 번호 핀을 걷어내고, 코스 목록을 그렸을 때와 같은 일반 마커 화면으로 되돌린다.
@@ -3338,6 +3380,7 @@
             wrap.style.transform = 'translate(' + (k * 12) + 'px,' + (-k * 12) + 'px)';
             wrap.innerHTML = '<div class="cpin-no">' + (i + 1) + '</div><div class="cpin-name"></div>';
             wrap.lastChild.textContent = item.title || '';
+            coursePinInfos.push({ pos: pos, dx: k * 12, dy: -k * 12, nameEl: wrap.lastChild, name: item.title || '' });
             wrap.addEventListener('click', function (ev) {
                 ev.stopPropagation();
                 showFestivalCardSingle(item);
@@ -3362,14 +3405,20 @@
             if (course.totalDistanceKm > 0) parts.push('직선 약 ' + course.totalDistanceKm.toFixed(1) + 'km');
             if (course.schedule && course.schedule.length) {
                 const first = course.schedule[0], last = course.schedule[course.schedule.length - 1];
-                parts.push(ctFmt(first.start) + '~' + ctFmt(last.end) + ' 예상');
+                parts.push(ctFmtApprox(first.start) + '~' + ctFmtApprox(last.end) + ' 예상');
             }
             const bar = document.createElement('div');
             bar.id = 'courseMapSummary';
             bar.className = 'course-map-summary';
             const text = document.createElement('span');
             text.className = 'cms-text';
-            text.textContent = parts.join(' · ');
+            const mainLine = document.createElement('span');
+            mainLine.textContent = parts.join(' · ');
+            const subLine = document.createElement('span');
+            subLine.className = 'cms-sub';
+            subLine.textContent = '점선은 방문 순서예요 (실제 도로가 아니에요)';
+            text.appendChild(mainLine);
+            text.appendChild(subLine);
             const close = document.createElement('button');
             close.type = 'button';
             close.textContent = '✕ 닫기';
@@ -3400,6 +3449,10 @@
         };
         courseViewRefit();
         closeTodayPanel();
+        // 이름표 겹침 정리: 화면 맞춤 직후와 지도가 멈출 때마다(줌 변경 포함) 다시 계산한다.
+        coursePinIdleHandler = declutterCoursePinLabels;
+        try { kakao.maps.event.addListener(map, 'idle', coursePinIdleHandler); } catch (e) {}
+        try { declutterCoursePinLabels(); } catch (e) {}
     }
 
     // 코스 모드 버튼/기간탭/검색UI를 지금 courseModeActive 값에 맞춰 동기화한다.
