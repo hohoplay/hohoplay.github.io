@@ -183,16 +183,16 @@ TOPICS = [
     {"topic": "용맹하고 열정적인 호랑이띠의 성격 분석",       "emoji": "🐯", "tags": ["호랑이띠", "띠별성격", "사주"], "slug": "tiger-personality"},
     {"topic": "물병자리에 숨겨진 그리스 신화 이야기",         "emoji": "♒", "tags": ["물병자리", "별자리유래", "그리스신화"], "slug": "aquarius-myth"},
     {"topic": "사자자리의 유래와 밤하늘에 얽힌 전설",         "emoji": "♌", "tags": ["사자자리", "별자리유래", "그리스신화"], "slug": "leo-myth"},
-    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"], "slug": "entrance-fengshui"},
-    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"], "slug": "bedroom-fengshui"},
-    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"], "slug": "lucky-color"},
-    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"], "slug": "birthstone-meaning"},
-    {"topic": "재물운을 부르는 지갑 색깔과 정리 습관",         "emoji": "🪙", "tags": ["지갑풍수", "재물운", "정리습관"], "slug": "wallet-fengshui"},
-    {"topic": "별자리별 잘 어울리는 향수 노트 찾기",           "emoji": "🌸", "tags": ["별자리향수", "향수추천", "별자리매칭"], "slug": "zodiac-perfume"},
-    {"topic": "이사할 때 챙기면 좋은 손없는 날과 개운 소품",   "emoji": "🧂", "tags": ["손없는날", "이사풍수", "개운소품"], "slug": "moving-day-fengshui"},
-    {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"], "slug": "exam-luck-guide"},
-    {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"], "slug": "job-luck-checklist"},
-    {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"], "slug": "newlywed-fengshui"},
+    {"topic": "복을 부르는 현관 인테리어와 거울 위치",         "emoji": "🚪", "tags": ["풍수", "현관인테리어", "풍수지리"], "angle": "현관 정리의 실용 포인트(신발 정리, 동선, 조명, 환기)를 먼저 쓰고, 풍수에서 현관과 거울에 대해 전해지는 원칙은 '전통적으로 ~라고 봅니다'로 소개하세요. 복이 들어온다는 결과를 약속하지 마세요.", "slug": "entrance-fengshui"},
+    {"topic": "재물운을 높이는 침실 침대 방향과 풍수지리",     "emoji": "🛏️", "tags": ["풍수", "침실풍수", "재물운"], "angle": "수면 환경 상식과 풍수 전통을 함께 다루세요. 조도·소음·온도, 침대와 출입문·창문의 위치가 주는 심리적 안정감 같은 일반적인 내용을 먼저 설명하고, 풍수에서 전해지는 방향·배치 원칙은 '전통적으로 ~라고 봅니다'로 소개하세요. 재물·건강 효과를 단정하거나 의학적 조언을 하지 마세요.", "slug": "bedroom-fengshui"},
+    {"topic": "행운의 색이 알려주는 나만의 기운 이야기",       "emoji": "🎨", "tags": ["행운의색", "색채심리", "운세상식"], "angle": "색채가 주는 일반적인 심리적 연상(따뜻함·차분함 등)과 전통 오방색(청·적·황·백·흑)의 방위·오행 대응을 중심으로 설명하세요. '나만의 행운의 색'을 고르는 간단한 방법은 재미로 참고하는 활동으로 소개하고 효과를 단정하지 마세요.", "slug": "lucky-color"},
+    {"topic": "태어난 달로 알아보는 탄생석의 의미",           "emoji": "💎", "tags": ["탄생석", "탄생석의미", "보석상식"], "angle": "월별 탄생석 이름을 정확히 정리하되, 나라·문화권·시기에 따라 목록이 다를 수 있음을 밝히세요. 각 보석의 의미는 '전해지는 상징'으로 소개하고, 보석 구매·투자 권유나 효능 주장은 하지 마세요.", "slug": "birthstone-meaning"},
+    {"topic": "재물운을 부르는 지갑 색깔과 정리 습관",         "emoji": "🪙", "tags": ["지갑풍수", "재물운", "정리습관"], "angle": "지갑 정리 습관이 중심입니다. 영수증·카드·현금 정리 요령, 지갑 점검 주기를 구체적으로 쓰세요. 색깔에 얽힌 전통적 의미와 색채 연상은 '전해지는 이야기'로 소개하고, 재물이 늘어난다는 식의 효과나 재테크·투자 조언은 쓰지 마세요.", "slug": "wallet-fengshui"},
+    {"topic": "별자리별 잘 어울리는 향수 노트 찾기",           "emoji": "🌸", "tags": ["별자리향수", "향수추천", "별자리매칭"], "angle": "향수 지식이 중심입니다. 탑·미들·베이스 노트의 구조와 지속 시간 차이, 시트러스·플로럴·우디·머스크 같은 향 계열의 특징을 먼저 설명하세요. 별자리별 추천은 불·흙·공기·물 원소 이미지에서 연상한 '재미 요소'로만 소개하고 근거를 단정하지 마세요. 특정 브랜드·제품명은 쓰지 마세요.", "slug": "zodiac-perfume"},
+    {"topic": "이사할 때 챙기면 좋은 손없는 날과 개운 소품",   "emoji": "🧂", "tags": ["손없는날", "이사풍수", "개운소품"], "angle": "사실 정보가 중심입니다. 음력 날짜 끝자리가 9·0인 날(9·10·19·20·29·30일)이 손 없는 날로 전해진다는 점, 손(損)이 날짜에 따라 방향을 옮겨 다니며 일을 방해한다고 믿던 민간 전승, 음력 날짜를 확인하는 방법을 설명하세요. 이사 날짜 선택의 현실 팁(수요가 몰려 비용·예약이 어려울 수 있음, 최신 상황은 확인 필요)과 이사 전후 점검 목록을 포함하고, 믿음 여부와 상관없이 쓸 수 있게 쓰세요.", "slug": "moving-day-fengshui"},
+    {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"], "angle": "수험생 부모가 실제로 할 수 있는 지원이 중심입니다. 수면·식사 리듬, 대화 방식, 시험 당일 준비물과 이동 점검, 불안을 다루는 방법을 구체적으로 쓰세요. 엿·찹쌀떡 같은 합격 기원 풍습은 '전해 내려오는 풍습'으로 한 섹션만 소개하고 합격 효과를 단정하지 마세요.", "slug": "exam-luck-guide"},
+    {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"], "angle": "운세 문구가 아니라 실제 취업 준비 점검표가 중심입니다. 이력서·포트폴리오 정리, 지원 현황 기록, 면접 일정과 컨디션 관리, 면접 전날·당일 준비물 점검 등 오늘 바로 해볼 수 있는 행동을 구체적으로 쓰세요. 면접 날 옷 색 같은 전해지는 습속은 '심리적 안정 장치' 정도로 한 문단만 소개하고 효과를 단정하지 마세요.", "slug": "job-luck-checklist"},
+    {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"], "angle": "신혼집 정리 요령(수납, 동선, 공용 공간 배치, 둘이 함께 정하는 규칙)을 구체적으로 쓰고, 풍수에서 전해지는 배치 원칙은 '전통적으로 ~라고 봅니다'로 소개하세요. 재물이 늘어난다는 효과나 재테크 조언은 쓰지 마세요.", "slug": "newlywed-fengshui"},
     {"topic": "섬세하고 온화한 토끼띠의 성격과 어울리는 환경", "emoji": "🐰", "tags": ["토끼띠", "띠별성격", "사주"], "slug": ""},
     {"topic": "카리스마 넘치는 용띠의 성격과 특징 4가지", "emoji": "🐲", "tags": ["용띠", "띠별성격", "사주"], "slug": ""},
     {"topic": "신중하고 통찰력 깊은 뱀띠의 성격 분석", "emoji": "🐍", "tags": ["뱀띠", "띠별성격", "사주"], "slug": ""},
@@ -258,16 +258,26 @@ _BANNED_SOFT = ["매우 중요합니다", "다양한", "효과적인", "알아�
                 "도움이 되셨으면"]
 
 
-def build_prompt(topic, style="info", perspective="기본 개념 정리", recent_topics=None):
+def build_prompt(topic, style="info", perspective="기본 개념 정리", recent_topics=None, angle=""):
     recent_note = ""
     if recent_topics:
         recent_note = "\n최근 발행한 글 제목(도입 문장·소제목이 겹치지 않게 하세요): " + " / ".join(recent_topics)
+
+    angle_note = ""
+    if angle:
+        angle_note = "\n\n[이 주제의 독자 가치 기준 — 반드시 반영]\n" + angle
 
     base = f"""당신은 사주·별자리·풍수 등 전통·점성 문화를 알기 쉽게 설명하는 정보형 블로그 필자입니다.
 검색해서 들어온 독자가 한 가지 질문에 끝까지 답을 얻고 가는 글을 작성하세요.
 
 주제: {topic}
-이번 글의 관점: {perspective}{recent_note}
+이번 글의 관점: {perspective}{recent_note}{angle_note}
+
+[독자 가치 규칙 — 얇은 글·비슷한 글로 보이지 않게]
+- "운이 좋아진다", "복이 들어온다" 같은 결과를 약속하는 글이 아니라, 독자가 읽고 나서 오늘 해볼 수 있는 구체적인 행동 2가지 이상과
+  확인 가능한 사실(용어 정의, 날짜·계산 방법, 구조, 유래)을 2가지 이상 포함하세요.
+- 전통·미신에 해당하는 내용은 사실처럼 쓰지 말고 "전해지는 이야기", "전통적인 해석"으로 구분해서 쓰세요.
+- 비슷한 주제의 다른 글(재물운·인테리어·성격 풀이 일반론)과 겹치지 않도록, 이 주제에만 해당하는 고유한 정보와 예시를 중심으로 쓰세요.
 
 [출력 형식 — 순수 HTML 조각만 출력]
 - <html>, <head>, <body>, <h1> 태그나 코드블록(```), 마크다운 기호(##, **)는 절대 쓰지 마세요.
@@ -501,6 +511,12 @@ def autofix_html(html_text):
     return t
 
 
+def body_headings(html_text):
+    """본문 소제목(<h2>) 목록 — '자주 묻는 질문'·'마무리'는 모든 글에 공통이라 제외."""
+    hs = [re.sub(r"\s+", "", _html.unescape(re.sub(r"<[^>]+>", "", h))) for h in re.findall(r"<h2[^>]*>(.*?)</h2>", html_text, flags=re.S)]
+    return [h for h in hs if h and h not in ("자주묻는질문", "마무리")]
+
+
 def validate_html(html_text):
     """(hard, soft) 문제 목록을 돌려준다.
     hard = 이대로는 발행하면 안 되는 문제, soft = 재시도 여유가 있을 때만 고치게 하는 문제."""
@@ -569,15 +585,19 @@ def _append_extra_section(topic, html_text, need_chars):
     return html_text[:m.start()] + extra + "\n" + html_text[m.start():]
 
 
-def generate_knowledge_html(topic, style="info", perspective="기본 개념 정리", recent_topics=None):
+def generate_knowledge_html(topic, style="info", perspective="기본 개념 정리", recent_topics=None, angle="", prev_h2=None):
     """v7.6 22.8 규칙: 생성 → 글자 수·구조 검증 → 최대 3회 재생성 → 보충 섹션 → 그래도 안 되면 None."""
-    base_prompt = build_prompt(topic, style=style, perspective=perspective, recent_topics=recent_topics)
+    base_prompt = build_prompt(topic, style=style, perspective=perspective, recent_topics=recent_topics, angle=angle)
+    prev_h2 = prev_h2 or set()
     prompt = base_prompt
     best = None  # hard 문제는 있어도 가장 글이 긴 후보 (보충 섹션용)
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
         text = autofix_html(_call_gemini(prompt))
         hard, soft = validate_html(text)
+        same_h2 = [h for h in body_headings(text) if h in prev_h2]
+        if len(same_h2) >= 2:
+            hard.append("이전에 발행한 글과 같은 소제목이 있습니다 — 소제목을 이 주제에 맞게 새로 쓰세요: " + ", ".join(same_h2[:3]))
         chars = count_chars(text)
         print(f"  📏 시도 {attempt}/{MAX_ATTEMPTS}: {chars}자 · "
               f"hard {len(hard)} / soft {len(soft)}")
@@ -790,8 +810,10 @@ def run(count=1):
         print(f"  🎯 관점: {perspective}")
 
         try:
+            prev_h2 = {h for rec in state.get("history", []) for h in rec.get("h2", [])}
             body_html = generate_knowledge_html(topic, style=style, perspective=perspective,
-                                                recent_topics=recent_topics)
+                                                recent_topics=recent_topics,
+                                                angle=item.get("angle", ""), prev_h2=prev_h2)
         except Exception as e:
             print(f"  ⚠️ Gemini 생성 실패: {e} — 이 주제는 건너뜁니다.")
             continue
@@ -862,6 +884,7 @@ def run(count=1):
                 "index":     idx,
                 "topic":     topic,
                 "perspective": perspective,
+                "h2":        body_headings(body_html),
                 "slug":      str(slug_number),
                 "posted_at": datetime.now(timezone.utc).isoformat(),
             })
