@@ -193,6 +193,38 @@ TOPICS = [
     {"topic": "수험생 자녀를 둔 부모를 위한 합격운 높이는 방법", "emoji": "📚", "tags": ["합격운", "수험생", "학부모"], "slug": "exam-luck-guide"},
     {"topic": "이직·취업 준비생을 위한 취업운 체크리스트",     "emoji": "💼", "tags": ["취업운", "이직", "구직"], "slug": "job-luck-checklist"},
     {"topic": "신혼부부를 위한 재물운 부르는 인테리어",         "emoji": "🏠", "tags": ["신혼부부", "재물운", "인테리어풍수"], "slug": "newlywed-fengshui"},
+    {"topic": "섬세하고 온화한 토끼띠의 성격과 어울리는 환경", "emoji": "🐰", "tags": ["토끼띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "카리스마 넘치는 용띠의 성격과 특징 4가지", "emoji": "🐲", "tags": ["용띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "신중하고 통찰력 깊은 뱀띠의 성격 분석", "emoji": "🐍", "tags": ["뱀띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "자유롭고 활동적인 말띠의 성격과 특징", "emoji": "🐴", "tags": ["말띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "온순하고 배려심 깊은 양띠의 성격 이야기", "emoji": "🐑", "tags": ["양띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "재치 있고 호기심 많은 원숭이띠의 성격 특징", "emoji": "🐵", "tags": ["원숭이띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "성실하고 꼼꼼한 닭띠의 성격과 장단점", "emoji": "🐔", "tags": ["닭띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "의리 있고 정직한 개띠의 성격 분석", "emoji": "🐶", "tags": ["개띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "복스럽고 낙천적인 돼지띠의 성격과 특징", "emoji": "🐷", "tags": ["돼지띠", "띠별성격", "사주"], "slug": ""},
+    {"topic": "개척 정신이 강한 양자리의 유래와 신화", "emoji": "♈", "tags": ["양자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "끈기 있는 황소자리의 유래와 신화 이야기", "emoji": "♉", "tags": ["황소자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "호기심 많은 쌍둥이자리의 유래와 신화", "emoji": "♊", "tags": ["쌍둥이자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "감성이 풍부한 게자리의 유래와 신화 이야기", "emoji": "♋", "tags": ["게자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "분석적인 처녀자리의 유래와 신화 이야기", "emoji": "♍", "tags": ["처녀자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "균형을 중시하는 천칭자리의 유래와 상징", "emoji": "♎", "tags": ["천칭자리", "별자리유래", "별자리상징"], "slug": ""},
+    {"topic": "열정적인 전갈자리의 유래와 신화 이야기", "emoji": "♏", "tags": ["전갈자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "모험을 좋아하는 사수자리의 유래와 신화", "emoji": "♐", "tags": ["사수자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "책임감 강한 염소자리의 유래와 신화 이야기", "emoji": "♑", "tags": ["염소자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "상상력 풍부한 물고기자리의 유래와 신화", "emoji": "♓", "tags": ["물고기자리", "별자리유래", "그리스신화"], "slug": ""},
+    {"topic": "목·화·토·금·수 오행의 기본 원리와 의미", "emoji": "🌿", "tags": ["오행", "사주기초", "운세상식"], "slug": ""},
+    {"topic": "12지지와 하루 12시진, 나는 어느 시간에 태어났을까", "emoji": "🕰️", "tags": ["십이지", "시진", "사주기초"], "slug": ""},
+    {"topic": "24절기의 의미와 계절별 생활 풍습", "emoji": "🍃", "tags": ["24절기", "절기풍습", "전통문화"], "slug": ""},
+    {"topic": "입춘을 기준으로 띠가 바뀐다는 말의 진짜 의미", "emoji": "🌱", "tags": ["입춘", "띠기준", "사주기초"], "slug": ""},
+    {"topic": "사주팔자 네 기둥, 연주·월주·일주·시주 쉽게 이해하기", "emoji": "🧭", "tags": ["사주팔자", "사주기초", "운세상식"], "slug": ""},
+    {"topic": "천간 십간이란 무엇인가, 갑을병정 기초 정리", "emoji": "📜", "tags": ["천간", "십간", "사주기초"], "slug": ""},
+    {"topic": "윤달의 의미와 윤달에 얽힌 전통 풍습", "emoji": "🌙", "tags": ["윤달", "전통풍습", "음력"], "slug": ""},
+    {"topic": "동지 팥죽에 담긴 전통 풍습과 유래", "emoji": "🥣", "tags": ["동지", "팥죽", "전통풍습"], "slug": ""},
+    {"topic": "정월대보름에 즐기던 전통 풍습과 그 의미", "emoji": "🌕", "tags": ["정월대보름", "전통풍습", "세시풍속"], "slug": ""},
+    {"topic": "거실 소파와 가구 배치로 보는 풍수 기본 원칙", "emoji": "🛋️", "tags": ["거실풍수", "풍수", "인테리어풍수"], "slug": ""},
+    {"topic": "주방 풍수의 기본, 가스레인지와 싱크대 위치", "emoji": "🍳", "tags": ["주방풍수", "풍수", "인테리어풍수"], "slug": ""},
+    {"topic": "책상 방향과 공부 환경으로 보는 풍수 이야기", "emoji": "📖", "tags": ["책상풍수", "공부방풍수", "풍수"], "slug": ""},
+    {"topic": "사무실 책상 배치로 보는 풍수 상식", "emoji": "🖥️", "tags": ["사무실풍수", "풍수", "직장인"], "slug": ""},
 ]
 
 # 쿠팡파트너스 필수 고지 문구 (정보통신망법 — 게시물 최상단에 위치해야 함)
@@ -601,6 +633,51 @@ def generate_knowledge_html(topic, style="info", perspective="기본 개념 정�
     return None
 
 
+def _norm_title(t):
+    return re.sub(r"\s+", "", t or "")
+
+
+def fetch_existing_titles(access_token):
+    """블로그에 실제로 올라가 있는 '운세상식' 글 제목을 모두 가져온다 (중복 발행 방지용).
+    상태 파일(knowledge_state.json)이 초기화되거나 날아가도 중복이 생기지 않게 블로그 자체를 기준으로 삼는다.
+    조회에 실패하면 None을 돌려주고, 그 경우 상태 파일 기록만으로 중복을 막는다."""
+    if not BLOG_ID or not access_token:
+        return None
+    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts"
+    titles, page = [], None
+    try:
+        while True:
+            params = {"labels": "운세상식", "maxResults": 500, "fetchBodies": "false",
+                      "fields": "items(title),nextPageToken"}
+            if page:
+                params["pageToken"] = page
+            resp = requests.get(url, headers={"Authorization": f"Bearer {access_token}"}, params=params, timeout=60)
+            if resp.status_code != 200:
+                print(f"  ⚠️ 기존 글 제목 조회 실패({resp.status_code}): {resp.text[:120]}")
+                return None
+            data = resp.json()
+            titles += [it.get("title", "") for it in data.get("items", [])]
+            page = data.get("nextPageToken")
+            if not page:
+                break
+    except Exception as e:
+        print(f"  ⚠️ 기존 글 제목 조회 중 오류: {e}")
+        return None
+    return titles
+
+
+def pick_next_topic_index(state, used_norm):
+    """이미 발행된 주제를 건너뛰고 다음에 쓸 주제 인덱스를 고른다. 모두 소진되었으면 None.
+    예전처럼 처음부터 다시 순환하지 않는다 — 같은 제목이 두 번 올라가는 문제를 막기 위함."""
+    n = len(TOPICS)
+    start = state["last_index"] + 1
+    for k in range(n):
+        j = (start + k) % n
+        if _norm_title(TOPICS[j]["topic"]) not in used_norm:
+            return j
+    return None
+
+
 def load_state():
     if os.path.exists(STATE_PATH):
         with open(STATE_PATH, "r", encoding="utf-8") as f:
@@ -670,8 +747,32 @@ def run(count=1):
     n = len(TOPICS)
     success_count = 0
 
+    # 이미 발행된 제목 = 블로그에 실제로 있는 제목 + 상태 파일 기록
+    existing = fetch_existing_titles(access_token)
+    used_norm = {_norm_title(h.get("topic", "")) for h in state.get("history", [])}
+    if existing is not None:
+        used_norm |= {_norm_title(t) for t in existing}
+        seen, dups = set(), []
+        for t in existing:
+            k = _norm_title(t)
+            if k in seen:
+                dups.append(t)
+            seen.add(k)
+        print(f"📚 블로그에 이미 올라간 운세상식 글: {len(existing)}개")
+        if dups:
+            print("⚠️ 같은 제목이 2번 이상 올라간 글이 있습니다 (직접 삭제 필요): " + " / ".join(sorted(set(dups))))
+    else:
+        print("ℹ️ 블로그 기존 글 조회 실패 — 상태 파일 기록만으로 중복을 확인합니다.")
+
+    exhausted = False
+
     for i in range(count):
-        idx  = (state["last_index"] + 1) % n
+        idx = pick_next_topic_index(state, used_norm)
+        if idx is None:
+            print("🛑 TOPICS의 모든 주제가 이미 발행되었습니다. 중복 발행을 막기 위해 새 글을 만들지 않습니다. "
+                  "create_knowledge.py의 TOPICS에 새 주제를 추가해 주세요.")
+            exhausted = True
+            break
         item = TOPICS[idx]
         topic, emoji, tags = item["topic"], item["emoji"], item["tags"]
         _cp = coupang_links.get(idx, {})
@@ -681,13 +782,10 @@ def run(count=1):
         # 특정 상황(수험생 학부모/이직/신혼부부) 타겟 주제는 체크리스트형 프롬프트로
         style = "checklist" if any(t in {"합격운", "취업운", "신혼부부"} for t in tags) else "info"
 
-        cycle_note = " (주제 리스트를 모두 사용해 처음부터 다시 순환합니다)" \
-            if idx == 0 and state["last_index"] != -1 else ""
-        print(f"[{i+1}/{count}] 주제 #{idx}: {topic}{cycle_note}")
+        print(f"[{i+1}/{count}] 주제 #{idx}: {topic}  (남은 새 주제 {sum(1 for x in TOPICS if _norm_title(x['topic']) not in used_norm)}개)")
 
-        # 주제가 한 바퀴 돌아 다시 나올 때는 다른 관점으로 쓰게 한다 (v7.6 22.7)
-        cycle_no    = len(state.get("history", [])) // n
-        perspective = PERSPECTIVES[(idx + cycle_no) % len(PERSPECTIVES)]
+        # 글마다 관점을 바꿔 구성이 비슷해지지 않게 한다 (v7.6 22.7)
+        perspective = PERSPECTIVES[idx % len(PERSPECTIVES)]
         recent_topics = [h.get("topic", "") for h in state.get("history", [])[-8:] if h.get("topic")]
         print(f"  🎯 관점: {perspective}")
 
@@ -758,6 +856,7 @@ def run(count=1):
 
         if ok:
             state["last_index"] = idx
+            used_norm.add(_norm_title(topic))
             state["next_slug_number"] = slug_number + 1  # 발행 성공 시에만 다음 번호로 갱신
             state["history"].append({
                 "index":     idx,
@@ -776,7 +875,7 @@ def run(count=1):
         if i < count - 1:
             time.sleep(5)  # Gemini + Blogger 쿼터 보호
 
-    return success_count
+    return success_count, exhausted
 
 
 def main():
@@ -786,7 +885,11 @@ def main():
     args = parser.parse_args()
 
     print(f"🚀 운세상식 생성 시작 — {args.count}개")
-    success_count = run(args.count)
+    success_count, exhausted = run(args.count)
+
+    if success_count == 0 and exhausted:
+        print("ℹ️ 발행할 새 주제가 없어 이번 실행은 아무것도 하지 않고 종료합니다.")
+        return
 
     if success_count == 0:
         # 한 개도 성공 못 했으면 실패로 종료 — 이후 git commit 단계가 애매하게
