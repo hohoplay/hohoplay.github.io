@@ -322,13 +322,54 @@ def _clean_model_text(text):
     return text
 
 
-def _call_gemini(prompt):
-    """모델 후보를 차례로 시도해 텍스트 한 덩어리를 돌려준다. 전부 실패하면 RuntimeError."""
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    cfg = types.GenerateContentConfig(max_output_tokens=MAX_OUT_TOKENS, temperature=0.8)
-    last_err = None
+def _is_transient(err):
+    """503(과부하)·429(쿼터)·5xx·연결 끊김·타임아웃은 잠시 뒤 같은 모델로 다시 시도할 가치가 있다.
+    404(모델 없음)·400(요청 오류)은 재시도해도 소용없으니 바로 다음 모델로 넘어간다."""
+    code = getattr(err, "code", None)
+    if isinstance(code, int):
+        return code in (429, 500, 502, 503, 504)
+    msg = str(err).lower()
+    return any(k in msg for k in ("503", "unavailable", "disconnected", "timed out", "timeout",
+                                  "429", "resource_exhausted", "deadline", "connection", "overloaded"))
 
-    for model_name in GEMINI_MODEL_CANDIDATES:
+
+def _make_client():
+    # 응답 없이 오래 매달리는 경우(지난 실행에서 4분 44초 소요)를 막기 위해 호출당 120초 제한.
+    try:
+        return genai.Client(api_key=GEMINI_API_KEY, http_options=types.HttpOptions(timeout=120_000))
+    except Exception:
+        return genai.Client(api_key=GEMINI_API_KEY)
+
+
+def _discover_models(client, already_tried):
+    """고정 후보가 전부 막혔을 때 — 지금 계정에서 실제로 쓸 수 있는 flash 계열 모델을 조회해 대체 후보로 쓴다.
+    (모델 이름이 예고 없이 바뀌어 404가 나는 경우 대비)"""
+    found = []
+    try:
+        for m in client.models.list():
+            name = (getattr(m, "name", "") or "").replace("models/", "")
+            actions = getattr(m, "supported_actions", None) or []
+            if "flash" not in name:
+                continue
+            if any(x in name for x in ("image", "tts", "live", "audio", "embedding", "robotics", "computer", "thinking-exp")):
+                continue
+            if actions and "generateContent" not in actions:
+                continue
+            if name in already_tried:
+                continue
+            found.append(name)
+    except Exception as e:
+        print(f"  ⚠️ 사용 가능 모델 조회 실패: {e}")
+        return []
+    # 안정판(preview/exp 아닌 것)을 앞으로, 이름이 긴 순서 대신 단순 정렬
+    found.sort(key=lambda n: (("preview" in n) or ("exp" in n), n))
+    return found[:3]
+
+
+def _try_model(client, model_name, prompt, cfg, retries=3):
+    """한 모델을 최대 retries번 시도 (일시 오류일 때만 15초→45초 간격으로 재시도). 성공 시 텍스트, 실패 시 예외."""
+    last_err = None
+    for n in range(1, retries + 1):
         try:
             resp = client.models.generate_content(model=model_name, contents=prompt, config=cfg)
             text = _clean_model_text(resp.text)
@@ -336,7 +377,39 @@ def _call_gemini(prompt):
                 raise ValueError("빈 응답")
             return text
         except Exception as e:
-            print(f"  ⚠️ 모델 '{model_name}' 실패: {e} — 다음 후보로 재시도합니다.")
+            last_err = e
+            if _is_transient(e) and n < retries:
+                wait = 15 if n == 1 else 45
+                print(f"  ⏳ 모델 '{model_name}' 일시 오류({n}/{retries}): {str(e)[:120]} — {wait}초 뒤 재시도")
+                time.sleep(wait)
+                continue
+            break
+    raise last_err
+
+
+def _call_gemini(prompt):
+    """모델 후보를 차례로 시도해 텍스트 한 덩어리를 돌려준다.
+    일시 오류(503 등)는 같은 모델로 재시도하고, 고정 후보가 전부 실패하면 사용 가능한 flash 모델을 조회해 추가 시도한다.
+    전부 실패하면 RuntimeError."""
+    client = _make_client()
+    cfg = types.GenerateContentConfig(max_output_tokens=MAX_OUT_TOKENS, temperature=0.8)
+    last_err = None
+    tried = []
+
+    for model_name in GEMINI_MODEL_CANDIDATES:
+        tried.append(model_name)
+        try:
+            return _try_model(client, model_name, prompt, cfg)
+        except Exception as e:
+            print(f"  ⚠️ 모델 '{model_name}' 실패: {str(e)[:200]} — 다음 후보로 재시도합니다.")
+            last_err = e
+
+    for model_name in _discover_models(client, tried):
+        print(f"  🔎 조회로 찾은 대체 모델 시도: {model_name}")
+        try:
+            return _try_model(client, model_name, prompt, cfg, retries=2)
+        except Exception as e:
+            print(f"  ⚠️ 모델 '{model_name}' 실패: {str(e)[:200]}")
             last_err = e
 
     raise RuntimeError(f"모든 Gemini 모델 후보가 실패했습니다. 마지막 에러: {last_err}")
