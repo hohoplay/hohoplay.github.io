@@ -1435,7 +1435,9 @@ def get_next_month_str():
                     if _date(t.year, t.month, d).weekday() == 0)
     force = os.environ.get("FORCE_MONTHLY","false").lower() == "true"
     # 마지막주 월요일 or 강제 → 다음달 (유일한 발행 트리거)
-    if t.day == _last_mon or force:
+    # 2026-11-02: 발행일을 '마지막 월요일' → '마지막 월요일 전날(일요일)'로 변경.
+    #  (이달 마지막 월요일 직전 일요일, 다음 주가 오기 전에 다음달 운세를 올린다)
+    if t.day in (_last_mon - 1, _last_mon) or force:
         nm = t.month % 12 + 1
         ny = t.year + (1 if t.month == 12 else 0)
         return f"{ny}년 {nm:02d}월"
@@ -3704,6 +3706,10 @@ def build_zodiac_weekly_post(today_str, combine=False):
         ref_date = datetime.strptime(today_str, "%Y년 %m월 %d일").date()
     except (ValueError, TypeError):
         ref_date = now_kst().date()
+    # 2026-11-02: 별자리 주간운세는 토요일에 '다가오는 한 주(다음 월~일)' 기준으로 발행한다.
+    #  토·일에 실행되면 다음 주 월요일을 기준일로 삼고, 월~금 실행(FORCE_DATE 수동 포함)은 기존처럼 그 주 기준.
+    if ref_date.weekday() >= 5:
+        ref_date = ref_date + timedelta(days=7 - ref_date.weekday())
     dow        = ref_date.weekday()
     mon_date   = ref_date - timedelta(days=dow)
     sun_date   = mon_date + timedelta(days=6)
@@ -6089,9 +6095,14 @@ def main():
         print(f"\n✅ 완료: {success}/{total}개 게시 성공")
         return
 
-    # ① 오늘의 명언 — 매일 1개 (2026-10-21: 주 1회(월요일)에서 매일 발행으로 변경)
-    posts.append(build_quote_post(today_str))
-    print("💬 오늘의 명언 포함 (매일)")
+    # ① 오늘의 명언 — 매주 월요일 1개 (2026-11-02: 매일 → 주 1회 월요일로 변경)
+    #    수동으로 다른 요일에 올리려면 Actions의 force_quote(FORCE_QUOTE_ONLY)로 단독 발행.
+    quote_today = (kst_now.weekday() == 0)
+    if quote_today:
+        posts.append(build_quote_post(today_str))
+        print("💬 오늘의 명언 포함 (월요일)")
+    else:
+        print("💬 오늘의 명언 스킵 (월요일 아님)")
 
     # ② 별자리 운세 12개 — 2026-10-04: 구글 블로그(Blogger) 발행은 중단하고,
     #    build_zodiac_post() 호출 자체는 그대로 유지한다. 이 함수 안에서 오늘의
@@ -6130,32 +6141,37 @@ def main():
         d for d in range(1, _last_day + 1)
         if _date2(kst_now.year, kst_now.month, d).weekday() == 0
     )
-    is_last_monday = (kst_now.day == _last_monday)
+    # 2026-11-02: 띠별월간은 '마지막 월요일 전날(일요일)'에 발행 (다음 주가 오기 전에 다음달 운세)
+    is_last_monday = (kst_now.day == _last_monday - 1)
 
-    # ④ 별자리 주간운세 — 매주 월요일만 (force_weekly는 위에서 단독 처리됨)
-    if kst_now.weekday() == 0:
+    # ④ 별자리 주간운세 — 매주 토요일 (다음 주 월~일 기준으로 미리 발행. force_weekly는 위에서 단독 처리됨)
+    weekly_today = (kst_now.weekday() == 5)
+    if weekly_today:
         posts.extend(build_zodiac_weekly_post(today_str, combine=True))
-        print(f"📅 별자리 주간운세 통합 1개 포함 (월요일)")
+        print(f"📅 별자리 주간운세 통합 1개 포함 (토요일 — 다음 주 기준)")
     else:
-        print("📅 주간운세 스킵 (월요일 아님)")
+        print("📅 주간운세 스킵 (토요일 아님)")
 
     # ⑤ 띠별 월간운세
-    # - 매월 마지막주 월요일: 다음달 운세 미리 발행 (월 1회만 — 1일 중복 발행 트리거 제거)
+    # - 매월 마지막 월요일 전날(일요일): 다음달 운세 미리 발행 (월 1회만)
     # - FORCE_MONTHLY=true: 강제 발행
     if is_last_monday or force_monthly:
         posts.extend(build_chinese_monthly_post(today_str, combine=True))
-        label = "마지막주 월요일 다음달 발행" if is_last_monday else "강제 포함"
+        label = "마지막 월요일 전날(일요일) 다음달 발행" if is_last_monday else "강제 포함"
         print(f"📅 띠별 월간운세 통합 1개 포함 ({label})")
     else:
         print("📅 월간운세 스킵")
 
     total = len(posts)
-    quote   = "오늘의명언 1 + "
-    weekly  = "별자리주간 1(12별자리 통합) + " if kst_now.weekday() == 0 else ""
+    quote   = "오늘의명언 1 + " if quote_today else ""
+    weekly  = "별자리주간 1(12별자리 통합) + " if weekly_today else ""
     monthly = "띠별월간 1(12띠 통합) + "   if (is_last_monday or force_monthly) else ""
     print(f"\n🌟 {today_str} 운세 포스팅 시작 — 총 {total}개\n")
     omni    = "별과띠가만나는시간 1 + " if omnibus_today else ""
-    print(f"구성: {quote}{omni}{weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
+    if total == 0:
+        print("구성: 오늘은 발행할 글이 없는 날입니다 (샵콜용 fortune_feed.json만 갱신) = 0개\n")
+    else:
+        print(f"구성: {quote}{omni}{weekly}{monthly}".rstrip(" + ") + f" = {total}개\n")
     print("ℹ️  별자리운세·띠운세 개별 12개씩은 2026-10-04부터 Blogger 발행 중단(샵콜 전용 운영) — "
           "fortune_feed.json용 계산만 수행하고 블로그에는 올리지 않음\n")
 
