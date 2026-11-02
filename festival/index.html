@@ -1708,6 +1708,7 @@
             };
         });
         festivalData = festivals.concat(kidsTagged).concat(adsTagged);
+        const finishInit = function () {
         // [ADD] 2026-10-16: 메인 사이트 통합 검색(encyclopedia_index.json)의 "서울/부산/..."
         // 코너 항목들이 /festival/?region=xxx&course=1 형태로 링크하고 있었는데, 정작 이
         // 페이지는 그 쿼리파라미터를 읽어서 적용하는 코드가 없어서 그동안 눌러도 그냥
@@ -1762,6 +1763,18 @@
         // <head>에서 CSS로 숨겨뒀던 정적 목록 대신 지금 막 그려진 내용(코스 카드 등)이
         // 바로 보이게 한다.
         document.documentElement.classList.remove('js-loading');
+        };
+        // [ADD] 2026-11-02: 행사시간(playTime)이 비어 있고 아직 안 끝난 축제는 상세 페이지의 "프로그램" 문구에서
+        // 열리는 요일을 읽어 와야 코스가 맞게 나온다(몇 건뿐이라 동시에 읽고, 1.2초가 지나면 그냥 진행).
+        const todayForDay = ctKstTodayStr();
+        const dayFetches = festivalData.filter(function (it) {
+            return it.type === 'festival' && !it.playTime && it.endDate && it.endDate >= todayForDay;
+        }).slice(0, 30).map(fetchFestivalDayText);
+        if (dayFetches.length) {
+            Promise.race([Promise.all(dayFetches), new Promise(function (r) { setTimeout(r, 1200); })]).then(finishInit, finishInit);
+        } else {
+            finishInit();
+        }
     });
 
     // [성능] 필터를 바꿀 때마다 마커를 전부 새로 만들면(생성 + 이벤트 등록), 데이터가
@@ -2581,6 +2594,63 @@
     const CT_RE_P4 = new RegExp('^\\s*(' + CT_D + ')\\s*~\\s*(' + CT_D + ')\\s*(?:요일)?\\s*\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}\\s*(?:\\([^)]*\\))?\\s*$');
     const CT_DAYS = '월화수목금토일';
 
+    // [ADD] 2026-11-02: "매주 토요일에만 열리는 축제"(예: 달밤에체조 부산 챌린지)가 평일 코스에도 들어가던 문제.
+    // 축제는 시작·종료일만 보고 그날 열리는지 판단해서, 기간(9/19~11/7) 안이면 화요일 코스에도 나왔다.
+    // 행사시간(playTime) 문구에 "매주 토, 일 14:00"처럼 열리는 요일이 적혀 있으면 그 요일에만 코스에 넣는다.
+    // playTime이 비어 있는 축제는 상세 페이지의 "프로그램" 문구("매주 토요일…", "09.19.(토), 09.26.(토)…")에서 읽는다.
+    // 요일을 읽을 수 없으면(평일/주말/매일 등 애매한 문구 포함) 지금까지처럼 기간만 본다 — 지어내지 않는다.
+    function ctExpandDayRange(a, b) {
+        const i = CT_DAYS.indexOf(a), j = CT_DAYS.indexOf(b), out = [];
+        if (i < 0 || j < 0) return out;
+        let k = i;
+        for (let n = 0; n < 7; n++) {
+            out.push(CT_DAYS.charAt(k));
+            if (k === j) break;
+            k = (k + 1) % 7;
+        }
+        return out;
+    }
+    // 열리는 요일만 돌려준다(예: ['토']). 읽을 수 없으면 null.
+    function openOnlyDaysFromText(text) {
+        const t = String(text || '').replace(/<[^>]*>/g, ' ');
+        if (!t.trim()) return null;
+        if (/평일|주말|매일|연중|상시|공휴일/.test(t)) return null;
+        const found = {};
+        const re = /매주\s*((?:[월화수목금토일]\s*요일|[월화수목금토일])(?:\s*(?:[·,\/~]|및|와|과)\s*(?:[월화수목금토일]\s*요일|[월화수목금토일]))*)/g;
+        let m;
+        while ((m = re.exec(t)) !== null) {
+            const after = t.slice(m.index + m[0].length, m.index + m[0].length + 14);
+            if (/^\s*(?:은|는|에는)?\s*(?:정기\s*)?(?:휴관|휴무|쉽|쉬|공연\s*없|운영\s*안)/.test(after)) continue;   // "매주 월요일 휴무"는 쉬는 요일
+            const g = m[1].replace(/요일/g, '');
+            if (g.indexOf('~') >= 0) {
+                const parts = g.split('~');
+                ctExpandDayRange(parts[0].trim().slice(-1), parts[1].trim().charAt(0)).forEach(function (d) { found[d] = true; });
+            } else {
+                for (let i = 0; i < g.length; i++) if (CT_DAYS.indexOf(g.charAt(i)) >= 0) found[g.charAt(i)] = true;
+            }
+        }
+        // 날짜가 요일과 함께 나열된 경우("09.19.(토), 09.26.(토)")는 두 번 이상 나오고 요일이 모두 같을 때만 쓴다.
+        const dre = /(\d{1,2})\s*\.\s*(\d{1,2})\s*\.?\s*\(\s*([월화수목금토일])\s*\)/g;
+        const dl = [];
+        while ((m = dre.exec(t)) !== null) dl.push(m[3]);
+        if (dl.length >= 2 && dl.every(function (d) { return d === dl[0]; })) found[dl[0]] = true;
+        const days = CT_DAYS.split('').filter(function (d) { return found[d]; });
+        return days.length ? days : null;
+    }
+    // playTime이 비어 있는 축제의 상세 페이지 "프로그램" 문구(페이지를 열 때 몇 건만 읽어 둔다).
+    const festivalDayTextExtra = {};
+    function getFestivalDayText(item) {
+        return (item && item.playTime) || festivalDayTextExtra[String((item && item.contentid) || '')] || '';
+    }
+    function fetchFestivalDayText(item) {
+        const cid = String(item.contentid || '');
+        if (!/^\d+$/.test(cid)) return Promise.resolve();
+        return fetch('/festival/detail/' + cid + '.html').then(function (r) { return r.ok ? r.text() : ''; }).then(function (html) {
+            const m = /프로그램<\/div>\s*<div[^>]*>([\s\S]*?)<\/div>/.exec(html || '');
+            if (m) festivalDayTextExtra[cid] = m[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        }).catch(function () { /* 못 읽으면 기간만 본다 */ });
+    }
+
     function ctDaysOf(s) {
         const out = [];
         const clean = String(s).replace(/요일/g, '');   // '월요일'의 '일'을 요일 '일'로 읽지 않도록 먼저 지운다
@@ -2988,6 +3058,14 @@
                 // 그날 열려 있는 축제만 (그날 "시작"하는 축제만이 아니라 진행 중인 것 전부)
                 if (!item.startDate || !item.endDate) return false;
                 if (!(item.startDate <= dateStr && dateStr <= item.endDate)) return false;
+                // [ADD] 2026-11-02: 열리는 요일이 정해진 축제는 그 요일에만(위 openOnlyDaysFromText 참고)
+                const dayTxt = getFestivalDayText(item);
+                if (dayTxt) {
+                    const cdF = closedDaysFromHours(dayTxt);
+                    if (cdF.known && cdF.closed.indexOf(dowChar) >= 0) return false;
+                    const onlyDays = openOnlyDaysFromText(dayTxt);
+                    if (onlyDays && onlyDays.indexOf(dowChar) < 0) return false;
+                }
             }
             // 오늘이라면 이미 문 닫은 곳은 뺀다(운영시간을 읽은 경우만 판단).
             if (isToday) {
