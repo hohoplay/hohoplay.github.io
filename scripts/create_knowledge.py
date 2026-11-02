@@ -423,6 +423,52 @@ def count_chars(html_text):
     return len(re.sub(r"\s+", "", t))
 
 
+_DISCLAIMERS = [
+    "운세와 풍수는 재미로 참고하는 전통 문화 정보이니, 실제 결정은 본인의 판단으로 내려 주세요.",
+    "재미 삼아 참고하는 이야기일 뿐이므로, 중요한 선택은 스스로 판단해 정하시기 바랍니다.",
+    "이 글은 재미와 참고를 위한 전통 문화 소개이며, 현실의 결정은 본인의 상황과 판단이 우선입니다.",
+    "가볍게 재미로 즐기는 정보로 두고, 실제 결정은 본인의 판단으로 하세요.",
+]
+_CLOSING_FALLBACKS = [
+    "오늘 알게 된 내용 중 마음에 남는 한 가지를 가볍게 생활에 적용해 보세요.",
+    "이 글에서 눈에 띈 부분 하나만 골라 오늘 바로 시험해 보세요.",
+]
+# 모델이 자꾸 쓰는 표현 중 기계적으로 안전하게 바꿀 수 있는 것
+_REPLACE_MAP = [
+    ("다양한", "여러"),
+    ("효과적인", "도움이 되는"),
+    ("결론적으로, ", ""),
+    ("결론적으로 ", ""),
+    ("마무리하며, ", ""),
+    ("마무리하며 ", ""),
+]
+
+
+def autofix_html(html_text):
+    """모델이 자주 빠뜨리는 부분을 코드로 보정한다 — 다시 생성(1분 이상)하는 것보다 안정적이다.
+    1) 피해야 할 표현 치환  2) '마무리' 섹션 없으면 추가  3) 안내 문구('재미…') 없으면 마지막 문단에 덧붙임.
+    글이 중간에 잘린 경우(마지막이 태그로 끝나지 않음)에는 보정하지 않고 그대로 둔다(검증에서 걸러짐)."""
+    import random
+    t = html_text
+    if not t.rstrip().endswith(">"):
+        return t
+    for old, new in _REPLACE_MAP:
+        t = t.replace(old, new)
+
+    if not re.search(r"<h2[^>]*>\s*마무리", t):
+        t = t.rstrip() + "\n<h2>마무리</h2>\n<p>" + random.choice(_CLOSING_FALLBACKS) + "</p>"
+
+    plain = _html.unescape(re.sub(r"<[^>]+>", "", t))
+    if "재미" not in plain:
+        k = t.rfind("</p>")
+        sentence = " " + random.choice(_DISCLAIMERS)
+        if k != -1:
+            t = t[:k] + sentence + t[k:]
+        else:
+            t = t.rstrip() + "<p>" + random.choice(_DISCLAIMERS) + "</p>"
+    return t
+
+
 def validate_html(html_text):
     """(hard, soft) 문제 목록을 돌려준다.
     hard = 이대로는 발행하면 안 되는 문제, soft = 재시도 여유가 있을 때만 고치게 하는 문제."""
@@ -455,8 +501,8 @@ def validate_html(html_text):
         hard.append("금지 표현 포함: " + ", ".join(found))
 
     h2_n = len(re.findall(r"<h2\b", html_text, flags=re.I))
-    if not (6 <= h2_n <= 7):
-        soft.append(f"<h2>가 {h2_n}개입니다 (본문 4~5개 + 자주 묻는 질문 + 마무리 = 6~7개여야 함)")
+    if not (5 <= h2_n <= 8):
+        soft.append(f"<h2>가 {h2_n}개입니다 (본문 3~5개 + 자주 묻는 질문 + 마무리)")
 
     found_soft = [w for w in _BANNED_SOFT if w in plain]
     if found_soft:
@@ -465,7 +511,7 @@ def validate_html(html_text):
     if "##" in html_text or "**" in html_text:
         soft.append("마크다운 기호(##, **)가 남아 있습니다")
 
-    if chars > 3600:
+    if chars > 4200:
         soft.append(f"글이 너무 깁니다 ({chars}자) — 3,000자 안팎으로 줄이세요")
 
     return hard, soft
@@ -498,31 +544,35 @@ def generate_knowledge_html(topic, style="info", perspective="기본 개념 정�
     best = None  # hard 문제는 있어도 가장 글이 긴 후보 (보충 섹션용)
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
-        text = _call_gemini(prompt)
+        text = autofix_html(_call_gemini(prompt))
         hard, soft = validate_html(text)
         chars = count_chars(text)
         print(f"  📏 시도 {attempt}/{MAX_ATTEMPTS}: {chars}자 · "
               f"hard {len(hard)} / soft {len(soft)}")
 
+        if not hard:
+            # hard 문제가 없으면 발행 가능. 사소한 문체 문제(soft)는 기록만 하고 재생성하지 않는다
+            # (재생성은 1분 이상 걸리고 오히려 글이 길어지거나 다른 문제가 생기는 경우가 많았다).
+            if soft:
+                print("  ℹ️ 사소한 문제는 있지만 발행 가능: " + "; ".join(soft))
+            return text
+
         if best is None or chars > count_chars(best):
             best = text
 
-        if not hard and not soft:
-            return text
-        if not hard and attempt == MAX_ATTEMPTS:
-            print("  ℹ️ 사소한 문체 문제만 남았지만 마지막 시도라 그대로 사용합니다: " + "; ".join(soft))
-            return text
-
-        problems = hard + soft
-        for pmsg in problems:
+        for pmsg in hard:
             print(f"     - {pmsg}")
         if attempt < MAX_ATTEMPTS:
+            if chars < MIN_CHARS:
+                size_note = (f"현재 {chars}자로 부족합니다. 공백·태그 제외 {MIN_CHARS}자 이상(2,300~2,800자 목표)이 되도록 "
+                             "H2 섹션과 FAQ 답변에 구체적인 설명을 추가하세요.")
+            else:
+                size_note = f"분량은 현재 {chars}자입니다. 2,300~2,800자를 유지하고 늘리지 마세요."
             prompt = (base_prompt
                       + "\n\n[직전 결과의 문제점 — 반드시 고쳐서 처음부터 다시 작성하세요]\n- "
-                      + "\n- ".join(problems)
+                      + "\n- ".join(hard)
                       + "\n\n[직전 결과 (참고용)]\n" + text
-                      + f"\n\n위 문제를 모두 해결하고 공백·태그 제외 {MIN_CHARS}자 이상이 되도록 H2 섹션과 FAQ 답변에 "
-                        "구체적인 설명을 추가해 전체 글을 다시 출력하세요.")
+                      + "\n\n위 문제를 모두 해결해 전체 글을 다시 출력하세요. " + size_note)
             time.sleep(2)
 
     # 재생성으로도 기준 미달 — 글자 수만 모자란 경우에 한해 보충 섹션 시도
