@@ -3695,6 +3695,263 @@ def _zodiac_weekly_title_keyword(total, money, health, love):
     return random.choice(_W_TITLE_TOTAL)
 
 
+# ─────────────────────────────────────────
+# 하늘의 움직임(천문 근거) 블록 — 2026-11-02 추가
+#  "왜 이번 주/이번 달에 이런 흐름인가"를 보여 주기 위해, 절기·달의 위상·수성 역행·행성의 별자리 이동을
+#  천체력(ephem) 계산으로 구해 글에 싣는다. 날짜·위치는 계산값(한국 시간 기준)이고, 풀이 문장은 점성술·전통 해석이다.
+#  ephem이 없으면 pip로 설치를 시도하고, 그래도 안 되면 블록만 조용히 생략한다(글 발행은 영향 없음).
+# ─────────────────────────────────────────
+_EPHEM = None   # None=미확인, False=사용 불가, 모듈=사용 가능
+
+def _sky_lib():
+    global _EPHEM
+    if _EPHEM is not None:
+        return _EPHEM
+    try:
+        import ephem as _e
+        _EPHEM = _e
+        return _EPHEM
+    except Exception:
+        pass
+    try:
+        import subprocess, sys
+        for extra in ([], ["--break-system-packages"]):
+            r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", "ephem"] + extra,
+                               capture_output=True, timeout=180)
+            if r.returncode == 0:
+                break
+        import ephem as _e
+        _EPHEM = _e
+    except Exception as ex:
+        print(f"⚠️ 천문 계산 라이브러리(ephem)를 사용할 수 없어 '하늘의 움직임' 블록을 생략합니다: {ex}")
+        _EPHEM = False
+    return _EPHEM
+
+
+_SKY_SIGNS = ["양자리", "황소자리", "쌍둥이자리", "게자리", "사자자리", "처녀자리",
+              "천칭자리", "전갈자리", "사수자리", "염소자리", "물병자리", "물고기자리"]
+_SKY_ELEMENT = {  # 별자리 → 원소
+    "양자리": "불", "사자자리": "불", "사수자리": "불",
+    "황소자리": "흙", "처녀자리": "흙", "염소자리": "흙",
+    "쌍둥이자리": "공기", "천칭자리": "공기", "물병자리": "공기",
+    "게자리": "물", "전갈자리": "물", "물고기자리": "물",
+}
+_SKY_TERMS = {  # 태양 황경 → (절기, 뜻)
+    315: ("입춘", "봄이 시작되는 절기"), 330: ("우수", "눈이 비로 바뀌고 얼음이 녹기 시작하는 절기"),
+    345: ("경칩", "겨울잠 자던 동물이 깨어난다고 하는 절기"), 0: ("춘분", "낮과 밤의 길이가 거의 같아지는 절기"),
+    15: ("청명", "하늘이 맑고 따뜻해지는 절기"), 30: ("곡우", "봄비가 내려 곡식을 키운다는 절기"),
+    45: ("입하", "여름이 시작되는 절기"), 60: ("소만", "만물이 점점 자라 가득 찬다는 절기"),
+    75: ("망종", "보리를 거두고 모를 심던 시기의 절기"), 90: ("하지", "북반구에서 낮이 가장 긴 절기"),
+    105: ("소서", "본격적인 더위가 시작되는 절기"), 120: ("대서", "한여름 더위가 가장 심하다는 절기"),
+    135: ("입추", "가을이 시작되는 절기"), 150: ("처서", "더위가 물러가고 일교차가 커지는 절기"),
+    165: ("백로", "풀잎에 이슬이 맺히기 시작하는 절기"), 180: ("추분", "낮과 밤의 길이가 거의 같아지는 절기"),
+    195: ("한로", "찬 이슬이 맺히는 절기"), 210: ("상강", "서리가 내리기 시작하는 절기"),
+    225: ("입동", "겨울이 시작되는 절기"), 240: ("소설", "첫눈이 내릴 무렵이라는 절기"),
+    255: ("대설", "눈이 많이 내리는 시기라는 절기"), 270: ("동지", "북반구에서 밤이 가장 긴 절기"),
+    285: ("소한", "본격적인 추위가 시작되는 절기"), 300: ("대한", "겨울 추위가 가장 심하다는 절기"),
+}
+_SKY_PLANET_KR = {"Mercury": "수성", "Venus": "금성", "Mars": "화성", "Jupiter": "목성", "Saturn": "토성"}
+_SKY_PLANET_MEAN = {"수성": "소통·이동·계약", "금성": "관계·취향·소비", "화성": "행동력·추진력",
+                    "목성": "확장·기회", "토성": "책임·구조"}
+_SKY_ELEM_FLAVOR = {
+    "불": "솔직하고 적극적인", "흙": "현실적이고 안정을 따지는",
+    "공기": "가볍고 대화 중심인", "물": "감성적이고 깊이 헤아리는",
+}
+_SKY_MOON_NAMES = {"new": "신월(삭)", "first": "상현달", "full": "보름달(만월)", "last": "하현달"}
+_SKY_MOON_MEAN = {
+    "new":   ["점성술에서는 신월을 새 계획을 세우고 마음을 정리하기 좋은 시점으로 해석합니다.",
+              "전통적으로 달이 새로 시작되는 시점이라, 목표를 적어 보기에 알맞은 때로 여겼습니다."],
+    "first": ["달이 차오르며 추진력이 붙는 시기로 해석합니다. 미뤄 둔 일을 실행으로 옮기기 좋다고 봅니다.",
+              "점성술에서는 상현을 결정과 행동에 힘이 실리는 때로 봅니다."],
+    "full":  ["점성술에서는 보름달 무렵 감정과 관계가 선명해지고, 그동안의 일이 결과로 드러난다고 해석합니다.",
+              "보름달은 마음이 들뜨기 쉬운 때로 전해져, 큰 결정은 하루 이틀 두고 보는 편이 좋다고 봅니다."],
+    "last":  ["점성술에서는 하현을 정리하고 내려놓기 좋은 시기로 해석합니다.",
+              "달이 줄어드는 때라 불필요한 것을 덜어내기에 알맞다고 봅니다."],
+}
+
+
+def _sky_deg(x):
+    import math
+    return math.degrees(x) % 360
+
+
+def _sky_ecl_lon(body_cls, dt_utc):
+    e = _sky_lib()
+    b = body_cls()
+    b.compute(dt_utc, epoch=dt_utc)
+    return _sky_deg(e.Ecliptic(b).lon)
+
+
+def _sky_kst_noon_utc(d):
+    from datetime import datetime as _dt
+    return _dt(d.year, d.month, d.day, 3, 0, 0)     # 정오 KST = 03:00 UTC
+
+
+def _sky_utc_to_kst_date(dt_utc):
+    from datetime import timedelta as _td
+    return (dt_utc + _td(hours=9)).date()
+
+
+def sky_events(start, end):
+    """start~end(포함, KST 날짜)에 일어나는 천문 이벤트와 기간 초의 상태를 계산해 돌려준다."""
+    from datetime import datetime as _dt, timedelta as _td
+    e = _sky_lib()
+    if not e:
+        return None
+    ev = {"terms": [], "moon": [], "sun_sign": [], "stations": [], "ingress": [], "retro_start": [], "retro_end": [],
+          "moon_sign_start": None}
+    t0 = _dt(start.year, start.month, start.day) - _td(hours=9)          # 시작일 00:00 KST (UTC)
+    t1 = _dt(end.year, end.month, end.day) + _td(hours=15)               # 종료일 24:00 KST (UTC)
+
+    # 절기 · 태양의 별자리 이동 (1시간 간격 스캔)
+    t = t0
+    prev = _sky_ecl_lon(e.Sun, t)
+    while t < t1:
+        nxt = t + _td(hours=1)
+        cur = _sky_ecl_lon(e.Sun, nxt)
+        for deg in range(0, 360, 15):
+            if ((prev - deg + 180) % 360 - 180) < 0 <= ((cur - deg + 180) % 360 - 180):
+                d = _sky_utc_to_kst_date(nxt)
+                name, mean = _SKY_TERMS[deg]
+                ev["terms"].append((d, name, mean))
+                if deg % 30 == 0:
+                    ev["sun_sign"].append((d, _SKY_SIGNS[(deg // 30) % 12]))
+        prev, t = cur, nxt
+
+    # 달의 위상 (+ 그때 달이 머무는 별자리)
+    for key, fn in (("new", e.next_new_moon), ("first", e.next_first_quarter_moon),
+                    ("full", e.next_full_moon), ("last", e.next_last_quarter_moon)):
+        d = e.Date(t0 - _td(days=1))
+        while True:
+            d = fn(d)
+            dt = d.datetime()
+            if dt >= t1:
+                break
+            if dt >= t0:
+                sign = _SKY_SIGNS[int(_sky_ecl_lon(e.Moon, dt) // 30) % 12]
+                ev["moon"].append((_sky_utc_to_kst_date(dt), key, sign))
+            d = e.Date(d + 0.5)
+    ev["moon"].sort()
+
+    # 기간 초 달의 별자리
+    ev["moon_sign_start"] = _SKY_SIGNS[int(_sky_ecl_lon(e.Moon, _sky_kst_noon_utc(start)) // 30) % 12]
+
+    # 행성: 별자리 이동(입성) · 방향 전환(station) · 기간 초/말 역행 여부 (하루 단위)
+    day = start
+    prev_sign, prev_dir = {}, {}
+    for name in ("Mercury", "Venus", "Mars", "Jupiter", "Saturn"):
+        cls = getattr(e, name)
+        l0 = _sky_ecl_lon(cls, _sky_kst_noon_utc(start))
+        l1 = _sky_ecl_lon(cls, _sky_kst_noon_utc(start) + _td(days=1))
+        prev_sign[name] = int(l0 // 30)
+        prev_dir[name] = (((l1 - l0) + 180) % 360 - 180) < 0       # True=역행
+        if prev_dir[name]:
+            ev["retro_start"].append(_SKY_PLANET_KR[name])
+    d = start
+    while d <= end:
+        noon = _sky_kst_noon_utc(d)
+        for name in ("Mercury", "Venus", "Mars", "Jupiter", "Saturn"):
+            cls = getattr(e, name)
+            a = _sky_ecl_lon(cls, noon)
+            b = _sky_ecl_lon(cls, noon + _td(days=1))
+            retro = (((b - a) + 180) % 360 - 180) < 0
+            sign_i = int(a // 30)
+            if d > start:
+                if sign_i != prev_sign[name] and name in ("Mercury", "Venus", "Mars"):
+                    ev["ingress"].append((d, _SKY_PLANET_KR[name], _SKY_SIGNS[sign_i]))
+                if retro != prev_dir[name] and name in ("Mercury", "Venus", "Mars"):
+                    ev["stations"].append((d, _SKY_PLANET_KR[name], "역행 시작" if retro else "순행 복귀"))
+            prev_sign[name], prev_dir[name] = sign_i, retro
+        d += _td(days=1)
+    for name in ("Mercury", "Venus", "Mars", "Jupiter", "Saturn"):
+        if prev_dir[name]:
+            ev["retro_end"].append(_SKY_PLANET_KR[name])
+    return ev
+
+
+def _sky_md(d):
+    return f"{d.month}월 {d.day}일"
+
+
+def sky_basis_html(start, end, scope="week"):
+    """'이번 주(이번 달) 하늘의 움직임' 근거 블록(HTML). 실패하면 빈 문자열."""
+    try:
+        ev = sky_events(start, end)
+        if not ev:
+            return ""
+        seed = start.toordinal()
+        pick = lambda lst, k=0: lst[(seed + k) % len(lst)]
+        items = []   # (정렬용 날짜, html)
+
+        for d, name, mean in ev["terms"]:
+            items.append((d, f"<b>{_sky_md(d)} · {name}</b> — {mean}입니다. 계절의 마디가 바뀌는 시기라 생활 리듬을 가다듬기 좋은 때로 여겨 왔습니다."))
+        for d, sign in ev["sun_sign"]:
+            items.append((d, f"<b>{_sky_md(d)} · 태양이 {sign}로 이동</b> — 이날부터 {sign}의 계절이 시작됩니다(생일 기준 별자리 경계는 해마다 하루 안팎 달라집니다)."))
+        for k, (d, key, sign) in enumerate(ev["moon"]):
+            el = _SKY_ELEMENT[sign]
+            items.append((d, f"<b>{_sky_md(d)} · {_SKY_MOON_NAMES[key]} · {sign}</b> — {pick(_SKY_MOON_MEAN[key], k)} "
+                             f"달이 {sign}에 머무는 만큼 {sign} 분들이 이 분위기를 더 민감하게 느낄 수 있다고 봅니다."))
+        for d, pl, sign in ev["ingress"]:
+            el = _SKY_ELEMENT[sign]
+            items.append((d, f"<b>{_sky_md(d)} · {pl}이 {sign}로 이동</b> — {pl}은 {_SKY_PLANET_MEAN[pl]}을(를) 상징합니다. "
+                             f"이날부터 {_SKY_ELEM_FLAVOR[el]} 색이 더해진다고 해석합니다."))
+        for d, pl, what in ev["stations"]:
+            if pl == "수성" and what == "역행 시작":
+                txt = ("수성은 소통·이동·계약을 상징합니다. 지구에서 보기에 수성이 뒤로 걷는 듯한 겉보기 현상이며, 점성술에서는 이 기간에 "
+                       "연락 오해, 일정 변경, 서류 실수가 잦아진다고 봅니다. 중요한 계약이나 결제는 한 번 더 확인하는 편이 좋다고 전해집니다.")
+            elif pl == "수성":
+                txt = "수성이 다시 앞으로 나아가는 시점입니다. 점성술에서는 이때부터 엇갈렸던 소통과 일정이 풀리기 시작한다고 해석합니다."
+            else:
+                _mv = "뒤로 걷기 시작하는" if what == "역행 시작" else "다시 앞으로 나아가는"
+                txt = f"{pl}이 {_mv} 시점입니다. 점성술에서는 {_SKY_PLANET_MEAN[pl]} 영역의 방향이 바뀌는 때로 봅니다."
+            items.append((d, f"<b>{_sky_md(d)} · {pl} {what}</b> — {txt}"))
+        items.sort(key=lambda x: x[0])
+
+        lines = [h for _, h in items]
+
+        # 기간 전체에 걸친 상태(역행 중인 행성)
+        retro = [p for p in ev["retro_start"] if p in ("수성", "화성", "금성", "목성", "토성")]
+        retro_lines = []
+        for p in retro:
+            if p == "수성":
+                if not any(w == "역행 시작" and pl == "수성" for _, pl, w in ev["stations"]):
+                    retro_lines.append("<b>수성 역행 구간</b> — 기간 초에 이미 수성이 역행 중입니다. 점성술에서는 소통·이동·계약과 관련된 일을 "
+                                       "서두르기보다 확인하며 진행하는 시기로 해석합니다.")
+            else:
+                retro_lines.append(f"<b>{p} 역행 중</b> — 지구에서 보기에 {p}이 뒤로 가는 구간입니다. 점성술에서는 "
+                                   f"{_SKY_PLANET_MEAN[p]} 영역을 되짚고 재정비하는 흐름으로 해석합니다.")
+        lines = retro_lines + lines
+
+        if scope == "week":
+            ms = ev["moon_sign_start"]
+            lines.append(f"<b>주초(월요일) 달의 위치</b> — 달은 {ms}에 있습니다. 달은 약 2.5일마다 별자리를 옮기며, "
+                         f"그날의 감정 분위기에 색을 더한다고 해석합니다.")
+            title = "이번 주 하늘은 이렇게 움직입니다"
+            sub = f"{_sky_md(start)} ~ {_sky_md(end)}"
+        else:
+            title = "이번 달 하늘은 이렇게 움직입니다"
+            sub = f"{_sky_md(start)} ~ {_sky_md(end)}"
+            lines = lines[:12]
+
+        if not lines:
+            return ""
+        li = "".join(f'<li style="margin:0 0 .7em 0">{x}</li>' for x in lines)
+        return (
+            '<div style="max-width:660px;margin:0 auto 2em;padding:18px 18px 8px;background:#faf8ff;'
+            'border:1px solid #ddd6fe;border-radius:14px">'
+            f'<h2 style="font-size:16px;color:#4c1d95;margin:0 0 4px">🔭 {title}</h2>'
+            f'<p style="font-size:12px;color:#7c3aed;margin:0 0 12px">{sub} · 한국 시간 기준</p>'
+            f'<ul style="margin:0 0 .6em 1.1em;padding:0;font-size:14px;line-height:1.85;color:#374151;word-break:keep-all">{li}</ul>'
+            '<p style="font-size:12px;line-height:1.7;color:#6b7280;margin:.4em 0 .8em;word-break:keep-all">'
+            '※ 날짜와 천체의 위치는 천체력(ephem) 계산값입니다. 풀이는 점성술과 전통 해석이며 결과를 보장하지 않습니다. '
+            '아래 별자리별 이야기는 이 하늘의 분위기를 배경으로 읽어 보시기 바랍니다.</p>'
+            '</div>'
+        )
+    except Exception as ex:
+        print(f"⚠️ 하늘의 움직임 블록 생성 실패(생략하고 계속): {ex}")
+        return ""
+
+
 def build_zodiac_weekly_post(today_str, combine=False):
     """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성
     combine=True (2026-10-21~): 12개를 한 편의 통합 포스트 1개로 합쳐 [그 1개짜리 리스트]를 반환한다."""
@@ -3995,6 +4252,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
             f"{mon_date.year}년 {month_str} 별자리 주간운세", "12별자리 주간운세", "이번주 별자리운세"]
         tag_html_all = "".join(f'<span class="tag">{t}</span>' for t in all_tags)
         title_c = f"별자리 {week_label} 주간운세 {week_range} | 12별자리 한눈에 보기"
+        sky_html = sky_basis_html(mon_date, sun_date, "week")   # 이번 주 하늘의 움직임(근거)
         content_c = f"""{style()}
 <div class="wrap">
   <div class="hero">
@@ -4005,6 +4263,8 @@ def build_zodiac_weekly_post(today_str, combine=False):
   {post_img('weekly', "별자리 주간운세")}
 
   {intro}
+
+  {sky_html}
 
   {sections}
 
@@ -4430,6 +4690,14 @@ def build_chinese_monthly_post(today_str, combine=False):
             "띠별 월간운세", f"{month_str} 월간운세", f"{month_str} 띠별운세", "12띠 월간운세", "이달의 띠별운세"]
         tag_html_all = "".join(f'<span class="tag">{t}</span>' for t in all_tags)
         title_c = f"띠별 {month_str} 월간운세 | 12띠 한눈에 보기"
+        try:
+            import calendar as _calm
+            _mm = re.match(r"(\d{4})년\s*(\d{1,2})월", month_str)
+            _my, _mo = int(_mm.group(1)), int(_mm.group(2))
+            sky_html = sky_basis_html(date(_my, _mo, 1), date(_my, _mo, _calm.monthrange(_my, _mo)[1]), "month")
+        except Exception as _ex:
+            print(f"⚠️ 월간 하늘 블록 생략: {_ex}")
+            sky_html = ""
         content_c = f"""{style()}
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
@@ -4440,6 +4708,8 @@ def build_chinese_monthly_post(today_str, combine=False):
   {post_img('monthly', "띠별 월간운세")}
 
   {intro}
+
+  {sky_html}
 
   {sections}
 
@@ -5167,6 +5437,7 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
     closing = _OW_CLOSINGS[week_seed % len(_OW_CLOSINGS)]
     ending  = _OW_ENDINGS[week_seed % len(_OW_ENDINGS)]
     season  = _season_backdrop(datetime.combine(mon_date, datetime.min.time()))
+    sky_html = sky_basis_html(mon_date, sun_date, "week")   # 다음 주 하늘의 움직임(근거)
 
     z_names = [z['kr'] for z in ZODIACS]
     c_names = [c['kr'] for c in CHINESE]
@@ -5326,6 +5597,7 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
     <p class="novel-opening">{opening}</p>
 
     <div class="ow-body" style="font-size:14.5px;line-height:1.95;color:#374151;word-break:keep-all">
+    {sky_html}
     <h2 style="font-size:15px;color:#4c1d95;margin:0 0 .6em">한눈에 보는 이번 주 열두 가지 만남</h2>
     {table_html}
     {method_html}
