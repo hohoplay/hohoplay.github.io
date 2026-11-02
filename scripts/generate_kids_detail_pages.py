@@ -38,6 +38,7 @@ kids_places.json의 각 장소마다 /festival/detail/{contentid}.html 상세페
       쪽에도 짝을 이루는 코드를 같이 추가했다 — 둘 다 같이 배포해야 효과가 있다.
 """
 import json
+import re
 import sys
 import urllib.parse
 from pathlib import Path
@@ -136,6 +137,18 @@ def main():
         else:
             homepage_value = "정보 없음"
 
+        # [ADD] 2026-11-02: 정보 확인일 — 장소 데이터에 checkedAt("YYYY-MM")이 있을 때만 "정보 확인" 줄을 보여준다.
+        # 요금·운영시간은 자주 바뀌므로 "언제 기준인지"를 밝혀 두기 위한 것. 값이 없으면(아직 출처 날짜를
+        # 확인하지 않은 장소) 줄 자체를 넣지 않는다 — 확인하지 않은 날짜를 적지 않는다.
+        checked_row = ""
+        _m = re.match(r"^(\d{4})-(\d{2})$", str(p.get("checkedAt") or "").strip())
+        if _m:
+            checked_row = (
+                '    <div class="detail-row"><div class="detail-label">정보 확인</div><div class="detail-value">'
+                f'{int(_m.group(1))}년 {int(_m.group(2))}월 기준 · 요금·운영시간은 바뀔 수 있어 방문 전 공식 안내를 확인해 주세요'
+                '</div></div>\n'
+            )
+
         overview_text = overview or desc
         overview_html = html_escape(overview_text) if overview_text else "설명 정보가 없습니다."
 
@@ -153,6 +166,7 @@ def main():
             .replace("{{ADDR}}", html_escape(addr))
             .replace("{{FEE}}", html_escape(fee) if fee else "정보 없음")
             .replace("{{HOURS}}", html_escape(hours) if hours else "정보 없음")
+            .replace("{{CHECKED_ROW}}", checked_row)
             .replace("{{TEL_VALUE}}", tel_value)
             .replace("{{HOMEPAGE_VALUE}}", homepage_value)
             .replace("{{OVERVIEW}}", overview_html)
