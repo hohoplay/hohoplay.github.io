@@ -233,11 +233,22 @@ def build_prompt(topic, style="info"):
 
 
 # 우선순위 순서 — 맨 앞이 실패하면 다음 것을 자동으로 시도 (create_knowledge.py와 동일한 이유)
+# 2026-11-02: 'gemini-3-flash'가 v1beta generateContent에서 404 NOT_FOUND로 확인되어 제거함
+#             (gemini-2.5-flash가 2026-07-09부터 예고 없이 404를 반환하기 시작했던 것과 같은 유형의
+#             문제 — Gemini 쪽에서 모델명을 조용히 폐기/교체하는 경우가 있어 주기적으로 재확인 필요)
 GEMINI_MODEL_CANDIDATES = [
     "gemini-3.1-flash-lite",
-    "gemini-3-flash",
     "gemini-flash-latest",
 ]
+
+# 503(UNAVAILABLE)·429(RESOURCE_EXHAUSTED) 등은 "지금 혼잡하니 나중에 다시 시도하라"는
+# 일시적 오류 — 404(모델 자체가 없음) 같은 영구적 오류와는 구분해서 재시도할 가치가 있다.
+_RETRYABLE_MARKERS = ("UNAVAILABLE", "RESOURCE_EXHAUSTED", "DEADLINE_EXCEEDED", "503", "429")
+
+
+def _is_retryable(err):
+    msg = str(err)
+    return any(marker in msg for marker in _RETRYABLE_MARKERS)
 
 
 def generate_knowledge_html(topic, style="info"):
@@ -245,17 +256,32 @@ def generate_knowledge_html(topic, style="info"):
     prompt = build_prompt(topic, style=style)
     last_err = None
 
-    for model_name in GEMINI_MODEL_CANDIDATES:
-        try:
-            resp = client.models.generate_content(model=model_name, contents=prompt)
-            text = (resp.text or "").strip()
-            if not text:
-                raise ValueError("빈 응답")
-            text = text.replace("```html", "").replace("```", "").strip()
-            return text
-        except Exception as e:
-            print(f"  ⚠️ 모델 '{model_name}' 실패: {e} — 다음 후보로 재시도합니다.")
-            last_err = e
+    # 이 작업은 매주 1회뿐이라 여기서 포기하면 다음 기회가 일주일 뒤로 밀림(실제로 2026-11-01
+    # 실행이 이렇게 날아감 — 후보 전원이 503 '일시적 과부하'로 실패). 후보를 한 바퀴 다 돌았는데
+    # 실패 전부가 재시도 가능한 일시적 오류였다면, 30초 쉬었다가 전체를 한 번 더 시도한다.
+    # 404처럼 영구적인 오류가 하나라도 섞이면(=재시도해도 어차피 실패) 바로 포기한다.
+    for attempt in range(2):
+        if attempt > 0:
+            print("  ⏳ 모든 모델이 일시적 오류(과부하 등)로 실패 — 30초 대기 후 전체 재시도")
+            time.sleep(30)
+
+        all_retryable = True
+        for model_name in GEMINI_MODEL_CANDIDATES:
+            try:
+                resp = client.models.generate_content(model=model_name, contents=prompt)
+                text = (resp.text or "").strip()
+                if not text:
+                    raise ValueError("빈 응답")
+                text = text.replace("```html", "").replace("```", "").strip()
+                return text
+            except Exception as e:
+                print(f"  ⚠️ 모델 '{model_name}' 실패: {e} — 다음 후보로 재시도합니다.")
+                last_err = e
+                if not _is_retryable(e):
+                    all_retryable = False
+
+        if not all_retryable:
+            break
 
     raise RuntimeError(f"모든 Gemini 모델 후보가 실패했습니다. 마지막 에러: {last_err}")
 
