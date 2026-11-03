@@ -386,6 +386,9 @@
         .course-note-late { background: #eef2ff; color: #3730a3; }
         /* [ADD] 2026-11-03: 코스 모드에서 지도엔 코스에 담긴 장소만 보이므로, 전체 중 몇 곳인지와 전체 목록 전환 버튼을 안내한다. */
         .course-coverage { background: #f0fdf4; color: #166534; }
+        /* [ADD] 2026-11-03: 장소 카드의 "이 장소 주변 코스" 버튼, 장소 중심 코스 안내 줄 */
+        .card-seed-btn { display: none; margin: 6px 0 0 8px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #86efac; border-radius: 999px; cursor: pointer; font-family: inherit; vertical-align: middle; }
+        .course-seed-note { background: #fff7ed; color: #9a3412; }
         .course-coverage-btn { margin-left: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: #166534; background: #fff; border: 1px solid #86efac; border-radius: 999px; cursor: pointer; font-family: inherit; }
         .course-closed-note { margin-top: 6px; font-size: 11px; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 6px 10px; line-height: 1.45; }
 
@@ -714,6 +717,7 @@
                 </p>
                 <p id="cardDesc" style="font-size:12px; color:#444; line-height:1.45; margin-top:4px; display:none;"></p>
                 <a id="cardDetailLink" href="#" style="font-size:11px; color:#1a73e8; font-weight:700; text-decoration:none; display:none; margin-top:4px;">상세보기 →</a>
+                <button type="button" id="cardSeedCourseBtn" class="card-seed-btn" onclick="startSeedCourse()">📍 이 장소 주변 코스</button>
             </div>
             <ul id="cardShelterList" class="shelter-list"></ul>
             <!-- [ADD] 2026-10-11: 같은 좌표에 여러 장소가 겹쳐 있을 때만 보이는 점/화살표
@@ -1905,6 +1909,12 @@
         } else {
             detailLink.style.display = 'none';
         }
+        // [ADD] 2026-11-03: 아이랑 장소 카드에는 "이 장소 주변 코스" 버튼을 보여준다(좌표가 이 장소 하나만 쓰는 곳만).
+        const seedBtn = document.getElementById('cardSeedCourseBtn');
+        if (seedBtn) {
+            cardSeedCandidate = (item.type === 'kids' && !item.isAd && isCourseSeedable(item)) ? item : null;
+            seedBtn.style.display = cardSeedCandidate ? 'inline-block' : 'none';
+        }
         document.getElementById('festivalCard').classList.add('active');
 
         // 무더위쉼터는 지역 단위로 묶인 클러스터 마커라, 클릭했을 때만
@@ -3079,7 +3089,33 @@
     }
 
     const COURSE_MAX_FESTIVALS = 2;   // 낮 시간대 축제가 4곳 다 차면 "아이랑 장소"가 빠져서, 코스당 축제는 2곳까지(부족하면 더 채움)
-    function buildCourses(regionKey) {
+    // [ADD] 2026-11-03: "이 장소 주변 코스" — 장소 카드의 버튼을 누르면 그 장소를 시작점으로 반경 안의 장소를 묶어 코스를 만든다.
+    // 구·시 경계와 상관없이 가까운 곳끼리 묶는다(예: 계양구엔 등록 장소가 1곳뿐이라 구 단위 코스를 못 만든다).
+    const SEED_COURSE_RADIUS_KM = 10;
+    let courseSeedItem = null;       // 지금 코스 패널이 "이 장소 주변 코스"로 보이는 중이면 그 장소
+    let cardSeedCandidate = null;    // 지금 열려 있는 장소 카드의 장소(버튼용)
+    // 코스에서 빼는 장소(요청): 공항은 아이랑 당일 코스의 한 칸으로 넣기엔 맞지 않는다. 지도·전체 목록에는 그대로 있다.
+    function isCourseExcludedKidsPlace(item) {
+        return item && item.type === 'kids' && /^인천공항$/.test(String(item.title || '').trim());
+    }
+    function isCourseSeedable(item) {
+        return !!(item && item.lat && item.lng && isPreciseCoord(item) && !isCourseExcludedKidsPlace(item));
+    }
+    function startSeedCourse() {
+        const it = cardSeedCandidate;
+        if (!it) return;
+        if (gpsModeActive) deactivateNearbyMode();   // 내부에서 filterRegion()이 불려 시드가 비워지므로, 시드는 그 다음에 켠다
+        courseSeedItem = it;
+        if (!courseModeActive) { courseModeActive = true; syncCourseModeUI(); }
+        renderMainPanel();      // 열려 있던 카드는 여기서 닫히고 코스 목록이 다시 그려진다
+        openTodayPanel();
+    }
+    function clearSeedCourse() {
+        courseSeedItem = null;
+        renderMainPanel();
+    }
+
+    function buildCourses(regionKey, seed) {
         const dateStr = getCourseDate();
         const dObj = ctParseDate(dateStr);
         const dow = dObj.getUTCDay();
@@ -3091,13 +3127,14 @@
         // 오늘인데 20:30 이후면 더 이상 갈 코스가 없다(내일 코스를 안내).
         if (isToday && startMin >= 1230) return [];
         // 시·군을 고른 경우(city region)에는 1~2곳이어도 코스로 보여 주고, 자연관광지도 함께 넣는다.
-        const cityMode = isCityRegion(regionKey);
-        const minPlaces = cityMode ? 1 : MIN_COURSE_PLACES;
+        const cityMode = !seed && isCityRegion(regionKey);
+        const minPlaces = seed ? 2 : (cityMode ? 1 : MIN_COURSE_PLACES);
         // [ADD] 2026-11-02: 그 요일에 쉬어서 코스에서 뺀 아이랑 장소를 기억해 두었다가, 코스 카드에 "오늘 휴관으로 제외" 안내로 보여준다.
         const closedKids = [];
         let pool = getFilteredData().filter(function (item) {
             if (item.type === 'kids') {
                 // 그 요일에 쉬는 곳(예: "매주 월요일 휴관")은 뺀다. 휴관 요일을 읽을 수 없으면 그대로 둔다.
+                if (isCourseExcludedKidsPlace(item)) return false;
                 const cd = closedDaysFromHours(item.hours);
                 if (cd.known && cd.closed.indexOf(dowChar) >= 0) {
                     if (!item.isAd) closedKids.push(item);
@@ -3130,7 +3167,7 @@
             }
             return true;
         });
-        if (regionKey !== 'all') {
+        if (regionKey !== 'all' && !seed) {
             pool = pool.filter(function (item) {
                 return itemInRegion(item, regionKey);
             });
@@ -3149,7 +3186,7 @@
             });
         }
         const groups = new Map(); // "광역지역키|소지역" -> { label, items[], hasFestival }
-        pool.forEach(function (item) {
+        (seed ? [] : pool).forEach(function (item) {
             if (!item.addr) return;
             // [FIX] "중구"/"남구"/"북구"처럼 같은 구/군 이름이 인천·대구·부산·대전 등
             // 여러 시에 동시에 존재한다 — extractSubRegion(구/군 이름만)만으로 묶으면
@@ -3221,6 +3258,31 @@
                 });
             });
         });
+        // [ADD] 2026-11-03: 장소 중심 코스 — 시작 장소(그날 쉬거나 시간이 안 맞으면 코스를 만들지 않는다) + 반경 안의 가까운 순.
+        if (seed) {
+            const sd = pool.filter(function (it) { return it.contentid === seed.contentid; })[0];
+            if (sd && isPreciseCoord(sd)) {
+                const withDist = pool.filter(function (it) {
+                    return it !== sd && it.type !== 'park' && it.lat && it.lng && isPreciseCoord(it)
+                        && haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) <= SEED_COURSE_RADIUS_KM;
+                }).map(function (it) { return { it: it, d: haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) }; })
+                  .sort(function (a, b) { return a.d - b.d; });
+                let fc = 0;
+                const near = [];
+                withDist.forEach(function (o) {
+                    if (isCourseFestival(o.it)) { if (fc >= COURSE_MAX_FESTIVALS) return; fc++; }
+                    if (near.length < 12) near.push(o.it);
+                });
+                const nm = String(sd.title || '').replace(/\s*\([^)]*\)\s*/g, ' ').trim();
+                subGroups.push({
+                    label: nm + ' 주변',
+                    baseLabel: nm + ' 주변',
+                    items: [sd].concat(near),
+                    hasFestival: near.some(isCourseFestival),
+                    seed: sd
+                });
+            }
+        }
         subGroups.forEach(function (group) {
             if (group.items.length < minPlaces) return;
             // 축제를 먼저(그날 열리는 한정 행사라 눈에 띄어야 함), 그 다음 아이랑 장소, 마지막에 자연관광지 순.
@@ -3237,6 +3299,7 @@
             const natureOnly = sortedItems.filter(function (it) { return it.type === 'park'; });
             // 축제 최대 2곳 + 아이랑 장소로 채우고, 모자라면 남은 축제, 그다음 자연관광지로 채운다.
             let pref = fests.slice(0, COURSE_MAX_FESTIVALS).concat(kidsOnly).concat(fests.slice(COURSE_MAX_FESTIVALS)).concat(natureOnly);
+            if (group.seed) pref = group.items.slice();   // 장소 중심 코스: 시작 장소 먼저, 그다음 가까운 순
             let schedule = [];
             // 시간표를 짜 봤는데 도착했을 때 이미 문 닫을 시간인 곳(운영시간을 읽은 곳, 또는 아이랑 장소의 기본 가정)은
             // 빼고 다음 후보로 바꿔 다시 짠다. 후보가 모자라면(3곳 미만) 그 지역 코스는 만들지 않는다.
@@ -3244,6 +3307,7 @@
                 let picked = pref.slice(0, MAX_COURSE_PLACES);
                 // 늦게까지 하는 아이랑 장소가 이 지역에 있으면 저녁 칸에 쓸 수 있게 한 곳을 바꿔 넣는다.
                 picked = ensureEveningPick(picked, pref, ctx);
+                if (group.seed && picked.indexOf(group.seed) < 0) picked[picked.length - 1] = group.seed;
                 schedule = scheduleCourseItems(picked, ctx);
                 const bad = schedule.filter(function (x) {
                     return ((x.win.known || x.item.type === 'kids') && x.start + 30 > x.win.close) || x.end > 1410;   // 23:30을 넘기는 일정도 제외
@@ -3253,6 +3317,7 @@
                 if (pref.length < minPlaces) { schedule = []; break; }
             }
             if (schedule.length < minPlaces) return;
+            if (group.seed && !schedule.some(function (x) { return x.item === group.seed; })) return;
             const ordered = schedule.map(function (x) { return x.item; });
             const totalDistanceKm = ordered.reduce(function (sum, it) {
                 return sum + (typeof it._distToNextKm === 'number' ? it._distToNextKm : 0);
@@ -3278,7 +3343,7 @@
             courses.forEach(function (course) {
                 const near = closedKids.filter(function (k) {
                     if (!k.lat || !k.lng) return false;
-                    if (regionKey !== 'all' && !itemInRegion(k, regionKey)) return false;
+                    if (regionKey !== 'all' && !seed && !itemInRegion(k, regionKey)) return false;
                     return course.allItems.some(function (it) {
                         return it.lat && it.lng && haversineDistanceKm(k.lat, k.lng, it.lat, it.lng) <= 15;
                     });
@@ -3467,7 +3532,7 @@
     function drawCoursePanel(regionKey) {
         const listEl = document.querySelector('.today-list');
         if (!listEl) return;
-        currentCourses = buildCourses(regionKey);
+        currentCourses = buildCourses(regionKey, courseSeedItem);
         // [FIX] 2026-10-10: 코스 카드 안 장소를 눌렀을 때 지도가 그 위치로 이동은 하는데
         // 핀(마커)이 하나도 안 보이는 버그 — 코스 모드에서는 renderMainPanel()이
         // applyRegionAndThemeToMarkers()를 건너뛰어서 애초에 지도에 마커를 하나도
@@ -3479,7 +3544,14 @@
             allCourseItems.push.apply(allCourseItems, course.items);
         });
         renderMarkers(allCourseItems);
-        if (regionKey === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
+        if (regionKey === 'all' && !courseSeedItem) fitKoreaBounds(); else fitToMarkers(allMarkers);
+        // [ADD] 2026-11-03: "이 장소 주변 코스" 보기 중임을 알리고 지역 코스로 돌아가는 버튼을 둔다.
+        const seedBackBtn = '<button type="button" class="course-coverage-btn" onclick="clearSeedCourse()">지역 코스로 돌아가기</button>';
+        if (courseSeedItem && currentCourses.length === 0) {
+            const dl0 = ctDateLabel(getCourseDate());
+            listEl.innerHTML = '<li class="course-note course-seed-note">📍 <b>' + escapeHtml(courseSeedItem.title) + '</b> 주변 코스를 만들지 못했어요. ' + dl0 + '에 쉬는 곳이거나, 가까운(반경 약 ' + SEED_COURSE_RADIUS_KM + 'km) 곳에 등록된 장소가 없어요.' + seedBackBtn + '</li>';
+            return;
+        }
         if (currentCourses.length === 0) {
             const dl = ctDateLabel(getCourseDate());
             listEl.innerHTML = (getCourseDate() === ctKstTodayStr() && ctKstNowMin() >= 1170)
@@ -3497,7 +3569,11 @@
         });
         const inCourseIds = new Set();
         allCourseItems.forEach(function (it) { if (it.type === 'kids' && !it.isAd) inCourseIds.add(it.contentid); });
-        if (kidsPool.length > inCourseIds.size) {
+        if (courseSeedItem) {
+            const few = currentCourses[0] && currentCourses[0].items.length < 3;
+            coverage = '<li class="course-note course-seed-note">📍 <b>' + escapeHtml(courseSeedItem.title) + '</b> 근처(반경 약 ' + SEED_COURSE_RADIUS_KM + 'km) 장소로 만든 코스예요.'
+                + (few ? ' 이 근처엔 등록된 곳이 아직 적어요.' : '') + seedBackBtn + '</li>';
+        } else if (kidsPool.length > inCourseIds.size) {
             coverage = '<li class="course-note course-coverage">🗺 이 지역 아이랑 장소 <b>' + kidsPool.length + '곳</b> 중 <b>' + inCourseIds.size + '곳</b>이 코스에 담겨 지도에 보여요. 나머지는 코스에 못 담았거나 그날 쉬는 곳이에요.'
                 + '<button type="button" class="course-coverage-btn" onclick="setCourseMode(false)">전체 목록으로 보기</button></li>';
         }
@@ -3712,6 +3788,7 @@
     function setCourseMode(isCourse) {
         if (courseModeActive === isCourse) return;
         courseModeActive = isCourse;
+        if (!isCourse) courseSeedItem = null;
         syncCourseModeUI();
         if (gpsModeActive) {
             deactivateNearbyMode(); // 내부에서 filterRegion() → renderMainPanel()까지 다시 호출됨
@@ -4052,6 +4129,7 @@
     }
 
     function filterRegion(key) {
+        courseSeedItem = null;   // 지역을 새로 고르면 "이 장소 주변 코스" 보기는 끝낸다
         currentRegionKey = key;
         syncRegionSelectors(key);
         if (gpsModeActive) {
