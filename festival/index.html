@@ -384,6 +384,9 @@
         .course-tag-warn { background: #ffedd5; color: #c2410c; }
         .course-note { list-style: none; font-size: 11px; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 7px 10px; line-height: 1.45; }
         .course-note-late { background: #eef2ff; color: #3730a3; }
+        /* [ADD] 2026-11-03: 코스 모드에서 지도엔 코스에 담긴 장소만 보이므로, 전체 중 몇 곳인지와 전체 목록 전환 버튼을 안내한다. */
+        .course-coverage { background: #f0fdf4; color: #166534; }
+        .course-coverage-btn { margin-left: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: #166534; background: #fff; border: 1px solid #86efac; border-radius: 999px; cursor: pointer; font-family: inherit; }
         .course-closed-note { margin-top: 6px; font-size: 11px; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 6px 10px; line-height: 1.45; }
 
         /* [REMOVED] 2026-10-11: 선택한 핀 강조 표시(퍼지는 빨간 원 → 통통 튀는 핀)를
@@ -3486,12 +3489,24 @@
                     : '<li class="today-empty">' + dl + '에는 코스로 묶을 만큼 장소가 모이지 않았어요.<br>다른 날짜나 다른 지역을 선택해보세요!</li>');
             return;
         }
+        // [ADD] 2026-11-03: 코스 모드의 지도에는 코스 카드에 담긴 장소만 마커로 뜬다. "왜 이렇게 적게 뜨지?" 하는 혼란을 줄이려고
+        // 이 지역(현재 필터 기준) 아이랑 장소 수와 코스에 담긴 수를 보여주고, 전체 목록으로 바로 넘어갈 수 있게 한다.
+        let coverage = '';
+        const kidsPool = getFilteredData().filter(function (it) {
+            return it.type === 'kids' && !it.isAd && (regionKey === 'all' || itemInRegion(it, regionKey));
+        });
+        const inCourseIds = new Set();
+        allCourseItems.forEach(function (it) { if (it.type === 'kids' && !it.isAd) inCourseIds.add(it.contentid); });
+        if (kidsPool.length > inCourseIds.size) {
+            coverage = '<li class="course-note course-coverage">🗺 이 지역 아이랑 장소 <b>' + kidsPool.length + '곳</b> 중 <b>' + inCourseIds.size + '곳</b>이 코스에 담겨 지도에 보여요. 나머지는 코스에 못 담았거나 그날 쉬는 곳이에요.'
+                + '<button type="button" class="course-coverage-btn" onclick="setCourseMode(false)">전체 목록으로 보기</button></li>';
+        }
         // 오늘인데 이미 저녁이면, 오늘 코스는 남은 시간 기준이라는 점과 내일 코스를 안내한다.
         let note = '<li class="course-note">⏱ 예상 시간은 운영시간과 이동시간(직선거리 기준)으로 계산한 대략치예요. 방문 전 공식 운영시간을 꼭 확인하세요.</li>';
         if (getCourseDate() === ctKstTodayStr() && ctKstNowMin() >= 840) {
             note = '<li class="course-note course-note-late">🌙 지금(' + ctFmt(ctKstNowMin()) + ' 이후) 갈 수 있는 곳 기준이에요. 문 닫은 곳은 뺐고, 내일 코스는 위 <b>내일</b> 버튼에서 볼 수 있어요.</li>' + note;
         }
-        listEl.innerHTML = note + currentCourses.map(function (course, idx) { return buildCourseCardHtml(course, idx); }).join('');
+        listEl.innerHTML = note + coverage + currentCourses.map(function (course, idx) { return buildCourseCardHtml(course, idx); }).join('');
     }
 
     // 코스 카드의 "지도에서 전체보기" — 그 코스의 장소를 방문 순서대로 번호 핀(①②③④)으로 찍고,
