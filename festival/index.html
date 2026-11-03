@@ -2755,6 +2755,44 @@
         return { closed: [], known: false };
     }
 
+    // [ADD] 2026-11-03: 기간 단위 휴관("전시관 리모델링으로 2026-10-19~2027-01-04 임시휴관", "임시휴관 10월19일~27년1월4일")을 읽는다.
+    // 요일 휴관(closedDaysFromHours)은 "매주 월요일"처럼 반복되는 휴관만 읽어서, 몇 달짜리 임시휴관은 코스에 그대로 들어갔다.
+    // 날짜 범위(시작~끝, 둘 다 월·일 포함)가 휴관/휴무/휴장/공사/리모델링/보수 말과 바로 붙어 있을 때만 휴관 기간으로 본다.
+    //   - "7월1일~8월31일 운영, 매주 월요일 휴관"처럼 운영 기간 뒤에 다른 말이 끼면 휴관 기간으로 읽지 않는다(운영 기간을 휴관으로 오해하지 않기 위해).
+    //   - 연도가 없으면(예: "12월 24일~26일" 형태는 읽지 않고, "12월 24일~1월 2일"은 읽음) 해마다 반복되는 휴관으로 본다.
+    // 반환: { s: 'YYYYMMDD', e: 'YYYYMMDD' } (그 날짜가 휴관 기간 안일 때) 또는 null. 운영시간 문구에 날짜 범위가 없으면 항상 null.
+    const CT_PD = '(?:(\\d{4}|\\d{2})\\s*(?:년|[-./])\\s*)?(\\d{1,2})\\s*(?:월|[-./])\\s*(\\d{1,2})\\s*일?';
+    const CT_PD_KW = '(?:임시\\s*휴관|임시\\s*휴무|휴관|휴무|휴장|리모델링|공사|보수)';
+    const CT_PD_SEP = '\\s*[~～∼–]\\s*';
+    const CT_PD_RE_BEFORE = new RegExp(CT_PD_KW + '[^0-9~～∼–]{0,6}' + CT_PD + CT_PD_SEP + CT_PD, 'g');
+    const CT_PD_RE_AFTER = new RegExp(CT_PD + CT_PD_SEP + CT_PD + '[\\s:：()\\[\\]·,]{0,3}(?:까지)?[\\s:：()\\[\\]·,]{0,3}' + CT_PD_KW, 'g');
+    function ctPad2(n) { return (n < 10 ? '0' : '') + n; }
+    function ctPeriodClosureOn(hours, dateStr) {
+        const h = String(hours || '');
+        if (!h || !dateStr || h.indexOf('~') < 0 && h.indexOf('～') < 0 && h.indexOf('∼') < 0 && h.indexOf('–') < 0) return null;
+        const key = parseInt(dateStr, 10);
+        const y0 = parseInt(String(dateStr).slice(0, 4), 10);
+        const toYear = function (y) { return y.length === 2 ? 2000 + parseInt(y, 10) : parseInt(y, 10); };
+        let found = null;
+        const test = function (g) {
+            // g: [_, y1, m1, d1, y2, m2, d2] (BEFORE는 키워드 때문에 인덱스가 같고, AFTER도 같은 순서)
+            const m1 = parseInt(g[2], 10), d1 = parseInt(g[3], 10), m2 = parseInt(g[5], 10), d2 = parseInt(g[6], 10);
+            if (m1 < 1 || m1 > 12 || m2 < 1 || m2 > 12 || d1 < 1 || d1 > 31 || d2 < 1 || d2 > 31) return;
+            const startYears = g[1] ? [toYear(g[1])] : [y0 - 1, y0];
+            startYears.forEach(function (ys) {
+                const ye = g[4] ? toYear(g[4]) : ((m2 * 100 + d2) < (m1 * 100 + d1) ? ys + 1 : ys);
+                const s = ys * 10000 + m1 * 100 + d1, e = ye * 10000 + m2 * 100 + d2;
+                if (s <= key && key <= e && !found) found = { s: String(s), e: String(e) };
+            });
+        };
+        [CT_PD_RE_BEFORE, CT_PD_RE_AFTER].forEach(function (re) {
+            re.lastIndex = 0;
+            let m;
+            while ((m = re.exec(h)) !== null) { test(m); if (m.index === re.lastIndex) re.lastIndex++; }
+        });
+        return found;
+    }
+
     // 요일 숫자(JS getDay: 0=일) → '일월화수목금토' 글자
     function ctDowChar(dow) { return '일월화수목금토'.charAt(dow); }
 
@@ -3134,6 +3172,7 @@
         const minPlaces = seed ? 2 : (cityMode ? 1 : MIN_COURSE_PLACES);
         // [ADD] 2026-11-02: 그 요일에 쉬어서 코스에서 뺀 아이랑 장소를 기억해 두었다가, 코스 카드에 "오늘 휴관으로 제외" 안내로 보여준다.
         const closedKids = [];
+        const periodClosedKids = new Set();   // closedKids 중 기간 단위 임시휴관으로 빠진 곳
         let pool = getFilteredData().filter(function (item) {
             if (item.type === 'kids') {
                 // 그 요일에 쉬는 곳(예: "매주 월요일 휴관")은 뺀다. 휴관 요일을 읽을 수 없으면 그대로 둔다.
@@ -3141,6 +3180,11 @@
                 const cd = closedDaysFromHours(item.hours);
                 if (cd.known && cd.closed.indexOf(dowChar) >= 0) {
                     if (!item.isAd) closedKids.push(item);
+                    return false;
+                }
+                // [ADD] 2026-11-03: 기간 단위 임시휴관(리모델링 등) 중인 날짜면 뺀다. 코스 카드에는 "임시휴관이라 제외"로 안내.
+                if (ctPeriodClosureOn(item.hours, dateStr)) {
+                    if (!item.isAd) { closedKids.push(item); periodClosedKids.add(item); }
                     return false;
                 }
             } else if (item.type === 'park') {
@@ -3352,7 +3396,11 @@
                     });
                 });
                 if (near.length) {
-                    course.closedNote = { dayLabel: dayLabel, titles: near.map(function (k) { return k.title; }) };
+                    course.closedNote = {
+                        dayLabel: dayLabel,
+                        titles: near.map(function (k) { return k.title; }),
+                        temporary: near.every(function (k) { return periodClosedKids.has(k); })
+                    };
                 }
             });
         }
@@ -3490,7 +3538,7 @@
         if (course.closedNote && course.closedNote.titles.length) {
             const ct = course.closedNote.titles;
             const shown = ct.slice(0, 3).map(escapeHtml).join(', ') + (ct.length > 3 ? ' 외 ' + (ct.length - 3) + '곳' : '');
-            closedNoteHtml = '<div class="course-closed-note">🚫 ' + escapeHtml(course.closedNote.dayLabel) + ' 휴관이라 제외: ' + shown + '</div>';
+            closedNoteHtml = '<div class="course-closed-note">🚫 ' + escapeHtml(course.closedNote.dayLabel) + (course.closedNote.temporary ? ' 임시휴관이라 제외: ' : ' 휴관이라 제외: ') + shown + '</div>';
         }
         return '<li class="today-item course-card">'
             + '<strong>📍 ' + escapeHtml(course.subRegion) + ' 추천 코스</strong>'
