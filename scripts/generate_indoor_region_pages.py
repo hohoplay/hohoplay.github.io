@@ -88,7 +88,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <meta property="og:title" content="{og_title}">
 <meta property="og:description" content="{description}">
 <meta property="og:url" content="{canonical}">
-<meta property="og:image" content="https://hohoplaylab.com/data/banner.png">
+<meta property="og:image" content="https://hohoplaylab.com/data/og-home.png">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/favicon.svg">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
