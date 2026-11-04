@@ -2494,18 +2494,20 @@
     // [ADD] 2026-11-04: 인천 코스 분리. 영종도는 다리 건너 따로 떨어진 섬이라(제물포·동인천에서 15~20km) 육지 장소와 한 코스로 묶으면
     // 동선이 다리를 두 번 건너게 된다. 영종도 장소끼리만 코스를 만들고(courseZoneOf), 제물포·동인천 일대(동구·제물포구·내항 쪽 중구)는
     // 따로 묶는다. 아이랑 장소(kids) 주소는 아직 옛 이름 "중구"라서 구 이름만으로는 영종과 내항을 못 가른다 → 주소 단어와 좌표로 판정.
-    const CT_ISLAND_ADDR_RE = /영종|운서|운남|운북|중산동|을왕|용유|무의|공항로|공항문화로/;
+    const CT_ISLAND_ADDR_RE = /영종|운서|운남|운북|중산동|을왕|용유|무의|공항로|공항문화로|구읍|은하수로|자연대로|하늘초롱길|하늘도시/;
     const CT_MAINLAND_GU_RE = /(서구|남동구|부평구|계양구|연수구|미추홀구|동구|제물포구|검단구|서해구|강화군|옹진군)(\s|$)/;
     function courseZoneOf(item, regionKey) {
         if (regionKey !== 'incheon' || !item) return null;
         const addr = String(item.addr || '');
         if (CT_MAINLAND_GU_RE.test(addr)) return null;
         if (CT_ISLAND_ADDR_RE.test(addr)) return '영종도';
-        if (item.lat && item.lng && item.lat > 37.38 && item.lat < 37.56 && item.lng < 126.57) return '영종도';
+        // 좌표: 영종도 서·중부는 경도 126.57 서쪽, 동쪽 끝(구읍뱃터 일대, 경도 126.58 안팎)은 월미도(위도 37.484 이하)보다 북쪽이다.
+        if (item.lat && item.lng && item.lat > 37.38 && item.lat < 37.56 &&
+            (item.lng < 126.57 || (item.lat >= 37.486 && item.lng < 126.60))) return '영종도';
         return null;
     }
 
-    const ISLAND_COURSE_RADIUS_KM = 6;   // 영종도 안에서 한 코스로 묶는 반경(courseZoneOf 참고)
+    const ISLAND_COURSE_RADIUS_KM = 7;   // 영종도 안에서 한 코스로 묶는 반경(courseZoneOf 참고)
     const MIN_COURSE_PLACES = 3; // 이보다 적게 모이면 "코스"라 부르기엔 부실해서 제외
     const MAX_COURSE_PLACES = 4; // 하루 코스로 보기 좋은 상한
 
@@ -2806,6 +2808,36 @@
             while ((m = re.exec(h)) !== null) { test(m); if (m.index === re.lastIndex) re.lastIndex++; }
         });
         return found;
+    }
+
+    // [ADD] 2026-11-04: 계절 한정 시설(겨울 스케이트장·눈썰매장 등)은 운영 기간 밖의 날짜에는 코스에서 뺀다.
+    // 운영시간 문구에 "운영 기간 12월 19일~2월 18일"처럼 "운영 기간"(또는 "개장 기간") 바로 뒤에 날짜 범위가 있을 때만 읽는다.
+    //   - 연도가 없으면 해마다 같은 시기에 운영하는 것으로 본다(연말연시를 넘기는 12월~2월 범위도 처리).
+    //   - 연도가 있으면 그 기간에만 운영하는 것으로 본다.
+    // 반환: 운영 기간이 적혀 있고 그 날짜가 기간 밖이면 true, 그 외(기간 표기 없음·기간 안)는 false.
+    const CT_SEASON_RE = new RegExp('(?:운영\\s*기간|개장\\s*기간)[^0-9~～∼–]{0,4}' + CT_PD + CT_PD_SEP + CT_PD, 'g');
+    function ctOutsideOperatingSeason(hours, dateStr) {
+        const h = String(hours || '');
+        if (!h || !dateStr || h.indexOf('기간') < 0) return false;
+        const key = parseInt(dateStr, 10);
+        const y0 = parseInt(String(dateStr).slice(0, 4), 10);
+        const toYear = function (y) { return y.length === 2 ? 2000 + parseInt(y, 10) : parseInt(y, 10); };
+        let seen = false, inside = false;
+        CT_SEASON_RE.lastIndex = 0;
+        let g;
+        while ((g = CT_SEASON_RE.exec(h)) !== null) {
+            if (g.index === CT_SEASON_RE.lastIndex) CT_SEASON_RE.lastIndex++;
+            const m1 = parseInt(g[2], 10), d1 = parseInt(g[3], 10), m2 = parseInt(g[5], 10), d2 = parseInt(g[6], 10);
+            if (m1 < 1 || m1 > 12 || m2 < 1 || m2 > 12 || d1 < 1 || d1 > 31 || d2 < 1 || d2 > 31) continue;
+            seen = true;
+            const startYears = g[1] ? [toYear(g[1])] : [y0 - 1, y0];
+            startYears.forEach(function (ys) {
+                const ye = g[4] ? toYear(g[4]) : ((m2 * 100 + d2) < (m1 * 100 + d1) ? ys + 1 : ys);
+                const s = ys * 10000 + m1 * 100 + d1, e = ye * 10000 + m2 * 100 + d2;
+                if (s <= key && key <= e) inside = true;
+            });
+        }
+        return seen && !inside;
     }
 
     // 요일 숫자(JS getDay: 0=일) → '일월화수목금토' 글자
@@ -3212,6 +3244,8 @@
                     if (!item.isAd) closedKids.push(item);
                     return false;
                 }
+                // [ADD] 2026-11-04: 계절 한정 시설(겨울 스케이트장 등)은 운영 기간 밖이면 뺀다(안내 문구 없이 조용히 제외).
+                if (ctOutsideOperatingSeason(item.hours, dateStr)) return false;
                 // [ADD] 2026-11-03: 기간 단위 임시휴관(리모델링 등) 중인 날짜면 뺀다. 코스 카드에는 "임시휴관이라 제외"로 안내.
                 if (ctPeriodClosureOn(item.hours, dateStr)) {
                     if (!item.isAd) { closedKids.push(item); periodClosedKids.add(item); }
@@ -3303,7 +3337,7 @@
         groups.forEach(function (group) {
             const sorted = group.items.slice().sort(function (a, b) { return courseRank(a) - courseRank(b); });
             // [ADD] 2026-11-04: 영종도는 장소가 늘어(구읍·운서 쪽 + 공항·용유 쪽) 10km 반경 하나로 묶으면 동쪽→서쪽→동쪽으로 오가는 동선이 나온다.
-            // 영종도 안에서는 6km 반경으로 나눠 동부(운서·구읍)와 서부(공항·용유)를 따로 코스로 만든다.
+            // 영종도 안에서는 7km 반경으로 나눠 동부(운서·구읍)와 서부(공항·용유)를 따로 코스로 만든다.
             const allParts = splitGroupByDistance(sorted, cityMode ? COURSE_NEIGHBOR_RADIUS_KM : (group.zone ? ISLAND_COURSE_RADIUS_KM : undefined), !!group.zone);
             // 영종도처럼 따로 떨어진 구역은 2곳부터 코스로 본다(큰 리조트 둘만으로도 나들이가 됨). 그 구역 장소는 이웃과 합치지 않는다.
             const gMin = group.zone ? Math.min(minPlaces, 2) : minPlaces;
