@@ -2491,6 +2491,20 @@
         return tokens[0] || null;
     }
 
+    // [ADD] 2026-11-04: 인천 코스 분리. 영종도는 다리 건너 따로 떨어진 섬이라(제물포·동인천에서 15~20km) 육지 장소와 한 코스로 묶으면
+    // 동선이 다리를 두 번 건너게 된다. 영종도 장소끼리만 코스를 만들고(courseZoneOf), 제물포·동인천 일대(동구·제물포구·내항 쪽 중구)는
+    // 따로 묶는다. 아이랑 장소(kids) 주소는 아직 옛 이름 "중구"라서 구 이름만으로는 영종과 내항을 못 가른다 → 주소 단어와 좌표로 판정.
+    const CT_ISLAND_ADDR_RE = /영종|운서|운남|운북|중산동|을왕|용유|무의|공항로|공항문화로/;
+    const CT_MAINLAND_GU_RE = /(서구|남동구|부평구|계양구|연수구|미추홀구|동구|제물포구|검단구|서해구|강화군|옹진군)(\s|$)/;
+    function courseZoneOf(item, regionKey) {
+        if (regionKey !== 'incheon' || !item) return null;
+        const addr = String(item.addr || '');
+        if (CT_MAINLAND_GU_RE.test(addr)) return null;
+        if (CT_ISLAND_ADDR_RE.test(addr)) return '영종도';
+        if (item.lat && item.lng && item.lat > 37.38 && item.lat < 37.56 && item.lng < 126.57) return '영종도';
+        return null;
+    }
+
     const MIN_COURSE_PLACES = 3; // 이보다 적게 모이면 "코스"라 부르기엔 부실해서 제외
     const MAX_COURSE_PLACES = 4; // 하루 코스로 보기 좋은 상한
 
@@ -3252,11 +3266,15 @@
             if (!itemRegionKey) return;
             // 세종시처럼 addr에 구/군 단위 표기가 아예 없는 경우, 광역 단위(시 전체)로
             // 묶는다 — 세종시는 면적이 작아 "시 전체"로 묶어도 당일 코스로 과하게 넓지 않다.
-            const sub = extractSubRegion(item.addr);
+            let sub = extractSubRegion(item.addr);
+            // [ADD] 2026-11-04: 인천 — 영종도는 따로, 동구·제물포구·(내항 쪽)중구는 "제물포·동인천" 한 덩어리로.
+            const zone = courseZoneOf(item, itemRegionKey);
+            if (zone) sub = zone;
+            else if (itemRegionKey === 'incheon' && (sub === '중구' || sub === '동구' || sub === '제물포구')) sub = '제물포·동인천';
             const groupKey = itemRegionKey + '|' + (sub || '__whole__');
             if (!groups.has(groupKey)) {
                 const label = sub ? (REGION_LABELS[itemRegionKey] + ' ' + sub) : (REGION_LABELS[itemRegionKey] + ' 전체');
-                groups.set(groupKey, { label: label, items: [], hasFestival: false, regionKey: itemRegionKey });
+                groups.set(groupKey, { label: label, items: [], hasFestival: false, regionKey: itemRegionKey, zone: zone });
             }
             const group = groups.get(groupKey);
             group.items.push(item);
@@ -3269,9 +3287,12 @@
         groups.forEach(function (group) {
             const sorted = group.items.slice().sort(function (a, b) { return courseRank(a) - courseRank(b); });
             const allParts = splitGroupByDistance(sorted, cityMode ? COURSE_NEIGHBOR_RADIUS_KM : undefined);
-            const parts = allParts.filter(function (c) { return c.items.length >= minPlaces; });
+            // 영종도처럼 따로 떨어진 구역은 2곳부터 코스로 본다(큰 리조트 둘만으로도 나들이가 됨). 그 구역 장소는 이웃과 합치지 않는다.
+            const gMin = group.zone ? Math.min(minPlaces, 2) : minPlaces;
+            const parts = allParts.filter(function (c) { return c.items.length >= gMin; });
             allParts.forEach(function (c) {
-                if (c.items.length >= minPlaces) return;
+                if (c.items.length >= gMin) return;
+                if (group.zone) return;
                 const arr = leftovers[group.regionKey] || (leftovers[group.regionKey] = []);
                 c.items.forEach(function (it) { if (isPreciseCoord(it)) arr.push(it); });
             });
@@ -3285,7 +3306,9 @@
                     label: parts.length > 1 ? group.label + ' · ' + areaName : group.label,
                     baseLabel: group.label,
                     items: c.items,
-                    hasFestival: c.items.some(isCourseFestival)
+                    hasFestival: c.items.some(isCourseFestival),
+                    minPlaces: gMin,
+                    zone: group.zone
                 });
             });
         });
@@ -3331,7 +3354,8 @@
             }
         }
         subGroups.forEach(function (group) {
-            if (group.items.length < minPlaces) return;
+            const gMin = group.minPlaces || minPlaces;
+            if (group.items.length < gMin) return;
             // 축제를 먼저(그날 열리는 한정 행사라 눈에 띄어야 함), 그 다음 아이랑 장소, 마지막에 자연관광지 순.
             const sortedItems = group.items.slice().sort(function (a, b) { return courseRank(a) - courseRank(b); });
             const fests = sortedItems.filter(isCourseFestival);
@@ -3361,9 +3385,9 @@
                 }).map(function (x) { return x.item; });
                 if (!bad.length) break;
                 pref = pref.filter(function (it) { return bad.indexOf(it) < 0; });
-                if (pref.length < minPlaces) { schedule = []; break; }
+                if (pref.length < gMin) { schedule = []; break; }
             }
-            if (schedule.length < minPlaces) return;
+            if (schedule.length < gMin) return;
             if (group.seed && !schedule.some(function (x) { return x.item === group.seed; })) return;
             const ordered = schedule.map(function (x) { return x.item; });
             const totalDistanceKm = ordered.reduce(function (sum, it) {
@@ -3381,7 +3405,8 @@
                 allItems: sortedItems,
                 total: group.items.length,
                 hasFestival: group.hasFestival,
-                totalDistanceKm: totalDistanceKm
+                totalDistanceKm: totalDistanceKm,
+                zone: group.zone || null
             });
         });
         // [ADD] 2026-11-02: 각 코스 근처(직선 15km 안)에서 그날 휴관이라 빠진 아이랑 장소를 코스에 붙인다.
@@ -3391,6 +3416,9 @@
                 const near = closedKids.filter(function (k) {
                     if (!k.lat || !k.lng) return false;
                     if (regionKey !== 'all' && !seed && !itemInRegion(k, regionKey)) return false;
+                    // [ADD] 2026-11-04: 영종도 코스에는 영종도 안에서 쉬는 곳만, 그 밖의 코스에는 영종도 밖에서 쉬는 곳만 안내한다.
+                    const kz = /인천/.test(k.addr || '') ? courseZoneOf(k, 'incheon') : null;
+                    if ((kz || course.zone) && kz !== (course.zone || null)) return false;
                     return course.allItems.some(function (it) {
                         return it.lat && it.lng && haversineDistanceKm(k.lat, k.lng, it.lat, it.lng) <= 15;
                     });
