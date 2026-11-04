@@ -2505,6 +2505,7 @@
         return null;
     }
 
+    const ISLAND_COURSE_RADIUS_KM = 6;   // 영종도 안에서 한 코스로 묶는 반경(courseZoneOf 참고)
     const MIN_COURSE_PLACES = 3; // 이보다 적게 모이면 "코스"라 부르기엔 부실해서 제외
     const MAX_COURSE_PLACES = 4; // 하루 코스로 보기 좋은 상한
 
@@ -3111,7 +3112,9 @@
     // [ADD] 2026-11-01: 시·군 하나에 3곳이 안 모여서 코스가 안 나오던 지역(충주·제천·단양처럼 작은 도시들)은,
     // 같은 시·도 안에서 가까운(이 반경 안) 이웃 시·군의 장소끼리 묶어 "제천시·단양군" 같은 한 코스로 만든다.
     const COURSE_NEIGHBOR_RADIUS_KM = 25;
-    function splitGroupByDistance(items, radiusKm) {
+    // nearestImprecise=true 면 좌표가 겹친 장소(같은 건물의 두 시설 등)를 "가장 큰 덩어리"가 아니라 가장 가까운 덩어리에 붙인다
+    // (영종도처럼 한 구역 안에서도 동·서로 멀리 떨어진 곳이 있을 때, 서쪽 리조트가 동쪽 코스에 붙는 걸 막는다).
+    function splitGroupByDistance(items, radiusKm, nearestImprecise) {
         const RADIUS = radiusKm || COURSE_MAX_RADIUS_KM;
         const precise = items.filter(isPreciseCoord);
         const imprecise = items.filter(function (it) { return !isPreciseCoord(it); });
@@ -3130,6 +3133,19 @@
         }
         if (!clusters.length) return [{ anchor: null, items: imprecise }];
         clusters.sort(function (a, b) { return b.items.length - a.items.length; });
+        if (nearestImprecise && clusters.length > 1) {
+            imprecise.forEach(function (it) {
+                let best = clusters[0], bestD = Infinity;
+                if (it.lat && it.lng) {
+                    clusters.forEach(function (c) {
+                        const dd = haversineDistanceKm(it.lat, it.lng, c.anchor.lat, c.anchor.lng);
+                        if (dd < bestD) { bestD = dd; best = c; }
+                    });
+                }
+                best.items.push(it);
+            });
+            return clusters;
+        }
         clusters[0].items = clusters[0].items.concat(imprecise);
         return clusters;
     }
@@ -3286,7 +3302,9 @@
         const leftovers = {};   // 광역 지역키 -> 시·군 단위로는 3곳이 안 모인 장소들(좌표가 정확한 것만)
         groups.forEach(function (group) {
             const sorted = group.items.slice().sort(function (a, b) { return courseRank(a) - courseRank(b); });
-            const allParts = splitGroupByDistance(sorted, cityMode ? COURSE_NEIGHBOR_RADIUS_KM : undefined);
+            // [ADD] 2026-11-04: 영종도는 장소가 늘어(구읍·운서 쪽 + 공항·용유 쪽) 10km 반경 하나로 묶으면 동쪽→서쪽→동쪽으로 오가는 동선이 나온다.
+            // 영종도 안에서는 6km 반경으로 나눠 동부(운서·구읍)와 서부(공항·용유)를 따로 코스로 만든다.
+            const allParts = splitGroupByDistance(sorted, cityMode ? COURSE_NEIGHBOR_RADIUS_KM : (group.zone ? ISLAND_COURSE_RADIUS_KM : undefined), !!group.zone);
             // 영종도처럼 따로 떨어진 구역은 2곳부터 코스로 본다(큰 리조트 둘만으로도 나들이가 됨). 그 구역 장소는 이웃과 합치지 않는다.
             const gMin = group.zone ? Math.min(minPlaces, 2) : minPlaces;
             const parts = allParts.filter(function (c) { return c.items.length >= gMin; });
@@ -3300,6 +3318,8 @@
             parts.forEach(function (c) {
                 // 같은 시·군 안에서 읍·면이 같아 이름이 겹치면(예: 여수 삼산면 두 곳) 대표 장소 이름으로 구분한다.
                 let areaName = courseAreaName(c.anchor);
+                // [ADD] 2026-11-04: 영종도는 읍·면·동 이름 대신 동부/서부로 구분한다(영종 주소는 동 이름이 없는 경우가 많다).
+                if (group.zone === '영종도' && parts.length > 1 && c.anchor && c.anchor.lng) areaName = c.anchor.lng < 126.475 ? '서부(공항·용유)' : '동부(운서·구읍)';
                 if (parts.length > 1 && usedLabels[areaName]) areaName = (c.anchor && c.anchor.title ? c.anchor.title.replace(/\s*\([^)]*\)\s*/g, ' ').trim() : areaName) + ' 일대';
                 usedLabels[areaName] = true;
                 subGroups.push({
