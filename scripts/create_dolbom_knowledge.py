@@ -422,14 +422,27 @@ def pick_perspective(state, idx):
     return PERSPECTIVES[n % len(PERSPECTIVES)], key, n
 
 
+class ContentQualityError(Exception):
+    """분량·FAQ 개수·금지 표현 기준을 끝내 충족하지 못해 발행을 보류함.
+    인프라(Gemini API·인증 등) 문제가 아니라 콘텐츠 품질 기준에 의한 의도된 보류이므로,
+    run()/main()에서 '정상 종료(exit 0)'로 처리해야 할 신호로 구분해서 쓴다."""
+    pass
+
+
 def generate_dolbom_post(topic, perspective, style, recent_titles):
     """제목·도입·본문·FAQ·마무리를 생성하고 분량(2,000자 이상)·FAQ 개수(5개)·금지 표현 여부를
     코드에서 직접 검증한다 (§22.8). 기준 미달이면 최대 2회 재생성하고, 분량만 부족하면
-    보강 섹션을 한 번 더 추가해본다. 끝까지 기준을 못 채우면 None을 반환해 발행을 보류한다
-    (기준 미달 글을 올리는 것보다 한 주 건너뛰는 편이 낫다는 §22.8.6 원칙)."""
+    보강 섹션을 한 번 더 추가해본다. 끝까지 기준을 못 채우면 ContentQualityError를 던져
+    발행을 보류한다 — 이는 인프라 문제가 아니라 의도된 품질 게이트이므로 run()이 구분해서
+    처리한다 (기준 미달 글을 올리는 것보다 한 주 건너뛰는 편이 낫다는 §22.8.6 원칙).
+    반면 Gemini 호출 자체가 매 시도 다 실패해 파싱 가능한 응답을 한 번도 못 받았다면
+    이는 인프라 문제이므로 RuntimeError를 그대로 위로 전파한다(이 경우 run()은 종전처럼
+    경고 후 건너뛰고, 결국 success_count==0이면 main()이 exit(1)로 알린다)."""
     client = genai.Client(api_key=GEMINI_API_KEY)
     feedback = ""
     last_sections, last_total, last_faq_count, last_banned = None, 0, 0, []
+    ever_parsed = False
+    last_infra_err = None
 
     for attempt in range(3):
         prompt = build_prompt(topic, perspective, style, recent_titles, feedback=feedback)
@@ -437,6 +450,7 @@ def generate_dolbom_post(topic, perspective, style, recent_titles):
             raw = _call_gemini_with_fallback(client, prompt)
         except Exception as e:
             print(f"  ⚠️ Gemini 생성 실패({attempt + 1}/3): {e}")
+            last_infra_err = e
             feedback = ""
             continue
 
@@ -447,6 +461,7 @@ def generate_dolbom_post(topic, perspective, style, recent_titles):
                         "다른 설명 없이 지정된 구분자 형식 그대로만 출력하세요.")
             continue
 
+        ever_parsed = True
         total_len = sum(_visible_len(sections[k]) for k in ("intro", "body", "faq", "closing"))
         faq_count = len(_FAQ_ITEM_RE.findall(sections["faq"]))
         banned_hits = _find_banned(sections["intro"] + sections["body"] + sections["closing"])
@@ -489,8 +504,12 @@ def generate_dolbom_post(topic, perspective, style, recent_titles):
         print(f"  ✅ 보강 후 기준 충족 ({last_total}자)")
         return last_sections, last_total
 
-    print("  ❌ 품질 기준을 끝내 충족하지 못해 이번 주제는 발행을 보류합니다.")
-    return None, 0
+    if not ever_parsed:
+        # 3번 다 Gemini 호출/형식 단계에서 막혀 내용을 한 번도 못 받음 — 품질 문제가 아니라 인프라 문제.
+        raise RuntimeError(f"Gemini 응답을 한 번도 정상적으로 받지 못했습니다. 마지막 에러: {last_infra_err}")
+
+    print("  ❌ 품질 기준을 끝내 충족하지 못해 이번 주제는 발행을 보류합니다(인프라 문제 아님).")
+    raise ContentQualityError(topic)
 
 
 def load_state():
@@ -561,6 +580,7 @@ def run(count=1):
     coupang_links = load_coupang_links()
     n = len(TOPICS)
     success_count = 0
+    hard_failure = False  # Gemini/Blogger 인프라 문제로 한 건도 못 올렸는지 (품질 게이트 보류와는 구분)
 
     for i in range(count):
         idx  = (state["last_index"] + 1) % n
@@ -579,9 +599,18 @@ def run(count=1):
 
         recent_titles = [h.get("title") for h in state.get("history", [])[-8:] if h.get("title")]
 
-        sections, total_len = generate_dolbom_post(topic, perspective, style, recent_titles)
-        if sections is None:
-            # 인덱스·관점 카운트를 전진시키지 않음 — 다음 실행 때 같은 주제·관점으로 다시 시도한다.
+        try:
+            sections, total_len = generate_dolbom_post(topic, perspective, style, recent_titles)
+        except ContentQualityError:
+            # 품질 기준(분량/FAQ/금지표현) 미달로 의도적으로 보류 — 인프라 문제 아님.
+            # 이 주제에 계속 멈춰 있지 않도록 인덱스만 전진시켜 저장한다(관점 카운트·history는 그대로 —
+            # 다음 바퀴에 이 주제를 다시 만나면 같은 관점으로 한 번 더 시도).
+            state["last_index"] = idx
+            save_state(state)
+            continue
+        except Exception as e:
+            print(f"  ⚠️ '{topic}' 생성 중 인프라 오류: {e} — 이 주제는 건너뜁니다.")
+            hard_failure = True
             continue
 
         kw_list  = [topic] + tags + ["돌봄상식"]
@@ -659,12 +688,13 @@ def run(count=1):
         else:
             print(f"  ❌ '{post_title}' 발행 실패 — 인덱스를 저장하지 않습니다. "
                   f"다음 실행 때 같은 주제부터 다시 시도합니다.")
+            hard_failure = True
             break
 
         if i < count - 1:
             time.sleep(5)
 
-    return success_count
+    return success_count, hard_failure
 
 
 def main():
@@ -674,11 +704,18 @@ def main():
     args = parser.parse_args()
 
     print(f"🚀 돌봄상식 생성 시작 — {args.count}개")
-    success_count = run(args.count)
+    success_count, hard_failure = run(args.count)
 
     if success_count == 0:
-        print("❌ 이번 실행에서 발행에 성공한 글이 하나도 없습니다.")
-        sys.exit(1)
+        if hard_failure:
+            print("❌ 이번 실행에서 발행에 성공한 글이 하나도 없습니다 (Gemini/Blogger 인프라 오류).")
+            sys.exit(1)
+        else:
+            # 품질 기준 미달로만 보류된 경우 — 인프라는 정상이었으므로 Actions를 실패로 표시하지 않는다.
+            # (§22.8.6: 기준 미달 글을 올리는 것보다 건너뛰는 편이 낫다는 원칙에 따른 "의도된 건너뜀")
+            print("ℹ️ 이번 실행은 품질 기준 미달로 발행을 건너뛰었습니다 (인프라 문제 아님, 다음 실행은 "
+                  "다음 주제로 자동 이동). 정상 종료합니다.")
+            return
 
     print(f"🎉 완료 — {success_count}개 발행")
 
