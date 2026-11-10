@@ -192,8 +192,15 @@ def build_kc(region, entries):
         early = min(w, key=lambda t: (t[1][1], t[0]))
         late = max(w, key=lambda t: (t[1][1], -t[0]))
         if early[1][1] != late[1][1]:
-            items.append(li('<b>문 닫는 시간</b> — 가장 일찍 닫는 곳은 %s(%s), 가장 늦게까지 여는 곳은 %s(%s)입니다.'
-                            % (esc(d['names'][early[0]]), hm(early[1][1]), esc(d['names'][late[0]]), hm(late[1][1]))))
+            rest = n - len(w)
+            if rest == 0:
+                items.append(li('<b>문 닫는 시간</b> — 가장 일찍 닫는 곳은 %s(%s), 가장 늦게까지 여는 곳은 %s(%s)입니다.'
+                                % (esc(d['names'][early[0]]), hm(early[1][1]), esc(d['names'][late[0]]), hm(late[1][1]))))
+            else:
+                # 계절·요일별로 시간이 나뉘거나 확인이 안 된 곳은 비교에서 빠지므로, 비교 범위를 밝힌다(다른 곳이 더 늦게까지 열 수 있음).
+                items.append(li('<b>문 닫는 시간</b> — 운영시간이 하나로 정해진 %d곳만 비교하면 가장 일찍 닫는 곳은 %s(%s), 가장 늦게 닫는 곳은 %s(%s)예요. '
+                                '나머지 %d곳은 시간이 요일·계절별로 나뉘거나 확인되지 않아 장소별 안내를 봐 주세요.'
+                                % (len(w), esc(d['names'][early[0]]), hm(early[1][1]), esc(d['names'][late[0]]), hm(late[1][1]), rest)))
 
     by_day = {}
     for i, (c, ok) in enumerate(d['closed']):
