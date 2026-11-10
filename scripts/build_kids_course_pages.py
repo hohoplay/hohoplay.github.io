@@ -24,6 +24,7 @@ sys.path.insert(0, HERE)
 import improve_kids_course_pages as imp  # noqa: E402
 import add_kids_course_route as rte      # noqa: E402
 import kids_course_text as kct           # noqa: E402
+import kids_images as ki                 # noqa: E402
 
 DATE = '2026.10.15'          # 기존 유성구 글의 게시일을 유지
 SHELL_SLUG = 'daejeon-yuseong'
@@ -58,7 +59,7 @@ def place_block(i, p):
     if (p.get('tel') or '').strip():
         meta.append('☎ ' + e(p['tel']))
     out = ['<h2 style="%s">%d. <a href="/festival/detail/%s.html" style="color:#1e293b;text-decoration:none;border-bottom:2px solid #c7d2fe">%s</a></h2>'
-           % (H2_PLACE, i, cid, e(title)),
+           % (H2_PLACE, i, cid, e(title)) + ki.course_figure(p),   # 공식 사진이 있으면 제목 바로 아래(2026-11-10)
            '<p style="font-size:13px;color:#94a3b8;margin:0 0 8px">' + ' &nbsp;·&nbsp; '.join(meta) + '</p>']
     if (p.get('desc') or '').strip():
         out.append('<p style="margin:0 0 4px;font-weight:700;color:#475569">%s</p>' % e(p['desc']))
