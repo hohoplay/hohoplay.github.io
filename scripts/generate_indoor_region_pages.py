@@ -42,6 +42,9 @@ import sys
 from pathlib import Path
 from datetime import date
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import kids_images as ki  # noqa: E402  (공식 사진 조각)
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
 
@@ -104,6 +107,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   .intro {{ font-size:14px; color:#475569; line-height:1.7; margin-bottom:20px; }}
   .count-note {{ font-size:13px; color:#94a3b8; margin-bottom:20px; }}
   .place-card {{ background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px 18px; margin-bottom:12px; text-decoration:none; display:block; }}
+  .place-thumb {{ display:block; width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:10px; background:#f1f5f9; margin:0 0 10px; }}
   .place-name {{ font-size:16px; font-weight:800; color:#111; margin-bottom:6px; }}
   .place-type {{ display:inline-block; font-size:11px; font-weight:700; color:#0ea5e9; background:#f0f9ff; padding:2px 8px; border-radius:999px; margin-bottom:8px; }}
   .place-row {{ font-size:13px; color:#64748b; line-height:1.6; }}
@@ -159,7 +163,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 """
 
 PLACE_CARD_TEMPLATE = """  <a href="/festival/detail/{contentid}.html" class="place-card">
-    <div class="place-name">{title}</div>
+{thumb}    <div class="place-name">{title}</div>
     <span class="place-type">{type_label}</span>
     <div class="place-row"><b>장소</b>&nbsp; {addr}</div>
 {fee_row}{hours_row}    <div class="place-desc">{desc}</div>
@@ -196,7 +200,10 @@ def build_place_card(p):
         f'    <div class="place-row"><b>운영시간</b>&nbsp; {html_escape(hours)}</div>\n' if hours else ""
     )
     desc = p.get("desc") or ""
+    # [ADD] 2026-11-10: 공식 사진(image)이 있으면 카드 맨 위에 넣는다 (scripts/kids_images.py)
+    _th = ki.card_thumb(p)
     return PLACE_CARD_TEMPLATE.format(
+        thumb=('    ' + _th + '\n') if _th else '',
         contentid=p["contentid"],
         title=html_escape(p.get("title", "")),
         type_label=type_label_of(p.get("placeType")),
