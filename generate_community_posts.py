@@ -20,6 +20,8 @@ GitHub Pages는 완전한 정적 호스팅이라 서버가 요청마다 새로 �
 3. blog/index.html 안의 "최근 게시글" 정적 폴백 섹션(HOHO PLAY BBS 패널 내부, BBS 톤으로
    스타일링됨)을 최신 12개로 갱신한다
 4. sitemap.xml에 새로 생긴 게시글 URL을 추가한다 (중복 추가하지 않음)
+5. 호호 매거진 글을 제목 [태그]·키워드로 자동 분류(나들이·육아/게임/운세/웹 이야기/뉴스·이슈)해서
+   목록의 분류 칩, 분류별 페이지(blog/magazine/<슬러그>/), 글 화면의 분류 배지·관련 링크에 반영한다
 
 실행 환경: GitHub Actions (Python 3.11+, requests 필요)
 """
@@ -186,13 +188,13 @@ SITE_FOOTER_HTML = """<footer class="bg-slate-900 text-slate-400 py-16">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
         <div class="col-span-1 md:col-span-2">
             <h4 class="font-black text-2xl mb-6 uppercase tracking-wider"><span class="text-indigo-400">HOHO</span><span class="text-violet-400"> PLAY</span></h4>
-            <p class="text-lg leading-relaxed mb-6">로그인 없이 즉기는 무한한 즉거움, HOHO PLAY은 웹 표준 기술을 이용한 고성능 브라우저 게임 플랫폼입니다.</p>
+            <p class="text-lg leading-relaxed mb-6">로그인 없이 즐기는 무한한 즐거움, HOHO PLAY은 웹 표준 기술을 이용한 고성능 브라우저 게임 플랫폼입니다.</p>
             <p class="text-sm text-slate-500 mb-6">개인 운영 서비스 · Since 2026 · 문의: <a href="mailto:lyh0929mm@gmail.com" class="hover:text-white transition">lyh0929mm@gmail.com</a></p>
             <div class="flex justify-center md:justify-start gap-4">
-                <a href="https://www.threads.com/@hohoplay.io" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 쓰레드" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-600 transition cursor-pointer text-white">
+                <a href="https://www.threads.com/@hohoplaylab" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 쓰레드" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-600 transition cursor-pointer text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 192 192"><path d="M141.537 88.988a66.667 66.667 0 0 0-2.518-1.143c-1.482-27.307-16.403-42.94-41.457-43.1h-.34c-14.986 0-27.449 6.396-35.12 18.036l13.779 9.452c5.73-8.695 14.724-10.548 21.348-10.548h.229c8.249.053 14.474 2.452 18.503 7.129 2.932 3.405 4.893 8.111 5.864 14.05-7.314-1.243-15.224-1.626-23.68-1.14-23.82 1.371-39.134 15.264-38.105 34.568.522 9.792 5.4 18.216 13.735 23.719 7.047 4.652 16.124 6.927 25.557 6.412 12.458-.683 22.231-5.436 29.049-14.127 5.178-6.6 8.452-15.153 9.899-25.93 5.937 3.583 10.337 8.298 12.767 13.966 4.132 9.635 4.373 25.468-8.546 38.376-11.319 11.308-24.925 16.2-45.488 16.351-22.809-.169-40.06-7.484-51.275-21.741C35.232 139.966 29.522 120.682 29.3 96c.222-24.682 5.932-43.966 16.981-57.317C57.496 24.425 74.747 17.11 97.556 16.94c22.976.17 40.56 7.52 52.256 21.845 5.75 7.09 10.093 16.016 12.94 26.402l16.345-4.363c-3.43-12.682-8.856-23.716-16.232-32.927C147.036 9.972 125.202.195 97.688 0h-.384C69.866.195 48.284 10.012 33.536 29.19 20.395 46.081 13.528 69.513 13.301 95.932L13.3 96v.068c.228 26.419 7.095 49.851 20.236 66.742 14.748 19.178 36.33 28.995 64.112 29.19h.384c24.737-.173 42.135-6.662 56.416-20.931 18.459-18.423 18.131-40.974 11.97-55.049-4.598-10.724-13.263-19.5-25.881-25.032zm-37.45 44.31c-10.458.588-21.286-5.192-21.82-14.121-.392-6.872 4.89-14.536 20.683-15.468 1.807-.104 3.583-.155 5.328-.155 6.195 0 11.988.601 17.286 1.748-1.968 24.48-11.151 27.435-21.477 27.996z"/></svg>
                 </a>
-                <a href="https://www.instagram.com/hohoplay.io" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 인스타그램" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition cursor-pointer text-white">
+                <a href="https://www.instagram.com/hohoplaylab" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 인스타그램" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition cursor-pointer text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.975.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.851s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.975.975-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.975-.975-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.975-.975 2.242-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.014 7.052.072 5.197.157 3.355.673 2.014 2.014.673 3.355.157 5.197.072 7.052.014 8.332 0 8.741 0 12c0 3.259.014 3.668.072 4.948.085 1.855.601 3.697 1.942 5.038 1.341 1.341 3.183 1.857 5.038 1.942C8.332 23.986 8.741 24 12 24s3.668-.014 4.948-.072c1.855-.085 3.697-.601 5.038-1.942 1.341-1.341 1.857-3.183 1.942-5.038.058-1.28.072-1.689.072-4.948s-.014-3.668-.072-4.948c-.085-1.855-.601-3.697-1.942-5.038C20.645.673 18.803.157 16.948.072 15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
                 </a>
                 <a href="https://www.youtube.com/@HOHOPLAY2026" target="_blank" rel="noopener noreferrer" aria-label="HOHO PLAY 유튜브" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-red-600 transition cursor-pointer text-white">
@@ -367,15 +369,164 @@ def format_date(ms_timestamp):
 _TAG_RE = re.compile(r"<[^>]+>")
 
 
+_PARA_RE = re.compile(r"<p\b[^>]*>(.*?)</p>", re.I | re.S)
+
+
+def _clean_text(s):
+    """태그를 지우고 HTML 엔티티(&amp; 등)를 풀고 공백을 하나로 합친 평문."""
+    return re.sub(r"\s+", " ", html_lib.unescape(_TAG_RE.sub("", s or ""))).strip()
+
+
+# [FIX] 2026-11-10: 매거진 목록 미리보기와 글 메타 설명이 "제목 + 본문"으로 시작해 제목이
+# 한 번 더 반복돼 보였다(본문이 <h1>/<h2>제목으로 시작하기 때문). 문단(<p>)만 이어서 쓰면
+# 제목·소제목이 빠지고, <p>가 없는 글(공지사항 등 평문)은 맨 앞에 제목이 그대로 반복될 때만 잘라낸다.
+# 같은 함수가 목록 미리보기(plain_text_excerpt)와 글의 메타 설명(render_post_html)을 같이 만든다.
+def summary_text(content, title=""):
+    paras = [_clean_text(m) for m in _PARA_RE.findall(content or "")]
+    text = " ".join(p for p in paras if p)
+    if len(text) < 40:
+        text = _clean_text(content)
+        t = (title or "").strip()
+        if t and text.startswith(t):
+            text = text[len(t):].lstrip(" :-–—").strip() or text
+    return text
+
+
 # [ADD] 2026-10-17: 매거진 목록 페이지에 글마다 3줄 미리보기를 보여달라는 요청으로
 # 추가. render_post_html()이 메타 설명용으로 앞 80자만 쓰던 것과 같은 방식(태그
 # 제거 + 공백 정리)이지만, 여기선 화면에 직접 보여주는 미리보기라 더 넉넉히 자른다.
 # 실제 "3줄"은 글자 수가 아니라 화면 폭에 따라 달라지므로, 여기서는 3줄을 채우고도
 # 남을 만큼만(200자) 잘라서 넘기고 정확히 3줄로 자르는 건 CSS(-webkit-line-clamp:3)에
 # 맡긴다.
-def plain_text_excerpt(content, length=200):
-    plain = re.sub(r"\s+", " ", _TAG_RE.sub("", content or "")).strip()
-    return plain[:length]
+def plain_text_excerpt(content, length=200, title=""):
+    return summary_text(content, title)[:length]
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# [ADD] 2026-11-10: 호호 매거진 글 자동 분류(카테고리).
+# 매거진 글이 늘면서 "나들이·육아 / 게임 / 운세 / 웹 이야기 / 뉴스·이슈" 같은 주제별
+# 묶음이 필요해졌다. writer.html이나 Worker(D1)에는 손대지 않고, 3시간마다 도는 이
+# 생성기가 글을 가져올 때마다 아래 규칙으로 분류해서 목록 페이지·글 화면·관련 링크에
+# 함께 반영한다(분류 정보는 어디에도 저장하지 않고 매번 계산 — 규칙을 고치면 기존 글에도
+# 다음 실행 때 그대로 반영됨).
+#  분류 순서:
+#   1) LANE_OVERRIDE에 글 id가 있으면 그 분류(키워드가 틀렸을 때 강제로 고치는 용도)
+#   2) 제목 맨 앞 [태그] — 예: "[뉴스] ...", "[게임 상식] ...", "[나들이] ..." (LANE_TITLE_TAGS)
+#   3) 제목(키워드당 5점)과 본문(키워드당 최대 3점)의 키워드 점수가 가장 높은 분류
+#   4) 어느 분류에도 점수가 약하면(LANE_NEWS_MIN_SCORE 미만) 뉴스·이슈로 분류
+# 글이 하나도 없는 분류는 화면(칩)에도, 페이지로도 만들지 않는다.
+# ───────────────────────────────────────────────────────────────────────────
+MAGAZINE_LANES = [
+    # (슬러그, 이름, 이모지, 분류 페이지 소개 문장)
+    ("outing", "나들이·육아", "🎪", "아이와 함께 떠나는 나들이와 축제, 외출 준비와 동선 계획을 다룬 글을 모았습니다."),
+    ("game", "게임", "🎮", "웹게임과 타자·퍼즐·러닝 같은 장르의 역사와 규칙, 게임 상식을 다룬 글을 모았습니다."),
+    ("fortune", "운세", "🔮", "오늘의 운세와 타로, 꿈해몽, MBTI 해석이 어떻게 만들어지는지 풀어 쓴 글을 모았습니다."),
+    ("web", "웹 이야기", "🌐", "회원가입 없는 서비스, 개인정보와 쿠키처럼 웹 서비스의 원리를 쉽게 풀어 쓴 글을 모았습니다."),
+    ("news", "뉴스·이슈", "📰", "게임·운세·나들이와 관련된 소식과 화제의 이슈를 짧게 정리한 글을 모았습니다."),
+]
+LANE_BY_SLUG = {lane[0]: lane for lane in MAGAZINE_LANES}
+LANE_ORDER = [lane[0] for lane in MAGAZINE_LANES]
+
+# 제목 맨 앞 [태그]로 분류를 직접 정하는 규칙. 비교할 때는 공백을 지우고 소문자로 바꾼다
+# ("[게임 상식]" → "게임상식", "[MBTI]" → "mbti").
+LANE_TITLE_TAGS = {
+    "news": {"뉴스", "이슈", "속보", "소식", "뉴스·이슈"},
+    "outing": {"나들이", "육아", "축제", "여행", "외출", "나들이·육아"},
+    "game": {"게임", "게임상식", "게임공략", "공략"},
+    "fortune": {"운세", "타로", "꿈해몽", "사주", "궁합", "mbti"},
+    "web": {"웹", "웹이야기", "서비스", "프라이버시", "개인정보"},
+}
+
+# 키워드는 소문자로 적는다(제목·본문도 소문자로 바꿔서 비교).
+LANE_KEYWORDS = {
+    "outing": ("나들이", "축제", "아이와", "아이랑", "육아", "영유아", "유아", "유모차", "외출", "야외",
+               "가족 여행", "가족여행", "주말", "체험", "아이 동반", "자녀", "부모", "키즈"),
+    "game": ("게임", "타자", "퍼즐", "레이싱", "사천성", "마작", "러닝", "낱말", "십자말", "리듬",
+             "공략", "미니게임", "콘솔", "오락실", "스도쿠"),
+    "fortune": ("운세", "타로", "사주", "궁합", "꿈해몽", "꿈풀이", "해몽", "mbti", "별자리", "만세력",
+                "명리", "점성"),
+    "web": ("개인정보", "프라이버시", "쿠키", "회원가입", "웹 서비스", "웹서비스", "사용자 경험",
+            "보안", "투명성", "트래킹", "광고 차단", "비회원", "로그인"),
+}
+
+# 키워드 분류가 마음에 안 드는 글만 여기에 {글 id: '분류 슬러그'}로 적으면 그 분류로 고정된다.
+LANE_OVERRIDE = {}
+
+LANE_NEWS_MIN_SCORE = 4
+
+# 분류 페이지(/blog/magazine/<슬러그>/)를 검색에 노출할지. 기본은 False(noindex,follow):
+# 목록만 있는 페이지라 "가치 낮은 콘텐츠"로 잡히지 않게, 방문자 이동용으로만 두고 검색엔진에는
+# 글 페이지만 노출한다. True로 바꾸면 sitemap 등록·광고 코드까지 매 실행에 자동 적용된다.
+LANE_PAGE_INDEXABLE = False
+
+
+def lane_url(slug):
+    return f"/blog/{MAGAZINE_ARCHIVE_SLUG}/{slug}/"
+
+
+def lane_abs_url(slug):
+    return f"{SITE_ROOT}{lane_url(slug)}"
+
+
+def lane_dir(slug):
+    return os.path.join(MAGAZINE_ARCHIVE_DIR, slug)
+
+
+def classify_magazine_post(post):
+    """호호 매거진 글 하나의 분류 슬러그(outing/game/fortune/web/news)를 돌려준다."""
+    override = LANE_OVERRIDE.get(post.get("id"))
+    if override in LANE_BY_SLUG:
+        return override
+    title = (post.get("title") or "").strip()
+    m = re.match(r"\[([^\]]+)\]", title)
+    if m:
+        tag = re.sub(r"\s+", "", m.group(1)).lower()
+        for slug in LANE_ORDER:
+            if tag in LANE_TITLE_TAGS.get(slug, ()):
+                return slug
+    title_l = title.lower()
+    body_l = _clean_text(post.get("content")).lower()
+    best_slug, best_score = None, 0
+    for slug in LANE_ORDER:
+        score = 0
+        for kw in LANE_KEYWORDS.get(slug, ()):
+            if kw in title_l:
+                score += 5
+            score += min(body_l.count(kw), 3)
+        if score > best_score:  # 동점이면 LANE_ORDER에서 앞선 분류가 이김
+            best_slug, best_score = slug, score
+    if best_slug is None or best_score < LANE_NEWS_MIN_SCORE:
+        return "news"
+    return best_slug
+
+
+def build_lane_badge_html(lane):
+    """글 제목 위 카테고리 줄에 붙는 분류 배지(분류 페이지로 연결). 분류가 없으면 빈 문자열."""
+    if lane not in LANE_BY_SLUG:
+        return ""
+    slug, name, emoji, _intro = LANE_BY_SLUG[lane]
+    return (
+        f'<a href="{lane_url(slug)}" class="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full" '
+        f'style="text-decoration:none">{emoji} {html_lib.escape(name)}</a>'
+    )
+
+
+def build_lane_notice_html(lane, content):
+    """운세 분류 글 본문 아래에 자동으로 붙는 안내 박스(재미·참고용, 중요한 결정 금지).
+    /fortune/ 의 '운세 이용 안내'와 같은 취지의 문구. 글 본문에 이미 같은 id의 박스가 있으면 건너뜀."""
+    if lane != "fortune" or 'id="fortune-notice"' in (content or ""):
+        return ""
+    return (
+        '<aside id="fortune-notice" aria-label="운세 콘텐츠 안내" style="margin-top:32px;padding:16px 18px;'
+        'border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;font-size:13px;line-height:1.75;color:#475569">'
+        '<div style="font-size:14px;font-weight:800;color:#334155;margin-bottom:6px">ℹ️ 운세 콘텐츠 안내</div>'
+        '이 글은 운세·타로·꿈해몽·MBTI 해석을 전통적인 풀이와 문화의 관점에서 소개하는 읽을거리로, 재미와 참고를 위한 내용이에요. '
+        '앞으로 일어날 일을 예측하거나 결과를 보장하지 않아요. 건강·금전·투자·법률·진로처럼 중요한 결정은 '
+        '이 글이 아니라 전문가 상담과 확인된 정보로 하시길 권해요. 호호플레이 운세 기능이 입력값을 어떻게 다루는지는 '
+        '<a href="/fortune/" style="color:#4f46e5;font-weight:700;text-decoration:underline">운세 이용 안내</a>와 '
+        '<a href="/privacy/" style="color:#4f46e5;font-weight:700;text-decoration:underline">개인정보처리방침</a>에서 확인할 수 있어요.'
+        '</aside>'
+    )
 
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -443,8 +594,18 @@ MAGAZINE_RELATED_MAP = {
 RELATED_BOX_MAX = 4
 
 
-def _related_keys_by_title(title):
-    """목록(MAGAZINE_RELATED_MAP)에 없는 새 매거진 글: 제목 키워드로 관련 링크를 고른다."""
+LANE_DEFAULT_LINKS = {
+    "outing": ["festival"],
+    "game": ["hub", "game"],
+    "fortune": ["fortune", "dream"],
+    "web": ["about", "privacy"],
+    "news": ["hub", "game"],
+}
+
+
+def _related_keys_by_title(title, lane=None):
+    """목록(MAGAZINE_RELATED_MAP)에 없는 새 매거진 글: 제목 키워드로 관련 링크를 고른다.
+    lane(분류 슬러그)을 넘기면 그 분류에 맞는 기본 링크를 붙이고, 엉뚱한 hub/game 링크는 붙이지 않는다."""
     t = title or ""
     keys = []
 
@@ -475,22 +636,50 @@ def _related_keys_by_title(title):
         add("privacy")
     if any(w in t for w in ("미니게임", "사다리", "룰렛", "주사위")):
         add("mini")
-    # 어떤 키워드도 안 맞으면 사이트 전체를 이어주는 기본 묶음
-    if not keys:
+    if lane in LANE_DEFAULT_LINKS:
+        add(*LANE_DEFAULT_LINKS[lane])
+    elif not keys:
+        # 어떤 키워드도 안 맞으면 사이트 전체를 이어주는 기본 묶음
         add("hub", "game", "fortune", "festival")
     else:
         add("hub", "game")
     return keys
 
 
-def build_related_box_html(post, magazine_titles):
+def _same_lane_keys(pid, lane, post_lanes, magazine_titles, count=2):
+    """같은 분류의 다른 매거진 글 'm:id' 목록. id 순서로 줄을 세워 자기 다음 글부터 돌아가며
+    고르기 때문에, 분류 안의 글들이 서로 골고루 링크를 받는다."""
+    ids = sorted(i for i, l in post_lanes.items() if l == lane and i in magazine_titles)
+    if pid not in ids or len(ids) < 2:
+        return []
+    pos = ids.index(pid)
+    out = []
+    for step in range(1, len(ids)):
+        out.append(f"m:{ids[(pos + step) % len(ids)]}")
+        if len(out) >= count:
+            break
+    return out
+
+
+def _auto_related_keys(post, lane, magazine_titles, post_lanes):
+    """새로 올린 글(직접 정한 목록 없음)의 관련 링크: 분류에 맞는 안내 페이지 + 같은 분류의 다른 글."""
+    keys = _related_keys_by_title(post.get("title", ""), lane)
+    mags = _same_lane_keys(post.get("id"), lane, post_lanes, magazine_titles) if lane else []
+    if not mags:
+        return keys
+    return keys[: RELATED_BOX_MAX - len(mags)] + mags
+
+
+def build_related_box_html(post, magazine_titles, post_lanes=None):
     """호호 매거진 글 하단 '함께 보면 좋은 페이지' 박스 HTML. 매거진이 아니면 빈 문자열."""
     if post.get("category") != MAGAZINE_CATEGORY:
         return ""
     pid = post.get("id")
+    post_lanes = post_lanes or {}
+    lane = post_lanes.get(pid)
     keys = MAGAZINE_RELATED_MAP.get(pid)
     if keys is None:
-        keys = _related_keys_by_title(post.get("title", ""))
+        keys = _auto_related_keys(post, lane, magazine_titles, post_lanes)
     items = []
     for k in keys:
         if k.startswith("m:"):
@@ -518,15 +707,26 @@ def build_related_box_html(post, magazine_titles):
             f'<div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">{html_lib.escape(desc)}</div>'
             f'</a>'
         )
+    # [ADD] 2026-11-10: 같은 분류 글 전체로 가는 링크(분류 페이지) + 매거진 전체 링크
+    lane_footer = ""
+    if lane in LANE_BY_SLUG:
+        slug, name, emoji, _intro = LANE_BY_SLUG[lane]
+        lane_footer = (
+            '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:13px;color:#64748b">'
+            f'<a href="{lane_url(slug)}" style="color:#4f46e5;font-weight:800;text-decoration:none">{emoji} {html_lib.escape(name)} 글 더 보기 →</a>'
+            f' <span style="color:#cbd5e1">·</span> '
+            f'<a href="/blog/{MAGAZINE_ARCHIVE_SLUG}/" style="color:#64748b;font-weight:700;text-decoration:none">호호 매거진 전체</a>'
+            '</div>'
+        )
     return (
         '<aside aria-label="함께 보면 좋은 페이지" style="margin-top:36px;padding:18px;border:1px solid #e2e8f0;'
         'border-radius:16px;background:#fff">'
         '<div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:12px">🔗 함께 보면 좋은 페이지</div>'
-        '<div style="display:grid;gap:10px">' + "".join(rows) + '</div></aside>'
+        '<div style="display:grid;gap:10px">' + "".join(rows) + '</div>' + lane_footer + '</aside>'
     )
 
 
-def render_post_html(template, post, magazine_titles=None):
+def render_post_html(template, post, magazine_titles=None, post_lanes=None):
     # [FIX] 2026-09-21: post["content"]를 html_lib.escape()로 감싸고 있었음 — writer.html이
     # 실제 <h1>/<h2>/<p>/<ul><li>/<strong> 등 진짜 HTML 태그로 저장한 본문을 여기서 다시
     # 이스케이프하면, 브라우저에는 제목·문단·목록이 아니라 "<h1>...</h1>" 글자가 그대로
@@ -542,7 +742,7 @@ def render_post_html(template, post, magazine_titles=None):
     # 노출되는 문제가 있었음 — 태그를 먼저 제거하고, 문단 사이 줄바꿈도 공백 하나로 합친
     # 순수 텍스트에서 잘라낸다(줄바꿈을 안 합치면 자른 80자 안에 실제 개행문자가 섞여
     # <meta ... content="..."> 속성값 한 줄이 깨지는 문제가 있었음).
-    plain_text = re.sub(r"\s+", " ", _TAG_RE.sub("", post["content"])).strip()
+    plain_text = summary_text(post["content"], post["title"])
     excerpt = plain_text[:80] if plain_text else post["title"]
 
     html_out = template
@@ -554,7 +754,14 @@ def render_post_html(template, post, magazine_titles=None):
     html_out = html_out.replace("{{EXCERPT}}", html_lib.escape(excerpt))
     html_out = html_out.replace("{{CONTENT_HTML}}", content_html)
     # [ADD] 2026-10-27: 매거진 글 하단 관련 링크 박스(템플릿의 {{RELATED_HTML}} 자리, 매거진 외 카테고리는 빈 문자열)
-    html_out = html_out.replace("{{RELATED_HTML}}", build_related_box_html(post, magazine_titles or {}))
+    # [ADD] 2026-11-10: 자동 분류 결과(post_lanes)를 글 화면에 반영 — 제목 위 분류 배지({{LANE_HTML}}),
+    # 운세 분류 글의 안내 박스, 같은 분류 글 링크가 든 관련 링크 박스. 매거진이 아닌 글은 모두 빈 문자열.
+    lane = (post_lanes or {}).get(post["id"]) if post.get("category") == MAGAZINE_CATEGORY else None
+    html_out = html_out.replace("{{LANE_HTML}}", build_lane_badge_html(lane))
+    html_out = html_out.replace(
+        "{{RELATED_HTML}}",
+        build_lane_notice_html(lane, post["content"]) + build_related_box_html(post, magazine_titles or {}, post_lanes),
+    )
     # [ADD] 2026-09-21: 글 카테고리에 따라 실제 파일 위치(주소)가 blog/posts/ 또는
     # blog/magazine/ 로 갈라지게 되어, 템플릿이 canonical/og:url 태그에 쓸 수 있도록
     # 이 글의 "진짜 전체 주소"를 넘겨준다. (템플릿에 {{POST_URL}}이 없으면 그냥
@@ -621,6 +828,17 @@ def generate_post_pages(posts):
     post_excerpts = {}
     # [ADD] 2026-10-27: 매거진 글 하단 관련 링크 박스에서 쓰는 {id: 제목} (이번 실행에 실제 존재하는 매거진 글만)
     magazine_titles = {p["id"]: p["title"] for p in posts if p.get("category") == MAGAZINE_CATEGORY}
+    # [ADD] 2026-11-10: 분류(post_lanes)는 "같은 분류의 다른 글"을 글마다 링크해야 해서, 글을 하나씩
+    # 렌더링하기 전에 본문을 전부 먼저 받아 분류부터 끝낸다(글당 fetch 횟수는 예전과 같다).
+    details = {}
+    for p in posts:
+        d = fetch_post_detail(p["id"])
+        if d:
+            details[p["id"]] = d
+    post_lanes = {
+        p["id"]: classify_magazine_post(details.get(p["id"]) or p)
+        for p in posts if p.get("category") == MAGAZINE_CATEGORY
+    }
     for p in posts:
         target_dir = post_output_dir(p)
         target_path = os.path.join(target_dir, f"{p['id']}.html")
@@ -647,18 +865,19 @@ def generate_post_pages(posts):
         # 결과도 바이트 단위로 동일하므로 git 커밋에는 변화가 없고, 헤더/템플릿을
         # 고친 뒤 다음 자동 실행(3시간 주기) 때 기존 글들에도 자동으로 반영된다.
         was_existing = os.path.exists(target_path)
-        detail = fetch_post_detail(p["id"])
+        detail = details.get(p["id"])
         if not detail:
             continue
-        post_excerpts[p["id"]] = plain_text_excerpt(detail.get("content", ""))
-        html_out = render_post_html(template, detail, magazine_titles)
+        post_excerpts[p["id"]] = plain_text_excerpt(detail.get("content", ""), title=detail.get("title", ""))
+        html_out = render_post_html(template, detail, magazine_titles, post_lanes)
         with open(target_path, "w", encoding="utf-8") as f:
             f.write(html_out)
         if was_existing:
             updated_count += 1
         else:
             new_count += 1
-            print(f"  + {post_output_rel(p)} 생성 ({detail['title']})")
+            lane_note = f" → 분류: {LANE_BY_SLUG[post_lanes[p['id']]][1]}" if p["id"] in post_lanes else ""
+            print(f"  + {post_output_rel(p)} 생성 ({detail['title']}){lane_note}")
 
     # 삭제된 게시글의 정적 파일 정리 (두 폴더 다 확인)
     removed_count = 0
@@ -675,7 +894,7 @@ def generate_post_pages(posts):
             removed_count += 1
             print(f"  - blog/{MAGAZINE_ARCHIVE_SLUG}/{rid}.html 삭제 (원본 게시글 삭제됨)")
 
-    return new_count, removed_count, updated_count, post_excerpts
+    return new_count, removed_count, updated_count, post_excerpts, post_lanes
 
 
 # 커뮤니티 페이지가 처음 열렸을 때 기본으로 보여주는 탭(= window.onload의 switchBoard 기본값과
@@ -860,89 +1079,61 @@ MM_COMPACT_STYLE = """<style id="mm-compact">
 """
 
 
-def build_magazine_archive_page(posts, post_excerpts=None):
-    """호호 매거진 카테고리 글 전체를 모은 정적 목록 페이지(blog/board-magazine-260921/index.html)를
-    만든다. blog/posts/{id}.html(개별 글, 내용이 안 바뀌므로 이미 있으면 건드리지 않음)과 달리,
-    이 페이지는 "목록"이라 새 매거진 글이 올라올 때마다 내용이 계속 바뀌어야 하므로 매 실행마다
-    통째로 다시 써서 덮어쓴다. 파일 경로(=주소)는 MAGAZINE_ARCHIVE_SLUG로 고정되어 있어 안 바뀐다.
-
-    post_excerpts: {post_id: 3줄 미리보기용 평문 일부} — generate_post_pages()가 각 글
-    본문을 fetch하는 김에 함께 뽑아둔 걸 그대로 받는다(여기서 다시 fetch하지 않음).
-    """
-    os.makedirs(MAGAZINE_ARCHIVE_DIR, exist_ok=True)
-    post_excerpts = post_excerpts or {}
-
-    magazine_posts = [p for p in posts if p.get("category") == MAGAZINE_CATEGORY]
-    magazine_posts.sort(key=lambda p: p["created_at"], reverse=True)
-
-    if not magazine_posts:
-        items_html = '<li class="empty">아직 등록된 호호 매거진 글이 없습니다.</li>'
-    else:
-        rows = []
-        for p in magazine_posts:
-            title = html_lib.escape(p["title"])
-            author = html_lib.escape(p["author"])
-            excerpt = html_lib.escape(post_excerpts.get(p["id"], ""))
-            excerpt_html = f'<p class="post-excerpt">{excerpt}</p>' if excerpt else ""
-            rows.append(
-                f'<li><a class="post-item" href="/blog/{MAGAZINE_ARCHIVE_SLUG}/{p["id"]}.html">'
-                f'<div class="post-title">{title}</div>'
-                f'{excerpt_html}'
-                f'<div class="post-meta"><span>{format_date(p["created_at"])}</span>'
-                f'<span>👤 {author}</span></div>'
-                f'</a></li>'
-            )
-        items_html = "\n".join(rows)
-
-    page = f"""<!DOCTYPE html>
+# [ADD] 2026-11-10: 매거진 목록 페이지(/blog/magazine/)와 분류 페이지(/blog/magazine/<슬러그>/)가
+# 같은 뼈대를 쓰도록 공통 템플릿으로 뺐다. 토큰(%%...%%)을 .replace()로 채우는 방식이라
+# CSS/JS의 중괄호를 따로 이스케이프할 필요가 없다.
+ARCHIVE_PAGE_TEMPLATE = """<!DOCTYPE html>
 <html lang="ko">
 <head>
-<!-- [ADD] 2026-10-10: 애드센스 광고 코드가 개별 글(community_post_template.html)에는
-     있는데 이 매거진 "목록" 페이지에는 빠져있었음 — 애드센스 품질 심사에서
-     "광고 코드가 누락되었거나 불완전한 경우"로 잡힐 수 있어 개별 글과 동일하게 추가. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
+  function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-VGTXTM4R91');
 </script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티</title>
-<meta name="description" content="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.">
-<link rel="canonical" href="{MAGAZINE_ARCHIVE_URL}">
-<meta property="og:title" content="호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티">
-<meta property="og:description" content="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.">
-<meta property="og:url" content="{MAGAZINE_ARCHIVE_URL}">
+<title>%%DOC_TITLE%%</title>
+<meta name="description" content="%%DESC%%">
+<link rel="canonical" href="%%CANONICAL%%">
+%%ROBOTS_META%%<meta property="og:title" content="%%DOC_TITLE%%">
+<meta property="og:description" content="%%DESC%%">
+<meta property="og:url" content="%%CANONICAL%%">
 <link rel="icon" href="/favicon.svg">
-<script src="https://cdn.tailwindcss.com"></script>
+%%ADS_SCRIPT%%<script src="https://cdn.tailwindcss.com"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-body {{ font-family: 'Noto Sans KR', sans-serif; }}
-.post-list {{ list-style: none; padding: 0; margin: 0; }}
-.post-item {{ display: block; padding: 16px 0; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit; }}
-.post-title {{ font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }}
-.post-excerpt {{
+body { font-family: 'Noto Sans KR', sans-serif; }
+.post-list { list-style: none; padding: 0; margin: 0; }
+.post-item { display: block; padding: 16px 0; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit; }
+.post-title { font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+.post-excerpt {
     font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 8px;
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}}
-.post-meta {{ font-size: 12px; color: #94a3b8; }}
-.post-meta span {{ margin-right: 10px; }}
-.empty {{ color: #94a3b8; font-size: 14px; padding: 40px 0; text-align: center; list-style: none; }}
-.back-link {{ display: inline-block; margin-top: 28px; color: #4f46e5; font-weight: 700; text-decoration: none; font-size: 14px; }}
+}
+.post-meta { font-size: 12px; color: #94a3b8; }
+.post-meta span { margin-right: 10px; }
+.empty { color: #94a3b8; font-size: 14px; padding: 40px 0; text-align: center; list-style: none; }
+.back-link { display: inline-block; margin-top: 28px; color: #4f46e5; font-weight: 700; text-decoration: none; font-size: 14px; }
+.lane-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 6px; }
+.lane-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; border: 1px solid #e2e8f0; background: #fff; color: #475569; font-size: 13px; font-weight: 700; text-decoration: none; }
+.lane-chip span { font-size: 11px; color: #94a3b8; font-weight: 800; }
+.lane-chip.on { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+.lane-chip.on span { color: #c7d2fe; }
+.lane-badge { display: inline-block; font-size: 11px; font-weight: 800; color: #4f46e5; background: #eef2ff; padding: 1px 9px; border-radius: 999px; margin-right: 10px; }
 </style>
-{MM_COMPACT_STYLE}</head>
+%%MM_STYLE%%</head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
-{SITE_HEADER_HTML}
+%%HEADER%%
 <main class="flex-grow max-w-3xl mx-auto w-full px-4 py-10">
-<h1 style="font-size:1.6rem;font-weight:900;margin-bottom:6px">📖 호호 매거진</h1>
-<p class="intro">호호플레이(HOHO PLAY)의 호호 매거진 게시글을 모아봅니다.</p>
+<h1 style="font-size:1.6rem;font-weight:900;margin-bottom:6px">%%H1%%</h1>
+<p class="intro">%%INTRO%%</p>
+%%CHIPS%%
 <ul class="post-list">
-{items_html}
+%%ITEMS%%
 </ul>
-<a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>
+%%BACK%%
 
 <!-- [ADD] 2026-10-17: 게임공략 페이지 하단과 같은 방식으로 HOHO PICK을 붙인다.
      data-exclude="magazine"은 hoho-pick.html 쪽에서 "이 페이지가 이미 다루는
@@ -950,33 +1141,197 @@ body {{ font-family: 'Noto Sans KR', sans-serif; }}
      (게임공략 페이지가 data-exclude="guide"를 쓰는 것과 같은 패턴). -->
 <div id="hoho-pick-placeholder" data-exclude="magazine" style="margin-top:24px;"></div>
 <script>
-(function(){{
+(function(){
     var ph = document.getElementById('hoho-pick-placeholder');
     if (!ph) return;
-    fetch('/hoho-pick.html').then(function(r){{ return r.text(); }}).then(function(html){{
+    fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
         ph.innerHTML = html;
         var scripts = ph.querySelectorAll('script');
-        for (var i = 0; i < scripts.length; i++) {{
+        for (var i = 0; i < scripts.length; i++) {
             var old = scripts[i];
             var s = document.createElement('script');
-            for (var j = 0; j < old.attributes.length; j++) {{
+            for (var j = 0; j < old.attributes.length; j++) {
                 s.setAttribute(old.attributes[j].name, old.attributes[j].value);
-            }}
+            }
             s.textContent = old.textContent;
             old.parentNode.replaceChild(s, old);
-        }}
-    }}).catch(function(){{}});
-}})();
+        }
+    }).catch(function(){});
+})();
 </script>
 </main>
-{SITE_FOOTER_HTML}
+%%FOOTER%%
 </body>
 </html>"""
 
+ADSENSE_LOADER_TAG = (
+    '<!-- [ADD] 2026-10-10: 애드센스 광고 코드가 개별 글(community_post_template.html)에는\n'
+    '     있는데 이 매거진 "목록" 페이지에는 빠져있었음 — 애드센스 품질 심사에서\n'
+    '     "광고 코드가 누락되었거나 불완전한 경우"로 잡힐 수 있어 개별 글과 동일하게 추가. -->\n'
+    '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>\n'
+)
+
+
+def _lane_chips_html(counts, total, current=None):
+    """매거진 목록 위의 분류 칩. 글이 있는 분류만 보여주고, current는 현재 보고 있는 분류(강조)."""
+    if not total:
+        return ""
+
+    def chip(label, n, href, on):
+        cls = "lane-chip on" if on else "lane-chip"
+        cur = ' aria-current="page"' if on else ""
+        return f'<a class="{cls}" href="{href}"{cur}>{label} <span>{n}</span></a>'
+
+    parts = [chip("전체", total, f"/blog/{MAGAZINE_ARCHIVE_SLUG}/", current is None)]
+    for slug, name, emoji, _intro in MAGAZINE_LANES:
+        n = counts.get(slug, 0)
+        if n:
+            parts.append(chip(f"{emoji} {html_lib.escape(name)}", n, lane_url(slug), current == slug))
+    return '<nav class="lane-chips" aria-label="호호 매거진 분류">' + "".join(parts) + "</nav>"
+
+
+def _archive_items_html(magazine_posts, post_excerpts, post_lanes, with_badge, empty_text):
+    if not magazine_posts:
+        return f'<li class="empty">{empty_text}</li>'
+    rows = []
+    for p in magazine_posts:
+        title = html_lib.escape(p["title"])
+        author = html_lib.escape(p["author"])
+        excerpt = html_lib.escape(post_excerpts.get(p["id"], ""))
+        excerpt_html = f'<p class="post-excerpt">{excerpt}</p>' if excerpt else ""
+        badge = ""
+        lane = post_lanes.get(p["id"])
+        if with_badge and lane in LANE_BY_SLUG:
+            _slug, name, emoji, _intro = LANE_BY_SLUG[lane]
+            badge = f'<span class="lane-badge">{emoji} {html_lib.escape(name)}</span>'
+        rows.append(
+            f'<li><a class="post-item" href="/blog/{MAGAZINE_ARCHIVE_SLUG}/{p["id"]}.html">'
+            f'<div class="post-title">{title}</div>'
+            f'{excerpt_html}'
+            f'<div class="post-meta">{badge}<span>{format_date(p["created_at"])}</span>'
+            f'<span>👤 {author}</span></div>'
+            f'</a></li>'
+        )
+    return "\n".join(rows)
+
+
+def _render_archive_page(*, doc_title, desc, canonical, noindex, h1, intro, chips_html, items_html, back_html):
+    page = ARCHIVE_PAGE_TEMPLATE
+    # 검색에 안 나오게 한 페이지에는 robots 메타를 넣고 광고 코드는 뺀다(공지·업데이트 글과 같은 원칙).
+    robots_meta = '<meta name="robots" content="noindex,follow">\n' if noindex else ""
+    ads_script = "" if noindex else ADSENSE_LOADER_TAG
+    for token, value in (
+        ("%%DOC_TITLE%%", html_lib.escape(doc_title)),
+        ("%%DESC%%", html_lib.escape(desc)),
+        ("%%CANONICAL%%", canonical),
+        ("%%ROBOTS_META%%", robots_meta),
+        ("%%ADS_SCRIPT%%", ads_script),
+        ("%%H1%%", h1),
+        ("%%INTRO%%", intro),
+        ("%%CHIPS%%", chips_html),
+        ("%%ITEMS%%", items_html),
+        ("%%BACK%%", back_html),
+        ("%%MM_STYLE%%", MM_COMPACT_STYLE),
+        ("%%HEADER%%", SITE_HEADER_HTML),
+        ("%%FOOTER%%", SITE_FOOTER_HTML),
+    ):
+        page = page.replace(token, value)
+    return page
+
+
+def _sorted_magazine_posts(posts):
+    magazine_posts = [p for p in posts if p.get("category") == MAGAZINE_CATEGORY]
+    magazine_posts.sort(key=lambda p: (p["created_at"], p["id"]), reverse=True)
+    return magazine_posts
+
+
+def build_magazine_archive_page(posts, post_excerpts=None, post_lanes=None):
+    """호호 매거진 카테고리 글 전체를 모은 정적 목록 페이지(blog/magazine/index.html)를 만든다.
+    개별 글과 달리 이 페이지는 "목록"이라 새 매거진 글이 올라올 때마다 내용이 계속 바뀌어야
+    하므로 매 실행마다 통째로 다시 써서 덮어쓴다. 파일 경로(=주소)는 MAGAZINE_ARCHIVE_SLUG로
+    고정되어 있어 안 바뀐다.
+
+    post_excerpts: {post_id: 3줄 미리보기용 평문 일부} — generate_post_pages()가 각 글
+    본문을 fetch하는 김에 함께 뽑아둔 걸 그대로 받는다(여기서 다시 fetch하지 않음).
+    post_lanes: {post_id: 분류 슬러그} — 목록 위 분류 칩과 글마다 붙는 분류 배지에 쓴다.
+    """
+    os.makedirs(MAGAZINE_ARCHIVE_DIR, exist_ok=True)
+    post_excerpts = post_excerpts or {}
+    post_lanes = post_lanes or {}
+    magazine_posts = _sorted_magazine_posts(posts)
+    counts = {}
+    for p in magazine_posts:
+        lane = post_lanes.get(p["id"])
+        if lane in LANE_BY_SLUG:
+            counts[lane] = counts.get(lane, 0) + 1
+
+    page = _render_archive_page(
+        doc_title="호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티",
+        desc="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.",
+        canonical=MAGAZINE_ARCHIVE_URL,
+        noindex=False,
+        h1="📖 호호 매거진",
+        intro="호호플레이(HOHO PLAY)의 호호 매거진 게시글을 모아봅니다.",
+        chips_html=_lane_chips_html(counts, len(magazine_posts)),
+        items_html=_archive_items_html(magazine_posts, post_excerpts, post_lanes, True,
+                                       "아직 등록된 호호 매거진 글이 없습니다."),
+        back_html='<a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>',
+    )
     out_path = os.path.join(MAGAZINE_ARCHIVE_DIR, "index.html")
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(page)
-    print(f"  ✓ blog/{MAGAZINE_ARCHIVE_SLUG}/index.html 갱신 완료 (매거진 글 {len(magazine_posts)}개)")
+    summary = ", ".join(f"{LANE_BY_SLUG[s][1]} {counts[s]}" for s in LANE_ORDER if counts.get(s))
+    print(f"  ✓ blog/{MAGAZINE_ARCHIVE_SLUG}/index.html 갱신 완료 (매거진 글 {len(magazine_posts)}개"
+          + (f" · 분류: {summary}" if summary else "") + ")")
+    return counts
+
+
+def build_magazine_lane_pages(posts, post_excerpts=None, post_lanes=None):
+    """분류별 목록 페이지(blog/magazine/<슬러그>/index.html)를 만든다. 글이 하나도 없는
+    분류는 만들지 않고, 예전에 만들어둔 페이지가 있으면 지운다(분류 규칙이 바뀌거나 글이 삭제된 경우).
+    글이 있는 분류의 슬러그 목록을 돌려준다(sitemap 등록에 사용)."""
+    post_excerpts = post_excerpts or {}
+    post_lanes = post_lanes or {}
+    magazine_posts = _sorted_magazine_posts(posts)
+    counts = {}
+    for p in magazine_posts:
+        lane = post_lanes.get(p["id"])
+        if lane in LANE_BY_SLUG:
+            counts[lane] = counts.get(lane, 0) + 1
+
+    active = []
+    for slug, name, emoji, intro in MAGAZINE_LANES:
+        lane_posts = [p for p in magazine_posts if post_lanes.get(p["id"]) == slug]
+        out_dir = lane_dir(slug)
+        out_path = os.path.join(out_dir, "index.html")
+        if not lane_posts:
+            if os.path.exists(out_path):
+                os.remove(out_path)
+                try:
+                    os.rmdir(out_dir)
+                except OSError:
+                    pass
+                print(f"  - blog/{MAGAZINE_ARCHIVE_SLUG}/{slug}/index.html 삭제 (이 분류의 글이 없음)")
+            continue
+        os.makedirs(out_dir, exist_ok=True)
+        page = _render_archive_page(
+            doc_title=f"{name} - 호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티",
+            desc=intro,
+            canonical=lane_abs_url(slug),
+            noindex=not LANE_PAGE_INDEXABLE,
+            h1=f"{emoji} {html_lib.escape(name)}",
+            intro=f"{html_lib.escape(intro)} (글 {len(lane_posts)}개)",
+            chips_html=_lane_chips_html(counts, len(magazine_posts), slug),
+            items_html=_archive_items_html(lane_posts, post_excerpts, post_lanes, False, "아직 이 분류의 글이 없습니다."),
+            back_html=(f'<a class="back-link" href="/blog/{MAGAZINE_ARCHIVE_SLUG}/">← 호호 매거진 전체 보기</a>'
+                       ' <span style="color:#cbd5e1;margin:0 6px">·</span> '
+                       '<a class="back-link" href="/blog/">커뮤니티</a>'),
+        )
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(page)
+        active.append(slug)
+    print(f"  ✓ 매거진 분류 페이지 {len(active)}개 갱신 ({', '.join(LANE_BY_SLUG[s][1] for s in active)})")
+    return active
 
 
 def build_magazine_archive_redirect():
@@ -1036,7 +1391,7 @@ def migrate_magazine_sitemap_entry():
         print(f"  ✓ sitemap.xml에서 예전 매거진 주소({OLD_MAGAZINE_ARCHIVE_URL}) 항목 제거")
 
 
-def update_sitemap(posts):
+def update_sitemap(posts, active_lane_slugs=()):
     if not os.path.exists(SITEMAP_PATH):
         print("⚠️ sitemap.xml을 찾을 수 없어 건너뜁니다.", file=sys.stderr)
         return
@@ -1094,6 +1449,22 @@ def update_sitemap(posts):
         content = content.replace("</urlset>", entry + "</urlset>")
         added += 1
 
+    # [ADD] 2026-11-10: 매거진 분류 페이지. 기본(LANE_PAGE_INDEXABLE=False)은 noindex라 sitemap에 올리지 않고,
+    # 예전에 올라가 있었다면(설정을 바꾼 경우) 지운다. True일 때는 글이 있는 분류만 등록한다.
+    for slug in LANE_ORDER:
+        url = lane_abs_url(slug)
+        if LANE_PAGE_INDEXABLE and slug in active_lane_slugs:
+            if url not in content:
+                content = content.replace("</urlset>", (
+                    f"  <url>\n    <loc>{url}</loc>\n    <changefreq>weekly</changefreq>\n"
+                    f"    <priority>0.5</priority>\n  </url>\n</urlset>"))
+                added += 1
+        else:
+            content, did_remove = _remove_sitemap_url(content, url)
+            if did_remove:
+                removed += 1
+                print(f"  ✓ sitemap.xml에서 매거진 분류 페이지({url}) 제거")
+
     if added > 0 or removed > 0:
         with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
             f.write(content)
@@ -1107,13 +1478,14 @@ def main():
     posts = fetch_all_posts()
     print(f"전체 게시글 {len(posts)}개 확인")
 
-    new_count, removed_count, updated_count, post_excerpts = generate_post_pages(posts)
+    new_count, removed_count, updated_count, post_excerpts, post_lanes = generate_post_pages(posts)
     update_blog_index_static_list(posts)
     update_footer_latest(posts)
-    build_magazine_archive_page(posts, post_excerpts)
+    build_magazine_archive_page(posts, post_excerpts, post_lanes)
+    active_lanes = build_magazine_lane_pages(posts, post_excerpts, post_lanes)
     build_magazine_archive_redirect()
     migrate_magazine_sitemap_entry()
-    update_sitemap(posts)
+    update_sitemap(posts, active_lanes)
 
     print(f"완료: 신규 {new_count}개, 재렌더링 {updated_count}개(내용 그대로면 git diff 없음), 삭제 {removed_count}개")
 
