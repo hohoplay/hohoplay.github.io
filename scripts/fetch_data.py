@@ -240,6 +240,50 @@ def fetch_intro_fields(content_id, content_type_id='15', max_retries=2):
     return {}
 
 
+# [ADD] 2026-11-11: 상세페이지에도 지도 코스 카드와 같은 운영시간·소요시간을 보여준다.
+# TourAPI 운영시간(playTime)은 "화요일~일요일 10:30 / 14:00매주 월요일 휴무"처럼 붙어서 내려와 읽기 좋게 나눈다.
+# FESTIVAL_EXTRA_INFO: TourAPI에는 없고 공식 안내로만 확인된 소요시간 등(contentid 기준). festival/index.html 의 같은 이름 상수와 맞춘다.
+#  - 3113265 APAP 작품투어: 안양문화예술재단 안내 — 소요 약 60~90분
+FESTIVAL_EXTRA_INFO = {
+    '3113265': {'duration': '약 60~90분'},
+}
+TIME_ROW_START = '<!--pt:v1-->'
+TIME_ROW_END = '<!--/pt:v1-->'
+
+
+def format_play_time_for_page(raw):
+    """playTime 문구를 상세페이지용 한 줄(" · "로 구분)로 정리한다. 읽을 수 없으면 빈 문자열."""
+    t = re.sub(r'<[^>]+>', ' ', str(raw or ''))
+    t = html.unescape(t)
+    t = t.replace('※', ' · ')
+    t = re.sub(r'(^|\s)[-•*]\s+', ' · ', t)
+    t = re.sub(r'([0-9:)])\s*-\s*(?=[가-힣]|\d{1,2}/\d)', r'\1 · ', t)
+    t = re.sub(r'([0-9:)])(?=(?:매주|매월|매일))', r'\1 · ', t)
+    t = re.sub(r'\s+', ' ', t)
+    t = re.sub(r'(?:\s*·\s*){2,}', ' · ', t)
+    t = re.sub(r'^\s*·\s*', '', t)
+    t = re.sub(r'\s*·\s*$', '', t).strip()
+    if not t or '확인되지' in t:
+        return ''
+    return t[:200]
+
+
+def build_time_rows_html(play_time, content_id):
+    """운영시간·소요시간 행(마커로 감싸 여러 번 실행해도 같은 결과). 보여줄 정보가 없으면 빈 문자열."""
+    rows = []
+    pt = format_play_time_for_page(play_time)
+    if pt:
+        rows.append('<div class="detail-row"><div class="detail-label">운영시간</div><div class="detail-value">'
+                    + html.escape(pt) + '</div></div>')
+    extra = FESTIVAL_EXTRA_INFO.get(str(content_id or '')) or {}
+    if extra.get('duration'):
+        rows.append('<div class="detail-row"><div class="detail-label">소요시간</div><div class="detail-value">'
+                    + html.escape(extra['duration']) + '</div></div>')
+    if not rows:
+        return ''
+    return TIME_ROW_START + '\n    '.join(rows) + TIME_ROW_END + '\n    '
+
+
 def build_detail_page_html(festival, overview, intro):
     """축제 1건에 대한 독립 상세페이지(festival/detail/{contentid}.html)를 만든다."""
     title = html.escape(festival.get('title') or '')
@@ -265,6 +309,7 @@ def build_detail_page_html(festival, overview, intro):
     # TourAPI가 <a href="...">...</a> 형태의 HTML 문자열로 그대로 내려주는 경우가 많아 그대로 사용
     homepage_raw = intro.get('eventhomepage') or ''
 
+    time_rows = build_time_rows_html(festival.get('playTime'), festival.get('contentid'))
     map_link_html = ''
     if lat and lng:
         map_url = f"https://map.kakao.com/link/map/{quote(festival.get('title') or '축제')},{lat},{lng}"
@@ -320,7 +365,7 @@ def build_detail_page_html(festival, overview, intro):
 
   <div class="detail-card">
     <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">{addr}{(' · ' + eventplace) if eventplace else ''}</div></div>
-    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">{fee}</div></div>
+    {time_rows}<div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">{fee}</div></div>
     <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">{sponsor_label}</div></div>
     <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">{tel or '정보 없음'}</div></div>
     <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">{homepage_raw or '정보 없음'}</div></div>
@@ -470,7 +515,7 @@ def attach_play_times(festivals, prev_path=os.path.join('data', 'festivals.json'
     print(f"행사시간(playTime): 재사용 {reused}건, 신규 조회 {fetched}건, 실패 {failed}건, 값이 있는 축제 {filled}/{len(festivals)}건")
 
 
-def patch_existing_detail_pages():
+def patch_existing_detail_pages(festivals=None):
     """festival/detail/ 폴더 안에 이미 만들어진 상세페이지 전체(누적 수천 건)를
     대상으로, 상단 "🏠 홈" 버튼이 빠진 옛 버전을 찾아 새 버전으로 바꿔치기한다.
 
@@ -524,6 +569,17 @@ def patch_existing_detail_pages():
          '.detail-image{display:block;width:100%;height:auto;border-radius:14px;margin-bottom:16px;object-fit:contain;max-height:480px;background:#f1f5f9}'),
     )
 
+    # [ADD] 2026-11-11: 운영시간·소요시간 행. 이번 실행에서 받은 festivals(playTime 포함)로 이미 만들어진 상세페이지에도 끼워 넣는다.
+    # 마커(<!--pt:v1-->)로 감싸 두어 다시 실행하면 같은 자리를 새 값으로 바꿀 뿐 중복되지 않는다(TourAPI 호출 없음).
+    FEE_ROW_MARK = '<div class="detail-row"><div class="detail-label">이용요금</div>'
+    time_block_by_cid = {}
+    for _f in (festivals or []):
+        _cid = str(_f.get('contentid') or '')
+        _blk = build_time_rows_html(_f.get('playTime'), _cid)
+        if _cid and _blk:
+            time_block_by_cid[_cid] = _blk
+    time_rows_patched = 0
+
     filenames = [fn for fn in os.listdir(detail_dir) if fn.endswith('.html')]
     header_patched = 0
     nature_header_patched = 0
@@ -551,13 +607,27 @@ def patch_existing_detail_pages():
                 image_css_patched += 1
                 break
 
+        _blk = time_block_by_cid.get(fn[:-5])
+        if _blk and FEE_ROW_MARK in content:
+            if TIME_ROW_START in content and TIME_ROW_END in content:
+                _a = content.index(TIME_ROW_START)
+                _b = content.index(TIME_ROW_END) + len(TIME_ROW_END)
+                _new = content[:_a] + _blk.rstrip(' \n').rstrip() + content[_b:]
+                _new = _new.replace(TIME_ROW_END + '\n    <div class="detail-row"><div class="detail-label">이용요금', TIME_ROW_END + '\n    <div class="detail-row"><div class="detail-label">이용요금')
+            else:
+                _new = content.replace(FEE_ROW_MARK, _blk + FEE_ROW_MARK, 1)
+            if _new != content:
+                content = _new
+                changed = True
+                time_rows_patched += 1
+
         if changed:
             with open(path, 'w', encoding='utf-8') as fp:
                 fp.write(content)
 
     print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — "
           f"축제 상단 홈 버튼 보정: {header_patched}건, 자연관광지류 홈 버튼 보정: {nature_header_patched}건, "
-          f"대표 사진 모양 보정: {image_css_patched}건")
+          f"대표 사진 모양 보정: {image_css_patched}건, 운영시간·소요시간 행 보정: {time_rows_patched}건")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
@@ -1523,7 +1593,7 @@ def main():
     # 종료된 과거 페이지까지 포함해 festival/detail/ 전체를 빠짐없이 훑어야 해서
     # 별도 함수로 한 번 더 돈다 — 1회성 보정이 끝나면(모든 파일이 새 버전이 되면)
     # 이후 실행부터는 OLD_HEADER가 안 남아있어 금방 끝난다.
-    patch_existing_detail_pages()
+    patch_existing_detail_pages(festivals)
 
     detail_dir = os.path.join('festival', 'detail')
     for it in all_map_items:
