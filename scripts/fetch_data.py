@@ -296,7 +296,7 @@ def build_detail_page_html(festival, overview, intro):
   * {{ box-sizing: border-box; }}
   body {{ font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }}
   .detail-wrap {{ max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }}
-  .detail-image {{ width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }}
+  .detail-image {{ display: block; width: 100%; height: auto; border-radius: 14px; margin-bottom: 20px; object-fit: contain; max-height: 480px; background: #f1f5f9; }}
   .detail-card {{ background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }}
   .detail-row {{ display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }}
   .detail-row:last-child {{ border-bottom: none; }}
@@ -513,9 +513,21 @@ def patch_existing_detail_pages():
         '</div>\n'
     )
 
+    # [ADD] 2026-11-11: 대표 사진 모양 보정. 예전 CSS는 사진을 높이 320px로 가운데만 잘라(object-fit: cover)
+    # 보여줘서, 세로로 긴 포스터(예: 광주비엔날레 7:10)는 글자가 없는 가운데 빈 부분만 보였다.
+    # 사진 전체가 보이게(contain) 바꾸고 높이 상한을 480px로 늘린다. 옛 CSS 문자열이 있는 페이지만 바꾸므로
+    # 여러 번 실행해도 결과가 같다(TourAPI 호출 없음, 문자열 치환만).
+    IMG_CSS_OLD_NEW = (
+        ('.detail-image { width: 100%; border-radius: 14px; margin-bottom: 20px; object-fit: cover; max-height: 320px; }',
+         '.detail-image { display: block; width: 100%; height: auto; border-radius: 14px; margin-bottom: 20px; object-fit: contain; max-height: 480px; background: #f1f5f9; }'),
+        ('.detail-image{width:100%;border-radius:14px;margin-bottom:16px;object-fit:cover;max-height:320px}',
+         '.detail-image{display:block;width:100%;height:auto;border-radius:14px;margin-bottom:16px;object-fit:contain;max-height:480px;background:#f1f5f9}'),
+    )
+
     filenames = [fn for fn in os.listdir(detail_dir) if fn.endswith('.html')]
     header_patched = 0
     nature_header_patched = 0
+    image_css_patched = 0
     for fn in filenames:
         path = os.path.join(detail_dir, fn)
         with open(path, 'r', encoding='utf-8') as fp:
@@ -532,12 +544,20 @@ def patch_existing_detail_pages():
             nature_header_patched += 1
         # 둘 다 해당 없으면 이미 보정된 페이지(새 버전)이거나 알 수 없는 템플릿 — 건드리지 않음
 
+        for _old_css, _new_css in IMG_CSS_OLD_NEW:
+            if _old_css in content:
+                content = content.replace(_old_css, _new_css)
+                changed = True
+                image_css_patched += 1
+                break
+
         if changed:
             with open(path, 'w', encoding='utf-8') as fp:
                 fp.write(content)
 
     print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — "
-          f"축제 상단 홈 버튼 보정: {header_patched}건, 자연관광지류 홈 버튼 보정: {nature_header_patched}건")
+          f"축제 상단 홈 버튼 보정: {header_patched}건, 자연관광지류 홈 버튼 보정: {nature_header_patched}건, "
+          f"대표 사진 모양 보정: {image_css_patched}건")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
@@ -576,7 +596,7 @@ def build_nature_page_html(spot, overview, page_label='자연공원·수목원')
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body{{font-family:'Noto Sans KR',sans-serif;max-width:640px;margin:0 auto;padding:20px 16px;color:#1e293b}}
-.detail-image{{width:100%;border-radius:14px;margin-bottom:16px;object-fit:cover;max-height:320px}}
+.detail-image{{display:block;width:100%;height:auto;border-radius:14px;margin-bottom:16px;object-fit:contain;max-height:480px;background:#f1f5f9}}
 .detail-row{{margin:6px 0;font-size:14px;color:#475569}}
 .detail-link{{display:inline-block;margin-top:14px;color:#059669;font-weight:700;text-decoration:underline}}
 .back-link{{display:inline-block;margin-top:24px;color:#059669;font-weight:700;text-decoration:none}}
