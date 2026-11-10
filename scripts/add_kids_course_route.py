@@ -321,7 +321,7 @@ def transform(page, places, fname):
             return None, '마무리 제목("이 코스, 이렇게 다녀오세요")을 찾지 못함'
         out = page[:m.start()] + block + page[m.start():]
 
-    if fname in NOINDEX_FILES and 'name="robots"' not in out:
+    if 'name="robots"' not in out:   # 2026-11-10: 코스 글 전체를 noindex 처리 (예전 NOINDEX_FILES 3곳 → 전부)
         if not CANONICAL_RE.search(out):
             return None, 'canonical 링크를 찾지 못해 noindex 를 넣지 못함'
         out = CANONICAL_RE.sub(lambda m: m.group(1) + '\n    ' + ROBOTS, out, count=1)
