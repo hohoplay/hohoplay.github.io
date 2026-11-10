@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VGTXTM4R91');
+    </script>
+    <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <!-- ═══ Kakao SDK (실제 공유 기능) ═══ -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+      crossorigin="anonymous"></script>
+    <script>
+      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>날씨 변수 극복하기: 야외 나들이 중 갑작스러운 비를 만났을 때 대처법 - HOHO PLAY 커뮤니티</title>
+    <meta name="description" content="날씨 변수 극복하기: 야외 나들이 중 갑작스러운 비를 만났을 때 대처법 한국관광공사 공공 데이터 및 지자체별 영유아 편의시설 등록 현황 자료를 ">
+    <link rel="canonical" href="https://hohoplaylab.com/blog/posts/52.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+        <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="/" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">호호 매거진</span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/game/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
+                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
+                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
+                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/blog/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
+                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
+                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
+                            <a href="/festival/worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이 월드컵</a>
+                            <a href="/festival/camping-worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">캠핑장 월드컵</a>
+                            <a href="/festival/roulette.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+                    <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
+                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
+                            <a href="/partner/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/terms/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
+                            <a href="/privacy/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
+                            <a href="/copyright/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
+                            <a href="/guide/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🎮 플레이하기</div>
+                <a href="/game/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
+                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
+                <a href="/blog/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
+                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
+                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
+                <a href="/festival/worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이 월드컵</a>
+                <a href="/festival/camping-worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">캠핑장 월드컵</a>
+                <a href="/festival/roulette.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+            <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
+                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
+                <a href="/partner/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <a href="/terms/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
+                <a href="/privacy/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
+                <a href="/copyright/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
+                <a href="/guide/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+
+    <main class="max-w-3xl mx-auto px-4 py-10 w-full">
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
+
+    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">호호 매거진</span>
+        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
+    </div>
+    <script>
+      (function() {
+          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=post-52')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                  var el = document.getElementById('page-view-num');
+                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
+              })
+              .catch(function() {});
+      })();
+    </script>
+
+    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">날씨 변수 극복하기: 야외 나들이 중 갑작스러운 비를 만났을 때 대처법</h1>
+    <p class="text-slate-500 mb-8">HOHO PLAY · 2026.11.09</p>
+
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h2>날씨 변수 극복하기: 야외 나들이 중 갑작스러운 비를 만났을 때 대처법</h2>
+<p>한국관광공사 공공 데이터 및 지자체별 영유아 편의시설 등록 현황 자료를 바탕으로 살펴보면, 주말 야외 나들이 인파가 급증하는 시즌일수록 갑작스러운 소나기나 기상 악화로 인해 불편을 겪는 가족 단위 방문객이 매년 큰 폭으로 증가하고 있습니다. 설레는 마음으로 주말 나들이를 떠났다가 예보에 없던 비를 만나 당황했던 경험은 누구나 한 번쯤 가지고 있을 것입니다. 특히 영유아 자녀를 동반한 가족이라면 갑작스러운 우천은 단순한 불편함을 넘어 아이의 감기나 컨디션 난조로 이어질 수 있어 더욱 세심한 대처가 필요합니다. 성공적인 나들이의 핵심은 날씨 변수를 사전에 예측하고 비가 내릴 때 즉시 가동할 수 있는 대안을 마련하는 데 있습니다. 호호플레이(HoHoPlay)는 이러한 돌발 상황 속에서 부모와 아이가 당황하지 않고 현명하게 대처할 수 있는 실전 노하우를 매거진을 통해 전해드립니다. 이번 글에서는 날씨 변수를 완벽하게 극복하고 야외 나들이 중 갑작스러운 비를 만났을 때 대처하는 요령을 상세히 안내해 드립니다.</p>
+<hr>
+<h2>1. 야외 나들이 중 비를 만났을 때 단계별 대처 요령</h2>
+<p>나들이 도중 하늘이 흐려지며 빗방울이 떨어지기 시작하면 가장 먼저 침착하게 주변을 둘러보고 안전한 대피처를 확보해야 합니다. 무리하게 야외 활동을 지속하기보다는 비의 강도와 주변 시설을 빠르게 파악하는 유연한 대처가 필수적입니다.</p>
+<h3>1.1. 1단계: 안전한 대피처 확보 및 우천 용품 점검</h3>
+<p>첫 번째 단계는 비를 피할 수 있는 지붕이 있는 공간이나 인근 실내 편의시설로 신속하게 이동하는 것입니다. 숲속이나 공원 산책로 한가운데에 있다면 큰 나무 아래는 낙뢰 위험이 있으므로 피하고, 정자나 관리사무소, 혹은 인근 상가 건물로 대피해야 합니다.</p>
+<p>대피와 동시에 가방 속에 준비해 둔 우산이나 우비, 그리고 유모차 레인커버를 꺼내 아이를 비로부터 보호해야 합니다. 평소 가방 한쪽에 가벼운 휴대용 우비를 챙겨두는 습관만으로도 갑작스러운 소나기 속에서 아이가 비에 젖는 것을 효과적으로 예방할 수 있습니다.</p>
+<h3>1.2. 2단계: 체온 유지 및 젖은 옷 갈아입히기</h3>
+<p>비를 잠시 맞았더라도 아이들은 체온 조절 능력이 성인에 비해 취약하기 때문에 쉽게 체온이 떨어지고 감기에 걸릴 수 있습니다. 대피를 마친 후에는 아이의 옷이 젖었는지 꼼꼼히 확인하고, 젖은 부위가 있다면 즉시 마른 수건이나 손수건으로 물기를 닦아내야 합니다.</p>
+<p>준비해 둔 여벌 옷과 얇은 블랭킷이나 바람막이 점퍼를 덧입혀 체온을 빠르게 유지해 주는 것이 중요합니다. 따뜻한 물이나 음료를 마시게 하여 몸을 안쪽부터 데워주는 것도 감기를 예방하는 훌륭한 방법입니다.</p>
+<hr>
+<h2>2. 정보 탐색 및 플랜 B 전환 가이드</h2>
+<p>날씨 변수를 극복하기 위해 평소 어떤 방식으로 정보를 탐색하고 대안을 마련하느냐에 따라 나들이의 만족도는 완전히 달라집니다. 스마트한 정보 탐색과 빠른 대처가 나들이를 살리는 지름길입니다.</p>
+<p>일반적으로 비가 내리기 시작하면 모바일 포털 검색을 통해 급하게 실내 장소를 찾느라 시간을 허비하고 동선이 꼬이는 경우가 많습니다. 반면 호호플레이의 위치 기반 나들이 지도를 활용하면 현재 위치 반경 이내에서 곧바로 대피할 수 있는 실내 코스를 확인할 수 있습니다. 우천 시에도 허둥지둥하지 않고 검증된 실내 박물관이나 키즈카페로 일정을 유연하게 전환하여 나들이의 연속성과 아이의 만족도를 모두 지켜낼 수 있습니다.</p>
+<hr>
+<h2>3. 상황별 맞춤 솔루션 및 우천 시 대체 장소 활용 법</h2>
+<p>갑작스러운 비로 인해 야외 일정이 전면 취소될 위기에 처했을 때, 가족의 성향과 상황에 맞는 적절한 대체 장소를 선택하는 것이 무엇보다 중요합니다.</p>
+<p>영유아를 동반한 가족이라면 비바람 속에서 유모차 이동이 어렵고 수유실이 필수적이므로 인근 대형 복합쇼핑몰이나 실내 키즈 박물관을 찾는 것이 현명합니다. 초등학생 자녀를 둔 가정이라면 야외 체험 취소로 인한 실망감을 달래기 위해 실내 과학관, 어린이 미술관, 미디어아트 전시관 등을 방문하여 호기심을 충족하고 유익한 실내 체험을 즐길 수 있습니다. 즉흥 여행객 역시 호호플레이 매거진과 플랫폼 내 실내 추천 코스를 즉시 접속하여 헤매지 않고 알찬 실내 일정을 소화할 수 있습니다.</p>
+<hr>
+<h2>4. 플랫폼 이용 가이드 및 우천 대비 프로세스</h2>
+<p>비가 오는 날에도 우왕좌왕하지 않고 체계적으로 일정을 수정하기 위해 거쳐야 할 플랫폼 이용 프로세스를 정리했습니다.</p>
+<p>첫 번째 단계는 우천 시 스마트폰을 통해 호호플레이 웹 플랫폼에 접속하는 것입니다. 별도의 로그인 절차 없이 모바일 웹 브라우저를 통해 즉시 빠른 접속이 가능합니다. 두 번째 단계는 위치 기반 탐색 기능을 활용하여 현재 위치 반경 이내의 실내 핫플을 필터링하는 것입니다. 이를 통해 이동 거리를 최소화하고 최적의 대피 동선을 확보할 수 있습니다. 세 번째 단계는 상세 코스 가이드와 후기를 통해 대체 실내 장소의 운영 정보 및 편의시설을 파악하여 휴관일 여부를 최종 체크하는 것입니다. 마지막으로 내비게이션 연동이나 대중교통을 이용하여 뽀송하고 쾌적한 실내로 즉시 이동함으로써 나들이를 성공적으로 지속할 수 있습니다.</p>
+<hr>
+<h2>5. 자주 묻는 질문 (FAQ)</h2>
+<h3>1. (방문/이용 전 확인) 야외 나들이 중 갑작스러운 비를 만났을 때 가장 먼저 확인해야 할 정보는 무엇인가요?
+현재 위치에서 가장 가까운 실내 대피처의 위치와 함께, 유모차 이동이 가능한 엘리베이터나 경사로가 갖춰진 인근 실내 편의시설(박물관, 쇼핑몰 등)의 정보를 빠르게 확인하는 것이 가장 중요합니다.</h3>
+<h3>2. (시술/메뉴/상품) 우천 시 대체할 수 있는 실내 장소는 어떤 곳들이 아이들에게 유익한가요?
+순수한 키즈카페 외에도 어린이 과학관, 실내 식물원, 미디어아트 전시관, 도서관 내 어린이 자료실 등 아이들의 호기심을 자극하면서도 날씨와 무관하게 쾌적하게 머물 수 있는 복합 문화 공간이 매우 유익합니다.</h3>
+<h3>3. (사후 관리/유지) 비에 젖은 유모차와 아이 용품은 집에 돌아온 후 어떻게 관리해야 하나요?
+집에 돌아온 즉시 유모차의 레인커버와 패브릭 시트를 분리하여 통풍이 잘되는 그늘에서 완전히 건조해야 곰팡이와 악취를 예방할 수 있습니다. 또한 가방 속 젖은 우산과 소지품도 따로 분류하여 깨끗이 닦아주어야 합니다.</h3>
+<h3>4. (대상 적합성) 영유아를 동반한 가족이 비를 피할 때 특히 주의해야 할 점은 무엇인가요?
+실내로 급하게 대피할 때 에어컨이나 히터 등 실내 냉난방 바람이 아이에게 직접 닿지 않는 자리로 이동해야 합니다. 젖은 옷을 입은 채로 찬바람을 맞으면 감기에 걸리기 쉬우므로 마른 옷으로 빠르게 환복시키는 것이 필수적입니다.</h3>
+<h3>5. (주의사항/비용) 주말 나들이 시 일기예보가 불안정할 때 미리 챙겨야 할 필수 준비물은 무엇인가요?
+스마트폰 우산 및 우비 외에도 여벌 옷 1벌 추가, 방수용 지퍼백(젖은 옷 보관용), 충분한 마른 수건, 그리고 아이 체온 유지를 위한 얇은 바람막이나 담요를 가방에 상시 구비해 두는 것이 안전합니다.</h3>
+<hr>
+<h2>호호플레이 #호호플레이매거진 #나들이준비 #우천대처법 #주말가족여행 #아이랑나들이 #날씨변수극복 #실내나들이코스 #육아정보</h2></div>
+
+    <aside aria-label="함께 보면 좋은 페이지" style="margin-top:36px;padding:18px;border:1px solid #e2e8f0;border-radius:16px;background:#fff"><div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:12px">🔗 함께 보면 좋은 페이지</div><div style="display:grid;gap:10px"><a href="/festival/" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎪 아이랑 나들이</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">아이랑 나들이 지도</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">전국 축제와 아이랑 가볼 만한 곳을 지도에서 찾아보세요.</div></a><a href="/guides/index.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎮 게임</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">게임공략 모음</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호플레이 게임 10종의 완벽 공략을 한곳에 모은 목록입니다.</div></a><a href="/game/" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎮 게임</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">전체 게임</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">설치·가입 없이 무료로 즐기는 호호플레이 게임 모음입니다.</div></a></div></aside>
+
+    <div class="mt-10 text-center">
+        <a href="/blog/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-6 py-3 rounded-full transition">← 커뮤니티로 돌아가기</a>
+    </div>
+
+    <div style="margin-top:24px;text-align:center;">
+        <div class="text-sm font-bold text-slate-400 mb-3">🔗 이 글을 공유해보세요</div>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+            <button onclick="snsShare('facebook')" aria-label="페이스북 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">f</button>
+            <button onclick="snsShare('x')" aria-label="X 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">X</button>
+            <button onclick="snsShare('kakaot')" aria-label="카카오톡 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:18px">💬</button>
+            <button onclick="snsShare('naver')" aria-label="네이버 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">N</button>
+            <button onclick="snsShare('band')" aria-label="밴드 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">밴드</button>
+            <button onclick="snsShare('line')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>
+        </div>
+    </div>
+
+    <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px;margin-top:24px">
+        <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+            <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+            <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                <button id="cmt-submit" onclick="submitComment()"
+                    style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
+            </div>
+        </div>
+        <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+            <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+        </div>
+    </div>
+
+    </div>
+    </main>
+
+    <!-- [ADD] 2026-10-24: 글 하단 HOHO PICK. 2/3/4/6번 등 기존 글과 blog/index.html과 같은 방식
+         (/hoho-pick.html을 불러와 끼우고, 안에 든 script는 다시 만들어 실행). 템플릿에 없어서
+         매거진 글을 클릭해 들어오면 빠져 있었음. -->
+    <div id="hoho-pick-placeholder" data-exclude="community" style="max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
+    <script>
+    (function(){
+        var ph = document.getElementById('hoho-pick-placeholder');
+        if (!ph) return;
+        // [ADD] 2026-10-26: 이 템플릿은 커뮤니티 글(blog/posts/)과 호호 매거진 글(blog/magazine/)이
+        // 같이 쓴다. 매거진 글 아래에는 "호호 매거진" 추천이 또 나오지 않게 magazine을 빼고,
+        // 커뮤니티 글은 기존대로 community를 뺀다. 주소(경로)로 구분하므로 생성 스크립트는 안 바꿔도 된다.
+        ph.setAttribute('data-exclude', location.pathname.indexOf('/blog/magazine/') === 0 ? 'magazine' : 'community');
+        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+            ph.innerHTML = html;
+            var scripts = ph.querySelectorAll('script');
+            for (var i = 0; i < scripts.length; i++) {
+                var old = scripts[i];
+                var s = document.createElement('script');
+                for (var j = 0; j < old.attributes.length; j++) {
+                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+                }
+                s.textContent = old.textContent;
+                old.parentNode.replaceChild(s, old);
+            }
+        }).catch(function(){});
+    })();
+    </script>
+
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+    <script>
+        const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+        const CMT_GAME_ID = 'post-52';
+        const INQUIRY_GAME_NAME = '커뮤니티 게시글';
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.innerText = str;
+            return d.innerHTML;
+        }
+        function formatCmtTime(ts) {
+            const diff = Date.now() - ts;
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return '방금 전';
+            if (min < 60) return min + '분 전';
+            const hr = Math.floor(min / 60);
+            if (hr < 24) return hr + '시간 전';
+            const day = Math.floor(hr / 24);
+            if (day < 7) return day + '일 전';
+            return new Date(ts).toLocaleDateString('ko-KR');
+        }
+        async function loadComments() {
+            const list = document.getElementById('cmt-list');
+            try {
+                const res = await fetch(COMMENTS_API + '?game_id=' + CMT_GAME_ID);
+                const data = await res.json();
+                if (!data.comments || data.comments.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
+                    return;
+                }
+                list.innerHTML = data.comments.map(c => `
+                    <div style="padding:12px 14px;background:#f8fafc;border-radius:12px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                            <span style="font-weight:800;font-size:13px;color:#334155">${escapeHtml(c.nickname)}</span>
+                            <span style="font-size:11px;color:#94a3b8">${formatCmtTime(c.created_at)}</span>
+                        </div>
+                        <div style="font-size:13px;color:#475569;line-height:1.6;white-space:pre-wrap">${escapeHtml(c.content)}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오지 못했습니다.</div>';
+            }
+        }
+        async function submitComment() {
+            const nickname = document.getElementById('cmt-nickname').value.trim();
+            const content = document.getElementById('cmt-content').value.trim();
+            const status = document.getElementById('cmt-status');
+            const btn = document.getElementById('cmt-submit');
+            if (!nickname || !content) { status.textContent = '닉네임과 내용을 입력해주세요.'; return; }
+            btn.disabled = true;
+            status.textContent = '등록 중...';
+            try {
+                const res = await fetch(COMMENTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: CMT_GAME_ID, nickname, content })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    status.textContent = data.error || '등록에 실패했습니다.';
+                    btn.disabled = false;
+                    return;
+                }
+                document.getElementById('cmt-content').value = '';
+                status.textContent = '';
+                btn.disabled = false;
+                loadComments();
+            } catch (e) {
+                status.textContent = '네트워크 오류가 발생했습니다.';
+                btn.disabled = false;
+            }
+        }
+        loadComments();
+
+        function snsShare(type){
+            // 검증된 최종 버전 (축제 지도에서 발견/수정한 문제 반영):
+            // - 카카오톡: 모바일은 OS 공유시트, PC는 카드 방식이 엉뚱한 페이지로 새는 문제가
+            //   있어 링크를 직접 보여주는 방식(prompt) 사용
+            // - 밴드: url/title만으로는 게시글 본문에 링크가 안 붙어서 본문 텍스트에 직접 포함
+            // - 팝업 크기 지정 제거 (모바일에서 팝업 차단 대상으로 취급되는 문제 방지)
+            var pageUrl = window.location.href;
+            var shareUrl = encodeURIComponent(pageUrl);
+            var title = document.title;
+            var shareTitle = encodeURIComponent(title);
+
+            if (type === 'kakaot') {
+                var isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                if (isMobileDevice && navigator.share) {
+                    navigator.share({ title: title, url: pageUrl }).catch(function () {});
+                    return;
+                }
+                prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
+                return;
+            }
+
+            var map = {
+                facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl,
+                x: 'https://twitter.com/intent/tweet?text=' + shareTitle + '&url=' + shareUrl,
+                naver: 'https://share.naver.com/web/shareView.nhn?url=' + shareUrl + '&title=' + shareTitle,
+                band: 'https://band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + shareUrl,
+                line: 'https://social-plugins.line.me/lineit/share?url=' + shareUrl + '&text=' + shareTitle
+            };
+            if (map[type]) window.open(map[type], '_blank');
+        }
+    </script>
+
+</body>
+</html>
