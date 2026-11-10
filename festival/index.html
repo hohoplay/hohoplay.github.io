@@ -382,6 +382,7 @@
         .course-time { color: #4338ca; font-weight: 800; }
         .course-time-sub { color: #94a3b8; }
         .course-time-unknown { color: #b45309; font-weight: 700; }
+        .course-time-info { flex-basis: 100%; color: #64748b; line-height: 1.45; word-break: keep-all; }
         .course-tag { font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 999px; }
         .course-tag-warn { background: #ffedd5; color: #c2410c; }
         .course-note { list-style: none; font-size: 11px; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 7px 10px; line-height: 1.45; }
@@ -2699,7 +2700,9 @@
     // 시작 시각이 2개 이상일 때만 회차로 읽는다(시각 1개짜리는 운영 시작인지 공연인지 몰라서 그대로 "시간 확인 필요").
     function parseShowTimes(text) {
         const t = String(text || '').replace(/<[^>]*>/g, ' ');
-        if (!/^[\s\-·•*]*(?:\d{1,2}:\d{2}|\d{1,2}\s*회차)/.test(t)) return null;
+        // [CHANGE] 2026-11-11: "화요일~일요일 10:30 / 14:00", "매일 11:00 / 14:00"처럼 요일·매일이 앞에 붙은 회차도 읽는다.
+        // (평일/주말처럼 요일마다 시각이 달라지는 문구는 그날 회차를 알 수 없어 그대로 둔다.)
+        if (!/^[\s\-·•*]*(?:(?:매일|매주)\s*)?(?:[월화수목금토일]요일(?:\s*[~,·\/]\s*[월화수목금토일]요일)*\s*)?(?:\d{1,2}:\d{2}|\d{1,2}\s*회차)/.test(t)) return null;
         if (new RegExp(CT_RANGE_SRC).test(t)) return null;   // 시간 범위가 있으면 기존 규칙으로 읽는다
         const re = /(\d{1,2}):(\d{2})/g;
         const times = [];
@@ -2715,6 +2718,24 @@
         }
         times.sort(function (x, y) { return x - y; });
         return times.length >= 2 ? times : null;
+    }
+    // [ADD] 2026-11-11: 시간을 숫자로 읽지 못한 장소도 "시간 확인 필요"만 띄우지 않고, 적혀 있는 운영 안내를 그대로 보여준다.
+    // "- 하절기 20:00, 22:00- 동절기 19:00※ 월요일 휴무"처럼 붙어 있는 글을 " · "로 나눠 읽기 좋게 정리한다(없는 시간을 만들지 않는다).
+    function ctCleanInfo(text) {
+        let t = String(text || '').replace(/<[^>]*>/g, ' ');
+        t = t.replace(/※/g, ' · ').replace(/(^|\s)[-•*]\s+/g, ' · ').replace(/([0-9:)])\s*-\s*(?=[가-힣]|\d{1,2}\/\d)/g, '$1 · ');
+        t = t.replace(/([0-9:)])(?=(?:매주|매월|매일|※))/g, '$1 · ');
+        t = t.replace(/\s+/g, ' ').replace(/(?:\s*·\s*){2,}/g, ' · ').replace(/^\s*·\s*/, '').replace(/\s*·\s*$/, '').trim();
+        if (!t || /확인되지\s*않/.test(t)) return '';
+        return t.length > 90 ? t.slice(0, 88).replace(/[\s·,]+$/, '') + '…' : t;
+    }
+    // 공식 안내로 확인된 소요 시간·요금·회차 등(contentid 기준). TourAPI 운영시간에는 없는 정보만 적는다.
+    //  - 3113265 APAP 작품투어: 안양문화예술재단 안내 — 1일 2회(10:30·14:00), 소요 60~90분, 성인 3,000원·청소년 1,000원, ~11/30
+    const FESTIVAL_EXTRA_INFO = {
+        '3113265': { stay: 90, info: '소요 약 60~90분 · 성인 3,000원 · 청소년 1,000원' }
+    };
+    function ctExtraInfo(item) {
+        return FESTIVAL_EXTRA_INFO[String((item && item.contentid) || '')] || null;
     }
     // 회차가 있는 행사는 도착 시각 이후 가장 가까운 회차 시작에 맞춘다(없으면 도착 시각 그대로 — 마감 판정에서 걸러진다).
     function ctStartAt(win, arrive) {
@@ -2984,6 +3005,8 @@
     }
 
     function getStayMin(item) {
+        const ex = ctExtraInfo(item);
+        if (ex && ex.stay) return ex.stay;
         if (item.type === 'park') return 60;
         if (item.type !== 'kids') return 90;
         return item.placeType === '실외' ? 60 : 90;
@@ -3584,7 +3607,20 @@
                     parts.push('<span class="course-time">' + ctFmtApprox(sc.start) + '~' + ctFmtApprox(sc.end) + ' 예상</span>');
                     parts.push('<span class="course-time-sub">' + (sc.win.allDay ? '상시 개방' : (sc.win.shows ? '회차 ' + sc.win.shows.map(ctFmt).join('·') : '운영 ' + ctFmt(sc.win.open) + '~' + ctFmt(sc.win.close))) + '</span>');
                 } else {
-                    parts.push('<span class="course-time-unknown">시간 확인 필요</span>');
+                    // [CHANGE] 2026-11-11: 시간을 읽지 못해도 적혀 있는 운영 안내가 있으면 그대로 보여준다.
+                    const rawInfo = ctCleanInfo(item.type === 'kids' ? item.hours : getFestivalDayText(item));
+                    if (rawInfo) {
+                        parts.push('<span class="course-time-unknown">운영 안내</span>');
+                        parts.push('<span class="course-time-sub course-time-info">' + escapeHtml(rawInfo) + '</span>');
+                    } else {
+                        parts.push('<span class="course-time-unknown">시간 확인 필요</span>');
+                    }
+                }
+                const exInfo = ctExtraInfo(item);
+                if (exInfo && exInfo.info) parts.push('<span class="course-time-sub course-time-info">' + escapeHtml(exInfo.info) + '</span>');
+                if (sc.win.known && sc.win.shows) {
+                    const closedTxt = closedDaysFromHours(item.type === 'kids' ? item.hours : getFestivalDayText(item));
+                    if (closedTxt.known && closedTxt.closed.length) parts.push('<span class="course-time-sub">' + closedTxt.closed.join('·') + '요일 휴무</span>');
                 }
                 if (item.type === 'park') parts.push('<span class="course-time-sub">자연관광지</span>');
                 if (item.type !== 'kids' && item.endDate) {
