@@ -356,33 +356,6 @@
 </div>
 </div>
 </div>
-                <!-- 광고: 설명 글 중간 1곳 (게임 화면·조작 버튼과 떨어진 위치). PC/모바일 중 한 곳에만 표시됩니다. -->
-                <div class="hoho-content-ad" style="padding:8px 24px 16px;text-align:center;">
-                    <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.08em;margin-bottom:4px;">광고</div>
-                    <div id="hoho-content-ad-slot"></div>
-                </div>
-                <style>.hoho-content-ad:has(ins[data-ad-status="unfilled"]){display:none}</style>
-                <script>
-                (function(){
-                    // PC/모바일에서 서로 다른 광고 단위를 쓰려면 아래 두 번호만 바꾸면 됩니다.
-                    var PC_SLOT = '8741532582';
-                    var MOBILE_SLOT = '8741532582';
-                    try {
-                        var box = document.getElementById('hoho-content-ad-slot');
-                        if (!box) return;
-                        var mobile = window.matchMedia('(max-width: 767px)').matches;
-                        var ins = document.createElement('ins');
-                        ins.className = 'adsbygoogle';
-                        ins.style.display = 'block';
-                        ins.setAttribute('data-ad-client', 'ca-pub-7990191075290055');
-                        ins.setAttribute('data-ad-slot', mobile ? MOBILE_SLOT : PC_SLOT);
-                        ins.setAttribute('data-ad-format', 'auto');
-                        ins.setAttribute('data-full-width-responsive', 'true');
-                        box.appendChild(ins);
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
-                    } catch (e) {}
-                })();
-                </script>
                 <div id="guide" class="p-6 md:p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;">
 <div class="space-y-8">
 <div>
@@ -2973,72 +2946,7 @@
                 </div>
             </section>
 
-                    <!-- ── 게임 결과 피드백 카드 (공용) ── -->
-    <div id="hp-feedback-card" style="display:none;max-width:480px;margin:16px auto 0;background:#fff;border:1px solid #e0e7ff;border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(79,70,229,.08)">
-        <div id="hp-fb-ask" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span style="font-size:18px;flex-shrink:0">💬</span>
-            <span style="font-size:13px;font-weight:700;color:#334155;flex:1;min-width:160px">어떤 게임이 더 있으면 좋겠어요?</span>
-            <button onclick="window.hpFbClose()" aria-label="닫기" style="flex-shrink:0;background:none;border:none;color:#cbd5e1;font-size:15px;cursor:pointer;padding:2px 4px">✕</button>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-            <input id="hp-fb-input" type="text" maxlength="80" placeholder="한 줄로 편하게 적어주세요"
-                style="flex:1;padding:9px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;box-sizing:border-box">
-            <button onclick="window.hpFbSubmit()" style="flex-shrink:0;padding:9px 16px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">보내기</button>
-        </div>
-        <div id="hp-fb-thanks" style="display:none;text-align:center;font-size:13px;color:#4f46e5;font-weight:700;padding:4px 0">감사합니다! 소중한 의견 잘 전달됐어요 🙌</div>
-    </div>
-    <script>
-    (function() {
-        var K = { mute: 'hp_fb_mute_until', done: 'hp_fb_done', plays: 'hp_fb_plays' };
-        function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-        function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-        function blocked() {
-            if (get(K.done) === '1') return true;
-            var until = parseInt(get(K.mute) || '0', 10);
-            return !!(until && Date.now() < until);
-        }
-
-        // 이 게임 결과 화면이 뜰 때마다 호출: 전체 사이트 통산 플레이 횟수를 늘리고,
-        // 2~3판째부터(과거 게임 포함 누적) 카드를 보여줌
-        window.hpOnGameOver = function(gameName) {
-            var plays = (parseInt(get(K.plays) || '0', 10) || 0) + 1;
-            set(K.plays, String(plays));
-            if (plays < 3 || blocked()) return;
-
-            var card = document.getElementById('hp-feedback-card');
-            if (!card) return;
-            card.dataset.game = gameName || '';
-            card.style.display = 'block';
-
-            // 보여준 시점에 일단 14일 뮤트로 선(先)설정 — 아무 반응 없이
-            // 다른 페이지로 넘어가도 최소 14일은 다시 안 뜨게 함(사용자가
-            // ✕를 명시적으로 누르면 아래에서 30일로 덮어씀, 제출하면 영구로 덮어씀)
-            set(K.mute, String(Date.now() + 14 * 24 * 60 * 60 * 1000));
-        };
-
-        window.hpFbClose = function() {
-            set(K.mute, String(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 명시적 닫기 = 30일
-            var card = document.getElementById('hp-feedback-card');
-            if (card) card.style.display = 'none';
-        };
-
-        window.hpFbSubmit = function() {
-            var input = document.getElementById('hp-fb-input');
-            var text = (input.value || '').trim();
-            if (!text) { window.hpFbClose(); return; }
-            var card = document.getElementById('hp-feedback-card');
-            var gameName = (card && card.dataset.game) || '';
-            var body = '[게임 결과화면 피드백]\n게임: ' + gameName + '\n내용: ' + text;
-            window.location.href = 'mailto:lyh0929mm@gmail.com?subject=' + encodeURIComponent('[게임 피드백] ' + gameName) + '&body=' + encodeURIComponent(body);
-            set(K.done, '1'); // 제출 완료 = 영구 중단
-            document.getElementById('hp-fb-ask').style.display = 'none';
-            document.getElementById('hp-fb-thanks').style.display = 'block';
-            input.value = '';
-            setTimeout(function() { if (card) card.style.display = 'none'; }, 2000);
-        };
-    })();
-    </script>
 
 
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100" id="game-info" style="margin-top:2rem">
