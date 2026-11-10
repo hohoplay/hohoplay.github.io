@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>축제 포스터 - 지금 가볼 만한 전국 축제 사진으로 보기 | HOHO PLAY</title>
+<meta name="description" content="오늘 마감하는 축제, 이번 주말 축제, 곧 시작하는 축제를 사진 카드로 한눈에 보고 지역·주제로 골라보세요.">
+<!-- 사진 카드만 있는 얇은 페이지라 처음에는 검색 제외(noindex)로 둔다. 지역별 설명 글이 붙으면 이 줄을 지운다. -->
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://hohoplaylab.com/festival/poster.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="축제 포스터 - 지금 가볼 만한 전국 축제">
+<meta property="og:description" content="오늘 마감·이번 주말·곧 시작하는 축제를 사진 카드로 보세요.">
+<meta property="og:url" content="https://hohoplaylab.com/festival/poster.html">
+<meta property="og:image" content="https://hohoplaylab.com/data/festival-og-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg">
+<style>
+  * { box-sizing: border-box; }
+  html body { margin: 0; background: #f8fafc; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.6; }
+  .pz-wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px 40px; }
+  .pz-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 6px; font-size: 13px; }
+  .pz-top a { color: #4f46e5; font-weight: 700; text-decoration: none; }
+  .pz-h1 { font-size: 24px; font-weight: 900; margin: 6px 0 2px; letter-spacing: -0.02em; }
+  .pz-sub { margin: 0 0 14px; font-size: 13px; color: #64748b; }
+  .pz-chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px; margin: 0 -16px 2px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .pz-chips::-webkit-scrollbar { display: none; }
+  .pz-chip { flex: 0 0 auto; border: 1px solid #e2e8f0; background: #fff; color: #334155; border-radius: 999px; padding: 6px 13px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  .pz-chip b { color: #94a3b8; font-weight: 600; margin-left: 4px; }
+  .pz-chip[aria-pressed="true"] { background: #1e293b; border-color: #1e293b; color: #fff; }
+  .pz-chip[aria-pressed="true"] b { color: #cbd5e1; }
+  .pz-label { font-size: 12px; font-weight: 800; color: #94a3b8; margin: 8px 0 2px; letter-spacing: .02em; }
+  .pz-sec { margin-top: 26px; }
+  .pz-sec h2 { font-size: 18px; font-weight: 900; margin: 0; display: flex; align-items: baseline; gap: 8px; }
+  .pz-sec h2 small { font-size: 12px; font-weight: 600; color: #94a3b8; }
+  .pz-sec .pz-desc { margin: 2px 0 12px; font-size: 12.5px; color: #64748b; }
+  .pz-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (min-width: 640px) { .pz-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+  @media (min-width: 960px) { .pz-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .pz-card { display: block; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; text-decoration: none; color: inherit; transition: transform .15s, box-shadow .15s; }
+  .pz-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,23,42,.10); }
+  .pz-photo { position: relative; aspect-ratio: 1 / 1; background: #e2e8f0; overflow: hidden; }
+  .pz-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pz-photo.pz-none::after { content: "사진 없음"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #94a3b8; font-weight: 700; }
+  .pz-badge { position: absolute; left: 8px; top: 8px; z-index: 1; font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: rgba(15,23,42,.82); color: #fff; line-height: 1.4; }
+  .pz-badge.hot { background: #e11d48; }
+  .pz-badge.soon { background: #4f46e5; }
+  .pz-badge.now { background: #059669; }
+  .pz-badge.long { background: #64748b; }
+  .pz-body { padding: 10px 11px 12px; }
+  .pz-title { margin: 0; font-size: 14px; font-weight: 800; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em; word-break: keep-all; overflow-wrap: anywhere; }
+  .pz-meta { margin: 5px 0 0; font-size: 12px; color: #64748b; line-height: 1.5; }
+  .pz-meta span { display: block; }
+  .pz-empty { margin: 40px 0; padding: 28px 16px; text-align: center; color: #64748b; background: #fff; border: 1px dashed #cbd5e1; border-radius: 14px; font-size: 14px; }
+  .pz-past { margin-top: 30px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 4px 14px; }
+  .pz-past summary { cursor: pointer; padding: 10px 0; font-size: 14px; font-weight: 800; }
+  .pz-past ul { list-style: none; margin: 0; padding: 0 0 8px; }
+  .pz-past li { padding: 7px 0; border-top: 1px solid #f1f5f9; font-size: 13px; }
+  .pz-past a { color: #1e293b; text-decoration: none; font-weight: 700; }
+  .pz-past li span { color: #94a3b8; margin-left: 6px; font-size: 12px; }
+  .pz-note { margin: 28px 0 0; font-size: 12px; color: #94a3b8; line-height: 1.7; }
+  .pz-note a { color: #64748b; }
+  .pz-loading { margin: 40px 0; text-align: center; color: #94a3b8; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="pz-wrap">
+  <div class="pz-top">
+    <a href="/festival/">← 아이랑 나들이 지도</a>
+    <a href="/festival/list.html">전체 목록 보기</a>
+  </div>
+  <h1 class="pz-h1">🎪 축제 포스터</h1>
+  <p class="pz-sub" id="pz-sub">축제 정보를 불러오는 중이에요…</p>
+
+  <div class="pz-label">지역</div>
+  <div class="pz-chips" id="pz-regions" aria-label="지역 선택"></div>
+  <div class="pz-label">주제</div>
+  <div class="pz-chips" id="pz-themes" aria-label="주제 선택"></div>
+
+  <div id="pz-main"><div class="pz-loading">불러오는 중…</div></div>
+  <noscript><div class="pz-empty">이 페이지는 자바스크립트가 필요해요. <a href="/festival/list.html">전체 목록</a>에서 축제를 볼 수 있어요.</div></noscript>
+
+  <p class="pz-note">축제 정보는 한국관광공사 TourAPI 자료를 매일 자동으로 갱신해 보여줘요. 사진 출처는 한국관광공사이고, 일정·운영시간은 바뀔 수 있으니 가기 전에 공식 안내를 꼭 확인하세요. 일정이 1년 가까이 이어지는 행사는 &lsquo;상설·장기&rsquo;로 따로 모았어요.</p>
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- 설정 ----------
+  var LONG_DAYS = 120;      // 이 일수보다 길게 이어지는 행사는 '상설·장기'로 따로 모은다
+  var SOON_DAYS = 45;       // 시작까지 이 일수 이내면 '곧 시작', 넘으면 '이후 예정'
+  var DEADLINE_DAYS = 3;    // 마감까지 이 일수 이내면 '마감 임박'
+  var PAST_KEEP_DAYS = 30;  // 종료 후 이 일수까지만 '지난 행사'에 보여준다
+
+  var REGION_SHORT = {
+    '서울특별시': '서울', '서울': '서울', '경기도': '경기', '인천광역시': '인천', '부산광역시': '부산', '대구광역시': '대구',
+    '대전광역시': '대전', '울산광역시': '울산', '세종특별자치시': '세종', '강원특별자치도': '강원', '강원도': '강원',
+    '충청북도': '충북', '충청남도': '충남', '전북특별자치도': '전북', '전라북도': '전북', '전라남도': '전남',
+    '전남광주통합특별시': '광주·전남', '광주광역시': '광주·전남', '경상북도': '경북', '경상남도': '경남', '제주특별자치도': '제주'
+  };
+  var THEMES = [
+    { key: 'night',   label: '🌙 야경·불빛',   re: /불꽃|드론|라이트|빛|야간|나이트|밤길|초롱|불빛|별빛|크리스마스/ },
+    { key: 'food',    label: '🍜 먹거리·마켓', re: /먹거리|푸드|디저트|떡볶이|보쌈|김치|홍탁|술|쌀|사과|마켓|누들|국수|미식|커피|맥주|와인/ },
+    { key: 'show',    label: '🎵 공연·전시',   re: /공연|연극|콘서트|음악|뮤직|라이브|마이크|국악|비엔날레|전시|사진|예술|매직|극장|아트|페인터즈/ },
+    { key: 'history', label: '🏛 전통·역사',   re: /전통|의식|궁|역사|문화제|민속|풍물|봉수|파수|수문장|왕가|도자기|박물|문화유산/ },
+    { key: 'family',  label: '👨‍👩‍👧 가족·아이', re: /어린이|청소년|가족|키즈|쏙쏙|동물|펫|우주|피크닉|보드게임|게임|체험/ },
+    { key: 'move',    label: '🏃 걷기·러닝',   re: /러닝|마라톤|런트립|RUN|걷기|트래킹|트레킹|쉬엄쉬엄|걷는/ },
+    { key: 'nature',  label: '🍁 계절·자연',   re: /얼음|산천어|송어|눈|겨울|단풍|은행나무|꽃|정원|섬|억새|호수/ }
+  ];
+  var WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+
+  // ---------- 날짜 유틸 (한국 시간 기준, 'YYYYMMDD' 문자열 ↔ 일수) ----------
+  function dayNum(ymd) {
+    var s = String(ymd || '');
+    if (!/^\d{8}$/.test(s)) return NaN;
+    return Math.floor(Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)) / 86400000);
+  }
+  var kst = new Date(Date.now() + 9 * 3600 * 1000);
+  var TODAY = Math.floor(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate()) / 86400000);
+  var TODAY_YEAR = kst.getUTCFullYear();
+  function dayParts(n) { var d = new Date(n * 86400000); return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate(), w: d.getUTCDay() }; }
+  function fmt(n) {
+    var p = dayParts(n);
+    return (p.y !== TODAY_YEAR ? String(p.y).slice(2) + '.' : '') + p.m + '.' + p.d + '(' + WEEK[p.w] + ')';
+  }
+  function fmtRange(a, b) { return a === b ? fmt(a) : fmt(a) + ' ~ ' + fmt(b); }
+  // 이번 주말(토·일) 범위. 오늘이 주말이면 오늘부터 일요일까지.
+  var todayW = dayParts(TODAY).w;
+  var WK_START, WK_END;
+  if (todayW === 0) { WK_START = TODAY; WK_END = TODAY; }
+  else if (todayW === 6) { WK_START = TODAY; WK_END = TODAY + 1; }
+  else { WK_START = TODAY + (6 - todayW); WK_END = WK_START + 1; }
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function httpsUrl(u) { u = String(u || '').trim(); if (u.indexOf('http://') === 0) u = 'https://' + u.slice(7); return u.indexOf('https://') === 0 ? u : ''; }
+  function regionOf(addr) { var t = String(addr || '').trim().split(/\s+/)[0] || ''; return REGION_SHORT[t] || t || '기타'; }
+  function themesOf(title) { var r = []; THEMES.forEach(function (t) { if (t.re.test(title)) r.push(t.key); }); return r; }
+
+  // ---------- 데이터 정리 ----------
+  var items = [], state = { region: '전체', theme: '전체' };
+
+  function prepare(raw) {
+    return raw.filter(function (x) { return x && x.type === 'festival' && x.title && x.contentid; }).map(function (x) {
+      var s = dayNum(x.startDate), e = dayNum(x.endDate);
+      if (isNaN(s) || isNaN(e)) return null;
+      if (e < s) { var t = s; s = e; e = t; }
+      var long = (e - s + 1) > LONG_DAYS;
+      return { id: x.contentid, title: String(x.title).trim(), s: s, e: e, long: long, img: httpsUrl(x.image),
+               region: regionOf(x.addr), themes: themesOf(String(x.title)) };
+    }).filter(Boolean);
+  }
+  function status(it) { return it.e < TODAY ? 'ended' : (it.s > TODAY ? 'upcoming' : 'ongoing'); }
+
+  function badge(it) {
+    var st = status(it), left = it.e - TODAY;
+    if (it.long && st === 'ongoing') return { t: '상설·장기', c: 'long' };
+    if (st === 'ongoing') {
+      if (left === 0) return { t: '오늘까지', c: 'hot' };
+      if (left <= DEADLINE_DAYS) return { t: left + '일 남음', c: 'hot' };
+      return { t: '진행 중', c: 'now' };
+    }
+    if (st === 'upcoming') { var d = it.s - TODAY; return { t: d === 1 ? '내일 시작' : d + '일 뒤 시작', c: 'soon' }; }
+    return { t: '종료', c: '' };
+  }
+
+  // 구간 나누기: 위에서부터 처음 맞는 한 곳에만 넣는다(같은 행사가 두 번 나오지 않게).
+  var SECTIONS = [
+    { id: 'deadline', title: '⏰ 오늘까지! 놓치면 끝', desc: '오늘부터 ' + DEADLINE_DAYS + '일 안에 끝나는 행사예요.',
+      test: function (it) { return !it.long && status(it) === 'ongoing' && it.e - TODAY <= DEADLINE_DAYS; }, sort: function (a, b) { return a.e - b.e || a.s - b.s; } },
+    { id: 'weekend', title: '🎈 이번 주말', desc: function () { return fmtRange(WK_START, WK_END) + '에 만날 수 있는 행사예요.'; },
+      test: function (it) { return !it.long && it.s <= WK_END && it.e >= WK_START && it.e >= TODAY; }, sort: function (a, b) { return a.e - b.e || a.s - b.s; } },
+    { id: 'ongoing', title: '🟢 지금 진행 중', desc: '이미 시작해서 열리고 있는 행사예요.',
+      test: function (it) { return !it.long && status(it) === 'ongoing'; }, sort: function (a, b) { return a.e - b.e || a.s - b.s; } },
+    { id: 'soon', title: '🔜 곧 시작해요', desc: SOON_DAYS + '일 안에 시작하는 행사예요.',
+      test: function (it) { return !it.long && status(it) === 'upcoming' && it.s - TODAY <= SOON_DAYS; }, sort: function (a, b) { return a.s - b.s || a.e - b.e; } },
+    { id: 'later', title: '📅 이후 예정', desc: '시작까지 조금 더 남은 행사예요.',
+      test: function (it) { return !it.long && status(it) === 'upcoming'; }, sort: function (a, b) { return a.s - b.s || a.e - b.e; } },
+    { id: 'long', title: '🏷 상설·장기 운영', desc: '일정이 길게 이어지는 상설 행사나 시즌 행사예요.',
+      test: function (it) { return it.long && status(it) !== 'ended'; }, sort: function (a, b) { return a.e - b.e || a.title.localeCompare(b.title, 'ko'); } }
+  ];
+
+  // ---------- 그리기 ----------
+  function cardHtml(it, lazy) {
+    var b = badge(it);
+    var photo = it.img
+      ? '<img src="' + esc(it.img) + '" alt="' + esc(it.title) + ' 사진" ' + (lazy ? 'loading="lazy" ' : '') + 'decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'pz-none\');this.remove()">'
+      : '';
+    return '<a class="pz-card" href="/festival/detail/' + esc(it.id) + '.html">' +
+      '<div class="pz-photo' + (it.img ? '' : ' pz-none') + '">' + (b.c ? '<span class="pz-badge ' + b.c + '">' + esc(b.t) + '</span>' : '') + photo + '</div>' +
+      '<div class="pz-body"><h3 class="pz-title">' + esc(it.title) + '</h3>' +
+      '<p class="pz-meta"><span>' + esc(it.region) + '</span><span>' + esc(it.long && it.e - it.s > 330 ? '연중 운영' : fmtRange(it.s, it.e)) + '</span></p></div></a>';
+  }
+  function chipHtml(label, count, pressed, attr, val) {
+    return '<button type="button" class="pz-chip" ' + attr + '="' + esc(val) + '" aria-pressed="' + pressed + '">' + esc(label) + '<b>' + count + '</b></button>';
+  }
+  function matches(it) {
+    if (state.region !== '전체' && it.region !== state.region) return false;
+    if (state.theme !== '전체' && it.themes.indexOf(state.theme) < 0) return false;
+    return true;
+  }
+  function render() {
+    var live = items.filter(function (it) { return status(it) !== 'ended'; });
+    // 칩: 지역은 현재 주제 선택을 반영한 건수, 주제는 현재 지역 선택을 반영한 건수
+    var byTheme = live.filter(function (it) { return state.theme === '전체' || it.themes.indexOf(state.theme) >= 0; });
+    var rc = {}; byTheme.forEach(function (it) { rc[it.region] = (rc[it.region] || 0) + 1; });
+    var allRegions = {}; live.forEach(function (it) { allRegions[it.region] = (allRegions[it.region] || 0) + 1; });
+    var rnames = Object.keys(allRegions).sort(function (a, b) { return allRegions[b] - allRegions[a] || a.localeCompare(b, 'ko'); });
+    var rh = chipHtml('전체', byTheme.length, state.region === '전체', 'data-region', '전체');
+    rnames.forEach(function (r) { rh += chipHtml(r, rc[r] || 0, state.region === r, 'data-region', r); });
+    document.getElementById('pz-regions').innerHTML = rh;
+
+    var byRegion = live.filter(function (it) { return state.region === '전체' || it.region === state.region; });
+    var th = chipHtml('전체', byRegion.length, state.theme === '전체', 'data-theme', '전체');
+    THEMES.forEach(function (t) {
+      var n = byRegion.filter(function (it) { return it.themes.indexOf(t.key) >= 0; }).length;
+      if (n || state.theme === t.key) th += chipHtml(t.label, n, state.theme === t.key, 'data-theme', t.key);
+    });
+    document.getElementById('pz-themes').innerHTML = th;
+
+    var shown = live.filter(matches), used = {}, html = '', n = 0;
+    SECTIONS.forEach(function (sec) {
+      var list = shown.filter(function (it) { return !used[it.id] && sec.test(it); }).sort(sec.sort);
+      if (!list.length) return;
+      list.forEach(function (it) { used[it.id] = 1; });
+      var desc = typeof sec.desc === 'function' ? sec.desc() : sec.desc;
+      html += '<section class="pz-sec" id="sec-' + sec.id + '"><h2>' + esc(sec.title) + '<small>' + list.length + '곳</small></h2><p class="pz-desc">' + esc(desc) + '</p><div class="pz-grid">' +
+        list.map(function (it) { var lazy = n++ >= 6; return cardHtml(it, lazy); }).join('') + '</div></section>';
+    });
+    if (!html) html = '<div class="pz-empty">조건에 맞는 축제가 없어요. 지역이나 주제를 바꿔 보세요.</div>';
+
+    var past = items.filter(function (it) { return status(it) === 'ended' && TODAY - it.e <= PAST_KEEP_DAYS && matches(it); }).sort(function (a, b) { return b.e - a.e; });
+    if (past.length) {
+      html += '<details class="pz-past"><summary>지난 행사 ' + past.length + '곳</summary><ul>' + past.map(function (it) {
+        return '<li><a href="/festival/detail/' + esc(it.id) + '.html">' + esc(it.title) + '</a><span>' + esc(it.region) + ' · ' + esc(fmtRange(it.s, it.e)) + '</span></li>';
+      }).join('') + '</ul></details>';
+    }
+    document.getElementById('pz-main').innerHTML = html;
+    document.getElementById('pz-sub').textContent = fmt(TODAY) + ' 기준 · 진행 중이거나 예정된 축제 ' + live.length + '곳' + (shown.length !== live.length ? ' 중 ' + shown.length + '곳' : '');
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.pz-chip') : null;
+    if (!b) return;
+    if (b.hasAttribute('data-region')) state.region = b.getAttribute('data-region');
+    else if (b.hasAttribute('data-theme')) state.theme = b.getAttribute('data-theme');
+    render();
+  });
+
+  fetch('/data/festivals.json', { cache: 'no-cache' })
+    .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+    .then(function (data) { items = prepare(Array.isArray(data) ? data : []); render(); })
+    .catch(function () {
+      document.getElementById('pz-sub').textContent = '';
+      document.getElementById('pz-main').innerHTML = '<div class="pz-empty">축제 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 보시거나 <a href="/festival/list.html">전체 목록</a>을 이용해 주세요.</div>';
+    });
+})();
+</script>
+
+<script>
+    fetch('/footer.html')
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+            var footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                var newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 본문 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>

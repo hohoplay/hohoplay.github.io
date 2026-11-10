@@ -203,7 +203,7 @@
         }
         .remote-btn .label { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
 
-        /* [ADD] 2026-10-28: 리모컨 메뉴의 "고르기" 버튼 — 누르면 왼쪽으로 월드컵·캠핑장 월드컵·룰렛 알약 3개가 펼쳐진다.
+        /* [ADD] 2026-10-28: 리모컨 메뉴의 "고르기" 버튼 — 누르면 왼쪽으로 월드컵·캠핑장 월드컵·룰렛·축제 포스터 알약이 펼쳐진다.
            알약은 진짜 <a href> 링크라서 크롤러도 따라가고, 접힌 상태에서는 화면에서만 숨긴다(visibility).
            기존 전체 목록/코스 추천 라디오 버튼 동작(.remote-radio-btn, syncCourseModeUI)과는 독립이다. */
         .remote-pick { position: relative; }
@@ -228,7 +228,7 @@
 
         /* [ADD] 2026-10-28: 지도 아래 안내 글의 "나들이 고르기 도구" 카드 3장 */
         .fest-tools { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 0 0 8px; }
-        @media (min-width: 768px) { .fest-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+        @media (min-width: 768px) { .fest-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
         .fest-tool {
             display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 16px; border-radius: 20px;
             text-decoration: none; color: #334155; border: 1px solid transparent;
@@ -242,6 +242,8 @@
         .fest-tool.t-wc { background: #eef2ff; border-color: #c7d2fe; } .fest-tool.t-wc .fest-tool-go { color: #4338ca; }
         .fest-tool.t-camp { background: #dcfce7; border-color: #bbf7d0; } .fest-tool.t-camp .fest-tool-go { color: #15803d; }
         .fest-tool.t-roul { background: #fef3c7; border-color: #fde68a; } .fest-tool.t-roul .fest-tool-go { color: #b45309; }
+        /* [ADD] 2026-11-11: 축제 포스터 카드(4번째) — 카드가 4개라 넓은 화면에서는 2열로 배치한다. */
+        .fest-tool.t-poster { background: #fce7f3; border-color: #fbcfe8; } .fest-tool.t-poster .fest-tool-go { color: #be185d; }
 
         /* 오늘의 축제 패널 (기본 화면은 매일 자동 생성되는 정적 텍스트 — SEO용.
            지역을 선택하면 아래 스크립트가 festivals.json을 걸러서 다시 그려준다) */
@@ -753,6 +755,8 @@
                     <a href="/festival/worldcup.html" class="remote-pick-item">🏆 나들이 월드컵</a>
                     <a href="/festival/camping-worldcup.html" class="remote-pick-item">⛺ 캠핑장 월드컵</a>
                     <a href="/festival/roulette.html" class="remote-pick-item">🎰 나들이 룰렛</a>
+                    <!-- [ADD] 2026-11-11: 축제 포스터(사진 카드로 보는 전국 축제) -->
+                    <a href="/festival/poster.html" class="remote-pick-item">🎪 축제 포스터</a>
                 </div>
             </div>
             <a href="https://hohoplaylab.com/" class="remote-btn" aria-label="홈으로 가기">
@@ -1001,6 +1005,12 @@
             <span class="fest-tool-ttl">나들이·캠핑장·숲 룰렛</span>
             <span class="fest-tool-dsc">지역만 고르면 후보 중에서 룰렛이 돌려서 정해 줘요.</span>
             <span class="fest-tool-go">돌려보기 →</span>
+        </a>
+        <a href="/festival/poster.html" class="fest-tool t-poster">
+            <span class="fest-tool-ico" aria-hidden="true">🎪</span>
+            <span class="fest-tool-ttl">축제 포스터</span>
+            <span class="fest-tool-dsc">오늘 마감·이번 주말·곧 시작하는 전국 축제를 사진 카드로 보고 지역별로 골라요.</span>
+            <span class="fest-tool-go">구경하기 →</span>
         </a>
     </div>
 
