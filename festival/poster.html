@@ -23,13 +23,23 @@
   .pz-top a { color: #4f46e5; font-weight: 700; text-decoration: none; }
   .pz-h1 { font-size: 24px; font-weight: 900; margin: 6px 0 2px; letter-spacing: -0.02em; }
   .pz-sub { margin: 0 0 14px; font-size: 13px; color: #64748b; }
-  .pz-chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px; margin: 0 -16px 2px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .pz-chips::-webkit-scrollbar { display: none; }
-  .pz-chip { flex: 0 0 auto; border: 1px solid #e2e8f0; background: #fff; color: #334155; border-radius: 999px; padding: 6px 13px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; line-height: 1.4; }
-  .pz-chip b { color: #94a3b8; font-weight: 600; margin-left: 4px; }
-  .pz-chip[aria-pressed="true"] { background: #1e293b; border-color: #1e293b; color: #fff; }
-  .pz-chip[aria-pressed="true"] b { color: #cbd5e1; }
-  .pz-label { font-size: 12px; font-weight: 800; color: #94a3b8; margin: 8px 0 2px; letter-spacing: .02em; }
+  /* 지역(가로 5개)·주제(가로 3개)를 원형 이모지 버튼 격자로 모두 펼쳐 보여준다(옆으로 넘기지 않아도 전부 보임) */
+  .pz-filters { display: grid; grid-template-columns: 1fr; gap: 6px 28px; margin: 2px 0 4px; }
+  @media (min-width: 900px) { .pz-filters { grid-template-columns: 5fr 3fr; align-items: start; } }
+  .pz-label { font-size: 12px; font-weight: 800; color: #94a3b8; margin: 8px 0 6px; letter-spacing: .02em; }
+  .pz-fgrid { display: grid; gap: 10px 4px; }
+  .pz-fgrid.r5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .pz-fgrid.r3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pz-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; font-family: inherit; color: #334155; -webkit-tap-highlight-color: transparent; min-width: 0; }
+  .pz-circ { position: relative; display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: #fff; border: 2px solid #e2e8f0; font-size: 24px; line-height: 1; transition: transform .12s, background .12s, border-color .12s; }
+  .pz-fgrid.r3 .pz-circ { width: 60px; height: 60px; font-size: 27px; }
+  .pz-opt:active .pz-circ { transform: scale(.94); }
+  .pz-olabel { font-size: 12px; font-weight: 700; line-height: 1.25; text-align: center; word-break: keep-all; max-width: 100%; }
+  .pz-ocnt { position: absolute; right: -6px; top: -4px; min-width: 20px; padding: 1px 5px; border-radius: 999px; background: #64748b; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 1.5; text-align: center; border: 2px solid #f8fafc; }
+  .pz-opt[aria-pressed="true"] .pz-circ { background: #1e293b; border-color: #1e293b; box-shadow: 0 0 0 3px rgba(79,70,229,.30); }
+  .pz-opt[aria-pressed="true"] .pz-olabel { color: #1e293b; font-weight: 900; }
+  .pz-opt[aria-pressed="true"] .pz-ocnt { background: #4f46e5; }
+  .pz-opt.pz-zero { opacity: .38; }
   .pz-sec { margin-top: 26px; }
   .pz-sec h2 { font-size: 18px; font-weight: 900; margin: 0; display: flex; align-items: baseline; gap: 8px; }
   .pz-sec h2 small { font-size: 12px; font-weight: 600; color: #94a3b8; }
@@ -39,8 +49,8 @@
   @media (min-width: 960px) { .pz-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .pz-card { display: block; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; text-decoration: none; color: inherit; transition: transform .15s, box-shadow .15s; }
   .pz-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,23,42,.10); }
-  .pz-photo { position: relative; aspect-ratio: 1 / 1; background: #e2e8f0; overflow: hidden; }
-  .pz-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pz-photo { position: relative; aspect-ratio: 3 / 4; background: #e2e8f0; overflow: hidden; }
+  .pz-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
   .pz-photo.pz-none::after { content: "사진 없음"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #94a3b8; font-weight: 700; }
   .pz-badge { position: absolute; left: 8px; top: 8px; z-index: 1; font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: rgba(15,23,42,.82); color: #fff; line-height: 1.4; }
   .pz-badge.hot { background: #e11d48; }
@@ -72,10 +82,10 @@
   <h1 class="pz-h1">🎪 축제 포스터</h1>
   <p class="pz-sub" id="pz-sub">축제 정보를 불러오는 중이에요…</p>
 
-  <div class="pz-label">지역</div>
-  <div class="pz-chips" id="pz-regions" aria-label="지역 선택"></div>
-  <div class="pz-label">주제</div>
-  <div class="pz-chips" id="pz-themes" aria-label="주제 선택"></div>
+  <div class="pz-filters">
+    <div class="pz-fbox"><div class="pz-label">지역</div><div class="pz-fgrid r5" id="pz-regions" role="group" aria-label="지역 선택"></div></div>
+    <div class="pz-fbox"><div class="pz-label">주제</div><div class="pz-fgrid r3" id="pz-themes" role="group" aria-label="주제 선택"></div></div>
+  </div>
 
   <div id="pz-main"><div class="pz-loading">불러오는 중…</div></div>
   <noscript><div class="pz-empty">이 페이지는 자바스크립트가 필요해요. <a href="/festival/list.html">전체 목록</a>에서 축제를 볼 수 있어요.</div></noscript>
@@ -101,14 +111,20 @@
     '충청북도': '충북', '충청남도': '충남', '전북특별자치도': '전북', '전라북도': '전북', '전라남도': '전남',
     '전남광주통합특별시': '광주·전남', '광주광역시': '광주·전남', '경상북도': '경북', '경상남도': '경남', '제주특별자치도': '제주'
   };
+  // 지역·주제 버튼에 쓰는 이모지. 지역은 전체 + 16곳을 항상 모두 보여주고(건수가 0이면 흐리게), 주제는 전체 + 8개를 보여준다.
+  var REGIONS = [
+    ['서울', '🗼'], ['경기', '🏰'], ['인천', '✈️'], ['부산', '🌊'], ['대구', '🍎'], ['대전', '🔬'], ['울산', '🐋'], ['세종', '🏛️'],
+    ['강원', '⛰️'], ['충북', '🌄'], ['충남', '🌾'], ['전북', '🍚'], ['광주·전남', '🎨'], ['경북', '🏯'], ['경남', '⛵'], ['제주', '🍊']
+  ];
   var THEMES = [
-    { key: 'night',   label: '🌙 야경·불빛',   re: /불꽃|드론|라이트|빛|야간|나이트|밤길|초롱|불빛|별빛|크리스마스/ },
-    { key: 'food',    label: '🍜 먹거리·마켓', re: /먹거리|푸드|디저트|떡볶이|보쌈|김치|홍탁|술|쌀|사과|마켓|누들|국수|미식|커피|맥주|와인/ },
-    { key: 'show',    label: '🎵 공연·전시',   re: /공연|연극|콘서트|음악|뮤직|라이브|마이크|국악|비엔날레|전시|사진|예술|매직|극장|아트|페인터즈/ },
-    { key: 'history', label: '🏛 전통·역사',   re: /전통|의식|궁|역사|문화제|민속|풍물|봉수|파수|수문장|왕가|도자기|박물|문화유산/ },
-    { key: 'family',  label: '👨‍👩‍👧 가족·아이', re: /어린이|청소년|가족|키즈|쏙쏙|동물|펫|우주|피크닉|보드게임|게임|체험/ },
-    { key: 'move',    label: '🏃 걷기·러닝',   re: /러닝|마라톤|런트립|RUN|걷기|트래킹|트레킹|쉬엄쉬엄|걷는/ },
-    { key: 'nature',  label: '🍁 계절·자연',   re: /얼음|산천어|송어|눈|겨울|단풍|은행나무|꽃|정원|섬|억새|호수/ }
+    { key: 'night',   emoji: '🌙', name: '야경·불빛',   re: /불꽃|드론|라이트|빛|야간|나이트|밤길|초롱|불빛|별빛|크리스마스/ },
+    { key: 'food',    emoji: '🍜', name: '먹거리·마켓', re: /먹거리|푸드|디저트|떡볶이|보쌈|김치|홍탁|술|쌀|사과|마켓|누들|국수|미식|커피|맥주|와인/ },
+    { key: 'show',    emoji: '🎵', name: '공연·전시',   re: /공연|연극|콘서트|음악|뮤직|라이브|마이크|국악|비엔날레|전시|사진|예술|매직|극장|아트|페인터즈/ },
+    { key: 'history', emoji: '🏛️', name: '전통·역사',   re: /전통|의식|궁|역사|문화제|민속|풍물|봉수|파수|수문장|왕가|도자기|박물|문화유산/ },
+    { key: 'family',  emoji: '👨‍👩‍👧', name: '가족·아이', re: /어린이|청소년|가족|키즈|쏙쏙|동물|펫|우주|피크닉|보드게임|게임|체험/ },
+    { key: 'move',    emoji: '🏃', name: '걷기·러닝',   re: /러닝|마라톤|런트립|RUN|걷기|트래킹|트레킹|쉬엄쉬엄|걷는/ },
+    { key: 'nature',  emoji: '🍁', name: '계절·자연',   re: /얼음|산천어|송어|눈|겨울|단풍|은행나무|꽃|정원|섬|억새|호수/ },
+    { key: 'expo',    emoji: '🛍️', name: '박람회·쇼핑', re: /박람회|페어|Fair|세일|기념품|엑스포|페스타|대축제/ }
   ];
   var WEEK = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -193,8 +209,10 @@
       '<div class="pz-body"><h3 class="pz-title">' + esc(it.title) + '</h3>' +
       '<p class="pz-meta"><span>' + esc(it.region) + '</span><span>' + esc(it.long && it.e - it.s > 330 ? '연중 운영' : fmtRange(it.s, it.e)) + '</span></p></div></a>';
   }
-  function chipHtml(label, count, pressed, attr, val) {
-    return '<button type="button" class="pz-chip" ' + attr + '="' + esc(val) + '" aria-pressed="' + pressed + '">' + esc(label) + '<b>' + count + '</b></button>';
+  // 원형 이모지 버튼 하나. 건수가 0이면 흐리게(눌러도 되지만 결과가 없다는 뜻).
+  function optHtml(emoji, label, count, pressed, attr, val) {
+    return '<button type="button" class="pz-opt' + (count === 0 && !pressed ? ' pz-zero' : '') + '" ' + attr + '="' + esc(val) + '" aria-pressed="' + pressed + '">' +
+      '<span class="pz-circ" aria-hidden="true">' + emoji + '<span class="pz-ocnt">' + count + '</span></span><span class="pz-olabel">' + esc(label) + '</span></button>';
   }
   function matches(it) {
     if (state.region !== '전체' && it.region !== state.region) return false;
@@ -203,20 +221,22 @@
   }
   function render() {
     var live = items.filter(function (it) { return status(it) !== 'ended'; });
-    // 칩: 지역은 현재 주제 선택을 반영한 건수, 주제는 현재 지역 선택을 반영한 건수
+    // 건수: 지역은 현재 주제 선택을, 주제는 현재 지역 선택을 반영한다
     var byTheme = live.filter(function (it) { return state.theme === '전체' || it.themes.indexOf(state.theme) >= 0; });
     var rc = {}; byTheme.forEach(function (it) { rc[it.region] = (rc[it.region] || 0) + 1; });
-    var allRegions = {}; live.forEach(function (it) { allRegions[it.region] = (allRegions[it.region] || 0) + 1; });
-    var rnames = Object.keys(allRegions).sort(function (a, b) { return allRegions[b] - allRegions[a] || a.localeCompare(b, 'ko'); });
-    var rh = chipHtml('전체', byTheme.length, state.region === '전체', 'data-region', '전체');
-    rnames.forEach(function (r) { rh += chipHtml(r, rc[r] || 0, state.region === r, 'data-region', r); });
+    var known = {}; REGIONS.forEach(function (r) { known[r[0]] = 1; });
+    var regionList = [['전체', '🗺️', byTheme.length, '전체']];
+    REGIONS.forEach(function (r) { regionList.push([r[0], r[1], rc[r[0]] || 0, r[0]]); });
+    Object.keys(rc).forEach(function (n) { if (!known[n]) regionList.push([n, '📍', rc[n], n]); });   // 목록에 없는 지역이 나오면 뒤에 덧붙임
+    var rh = '';
+    regionList.forEach(function (r) { rh += optHtml(r[1], r[0], r[2], state.region === r[3], 'data-region', r[3]); });
     document.getElementById('pz-regions').innerHTML = rh;
 
     var byRegion = live.filter(function (it) { return state.region === '전체' || it.region === state.region; });
-    var th = chipHtml('전체', byRegion.length, state.theme === '전체', 'data-theme', '전체');
+    var th = optHtml('🎪', '전체', byRegion.length, state.theme === '전체', 'data-theme', '전체');
     THEMES.forEach(function (t) {
       var n = byRegion.filter(function (it) { return it.themes.indexOf(t.key) >= 0; }).length;
-      if (n || state.theme === t.key) th += chipHtml(t.label, n, state.theme === t.key, 'data-theme', t.key);
+      th += optHtml(t.emoji, t.name, n, state.theme === t.key, 'data-theme', t.key);
     });
     document.getElementById('pz-themes').innerHTML = th;
 
@@ -242,7 +262,7 @@
   }
 
   document.addEventListener('click', function (e) {
-    var b = e.target.closest ? e.target.closest('.pz-chip') : null;
+    var b = e.target.closest ? e.target.closest('.pz-opt') : null;
     if (!b) return;
     if (b.hasAttribute('data-region')) state.region = b.getAttribute('data-region');
     else if (b.hasAttribute('data-theme')) state.theme = b.getAttribute('data-theme');
