@@ -149,6 +149,40 @@ def main():
                 '</div></div>\n'
             )
 
+        # [ADD] 2026-11-10: "방문 전 체크리스트" 카드. 운영시간·요금은 바뀔 수 있으므로 방문 전에 확인할 항목을
+        # 정리해 보여 준다. 장소별로 다른 부분은 이 장소의 데이터(연락처 유무, 운영시간·요금 문구, 실내/실외)에서만
+        # 만든다 — 데이터에 없는 사실(주차 가능 여부, 수유실 유무 등)은 적지 않고 "확인하세요"로만 안내한다.
+        _hf = f"{hours or ''} {fee or ''}"
+        if tel and homepage:
+            _contact = "위의 전화번호나 홈페이지에서"
+        elif tel:
+            _contact = "위의 전화번호로"
+        elif homepage:
+            _contact = "위의 홈페이지에서"
+        else:
+            _contact = "연락처 정보가 없는 곳이라 지도 앱의 최근 후기나 공식 SNS에서"
+        _items = [f"<li><b>오늘 문 여는지</b> — 운영시간과 휴관일은 바뀔 수 있어요. {_contact} 확인해 주세요.</li>"]
+        if any(k in str(hours or "") for k in ("임시휴관", "리모델링", "공사")):
+            _items.append('<li class="vc-warn">⚠️ 운영시간에 임시휴관·공사 안내가 있어요. 재개 일정을 먼저 확인해 주세요.</li>')
+        if "예약" in _hf:
+            _items.append('<li class="vc-warn">⚠️ 운영시간·요금 안내에 예약 관련 내용이 있어요. 예약이 필요한지 확인하고 가세요.</li>')
+        _items.append("<li><b>주차·교통</b> — 주차 가능 여부와 요금, 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.</li>")
+        _items.append("<li><b>아이 동반 시설</b> — 유모차 이용, 수유실, 반려동물 동반 가능 여부는 장소마다 달라요. 필요하면 미리 문의해 보세요.</li>")
+        _pt = str(p.get("placeType") or "").strip()
+        if _pt == "실외":
+            _items.append("<li><b>야외 장소예요</b> — 당일 날씨·미세먼지를 확인하고, 아이 복장과 비 올 때 갈 실내 대안을 챙겨 두세요.</li>")
+        elif _pt == "실내":
+            _items.append("<li><b>실내 장소예요</b> — 주말 낮에는 입장 대기가 생길 수 있어요. 가능하면 오전이나 평일을 고려해 보세요.</li>")
+        elif _pt == "실내외":
+            _items.append("<li><b>실내와 야외를 오가는 곳이에요</b> — 날씨에 맞는 복장을 준비하세요.</li>")
+        visit_check = (
+            '<div class="detail-card visit-check">\n'
+            '    <h2>✅ 방문 전 체크리스트</h2>\n'
+            '    <ul>\n      ' + "\n      ".join(_items) + '\n    </ul>\n'
+            '    <p class="vc-rain">🌧 비 오는 날이라면 <a href="/festival/" class="detail-link">아이랑 나들이 지도</a>에서 "실내만"을 켜고 대체 장소를 찾아보세요.</p>\n'
+            '  </div>\n'
+        )
+
         overview_text = overview or desc
         overview_html = html_escape(overview_text) if overview_text else "설명 정보가 없습니다."
 
@@ -170,6 +204,7 @@ def main():
             .replace("{{TEL_VALUE}}", tel_value)
             .replace("{{HOMEPAGE_VALUE}}", homepage_value)
             .replace("{{OVERVIEW}}", overview_html)
+            .replace("{{VISIT_CHECK}}", visit_check)
             .replace("{{MAP_LINK}}", map_link)
             .replace("{{DESC}}", html_escape(desc))
             .replace("{{CANONICAL_URL}}", canonical_url)
