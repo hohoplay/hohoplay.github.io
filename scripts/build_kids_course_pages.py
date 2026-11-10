@@ -8,8 +8,7 @@
 
 껍데기(헤더·공유·댓글·푸터)는 기존 코스 글 한 개(daejeon-yuseong.html)의 것을 그대로 쓰고,
 본문(소개·한눈에 보기·장소 블록·추천 동선·마무리)만 새로 만든다.
-  - 소개/요약: improve_kids_course_pages.build_summary
-  - 추천 동선:  add_kids_course_route.build_block
+  - 소개·요약·추천 동선·마무리·메타 설명: scripts/kids_course_text.py (장소 데이터에서 문장을 생성)
 제외 규칙: EXCLUDE 에 적은 장소, 그리고 overview 에 "확인하지 못했다"가 들어 있는 장소(주소·운영시간·요금을 확인하지 못한 곳)는 글에 싣지 않는다.
 멱등: 여러 번 실행해도 같은 결과.  사용법(저장소 루트): python3 scripts/build_kids_course_pages.py [--dry-run]
 """
@@ -24,6 +23,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import improve_kids_course_pages as imp  # noqa: E402
 import add_kids_course_route as rte      # noqa: E402
+import kids_course_text as kct           # noqa: E402
 
 DATE = '2026.10.15'          # 기존 유성구 글의 게시일을 유지
 SHELL_SLUG = 'daejeon-yuseong'
@@ -82,17 +82,13 @@ def pick(places, gu, pinned):
 def build(shell, slug, region, plist):
     entries = [(p['contentid'], p['title'], p) for p in plist]
     n = len(plist)
-    kc = (imp.MARK
-          + '<p>%s에서 아이와 함께 가볼 만한 상시 운영 장소 %d곳을 모았습니다. 축제처럼 기간이 정해진 곳은 빼서 언제든 참고할 수 있고, '
-            '장소 이름을 누르면 운영시간·요금·전화번호 등 자세한 정보를 볼 수 있습니다.</p>' % (region, n)
-          + '<h2 style="%s">%s 코스 한눈에 보기</h2>' % (H2_BIG, region)
-          + imp.build_summary(region, entries) + '<!--/kc:v1-->')
-    kr = rte.KR_START + rte.build_block(region, entries) + rte.KR_END
+    # 소개·동선·마무리 문구는 scripts/kids_course_text.py 가 장소 데이터(요금·운영시간·좌표)에서 만든다.
+    kc = ('<!--kc:v1-->' + kct.build_kc(region, entries) + '<!--/kc:v1-->')
+    kr = rte.KR_START + kct.build_kr(region, entries) + rte.KR_END
+    ko = kct.KO_START + kct.build_outro(region, entries) + kct.KO_END
     body = (kc + '\n<h2 style="%s">%s, 아이랑 갈만한 곳 %d곳</h2>\n' % (H2_BIG, region, n)
             + '\n'.join(place_block(i + 1, p) for i, p in enumerate(plist)) + '\n'
-            + kr
-            + '<h2 style="%s">이 코스, 이렇게 다녀오세요</h2>' % H2_OUT
-            + imp.NEW_OUTRO_1 + imp.NEW_OUTRO_2 + '\n')
+            + kr + ko)
 
     s = shell
     a = s.index('<div class="space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap">')
@@ -105,9 +101,11 @@ def build(shell, slug, region, plist):
     s = s.replace('<title>%s 아이랑' % old_region, '<title>%s 아이랑' % region)
     s = s.replace('<h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">%s ' % old_region,
                   '<h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">%s ' % region)
-    desc = ('%s에서 아이랑 함께 가볼 만한 상시 장소 %d곳을 모아 소개합니다. 운영시간, 입장료, 전화번호 정보까지 한 번에 확인하세요.' % (region, n))
-    s = re.sub(r'<meta name="description" content="[^"]*">', lambda m: '<meta name="description" content="%s">' % H.escape(desc), s, count=1)
-    s = re.sub(r'\n[ \t]*<meta name="robots" content="noindex,follow">', '', s)   # 색인 허용
+    desc = H.escape(kct.build_meta_desc(region, entries))
+    for rx in (r'(<meta name="description" content=")[^"]*(">)', r'(<meta property="og:description" content=")[^"]*(">)',
+               r'(<meta name="twitter:description" content=")[^"]*(">)'):
+        s = re.sub(rx, lambda m: m.group(1) + desc + m.group(2), s, count=1)
+    s = kct.ensure_noindex(s)   # 코스 글은 모두 검색 제외(noindex,follow) — 2026-11-10 결정
     s = re.sub(r'(HOHO PLAY · )\d{4}\.\d{2}\.\d{2}', lambda m: m.group(1) + DATE, s, count=1)
     return s
 
