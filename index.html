@@ -509,6 +509,30 @@
         <!-- 호호픽 -->
         <div id="hoho-pick-placeholder" style="margin-bottom:40px;"></div>
 
+        <!-- 광고: 메인(홈) 한 곳만 — 호호 PICK과 호호플레이 소개 사이, 검색·배너·버튼과 떨어진 자리. 게임·다른 페이지에는 광고 없음 -->
+        <div class="hoho-content-ad" style="padding:8px 0 40px;text-align:center;">
+            <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.08em;margin-bottom:4px;">광고</div>
+            <div id="hoho-home-ad-slot"></div>
+        </div>
+        <style>.hoho-content-ad:has(ins[data-ad-status="unfilled"]){display:none}</style>
+        <script>
+        (function(){
+            try {
+                var box = document.getElementById('hoho-home-ad-slot');
+                if (!box) return;
+                var ins = document.createElement('ins');
+                ins.className = 'adsbygoogle';
+                ins.style.display = 'block';
+                ins.setAttribute('data-ad-client', 'ca-pub-7990191075290055');
+                ins.setAttribute('data-ad-slot', '8741532582');
+                ins.setAttribute('data-ad-format', 'auto');
+                ins.setAttribute('data-full-width-responsive', 'true');
+                box.appendChild(ins);
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {}
+        })();
+        </script>
+
         <!-- 소개 (크롤러·사용자 모두에게 보이는 정적 텍스트) — 카드 3개 -->
         <section class="home-about" aria-label="호호플레이 소개">
             <div class="ha-grid">
