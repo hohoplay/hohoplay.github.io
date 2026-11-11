@@ -222,147 +222,165 @@
 <!-- FZ_CSS_END -->
 <!-- HN_CSS_START -->
 <style>
-  /* 사이트 표준 상단 메뉴(게임 페이지와 같은 마크업)가 Tailwind 없이도 같은 모양으로 나오게 하는 최소 CSS */
-  nav.hn-std { position: sticky; top: 0; z-index: 60; background: rgba(255,255,255,.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,.05); font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.4; }
-  nav.hn-std * { box-sizing: border-box; }
+  /* 호호 매거진 등과 같은 상단 메뉴 마크업이 Tailwind 없이도 똑같이 보이도록, 그 마크업의 클래스만 옮긴 CSS */
+  nav.hn-std { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.5; text-align: left; }
+  nav.hn-std *, nav.hn-std *::before, nav.hn-std *::after { box-sizing: border-box; border: 0 solid #e5e7eb; }
+  nav.hn-std a { color: inherit; text-decoration: none; }
+  nav.hn-std button { font-family: inherit; font-size: 100%; background: transparent; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; }
+  nav.hn-std svg { display: block; vertical-align: middle; }
+  nav.hn-std div, nav.hn-std span { margin: 0; }
+  nav.hn-std.sticky { position: sticky; } nav.hn-std.top-0 { top: 0; } nav.hn-std.z-50 { z-index: 50; }
+  nav.hn-std .z-50 { z-index: 50; }
+  nav.hn-std.bg-white\/80 { background-color: rgba(255,255,255,.8); }
+  nav.hn-std.backdrop-blur-md { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  nav.hn-std.border-b { border-bottom-width: 1px; }
+  nav.hn-std.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,.05); }
   nav.hn-std .max-w-7xl { max-width: 80rem; } nav.hn-std .mx-auto { margin-left: auto; margin-right: auto; }
-  nav.hn-std .px-4 { padding-left: 16px; padding-right: 16px; }
-  nav.hn-std .flex { display: flex; } nav.hn-std .justify-between { justify-content: space-between; }
-  nav.hn-std .items-center { align-items: center; } nav.hn-std .justify-center { justify-content: center; }
-  nav.hn-std .h-14 { height: 56px; } nav.hn-std .gap-2 { gap: 8px; } nav.hn-std .cursor-pointer { cursor: pointer; }
-  nav.hn-std .w-8 { width: 32px; } nav.hn-std .h-8 { height: 32px; }
-  nav.hn-std .bg-indigo-600 { background: #4f46e5; } nav.hn-std .rounded-xl { border-radius: 12px; }
-  nav.hn-std .text-white { color: #fff; } nav.hn-std .font-black { font-weight: 900; }
-  nav.hn-std .shadow-md { box-shadow: 0 4px 6px rgba(199,210,254,.8); }
-  nav.hn-std .text-lg { font-size: 18px; } nav.hn-std .tracking-tighter { letter-spacing: -.05em; } nav.hn-std .uppercase { text-transform: uppercase; }
-  nav.hn-std .text-indigo-600 { color: #4f46e5; } nav.hn-std .text-violet-500 { color: #8b5cf6; }
-  nav.hn-std a { text-decoration: none; }
-  nav.hn-std .g-dd-menu a:hover { background: #eef2ff; color: #4f46e5 !important; }
-  nav.hn-std .g-dd-menu { min-width: 176px; } nav.hn-std .g-dd-menu a { white-space: nowrap; }
-  #game-mobile-menu { max-height: calc(100vh - 56px); overflow-y: auto; }
-  @media (min-width: 640px) { nav.hn-std .sm\:px-6 { padding-left: 24px; padding-right: 24px; } }
+  nav.hn-std .px-4 { padding-left: 16px; padding-right: 16px; } nav.hn-std .px-2 { padding-left: 8px; padding-right: 8px; }
+  nav.hn-std .py-1 { padding-top: 4px; padding-bottom: 4px; } nav.hn-std .py-2 { padding-top: 8px; padding-bottom: 8px; }
+  nav.hn-std .py-2\.5 { padding-top: 10px; padding-bottom: 10px; } nav.hn-std .py-3 { padding-top: 12px; padding-bottom: 12px; }
+  nav.hn-std .py-4 { padding-top: 16px; padding-bottom: 16px; } nav.hn-std .pb-1 { padding-bottom: 4px; } nav.hn-std .pt-1 { padding-top: 4px; }
+  nav.hn-std .flex { display: flex; } nav.hn-std .flex-col { flex-direction: column; } nav.hn-std .block { display: block; }
+  nav.hn-std .hidden { display: none; } nav.hn-std .relative { position: relative; } nav.hn-std .absolute { position: absolute; }
+  nav.hn-std .justify-between { justify-content: space-between; } nav.hn-std .justify-center { justify-content: center; } nav.hn-std .items-center { align-items: center; }
+  nav.hn-std .gap-1 { gap: 4px; } nav.hn-std .gap-1\.5 { gap: 6px; } nav.hn-std .gap-2 { gap: 8px; } nav.hn-std .gap-3 { gap: 12px; }
+  nav.hn-std .space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 8px; }
+  nav.hn-std .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 4px; }
+  nav.hn-std .h-20 { height: 80px; } nav.hn-std .h-12 { height: 48px; } nav.hn-std .h-10 { height: 40px; } nav.hn-std .h-0\.5 { height: 2px; }
+  nav.hn-std .w-12 { width: 48px; } nav.hn-std .w-10 { width: 40px; } nav.hn-std .w-6 { width: 24px; } nav.hn-std .w-40 { width: 160px; } nav.hn-std .w-44 { width: 176px; } nav.hn-std .w-full { width: 100%; }
+  nav.hn-std .left-0 { left: 0; } nav.hn-std .right-0 { right: 0; } nav.hn-std .top-full { top: 100%; } nav.hn-std .mt-2 { margin-top: 8px; } nav.hn-std .my-2 { margin-top: 8px; margin-bottom: 8px; }
+  nav.hn-std .bg-white { background-color: #fff; } nav.hn-std .bg-indigo-600 { background-color: #4f46e5; } nav.hn-std .bg-slate-700 { background-color: #334155; } nav.hn-std .bg-indigo-50 { background-color: #eef2ff; }
+  nav.hn-std .text-white { color: #fff; } nav.hn-std .text-indigo-600 { color: #4f46e5; } nav.hn-std .text-violet-500 { color: #8b5cf6; }
+  nav.hn-std .text-slate-400 { color: #94a3b8; } nav.hn-std .text-slate-500 { color: #64748b; } nav.hn-std .text-slate-600 { color: #475569; } nav.hn-std .text-slate-700 { color: #334155; }
+  nav.hn-std .text-2xl { font-size: 24px; line-height: 32px; } nav.hn-std .text-sm { font-size: 14px; line-height: 20px; } nav.hn-std .text-xs { font-size: 12px; line-height: 16px; }
+  nav.hn-std .font-black { font-weight: 900; } nav.hn-std .font-bold { font-weight: 700; } nav.hn-std .text-left { text-align: left; }
+  nav.hn-std .uppercase { text-transform: uppercase; } nav.hn-std .tracking-tighter { letter-spacing: -.05em; }
+  nav.hn-std .rounded-xl { border-radius: 12px; } nav.hn-std .rounded-2xl { border-radius: 16px; }
+  nav.hn-std .border { border-width: 1px; } nav.hn-std .border-t { border-top-width: 1px; } nav.hn-std .border-slate-100 { border-color: #f1f5f9; }
+  nav.hn-std .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1); }
+  nav.hn-std .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1); }
+  nav.hn-std .shadow-indigo-200 { box-shadow: 0 20px 25px -5px rgba(199,210,254,1), 0 8px 10px -6px rgba(199,210,254,1); }
+  nav.hn-std .opacity-0 { opacity: 0; } nav.hn-std .invisible { visibility: hidden; }
+  nav.hn-std .transition { transition: color .15s, background-color .15s, border-color .15s, opacity .15s, box-shadow .15s, transform .15s; }
+  nav.hn-std .transition-all { transition: all .15s; } nav.hn-std .duration-200 { transition-duration: .2s; } nav.hn-std .duration-300 { transition-duration: .3s; }
+  nav.hn-std .hover\:bg-indigo-50:hover { background-color: #eef2ff; } nav.hn-std .hover\:bg-slate-100:hover { background-color: #f1f5f9; } nav.hn-std .hover\:bg-slate-50:hover { background-color: #f8fafc; }
+  nav.hn-std .hover\:text-indigo-600:hover { color: #4f46e5; } nav.hn-std .hover\:text-slate-600:hover { color: #475569; }
+  nav.hn-std .group:hover .group-hover\:opacity-100 { opacity: 1; } nav.hn-std .group:hover .group-hover\:visible { visibility: visible; }
+  @media (min-width: 640px) { nav.hn-std .sm\:gap-3 { gap: 12px; } nav.hn-std .sm\:px-6 { padding-left: 24px; padding-right: 24px; } }
+  @media (min-width: 768px) { nav.hn-std .md\:flex { display: flex; } nav.hn-std .md\:hidden { display: none; } }
   @media (min-width: 1024px) { nav.hn-std .lg\:px-8 { padding-left: 32px; padding-right: 32px; } }
 </style>
 <!-- HN_CSS_END -->
 </head>
 <body>
 <!-- HN_START -->
-    <nav class="hn-std bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-14 items-center">
-                <a href="/" class="flex items-center gap-2 cursor-pointer">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
-                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                </a>
-                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/game/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
-                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
-                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/blog/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
-                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
-                            <a href="/festival/worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이 월드컵</a>
-                            <a href="/festival/camping-worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">캠핑장 월드컵</a>
-                            <a href="/festival/pick.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">오늘 어디 갈까?</a>
-                            <a href="/festival/roulette.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
-                            <a href="/festival/poster.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 포스터</a>
-                    <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                    <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
-                            <a href="/partner/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/terms/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
-                            <a href="/privacy/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
-                            <a href="/copyright/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
-                            <a href="/guide/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
-                        </div>
+<nav class="hn-std bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20 items-center">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
+                <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+            </a>
+            <div class="hidden md:flex space-x-2 items-center">
+                <div class="relative group">
+                    <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                    <div class="absolute left-0 top-full mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <a href="/game/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</a>
+                        <a href="/vote/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
+                        <a href="/quiz/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
+                        <a href="/fortune/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">운세</a>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
-                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                    </button>
+                <div class="relative group">
+                    <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                    <div class="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <a href="/blog/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</a>
+                        <a href="/blog/magazine/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">호호 매거진</a>
+                        <a href="/festival/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
+                        <a href="/festival/worldcup.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이 월드컵</a>
+                        <a href="/festival/camping-worldcup.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">캠핑장 월드컵</a>
+                        <a href="/festival/pick.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">오늘 어디 갈까?</a>
+                        <a href="/festival/roulette.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이·캠핑장·숲 룰렛</a>
+                        <a href="/festival/poster.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 포스터</a>
+                        <a href="/guides/index.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
+                        <a href="/dream/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
+                        <a href="#" onclick="goPartner();return false;" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</a>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <button class="text-slate-400 hover:text-slate-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                    <div class="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <a href="/terms/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">이용약관</a>
+                        <a href="/privacy/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">개인정보처리방침</a>
+                        <a href="/copyright/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">저작권·콘텐츠 정책</a>
+                        <a href="/guide/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">FAQ</a>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
-            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
-                
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🎮 플레이하기</div>
-                <a href="/game/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
-                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
-                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
-                <a href="/blog/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
-                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
-                <a href="/festival/worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이 월드컵</a>
-                <a href="/festival/camping-worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">캠핑장 월드컵</a>
-                <a href="/festival/pick.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">오늘 어디 갈까?</a>
-                <a href="/festival/roulette.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
-                <a href="/festival/poster.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 포스터</a>
-            <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-            <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
-                <a href="/partner/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <a href="/terms/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
-                <a href="/privacy/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
-                <a href="/copyright/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
-                <a href="/guide/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
+                    <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                    <span id="bar2" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                    <span id="bar3" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                </button>
             </div>
         </div>
-    </nav>
-    <script>
-        function applyGameNavResponsive(){
-            var isWide = window.innerWidth >= 768;
-            var d1 = document.getElementById('g-nav-desktop');
-            var d2 = document.getElementById('g-nav-cta');
-            var m1 = document.getElementById('g-nav-cta-m');
-            var m2 = document.getElementById('g-nav-hamburger');
-            if(d1) d1.style.display = isWide ? 'flex' : 'none';
-            if(d2) d2.style.display = isWide ? 'flex' : 'none';
-            if(m1) m1.style.display = isWide ? 'none' : 'flex';
-            if(m2) m2.style.display = isWide ? 'none' : 'flex';
-            if(isWide){
-                var mm = document.getElementById('game-mobile-menu');
-                if(mm) mm.style.display = 'none';
-            }
-        }
-        applyGameNavResponsive();
-        window.addEventListener('resize', applyGameNavResponsive);
-        function toggleGameMenu(){
-            var m = document.getElementById('game-mobile-menu');
-            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
-            var isOpen = m.style.display === 'block';
-            if(!isOpen){
-                m.style.display = 'block';
-                b1.style.transform = 'translateY(6px) rotate(45deg)';
-                b2.style.opacity = '0';
-                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
-            } else {
-                m.style.display = 'none';
-                b1.style.transform = '';
-                b2.style.opacity = '1';
-                b3.style.transform = '';
-            }
-        }
-    </script>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t shadow-lg">
+        <div class="px-4 py-4 space-y-1">
+            <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">🎮 플레이하기</div>
+            <a href="/game/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</a>
+            <a href="/vote/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
+            <a href="/quiz/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
+            <a href="/fortune/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">운세</a>
+            <div class="border-t my-2"></div>
+            <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">💬 소통·정보</div>
+            <a href="/blog/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</a>
+            <a href="/blog/magazine/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">호호 매거진</a>
+            <a href="/festival/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
+            <a href="/festival/worldcup.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이 월드컵</a>
+            <a href="/festival/camping-worldcup.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">캠핑장 월드컵</a>
+            <a href="/festival/pick.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">오늘 어디 갈까?</a>
+            <a href="/festival/roulette.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이·캠핑장·숲 룰렛</a>
+            <a href="/festival/poster.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 포스터</a>
+            <a href="/guides/index.html" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
+            <a href="/dream/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
+            <a href="#" onclick="goPartner();return false;" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</a>
+            <div class="border-t my-2"></div>
+            <a href="/terms/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">이용약관</a>
+            <a href="/privacy/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">개인정보처리방침</a>
+            <a href="/copyright/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">저작권·콘텐츠 정책</a>
+            <a href="/guide/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">FAQ</a>
+        </div>
+    </div>
+</nav>
+<div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
+<script>
+function toggleMenu() {
+    var menu = document.getElementById('mobile-menu');
+    var overlay = document.getElementById('menu-overlay');
+    var bar1 = document.getElementById('bar1');
+    var bar2 = document.getElementById('bar2');
+    var bar3 = document.getElementById('bar3');
+    var isOpen = !menu.classList.contains('hidden');
+    if (isOpen) {
+        menu.classList.add('hidden');
+        if (overlay) overlay.style.display = 'none';
+        bar1.style.transform = '';
+        bar2.style.opacity = '1';
+        bar3.style.transform = '';
+    } else {
+        menu.classList.remove('hidden');
+        if (overlay) overlay.style.display = 'block';
+        bar1.style.transform = 'translateY(8px) rotate(45deg)';
+        bar2.style.opacity = '0';
+        bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
+    }
+}
+function goPartner() {
+    location.href = '/partner/';
+}
+</script>
 <!-- HN_END -->
 <!-- FZ_REMOTE_START -->
 <div class="fz-remote" id="fzRemote">
