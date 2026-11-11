@@ -491,6 +491,63 @@ def classify_fee(text):
     return ''
 
 
+# 시·군 이름(끝의 '시'·'군' 뺀 것) + 광역시도. 행사명 앞 단어가 지역 이름인지 판단하는 기준.
+# '영동'처럼 시·군 이름이면서 권역 이름으로도 쓰여 오해가 생기는 것은 일부러 뺐다.
+REGION_STEMS = set((
+    "서울 부산 대구 인천 광주 대전 울산 세종 제주 "
+    "수원 성남 의정부 안양 부천 광명 평택 동두천 안산 고양 과천 구리 남양주 오산 시흥 군포 의왕 하남 용인 파주 이천 안성 김포 화성 양주 포천 여주 "
+    "춘천 원주 강릉 동해 태백 속초 삼척 청주 충주 제천 천안 공주 보령 아산 서산 논산 계룡 당진 전주 군산 익산 정읍 남원 김제 "
+    "목포 여수 순천 나주 광양 포항 경주 김천 안동 구미 영주 영천 상주 문경 경산 창원 진주 통영 사천 김해 밀양 거제 양산 서귀포 "
+    "가평 양평 연천 강화 옹진 고성 양양 영월 평창 정선 철원 화천 양구 인제 홍천 횡성 보은 옥천 증평 진천 괴산 음성 단양 "
+    "금산 부여 서천 청양 홍성 예산 태안 완주 진안 무주 장수 임실 순창 고창 부안 담양 곡성 구례 고흥 보성 화순 장흥 강진 해남 영암 "
+    "무안 함평 영광 장성 완도 진도 신안 군위 의성 청송 영양 영덕 청도 고령 성주 칠곡 예천 봉화 울진 울릉 의령 함안 창녕 하동 산청 "
+    "함양 거창 합천 남해 기장 달성"
+).split())
+
+
+def build_region_vocab(items):
+    """[ADD] 2026-11-11: 주소에서 시·군 이름(예: 영주, 안동)과 시도 이름을 모아 '지역 이름 목록'을 만든다.
+    행사명 첫 단어가 지역 이름인데 실제 개최 주소가 다른 지역인 경우를 찾는 데 쓴다."""
+    vocab = set(REGION_STEMS)
+    for it in items or []:
+        a = it.get('addr') or ''
+        for w in re.findall(r'([가-힣]{2,4})(?:시|군)(?=\s|$)', a):
+            vocab.add(w)
+    return vocab
+
+
+def venue_mismatch_note(item, vocab):
+    """[ADD] 2026-11-11: 행사명 앞의 지역(예: '영주 사과축제'의 영주)과 개최 주소의 지역이 다르면 안내 문구를 돌려준다.
+    다른 지역 주최 행사가 서울 등에서 열리는 경우(직거래 장터 등)를 방문자가 오류로 오해하지 않게 하는 용도이며,
+    데이터를 고치는 것이 아니라 '확인하세요' 안내만 붙인다. 해당 없으면 빈 문자열."""
+    title = (item.get('title') or '').strip()
+    addr = (item.get('addr') or '').strip()
+    if not title or not addr:
+        return ''
+    title = re.sub(r'^[\[(（]?(?:제?\s*\d+\s*(?:회|th)?|\d{4}\s*년?)[\])）]?\s*', '', title)
+    m = re.match(r'([가-힣]{2,4})(?=\s|$)', title)
+    if not m:
+        return ''
+    tok = m.group(1)
+    if tok not in vocab or tok in addr:
+        return ''
+    label = ' '.join(addr.split()[:2])
+    return (f"행사명의 지역({tok})과 개최 장소({label})가 달라요. "
+            f"다른 지역에서 여는 행사일 수 있으니 방문 전 개최 장소를 확인해 주세요.")
+
+
+def compute_venue_notes(items):
+    """contentid → 안내 문구. 축제 항목만 대상."""
+    fest = [i for i in (items or []) if i.get('type', 'festival') == 'festival']
+    vocab = build_region_vocab(fest)
+    out = {}
+    for it in fest:
+        n = venue_mismatch_note(it, vocab)
+        if n and it.get('contentid'):
+            out[str(it['contentid'])] = n
+    return out
+
+
 def attach_fee_types(items, detail_dir=os.path.join('festival', 'detail')):
     """[ADD] 2026-11-11: 축제 포스터 페이지가 '무료/유료'로 걸러 볼 수 있도록, 축제 항목마다 feeType 을 붙인다.
     이미 만들어진 상세페이지(festival/detail/{contentid}.html)의 '이용요금' 값을 읽어 판단하며,
@@ -654,6 +711,14 @@ def patch_existing_detail_pages(festivals=None):
         '}catch(e){}})();</script><!--/ended-js:v1-->\n'
     )
     ended_patched = 0
+    # [ADD] 2026-11-11: 행사명 지역과 개최 장소가 다른 축제의 상세페이지 맨 위에 안내를 한 번만 넣고, 이후엔 같은 자리를 새 값으로 바꾼다.
+    VENUE_START, VENUE_END = '<!--venue:v1-->', '<!--/venue:v1-->'
+    try:
+        venue_note_by_cid = compute_venue_notes(festivals)
+    except Exception as _e:
+        print(f"행사명-개최지 안내 계산 건너뜀: {_e}")
+        venue_note_by_cid = {}
+    venue_patched = 0
     FEE_ROW_MARK = '<div class="detail-row"><div class="detail-label">이용요금</div>'
     time_block_by_cid = {}
     for _f in (festivals or []):
@@ -692,6 +757,23 @@ def patch_existing_detail_pages(festivals=None):
             changed = True
             ended_patched += 1
 
+        _vn_txt = venue_note_by_cid.get(fn[:-5])
+        if _vn_txt and '<h1' in content:
+            _vn_html = (VENUE_START + '<div style="margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fffbeb;'
+                        'border:1px solid #fde68a;color:#92400e;font-size:13px;font-weight:700;line-height:1.6">📍 '
+                        + html.escape(_vn_txt) + '</div>' + VENUE_END + '\n')
+            if VENUE_START in content and VENUE_END in content:
+                _a = content.index(VENUE_START)
+                _b = content.index(VENUE_END) + len(VENUE_END)
+                _nc = content[:_a] + _vn_html.rstrip('\n') + content[_b:]
+            else:
+                _anchor = ENDED_MARK if ENDED_MARK in content else '<h1'
+                _nc = content.replace(_anchor, _vn_html + _anchor, 1)
+            if _nc != content:
+                content = _nc
+                changed = True
+                venue_patched += 1
+
         # [ADD] 2026-11-11: "지도로 돌아가기" 링크에 이 장소의 id·좌표를 실어 그 위치로 돌아오게 한다.
         content, _focus_done = add_focus_to_back_link(content, fn[:-5])
         if _focus_done:
@@ -726,7 +808,7 @@ def patch_existing_detail_pages(festivals=None):
     print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — "
           f"축제 상단 홈 버튼 보정: {header_patched}건, 자연관광지류 홈 버튼 보정: {nature_header_patched}건, "
           f"대표 사진 모양 보정: {image_css_patched}건, 운영시간·소요시간 행 보정: {time_rows_patched}건, "
-          f"지도로 돌아가기 위치 링크: {focus_patched}건, 종료 안내·출처 보정: {ended_patched}건")
+          f"지도로 돌아가기 위치 링크: {focus_patched}건, 종료 안내·출처 보정: {ended_patched}건, 행사명-개최지 안내: {venue_patched}건")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
@@ -1723,6 +1805,20 @@ def main():
         attach_fee_types(all_map_items)  # [ADD] 2026-11-11: 축제 포스터의 무료/유료 구분용
     except Exception as e:
         print(f"축제 이용요금 구분(feeType) 건너뜀: {e}")
+
+    try:
+        # [ADD] 2026-11-11: 행사명의 지역과 개최 주소 지역이 다른 축제에 안내(venueNote)를 붙인다. 지도 카드에 표시됨.
+        _vn = compute_venue_notes(all_map_items)
+        for it in all_map_items:
+            if it.get('type') == 'festival':
+                n = _vn.get(str(it.get('contentid')))
+                if n:
+                    it['venueNote'] = n
+                else:
+                    it.pop('venueNote', None)
+        print(f"행사명-개최지 불일치 안내: {len(_vn)}건")
+    except Exception as e:
+        print(f"행사명-개최지 불일치 안내 건너뜀: {e}")
 
     # repo 루트 기준 data/ 폴더에 저장 (workflow가 repo 루트에서 scripts/fetch_data.py로 실행하는 것을 전제)
     os.makedirs('data', exist_ok=True)
