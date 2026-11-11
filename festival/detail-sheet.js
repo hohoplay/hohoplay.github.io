@@ -13,7 +13,7 @@
  *  - 닫기: 오른쪽 하단 ✕ / 바깥(어두운 영역) 터치 / ESC / 손잡이를 아래로 끌기 / 브라우저 뒤로가기.
  *  - 불러오기에 실패하면 예전처럼 상세 페이지로 그냥 이동한다.
  *  - 직접 열려면 window.HohoDetailSheet.open('/festival/detail/kids-0001.html').
- *  - 이 팝업 안의 "전체 페이지" 링크처럼 가로채지 않을 링크에는 data-nosheet 속성을 붙인다.
+ *  - 가로채지 않을 링크에는 data-nosheet 속성을 붙인다.
  */
 (function () {
   'use strict';
@@ -27,7 +27,7 @@
   var lastFocus = null;
   var prevOverflow = '';
   var closeTimer = null;
-  var root, panel, body, frame, loading, closeBtn, fullLink, grab, backdrop;
+  var root, panel, body, frame, loading, closeBtn, grab, backdrop;
 
   var CSS = '' +
     '#hpSheetRoot{position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;display:none;}' +
@@ -41,7 +41,6 @@
     '#hpSheetRoot .hp-panel.hp-drag{transition:none;}' +
     '#hpSheetRoot .hp-grab{flex:0 0 auto;position:relative;height:30px;background:#fff;border-bottom:1px solid #e2e8f0;cursor:grab;touch-action:none;}' +
     '#hpSheetRoot .hp-grab:before{content:"";position:absolute;left:50%;top:10px;width:44px;height:5px;margin-left:-22px;border-radius:99px;background:#cbd5e1;}' +
-    '#hpSheetRoot .hp-full{position:absolute;right:12px;top:5px;font-size:12px;font-weight:700;color:#1a73e8;text-decoration:none;line-height:20px;padding:0 4px;}' +
     '#hpSheetRoot .hp-body{position:relative;flex:1 1 auto;min-height:0;background:#f8fafc;}' +
     '#hpSheetRoot .hp-frame{display:block;width:100%;height:100%;border:0;background:#f8fafc;}' +
     '#hpSheetRoot .hp-loading{position:absolute;left:0;right:0;top:40%;text-align:center;font-size:14px;font-weight:700;color:#64748b;pointer-events:none;}' +
@@ -88,7 +87,7 @@
     root.innerHTML =
       '<div class="hp-bd"></div>' +
       '<div class="hp-panel">' +
-        '<div class="hp-grab"><a class="hp-full" data-nosheet target="_self" href="#">전체 페이지 ↗</a></div>' +
+        '<div class="hp-grab"></div>' +
         '<div class="hp-body">' +
           '<div class="hp-loading">불러오는 중…</div>' +
         '</div>' +
@@ -99,7 +98,6 @@
     backdrop = root.querySelector('.hp-bd');
     panel = root.querySelector('.hp-panel');
     grab = root.querySelector('.hp-grab');
-    fullLink = root.querySelector('.hp-full');
     body = root.querySelector('.hp-body');
     loading = root.querySelector('.hp-loading');
     closeBtn = root.querySelector('.hp-close');
@@ -193,7 +191,6 @@
     if (!path || !DETAIL_RE.test(path)) return;
     build();
     clearTimeout(closeTimer);
-    fullLink.setAttribute('href', path);
     if (!opened) {
       opened = true;
       lastFocus = document.activeElement;
