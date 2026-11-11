@@ -8,9 +8,13 @@ import re
 from urllib.parse import quote
 import requests
 
-TODAY = datetime.datetime.now().strftime('%Y%m%d')
+# [CHANGE] 2026-11-11: "오늘"을 한국 시간(KST) 기준으로 계산한다. GitHub Actions 서버는 UTC 라서 예전에는
+# 새벽 5시(KST) 실행 때도 "어제" 날짜로 계산되어, 한국 날짜로 이미 끝난 축제가 오전 11시 실행 때까지 지도에 남았다.
+KST = datetime.timezone(datetime.timedelta(hours=9))
+NOW_KST = datetime.datetime.now(KST)
+TODAY = NOW_KST.strftime('%Y%m%d')
 # 30일 전부터 검색해서, 이미 시작했지만 아직 안 끝난 축제도 놓치지 않도록 함
-SEARCH_FROM = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y%m%d')
+SEARCH_FROM = (NOW_KST - datetime.timedelta(days=30)).strftime('%Y%m%d')
 
 # 서울 리전에서 실행되는 Vercel 프록시 함수 주소.
 # GitHub Actions(해외 서버)가 apis.data.go.kr에 직접 접속하면 차단당하는 문제를 피하기 위해
@@ -634,6 +638,22 @@ def patch_existing_detail_pages(festivals=None):
 
     # [ADD] 2026-11-11: 운영시간·소요시간 행. 이번 실행에서 받은 festivals(playTime 포함)로 이미 만들어진 상세페이지에도 끼워 넣는다.
     # 마커(<!--pt:v1-->)로 감싸 두어 다시 실행하면 같은 자리를 새 값으로 바꿀 뿐 중복되지 않는다(TourAPI 호출 없음).
+    # [ADD] 2026-11-11: 이미 끝난 축제의 상세페이지에 "종료" 안내를 보여준다. 페이지 안의 날짜(📅 시작 ~ 끝)를 읽어 한국 날짜로
+    # 비교하는 작은 스크립트라 매일 다시 쓰지 않아도 된다. 마커(<!--ended:v1-->)가 있으면 건너뛰어 여러 번 실행해도 중복되지 않는다.
+    # 축제 상세페이지(📅 날짜가 있고 kids- 가 아닌 것)에만 넣는다. 아래 출처 안내도 같은 마커 안에 함께 넣는다.
+    ENDED_MARK = '<!--ended:v1-->'
+    ENDED_BANNER = (ENDED_MARK + '<div id="endedBanner" style="display:none;margin:0 0 14px;padding:10px 14px;border-radius:12px;'
+                    'background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-size:13px;font-weight:700;line-height:1.6"></div><!--/ended:v1-->\n')
+    ENDED_FOOT = (
+        '<!--ended-js:v1--><p style="max-width:640px;margin:0 auto;padding:0 20px 8px;font-size:11px;color:#94a3b8;line-height:1.6;text-align:center">'
+        '정보 출처: 한국관광공사 TourAPI(공공데이터포털). 일정·요금·운영시간은 바뀔 수 있으니 방문 전 위 홈페이지·전화로 확인해 주세요.</p>\n'
+        '<script>(function(){try{var el=document.getElementById("endedBanner");if(!el)return;'
+        'var m=(document.body.innerText||"").match(/📅\\s*(\\d{4})\\.(\\d{2})\\.(\\d{2})\\s*~\\s*(\\d{4})\\.(\\d{2})\\.(\\d{2})/);if(!m)return;'
+        'var end=m[4]+m[5]+m[6];var t=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10).replace(/-/g,"");'
+        'if(end<t){el.innerHTML="⏹ 이 행사는 "+m[4]+"."+m[5]+"."+m[6]+"에 종료되었어요. 지금 진행 중인 행사는 <a href=\\"/festival/\\" style=\\"color:#b91c1c;text-decoration:underline\\">나들이 지도</a>에서 확인하세요.";el.style.display="block";}'
+        '}catch(e){}})();</script><!--/ended-js:v1-->\n'
+    )
+    ended_patched = 0
     FEE_ROW_MARK = '<div class="detail-row"><div class="detail-label">이용요금</div>'
     time_block_by_cid = {}
     for _f in (festivals or []):
@@ -663,6 +683,14 @@ def patch_existing_detail_pages(festivals=None):
             changed = True
             nature_header_patched += 1
         # 둘 다 해당 없으면 이미 보정된 페이지(새 버전)이거나 알 수 없는 템플릿 — 건드리지 않음
+
+        # [ADD] 2026-11-11: 축제 상세페이지에 종료 안내 배너 + 출처 안내를 한 번만 끼워 넣는다.
+        if ENDED_MARK not in content and '📅' in content and not fn.startswith('kids-') \
+                and '<h1' in content and '<div id="site-footer">' in content:
+            content = content.replace('<h1', ENDED_BANNER + '<h1', 1)
+            content = content.replace('<div id="site-footer">', ENDED_FOOT + '<div id="site-footer">', 1)
+            changed = True
+            ended_patched += 1
 
         # [ADD] 2026-11-11: "지도로 돌아가기" 링크에 이 장소의 id·좌표를 실어 그 위치로 돌아오게 한다.
         content, _focus_done = add_focus_to_back_link(content, fn[:-5])
@@ -698,7 +726,7 @@ def patch_existing_detail_pages(festivals=None):
     print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — "
           f"축제 상단 홈 버튼 보정: {header_patched}건, 자연관광지류 홈 버튼 보정: {nature_header_patched}건, "
           f"대표 사진 모양 보정: {image_css_patched}건, 운영시간·소요시간 행 보정: {time_rows_patched}건, "
-          f"지도로 돌아가기 위치 링크: {focus_patched}건")
+          f"지도로 돌아가기 위치 링크: {focus_patched}건, 종료 안내·출처 보정: {ended_patched}건")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
@@ -919,7 +947,7 @@ def build_festival_list_page(list_items):
     캠핑장까지 나와서 "제목과 내용이 안 맞는다"는 지적을 받았다. 이제 카테고리
     (축제 / 자연관광지 / 캠핑장 / 수상레저)로 먼저 나누고, 그 안에서 지역별로
     묶는다. 제목·설명도 실제로 들어있는 카테고리를 다 반영하도록 고쳤다."""
-    now = datetime.datetime.now()
+    now = NOW_KST
     month_label = f"{now.year}년 {now.month}월"
 
     def fmt_date(raw):
@@ -954,7 +982,11 @@ def build_festival_list_page(list_items):
             parts.append(render_group('기타 지역', unclassified))
         return '\n'.join(parts) if parts else '<p>현재 등록된 정보가 없습니다.</p>'
 
-    festivals = [f for f in list_items if f.get('type') not in ('park', 'camping', 'watersports')]
+    # [CHANGE] 2026-11-11: 이 목록은 "진행 중이거나 곧 시작하는" 축제만 보여준다. 예전에는 종료 후 30일(GRACE_DAYS)
+    # 지난 축제까지 그대로 담겨 있어 이미 끝난 행사가 노출됐다. 종료일이 오늘(KST)보다 앞이면 목록에서 뺀다.
+    festivals = [f for f in list_items
+                 if f.get('type') not in ('park', 'camping', 'watersports')
+                 and not (f.get('endDate') and str(f.get('endDate')) < TODAY)]
     parks = [f for f in list_items if f.get('type') == 'park']
     campings = [f for f in list_items if f.get('type') == 'camping']
     watersports = [f for f in list_items if f.get('type') == 'watersports']
@@ -991,6 +1023,7 @@ h1{{font-size:1.5rem;font-weight:900}}
 </head>
 <body>
 <h1>{month_label} 전국 축제·자연관광지 목록</h1>
+<p style="font-size:13px;color:#64748b;margin:4px 0 10px">데이터 기준일 {now.strftime('%Y.%m.%d')} (KST) · 출처: 한국관광공사 TourAPI / 공공데이터포털 · 종료된 행사는 자동으로 빠집니다.</p>
 <p>현재 진행 중이거나 곧 시작하는 전국 축제, 그리고 상시 이용 가능한 자연관광지·캠핑장·수상레저 정보를 모았습니다. 지도에서 한눈에 보고 싶다면 <a href="/festival/">축제 지도</a>를 이용해보세요.</p>
 {body}
 <a class="back-link" href="/festival/">← 지도에서 보기</a>
@@ -1152,6 +1185,21 @@ def update_map_html(festivals, today):
 
     with open(map_path, 'w', encoding='utf-8') as f:
         f.write(updated)
+
+    # [ADD] 2026-11-11: 사이드 패널 하단의 "데이터 기준일"을 이번 실행 시각(KST)으로 바꾼다. 마커가 없으면 건너뛴다.
+    try:
+        with open(map_path, 'r', encoding='utf-8') as f:
+            content2 = f.read()
+        a = content2.find('<!-- DATA_UPDATED_START -->')
+        b = content2.find('<!-- DATA_UPDATED_END -->')
+        if a != -1 and b != -1 and a < b:
+            label = NOW_KST.strftime('%Y.%m.%d %H:%M')
+            content2 = (content2[:a + len('<!-- DATA_UPDATED_START -->')]
+                        + f'데이터 기준일: {label} (KST)' + content2[b:])
+            with open(map_path, 'w', encoding='utf-8') as f:
+                f.write(content2)
+    except Exception as e:
+        print(f"데이터 기준일 표시 갱신 건너뜀: {e}")
 
     print("festival/index.html의 '오늘의 축제' 패널 갱신 완료")
 
