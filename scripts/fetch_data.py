@@ -558,6 +558,26 @@ def attach_play_times(festivals, prev_path=os.path.join('data', 'festivals.json'
     print(f"행사시간(playTime): 재사용 {reused}건, 신규 조회 {fetched}건, 실패 {failed}건, 값이 있는 축제 {filled}/{len(festivals)}건")
 
 
+# [ADD] 2026-11-11: 상세페이지의 "← 지도로 돌아가기"가 전국 지도로만 돌아가서, 그 장소 위치로 바로 가도록
+# ?id=contentid&lat=&lng= 를 실어 보낸다(festival/index.html 이 이 값을 읽어 그 위치로 이동하고 하단 카드까지 띄운다).
+# 아이랑 장소 상세(generate_kids_detail_pages.py)는 이미 같은 형식을 쓴다. 좌표는 페이지 안의 "지도에서 보기" 링크
+# (map.kakao.com/link/map/이름,위도,경도)에서 읽고, 없으면 id 만 싣는다. 링크가 정확히 "/festival/" 인 것만 바꾸므로
+# 다시 실행해도 결과가 같다.
+BACK_LINK_RE = re.compile(r'<a href="/festival/"([^>]*>← (?:나들이 )?지도로 돌아가기</a>)')
+MAP_COORD_RE = re.compile(r'map\.kakao\.com/link/map/[^,"\']*,(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)')
+
+
+def add_focus_to_back_link(content, content_id):
+    m = BACK_LINK_RE.search(content)
+    if not m or not content_id:
+        return content, False
+    url = f'/festival/?id={quote(str(content_id))}'
+    c = MAP_COORD_RE.search(content)
+    if c:
+        url += f'&amp;lat={c.group(1)}&amp;lng={c.group(2)}'
+    return content[:m.start()] + f'<a href="{url}"' + m.group(1) + content[m.end():], True
+
+
 def patch_existing_detail_pages(festivals=None):
     """festival/detail/ 폴더 안에 이미 만들어진 상세페이지 전체(누적 수천 건)를
     대상으로, 상단 "🏠 홈" 버튼이 빠진 옛 버전을 찾아 새 버전으로 바꿔치기한다.
@@ -625,6 +645,7 @@ def patch_existing_detail_pages(festivals=None):
 
     filenames = [fn for fn in os.listdir(detail_dir) if fn.endswith('.html')]
     header_patched = 0
+    focus_patched = 0
     nature_header_patched = 0
     image_css_patched = 0
     for fn in filenames:
@@ -642,6 +663,12 @@ def patch_existing_detail_pages(festivals=None):
             changed = True
             nature_header_patched += 1
         # 둘 다 해당 없으면 이미 보정된 페이지(새 버전)이거나 알 수 없는 템플릿 — 건드리지 않음
+
+        # [ADD] 2026-11-11: "지도로 돌아가기" 링크에 이 장소의 id·좌표를 실어 그 위치로 돌아오게 한다.
+        content, _focus_done = add_focus_to_back_link(content, fn[:-5])
+        if _focus_done:
+            changed = True
+            focus_patched += 1
 
         for _old_css, _new_css in IMG_CSS_OLD_NEW:
             if _old_css in content:
@@ -670,7 +697,8 @@ def patch_existing_detail_pages(festivals=None):
 
     print(f"festival/detail/ 전체({len(filenames)}개 파일) 스캔 완료 — "
           f"축제 상단 홈 버튼 보정: {header_patched}건, 자연관광지류 홈 버튼 보정: {nature_header_patched}건, "
-          f"대표 사진 모양 보정: {image_css_patched}건, 운영시간·소요시간 행 보정: {time_rows_patched}건")
+          f"대표 사진 모양 보정: {image_css_patched}건, 운영시간·소요시간 행 보정: {time_rows_patched}건, "
+          f"지도로 돌아가기 위치 링크: {focus_patched}건")
 
 
 def build_nature_page_html(spot, overview, page_label='자연공원·수목원'):
