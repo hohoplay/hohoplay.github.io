@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-나들이 도구 5개 페이지의 공통 상단 메뉴를 '메뉴 동기화(Actions)'로 맞추는 스크립트 (여러 번 실행해도 안전).
+나들이 도구 5개 페이지의 상단 메뉴를 '메인 페이지(index.html)의 상단 메뉴'와 똑같이 맞추는 festival 전용 메뉴 동기화 (여러 번 실행해도 안전).
 
   대상: festival/worldcup.html · camping-worldcup.html · pick.html · roulette.html · poster.html
 
-  ① 상단 헤더(HOHO PLAY · 플레이하기 · 소통·정보 · 약관·정책)
-       원본 = blog/magazine/index.html(호호 매거진/커뮤니티)의 <nav> 를 그대로 읽어서 대상 페이지의
-       <!-- HN_START --> ~ <!-- HN_END --> 구간에 다시 써 넣는다.
-       → 메뉴 항목을 추가·변경하는 워크플로(Add ... Menu / Update Nav Menu)가 매거진 메뉴를 고친 뒤
-         이 스크립트를 돌리면(자동으로 이어서 실행됨) 5개 페이지의 헤더도 똑같이 바뀐다.
-       이 페이지들은 Tailwind 를 쓰지 않으므로, 그 헤더에 쓰인 클래스만 옮긴 CSS 를 <head> 의
+  ① 상단 헤더(HOHO PLAY · 플레이하기 · 소통·정보 · 약관·정책 · 🔍 검색 돋보기)
+       원본 = 메인 페이지 index.html 의 <nav>. 이걸 읽어서 대상 페이지의 <!-- HN_START --> ~ <!-- HN_END --> 구간에 다시 써 넣는다.
+       메인 페이지는 메뉴를 버튼+자바스크립트(navigateTo 등)로 열지만 festival 페이지에는 그 함수가 없으므로,
+       버튼은 같은 주소로 가는 일반 링크(<a href>)로 바꿔서 넣는다(모양·항목·순서는 그대로).
+       🔍 돋보기는 메인 페이지로 이동해 검색창 위치(/#sb-wrap)로 간다.
+       → 메인 페이지 메뉴를 바꿔 올리면(index.html 이 올라올 때 자동 실행) 5개 페이지 헤더도 똑같이 바뀐다.
+       이 페이지들은 Tailwind 를 쓰지 않으므로, 헤더에 쓰인 클래스만 옮긴 CSS 를 <head> 의
        <!-- HN_CSS_START --> ~ <!-- HN_CSS_END --> 구간에 같이 넣는다.
   ② 헤더 아래 도구 탭(월드컵·캠핑장 월드컵·오늘 어디 갈까?·룰렛·축제 포스터)과 「← 아이랑 나들이 지도 / 🏠 홈」 줄
        (<!-- FZ_NAV_START --> ~ <!-- FZ_NAV_END -->). 처음 실행할 때 기존 상단 링크 줄을 이것으로 바꾼다.
   ③ 우하단 리모콘 버튼 지도·포스터·맨 위·홈 (<!-- FZ_REMOTE_START --> ~ <!-- FZ_REMOTE_END -->).
        '오늘 어디 갈까?'(pick.html)에 있던 옛 리모콘은 이것으로 합친다.
 
+  ④ 🔍 돋보기가 메인 페이지 검색창으로 이동했을 때 고정 헤더(높이 80px)에 가려지지 않도록,
+       index.html 의 '.sb-wrap' 규칙에 scroll-margin-top: 96px 한 줄만 보정한다(이미 있으면 건드리지 않음).
+
   이미 들어간 구간은 새 내용으로 교체하므로 몇 번을 돌려도 결과가 같다.
-  원본 메뉴를 못 찾으면 아무 파일도 건드리지 않고 오류로 끝낸다.
+  원본 메뉴를 못 찾거나 변환하지 못하는 항목이 있으면 아무 파일도 건드리지 않고 오류로 끝낸다.
 
 사용법:  python3 scripts/sync_festival_nav.py          (실제로 고침)
          python3 scripts/sync_festival_nav.py --dry     (고치지 않고 결과만 보여줌)
@@ -29,7 +33,32 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SOURCE = os.path.join('blog', 'magazine', 'index.html')
+SOURCE = 'index.html'
+PAGE_URL = {'index': '/game/', 'about': '/about/', 'fortune': '/fortune/', 'guide': '/guide/', 'blog': '/blog/',
+            'terms': '/terms/', 'privacy': '/privacy/', 'copyright': '/copyright/', 'partner': '/partner/'}
+SEARCH_URL = '/#sb-wrap'
+TOGGLE_JS = """function toggleMenu() {
+    var menu = document.getElementById('mobile-menu');
+    var overlay = document.getElementById('menu-overlay');
+    var bar1 = document.getElementById('bar1');
+    var bar2 = document.getElementById('bar2');
+    var bar3 = document.getElementById('bar3');
+    if (!menu) return;
+    var isOpen = !menu.classList.contains('hidden');
+    if (isOpen) {
+        menu.classList.add('hidden');
+        if (overlay) overlay.style.display = 'none';
+        if (bar1) bar1.style.transform = '';
+        if (bar2) bar2.style.opacity = '1';
+        if (bar3) bar3.style.transform = '';
+    } else {
+        menu.classList.remove('hidden');
+        if (overlay) overlay.style.display = 'block';
+        if (bar1) bar1.style.transform = 'translateY(8px) rotate(45deg)';
+        if (bar2) bar2.style.opacity = '0';
+        if (bar3) bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
+    }
+}"""
 # (파일, 아이콘, 탭 이름, 기존 상단바 종류)
 PAGES = [
     ('worldcup.html',         '🏆', '나들이 월드컵',          'topbar'),
@@ -124,7 +153,7 @@ def write(path, text):
 
 
 def load_source():
-    """매거진 페이지에서 상단 메뉴(<nav>)·오버레이·열고 닫기 스크립트를 읽어 HN 블록을 만든다."""
+    """메인 페이지(index.html)에서 상단 메뉴(<nav>)를 읽어, festival 페이지용 HN 블록을 만든다."""
     p = os.path.join(ROOT, SOURCE)
     if not os.path.exists(p):
         sys.exit('원본 메뉴 페이지가 없습니다: %s' % SOURCE)
@@ -132,25 +161,54 @@ def load_source():
     try:
         a = ref.index('<nav class="bg-white/80')
         b = ref.index('</nav>', a) + len('</nav>')
-        nav = ref[a:b]
-        ov = re.search(r'<div id="menu-overlay"[^\n]*</div>', ref).group(0)
-        f0 = ref.index('function toggleMenu()')
-        f1 = ref.index('</script>', f0)
-        js = ref[f0:f1].strip()
-    except (ValueError, AttributeError):
-        sys.exit('매거진 페이지에서 상단 메뉴를 찾지 못했습니다(구조가 바뀐 듯). 아무것도 고치지 않았습니다.')
-    if 'goPartner' not in js or 'id="mobile-menu"' not in nav:
-        sys.exit('매거진 상단 메뉴 구조가 예상과 다릅니다. 아무것도 고치지 않았습니다.')
-    # '현재 페이지(호호 매거진)'로 칠해진 줄은 일반 항목 모양으로 되돌린다(이웃 '커뮤니티' 줄의 class 사용)
-    lines = nav.split('\n')
-    for i, ln in enumerate(lines):
-        if '>호호 매거진</a>' in ln and 'hover:bg-indigo-50' not in ln:
-            ref_ln = next((l for l in lines if '>커뮤니티</a>' in l and l.count('<a ') == 1 and ('py-3' in l) == ('py-3' in ln)), None)
-            if ref_ln is None:
-                sys.exit('매거진 메뉴의 커뮤니티 항목을 찾지 못했습니다. 아무것도 고치지 않았습니다.')
-            lines[i] = re.sub(r'class="[^"]*"', lambda m: re.search(r'class="[^"]*"', ref_ln).group(0), ln, count=1)
-    nav = '\n'.join(lines).replace('<nav class="bg-white/80', '<nav class="hn-std bg-white/80', 1)
-    return '<!-- HN_START -->\n' + nav + '\n' + ov + '\n<script>\n' + js + '\n</script>\n<!-- HN_END -->'
+    except ValueError:
+        sys.exit('index.html 에서 상단 메뉴를 찾지 못했습니다(구조가 바뀐 듯). 아무것도 고치지 않았습니다.')
+    nav = ref[a:b]
+    ov = re.search(r'<div id="menu-overlay"[^\n]*</div>', ref)
+    if not ov or 'id="mobile-menu"' not in nav or 'id="menu-btn"' not in nav:
+        sys.exit('index.html 상단 메뉴 구조가 예상과 다릅니다(모바일 메뉴/오버레이). 아무것도 고치지 않았습니다.')
+    # 로고: onclick 이 걸린 <div> → 일반 링크 <a href="/">
+    nav, n = re.subn(r'<div class="([^"]*?)\s*cursor-pointer" onclick="location\.href=\'/\'">([\s\S]*?</span>)\s*</div>',
+                     lambda m: '<a href="/" class="%s">%s\n            </a>' % (m.group(1).strip(), m.group(2)), nav, count=1)
+    if n != 1:
+        sys.exit('index.html 로고 부분을 변환하지 못했습니다. 아무것도 고치지 않았습니다.')
+    # 메뉴 버튼(자바스크립트로 이동) → 같은 주소로 가는 일반 링크. 햄버거(toggleMenu())만 버튼으로 둔다.
+    bad = []
+
+    def conv(m):
+        attrs, label = m.group(1), m.group(2)
+        oc = re.search(r'onclick="([^"]*)"', attrs)
+        if not oc:
+            return m.group(0)                      # 드롭다운 제목 버튼 등: 그대로
+        act = oc.group(1).strip()
+        if act == 'toggleMenu()':
+            return m.group(0)                      # 햄버거: 그대로
+        url = None
+        mm = re.fullmatch(r"(?:toggleMenu\(\);\s*)?(?:navigateTo|mobileNav)\('(\w+)'\)", act)
+        if mm:
+            url = PAGE_URL.get(mm.group(1), '/%s/' % mm.group(1))
+        else:
+            mm = re.fullmatch(r"(?:toggleMenu\(\);\s*)?location\.href\s*=\s*'([^']+)'", act)
+            if mm:
+                url = mm.group(1)
+            elif act == 'shFocusBar()':
+                url = SEARCH_URL
+        if not url:
+            bad.append(act)
+            return m.group(0)
+        a2 = re.sub(r'\s*onclick="[^"]*"', '', attrs)
+        a2 = re.sub(r'\s*type="button"', '', a2)
+        c = re.search(r'class="([^"]*)"', a2)
+        if c and not re.search(r'(^|\s)(block|flex)(\s|$)', c.group(1)):
+            a2 = a2.replace(c.group(0), 'class="block %s"' % c.group(1), 1)
+        return '<a href="%s"%s>%s</a>' % (url, a2, label)
+
+    nav = re.sub(r'<button((?:\s[^>]*)?)>([\s\S]*?)</button>', conv, nav)
+    left = [x for x in re.findall(r'onclick="([^"]*)"', nav) if x.strip() != 'toggleMenu()']
+    if bad or left:
+        sys.exit('변환하지 못한 메뉴 동작이 있습니다: %s. 아무것도 고치지 않았습니다.' % sorted(set(bad + left)))
+    nav = nav.replace('<nav class="bg-white/80', '<nav class="hn-std bg-white/80', 1)
+    return '<!-- HN_START -->\n' + nav + '\n' + ov.group(0) + '\n<script>\n' + TOGGLE_JS + '\n</script>\n<!-- HN_END -->'
 
 
 def fz_nav(cur):
@@ -206,6 +264,26 @@ def process(s, fname, kind, hn_block):
     return s, None
 
 
+def fix_home_anchor(dry):
+    """메인 페이지 검색 바(.sb-wrap)가 /#sb-wrap 으로 열릴 때 고정 헤더에 가려지지 않게 한 줄만 보정한다."""
+    p = os.path.join(ROOT, SOURCE)
+    text = read(p)
+    m = re.search(r'\.sb-wrap\s*\{([^}]*)\}', text)
+    if not m:
+        print('  index.html: .sb-wrap 규칙을 찾지 못해 검색 위치 보정은 건너뜀')
+        return
+    if 'scroll-margin-top' in m.group(1):
+        print('  index.html: 검색 위치 보정 이미 있음')
+        return
+    body = m.group(1).rstrip()
+    if not body.endswith(';'):
+        body += ';'
+    new_rule = '.sb-wrap {' + body + ' scroll-margin-top: 96px; }'
+    print('  index.html: 검색 위치 보정(.sb-wrap scroll-margin-top) 추가')
+    if not dry:
+        write(p, text[:m.start()] + new_rule + text[m.end():])
+
+
 def main():
     dry = '--dry' in sys.argv
     hn_block = load_source()
@@ -229,6 +307,7 @@ def main():
                 write(path, new)
         else:
             print('  %s: 이미 최신' % fname)
+    fix_home_anchor(dry)
     print('대상 %d개 중 %d개 수정, %d개 건너뜀%s' % (len(PAGES), changed, skipped, ' (dry-run: 실제로는 고치지 않음)' if dry else ''))
 
 
