@@ -213,8 +213,150 @@
   @media (max-width: 640px) { .fz-remote { right: 12px; bottom: 12px; gap: 7px; } .fz-rbtn { width: 46px; height: 46px; font-size: 16px; } }
 </style>
 <!-- FZ_CSS_END -->
+<!-- HN_CSS_START -->
+<style>
+  /* 사이트 표준 상단 메뉴(게임 페이지와 같은 마크업)가 Tailwind 없이도 같은 모양으로 나오게 하는 최소 CSS */
+  nav.hn-std { position: sticky; top: 0; z-index: 60; background: rgba(255,255,255,.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,.05); font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.4; }
+  nav.hn-std * { box-sizing: border-box; }
+  nav.hn-std .max-w-7xl { max-width: 80rem; } nav.hn-std .mx-auto { margin-left: auto; margin-right: auto; }
+  nav.hn-std .px-4 { padding-left: 16px; padding-right: 16px; }
+  nav.hn-std .flex { display: flex; } nav.hn-std .justify-between { justify-content: space-between; }
+  nav.hn-std .items-center { align-items: center; } nav.hn-std .justify-center { justify-content: center; }
+  nav.hn-std .h-14 { height: 56px; } nav.hn-std .gap-2 { gap: 8px; } nav.hn-std .cursor-pointer { cursor: pointer; }
+  nav.hn-std .w-8 { width: 32px; } nav.hn-std .h-8 { height: 32px; }
+  nav.hn-std .bg-indigo-600 { background: #4f46e5; } nav.hn-std .rounded-xl { border-radius: 12px; }
+  nav.hn-std .text-white { color: #fff; } nav.hn-std .font-black { font-weight: 900; }
+  nav.hn-std .shadow-md { box-shadow: 0 4px 6px rgba(199,210,254,.8); }
+  nav.hn-std .text-lg { font-size: 18px; } nav.hn-std .tracking-tighter { letter-spacing: -.05em; } nav.hn-std .uppercase { text-transform: uppercase; }
+  nav.hn-std .text-indigo-600 { color: #4f46e5; } nav.hn-std .text-violet-500 { color: #8b5cf6; }
+  nav.hn-std a { text-decoration: none; }
+  nav.hn-std .g-dd-menu a:hover { background: #eef2ff; color: #4f46e5 !important; }
+  nav.hn-std .g-dd-menu { min-width: 176px; } nav.hn-std .g-dd-menu a { white-space: nowrap; }
+  #game-mobile-menu { max-height: calc(100vh - 56px); overflow-y: auto; }
+  @media (min-width: 640px) { nav.hn-std .sm\:px-6 { padding-left: 24px; padding-right: 24px; } }
+  @media (min-width: 1024px) { nav.hn-std .lg\:px-8 { padding-left: 32px; padding-right: 32px; } }
+</style>
+<!-- HN_CSS_END -->
 </head>
 <body>
+<!-- HN_START -->
+    <nav class="hn-std bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="/" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/game/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
+                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
+                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
+                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/blog/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
+                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
+                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
+                            <a href="/festival/worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이 월드컵</a>
+                            <a href="/festival/camping-worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">캠핑장 월드컵</a>
+                            <a href="/festival/pick.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">오늘 어디 갈까?</a>
+                            <a href="/festival/roulette.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+                            <a href="/festival/poster.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 포스터</a>
+                    <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
+                    <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
+                            <a href="/partner/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/terms/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
+                            <a href="/privacy/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
+                            <a href="/copyright/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
+                            <a href="/guide/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🎮 플레이하기</div>
+                <a href="/game/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
+                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
+                <a href="/blog/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
+                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
+                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
+                <a href="/festival/worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이 월드컵</a>
+                <a href="/festival/camping-worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">캠핑장 월드컵</a>
+                <a href="/festival/pick.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">오늘 어디 갈까?</a>
+                <a href="/festival/roulette.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+                <a href="/festival/poster.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 포스터</a>
+            <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
+            <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
+                <a href="/partner/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <a href="/terms/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
+                <a href="/privacy/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
+                <a href="/copyright/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
+                <a href="/guide/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+<!-- HN_END -->
 <!-- FZ_REMOTE_START -->
 <div class="fz-remote" id="fzRemote">
   <a class="fz-rbtn" href="/festival/" aria-label="아이랑 나들이 지도로 가기"><span>🗺️</span><span class="lb">지도</span></a>
