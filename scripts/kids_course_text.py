@@ -316,7 +316,7 @@ def build_kr(region, entries):
         if free_days:
             idx = [rte.DAYS.index(x) for x in free_days]
             span = ('%s~%s' % (free_days[0], free_days[-1])) if (len(idx) >= 3 and idx == list(range(idx[0], idx[0] + len(idx)))) else '·'.join(free_days)
-            txt = '%s요일에 가면 %s%s 포함해 운영시간이 확인된 %d곳을 모두 볼 수 있어요.' % (span, esc(first_closed), j(first_closed, 'eul'), len(known))
+            txt = '%s요일에 가면 %s%s 포함해 운영시간이 확인된 %d곳은 대체로 문을 열어요. 공휴일 휴관과 예약 여부는 방문 전에 따로 확인해 주세요.' % (span, esc(first_closed), j(first_closed, 'eul'), len(known))
         parts.append('<p>%s</p>' % txt)
     elif known and not by_day:
         parts.append('<p>운영시간이 확인된 %d곳 가운데 정해진 휴관 요일이 있는 곳은 없어요.</p>' % len(known))
