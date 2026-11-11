@@ -145,6 +145,16 @@
   .pk-np-sub { font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 0 0 14px; word-break: keep-all; }
   .pk-np-list { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
   .pk-np-list li { border-top: 0; padding: 0; }
+  /* 🎪 이 근처 열리는 축제 */
+  .pk-fest { margin-top: 14px; }
+  .pk-fest-item { display: flex; gap: 12px; text-decoration: none; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; background: #fff7ed; color: inherit; }
+  .pk-fest-item:hover { border-color: #fdba74; }
+  .pk-fest-thumb { flex: 0 0 72px; width: 72px; height: 96px; border-radius: 8px; background: #e2e8f0; overflow: hidden; }
+  .pk-fest-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .pk-fest-main { flex: 1 1 auto; min-width: 0; }
+  .pk-fest-name { font-size: 14px; font-weight: 800; color: #111; line-height: 1.4; word-break: keep-all; }
+  .pk-fest-addr { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .pk-chip.fest { background: #ffedd5; color: #9a3412; }
   .pk-np-item { display: block; text-decoration: none; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; background: #f8fafc; color: inherit; }
   .pk-np-item:hover { border-color: #a5b4fc; background: #eef2ff; }
   .pk-np-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
@@ -1110,7 +1120,7 @@ function resultHtml() {
     h += '<a class="pk-btn" href="' + esc(mapUrl()) + '">🗺 이 코스 지도로 보기</a><button type="button" class="pk-btn" data-act="reset">' + (S.shared ? '나도 골라보기' : '처음부터') + '</button></div>';
     h += '<ol class="pk-timeline" style="list-style:none;margin:14px 0 0;padding:0">';
     c.sched.forEach(function (row, i) { h += itemHtml(row, i, near); if (i < c.sched.length - 1) h += legHtml(row); });
-    h += '</ol>';
+    h += '</ol>' + festBoxHtml(c);
     const checks = checksFor(c);
     h += '<div class="pk-box"><h3>✅ 가기 전에 확인할 것</h3><ul>';
     if (checks.length) checks.forEach(function (t) { h += '<li>' + t + '</li>'; });
@@ -1130,7 +1140,7 @@ function sampleHtml(c) {
     let h = '<div class="pk-res pk-sample" id="pk-sample"><div class="pk-sbanner"><b>👀 샘플 결과</b> · ' + esc(whereLabel(where)) + ' · ' + c.sched.length + '곳 코스 예시예요. 위 질문에 답하면 내 조건으로 만들어 드려요.</div>';
     h += '<ol class="pk-timeline" style="list-style:none;margin:12px 0 0;padding:0">';
     c.sched.forEach(function (row, i) { h += itemHtml(row, i, near); if (i < c.sched.length - 1) h += legHtml(row); });
-    h += '</ol></div>';
+    h += '</ol>' + festBoxHtml(c) + '</div>';
     return h;
 }
 function render() {
@@ -1148,6 +1158,66 @@ function render() {
 }
 function invalidate() { S.course = null; S.seed = 0; S.seen = {}; S.shared = null; }
 function scrollToEl(sel) { const el = document.querySelector(sel); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+/* ═══ 🎪 이 근처 열리는 축제 ═══
+   코스 장소들의 한가운데에서 반경 15km 안에, 그날 열리는 축제를 가까운 순 3곳까지. (festival/index.html 코스의 축제 판정과 같은 규칙)
+   행사시간(playTime)이 비어 있어 열리는 요일을 알 수 없는 축제는 넣지 않는다(틀린 날 안내를 막기 위해). */
+let fests = [];
+function loadFestivals() {
+    fetch('/data/festivals.json').then(function (r) { return r.ok ? r.json() : []; }).then(function (all) {
+        if (!Array.isArray(all)) return;
+        fests = all.filter(function (f) { return f && f.type === 'festival' && f.title && f.startDate && f.endDate && isFinite(parseFloat(f.lat)) && isFinite(parseFloat(f.lng)); })
+            .map(function (f) { f.lat = parseFloat(f.lat); f.lng = parseFloat(f.lng); return f; });
+        if (fests.length && items.length) render();
+    }).catch(function () { /* 축제 정보가 없어도 코스 추천은 그대로 동작 */ });
+}
+function festOpenOn(f, ctx) {
+    if (!(f.startDate <= ctx.dateStr && ctx.dateStr <= f.endDate)) return false;
+    if (!f.playTime) return false;
+    const dowChar = ctDowChar(ctx.dow);
+    if (!festivalNthWeekdayAllows(f, dowChar, ctParseDate(ctx.dateStr))) return false;
+    const dayTxt = getFestivalDayText(f);
+    if (dayTxt) {
+        if (isVariableScheduleOnly(dayTxt)) return false;
+        const cd = closedDaysFromHours(dayTxt);
+        if (cd.known && cd.closed.indexOf(dowChar) >= 0) return false;
+        const only = openOnlyDaysFromText(dayTxt);
+        if (only && only.indexOf(dowChar) < 0) return false;
+    }
+    if (ctx.isToday) { const w = getItemWindow(f, ctx); if (w.known && w.close <= ctx.startMin + 30) return false; }
+    return true;
+}
+function festivalsNear(course) {
+    if (!fests.length || !course || !course.sched || !course.sched.length) return [];
+    let la = 0, lo = 0, n = 0;
+    course.sched.forEach(function (r) { if (r.item.lat && r.item.lng) { la += r.item.lat; lo += r.item.lng; n++; } });
+    if (!n) return [];
+    la /= n; lo /= n;
+    const out = [];
+    fests.forEach(function (f) {
+        const km = haversineDistanceKm(la, lo, f.lat, f.lng);
+        if (km <= 15 && festOpenOn(f, course.ctx)) out.push({ f: f, km: km });
+    });
+    out.sort(function (a, b) { return a.km - b.km; });
+    return out.slice(0, 3);
+}
+function md(str) { return parseInt(str.slice(4, 6), 10) + '/' + parseInt(str.slice(6, 8), 10); }
+function festBoxHtml(course) {
+    const list = festivalsNear(course);
+    if (!list.length) return '';
+    let h = '<div class="pk-box pk-fest"><h3>🎪 이 근처 열리는 축제</h3><p class="pk-np-sub">코스 가까이(반경 15km)에서 ' + esc(ctDateLabel(course.ctx.dateStr)) + '에 열리는 축제예요. 코스에 넣고 싶다면 운영시간을 확인하고 들러보세요.' + (rainOn() ? ' 야외 행사는 비가 오면 줄어들 수 있어요.' : '') + '</p><ul class="pk-np-list">';
+    list.forEach(function (c) {
+        const f = c.f;
+        const body = '<div class="pk-fest-thumb">' + (f.image ? '<img src="' + esc(f.image) + '" alt="' + esc(f.title) + '" loading="lazy" onerror="this.parentNode.style.display=\'none\'">' : '') + '</div>' +
+            '<div class="pk-fest-main"><div class="pk-fest-name">' + esc(f.title) + '</div><div class="pk-fest-addr">' + esc(f.addr || '') + '</div><div class="pk-chips">' +
+            '<span class="pk-chip fest">📅 ' + md(f.startDate) + '~' + md(f.endDate) + '</span>' +
+            (f.playTime ? '<span class="pk-chip">🕒 ' + esc(clip(ctCleanInfo(f.playTime) || f.playTime, 40)) + '</span>' : '') +
+            '<span class="pk-chip">📍 ' + fmtDist(c.km) + '</span>' +
+            (f.endDate === course.ctx.dateStr ? '<span class="pk-chip warn">마지막 날</span>' : '') + '</div></div>';
+        h += '<li>' + (f.hasDetail ? '<a class="pk-fest-item" href="/festival/detail/' + encodeURIComponent(f.contentid) + '.html">' + body + '</a>' : '<div class="pk-fest-item">' + body + '</div>') + '</li>';
+    });
+    return h + '</ul></div>';
+}
 
 /* ═══ 🧸 이 근처 나들이픽 (장소 상세페이지의 nearby-pick.js 와 같은 규칙) ═══
    보고 있는 코스의 첫 장소 가까이에서 갈 만한 곳 5곳. 반경 10km, 모자라면 25km. 그날 쉬는 곳·코스에 이미 든 곳은 뺀다.
@@ -1452,6 +1522,7 @@ function init(list) {
 }
 renderWeather();
 loadComments();
+loadFestivals();
 fetch('/data/kids_places.json', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
     .then(function (data) { init(Array.isArray(data) ? data : (data.places || [])); })
