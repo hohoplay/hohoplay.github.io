@@ -126,8 +126,27 @@
                     sessionStorage.setItem('_app_version', data.version);
                 } else if (stored !== data.version) {
                     sessionStorage.setItem('_app_version', data.version);
-                    var banner = document.getElementById('_update_banner');
-                    if (banner) banner.style.display = 'flex';
+                    // 새 버전 안내는 필요할 때만 JS로 만든다(HTML에 고정 문구를 두지 않음). 탭당 1회만 표시.
+                    if (!sessionStorage.getItem('_upd_shown') && document.body && !document.getElementById('_update_banner')) {
+                        sessionStorage.setItem('_upd_shown', '1');
+                        var b = document.createElement('div');
+                        b.id = '_update_banner';
+                        b.setAttribute('role', 'status');
+                        b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.3)';
+                        var t = document.createElement('span');
+                        t.textContent = '\uD83D\uDD04 \uC0C8 \uBC84\uC804\uC774 \uC5C5\uB370\uC774\uD2B8\uB418\uC5C8\uC2B5\uB2C8\uB2E4!';
+                        var box = document.createElement('div'); box.style.cssText = 'display:flex;gap:8px';
+                        var r = document.createElement('button');
+                        r.textContent = '\uC9C0\uAE08 \uC0C8\uB85C\uACE0\uCE68';
+                        r.style.cssText = 'background:#fff;color:#4f46e5;border:none;padding:5px 14px;border-radius:8px;font-weight:900;cursor:pointer;font-size:13px';
+                        r.addEventListener('click', function () { location.reload(); });
+                        var l = document.createElement('button');
+                        l.textContent = '\uB098\uC911\uC5D0';
+                        l.style.cssText = 'background:rgba(255,255,255,.2);color:#fff;border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px';
+                        l.addEventListener('click', function () { b.parentNode && b.parentNode.removeChild(b); });
+                        box.appendChild(r); box.appendChild(l); b.appendChild(t); b.appendChild(box);
+                        document.body.appendChild(b);
+                    }
                 }
             })
             .catch(function() { /* 로컬/오프라인 무시 */ });
@@ -150,26 +169,6 @@
     </script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
-
-    <!-- 업데이트 감지 배너 (평소엔 숨김) -->
-    <div id="_update_banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
-         background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;
-         padding:10px 20px;align-items:center;justify-content:space-between;
-         font-size:13px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.3)">
-        <span>🔄 새 버전이 업데이트되었습니다!</span>
-        <div style="display:flex;gap:8px">
-            <button onclick="location.reload(true)"
-                style="background:#fff;color:#4f46e5;border:none;padding:5px 14px;
-                       border-radius:8px;font-weight:900;cursor:pointer;font-size:13px">
-                지금 새로고침
-            </button>
-            <button onclick="document.getElementById('_update_banner').style.display='none'"
-                style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:5px 10px;
-                       border-radius:8px;cursor:pointer;font-size:12px">
-                나중에
-            </button>
-        </div>
-    </div>
 
     <!-- 상단 네비게이션 -->
     <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
@@ -276,15 +275,15 @@
                         <p>호호플레이는 아이와 주말을 계획하고 가볍게 즐길 나들이·게임·운세 도구를 한 곳에서 제공하는 무료 웹 서비스예요. 저는 1인 운영자로서 브라우저로 할 수 있는 걸 하나씩 시험해 보면서, 아이랑 어디 갈지 고르는 나들이 지도와 월드컵·룰렛, 계속 붙잡고 싶은 게임, 재미로 보는 운세를 만들어 가고 있어요. 누구나 링크 하나로 바로 시작할 수 있게요.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div class="p-8 bg-indigo-50 rounded-3xl border border-indigo-100">
-                                <h4 class="font-black text-indigo-700 mb-3 text-xl">⚡ Lightning Fast</h4>
-                                <p class="text-base font-medium opacity-80">최적화된 엔진으로 어떤 환경에서도 즉시 로딩됩니다.</p>
+                                <h4 class="font-black text-indigo-700 mb-3 text-xl">🗺️ 나들이 정보를 한눈에</h4>
+                                <p class="text-base font-medium opacity-80">전국의 축제와 아이랑 가볼 만한 곳을 지도에서 지역별로 찾을 수 있어요. 가기 전에는 공식 안내에서 운영시간을 꼭 확인해 주세요.</p>
                             </div>
                             <div class="p-8 bg-emerald-50 rounded-3xl border border-emerald-100">
-                                <h4 class="font-black text-emerald-700 mb-3 text-xl">🛡️ Privacy First</h4>
-                                <p class="text-base font-medium opacity-80">사용자 데이터를 서버에 저장하지 않아 안전합니다.</p>
+                                <h4 class="font-black text-emerald-700 mb-3 text-xl">🛡️ 개인정보 최소 수집</h4>
+                                <p class="text-base font-medium opacity-80">가입 정보를 받지 않고, 게시글·댓글·게임 기록처럼 직접 남기신 내용만 저장해요. 자세한 내용은 개인정보처리방침에서 확인하실 수 있어요.</p>
                             </div>
                             <div class="p-8 bg-purple-50 rounded-3xl border border-purple-100">
-                                <h4 class="font-black text-purple-700 mb-3 text-xl">🎮 No Login</h4>
+                                <h4 class="font-black text-purple-700 mb-3 text-xl">🎮 로그인 없이 바로</h4>
                                 <p class="text-base font-medium opacity-80">회원가입 없이 바로 플레이. 기억해야 할 비밀번호가 없습니다.</p>
                             </div>
                             <div class="p-8 bg-amber-50 rounded-3xl border border-amber-100">
@@ -577,15 +576,15 @@
                         <p>호호플레이는 아이와 주말을 계획하고 가볍게 즐길 나들이·게임·운세 도구를 한 곳에서 제공하는 무료 웹 서비스예요. 저는 1인 운영자로서 브라우저로 할 수 있는 걸 하나씩 시험해 보면서, 아이랑 어디 갈지 고르는 나들이 지도와 월드컵·룰렛, 계속 붙잡고 싶은 게임, 재미로 보는 운세를 만들어 가고 있어요. 누구나 링크 하나로 바로 시작할 수 있게요.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div class="p-8 bg-indigo-50 rounded-3xl border border-indigo-100">
-                                <h4 class="font-black text-indigo-700 mb-3 text-xl">⚡ Lightning Fast</h4>
-                                <p class="text-base font-medium opacity-80">최적화된 엔진으로 어떤 환경에서도 즉시 로딩됩니다.</p>
+                                <h4 class="font-black text-indigo-700 mb-3 text-xl">🗺️ 나들이 정보를 한눈에</h4>
+                                <p class="text-base font-medium opacity-80">전국의 축제와 아이랑 가볼 만한 곳을 지도에서 지역별로 찾을 수 있어요. 가기 전에는 공식 안내에서 운영시간을 꼭 확인해 주세요.</p>
                             </div>
                             <div class="p-8 bg-emerald-50 rounded-3xl border border-emerald-100">
-                                <h4 class="font-black text-emerald-700 mb-3 text-xl">🛡️ Privacy First</h4>
-                                <p class="text-base font-medium opacity-80">사용자 데이터를 서버에 저장하지 않아 안전합니다.</p>
+                                <h4 class="font-black text-emerald-700 mb-3 text-xl">🛡️ 개인정보 최소 수집</h4>
+                                <p class="text-base font-medium opacity-80">가입 정보를 받지 않고, 게시글·댓글·게임 기록처럼 직접 남기신 내용만 저장해요. 자세한 내용은 개인정보처리방침에서 확인하실 수 있어요.</p>
                             </div>
                             <div class="p-8 bg-purple-50 rounded-3xl border border-purple-100">
-                                <h4 class="font-black text-purple-700 mb-3 text-xl">🎮 No Login</h4>
+                                <h4 class="font-black text-purple-700 mb-3 text-xl">🎮 로그인 없이 바로</h4>
                                 <p class="text-base font-medium opacity-80">회원가입 없이 바로 플레이. 기억해야 할 비밀번호가 없습니다.</p>
                             </div>
                             <div class="p-8 bg-amber-50 rounded-3xl border border-amber-100">
