@@ -189,6 +189,34 @@
   .cmt .cc { font-size: 14px; color: #475569; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
   .cmt .ce { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
 </style>
+<!-- ABOUT_CSS_START -->
+<style>
+  .about a, .pz-about a { color: #4f46e5; text-decoration: underline; }
+  .about h3 { margin: 0; }
+  .about table, .pz-about table { font-size: 13px; }
+  .about .links a, .pz-about .links a { text-decoration: none; }
+  .pz-about { margin-top: 34px; font-size: 15px; color: #475569; line-height: 1.7; }
+  .pz-about h2 { margin: 26px 0 8px; font-size: 18px; font-weight: 900; color: #0f172a; }
+  .pz-about p { margin: 0 0 12px; }
+  .pz-about .faq { border: 1px solid #e2e8f0; background: #fff; border-radius: 12px; padding: 12px 14px; margin: 8px 0; }
+  .pz-about .faq p { margin: 0; font-size: 14px; }
+  .pz-about .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pz-about .links a { font-weight: 800; font-size: 14px; padding: 9px 16px; border-radius: 999px; background: #eef2ff; color: #4338ca; }
+</style>
+<!-- ABOUT_CSS_END -->
+<!-- SMP_CSS_START -->
+<style>
+  .smp { margin-top: 22px; padding-top: 18px; border-top: 1px dashed #cbd5e1; }
+  .smp-h { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; border-radius: 14px; padding: 11px 14px; font-size: 13px; font-weight: 700; line-height: 1.55; word-break: keep-all; margin-bottom: 12px; }
+  .smp-h b { font-weight: 900; }
+  .smp-win { border: 2px dashed #f59e0b; background: #fffbeb; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
+  .smp-t { font-size: 13px; font-weight: 900; color: #b45309; margin-bottom: 6px; }
+  .smp a.smp-n { display: block; font-size: 19px; font-weight: 900; color: #0f172a; text-decoration: none; margin: 2px 0 4px; word-break: keep-all; overflow-wrap: anywhere; }
+  .smp-d { font-size: 13px; color: #475569; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .smp .cloc { margin-bottom: 4px; }
+  .smp-ft { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+</style>
+<!-- SMP_CSS_END -->
 <!-- HN_CSS_START -->
 <style>
   /* 호호 매거진 등과 같은 상단 메뉴 마크업이 Tailwind 없이도 똑같이 보이도록, 그 마크업의 클래스만 옮긴 CSS */
@@ -422,6 +450,7 @@ function toggleMenu() {
     <div class="poolinfo" id="poolInfo" role="status">장소 목록을 불러오는 중입니다…</div>
     <div class="startrow"><button type="button" class="btn" id="startBtn" disabled>🏁 월드컵 시작!</button>
       <button type="button" class="btn sub" id="randStartBtn" disabled>🎲 랜덤으로 바로 정하기</button></div>
+    <!-- SMP_START --><div class="smp" id="smp" style="display:none"></div><!-- SMP_END -->
   </section>
 
   <!-- 2) 대진 -->
@@ -452,98 +481,33 @@ function toggleMenu() {
 
   <!-- 이용 안내 (검색·접근성을 위해 항상 보이는 정적 텍스트) -->
   <section class="about" aria-label="나들이 월드컵 이용 안내">
-    <h2>나들이 월드컵은 이렇게 해요</h2>
-    <ol>
-      <li>지역, 실내·실외, 예산을 고릅니다. 지역을 고르면 구·군·시까지 고를 수 있고, 모두 "상관없어요"로 두면 전국에서 뽑습니다.</li>
-      <li>조건에 맞는 장소 중 16곳이 무작위로 뽑혀 16강 대진표가 만들어집니다. 후보가 적으면 8강이나 4강으로 줄어듭니다.</li>
-      <li>화면에 나온 두 곳 중 가고 싶은 곳을 하나씩 고릅니다. 아이에게 직접 골라보게 하면 더 재미있어요.</li>
-      <li>고르기 어렵다면 "🎲 이 경기 랜덤"으로 한 경기를 맡기거나, "⏩ 남은 경기 자동"으로 결승까지 한 번에 진행해 볼 수 있습니다. 설정 화면의 "🎲 랜덤으로 바로 정하기"는 조건만 고르고 바로 자동으로 진행합니다. 자동 진행 중에는 "⏹ 멈추기"로 언제든 멈추고 직접 이어서 고를 수 있어요.</li>
-      <li>결승까지 마치면 우승 장소와 함께 준우승·4강 탈락 장소가 "차선책" 3곳으로 나옵니다. 우승 장소가 마음에 안 들면 이 중에서 고르셔도 됩니다.</li>
-    </ol>
-
-    <h2>어떤 장소가 후보에 들어가나요?</h2>
-    <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 "아이랑 갈만한 곳"입니다. 운영자가 아이와 함께 가기 좋은 곳을 직접 골라 정리했고, 과학관·박물관·체험관 같은 실내 장소부터 공원·생태공원 같은 실외 장소, 두 가지를 겸하는 장소까지 200곳이 넘게 들어 있습니다. 장소마다 이용 요금에 따라 "무료", "일부 무료", "유료", "비용 확인 필요" 표시가 붙어 있고, 월드컵의 예산 조건은 이 표시를 기준으로 걸러냅니다.</p>
-    <p>비용 정보가 정리된 장소를 먼저 후보로 뽑고, 후보가 모자랄 때만 "비용 확인 필요" 장소로 채웁니다. 장소 수는 지역마다 차이가 큽니다. 경기·부산·대구처럼 많은 곳은 16강까지 가능하지만 적은 지역은 8강이나 4강으로 줄거나, 대진표를 만들 수 없을 수 있어요. 그럴 땐 "전국"으로 넓혀 보세요. 구·군·시를 골랐는데 그곳 장소가 8곳이 안 되면, 같은 지역 안에서 가까운 장소로 채워 8강 이상이 되도록 합니다. 장소 위치가 구·군 중심 좌표로 잡힌 경우가 많아서 "가까운 곳"은 대략적인 기준입니다.</p>
-
+    <!-- ABOUT_START -->
+    <p>문화체육관광부 「2025년 국민여행조사」에서 국민의 국내여행 경험률은 97.0%, 1인당 연간 국내여행 횟수는 6.5회였어요. 한 해에 떠나는 여행이 그만큼 한정돼 있으니, 주말 나들이는 가는 곳을 고르는 시간을 줄이고 가서 노는 시간을 늘리는 쪽이 이득입니다. 나들이 월드컵은 한국관광공사 TourAPI와 시설 공식 안내를 바탕으로 호호플레이가 정리한 아이랑 나들이 장소 중 16곳을 뽑아, 두 곳씩 비교하며 결승에서 오늘 갈 곳을 정해 주는 도구예요.</p>
+    <p style="font-size:12px;color:#94a3b8;margin-top:-4px">출처: 문화체육관광부 「2025년 국민여행조사」(2026.6 공개) — 국내여행 경험률 97.0%, 1인당 연간 국내여행 6.5회</p>
+    <h2>🏆 이렇게 진행돼요 (조작 가이드)</h2>
+    <p>조건을 고르고 두 곳 중 하나씩 누르면 끝납니다. 아이에게 직접 고르게 하면 더 재미있어요. 설정 화면의 “🎲 랜덤으로 바로 정하기”는 조건만 고르고 결승까지 자동으로 진행합니다.</p>
+    <div style="margin:16px 0 8px"><div style="font-weight:900;font-size:14px;color:#334155;margin-bottom:8px">월드컵 한 판의 진행 흐름</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:300px"><thead><tr><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">단계</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">하는 일</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">확인할 점</th></tr></thead><tbody><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">1. 조건 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">지역, 구·군·시(선택), 실내·실외, 예산 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">모두 “상관없어요”면 전국에서 뽑아요. 마지막 조건은 이 브라우저에만 저장돼요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">2. 시작</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“🏁 월드컵 시작!” 누르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">조건에 맞는 장소 16곳으로 16강 시작, 후보가 적으면 8강·4강</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">3. 두 곳 중 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">카드를 누르거나 키보드 ← → (또는 1, 2)</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">모바일은 카드를 누르면 바로 다음 경기로 넘어가요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">4. 막힐 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“🎲 이 경기 랜덤”, “⏩ 남은 경기 자동”</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">자동 진행 중에도 “⏹ 멈추기”로 직접 이어서 고를 수 있어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">5. 되돌리기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“← 이전 선택으로”, “처음으로”</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">마음이 바뀌면 직전 선택으로 돌아갈 수 있어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">6. 결과 보기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">우승 장소와 차선책 3곳 확인</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">상세 정보, 카카오맵·네이버지도, 후기 남기기, 결과 공유 버튼이 있어요</td></tr></tbody></table></div></div>
+    <h2>📍 후보와 표시는 이렇게 읽어요</h2>
+    <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 “아이랑 갈만한 곳”이에요. 과학관·박물관·체험관 같은 실내 장소부터 공원·생태공원 같은 실외 장소, 두 가지를 겸하는 곳까지 들어 있고, 예산 조건은 장소 카드의 비용 표시를 기준으로 걸러냅니다. 비용 정보가 정리된 장소를 먼저 뽑고, 후보가 모자랄 때만 “비용 확인 필요” 장소로 채워요.</p>
+    <div style="margin:16px 0 8px"><div style="font-weight:900;font-size:14px;color:#334155;margin-bottom:8px">장소 유형·비용 표시 한눈에 비교</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:300px"><thead><tr><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">구분</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">어떤 곳인가</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">확인할 점</th></tr></thead><tbody><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">실내</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">과학관·박물관·체험관처럼 날씨 영향이 적은 곳</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">주말에 인원이 몰리거나 체험 시간이 정해진 곳이 있어 예약 여부를 확인해요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">실외</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">공원·생태공원처럼 몸을 쓰며 노는 곳</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">자외선 차단제, 모자, 여벌 옷, 물을 챙기고 그늘·화장실 위치를 봐 두세요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">실내외</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">실내 전시와 야외 공간을 함께 갖춘 곳</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">날씨가 애매한 날 선택지가 넓지만 일부는 야외라 비 오는 날은 확인이 필요해요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">무료</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">입장료가 없다고 정리된 곳</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">주차비, 체험 재료비, 먹거리는 따로 들 수 있어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">일부 무료</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">어린이나 특정 조건에서만 무료이거나 일부 시설만 무료인 곳</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">조건은 상세 페이지의 요금 항목에서 확인해요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">유료</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">입장료나 체험비가 있는 곳</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">어른·어린이 요금을 먼저 보세요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">비용 확인 필요</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">요금 정보를 확인하지 못한 곳</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">방문 전에 전화나 공식 안내로 직접 확인해야 해요</td></tr></tbody></table></div></div>
+    <p>실내를 고르면 “실외” 장소가 빠지고 실내·실내외 장소가 남습니다. 장소 위치가 구·군 중심 좌표로 잡힌 곳이 많아서 “가까운 곳으로 채우기”는 구·군 단위 정확도예요.</p>
     <h2>지금 후보는 이렇게 구성돼 있어요</h2>
     <!-- WC_KIDS_STATS_START -->
 <p>현재 후보로 등록된 아이랑 나들이 장소는 <strong>548곳</strong>입니다. 장소 유형은 실내 334곳, 실외 132곳, 실내외 82곳이고, 비용은 완전무료 211곳, 일부 무료 조건이 있는 곳 93곳, 유료 168곳, 비용 확인이 필요한 곳 76곳입니다. 장소는 운영자가 추가·정리하는 대로 늘어나며, 이 숫자도 함께 갱신됩니다.</p>
 <p>지역별로는 경기도 121곳, 경상북도 48곳, 부산 48곳, 인천 45곳, 대구 42곳, 충청북도 37곳 순으로 많습니다. 실내·실외와 비용 조건을 따로 두지 않았을 때 16강까지 가능한 지역은 경기도, 경상북도, 부산, 인천, 대구, 충청북도, 대전, 충청남도, 경상남도, 전라남도, 울산, 광주입니다. 8강까지 가능한 지역은 전라북도, 강원, 세종, 서울입니다. 제주처럼 후보가 8곳보다 적은 지역은 4강으로 줄거나 대진표를 만들 수 없으니, 그럴 땐 "전국"으로 넓혀 주세요. 조건을 함께 고르면 후보가 더 줄어드니, 대진표가 만들어지지 않는다면 조건부터 넓혀 보세요.</p>
 <!-- WC_KIDS_STATS_END -->
-
-    <h2>실내와 실외, 무엇을 고를까요?</h2>
-    <p>기준은 그날의 날씨와 아이의 컨디션입니다. 비가 오거나 미세먼지가 심한 날, 한여름 낮과 한겨울에는 실내가 편하고, 날씨가 좋은 날에는 실외에서 마음껏 뛰어놀게 하는 편이 아이에게도 좋습니다.</p>
-    <ul>
-      <li><b>실내</b> — 과학관, 박물관, 체험관처럼 날씨 영향을 덜 받는 곳입니다. 대신 주말에는 입장 인원이 몰리거나 체험 시간이 정해져 있는 경우가 있어서, 사전 예약이 필요한지 미리 확인하면 좋습니다.</li>
-      <li><b>실외</b> — 공원, 생태공원처럼 몸을 쓰며 노는 곳입니다. 자외선 차단제, 모자, 편한 신발, 여벌 옷, 물을 챙기고 그늘과 화장실 위치를 먼저 봐 두면 편합니다.</li>
-      <li><b>실내외</b> — 실내 전시와 야외 공간을 함께 갖춘 곳입니다. 날씨가 애매한 날에 선택지가 넓고, 가족 의견이 갈릴 때 무난합니다.</li>
-    </ul>
-    <p>"상관없어요"를 고르면 실내와 실외가 섞여서 나옵니다. 날씨를 따로 확인하기 번거롭다면 지역을 먼저 고르세요. 비나 눈 소식이 있으면 실내를 자동으로 골라 드립니다.</p>
-
-    <h2>비용 표시는 이렇게 읽어요</h2>
-    <p>장소 카드에는 비용이 네 가지로 표시됩니다. 예산 조건에서 "무료·일부 무료"나 "완전 무료만"을 고르면 이 표시를 기준으로 후보를 거릅니다.</p>
-    <ul>
-      <li><b>무료</b> — 입장료가 없다고 정리된 곳입니다. 그래도 주차비, 체험 재료비, 먹거리는 따로 들 수 있습니다.</li>
-      <li><b>일부 무료</b> — 어린이나 특정 조건에서만 무료이거나, 일부 시설만 무료인 곳입니다. 어떤 조건인지는 상세 페이지의 요금 항목에서 확인해 주세요.</li>
-      <li><b>유료</b> — 입장료나 체험비가 있는 곳입니다. 예산이 정해져 있다면 상세 페이지에서 어른·어린이 요금을 먼저 보세요.</li>
-      <li><b>비용 확인 필요</b> — 요금 정보를 확인하지 못한 곳입니다. 방문 전에 전화나 공식 안내로 직접 확인해야 합니다.</li>
-    </ul>
-
-    <h2>아이 나이에 따라 달라지는 장소 고르기</h2>
-    <p>나이별로 후보를 따로 나누지는 않습니다. 결과가 나온 뒤 아래 기준으로 한 번 더 살펴보면 실패가 줄어듭니다. 아이마다 다르니 참고로만 봐 주세요.</p>
-    <ul>
-      <li><b>영유아</b> — 이동 시간이 길면 아이도 보호자도 지칩니다. 낮잠 시간을 피해 일정을 잡고, 유모차가 다닐 수 있는지, 수유실과 기저귀 갈이대가 있는지는 방문 전에 전화로 확인하는 편이 안전합니다. 이 서비스의 데이터에는 이런 시설 정보가 들어 있지 않습니다.</li>
-      <li><b>미취학 아동</b> — 직접 만지고 움직이는 체험형 장소가 잘 맞는 경우가 많습니다. 한 곳에서 오래 머물기보다 2~3시간 안쪽으로 계획하고, 아이가 흥미를 잃으면 일정을 줄일 여유를 두세요.</li>
-      <li><b>초등학생</b> — 과학관, 박물관처럼 배운 내용을 직접 확인해 볼 수 있는 곳이 호응을 얻는 경우가 많습니다. 체험 프로그램에는 연령이나 키 제한, 사전 예약이 있을 수 있으니 확인해 주세요.</li>
-    </ul>
-
-    <h2>날씨는 어떻게 반영되나요?</h2>
-    <p>지역을 고르면 그 지역의 날씨를 확인해서 비나 눈 소식이 있으면 "실내"를 자동으로 골라드립니다. 위치 권한은 필요하지 않고, 이미 직접 실내·실외를 고르셨다면 그 선택을 그대로 따릅니다. 전국으로 두면 지역 날씨를 확인하지 않습니다. 날씨 정보는 참고용이니 출발 전에 한 번 더 확인해 주세요.</p>
-
-    <h2>결과를 본 뒤에는</h2>
-    <p>우승 장소의 상세 페이지에서 운영시간, 이용 요금, 전화번호, 소개를 볼 수 있습니다. 휴관일이나 요금은 바뀔 수 있어 방문 전에 전화나 공식 안내로 한 번 더 확인하시길 권합니다. 일부 장소는 연령이나 키 제한, 사전 예약이 필요할 수 있습니다. 결과 근처에서 오늘 열리는 축제가 있으면 함께 알려드립니다. 축제 정보는 한국관광공사 TourAPI 데이터를 하루 몇 차례 자동으로 갱신해 보여줍니다.</p>
-
-    <h2>나들이 가기 전 체크리스트</h2>
-    <p>우승 장소가 정해졌다면 출발 전에 아래만 확인해도 헛걸음을 크게 줄일 수 있습니다.</p>
-    <ol>
-      <li><b>휴관일과 운영시간</b> — 정기 휴관일과 입장 마감 시간을 확인합니다. 마감 한두 시간 전에 도착하면 아이가 충분히 놀지 못할 수 있어요.</li>
-      <li><b>예약 여부</b> — 입장이나 체험이 예약제인지, 당일 현장 접수가 가능한지 확인합니다.</li>
-      <li><b>요금</b> — 어른과 어린이 요금, 주차비, 체험 재료비를 따로 받는지 확인합니다.</li>
-      <li><b>주차와 교통</b> — 주차할 수 있는지, 주말에 많이 붐비는 시간대는 언제인지 알아 둡니다.</li>
-      <li><b>먹거리</b> — 도시락이나 음료를 가져갈 수 있는지, 가까이에 식사할 곳이 있는지 확인합니다.</li>
-      <li><b>준비물</b> — 물, 간식, 여벌 옷, 물티슈, 개인 상비약, 보호자 연락처를 적은 메모나 팔찌를 챙깁니다.</li>
-      <li><b>날씨와 대안</b> — 출발 직전에 예보를 다시 보고, 차선책 중 한 곳을 비 올 때의 대안으로 정해 둡니다.</li>
-      <li><b>귀가 시간</b> — 아이가 지치는 시간을 생각해서 돌아오는 시간에 여유를 둡니다.</li>
-    </ol>
-
-    <h2>가족과 함께 월드컵을 더 재미있게 하는 법</h2>
-    <ul>
-      <li>아이가 직접 고르게 해 보세요. 왜 그곳을 골랐는지 물어보면 나들이에 대한 기대도 커집니다.</li>
-      <li>형제자매가 있다면 라운드를 나눠 번갈아 고르거나, 4강부터는 한 사람이 한 번씩 고르는 식으로 규칙을 정하면 다툼이 줄어듭니다.</li>
-      <li>부모에게 "거부권 한 번"을 주는 것도 방법입니다. 이동 거리나 예산 같은 현실적인 조건은 지키면서 아이의 선택을 존중할 수 있습니다.</li>
-      <li>우승 장소만 보지 말고 차선책 3곳도 메모해 두세요. 날씨가 나쁘거나 휴관일에 걸렸을 때 바로 쓸 대안이 되고, 다음 주말의 후보가 됩니다.</li>
-      <li>다녀온 뒤에는 이 페이지 아래 댓글에 장소 이름과 함께 후기를 남겨 주세요. 다른 가족이 고를 때 참고가 됩니다.</li>
-    </ul>
-
-    <h2>자주 묻는 질문</h2>
-    <div class="faq"><b>Q. 할 때마다 결과가 달라지나요?</b><p>네. 후보 16곳을 매번 무작위로 뽑고 대진 순서도 섞기 때문에 같은 조건이어도 결과가 달라질 수 있어요. 마음에 드는 결과가 나올 때까지 "다시 하기"를 눌러도 됩니다.</p></div>
-    <div class="faq"><b>Q. 아이 나이에 맞는 곳만 나오나요?</b><p>나이별로 나누어 뽑지는 않습니다. 모두 아이와 함께 가기 좋은 곳으로 골랐지만 장소마다 연령·키 제한이 다를 수 있으니, 우승 장소의 상세 페이지와 공식 안내를 꼭 확인해 주세요.</p></div>
-    <div class="faq"><b>Q. 위치 정보를 수집하나요?</b><p>아니요. 내 위치를 묻지 않고, 고른 지역의 대략적인 중심 좌표로만 날씨를 조회합니다. 마지막으로 고른 조건은 편의를 위해 이 브라우저에만 저장됩니다.</p></div>
-    <div class="faq"><b>Q. 장소 정보가 틀렸어요.</b><p>운영 정보는 바뀔 수 있습니다. <a href="/contact/">문의 페이지</a>로 알려주시면 확인 후 반영하겠습니다.</p></div>
-
-    <div class="faq"><b>Q. 실내를 골랐는데 날씨가 좋으면 어떡하죠?</b><p>실내를 고르면 실외 장소는 후보에 들어가지 않습니다. 야외로 나가고 싶다면 "실외"나 "상관없어요"로 바꿔 다시 시작해 보세요.</p></div>
-    <div class="faq"><b>Q. 우리 동네 장소가 없어요.</b><p>후보는 운영자가 정리한 곳이라 모든 장소가 들어 있지는 않습니다. 가고 싶은 곳이 있다면 <a href="/contact/">문의 페이지</a>나 아래 댓글로 알려 주세요. <a href="/festival/">아이랑 나들이 지도</a>에서는 지역별로 직접 둘러볼 수 있습니다.</p></div>
-    <div class="faq"><b>Q. 우승 장소는 예약이 꼭 필요한가요?</b><p>장소마다 다릅니다. 예약 없이 들어갈 수 있는 곳도 있고, 체험 프로그램만 예약을 받는 곳도 있어요. 상세 페이지의 안내와 공식 연락처로 확인해 주세요.</p></div>
-    <div class="faq"><b>Q. 아이랑 나들이 지도와 월드컵은 뭐가 다른가요?</b><p>지도는 지역에서 장소를 직접 찾아보는 도구이고, 월드컵은 가고 싶은 곳이 너무 많거나 가족 의견이 갈릴 때 대진표로 하나를 정하는 도구입니다. 같은 장소 정보를 쓰기 때문에 두 가지를 번갈아 쓰셔도 됩니다.</p></div>
-    <div class="faq"><b>Q. 랜덤으로 고르면 확률이 같나요?</b><p>네. 두 곳 중 하나를 같은 확률로 고릅니다. 다만 후보 16곳을 뽑는 단계에서는 비용 정보가 정리된 장소를 먼저 뽑기 때문에, 랜덤이라도 그 안에서 결과가 정해집니다. 마음에 안 들면 "다시 하기"로 새로 뽑을 수 있어요.</p></div>
-
-    <div class="links">
-      <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
-      <a href="/festival/roulette.html">🎡 나들이·캠핑장·숲 룰렛</a>
-      <a href="/festival/">🗺️ 아이랑 나들이 지도</a>
-      <a href="/festival/#about-map">📍 지역별 장소 한눈에 보기</a>
-      <a href="/blog/magazine/">📰 호호 매거진</a>
-    </div>
+    <h2>💡 이렇게 쓰면 더 좋아요 (공략)</h2>
+    <p>월드컵은 후보가 너무 많거나 가족 의견이 갈릴 때 가장 힘을 발휘해요. 상황별로 이렇게 쓰면 결과에 대한 만족도가 높아집니다.</p>
+    <div style="margin:16px 0 8px"><div style="font-weight:900;font-size:14px;color:#334155;margin-bottom:8px">상황별 활용법</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:300px"><thead><tr><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">이럴 땐</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">이렇게 해 보세요</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">참고 포인트</th></tr></thead><tbody><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">비 오는 날</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">지역을 고르면 비·눈 소식이 있을 때 “실내”를 자동으로 골라 줘요</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">위치 권한은 필요 없고, 직접 고른 실내·실외는 그대로 따라요. “전국”은 날씨를 확인하지 않아요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">시작 버튼이 눌리지 않을 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">지역을 “전국”으로 넓히거나 조건을 “상관없어요”로 바꾸기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">후보가 16곳보다 적으면 8강·4강으로 줄고, 4곳보다 적으면 대진표를 만들 수 없어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">영유아와 함께</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">이동 시간을 짧게 잡고 낮잠 시간을 피하기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">유모차·수유실 같은 시설 정보는 데이터에 없으니 방문 전에 전화로 확인해요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">미취학·초등학생과 함께</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">체험형 장소는 2~3시간 안쪽, 초등학생은 과학관·박물관부터</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">연령·키 제한이나 사전 예약이 있을 수 있어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">형제자매가 다툴 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">라운드를 나눠 번갈아 고르고, 부모에게 “거부권 한 번”을 주기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">이동 거리와 예산은 지키면서 아이의 선택을 존중할 수 있어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">결과가 나온 뒤</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">휴관일·운영시간·요금·예약·주차를 확인하고 차선책 3곳도 메모</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">휴관일에 걸리거나 날씨가 나쁠 때 바로 쓸 대안이 돼요</td></tr></tbody></table></div></div>
+    <p>다녀온 뒤에는 이 페이지 아래 댓글에 장소 이름과 함께 후기를 남겨 주세요. 다른 가족이 고를 때 참고가 됩니다.</p>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 할 때마다 결과가 달라지나요?</h3><p>네. 후보 16곳을 매번 무작위로 뽑고 대진 순서도 섞기 때문에 같은 조건이어도 결과가 달라질 수 있어요. 두 곳 중 하나를 고르는 랜덤은 같은 확률이고, 후보 16곳을 뽑는 단계에서는 비용 정보가 정리된 장소를 먼저 뽑아요. 마음에 안 들면 “다시 하기”로 새로 뽑을 수 있습니다.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 위치 정보를 수집하나요?</h3><p>아니요. 내 위치를 묻지 않고, 고른 지역의 대략적인 중심 좌표로만 날씨를 조회합니다. 마지막으로 고른 조건은 편의를 위해 이 브라우저에만 저장돼요.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 아이 나이에 맞는 곳만 나오나요?</h3><p>나이별로 나누어 뽑지는 않습니다. 모두 아이와 함께 가기 좋은 곳으로 정리했지만 장소마다 연령·키 제한이 다를 수 있으니, 우승 장소의 상세 페이지와 공식 안내를 꼭 확인해 주세요.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 아이랑 나들이 지도, 오늘 어디 갈까?와는 뭐가 다른가요?</h3><p>지도는 지역에서 장소를 직접 찾아보는 도구이고, 월드컵은 가고 싶은 곳이 많을 때 두 곳씩 비교해 하나를 정하는 도구예요. <a href="/festival/pick.html">오늘 어디 갈까?</a>는 질문 몇 개로 방문 순서가 붙은 코스를 만들어 주고, <a href="/festival/roulette.html">룰렛</a>은 한 번에 빠르게 정할 때 어울립니다. 같은 장소 정보를 쓰니 번갈아 써도 좋아요.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 우리 동네 장소가 없거나 정보가 틀려요.</h3><p>후보는 운영자가 정리한 곳이라 모든 장소가 들어 있지는 않고, 운영 정보는 바뀔 수 있어요. <a href="/contact/">문의 페이지</a>나 아래 댓글로 알려 주시면 확인 후 반영하겠습니다.</p></div>
+    <div class="links"><a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a><a href="/festival/roulette.html">🎡 나들이·캠핑장·숲 룰렛</a><a href="/festival/">🗺️ 아이랑 나들이 지도</a><a href="/festival/#about-map">📍 지역별 장소 한눈에 보기</a><a href="/blog/magazine/">📰 호호 매거진</a></div>
+    <!-- ABOUT_END -->
   </section>
 
   <!-- 공유 (다른 호호플레이 페이지와 같은 형식) -->
@@ -716,6 +680,38 @@ function toggleMenu() {
     var btns = $(id).querySelectorAll('.chip');
     for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-val') === val ? 'true' : 'false');
   }
+/* SMP_JS_START */
+  function smpHash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  // 같은 날·같은 조건이면 같은 샘플이 보이도록, 날짜+조건을 씨앗으로 한 고정 순서 섞기
+  function smpPick(list, n) {
+    var a = list.slice().sort(function (x, y) { return String(x.contentid) < String(y.contentid) ? -1 : 1; });
+    var r = smpHash(new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10) + '|' + JSON.stringify(cond)), i, j, t;
+    for (i = a.length - 1; i > 0; i--) { r = (Math.imul(r, 1664525) + 1013904223) >>> 0; j = r % (i + 1); t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a.slice(0, n);
+  }
+  function smpHead(box, text) {
+    var h = el('div', 'smp-h'); h.appendChild(el('b', null, '👀 샘플 결과')); h.appendChild(document.createTextNode(' · ' + (cond.region || '전국') + (cond.district && cond.district !== 'all' ? ' ' + cond.district : '') + ' · ' + text)); box.appendChild(h);
+  }
+  function renderSample() {
+    var box = $('smp'); if (!box) return; box.innerHTML = '';
+    var pool = currentPool(), known = pool.filter(function (p) { return p.costTag !== '확인 필요'; });
+    var base = known.length >= 4 ? known : pool;
+    if (base.length < 4) { box.style.display = 'none'; return; }
+    var s = smpPick(base, 4); box.style.display = 'block';
+    smpHead(box, '결승까지 마치면 이런 화면이 나와요. 예시예요. 위에서 조건을 고르고 시작하면 내 대진표로 만들어 드려요.');
+    var win = el('div', 'smp-win'); win.appendChild(el('div', 'smp-t', '🏆 오늘의 나들이는 여기! (예시)'));
+    var bs = el('div', 'badges'); bs.appendChild(typeBadge(s[0])); bs.appendChild(costBadge(s[0])); win.appendChild(bs);
+    var a = el('a', 'smp-n', s[0].title); a.href = detailUrl(s[0]); win.appendChild(a);
+    win.appendChild(el('div', 'cloc', '📍 ' + locText(s[0])));
+    if (s[0].desc) win.appendChild(el('div', 'smp-d', s[0].desc));
+    box.appendChild(win);
+    var ru = el('div', 'ru');
+    ru.appendChild(runnerUp('🥈 준우승', s[1])); ru.appendChild(runnerUp('🥉 4강 탈락', s[2])); ru.appendChild(runnerUp('🥉 4강 탈락', s[3]));
+    box.appendChild(ru);
+    box.appendChild(el('div', 'smp-ft', '우승 장소와 함께 “차선책” 3곳이 나와요. 비 오는 날의 대안이나 다음 주말 후보로 메모해 두세요.'));
+  }
+/* SMP_JS_END */
+
   function updatePool() {
     var pi = poolInfo(), n = pi.pool.length, sz = sizeFor(n);
     var info = $('poolInfo'), btn = $('startBtn');
@@ -738,6 +734,7 @@ function toggleMenu() {
       btn.disabled = false;
     }
     $('randStartBtn').disabled = btn.disabled;
+    renderSample();
   }
   function setType(v, auto) {
     cond.type = v; autoIndoor = !!auto; paintChips('typeChips', v); updatePool();

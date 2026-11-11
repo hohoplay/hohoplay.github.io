@@ -154,6 +154,34 @@
   .cmt .cc { font-size: 14px; color: #475569; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
   .cmt .ce { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
 </style>
+<!-- ABOUT_CSS_START -->
+<style>
+  .about a, .pz-about a { color: #4f46e5; text-decoration: underline; }
+  .about h3 { margin: 0; }
+  .about table, .pz-about table { font-size: 13px; }
+  .about .links a, .pz-about .links a { text-decoration: none; }
+  .pz-about { margin-top: 34px; font-size: 15px; color: #475569; line-height: 1.7; }
+  .pz-about h2 { margin: 26px 0 8px; font-size: 18px; font-weight: 900; color: #0f172a; }
+  .pz-about p { margin: 0 0 12px; }
+  .pz-about .faq { border: 1px solid #e2e8f0; background: #fff; border-radius: 12px; padding: 12px 14px; margin: 8px 0; }
+  .pz-about .faq p { margin: 0; font-size: 14px; }
+  .pz-about .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pz-about .links a { font-weight: 800; font-size: 14px; padding: 9px 16px; border-radius: 999px; background: #eef2ff; color: #4338ca; }
+</style>
+<!-- ABOUT_CSS_END -->
+<!-- SMP_CSS_START -->
+<style>
+  .smp { margin-top: 22px; padding-top: 18px; border-top: 1px dashed #cbd5e1; }
+  .smp-h { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; border-radius: 14px; padding: 11px 14px; font-size: 13px; font-weight: 700; line-height: 1.55; word-break: keep-all; margin-bottom: 12px; }
+  .smp-h b { font-weight: 900; }
+  .smp-win { border: 2px dashed #f59e0b; background: #fffbeb; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
+  .smp-t { font-size: 13px; font-weight: 900; color: #b45309; margin-bottom: 6px; }
+  .smp a.smp-n { display: block; font-size: 19px; font-weight: 900; color: #0f172a; text-decoration: none; margin: 2px 0 4px; word-break: keep-all; overflow-wrap: anywhere; }
+  .smp-d { font-size: 13px; color: #475569; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .smp .cloc { margin-bottom: 4px; }
+  .smp-ft { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+</style>
+<!-- SMP_CSS_END -->
 <!-- HN_CSS_START -->
 <style>
   /* 호호 매거진 등과 같은 상단 메뉴 마크업이 Tailwind 없이도 똑같이 보이도록, 그 마크업의 클래스만 옮긴 CSS */
@@ -387,6 +415,7 @@ function toggleMenu() {
     <div class="wx" id="wx" role="status"></div>
     <div class="poolinfo" id="poolInfo" role="status">목록을 불러오는 중입니다…</div>
     <div class="startrow"><button type="button" class="btn" id="startBtn" disabled>🎡 룰렛 만들기</button></div>
+    <!-- SMP_START --><div class="smp" id="smp" style="display:none"></div><!-- SMP_END -->
   </section>
 
   <!-- 2) 룰렛 -->
@@ -417,23 +446,15 @@ function toggleMenu() {
 
   <!-- 이용 안내 (검색·접근성을 위해 항상 보이는 정적 텍스트) -->
   <section class="about" aria-label="룰렛 이용 안내">
-    <h2>룰렛은 이렇게 돌려요</h2>
-    <ol>
-      <li>지역을 먼저 고르고, 아이랑 나들이·캠핑장·숲·수목원·휴양림 중 무엇을 고를지 정합니다. 지역을 고르면 시·군·구까지 좁힐 수 있고, "전국"으로 두면 전국에서 뽑습니다.</li>
-      <li>조건에 맞는 장소 중 6곳, 8곳, 10곳(기본 8곳)이 무작위로 뽑혀 룰렛 칸이 됩니다. 후보가 적으면 칸이 줄어들고, 4곳보다 적으면 룰렛을 만들 수 없어요.</li>
-      <li>"🎡 돌리기!"를 누르면 룰렛이 돌아가고, 위쪽 화살표가 가리키는 칸이 오늘의 장소가 됩니다.</li>
-      <li>마음에 들지 않으면 "한 번 더 돌리기", 그 장소만 빼고 싶으면 "여기 빼고 다시 돌리기", 후보를 통째로 바꾸고 싶으면 "새 후보로 다시 뽑기"를 누르세요.</li>
-      <li>결과 화면에서 상세 정보, 지도 링크, 후기 남기기 버튼을 쓸 수 있고, 지금 조건 그대로 친구에게 공유할 수도 있습니다.</li>
-    </ol>
-
-    <h2>어떤 장소가 칸에 들어가나요?</h2>
-    <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 장소입니다. 세 가지로 나뉩니다.</p>
-    <ul>
-      <li><b>아이랑 나들이</b> — 호호플레이가 직접 정리한 아이와 가기 좋은 장소입니다. 실내·실외·실내외로 나뉘어 있고 요금이 무료인지, 유료인지도 구분해 두었습니다. 실내를 고르면 실외 장소는 빠지고, 비용에서 "무료만"을 고르면 완전 무료로 표시된 곳만 남습니다.</li>
-      <li><b>캠핑장</b> — 한국관광공사 TourAPI에 등록된 오토캠핑장, 글램핑, 카라반, 일반 캠핑장과 야영장입니다. 유형은 이름에 들어간 말("오토캠핑", "글램핑", "카라반")로 나눈 것이라 실제 시설과 다를 수 있습니다.</li>
-      <li><b>숲·수목원·휴양림</b> — 한국관광공사에 공원으로 등록된 곳 가운데 이름에 휴양림, 수목원·식물원·정원, 숲·산림이 들어간 곳을 모았습니다. 이름으로 가려낸 것이어서 규모나 시설은 곳마다 크게 다르고, 해수욕장이나 해변 이름이 붙은 곳은 뺐습니다.</li>
-    </ul>
-
+    <!-- ABOUT_START -->
+    <p>문화체육관광부 「2025년 국민여행조사」에서 여행지에서 한 활동으로 자연·풍경 감상이 77.4%, 음식 관광이 65.6%로 나타났어요. 가까운 숲이나 공원, 캠핑장으로 나가는 나들이도 같은 흐름이지만, 갈 곳이 너무 많으면 정하는 데만 시간이 다 갑니다. 나들이·캠핑장·숲 룰렛은 호호플레이가 정리한 아이랑 나들이 장소, 한국관광공사 TourAPI의 캠핑장, 숲·수목원·휴양림 중에서 후보 칸을 만들어 한 번 돌려 오늘의 장소를 정해 주는 도구예요.</p>
+    <p style="font-size:12px;color:#94a3b8;margin-top:-4px">출처: 문화체육관광부 「2025년 국민여행조사」(2026.6 공개) — 여행지 활동 중 자연·풍경 감상 77.4%, 음식 관광 65.6%</p>
+    <h2>🎡 이렇게 돌려요 (조작 가이드)</h2>
+    <p>지역을 먼저 정하고 무엇을 고를지 선택한 뒤 룰렛을 만들어 돌리면 됩니다. 룰렛은 월드컵과 달리 한 번에 결과가 나와서, 후보가 전국에 흩어져 있으면 “너무 멀다”는 일이 생기기 쉬워 지역을 먼저 고르게 했어요.</p>
+    <div style="margin:16px 0 8px"><div style="font-weight:900;font-size:14px;color:#334155;margin-bottom:8px">룰렛 한 판의 진행 흐름</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:300px"><thead><tr><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">단계</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">하는 일</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">확인할 점</th></tr></thead><tbody><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">1. 지역 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">지역과 시·군·구(선택) 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“전국”이면 전국에서 뽑고, 이동이 부담되면 시·군·구까지 좁혀요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">2. 종류 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">🧸 아이랑 나들이 · 🏕️ 캠핑장 · 🌲 숲·수목원·휴양림</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">종류에 따라 실내·실외, 예산, 캠핑 유형 같은 세부 조건이 달라져요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">3. 칸 수 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">6칸·8칸·10칸(기본 8칸)</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">후보가 적으면 칸이 줄고, 4곳보다 적으면 룰렛을 만들 수 없어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">4. 돌리기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“🎡 룰렛 만들기” 다음 “🎡 돌리기!”</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">위쪽 화살표가 멈춘 칸이 오늘의 장소예요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">5. 다시 정하기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“한 번 더 돌리기”, “🚫 여기 빼고 다시 돌리기”, “🎲 새 후보로 다시 뽑기”</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">한 번 더는 같은 후보로, 여기 빼고는 이 장소만 빼고, 새 후보는 후보 전체를 바꿔요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">6. 결과 보기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">상세 정보, 카카오맵·네이버지도, 후기 남기기, 결과 공유</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">공유 링크에는 지금 고른 조건이 담겨 받은 사람도 같은 화면을 열어요</td></tr></tbody></table></div></div>
+    <h2>📍 칸에 들어가는 장소는 이래요</h2>
+    <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 장소로, 종류마다 모은 기준이 달라요. 숲·수목원·휴양림은 이름으로 가려낸 것이라 규모와 시설이 곳마다 크게 다릅니다.</p>
+    <div style="margin:16px 0 8px"><div style="font-weight:900;font-size:14px;color:#334155;margin-bottom:8px">종류별 후보 기준 비교</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:300px"><thead><tr><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">종류</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">어떻게 모았나</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">확인할 점</th></tr></thead><tbody><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">🧸 아이랑 나들이</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">호호플레이가 정리한 아이와 가기 좋은 장소. 실내·실외·실내외와 요금(무료·유료) 구분</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">실내를 고르면 실외가 빠지고, “무료만”을 고르면 완전 무료로 표시된 곳만 남아요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">🏕️ 캠핑장</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">한국관광공사 TourAPI에 등록된 오토캠핑장·글램핑·카라반·일반 캠핑장과 야영장</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">유형은 이름 기준이라 실제 시설과 다를 수 있고 요금·예약 정보는 없어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">🌲 숲·수목원·휴양림</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">TourAPI 공원 중 이름에 휴양림, 수목원·식물원·정원, 숲·산림이 들어간 곳. 해수욕장·해변 이름은 제외</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">입산 제한 시기, 휴관 요일, 시설 예약 여부를 공식 안내에서 확인해요</td></tr></tbody></table></div></div>
     <h2>지금 후보는 이렇게 구성돼 있어요</h2>
     <!-- RL_STATS_START -->
 <p>현재 룰렛 후보는 아이랑 나들이 장소 <strong>548곳</strong>(실내 334곳, 실외 132곳, 실내외 82곳), 캠핑장 <strong>614곳</strong>(오토캠핑 97곳, 글램핑 62곳, 카라반 22곳, 일반 캠핑장·야영장 438곳), 숲·수목원·휴양림 <strong>28곳</strong>(자연휴양림 4곳, 수목원·식물원·정원 5곳, 숲·산림욕장 19곳)입니다. 이름에 두 가지 이상이 들어간 곳은 각 유형에 모두 세기 때문에 유형별 합이 전체보다 클 수 있고, 이 숫자는 데이터가 갱신될 때 함께 바뀝니다.</p>
@@ -442,89 +463,19 @@ function toggleMenu() {
 <p><strong>숲·수목원·휴양림</strong> — 후보가 8~9곳이라 칸이 8~9개까지인 지역은 전남·광주입니다. 후보가 4~7곳이라 칸이 그만큼 줄어드는 지역은 강원, 경기도입니다. 후보가 4곳보다 적어 룰렛을 만들 수 없는 지역은 경상북도, 부산, 경상남도, 대구, 대전, 서울, 전라북도, 제주, 충청북도입니다. 이럴 땐 "전국"으로 넓혀 주세요.</p>
 <p>위는 지역만 고르고 다른 조건은 "상관없어요"로 둔 경우입니다. 유형이나 비용, 실내·실외 같은 조건을 더하면 후보가 줄어들고, 비 소식이 있는 지역에서 실외를 뺀 경우에도 줄어듭니다.</p>
 <!-- RL_STATS_END -->
-
-    <h2>왜 지역을 먼저 고르나요?</h2>
-    <p>룰렛은 월드컵과 달리 한 번에 결과가 나오기 때문에, 후보가 전국에 흩어져 있으면 "결과는 나왔는데 너무 멀다"는 일이 생기기 쉽습니다. 그래서 어느 지역으로 갈지를 먼저 정하고, 그 안에서 룰렛으로 고르도록 만들었습니다. 이동 시간이 부담스럽다면 시·군·구까지 좁혀 보세요.</p>
-    <p>지역을 정하지 못했다면 "전국"으로 돌린 뒤, 나온 장소가 있는 지역에서 다시 한 번 돌리는 방법도 있습니다. 먼저 지역을 정하고, 그 지역 안에서 장소를 정하는 두 단계로 나누면 고민이 한결 가벼워집니다.</p>
-
-    <h2>비가 오면 어떻게 되나요?</h2>
-    <p>지역을 고르면(전국 제외) 그 지역의 날씨 예보를 확인해서 비나 눈 소식이 있을 때 안내합니다. 내 위치를 묻지 않고, 고른 지역의 대략적인 중심 좌표로만 조회합니다. 예보는 바뀔 수 있으니 출발하기 전에 한 번 더 확인해 주세요. 비 소식이 있으면 장소 종류에 따라 이렇게 달라집니다.</p>
-    <ul>
-      <li><b>아이랑 나들이</b> — 실내·실외를 따로 고르지 않았다면 실외 장소는 기본으로 빼고, 실내와 실내외 장소만 룰렛에 넣습니다. 뺀 곳은 "그래도 실외 포함" 버튼으로 다시 넣을 수 있어요. 직접 "실외"를 고르셨다면 선택을 바꾸지 않고 안내만 보여드립니다. 실내외 장소는 일부가 야외라서 "일부 실외"라고 표시합니다.</li>
-      <li><b>캠핑장·숲·수목원·휴양림</b> — 야외에서 보내는 시간이 길어서 후보를 바꾸지는 않고 비 소식이 있다는 안내와 함께 "오늘은 실내 나들이 룰렛" 버튼을 보여드립니다. 누르면 같은 지역의 실내 장소로 바로 돌려볼 수 있습니다.</li>
-      <li><b>결과 확인</b> — 비 소식이 있는 지역에서 야외 장소가 나오면 결과 화면에 안내가 함께 나오고, "실내로 다시 돌리기"로 바로 다시 돌릴 수 있습니다.</li>
-      <li><b>실내 장소가 부족할 때</b> — 그 지역에 실내 후보가 4곳보다 적으면 룰렛을 만들 수 없다고 알려 드립니다. 이럴 땐 지역을 "전국"으로 넓히거나 이웃 지역으로 바꿔 보세요.</li>
-      <li><b>날씨를 못 불러올 때</b> — 날씨 정보를 가져오지 못하면 비 관련 안내 없이 평소처럼 돌아갑니다.</li>
-    </ul>
-    <p>실내 장소라고 해서 언제나 이용할 수 있는 것은 아닙니다. 휴관일이나 예약 여부, 요금은 가기 전에 꼭 확인해 주세요.</p>
-
-    <h2>룰렛 결과를 믿어도 될까요?</h2>
-    <p>돌리기를 누르는 순간 어느 칸에 멈출지가 먼저 무작위로 정해지고, 룰렛은 그 칸에 맞춰 멈춥니다. 모든 칸의 크기가 같아서 어느 칸이든 걸릴 확률이 같습니다. 후보 8곳을 뽑는 단계도 조건에 맞는 장소 중에서 무작위입니다. 룰렛이 "가장 좋은 곳"을 골라 주는 것은 아니고, 오래 고민하던 선택을 끝내게 도와주는 도구에 가깝습니다.</p>
-    <p>결과가 영 마음에 들지 않는다면 억지로 따르지 않으셔도 됩니다. 돌리는 순간 "아쉽다"는 마음이 든다면 그게 진짜 가고 싶은 곳이 어디인지 알려 주는 신호이기도 하니까요.</p>
-
-    <h2>월드컵과 어떻게 다른가요?</h2>
-    <p>룰렛은 빠르게 정하고 싶을 때, 월드컵은 비교하면서 취향을 확인하고 싶을 때 어울립니다. 룰렛은 한 번 돌리면 끝나고, 월드컵은 두 곳씩 비교하면서 16강부터 결승까지 고르는 방식이라 시간이 더 걸리는 대신 내가 무엇을 좋아하는지 보입니다. 후보를 좁히고 싶다면 월드컵을, 막판 결정이 안 될 때는 룰렛을 쓰세요.</p>
-    <div class="links">
-      <a href="/festival/worldcup.html">🏆 아이랑 나들이 월드컵</a>
-      <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
-    </div>
-
-    <h2>룰렛으로 정한 뒤에는</h2>
-    <p>결과 화면에는 장소의 위치와 소개를 보여줍니다. 가기로 했다면 아래를 확인해 주세요.</p>
-    <ul>
-      <li>운영 시간과 휴관일: 같은 요일이라도 계절에 따라 달라질 수 있습니다.</li>
-      <li>요금과 예약: 캠핑장과 휴양림의 숙박·야영 시설은 미리 예약해야 하는 곳이 많습니다.</li>
-      <li>주차와 이동 시간: 지도 앱에서 출발지부터 걸리는 시간을 확인하세요.</li>
-      <li>날씨와 준비물: 야외라면 비 예보와 기온, 아이와 함께라면 여벌 옷과 간식을 챙기세요.</li>
-      <li>반려동물 동반, 취사, 화로대 같은 이용 규칙은 곳마다 달라서 공식 안내를 확인해야 합니다.</li>
-    </ul>
-
-    <h2>숲·수목원·휴양림에 갈 때 챙길 것</h2>
-    <ul>
-      <li>입장 가능 시간과 휴관 요일을 확인하세요. 수목원과 식물원은 휴관하는 요일이 있는 곳이 많습니다.</li>
-      <li>산불 예방 등을 이유로 입산이나 출입이 제한되는 시기와 구간이 있을 수 있으니, 가기 전에 해당 기관의 안내를 확인하세요.</li>
-      <li>숙박이나 야영을 하려면 시설 예약이 필요한 경우가 많습니다.</li>
-      <li>비가 온 뒤에는 흙길과 나무 데크가 미끄러울 수 있어서 바닥이 단단한 신발이 좋습니다.</li>
-      <li>여름에는 벌레와 햇빛, 겨울에는 바닥이 어는 것을 대비하세요.</li>
-      <li>쓰레기는 가져오고, 식물과 열매를 함부로 채취하지 않는 것이 기본 예절입니다.</li>
-    </ul>
-
-    <h2>이럴 때 써보세요</h2>
-    <ul>
-      <li>주말 아침까지도 어디 갈지 못 정했을 때: 지역만 정하고 한 번 돌려 보세요.</li>
-      <li>가족이 서로 양보하다 결정이 늦어질 때: 아이가 직접 "돌리기"를 누르게 하면 결과를 받아들이기 쉽습니다.</li>
-      <li>친구 모임에서 장소를 정할 때: 단체 대화방에 결과를 공유하면 빠르게 정리됩니다.</li>
-      <li>이미 후보가 두세 곳으로 좁혀졌을 때: 지역을 시·군·구로 좁히고 "다시 뽑기"를 돌리면 비슷한 지역의 다른 곳도 만날 수 있어요.</li>
-    </ul>
-
-    <h2>바로 돌려보기</h2>
+    <h2>💡 이럴 때 써 보세요 (공략)</h2>
+    <p>룰렛이 “가장 좋은 곳”을 골라 주지는 않아요. 오래 고민하던 선택을 끝내 주는 도구에 가깝고, 돌리는 순간 아쉬운 마음이 든다면 그게 진짜 가고 싶은 곳을 알려 주는 신호이기도 해요.</p>
+    <div style="margin:16px 0 8px"><div style="font-weight:900;font-size:14px;color:#334155;margin-bottom:8px">상황별 활용법</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:300px"><thead><tr><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">이럴 땐</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">이렇게 해 보세요</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">참고 포인트</th></tr></thead><tbody><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">지역을 못 정했을 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“전국”으로 한 번 돌린 뒤 나온 곳의 지역에서 다시 돌리기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">지역을 먼저, 장소를 나중에 정하는 두 단계로 나누면 고민이 가벼워져요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">같은 장소가 계속 나올 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">시·군·구를 “전체”로 바꾸거나 지역 넓히기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">후보가 적으면 칸 수가 줄어 같은 곳이 자주 나와요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">비 소식이 있을 때(지역 선택 시)</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">아이랑 나들이는 실외가 기본으로 빠지고, 캠핑장·숲은 “오늘은 실내 나들이 룰렛” 버튼이 나와요</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">뺀 곳은 “그래도 실외 포함”으로 되돌릴 수 있고, 야외가 걸리면 “실내로 다시 돌리기”가 나와요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">가족 의견이 갈릴 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">아이가 직접 “돌리기”를 누르게 하기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">결과를 받아들이기 쉬워요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">후보가 두세 곳으로 좁혀졌을 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all"><a href="/festival/worldcup.html">월드컵</a>에서 두 곳씩 비교해 취향을 확인</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">막판 결정이 안 될 때는 룰렛, 비교하며 고르고 싶을 땐 월드컵이에요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">정한 뒤</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">운영시간·휴관일, 요금·예약, 주차와 이동 시간, 반려동물·취사·화로대 규칙 확인</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">숲은 입산 제한과 비 온 뒤 미끄러운 길, 쓰레기 되가져가기 같은 기본 예절도 챙기세요</td></tr></tbody></table></div></div>
     <p>아래 링크는 조건이 미리 골라진 상태로 룰렛 화면을 엽니다.</p>
-    <div class="links">
-      <a href="/festival/roulette.html?cat=kids&amp;region=경기도">🧸 경기도 나들이</a>
-      <a href="/festival/roulette.html?cat=kids&amp;region=서울">🧸 서울 나들이</a>
-      <a href="/festival/roulette.html?cat=kids&amp;region=부산">🧸 부산 나들이</a>
-      <a href="/festival/roulette.html?cat=camp&amp;region=경기도">🏕️ 경기도 캠핑장</a>
-      <a href="/festival/roulette.html?cat=camp&amp;region=강원">🏕️ 강원 캠핑장</a>
-      <a href="/festival/roulette.html?cat=forest&amp;region=전국">🌲 전국 숲·수목원</a>
-      <a href="/festival/roulette.html?cat=forest&amp;region=경기도">🌲 경기도 숲·수목원</a>
-    </div>
-
-    <h2>자주 묻는 질문</h2>
-    <div class="faq"><b>Q. 같은 장소가 계속 나와요.</b><p>후보가 적은 지역이나 조건에서는 칸 수가 줄어서 같은 곳이 자주 나옵니다. 시·군·구를 "전체"로 바꾸거나 지역을 넓히면 후보가 늘어납니다.</p></div>
-    <div class="faq"><b>Q. 실내 장소만 고를 수 있나요?</b><p>네. 아이랑 나들이에서 "실내"를 고르면 실외 장소가 빠집니다. 비 소식이 있는 지역에서는 따로 고르지 않아도 실외 장소를 먼저 빼 드려요.</p></div>
-    <div class="faq"><b>Q. 비 소식은 어떻게 아나요? 위치를 수집하나요?</b><p>내 위치는 묻지 않습니다. 고른 지역의 대략적인 중심 좌표로 날씨 예보를 조회하고, 예보 기준이라 실제와 다를 수 있습니다. 마지막으로 고른 조건은 편의를 위해 이 브라우저에만 저장됩니다.</p></div>
-    <div class="faq"><b>Q. 요금이나 예약도 여기서 할 수 있나요?</b><p>아니요. 이 룰렛은 어디로 갈지 정하는 데까지만 도와드립니다. 요금과 예약은 각 장소의 공식 안내에서 확인해 주세요.</p></div>
-    <div class="faq"><b>Q. 숲·수목원·휴양림 분류가 정확한가요?</b><p>장소 이름에 들어간 말로 나눈 것이라 정확하지 않을 수 있습니다. 예를 들어 이름에 "정원"이 들어가면 수목원·정원으로 묶이지만 실제로는 공원이나 체험 시설일 수 있어요. 가기 전에 상세 페이지와 공식 안내를 확인해 주세요.</p></div>
-    <div class="faq"><b>Q. 반려동물과 함께 갈 수 있는 곳만 고를 수 있나요?</b><p>데이터에 반려동물 동반 여부가 없어서 조건으로 고를 수 없습니다. 장소가 정해진 뒤 문의해 주세요.</p></div>
-    <div class="faq"><b>Q. 결과를 친구에게 보내려면요?</b><p>결과 화면의 "결과 공유하기" 버튼을 누르면 지금 고른 조건이 담긴 링크가 함께 공유됩니다. 받은 사람은 같은 조건의 룰렛 화면을 열 수 있어요.</p></div>
-    <div class="faq"><b>Q. 정보가 틀렸어요.</b><p>운영 정보는 바뀔 수 있습니다. <a href="/contact/">문의 페이지</a>로 알려주시면 확인 후 반영하겠습니다.</p></div>
-
-    <div class="links">
-      <a href="/festival/">🗺️ 아이랑 나들이 지도</a>
-      <a href="/festival/worldcup.html">🏆 나들이 월드컵</a>
-      <a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a>
-      <a href="/blog/magazine/">📰 호호 매거진</a>
-    </div>
+    <div class="links"><a href="/festival/roulette.html?cat=kids&amp;region=경기도">🧸 경기도 나들이</a><a href="/festival/roulette.html?cat=kids&amp;region=서울">🧸 서울 나들이</a><a href="/festival/roulette.html?cat=kids&amp;region=부산">🧸 부산 나들이</a><a href="/festival/roulette.html?cat=camp&amp;region=경기도">🏕️ 경기도 캠핑장</a><a href="/festival/roulette.html?cat=camp&amp;region=강원">🏕️ 강원 캠핑장</a><a href="/festival/roulette.html?cat=forest&amp;region=전국">🌲 전국 숲·수목원</a><a href="/festival/roulette.html?cat=forest&amp;region=경기도">🌲 경기도 숲·수목원</a></div>
+    <h2>자주 묻는 질문 (FAQ)</h2>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 룰렛 결과는 공정한가요?</h3><p>돌리기를 누르는 순간 어느 칸에 멈출지가 먼저 무작위로 정해지고, 룰렛은 그 칸에 맞춰 멈춰요. 모든 칸의 크기가 같아서 어느 칸이든 걸릴 확률이 같고, 후보 8곳을 뽑는 단계도 조건에 맞는 장소 중에서 무작위입니다. 결과가 마음에 안 들면 억지로 따르지 않아도 돼요.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 같은 장소가 계속 나와요.</h3><p>후보가 적은 지역이나 조건에서는 칸 수가 줄어서 같은 곳이 자주 나와요. 시·군·구를 “전체”로 바꾸거나 지역을 넓히면 후보가 늘어나고, “새 후보로 다시 뽑기”로 후보 전체를 바꿀 수도 있어요.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 비 소식은 어떻게 알고, 위치를 수집하나요?</h3><p>내 위치는 묻지 않아요. 지역을 고르면(전국 제외) 그 지역의 대략적인 중심 좌표로 날씨 예보를 조회하고, 예보 기준이라 실제와 다를 수 있어요. 날씨를 못 불러오면 비 관련 안내 없이 평소처럼 돌아가고, 마지막 조건은 이 브라우저에만 저장됩니다.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 월드컵·오늘 어디 갈까?와는 뭐가 다른가요?</h3><p>룰렛은 한 번 돌리면 끝나서 빠르게 정하고 싶을 때, <a href="/festival/worldcup.html">월드컵</a>은 두 곳씩 비교하며 취향을 확인하고 싶을 때 어울려요. <a href="/festival/pick.html">오늘 어디 갈까?</a>는 날짜·지역·실내외·예산·몇 곳을 고르면 방문 순서가 붙은 코스를 만들어 줍니다.</p></div>
+    <div class="faq"><h3 style="display:block;margin:0 0 2px;font-size:15px;font-weight:900;color:#0f172a">Q. 요금·예약·반려동물 정보도 알 수 있나요?</h3><p>아이랑 나들이 장소는 결과에 요금·운영시간·전화 정보가 나오는 곳이 있지만, 캠핑장과 숲·수목원·휴양림은 요금·예약 가능 여부·반려동물 동반 여부가 데이터에 없어서 조건으로 고를 수 없어요. 숲·수목원·휴양림 분류도 이름 기준이라 정확하지 않을 수 있으니 장소가 정해지면 공식 안내에서 확인해 주세요. 정보가 틀렸다면 <a href="/contact/">문의 페이지</a>로 알려 주세요.</p></div>
+    <div class="links"><a href="/festival/">🗺️ 아이랑 나들이 지도</a><a href="/festival/worldcup.html">🏆 나들이 월드컵</a><a href="/festival/camping-worldcup.html">🏕️ 캠핑장 월드컵</a><a href="/blog/magazine/">📰 호호 매거진</a></div>
+    <!-- ABOUT_END -->
   </section>
 
   <!-- 공유 (다른 호호플레이 페이지와 같은 형식) -->
@@ -806,6 +757,42 @@ function toggleMenu() {
     sel.value = cond.district;
     wrap.style.display = 'block';
   }
+/* SMP_JS_START */
+  function smpHash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  // 같은 날·같은 조건이면 같은 샘플이 보이도록, 날짜+조건을 씨앗으로 한 고정 순서 섞기
+  function smpPick(list, n) {
+    var a = list.slice().sort(function (x, y) { return String(x.contentid) < String(y.contentid) ? -1 : 1; });
+    var r = smpHash(new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10) + '|' + JSON.stringify(cond)), i, j, t;
+    for (i = a.length - 1; i > 0; i--) { r = (Math.imul(r, 1664525) + 1013904223) >>> 0; j = r % (i + 1); t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a.slice(0, n);
+  }
+  function smpHead(box, text) {
+    var h = el('div', 'smp-h'); h.appendChild(el('b', null, '👀 샘플 결과')); h.appendChild(document.createTextNode(' · ' + (cond.region || '전국') + (cond.district && cond.district !== 'all' ? ' ' + cond.district : '') + ' · ' + text)); box.appendChild(h);
+  }
+  function renderSample() {
+    var box = $('smp'); if (!box) return; box.innerHTML = '';
+    var pi = poolInfo(), k = slicesFor(pi.pool.length);
+    if (k < 4) { box.style.display = 'none'; return; }
+    var s = smpPick(pi.pool, k); box.style.display = 'block';
+    smpHead(box, '룰렛을 만들면 이런 칸이 생기고, 화살표가 멈춘 칸이 결과가 돼요. 예시예요. 위에서 조건을 고르고 만들면 내 룰렛으로 돌려 드려요.');
+    var ol = el('ol', 'wlist');
+    s.forEach(function (p, i) {
+      var li = el('li', i === 0 ? 'hit' : '');
+      var dot = el('i'); dot.style.background = PALETTE[i % PALETTE.length];
+      li.appendChild(dot); li.appendChild(el('span', 'wn', p.title)); li.appendChild(el('span', 'wl', locText(p)));
+      ol.appendChild(li);
+    });
+    box.appendChild(ol);
+    var win = el('div', 'smp-win'); win.style.marginTop = '10px';
+    win.appendChild(el('div', 'smp-t', '🎯 오늘은 여기로! (예시: 진하게 표시된 첫 칸)'));
+    win.appendChild(badgesOf(s[0]));
+    var a = el('a', 'smp-n', s[0].title); a.href = detailUrl(s[0]); win.appendChild(a);
+    win.appendChild(el('div', 'cloc', '📍 ' + locText(s[0])));
+    box.appendChild(win);
+    box.appendChild(el('div', 'smp-ft', '마음에 안 들면 “한 번 더 돌리기”나 “새 후보로 다시 뽑기”로 다시 정할 수 있어요.'));
+  }
+/* SMP_JS_END */
+
   function updatePool() {
     var info = $('poolInfo'), btn = $('startBtn');
     if (!cur().length) { return; }
@@ -829,6 +816,7 @@ function toggleMenu() {
       btn.disabled = false;
     }
     renderWx();
+    renderSample();
   }
 
   /* ---------- 날씨 / 비 대응 ---------- */
