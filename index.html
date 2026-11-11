@@ -172,7 +172,7 @@
             .sh-links { grid-template-columns: repeat(8, 1fr); gap: 10px; margin-bottom: 34px; }
         }
 
-        /* 오늘 어디 갈지 정하기: 월드컵·룰렛 진입 카드 (모바일 1열, PC 3열) */
+        /* 오늘 어디 갈지 정하기: 월드컵·룰렛·오늘 어디 갈까 진입 카드 4개 (모바일 1열, 그 외 가로 2 × 세로 2) */
         .sh-pick { margin: 0 0 34px; }
         .sh-pick-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
         .sh-pick-head b { font-size: 15px; font-weight: 900; color: #1e293b; }
@@ -189,7 +189,7 @@
         .sh-pick-card em { display: block; font-style: normal; font-size: 12px; font-weight: 700; color: #6366f1; line-height: 1.4; word-break: keep-all; }
         .sh-pick-card:hover { transform: translateY(-2px); border-color: #818cf8; box-shadow: 0 10px 24px rgba(79,70,229,.14); }
         @media (min-width: 768px) {
-            .sh-pick-row { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .sh-pick-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
 
         /* 결과 */
@@ -293,7 +293,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20261111044823_05e9b8ba">
+  <meta name="build-version" content="20261111044831_e2869332">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -322,6 +322,7 @@
                             <a href="/festival/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
                             <a href="/festival/worldcup.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이 월드컵</a>
                             <a href="/festival/camping-worldcup.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">캠핑장 월드컵</a>
+                            <a href="/festival/pick.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">오늘 어디 갈까?</a>
                             <a href="/festival/roulette.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이·캠핑장·숲 룰렛</a>
                             <a href="/festival/poster.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 포스터</a>
                             <a href="/guides/index.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
@@ -371,6 +372,7 @@
                 <a href="/festival/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">아이랑 나들이 지도</a>
                 <a href="/festival/worldcup.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">나들이 월드컵</a>
                 <a href="/festival/camping-worldcup.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">캠핑장 월드컵</a>
+                <a href="/festival/pick.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">오늘 어디 갈까?</a>
                 <a href="/festival/roulette.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">나들이·캠핑장·숲 룰렛</a>
                 <a href="/festival/poster.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">축제 포스터</a>
                 <a href="/guides/index.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">게임공략</a>
@@ -485,13 +487,14 @@
             <a class="sh-link" href="/guides/index.html"><i>📖</i>게임공략</a>
         </nav>
 
-        <!-- [ADD] 2026-10-27: 오늘 어디 갈지 정하기 (나들이·캠핑장 월드컵, 룰렛) -->
+        <!-- [ADD] 2026-10-27: 오늘 어디 갈지 정하기 (나들이·캠핑장 월드컵, 룰렛, 오늘 어디 갈까?) -->
         <section class="sh-pick" aria-label="오늘 어디 갈지 정하기">
-            <div class="sh-pick-head"><b>오늘 어디 갈지 정하기</b><span>고르기 어려울 땐 대진표와 룰렛으로 정해 보세요</span></div>
+            <div class="sh-pick-head"><b>오늘 어디 갈지 정하기</b><span>고르기 어려울 땐 대진표·룰렛·코스 추천으로 정해 보세요</span></div>
             <div class="sh-pick-row">
                 <a class="sh-pick-card" href="/festival/worldcup.html"><i>🏆</i><span><b>아이랑 나들이 월드컵</b><em>가고 싶은 곳을 대진표로 골라요</em></span></a>
                 <a class="sh-pick-card" href="/festival/camping-worldcup.html"><i>⛺</i><span><b>캠핑장 월드컵</b><em>이번 주말 캠핑장을 대진표로 골라요</em></span></a>
                 <a class="sh-pick-card" href="/festival/roulette.html"><i>🎡</i><span><b>나들이·캠핑장·숲 룰렛</b><em>지역만 고르면 룰렛이 정해줘요</em></span></a>
+                <a class="sh-pick-card" href="/festival/pick.html"><i>🧭</i><span><b>오늘 어디 갈까?</b><em>하나씩 고르면 오늘의 코스를 짜줘요</em></span></a>
             </div>
         </section>
 
@@ -586,6 +589,7 @@
                         <a href="/blog/indoor-kids/">실내 나들이</a>
                         <a href="/festival/worldcup.html">나들이 월드컵</a>
                         <a href="/festival/camping-worldcup.html">캠핑장 월드컵</a>
+                        <a href="/festival/pick.html">오늘 어디 갈까?</a>
                         <a href="/festival/roulette.html">나들이·캠핑장·숲 룰렛</a>
                         <a href="/festival/poster.html">축제 포스터</a>
                     </div>
