@@ -1795,6 +1795,26 @@
         // <head>에서 CSS로 숨겨뒀던 정적 목록 대신 지금 막 그려진 내용(코스 카드 등)이
         // 바로 보이게 한다.
         document.documentElement.classList.remove('js-loading');
+        // [ADD] 2026-11-11: 상세 페이지의 "← 지도로 돌아가기"(?id=contentid&lat=..&lng=..)로 열리면 전국 화면이 아니라
+        // 그 장소 위치로 바로 이동하고 하단 상세 카드까지 띄운다. 코스 모드(기본)에선 그 장소의 핀이 없을 수 있어
+        // 목록 모드로 바꿔 핀이 보이게 한다. 번호가 데이터에 없으면(이미 끝난 축제 등) 주소의 lat/lng 로만 이동한다.
+        // 실패해도 지도는 그대로 쓸 수 있도록 try/catch 로 감싼다.
+        try {
+            const focusId = urlParams.get('id');
+            if (focusId) {
+                const focusItem = festivalData.find(function (f) { return String(f.contentid) === focusId; });
+                const fLat = focusItem ? Number(focusItem.lat) : Number(urlParams.get('lat'));
+                const fLng = focusItem ? Number(focusItem.lng) : Number(urlParams.get('lng'));
+                if (isFinite(fLat) && isFinite(fLng) && fLat && fLng) {
+                    if (courseModeActive) setCourseMode(false);
+                    map.relayout();
+                    map.setLevel(4);   // 클러스터(레벨 6 이상) 아래로 확대해야 핀이 낱개로 보인다
+                    map.setCenter(new kakao.maps.LatLng(fLat, fLng));
+                    if (focusItem) showFestivalCardSingle(focusItem);
+                    if (window.innerWidth <= 768 && typeof closeTodayPanel === 'function') closeTodayPanel();
+                }
+            }
+        } catch (e) { /* 위치 이동은 편의 기능 */ }
         };
         // [ADD] 2026-11-02: 행사시간(playTime)이 비어 있고 아직 안 끝난 축제는 상세 페이지의 "프로그램" 문구에서
         // 열리는 요일을 읽어 와야 코스가 맞게 나온다(몇 건뿐이라 동시에 읽고, 1.2초가 지나면 그냥 진행).
