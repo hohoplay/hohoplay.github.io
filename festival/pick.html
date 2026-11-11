@@ -1071,6 +1071,20 @@ function poolFor(ctx, place, P) {
         return openOn(it, ctx);
     });
 }
+// 바다·강으로 나뉘어 한 코스로 묶기 어려운 권역(섬·도서)을 구분한다. 같은 코스 안에서는 같은 권역끼리만 묶는다.
+function zoneOf(it) {
+    if (it._zone !== undefined) return it._zone;
+    const a = String(it.addr || '');
+    let z = 'main';
+    if (a.indexOf('강화군') >= 0) z = 'ganghwa';
+    else if (a.indexOf('옹진군') >= 0) z = 'ongjin';
+    else if (a.indexOf('울릉군') >= 0) z = 'ulleung';
+    else if (a.indexOf('신안군') >= 0) z = 'sinan';
+    else if (/안산시?\s*단원구/.test(a) && a.indexOf('대부') >= 0) z = 'daebu';
+    else if (a.indexOf('인천') === 0 && a.indexOf(' 중구') >= 0 && it.lng && it.lng < 126.59) z = 'yeongjong';   // 영종도(월미도·개항장은 바다 건너 본토 쪽)
+    it._zone = z;
+    return z;
+}
 function pickCourse(pool, n, rand, ctx, place, P) {
     const rain = P.rain;
     const seen = P.track ? S.seen : {};
@@ -1090,16 +1104,33 @@ function pickCourse(pool, n, rand, ctx, place, P) {
         return { it: it, s: s };
     }).sort(function (a, b) { return b.s - a.s; });
     if (!scored.length) return [];
-    const picked = [scored[0]];
-    const names = {}; names[normTitle(scored[0].it.title)] = 1;
+    // 한 코스는 한 생활권 안에서만 짠다(예: 강화면 강화, 영종도면 영종도 근처). 코스 안 모든 장소 사이 거리를 COURSE_MAX_KM 이내로 제한.
+    const COURSE_MAX_KM = 15;
+    function kmBetween(a, b) { return (a.lat && b.lat) ? haversineDistanceKm(a.lat, a.lng, b.lat, b.lng) : 999; }
+    // 시작 장소: 점수 높은 순으로 보되, 반경 안에 함께 갈 곳이 충분한 곳을 우선한다(없으면 1순위)
+    let start = scored[0];
+    if (n > 1) {
+        for (let i = 0; i < scored.length; i++) {
+            const c = scored[i]; const seenN = {}; seenN[normTitle(c.it.title)] = 1; let cnt = 0;
+            for (let j = 0; j < scored.length; j++) {
+                const o = scored[j]; if (o === c) continue;
+                const nm = normTitle(o.it.title); if (seenN[nm]) continue;
+                if (zoneOf(o.it) === zoneOf(c.it) && kmBetween(c.it, o.it) <= COURSE_MAX_KM) { seenN[nm] = 1; cnt++; }
+            }
+            if (cnt >= n - 1) { start = c; break; }
+        }
+    }
+    const picked = [start];
+    const names = {}; names[normTitle(start.it.title)] = 1;
     while (picked.length < n) {
-        const cx = picked.reduce(function (a, p) { return { lat: a.lat + (p.it.lat || 0) / picked.length, lng: a.lng + (p.it.lng || 0) / picked.length }; }, { lat: 0, lng: 0 });
         let best = null, bestScore = -1e9;
         scored.forEach(function (c) {
             if (picked.indexOf(c) >= 0 || names[normTitle(c.it.title)]) return;
-            const d = (c.it.lat && cx.lat) ? haversineDistanceKm(cx.lat, cx.lng, c.it.lat, c.it.lng) : 30;
-            if (d > 35) return;
-            let sc = c.s - d * 0.2;
+            if (zoneOf(c.it) !== zoneOf(start.it)) return;   // 섬·바다 건너 권역은 한 코스로 묶지 않음
+            let far = 0, sum = 0;
+            for (let i = 0; i < picked.length; i++) { const d = kmBetween(picked[i].it, c.it); if (d > far) far = d; sum += d; }
+            if (far > COURSE_MAX_KM) return;
+            let sc = c.s - (sum / picked.length) * 0.5;
             if (place === 'any' && !rain && picked.some(function (p) { return p.it.placeType === c.it.placeType; })) sc -= 0.8;
             if (sc > bestScore) { bestScore = sc; best = c; }
         });
@@ -1228,7 +1259,7 @@ function resultHtml() {
     else if (rainOn()) h += '<div class="pk-rnote">☔ 비 예보(강수확률 ' + W.maxPop + '%)가 있지만 실내 장소 위주라 괜찮아요.</div>';
     else if (W.state === 'clear') h += '<div class="pk-rnote">☀️ 비 걱정은 적어요(강수확률 ' + W.maxPop + '%).</div>';
     else if (W.state === 'unknown') h += '<div class="pk-rnote warn">날씨 예보를 가져오지 못했어요. 출발 전에 날씨를 한 번 확인해 주세요.</div>';
-    if (c.sched.length < (S.n || 1) && !S.shared) h += '<div class="pk-rnote warn">조건에 맞는 곳이 ' + c.sched.length + '곳뿐이었어요. 조건을 넓히면 더 보여드릴 수 있어요.</div>';
+    if (c.sched.length < (S.n || 1) && !S.shared) h += '<div class="pk-rnote warn">함께 다니기 좋은 가까운 곳(같은 권역·서로 약 15km 이내)이 ' + c.sched.length + '곳뿐이었어요. 다른 코스를 보거나 조건을 넓혀 보세요.</div>';
     h += '<div class="pk-actions">';
     if (!S.shared) h += '<button type="button" class="pk-btn pri" data-act="again">🔄 다른 코스 보기</button>';
     h += '<button type="button" class="pk-btn kakao" data-act="kakao">💬 카카오톡 공유</button><button type="button" class="pk-btn" data-act="copy">🔗 링크 복사</button>';
