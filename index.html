@@ -98,6 +98,28 @@
             .bn-prev { left: 18px; } .bn-next { right: 18px; }
         }
 
+        /* 첫 배너(아이랑 나들이 지도)는 고정, 나머지 3개는 아래 작은 슬라이드로 자동 넘김 */
+        .bn-hero { min-height: 280px; padding: 36px 26px 38px; }
+        .bn-mini { position: relative; margin-top: 10px; }
+        .bn-mini .bn-slide { min-height: 118px; padding: 16px 22px 34px; }
+        .bn-mini .bn-tag { margin-bottom: 8px; padding: 4px 11px; font-size: 11px; }
+        .bn-mini .bn-title { font-size: clamp(1.05rem, 4.6vw, 1.45rem); margin: 0 0 8px; }
+        .bn-mini .bn-sub { display: none; }
+        .bn-mini .bn-cta { padding: 7px 14px; font-size: 13px; }
+        .bn-mini .bn-deco { font-size: 96px; right: 8px; bottom: -14px; }
+        .bn-mini .bn-dots { bottom: 10px; }
+        .bn-mini .bn-dot { width: 6px; height: 6px; }
+        .bn-mini .bn-dot.on { width: 20px; }
+        @media (min-width: 768px) {
+            .bn-hero { border-radius: 28px; min-height: 340px; padding: 48px 72px 52px; }
+            .bn-mini { margin-top: 12px; }
+            .bn-mini .bn-track { border-radius: 22px; }
+            .bn-mini .bn-slide { min-height: 140px; padding: 22px 48px 38px; }
+            .bn-mini .bn-sub { display: block; font-size: .9rem; margin: 0 0 10px; }
+            .bn-mini .bn-title { font-size: 1.6rem; }
+            .bn-mini .bn-deco { font-size: 130px; right: 40px; bottom: -22px; }
+        }
+
         /* ═══ 검색 바 (배너 아래) ═══ */
         .sb-wrap { position: relative; z-index: 20; margin: 0 0 22px; scroll-margin-top: 96px; }
         .sb-label { display: flex; align-items: center; gap: 6px; margin: 0 6px 10px; font-size: 14px; font-weight: 900; color: #4c1d95; }
@@ -279,7 +301,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20261111162555_ab6efd32">
+  <meta name="build-version" content="20261111163342_648a95f4">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -381,58 +403,57 @@
         <h1 class="sr-only">호호플레이(HOHO PLAY) - 아이랑 주말 나들이 고민 해결 · 설치 없는 무료 웹게임</h1>
 
         <!-- 배너 슬라이드 -->
-        <section class="bn-wrap" aria-roledescription="carousel" aria-label="호호플레이 추천">
-            <div class="bn-track" id="bn-track">
-                <div class="bn-slide bn-s2" aria-label="1 / 4">
-                    <span class="bn-deco" aria-hidden="true">🎪</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🗺️ 아이랑 나들이 지도</span>
-                        <h2 class="bn-title">이번 주말,<br>아이랑 <em>어디 갈까요?</em></h2>
-                        <p class="bn-sub">전국의 축제와 가볼 만한 곳을 지도에서 지역별로 찾아보세요.</p>
-                        <div class="bn-btns"><a class="bn-cta" href="/festival/">지도 열기 →</a></div>
-                    </div>
-                </div>
-                <div class="bn-slide bn-s1" aria-label="2 / 4">
-                    <span class="bn-deco" aria-hidden="true">🔮</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🔮 오늘의 운세</span>
-                        <h2 class="bn-title">오늘의 운세 <em>모험</em>,<br>시작해 볼까요?</h2>
-                        <p class="bn-sub">오늘 하루를 모험처럼! 지금 바로 시작해 보세요.</p>
-                        <div class="bn-btns">
-                            <a class="bn-cta" href="/fortune-adventure.html">모험 시작하기 →</a>
-                            <a class="bn-cta ghost" href="/fortune/">오늘의 운세 보기</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="bn-slide bn-s3" aria-label="3 / 4">
-                    <span class="bn-deco" aria-hidden="true">🎮</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🎮 무료 웹게임</span>
-                        <h2 class="bn-title">설치 없이 바로 즐기는<br><em>웹게임 10종</em></h2>
-                        <p class="bn-sub">타이핑·퍼즐·러닝·레이싱까지, 가입 없이 브라우저에서 바로.</p>
-                        <div class="bn-btns"><a class="bn-cta" href="/game/">게임 하러 가기 →</a></div>
-                    </div>
-                </div>
-                <div class="bn-slide bn-s4" aria-label="4 / 4">
-                    <span class="bn-deco" aria-hidden="true">🗳️</span>
-                    <div class="bn-txt">
-                        <span class="bn-tag">🧠 이번 주 코너</span>
-                        <h2 class="bn-title">투표하고, <em>퀴즈</em> 풀고</h2>
-                        <p class="bn-sub">매주 새 주제로 열리는 익명투표와 5문제 상식테스트.</p>
-                        <div class="bn-btns">
-                            <a class="bn-cta" href="/vote/">익명투표 →</a>
-                            <a class="bn-cta ghost" href="/quiz/">상식테스트</a>
-                        </div>
-                    </div>
+        <section class="bn-wrap" aria-label="호호플레이 추천">
+            <div class="bn-slide bn-s2 bn-hero">
+                <span class="bn-deco" aria-hidden="true">🎪</span>
+                <div class="bn-txt">
+                    <span class="bn-tag">🗺️ 아이랑 나들이 지도</span>
+                    <h2 class="bn-title">이번 주말,<br>아이랑 <em>어디 갈까요?</em></h2>
+                    <p class="bn-sub">전국의 축제와 가볼 만한 곳을 지도에서 지역별로 찾아보세요.</p>
+                    <div class="bn-btns"><a class="bn-cta" href="/festival/">지도 열기 →</a></div>
                 </div>
             </div>
-            <button type="button" class="bn-arrow bn-prev" id="bn-prev" aria-label="이전 배너">&#10094;</button>
-            <button type="button" class="bn-arrow bn-next" id="bn-next" aria-label="다음 배너">&#10095;</button>
-            <div class="bn-dots" id="bn-dots">
-                <button type="button" class="bn-dot on" aria-label="배너 1"></button>
-                <button type="button" class="bn-dot" aria-label="배너 2"></button>
-                <button type="button" class="bn-dot" aria-label="배너 3"></button>
-                <button type="button" class="bn-dot" aria-label="배너 4"></button>
+            <div class="bn-mini" aria-roledescription="carousel" aria-label="호호플레이 더 보기">
+                <div class="bn-track" id="bn-track">
+                    <div class="bn-slide bn-s1" aria-label="1 / 3">
+                        <span class="bn-deco" aria-hidden="true">🔮</span>
+                        <div class="bn-txt">
+                            <span class="bn-tag">🔮 오늘의 운세</span>
+                            <h2 class="bn-title">오늘의 운세 <em>모험</em>,<br>시작해 볼까요?</h2>
+                            <p class="bn-sub">오늘 하루를 모험처럼! 지금 바로 시작해 보세요.</p>
+                            <div class="bn-btns">
+                                <a class="bn-cta" href="/fortune-adventure.html">모험 시작하기 →</a>
+                                <a class="bn-cta ghost" href="/fortune/">오늘의 운세 보기</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bn-slide bn-s3" aria-label="2 / 3">
+                        <span class="bn-deco" aria-hidden="true">🎮</span>
+                        <div class="bn-txt">
+                            <span class="bn-tag">🎮 무료 웹게임</span>
+                            <h2 class="bn-title">설치 없이 바로 즐기는<br><em>웹게임 10종</em></h2>
+                            <p class="bn-sub">타이핑·퍼즐·러닝·레이싱까지, 가입 없이 브라우저에서 바로.</p>
+                            <div class="bn-btns"><a class="bn-cta" href="/game/">게임 하러 가기 →</a></div>
+                        </div>
+                    </div>
+                    <div class="bn-slide bn-s4" aria-label="3 / 3">
+                        <span class="bn-deco" aria-hidden="true">🗳️</span>
+                        <div class="bn-txt">
+                            <span class="bn-tag">🧠 이번 주 코너</span>
+                            <h2 class="bn-title">투표하고, <em>퀴즈</em> 풀고</h2>
+                            <p class="bn-sub">매주 새 주제로 열리는 익명투표와 5문제 상식테스트.</p>
+                            <div class="bn-btns">
+                                <a class="bn-cta" href="/vote/">익명투표 →</a>
+                                <a class="bn-cta ghost" href="/quiz/">상식테스트</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bn-dots" id="bn-dots">
+                    <button type="button" class="bn-dot on" aria-label="배너 1"></button>
+                    <button type="button" class="bn-dot" aria-label="배너 2"></button>
+                    <button type="button" class="bn-dot" aria-label="배너 3"></button>
+                </div>
             </div>
         </section>
 
