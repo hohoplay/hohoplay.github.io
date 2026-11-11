@@ -9,7 +9,7 @@
        원본 = 메인 페이지 index.html 의 <nav>. 이걸 읽어서 대상 페이지의 <!-- HN_START --> ~ <!-- HN_END --> 구간에 다시 써 넣는다.
        메인 페이지는 메뉴를 버튼+자바스크립트(navigateTo 등)로 열지만 festival 페이지에는 그 함수가 없으므로,
        버튼은 같은 주소로 가는 일반 링크(<a href>)로 바꿔서 넣는다(모양·항목·순서는 그대로).
-       🔍 돋보기는 메인 페이지로 이동해 검색창 위치(/#sb-wrap)로 간다.
+       🔍 돋보기는 festival 페이지에서는 넣지 않는다(SHOW_SEARCH = False). 켜려면 True 로 바꾸면 메인 페이지 검색창(/#sb-wrap)으로 가는 돋보기가 들어간다.
        → 메인 페이지 메뉴를 바꿔 올리면(index.html 이 올라올 때 자동 실행) 5개 페이지 헤더도 똑같이 바뀐다.
        이 페이지들은 Tailwind 를 쓰지 않으므로, 헤더에 쓰인 클래스만 옮긴 CSS 를 <head> 의
        <!-- HN_CSS_START --> ~ <!-- HN_CSS_END --> 구간에 같이 넣는다.
@@ -18,7 +18,7 @@
   ③ 우하단 리모콘 버튼 지도·포스터·맨 위·홈 (<!-- FZ_REMOTE_START --> ~ <!-- FZ_REMOTE_END -->).
        '오늘 어디 갈까?'(pick.html)에 있던 옛 리모콘은 이것으로 합친다.
 
-  ④ 🔍 돋보기가 메인 페이지 검색창으로 이동했을 때 고정 헤더(높이 80px)에 가려지지 않도록,
+  ④ (SHOW_SEARCH = True 일 때만) 🔍 돋보기가 메인 페이지 검색창으로 이동했을 때 고정 헤더(높이 80px)에 가려지지 않도록,
        index.html 의 '.sb-wrap' 규칙에 scroll-margin-top: 96px 한 줄만 보정한다(이미 있으면 건드리지 않음).
 
   이미 들어간 구간은 새 내용으로 교체하므로 몇 번을 돌려도 결과가 같다.
@@ -37,6 +37,7 @@ SOURCE = 'index.html'
 PAGE_URL = {'index': '/game/', 'about': '/about/', 'fortune': '/fortune/', 'guide': '/guide/', 'blog': '/blog/',
             'terms': '/terms/', 'privacy': '/privacy/', 'copyright': '/copyright/', 'partner': '/partner/'}
 SEARCH_URL = '/#sb-wrap'
+SHOW_SEARCH = False   # True 로 바꾸면 🔍 돋보기를 festival 5개 페이지 헤더에 다시 넣는다(기본: 넣지 않음)
 TOGGLE_JS = """function toggleMenu() {
     var menu = document.getElementById('mobile-menu');
     var overlay = document.getElementById('menu-overlay');
@@ -207,6 +208,11 @@ def load_source():
     left = [x for x in re.findall(r'onclick="([^"]*)"', nav) if x.strip() != 'toggleMenu()']
     if bad or left:
         sys.exit('변환하지 못한 메뉴 동작이 있습니다: %s. 아무것도 고치지 않았습니다.' % sorted(set(bad + left)))
+    if not SHOW_SEARCH:
+        # 🔍 돋보기(주석 + 링크)를 빼고, 오른쪽 묶음에는 햄버거만 남긴다
+        nav, n = re.subn(r'[ \t]*<!-- 검색 바로가기 아이콘 -->\s*<a href="%s"[^>]*>[\s\S]*?</a>\s*' % re.escape(SEARCH_URL), '', nav, count=1)
+        if n != 1 or SEARCH_URL in nav:
+            sys.exit('index.html 에서 돋보기 아이콘을 찾지 못했습니다. 아무것도 고치지 않았습니다.')
     nav = nav.replace('<nav class="bg-white/80', '<nav class="hn-std bg-white/80', 1)
     return '<!-- HN_START -->\n' + nav + '\n' + ov.group(0) + '\n<script>\n' + TOGGLE_JS + '\n</script>\n<!-- HN_END -->'
 
@@ -266,6 +272,8 @@ def process(s, fname, kind, hn_block):
 
 def fix_home_anchor(dry):
     """메인 페이지 검색 바(.sb-wrap)가 /#sb-wrap 으로 열릴 때 고정 헤더에 가려지지 않게 한 줄만 보정한다."""
+    if not SHOW_SEARCH:
+        return                                   # 돋보기를 쓰지 않으면 메인 페이지는 건드리지 않는다
     p = os.path.join(ROOT, SOURCE)
     text = read(p)
     m = re.search(r'\.sb-wrap\s*\{([^}]*)\}', text)
