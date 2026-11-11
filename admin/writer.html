@@ -68,6 +68,12 @@
   .post-item button { padding: 6px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; }
   .post-item .editBtn { background: #e0e7ff; color: #3730a3; }
   .post-item .deleteBtn { background: #fee2e2; color: #b91c1c; }
+  /* [ADD] 2026-11-11: 글 번호 = 공개 주소의 html 번호(예: 34.html). 삭제 버튼 오른쪽 끝에 표시. */
+  .post-item .hid {
+    font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; text-decoration: none;
+    background: #f1f5f9; color: #475569; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, monospace;
+  }
+  .post-item .hid:hover { background: #e2e8f0; color: #1e293b; }
   #listMsg { font-size: 13px; color: #94a3b8; }
   #refreshBtn { background: #f1f5f9; color: #1e293b; font-size: 13px; padding: 8px 12px; margin-bottom: 12px; }
   #searchRow { display: flex; gap: 8px; margin-bottom: 12px; }
@@ -303,6 +309,12 @@ function highlightMatch(text, term) {
 // [ADD] 목록 렌더링을 공통 함수로 뺐다 — 평소 목록(loadPosts)과 검색 결과
 // (searchPosts)가 같은 카드 모양을 쓰되, 검색 결과에는 매칭된 본문 일부를
 // 강조해서 미리보기로 보여준다는 점만 다르다.
+// [ADD] 2026-11-11: 글 번호(id)가 곧 공개 페이지 파일 번호다. 매거진은 /blog/magazine/{id}.html,
+// 그 밖의 카테고리(공지사항·업데이트·게임소개)는 /blog/posts/{id}.html (generate_community_posts.py 와 같은 규칙).
+function postPagePath(p) {
+  return (p.category === '호호 매거진' ? '/blog/magazine/' : '/blog/posts/') + Number(p.id) + '.html';
+}
+
 function renderPostItems(posts, term) {
   return posts.map(p => {
     let snippet = '';
@@ -322,6 +334,7 @@ function renderPostItems(posts, term) {
         <span class="date">${formatDate(p.created_at)}</span>
         <button class="editBtn" onclick="editPost(${p.id})">수정</button>
         <button class="deleteBtn" onclick="deletePost(${p.id})">삭제</button>
+        <a class="hid" href="${postPagePath(p)}" target="_blank" rel="noopener" title="공개 주소: ${postPagePath(p)}">${Number(p.id)}.html</a>
         ${snippet}
       </div>
     `;
