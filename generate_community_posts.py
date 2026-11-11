@@ -191,7 +191,7 @@ SITE_HEADER_HTML = """<nav class="bg-white/80 backdrop-blur-md border-b sticky t
 # [CHANGE] 2026-11-10: 푸터 통일 — 매거진 목록 페이지가 옛 푸터를 통째로 박아 넣고 있어 다른 페이지와
 # 모양이 달랐음. 이제 모든 페이지와 같이 /footer.html 을 불러와 그 자리에 끼워 넣는다
 # (footer.html 은 PC용·모바일용 분리형, Tailwind 비의존).
-SITE_FOOTER_HTML = """<div id="footer-placeholder"></div>
+SITE_FOOTER_HTML = """<div id="footer-placeholder"><nav aria-label="사이트 정보" style="padding:24px 16px;text-align:center;font-size:13px;line-height:2;color:#64748b"><a href="/about/" style="color:#475569;text-decoration:none">호호플레이 소개</a> · <a href="/privacy/" style="color:#475569;text-decoration:none">개인정보처리방침</a> · <a href="/terms/" style="color:#475569;text-decoration:none">이용약관</a> · <a href="/copyright/" style="color:#475569;text-decoration:none">저작권·콘텐츠 정책</a> · <a href="/contact/" style="color:#475569;text-decoration:none">문의하기</a></nav></div>
 <script>
 fetch('/footer.html')
     .then(function (r) { return r.text(); })
