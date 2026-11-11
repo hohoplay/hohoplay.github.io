@@ -189,13 +189,41 @@
   .cmt .cc { font-size: 14px; color: #475569; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
   .cmt .ce { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
 </style>
+<!-- FZ_CSS_START -->
+<style>
+  .fz-nav { margin: 0 0 14px; padding: 12px 0 0; }
+  .fz-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 700; }
+  .fz-row a { color: #4f46e5; text-decoration: none; }
+  .fz-tabs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: thin; }
+  .fz-tab { flex: 0 0 auto; display: inline-block; white-space: nowrap; padding: 8px 14px; border-radius: 999px; border: 1px solid #e2e8f0; background: #fff; color: #475569; font-size: 13px; font-weight: 800; line-height: 1.2; text-decoration: none; }
+  .fz-tab:hover { background: #eef2ff; color: #3730a3; }
+  .fz-tab[aria-current="page"] { background: #4338ca; border-color: #4338ca; color: #fff; }
+  .fz-remote { position: fixed; right: 16px; bottom: 16px; z-index: 40; display: flex; flex-direction: column; gap: 10px; }
+  .fz-rbtn { width: 54px; height: 54px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.2); display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #333; font-size: 20px; line-height: 1; border: none; padding: 0; cursor: pointer; font-family: inherit; }
+  .fz-rbtn .lb { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
+  .fz-rbtn:hover { background: #eef2ff; }
+  html body { padding-bottom: 120px; }
+  @media (max-width: 640px) { .fz-remote { right: 12px; bottom: 12px; gap: 7px; } .fz-rbtn { width: 46px; height: 46px; font-size: 16px; } }
+</style>
+<!-- FZ_CSS_END -->
 </head>
 <body>
+<!-- FZ_REMOTE_START -->
+<div class="fz-remote" id="fzRemote">
+  <a class="fz-rbtn" href="/festival/" aria-label="아이랑 나들이 지도로 가기"><span>🗺️</span><span class="lb">지도</span></a>
+  <a class="fz-rbtn" href="/festival/poster.html" aria-label="축제 포스터로 가기"><span>🎪</span><span class="lb">포스터</span></a>
+  <button type="button" class="fz-rbtn" id="fzTopBtn" aria-label="맨 위로 올라가기" onclick="try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}"><span>⬆️</span><span class="lb">맨 위</span></button>
+  <a class="fz-rbtn" href="/" aria-label="홈으로 가기"><span>🏠</span><span class="lb">홈</span></a>
+</div>
+<!-- FZ_REMOTE_END -->
 <div class="wrap">
-  <div class="topbar">
-    <a href="/festival/">← 아이랑 나들이 지도</a>
-    <a href="/">🏠 홈</a>
-  </div>
+  <!-- FZ_NAV_START -->
+<nav class="fz-nav" aria-label="나들이 도구 메뉴">
+  <div class="fz-row"><a href="/festival/">← 아이랑 나들이 지도</a><a href="/">🏠 홈</a></div>
+  <div class="fz-tabs"><a class="fz-tab" href="/festival/worldcup.html" aria-current="page">🏆 나들이 월드컵</a><a class="fz-tab" href="/festival/camping-worldcup.html">⛺ 캠핑장 월드컵</a><a class="fz-tab" href="/festival/pick.html">🧭 오늘 어디 갈까?</a><a class="fz-tab" href="/festival/roulette.html">🎡 나들이·캠핑장·숲 룰렛</a><a class="fz-tab" href="/festival/poster.html">🎪 축제 포스터</a></div>
+</nav>
+<script>(function(){try{var a=document.querySelector(".fz-tab[aria-current]");if(a&&a.parentNode){a.parentNode.scrollLeft=Math.max(0,a.offsetLeft-16);}}catch(e){}})();</script>
+<!-- FZ_NAV_END -->
 
   <div class="hero">
     <h1>🏆 아이랑 나들이 월드컵</h1>
