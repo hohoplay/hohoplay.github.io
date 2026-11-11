@@ -319,11 +319,7 @@
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3">
 
-                    <!-- 검색 바로가기 아이콘 -->
-                    <a href="/#sb-wrap" aria-label="검색" class="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                    </a>
-                    <!-- 햄버거 버튼 (모바일) -->
+<!-- 햄버거 버튼 (모바일) -->
                     <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
                         <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
                         <span id="bar2" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
@@ -498,7 +494,7 @@ function toggleMenu() {
     <h2>자주 묻는 질문</h2>
     <div class="pk-faq"><b>Q. 오늘 쉬는 곳이 코스에 나오기도 하나요?</b><p>휴관 요일, 임시 휴관, 계절 운영 기간을 운영시간 문구에서 읽을 수 있는 곳은 미리 뺍니다. 다만 운영시간이 사람이 쓴 자유 문장이라 읽지 못하는 경우도 있고, 임시 휴무는 바뀔 수 있어요. 그런 곳은 "운영시간 확인 필요"로 표시하니, 출발 전에 전화나 공식 안내로 확인해 주세요.</p></div>
     <div class="pk-faq"><b>Q. 비 예보 알림이 휴대폰으로 오나요?</b><p>아니요. 푸시 알림은 아니고, 페이지를 열었을 때와 지역·날짜를 고를 때 예보를 불러와 맨 위 띠에 보여 드립니다. 예보를 불러오지 못하면 "예보를 가져오지 못했어요"라고 알려 드리고, 코스 추천은 그대로 쓸 수 있어요.</p></div>
-    <div class="pk-faq"><b>Q. 내 위치를 수집하나요?</b><p>"내 위치 근처로 찾기"나 "내 위치로 확인"을 눌렀을 때만 브라우저가 위치 허용을 물어봅니다. 날씨를 조회할 때는 위치를 약 10km 단위로 뭉뚱그려 사용하고, "이 지역 기억하기"를 켰을 때만 이 브라우저에 저장돼요. 댓글은 입력한 닉네임과 내용이 댓글 서버에 저장돼요.</p></div>
+    <div class="pk-faq"><b>Q. 내 위치를 수집하나요?</b><p>"내 위치 근처로 찾기"를 눌렀을 때만 브라우저가 위치 허용을 물어봅니다. 날씨를 조회할 때는 위치를 약 10km 단위로 뭉뚱그려 사용하고, "이 지역 기억하기"를 켰을 때만 이 브라우저에 저장돼요. 댓글은 입력한 닉네임과 내용이 댓글 서버에 저장돼요.</p></div>
     <div class="pk-faq"><b>Q. 결과가 적게 나오거나 아예 안 나와요.</b><p>지역에 등록된 장소가 적거나 그날 쉬는 곳이 많으면 그럴 수 있어요. "유료도 괜찮아요"나 "상관없어요"로 조건을 넓히거나 다른 날짜·지역을 골라 보세요. 가고 싶은 곳이 목록에 없다면 <a href="/contact/">문의 페이지</a>나 아래 댓글로 알려 주세요.</p></div>
     <div class="pk-faq"><b>Q. 근처 축제는 왜 어떤 날은 안 보이나요?</b><p>고른 날짜에 열리고 코스에서 반경 15km 안에 있는 축제만 보여 드립니다. 열리는 요일을 확인할 수 없는 축제는 틀린 날 안내를 막기 위해 넣지 않아서, 전체 축제는 <a href="/festival/">아이랑 나들이 지도</a>와 <a href="/festival/poster.html">축제 포스터</a>에서 확인하실 수 있어요.</p></div>
 
@@ -1139,7 +1135,6 @@ function renderWeather() {
         html = '<span class="pk-wico">🌥️</span><span class="pk-wtxt">' + (W.label ? esc(when) + ' ' + esc(W.label) + ' 예보를 아직 가져오지 못했어요. 출발 전에 날씨를 확인해 주세요.' : '날씨 정보를 가져오지 못했어요.') + '</span>';
     } else {
         html = '<span class="pk-wico">🌦️</span><span class="pk-wtxt">지역을 고르면 그 지역 비 예보를 알려드려요.</span>';
-        btn = '<button type="button" class="pk-wbtn ghost" data-act="myloc-weather">📍 내 위치로 확인</button>';
     }
     const showMem = (W.state !== 'none') && (S.where || W.pendingWhere);
     const mem = showMem ? '<label class="pk-wmem"><input type="checkbox" data-act="rem"' + (isRemember() ? ' checked' : '') + '><span>📌 이 지역 기억하기 <small>(이 기기에만 저장 · 켜 두면 다음에 열 때 바로 날씨를 알려드려요)</small></span></label>' : '';
@@ -1809,7 +1804,6 @@ document.addEventListener('click', function (e) {
     if (act === 'pick') { setAnswer(b.getAttribute('data-step'), b.getAttribute('data-val')); afterAnswer(b.getAttribute('data-step')); }
     else if (act === 'toggle') { const st = b.getAttribute('data-step'); S.open = (S.open === st && S[st]) ? null : st; S.course = null; render(); }
     else if (act === 'near') { useMyLocation(setNear); }
-    else if (act === 'myloc-weather') { useMyLocation(function (loc) { W.pendingWhere = { near: { lat: loc.lat, lng: loc.lng } }; refreshWeather({ pt: { lat: roundCoord(loc.lat), lng: roundCoord(loc.lng) }, label: '내 위치 근처' }); }); }
     else if (act === 'rainin') {
         if (!S.when) S.when = W.dateStr || defaultDate();
         if (!S.where && W.pt && W.pendingWhere) S.where = W.pendingWhere;
