@@ -469,6 +469,49 @@ def clean_play_time(raw):
 PLAY_TIME_MAX_NEW_PER_RUN = 70
 
 
+def classify_fee(text):
+    """[ADD] 2026-11-11: 상세페이지의 '이용요금' 문구를 무료/일부 유료/유료로 나눈다(판단이 안 되면 '').
+      free  = '무료'만 있고 금액·유료 표시가 없음   (예: 무료)
+      mixed = 무료로 시작하지만 일부 유료/금액이 함께 있음 (예: 무료(일부 프로그램 유료))
+      paid  = 금액(○○원)이나 '유료'가 있고 무료로 시작하지 않음 (예: 성인 12,000원)
+    """
+    t = re.sub(r'\s+', ' ', text or '').strip()
+    has_paid = bool(re.search(r'\d[\d,]*\s*원|유료', t))
+    has_free = '무료' in t
+    if has_free and not has_paid:
+        return 'free'
+    if has_paid and not has_free:
+        return 'paid'
+    if has_paid and has_free:
+        return 'mixed' if re.match(r'^[\s\-\[\]※]*(입장료\s*)?무료', t) else 'paid'
+    return ''
+
+
+def attach_fee_types(items, detail_dir=os.path.join('festival', 'detail')):
+    """[ADD] 2026-11-11: 축제 포스터 페이지가 '무료/유료'로 걸러 볼 수 있도록, 축제 항목마다 feeType 을 붙인다.
+    이미 만들어진 상세페이지(festival/detail/{contentid}.html)의 '이용요금' 값을 읽어 판단하며,
+    상세페이지가 없거나 판단이 안 되면 feeType 을 비워 둔다. 실패해도 다른 데이터에는 영향을 주지 않는다."""
+    n = 0
+    for it in items:
+        if it.get('type') != 'festival':
+            continue
+        it['feeType'] = ''
+        cid = it.get('contentid')
+        path = os.path.join(detail_dir, f'{cid}.html')
+        if not cid or not os.path.exists(path):
+            continue
+        try:
+            with open(path, 'r', encoding='utf-8') as fp:
+                page = fp.read()
+        except Exception:
+            continue
+        m = re.search(r'이용요금</div>\s*<div class="detail-value">(.*?)</div>', page, re.S)
+        if m:
+            it['feeType'] = classify_fee(html.unescape(re.sub(r'<[^>]+>', ' ', m.group(1))))
+            n += 1 if it['feeType'] else 0
+    print(f"축제 이용요금 구분(feeType) {n}건")
+
+
 def attach_play_times(festivals, prev_path=os.path.join('data', 'festivals.json')):
     """[ADD] 2026-11-01: 지도 코스에서 "이 행사는 몇 시에 끝나는지"를 계산할 수 있도록
     축제마다 playTime(행사 시간대 문구)을 붙인다.
@@ -1599,6 +1642,11 @@ def main():
     for it in all_map_items:
         cid = it.get('contentid')
         it['hasDetail'] = bool(cid) and os.path.exists(os.path.join(detail_dir, f'{cid}.html'))
+
+    try:
+        attach_fee_types(all_map_items)  # [ADD] 2026-11-11: 축제 포스터의 무료/유료 구분용
+    except Exception as e:
+        print(f"축제 이용요금 구분(feeType) 건너뜀: {e}")
 
     # repo 루트 기준 data/ 폴더에 저장 (workflow가 repo 루트에서 scripts/fetch_data.py로 실행하는 것을 전제)
     os.makedirs('data', exist_ok=True)
