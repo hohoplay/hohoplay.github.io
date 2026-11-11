@@ -25,6 +25,13 @@
   * { box-sizing: border-box; }
   html body { margin: 0; background: #f8fafc; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.6; }
   .pk-wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 40px; }
+  /* 리모콘 버튼(우하단 고정): 축제 포스터 · 맨 위로 · 홈 */
+  .pk-remote { position: fixed; right: 16px; bottom: 16px; z-index: 40; display: flex; flex-direction: column; gap: 10px; }
+  .pk-rbtn { width: 54px; height: 54px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.2); display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #333; font-size: 20px; line-height: 1; border: none; padding: 0; cursor: pointer; font-family: inherit; }
+  .pk-rbtn .lb { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
+  .pk-rbtn:hover { background: #eef2ff; }
+  .pk-wrap { padding-bottom: 150px; }
+  @media (max-width: 640px) { .pk-remote { right: 12px; bottom: 12px; gap: 7px; } .pk-rbtn { width: 46px; height: 46px; font-size: 16px; } }
   .pk-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 6px; font-size: 13px; }
   .pk-top a { color: #4f46e5; font-weight: 700; text-decoration: none; }
   .pk-h1 { font-size: 26px; font-weight: 900; margin: 6px 0 2px; letter-spacing: -0.02em; }
@@ -198,10 +205,14 @@
 </style>
 </head>
 <body>
+<div class="pk-remote" id="pkRemote">
+  <a class="pk-rbtn" href="/festival/poster.html" aria-label="축제 포스터로 가기"><span>🎪</span><span class="lb">포스터</span></a>
+  <button type="button" class="pk-rbtn" id="pkTopBtn" aria-label="맨 위로 올라가기" onclick="try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}"><span>⬆️</span><span class="lb">맨 위</span></button>
+  <a class="pk-rbtn" href="https://hohoplaylab.com/" aria-label="홈으로 가기"><span>🏠</span><span class="lb">홈</span></a>
+</div>
 <div class="pk-wrap">
   <div class="pk-top">
     <a href="/festival/">← 아이랑 나들이 지도</a>
-    <a href="/festival/poster.html">축제 포스터</a>
   </div>
   <h1 class="pk-h1">오늘 어디 갈까? 🧭</h1>
   <p class="pk-sub">질문 몇 개만 고르면 아이랑 갈 만한 곳을 코스로 골라드려요.</p>
