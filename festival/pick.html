@@ -41,6 +41,9 @@
   .pk-wbtn { border: 0; border-radius: 999px; padding: 7px 13px; font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: inherit; background: #1d4ed8; color: #fff; white-space: nowrap; }
   .pk-wbtn.ghost { background: #fff; color: #334155; border: 1px solid #cbd5e1; }
   .pk-wnote { margin: -8px 0 14px; font-size: 11.5px; color: #94a3b8; }
+  .pk-wnote:empty { display: none; }
+  .pk-wmem { flex: 1 1 100%; display: flex; align-items: flex-start; gap: 7px; font-size: 12px; font-weight: 600; color: #64748b; cursor: pointer; line-height: 1.45; }
+  .pk-wmem input { margin-top: 2px; width: 15px; height: 15px; flex: 0 0 auto; accent-color: #4f46e5; }
 
   /* 한 줄 입력 */
   .pk-say { display: flex; gap: 8px; margin: 0 0 16px; }
@@ -122,6 +125,36 @@
   .pk-chk label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
   .pk-chk input { margin-top: 4px; width: 17px; height: 17px; flex: 0 0 auto; accent-color: #4f46e5; }
   .pk-chk input:checked + span { color: #94a3b8; text-decoration: line-through; }
+  /* 샘플 결과 */
+  .pk-sbanner { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; border-radius: 14px; padding: 11px 14px; font-size: 13px; font-weight: 700; line-height: 1.55; word-break: keep-all; }
+  .pk-sbanner b { font-weight: 900; }
+  .pk-sample .pk-timeline { margin-top: 12px; }
+  /* 댓글 */
+  .pk-cin { display: flex; flex-direction: column; gap: 8px; margin: 0 0 16px; }
+  .pk-cin input, .pk-cin textarea { padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-weight: 500; outline: none; font-family: inherit; box-sizing: border-box; width: 100%; color: #1e293b; background: #fff; }
+  .pk-cin input { font-weight: 600; }
+  .pk-cin textarea { resize: vertical; }
+  .pk-cin input:focus, .pk-cin textarea:focus { border-color: #a5b4fc; }
+  .pk-cfoot { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+  .pk-cfoot span { font-size: 12px; color: #94a3b8; }
+  .pk-cfoot button { padding: 9px 20px; border: 0; border-radius: 10px; background: #4f46e5; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .pk-cfoot button:disabled { opacity: .6; cursor: default; }
+  .pk-clist { display: flex; flex-direction: column; gap: 10px; }
+  .pk-cmsg { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
+  /* 🧸 이 근처 나들이픽 */
+  .pk-np-sub { font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 0 0 14px; word-break: keep-all; }
+  .pk-np-list { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .pk-np-list li { border-top: 0; padding: 0; }
+  .pk-np-item { display: block; text-decoration: none; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; background: #f8fafc; color: inherit; }
+  .pk-np-item:hover { border-color: #a5b4fc; background: #eef2ff; }
+  .pk-np-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .pk-np-name { font-size: 14px; font-weight: 800; color: #111; line-height: 1.4; word-break: keep-all; }
+  .pk-np-dist { flex: 0 0 auto; font-size: 12px; font-weight: 800; color: #4f46e5; white-space: nowrap; padding-top: 1px; }
+  .pk-np-desc { font-size: 12.5px; color: #475569; line-height: 1.5; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pk-np-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .pk-np-tag { font-size: 11px; font-weight: 700; color: #475569; background: #e2e8f0; border-radius: 999px; padding: 2px 8px; }
+  .pk-np-tag.free { color: #047857; background: #d1fae5; }
+  .pk-np-tag.warn { color: #b45309; background: #fef3c7; }
   .pk-empty { margin: 16px 0; padding: 22px 16px; text-align: center; color: #475569; background: #fff; border: 1px dashed #cbd5e1; border-radius: 14px; font-size: 14px; word-break: keep-all; }
   .pk-loading { margin: 30px 0; text-align: center; color: #94a3b8; font-size: 14px; }
   .pk-foot { margin: 22px 0 0; font-size: 12px; color: #94a3b8; line-height: 1.7; }
@@ -149,6 +182,20 @@
   </form>
 
   <div id="pk-root"><div class="pk-loading">장소 정보를 불러오는 중…</div></div>
+
+  <!-- 댓글: 장소 상세페이지와 같은 댓글 서버(old-rain-16f7 Worker /comments)를 쓰고, 이 페이지 전용 id(festival-pick)로 모아 둔다. -->
+  <div class="pk-box" id="pk-cmtbox">
+    <h3>💬 댓글</h3>
+    <div class="pk-cin">
+      <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20">
+      <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"></textarea>
+      <div class="pk-cfoot"><span id="cmt-status"></span><button id="cmt-submit" type="button" onclick="submitComment()">등록</button></div>
+    </div>
+    <div id="cmt-list" class="pk-clist"><div class="pk-cmsg">댓글을 불러오는 중...</div></div>
+  </div>
+
+  <!-- 🧸 이 근처 나들이픽: 보고 있는 코스의 첫 장소 가까이에서 갈 만한 곳 5곳(상세페이지의 나들이픽과 같은 규칙) -->
+  <div class="pk-box" id="pk-nearby" style="display:none"></div>
 
   <p class="pk-foot">
     장소 정보(운영시간·요금)는 확인 시점 기준이라 바뀔 수 있어요. 출발 전에 한 번 더 확인해 주세요.
@@ -630,6 +677,13 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+// 지역 기억은 사용자가 "이 지역 기억하기"를 켰을 때만 한다(기본은 기억 안 함).
+function isRemember() { return lsGet('pk_remember') === '1'; }
+function saveWhere(w) {
+    if (!isRemember() || !w) return;
+    lsSet('pk_w', JSON.stringify(w.near ? { near: { lat: roundCoord(w.near.lat), lng: roundCoord(w.near.lng) } } : { key: w.key }));
+}
 
 /* ═══ 지역 ═══ */
 const REGIONS = [
@@ -759,8 +813,10 @@ function renderWeather() {
         html = '<span class="pk-wico">🌦️</span><span class="pk-wtxt">지역을 고르면 그 지역 비 예보를 알려드려요.</span>';
         btn = '<button type="button" class="pk-wbtn ghost" data-act="myloc-weather">📍 내 위치로 확인</button>';
     }
+    const showMem = (W.state !== 'none') && (S.where || W.pendingWhere);
+    const mem = showMem ? '<label class="pk-wmem"><input type="checkbox" data-act="rem"' + (isRemember() ? ' checked' : '') + '><span>📌 이 지역 기억하기 <small>(이 기기에만 저장 · 켜 두면 다음에 열 때 바로 날씨를 알려드려요)</small></span></label>' : '';
     el.className = 'pk-weather ' + cls;
-    el.innerHTML = html + btn;
+    el.innerHTML = html + btn + mem;
     note.textContent = '';
 }
 let weatherSeq = 0;
@@ -769,10 +825,7 @@ function refreshWeather(opts) {
     const cw = opts.pt ? { pt: opts.pt, label: opts.label } : currentWeatherPoint();
     if (!cw || !cw.pt) { if (!W.pt) { W.state = 'none'; renderWeather(); } return Promise.resolve(); }
     const dateStr = S.when || defaultDate();
-    if (!opts.pt && S.where) {   // 고른 지역을 기억해 두었다가 다음에 열 때 바로 비 예보를 알려준다
-        lsSet('pk_w', JSON.stringify(S.where.near ? { near: { lat: roundCoord(S.where.near.lat), lng: roundCoord(S.where.near.lng) } } : { key: S.where.key }));
-        W.pendingWhere = S.where;
-    }
+    if (!opts.pt && S.where) { W.pendingWhere = S.where; saveWhere(S.where); }   // 기억하기가 켜져 있을 때만 저장
     W.pt = cw.pt; W.label = cw.label; W.dateStr = dateStr; W.state = 'loading'; renderWeather();
     const my = ++weatherSeq;
     return fetchWeather(cw.pt).then(function (data) {
@@ -868,7 +921,6 @@ function buildCtx(dateStr) {
     const startMin = isToday ? Math.max(CT_DAY_START, Math.ceil(ctKstNowMin() / 30) * 30) : CT_DAY_START;
     return { dow: dObj.getUTCDay(), month: dObj.getUTCMonth() + 1, startMin: startMin, dateStr: dateStr, isToday: isToday };
 }
-function effectivePlace() { return (S.place === 'any' && rainOn()) ? 'in' : S.place; }
 function placeOk(it, p) {
     const t = it.placeType;
     if (p === 'in') return t === '실내' || t === '실내외';
@@ -885,17 +937,18 @@ function openOn(it, ctx) {
     if (ctx.isToday && win.known && !win.allDay && win.close - getStayMin(it) < ctx.startMin) return false;   // 오늘 이미 문 닫는 곳
     return true;
 }
-function poolFor(ctx, place) {
+function poolFor(ctx, place, P) {
     return items.filter(function (it) {
-        if (S.where.near) { if (!it.lat || haversineDistanceKm(S.where.near.lat, S.where.near.lng, it.lat, it.lng) > 25) return false; }
-        else if (it._rk !== S.where.key) return false;
+        if (P.where.near) { if (!it.lat || haversineDistanceKm(P.where.near.lat, P.where.near.lng, it.lat, it.lng) > 25) return false; }
+        else if (it._rk !== P.where.key) return false;
         if (!placeOk(it, place)) return false;
-        if (S.cost === 'free' && it.costTag !== '완전무료') return false;
+        if (P.cost === 'free' && it.costTag !== '완전무료') return false;
         return openOn(it, ctx);
     });
 }
-function pickCourse(pool, n, rand, ctx, place) {
-    const rain = rainOn();
+function pickCourse(pool, n, rand, ctx, place, P) {
+    const rain = P.rain;
+    const seen = P.track ? S.seen : {};
     const scored = pool.map(function (it) {
         let s = 0;
         if (it.image) s += 3;
@@ -907,7 +960,7 @@ function pickCourse(pool, n, rand, ctx, place) {
         if (rain && it.placeType === '실외') s -= 3;
         if (it.ageWarning) s -= 1;
         if (!isPreciseCoord(it)) s -= 2;
-        if (S.seen[it.contentid]) s -= 5;
+        if (seen[it.contentid]) s -= 5;
         s += rand() * 3;
         return { it: it, s: s };
     }).sort(function (a, b) { return b.s - a.s; });
@@ -930,17 +983,24 @@ function pickCourse(pool, n, rand, ctx, place) {
     }
     return picked.map(function (p) { return p.it; });
 }
-function makeCourse() {
-    const ctx = buildCtx(S.when);
-    const place = effectivePlace();
-    let pool = poolFor(ctx, place);
+// P: { when, where, place, cost, n, seed, rain, track } — track=true 면 "다른 코스 보기"용으로 이미 보여준 시작 장소를 기억한다.
+function makeCourse(P) {
+    P = P || { when: S.when, where: S.where, place: S.place, cost: S.cost, n: S.n, seed: S.seed, rain: rainOn(), track: true };
+    const ctx = buildCtx(P.when);
+    const place = (P.place === 'any' && P.rain) ? 'in' : P.place;
+    let pool = poolFor(ctx, place, P);
     let widened = false;
-    if (pool.length < S.n && S.place === 'any' && place === 'in') { pool = poolFor(ctx, 'any'); widened = true; }
-    const rand = mulberry32(S.seed * 7919 + parseInt(S.when.slice(4), 10) + 17);
-    const chosen = pickCourse(pool, S.n, rand, ctx, widened ? 'any' : place);
-    if (chosen.length) S.seen[chosen[0].contentid] = 1;
+    if (pool.length < P.n && P.place === 'any' && place === 'in') { pool = poolFor(ctx, 'any', P); widened = true; }
+    const rand = mulberry32(P.seed * 7919 + parseInt(P.when.slice(4), 10) + 17);
+    const chosen = pickCourse(pool, P.n, rand, ctx, widened ? 'any' : place, P);
+    if (P.track && chosen.length) S.seen[chosen[0].contentid] = 1;
     const sched = chosen.length ? scheduleCourseItems(chosen, ctx) : [];
     return { sched: sched, ctx: ctx, poolSize: pool.length, place: place, widened: widened };
+}
+// 샘플: 질문에 아직 답하지 않았을 때 보여주는 3곳 예시 코스(날씨와 무관). 고른 지역·날짜·조건이 있으면 그걸 따른다.
+function sampleCourse() {
+    let where = S.where || (isRemember() ? W.pendingWhere : null) || { key: 'gyeonggi' };
+    return makeCourse({ when: S.when || defaultDate(), where: where, place: S.place || 'any', cost: S.cost || 'paid', n: 3, seed: 0, rain: false, track: false });
 }
 
 /* ═══ 결과 화면 ═══ */
@@ -1047,7 +1107,7 @@ function resultHtml() {
     h += '<div class="pk-actions">';
     if (!S.shared) h += '<button type="button" class="pk-btn pri" data-act="again">🔄 다른 코스 보기</button>';
     h += '<button type="button" class="pk-btn kakao" data-act="kakao">💬 카카오톡 공유</button><button type="button" class="pk-btn" data-act="copy">🔗 링크 복사</button>';
-    h += '<a class="pk-btn" href="/festival/">🗺 지도로 보기</a><button type="button" class="pk-btn" data-act="reset">' + (S.shared ? '나도 골라보기' : '처음부터') + '</button></div>';
+    h += '<a class="pk-btn" href="' + esc(mapUrl()) + '">🗺 이 코스 지도로 보기</a><button type="button" class="pk-btn" data-act="reset">' + (S.shared ? '나도 골라보기' : '처음부터') + '</button></div>';
     h += '<ol class="pk-timeline" style="list-style:none;margin:14px 0 0;padding:0">';
     c.sched.forEach(function (row, i) { h += itemHtml(row, i, near); if (i < c.sched.length - 1) h += legHtml(row); });
     h += '</ol>';
@@ -1063,6 +1123,16 @@ function resultHtml() {
 }
 
 /* ═══ 그리기 ═══ */
+function sampleHtml(c) {
+    if (!c || !c.sched.length) return '';
+    const where = S.where || (isRemember() ? W.pendingWhere : null) || { key: 'gyeonggi' };
+    const near = where.near || null;
+    let h = '<div class="pk-res pk-sample" id="pk-sample"><div class="pk-sbanner"><b>👀 샘플 결과</b> · ' + esc(whereLabel(where)) + ' · ' + c.sched.length + '곳 코스 예시예요. 위 질문에 답하면 내 조건으로 만들어 드려요.</div>';
+    h += '<ol class="pk-timeline" style="list-style:none;margin:12px 0 0;padding:0">';
+    c.sched.forEach(function (row, i) { h += itemHtml(row, i, near); if (i < c.sched.length - 1) h += legHtml(row); });
+    h += '</ol></div>';
+    return h;
+}
 function render() {
     const root = document.getElementById('pk-root');
     if (!items.length) return;
@@ -1070,11 +1140,125 @@ function render() {
     if (S.shared) { if (!S.course) S.course = sharedCourse(); }
     else if (allAnswered() && !S.open) { if (!S.course) S.course = makeCourse(); }
     else S.course = null;
-    if (S.course) h += resultHtml();
+    let shown = null;
+    if (S.course) { h += resultHtml(); shown = S.course; }
+    else if (!S.shared) { shown = sampleCourse(); h += sampleHtml(shown); }
     root.innerHTML = h;
+    renderNearby(shown);
 }
 function invalidate() { S.course = null; S.seed = 0; S.seen = {}; S.shared = null; }
 function scrollToEl(sel) { const el = document.querySelector(sel); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+/* ═══ 🧸 이 근처 나들이픽 (장소 상세페이지의 nearby-pick.js 와 같은 규칙) ═══
+   보고 있는 코스의 첫 장소 가까이에서 갈 만한 곳 5곳. 반경 10km, 모자라면 25km. 그날 쉬는 곳·코스에 이미 든 곳은 뺀다.
+   운영시간을 모르는 곳은 거리에 2km를 더해 뒤로 민다. 같은 좌표는 최대 2곳. 전부 실내/실외면 마지막 자리를 반대 유형으로 바꾼다. */
+function pickNearbyOf(anchor, ctx, excludeIds) {
+    const cands = [];
+    items.forEach(function (p) {
+        if (p.contentid === anchor.contentid || excludeIds[p.contentid] || p.title === anchor.title || !p.lat || !p.lng) return;
+        if (!openOn(p, ctx)) return;
+        const km = haversineDistanceKm(anchor.lat, anchor.lng, p.lat, p.lng);
+        const hoursKnown = !(!String(p.hours || '').trim() || /확인되지\s*않|확인\s*필요/.test(p.hours || ''));
+        cands.push({ p: p, km: km, rank: km + (hoursKnown ? 0 : 2), hoursKnown: hoursKnown });
+    });
+    cands.sort(function (a, b) { return a.rank - b.rank || a.km - b.km; });
+    let radius = 10, pool = cands.filter(function (c) { return c.km <= 10; });
+    if (pool.length < 5) { radius = 25; pool = cands.filter(function (c) { return c.km <= 25; }); }
+    const per = {};
+    pool = pool.filter(function (c) { const k = c.p.lat.toFixed(4) + ',' + c.p.lng.toFixed(4); per[k] = (per[k] || 0) + 1; return per[k] <= 2; });
+    const picks = pool.slice(0, 5);
+    if (picks.length === 5) {
+        const ind = picks.filter(function (c) { return c.p.placeType === '실내'; }).length;
+        const outd = picks.filter(function (c) { return c.p.placeType === '실외'; }).length;
+        const want = ind === 5 ? '실외' : (outd === 5 ? '실내' : null);
+        if (want) for (let i = 5; i < pool.length; i++) if (pool[i].p.placeType === want) { picks[4] = pool[i]; break; }
+    }
+    picks.sort(function (a, b) { return a.km - b.km; });
+    return { picks: picks, radius: radius };
+}
+function fmtDist(km) {
+    if (km < 0.1) return '바로 근처';
+    if (km < 1) return Math.round(km * 10) * 100 + 'm';
+    return (Math.round(km * 10) / 10).toFixed(1) + 'km';
+}
+function renderNearby(course) {
+    const box = document.getElementById('pk-nearby');
+    if (!box) return;
+    if (!course || !course.sched || !course.sched.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const anchor = course.sched[0].item;
+    const ex = {}; course.sched.forEach(function (r) { ex[r.item.contentid] = 1; });
+    const res = pickNearbyOf(anchor, course.ctx, ex);
+    if (!res.picks.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    let h = '<h3>🧸 이 근처 나들이픽</h3><p class="pk-np-sub">코스 첫 장소 ' + esc(anchor.title) + ' 가까이에서 아이랑 가볼 만한 곳이에요. ' + ctDowChar(course.ctx.dow) + '요일에 쉬는 곳은 뺐어요.' + (res.radius > 10 ? ' 가까운 곳이 적어서 ' + res.radius + 'km까지 넓혀 찾았어요.' : '') + '</p><ul class="pk-np-list">';
+    res.picks.forEach(function (c) {
+        const p = c.p; let tags = '';
+        if (p.placeType) tags += '<span class="pk-np-tag">' + esc(p.placeType) + '</span>';
+        if (p.costTag === '완전무료') tags += '<span class="pk-np-tag free">무료</span>';
+        else if (p.costTag === '유료') tags += '<span class="pk-np-tag">유료</span>';
+        else if (p.costTag === '유료(일부 무료 조건 있음)') tags += '<span class="pk-np-tag">일부 무료</span>';
+        else tags += '<span class="pk-np-tag warn">요금 확인 필요</span>';
+        if (!c.hoursKnown) tags += '<span class="pk-np-tag warn">운영시간 확인 필요</span>';
+        h += '<li><a class="pk-np-item" href="/festival/detail/' + encodeURIComponent(p.contentid) + '.html"><div class="pk-np-top"><div class="pk-np-name">' + esc(p.title) + '</div><div class="pk-np-dist">' + fmtDist(c.km) + '</div></div>' + (p.desc ? '<div class="pk-np-desc">' + esc(p.desc) + '</div>' : '') + '<div class="pk-np-tags">' + tags + '</div></a></li>';
+    });
+    h += '</ul>';
+    box.innerHTML = h; box.style.display = '';
+}
+
+/* ═══ 댓글 (장소 상세페이지와 같은 댓글 서버 · 이 페이지 전용 id) ═══ */
+const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+const CMT_GAME_ID = 'festival-pick';
+function cmtEscapeHtml(str) { const d = document.createElement('div'); d.innerText = str; return d.innerHTML; }
+function formatCmtTime(ts) {
+    const diff = Date.now() - ts;
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return '방금 전';
+    if (min < 60) return min + '분 전';
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return hr + '시간 전';
+    const day = Math.floor(hr / 24);
+    if (day < 7) return day + '일 전';
+    return new Date(ts).toLocaleDateString('ko-KR');
+}
+async function loadComments() {
+    const list = document.getElementById('cmt-list');
+    try {
+        const res = await fetch(COMMENTS_API + '?game_id=' + CMT_GAME_ID);
+        const data = await res.json();
+        if (!data.comments || data.comments.length === 0) {
+            list.innerHTML = '<div class="pk-cmsg">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
+            return;
+        }
+        list.innerHTML = data.comments.map(function (c) {
+            return '<div style="padding:12px 14px;background:#f8fafc;border-radius:12px">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+                '<span style="font-weight:800;font-size:13px;color:#334155">' + cmtEscapeHtml(c.nickname) + '</span>' +
+                '<span style="font-size:11px;color:#94a3b8">' + formatCmtTime(c.created_at) + '</span></div>' +
+                '<div style="font-size:14px;color:#475569;line-height:1.6;word-break:break-word">' + cmtEscapeHtml(c.content) + '</div></div>';
+        }).join('');
+    } catch (e) {
+        list.innerHTML = '<div class="pk-cmsg" style="color:#f87171">댓글을 불러오지 못했어요.</div>';
+    }
+}
+async function submitComment() {
+    const nicknameEl = document.getElementById('cmt-nickname');
+    const contentEl = document.getElementById('cmt-content');
+    const statusEl = document.getElementById('cmt-status');
+    const btn = document.getElementById('cmt-submit');
+    const nickname = nicknameEl.value.trim();
+    const content = contentEl.value.trim();
+    if (!nickname || !content) { statusEl.textContent = '닉네임과 댓글을 모두 입력해주세요'; statusEl.style.color = '#f87171'; return; }
+    btn.disabled = true; statusEl.textContent = '등록 중...'; statusEl.style.color = '#94a3b8';
+    try {
+        const res = await fetch(COMMENTS_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game_id: CMT_GAME_ID, nickname: nickname, content: content }) });
+        const data = await res.json();
+        if (!res.ok) { statusEl.textContent = data.error || '등록에 실패했어요'; statusEl.style.color = '#f87171'; btn.disabled = false; return; }
+        contentEl.value = ''; statusEl.textContent = '등록됐어요!'; statusEl.style.color = '#22c55e';
+        await loadComments();
+        setTimeout(function () { statusEl.textContent = ''; btn.disabled = false; }, 30000);
+    } catch (e) {
+        statusEl.textContent = '네트워크 오류가 발생했어요'; statusEl.style.color = '#f87171'; btn.disabled = false;
+    }
+}
 
 /* ═══ 동작 ═══ */
 function toast(msg) {
@@ -1091,7 +1275,6 @@ function setAnswer(step, val) {
 function afterAnswer(step) {
     invalidate();
     S.open = null;
-    if (step === 'where' && S.where && !S.where.near) lsSet('pk_w', JSON.stringify({ key: S.where.key }));
     if (step === 'where' || step === 'when') { render(); refreshWeather(); return; }
     render();
     if (allAnswered()) scrollToEl('#pk-res');
@@ -1105,7 +1288,6 @@ function useMyLocation(then) {
 }
 function setNear(loc) {
     S.where = { near: { lat: loc.lat, lng: loc.lng } };
-    lsSet('pk_w', JSON.stringify({ near: { lat: roundCoord(loc.lat), lng: roundCoord(loc.lng) } }));
     afterAnswer('where');
 }
 function sharedCourse() {
@@ -1116,6 +1298,11 @@ function sharedCourse() {
 function courseUrl() {
     const c = S.course;
     return location.origin + '/festival/pick.html?d=' + c.ctx.dateStr + '&ids=' + c.sched.map(function (r) { return encodeURIComponent(r.item.contentid); }).join(',');
+}
+// 지도 페이지(/festival/)가 이 코스를 번호 핀으로 바로 보여주는 주소: ?region=…&date=…&pick=id,id,…
+function mapUrl() {
+    const c = S.course, first = c.sched[0].item;
+    return '/festival/?' + (first._rk ? 'region=' + first._rk + '&' : '') + 'date=' + c.ctx.dateStr + '&pick=' + c.sched.map(function (r) { return encodeURIComponent(r.item.contentid); }).join(',');
 }
 function courseText() {
     const c = S.course;
@@ -1203,7 +1390,7 @@ document.addEventListener('click', function (e) {
     if (act === 'pick') { setAnswer(b.getAttribute('data-step'), b.getAttribute('data-val')); afterAnswer(b.getAttribute('data-step')); }
     else if (act === 'toggle') { const st = b.getAttribute('data-step'); S.open = (S.open === st && S[st]) ? null : st; S.course = null; render(); }
     else if (act === 'near') { useMyLocation(setNear); }
-    else if (act === 'myloc-weather') { useMyLocation(function (loc) { refreshWeather({ pt: { lat: roundCoord(loc.lat), lng: roundCoord(loc.lng) }, label: '내 위치 근처' }); }); }
+    else if (act === 'myloc-weather') { useMyLocation(function (loc) { W.pendingWhere = { near: { lat: loc.lat, lng: loc.lng } }; refreshWeather({ pt: { lat: roundCoord(loc.lat), lng: roundCoord(loc.lng) }, label: '내 위치 근처' }); }); }
     else if (act === 'rainin') {
         if (!S.when) S.when = W.dateStr || defaultDate();
         if (!S.where && W.pt && W.pendingWhere) S.where = W.pendingWhere;
@@ -1219,6 +1406,13 @@ document.addEventListener('change', function (e) {
     if (t && t.id === 'pk-date' && t.value) {
         const d = t.value.replace(/-/g, '');
         if (d >= ctKstTodayStr()) { setAnswer('when', d); afterAnswer('when'); }
+    } else if (t && t.getAttribute && t.getAttribute('data-act') === 'rem') {
+        if (t.checked) { lsSet('pk_remember', '1'); saveWhere(S.where || W.pendingWhere); toast('이 지역을 기억할게요. 끄면 바로 지워져요.'); }
+        else {
+            lsSet('pk_remember', '0'); lsDel('pk_w');
+            if (!S.where) { weatherSeq++; W.pt = null; W.pendingWhere = null; W.state = 'none'; renderWeather(); render(); }
+            toast('지역 기억을 껐어요.');
+        }
     } else if (t && t.getAttribute && t.getAttribute('data-act') === 'chk') {
         const st = checkState(); st[t.getAttribute('data-key')] = t.checked ? 1 : 0; lsSet('pk_check', JSON.stringify(st));
     }
@@ -1245,7 +1439,9 @@ function init(list) {
     }
     // 열자마자 날씨 알림: 저번에 고른 지역이 있으면 그 지역의 비 예보를 바로 보여준다.
     render();
-    let saved = null; try { saved = JSON.parse(lsGet('pk_w') || 'null'); } catch (e) {}
+    let saved = null;
+    if (isRemember()) { try { saved = JSON.parse(lsGet('pk_w') || 'null'); } catch (e) {} }
+    else lsDel('pk_w');   // 예전 버전이 저장해 둔 지역이 있으면 지운다(이제는 켠 사람만 기억)
     if (saved && saved.key && REGION_BY_KEY[saved.key]) {
         const pt = weatherPointOfRegion(saved.key);
         if (pt) { W.pendingWhere = { key: saved.key }; refreshWeather({ pt: pt, label: REGION_BY_KEY[saved.key].l }); }
@@ -1255,6 +1451,7 @@ function init(list) {
     } else { renderWeather(); }
 }
 renderWeather();
+loadComments();
 fetch('/data/kids_places.json', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
     .then(function (data) { init(Array.isArray(data) ? data : (data.places || [])); })

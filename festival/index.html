@@ -1783,6 +1783,10 @@
             courseAutoNext = true;
             updateCourseDateBar();
         }
+        // [ADD] 2026-11-11: "오늘 어디 갈까?"(/festival/pick.html)의 "지도로 보기" — ?pick=kids-0001,kids-0002 처럼 열면
+        // 코스 목록이 처음 그려진 직후(날씨 확인 뒤에 그려질 수도 있어서 drawCoursePanel 끝에서) 그 장소들을
+        // 방문 순서대로 번호 핀 코스 화면으로 보여준다(?region=, ?date= 는 이 위에서 이미 적용됨).
+        pendingPickIds = (courseModeActive && urlParams.get('pick')) || null;
         if (regionParam && (REGION_ORDER.indexOf(regionParam) !== -1 || isCityRegion(regionParam))) {
             filterRegion(regionParam);
         } else {
@@ -3719,7 +3723,16 @@
         fetchCourseWeather(pt).then(finish, function () { finish(null); });
     }
 
+    let pendingPickIds = null;   // ?pick= 로 넘어온 코스(contentid 목록). 코스 목록을 처음 그린 직후 한 번만 보여준다.
     function drawCoursePanel(regionKey) {
+        drawCoursePanelBase(regionKey);
+        if (pendingPickIds) {
+            const ids = pendingPickIds;
+            pendingPickIds = null;
+            try { showPickedCourse(ids); } catch (e) { /* 코스 표시가 실패해도 지도는 그대로 쓸 수 있게 둔다 */ }
+        }
+    }
+    function drawCoursePanelBase(regionKey) {
         const listEl = document.querySelector('.today-list');
         if (!listEl) return;
         currentCourses = buildCourses(regionKey, courseSeedItem);
@@ -3826,6 +3839,45 @@
         currentCourses.forEach(function (course) { all.push.apply(all, course.items); });
         renderMarkers(all);   // 안에서 번호 핀·요약 줄도 함께 정리된다
         if (currentRegionKey === 'all') fitKoreaBounds(); else fitToMarkers(allMarkers);
+    }
+
+    // [ADD] 2026-11-11: pick.html 에서 넘어온 코스(?pick=contentid,…)를 코스 카드 목록 번호를 건드리지 않게 맨 뒤에 붙여 번호 핀으로 보여준다.
+    function showPickedCourse(idsText) {
+        const ids = String(idsText || '').split(',').map(function (x) { return x.trim(); }).filter(function (x) { return /^[A-Za-z0-9_-]+$/.test(x); }).slice(0, 6);
+        const list = [];
+        ids.forEach(function (id) {
+            const it = festivalData.find(function (x) { return String(x.contentid) === id; });
+            if (it && it.lat && it.lng && list.indexOf(it) < 0) list.push(it);
+        });
+        if (!list.length) return false;
+        const dateStr = getCourseDate();
+        const dObj = ctParseDate(dateStr);
+        const isToday = dateStr === ctKstTodayStr();
+        const ctx = { dow: dObj.getUTCDay(), month: dObj.getUTCMonth() + 1, startMin: isToday ? Math.max(CT_DAY_START, Math.ceil(ctKstNowMin() / 30) * 30) : CT_DAY_START, dateStr: dateStr };
+        // pick.html 이 정한 순서를 그대로 지키며 시간만 계산한다(scheduleCourseItems 는 순서를 다시 고르므로 쓰지 않는다).
+        list.forEach(function (it) { it._distToNextKm = undefined; });
+        const sched = [];
+        let cur = ctx.startMin, pos = null;
+        list.forEach(function (it) {
+            const win = getItemWindow(it, ctx), stay = getStayMin(it);
+            let travel = 0, d = null;
+            if (pos) {
+                if (isPreciseCoord(it) && isPreciseCoord(pos)) {
+                    d = haversineDistanceKm(Number(pos.lat), Number(pos.lng), Number(it.lat), Number(it.lng));
+                    travel = Math.min(90, Math.max(10, Math.round(d * 1.3 / 25 * 60)));
+                } else { travel = 20; }
+            }
+            const start = ctStartAt(win, cur + travel), end = start + stay;
+            if (pos && d !== null && sched.length) sched[sched.length - 1].item._distToNextKm = d;
+            sched.push({ item: it, start: start, end: end, label: ctSlotLabel(start), win: win, late: end > win.close });
+            cur = end; pos = it;
+        });
+        const ordered = sched.map(function (r) { return r.item; });
+        let dist = 0;
+        for (let i = 1; i < ordered.length; i++) dist += haversineDistanceKm(Number(ordered[i - 1].lat), Number(ordered[i - 1].lng), Number(ordered[i].lat), Number(ordered[i].lng));
+        currentCourses.push({ items: ordered, allItems: ordered, subRegion: '오늘 어디 갈까? 코스', totalDistanceKm: dist, schedule: sched });
+        showCourseOnMap(currentCourses.length - 1);
+        return true;
     }
 
     function showCourseOnMap(idx) {
