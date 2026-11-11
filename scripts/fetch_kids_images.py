@@ -56,19 +56,48 @@ def region_tokens(addr: str):
     return set(REGION_TOKEN_RE.findall(addr))
 
 
-def pick_best_match(items, our_addr):
+# [2026-11-11] 제목에 이런 말이 들어 있는 TourAPI 항목은(우리 장소 이름에 그 말이 없다면) 사진 후보에서 뺀다.
+# 예) "동탄호수공원" 검색 → 공원 안의 장애인화장실 사진이 대표 사진으로 붙던 문제.
+BAD_TITLE_WORDS = ("화장실", "주차장", "매표소", "안내소", "관리사무소", "휴게소", "편의점")
+
+
+def _is_bad_candidate(it, our_title):
+    t = it.get("title", "") or ""
+    return any((w in t) and (w not in our_title) for w in BAD_TITLE_WORDS)
+
+
+def pick_best_match(items, our_addr, our_title=""):
+    """후보 중 우리 장소와 가장 잘 맞는 항목을 고른다.
+    점수: 제목 완전일치 +4 / 제목 포함 +2 / 지역(시·군·구) 겹침 +3 / 사진 있음 +1.
+    화장실·주차장 같은 부속시설 항목은 아예 제외한다(전부 제외되면 None → 사진 없이 둔다)."""
     if not items:
         return None
+    clean = re.sub(r"\s*\([^)]*\)\s*$", "", our_title or "").strip() or (our_title or "")
+    cands = [it for it in items if not _is_bad_candidate(it, our_title or "")]
+    if not cands:
+        return None
     our_tokens = region_tokens(our_addr)
-    if our_tokens:
-        for it in items:
-            if region_tokens(it.get("addr1", "")) & our_tokens:
-                return it
-    # 지역이 겹치는 후보가 없으면, 사진이 있는 첫 번째 후보를 쓴다(없으면 그냥 첫 번째).
-    for it in items:
-        if it.get("firstimage"):
-            return it
-    return items[0]
+
+    def score(it):
+        sc = 0
+        t = (it.get("title", "") or "").strip()
+        if clean and t == clean:
+            sc += 4
+        elif clean and (clean in t or t in clean):
+            sc += 2
+        if our_tokens and (region_tokens(it.get("addr1", "")) & our_tokens):
+            sc += 3
+        if it.get("firstimage") or it.get("firstimage2"):
+            sc += 1
+        return sc
+
+    best = cands[0]
+    best_sc = score(best)
+    for it in cands[1:]:
+        sc = score(it)
+        if sc > best_sc:
+            best, best_sc = it, sc
+    return best
 
 
 def search_keyword(keyword, max_retries=3):
@@ -116,6 +145,12 @@ def main():
         # 이미 사진이 있으면 다시 조회하지 않는다(재실행해도 API 호출이 중복되지 않도록).
         if p.get("image"):
             continue
+        # [2026-11-11] imageBlocked: true 인 장소는 사진을 일부러 비워 둔 곳이다(엉뚱한 사진이 붙던 곳).
+        # 다시 돌려도 자동으로 채우지 않는다. 올바른 사진 주소를 알게 되면 "image" 에 직접 적고
+        # imageBlocked 는 지워도 된다.
+        if p.get("imageBlocked"):
+            print(f"[{i}/{len(places)}] {title} — imageBlocked, 건너뜀")
+            continue
 
         print(f"[{i}/{len(places)}] {title} 검색 중...")
         # "(세종)" 같은 지역 구분 괄호가 섞여 있으면 검색이 안 될 수 있어 괄호를 뗀 이름으로 검색.
@@ -128,13 +163,14 @@ def main():
             time.sleep(0.3)
             continue
 
-        best = pick_best_match(items, addr)
+        best = pick_best_match(items, addr, title)
         image = (best or {}).get("firstimage") or (best or {}).get("firstimage2") or ""
 
         if image:
             p["image"] = image
             matched += 1
-            print(f"  → 매칭: {best.get('title')} ({best.get('addr1')}) — 사진 있음")
+            flag = "" if (best.get("title") or "").strip() == clean_title else "  ← 이름이 달라요, 사진 확인 필요"
+            print(f"  → 매칭: {best.get('title')} ({best.get('addr1')}) — 사진 있음{flag}")
         else:
             no_image += 1
             print(f"  → 매칭: {best.get('title') if best else '?'} — 사진 없음, 건너뜀")
