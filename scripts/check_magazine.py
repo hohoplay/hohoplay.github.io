@@ -53,7 +53,7 @@ def strip_tags(s):
 
 
 def article_html(raw):
-    m = re.search(r'<h1[\s\S]*?(?=<div id="site-footer"|<footer|</article>|</main>|$)', raw)
+    m = re.search(r'<h1[\s\S]*?(?=<aside|<div id="site-footer"|<footer|</article>|</main>|$)', raw)
     return m.group(0) if m else raw
 
 
@@ -79,6 +79,9 @@ def faq_questions(text):
             q = ln.strip()
             k = re.search(r'[?？]', q)
             out.append(q[:k.end()] if k else q)
+        elif len(ln.strip()) <= 120 and re.search(r'[?？]\s*$', ln):
+            # v9.0 규격: 질문이 H3(또는 굵은 한 줄)로 따로 있고 답변이 아래 별도 문단인 경우
+            out.append(ln.strip())
     return out
 
 
