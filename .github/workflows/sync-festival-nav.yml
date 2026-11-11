@@ -1,17 +1,22 @@
 name: Sync Festival Nav
 
+# festival 전용 메뉴 동기화입니다.
 # 나들이 도구 5개 페이지(festival/worldcup·camping-worldcup·pick·roulette·poster)의 상단 메뉴를
-# 호호 매거진(커뮤니티) 페이지의 메뉴와 똑같이 맞춰 주는 '메뉴 동기화' 작업입니다.
-#   - 헤더(HOHO PLAY · 플레이하기 · 소통·정보 · 약관·정책), 도구 탭, 우하단 리모콘 버튼을 한꺼번에 맞춥니다.
-#   - 여러 번 실행해도 결과는 같습니다.
+# 메인 페이지(index.html)의 상단 메뉴(🔍 검색 돋보기 포함)와 똑같이 맞춥니다.
+#   - 헤더, 헤더 아래 도구 탭, 우하단 리모콘 버튼을 한꺼번에 맞춥니다.
+#   - 이미 같으면 아무것도 바꾸지 않고(커밋 없음), 여러 번 실행해도 결과는 같습니다.
 #
 # 실행 방법
 #   1) 수동: Actions 탭 → "Sync Festival Nav" → Run workflow
-#   2) 자동: 메뉴를 바꾸는 작업(Add ... Menu / Update Nav Menu / Rename Festival Nav Label)이 성공으로 끝나면
-#      이어서 자동으로 실행되어, 메뉴 항목을 추가·변경해도 이 5개 페이지가 같이 따라갑니다.
+#   2) 자동(1): index.html 이 올라오면(메인 메뉴를 바꿨을 때) 이어서 자동 실행
+#   3) 자동(2): 메뉴를 바꾸는 작업(Add ... Menu / Update Nav Menu / Rename Festival Nav Label)이 성공으로 끝나면 이어서 자동 실행
 
 on:
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
   workflow_run:
     workflows:
       - "Add Worldcup Menu"
@@ -32,7 +37,7 @@ concurrency:
 
 jobs:
   sync-nav:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 저장소 체크아웃
@@ -54,7 +59,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
           else
-            git commit -m "chore: 나들이 도구 페이지 상단 메뉴 동기화"
+            git commit -m "chore: 나들이 도구 페이지 상단 메뉴 동기화(메인 메뉴 기준)"
             git pull --rebase
             git push
           fi
