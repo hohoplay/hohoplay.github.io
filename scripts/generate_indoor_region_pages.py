@@ -87,6 +87,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <title>{title}</title>
 <meta name="description" content="{description}">
 <link rel="canonical" href="{canonical}">
+<meta name="robots" content="noindex,follow">
 <meta property="og:type" content="article">
 <meta property="og:title" content="{og_title}">
 <meta property="og:description" content="{description}">
@@ -299,7 +300,8 @@ def main():
         new_urls.append(canonical)
         written.append((region_name, slug, len(region_places)))
 
-    update_sitemap(sitemap_path, new_urls, today_str)
+    # [CHG] 2026-11-12: 시/도별 실내 목록은 noindex,follow 라서 sitemap에는 올리지 않는다.
+    #   (sync_sitemap.py 도 noindex 페이지를 sitemap에서 제외한다) update_sitemap()은 더 이상 호출하지 않음.
 
     print(f"생성 완료: {len(written)}개 지역 페이지")
     for region_name, slug, cnt in written:
