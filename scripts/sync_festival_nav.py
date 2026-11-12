@@ -98,7 +98,7 @@ HN_CSS = r'''<!-- HN_CSS_START -->
   nav.hn-std .space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 8px; }
   nav.hn-std .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 4px; }
   nav.hn-std .h-20 { height: 80px; } nav.hn-std .h-12 { height: 48px; } nav.hn-std .h-10 { height: 40px; } nav.hn-std .h-0\.5 { height: 2px; }
-  nav.hn-std .w-12 { width: 48px; } nav.hn-std .w-10 { width: 40px; } nav.hn-std .w-6 { width: 24px; } nav.hn-std .w-40 { width: 160px; } nav.hn-std .w-44 { width: 176px; } nav.hn-std .w-full { width: 100%; }
+  nav.hn-std .w-12 { width: 48px; } nav.hn-std .w-10 { width: 40px; } nav.hn-std .w-6 { width: 24px; } nav.hn-std .w-40 { width: 160px; } nav.hn-std .w-44 { width: 176px; } nav.hn-std .w-48 { width: 192px; } nav.hn-std .w-52 { width: 208px; } nav.hn-std .w-56 { width: 224px; } nav.hn-std .w-60 { width: 240px; } nav.hn-std .w-64 { width: 256px; } nav.hn-std .w-full { width: 100%; }
   nav.hn-std .left-0 { left: 0; } nav.hn-std .right-0 { right: 0; } nav.hn-std .top-full { top: 100%; } nav.hn-std .mt-2 { margin-top: 8px; } nav.hn-std .my-2 { margin-top: 8px; margin-bottom: 8px; }
   nav.hn-std .bg-white { background-color: #fff; } nav.hn-std .bg-indigo-600 { background-color: #4f46e5; } nav.hn-std .bg-slate-700 { background-color: #334155; } nav.hn-std .bg-indigo-50 { background-color: #eef2ff; }
   nav.hn-std .text-white { color: #fff; } nav.hn-std .text-indigo-600 { color: #4f46e5; } nav.hn-std .text-violet-500 { color: #8b5cf6; }
@@ -209,6 +209,14 @@ def load_source():
     left = [x for x in re.findall(r'onclick="([^"]*)"', nav) if x.strip() != 'toggleMenu()']
     if bad or left:
         sys.exit('변환하지 못한 메뉴 동작이 있습니다: %s. 아무것도 고치지 않았습니다.' % sorted(set(bad + left)))
+    # [2026-11-12] 메인 메뉴에 새 Tailwind 클래스가 생기면(예: 드롭다운 너비 w-48) 이 CSS 에 없어 모양이 달라진다. 미리 알려준다.
+    _css = HN_CSS
+    _used = set()
+    for _m in re.finditer(r'class="([^"]*)"', nav):
+        _used.update(_m.group(1).split())
+    _miss = [c for c in sorted(_used) if c != 'cursor-pointer' and re.sub(r'([:/.\[\]%])', r'\\\1', c) not in _css and ('.' + c) not in _css]
+    if _miss:
+        print('  ※ 경고: 메인 메뉴에 쓰인 클래스가 HN_CSS 에 없습니다(모양이 달라질 수 있음): %s' % ', '.join(_miss))
     if not SHOW_SEARCH:
         # 🔍 돋보기(주석 + 링크)를 빼고, 오른쪽 묶음에는 햄버거만 남긴다
         nav, n = re.subn(r'[ \t]*<!-- 검색 바로가기 아이콘 -->\s*<a href="%s"[^>]*>[\s\S]*?</a>\s*' % re.escape(SEARCH_URL), '', nav, count=1)
