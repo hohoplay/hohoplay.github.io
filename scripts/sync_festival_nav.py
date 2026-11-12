@@ -4,6 +4,7 @@
 나들이 도구 5개 페이지의 상단 메뉴를 '메인 페이지(index.html)의 상단 메뉴'와 똑같이 맞추는 festival 전용 메뉴 동기화 (여러 번 실행해도 안전).
 
   대상: festival/worldcup.html · camping-worldcup.html · pick.html · roulette.html · poster.html
+  추가(2026-11-12): festival/index.html(아이랑 나들이 지도)에는 상단 메뉴(①)만 넣는다. 도구 탭·리모콘은 지도 화면과 겹쳐 넣지 않는다.
 
   ① 상단 헤더(HOHO PLAY · 플레이하기 · 소통·정보 · 약관·정책 · 🔍 검색 돋보기)
        원본 = 메인 페이지 index.html 의 <nav>. 이걸 읽어서 대상 페이지의 <!-- HN_START --> ~ <!-- HN_END --> 구간에 다시 써 넣는다.
@@ -270,6 +271,33 @@ def process(s, fname, kind, hn_block):
     return s, None
 
 
+MAP_PAGE = 'index.html'          # festival/index.html — 아이랑 나들이 지도(상단 메뉴만 동기화)
+MAP_CSS = '''<!-- HN_MAP_CSS_START -->
+<style>
+  /* 지도 화면 위에 고정 메뉴(높이 80px)가 붙으므로, 지도·목록 패널 높이에서 그만큼 뺀다 */
+  @media (min-width: 769px) {
+    .map-wrapper { height: calc(100vh - 80px); height: calc(100dvh - 80px); }
+    .today-panel { height: calc(100vh - 80px); height: calc(100dvh - 80px); }
+  }
+  /* 모바일: 왼쪽에서 열리는 목록 서랍이 메뉴(z-index 50) 밑으로 들어가 닫기 버튼이 가려지지 않게 메뉴 아래에서 시작 */
+  @media (max-width: 768px) {
+    .today-panel { top: 80px; height: calc(100vh - 80px); height: calc(100dvh - 80px); }
+  }
+</style>
+<!-- HN_MAP_CSS_END -->
+'''
+
+
+def process_map(s, hn_block):
+    """festival/index.html: 상단 메뉴(HN)와 높이 보정 CSS 만 넣는다. 못 고치면 (None, 이유)."""
+    if s.count('</head>') != 1 or len(re.findall(r'(?m)^<body>\s*$', s)) != 1:
+        return None, '</head> 또는 <body> 위치가 예상과 다름'
+    s = strip(s, ('HN_CSS', 'HN', 'HN_MAP_CSS'))
+    s = s.replace('</head>', HN_CSS + MAP_CSS + '</head>', 1)
+    s = re.sub(r'(?m)^<body>[ \t]*$', lambda m: '<body>\n' + hn_block, s, count=1)
+    return s, None
+
+
 def fix_home_anchor(dry):
     """메인 페이지 검색 바(.sb-wrap)가 /#sb-wrap 으로 열릴 때 고정 헤더에 가려지지 않게 한 줄만 보정한다."""
     if not SHOW_SEARCH:
@@ -315,8 +343,23 @@ def main():
                 write(path, new)
         else:
             print('  %s: 이미 최신' % fname)
+    # 아이랑 나들이 지도(festival/index.html): 상단 메뉴만
+    mpath = os.path.join(ROOT, DIR, MAP_PAGE)
+    if os.path.exists(mpath):
+        old = read(mpath)
+        new, why = process_map(old, hn_block)
+        if new is None:
+            print('  %s: 건드리지 않음 (%s)' % (MAP_PAGE, why))
+            skipped += 1
+        elif new != old:
+            changed += 1
+            print('  %s: 상단 메뉴 동기화' % MAP_PAGE)
+            if not dry:
+                write(mpath, new)
+        else:
+            print('  %s: 이미 최신' % MAP_PAGE)
     fix_home_anchor(dry)
-    print('대상 %d개 중 %d개 수정, %d개 건너뜀%s' % (len(PAGES), changed, skipped, ' (dry-run: 실제로는 고치지 않음)' if dry else ''))
+    print('대상 %d개 중 %d개 수정, %d개 건너뜀%s' % (len(PAGES) + 1, changed, skipped, ' (dry-run: 실제로는 고치지 않음)' if dry else ''))
 
 
 if __name__ == '__main__':
