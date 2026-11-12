@@ -1,3 +1,28 @@
+HTTP/1.1 200 Connection Established
+
+HTTP/2 200 
+server: GitHub.com
+content-type: text/html; charset=utf-8
+last-modified: Thu, 12 Nov 2026 12:34:36 GMT
+access-control-allow-origin: *
+etag: "6af5b25c-4c8e"
+expires: Thu, 12 Nov 2026 13:00:17 GMT
+cache-control: max-age=600
+x-proxy-cache: MISS
+x-github-request-id: EA18:389C4A:1AE92F7:1DA6BAD:6AF5B607
+x-github-edge-region: iad
+accept-ranges: bytes
+age: 0
+date: Thu, 12 Nov 2026 12:50:17 GMT
+via: 1.1 varnish
+x-served-by: cache-iad-kcgs7200062-IAD
+x-cache: MISS
+x-cache-hits: 0
+x-timer: S1794487818.508866,VS0,VE31
+vary: Accept-Encoding
+x-fastly-request-id: 0901c0bddcd2897390c788ed7c8ff8ef73625f03
+content-length: 19598
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -52,6 +77,25 @@
 <div class="section-divider">
   <button class="toggle-btn" onclick="toggleStats()">🌍 국가별 통계 보기</button>
   <div id="statsPanel" style="display:none; margin-top:12px"></div>
+</div>
+
+<div class="section-divider">
+  <button class="toggle-btn" onclick="toggleChoiceStats()">📊 선택 통계 보기</button>
+  <div id="choicePanel" style="display:none; margin-top:12px">
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px">
+      <select id="choiceDays" onchange="loadChoiceStats()" style="padding:6px 10px; border:1px solid #ddd; border-radius:6px">
+        <option value="7">최근 7일</option>
+        <option value="14" selected>최근 14일</option>
+        <option value="30">최근 30일</option>
+        <option value="90">최근 90일</option>
+      </select>
+      <button class="toggle-btn" onclick="loadChoiceStats()">새로고침</button>
+      <label style="font-size:12px; color:#475569; margin-left:auto; cursor:pointer">
+        <input type="checkbox" id="noStatBox" onchange="setNoStat(this.checked)" style="width:auto; margin:0 4px 0 0; vertical-align:middle">이 브라우저의 선택은 통계에서 제외
+      </label>
+    </div>
+    <div id="choiceBody"></div>
+  </div>
 </div>
 
 <script>
@@ -430,6 +474,116 @@ async function loadStats() {
       }).join('');
   } catch (e) {
     el.innerHTML = '네트워크 오류: ' + e.message;
+  }
+}
+// [ADD] 2026-11-12: 선택 통계 — 월드컵 우승·룰렛 당첨·"오늘 어디 갈까?" 결과를 익명 집계한 값.
+// 장소 번호는 kids_places.json / festivals.json 에서 이름을 찾아 보여준다.
+let choiceVisible = false;
+let placeNameMap = null;
+
+function loadPlaceNames() {
+  if (placeNameMap) return Promise.resolve(placeNameMap);
+  const one = u => fetch(u).then(r => r.ok ? r.json() : []).catch(() => []);
+  return Promise.all([one('/data/kids_places.json'), one('/data/festivals.json')]).then(function (arr) {
+    const m = {};
+    arr.forEach(list => (list || []).forEach(p => { if (p && p.contentid) m[p.contentid] = p.title || ''; }));
+    placeNameMap = m;
+    return m;
+  });
+}
+
+const COND_LABELS = {
+  pl: { in: '실내', out: '야외', any: '상관없음' },
+  co: { free: '무료', paid: '유료' },
+  we: { wd: '평일', we: '주말' },
+  rn: { 1: '비 오는 날', 0: '맑은 날' },
+  cat: { kids: '아이랑 나들이', camp: '캠핑장', forest: '숲' }
+};
+
+function condLabel(k, v) {
+  if (v == null || v === '') return '선택 안 함';
+  if (k === 'n') return v + '곳';
+  const m = COND_LABELS[k];
+  return (m && m[v] != null) ? m[v] : String(v);
+}
+
+function barList(rows, labelFn, unit) {
+  if (!rows || !rows.length) return '<p style="font-size:13px;color:#94a3b8;margin:4px 0">아직 기록이 없습니다.</p>';
+  const total = rows.reduce((a, r) => a + r.c, 0);
+  const max = Math.max.apply(null, rows.map(r => r.c));
+  return rows.map(function (r) {
+    const bar = max ? Math.round(r.c / max * 100) : 0;
+    const pct = total ? Math.round(r.c / total * 100) : 0;
+    return '<div class="stats-row"><div class="stats-row-head"><span>' + labelFn(r) + '</span><span>' + r.c + (unit || '회') + ' (' + pct + '%)</span></div>'
+      + '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + bar + '%"></div></div></div>';
+  }).join('');
+}
+
+function choiceBlock(title, inner) {
+  return '<div class="comment"><div style="font-weight:700;font-size:14px;margin-bottom:8px">' + title + '</div>' + inner + '</div>';
+}
+
+function setNoStat(on) {
+  try { if (on) localStorage.setItem('hhNoStat', '1'); else localStorage.removeItem('hhNoStat'); } catch (e) {}
+}
+
+async function toggleChoiceStats() {
+  choiceVisible = !choiceVisible;
+  document.getElementById('choicePanel').style.display = choiceVisible ? 'block' : 'none';
+  if (choiceVisible) {
+    try { document.getElementById('noStatBox').checked = localStorage.getItem('hhNoStat') === '1'; } catch (e) {}
+    await loadChoiceStats();
+  }
+}
+
+async function loadChoiceStats() {
+  const el = document.getElementById('choiceBody');
+  el.innerHTML = '불러오는 중...';
+  const key = document.getElementById('key').value;
+  const days = document.getElementById('choiceDays').value;
+  try {
+    const [res, names] = await Promise.all([
+      fetch(API + '/admin/stats?key=' + encodeURIComponent(key) + '&days=' + encodeURIComponent(days)),
+      loadPlaceNames()
+    ]);
+    const d = await res.json();
+    if (!res.ok) {
+      el.innerHTML = '<p style="color:red">' + escapeHtml(d.error === 'unauthorized' ? '관리자 키를 위에 입력한 뒤 다시 눌러주세요.' : (d.error || '오류')) + '</p>';
+      return;
+    }
+    const nm = id => {
+      const t = names[id];
+      return t ? escapeHtml(t) + ' <span style="color:#94a3b8;font-size:11px">' + escapeHtml(id) + '</span>' : escapeHtml(id);
+    };
+    const TYPE_NAMES = { wc: '나들이 월드컵', cwc: '캠핑장 월드컵', rl: '룰렛', pk: '오늘 어디 갈까?' };
+    const cnt = {}; (d.byType || []).forEach(r => { cnt[r.t] = r.c; });
+    const total = (d.byType || []).reduce((a, r) => a + r.c, 0);
+
+    let h = '<p style="font-size:13px;color:#64748b;margin:0 0 10px">' + escapeHtml(d.since) + ' ~ 오늘 · 기록 ' + total + '건'
+      + (d.firstDay ? ' · 수집 시작 ' + escapeHtml(d.firstDay) : '') + '</p>';
+    if (total < 30) h += '<p style="font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin:0 0 10px">표본이 아직 적어요. 2주 정도 쌓인 뒤(항목당 30건 이상) 보시는 게 좋습니다.</p>';
+
+    h += choiceBlock('게임별 기록 수', barList(Object.keys(TYPE_NAMES).map(k => ({ t: k, c: cnt[k] || 0 })).filter(r => r.c > 0), r => TYPE_NAMES[r.t], '건'));
+
+    // 일별 추이(합계)
+    const perDay = {}; (d.byDay || []).forEach(r => { perDay[r.day] = (perDay[r.day] || 0) + r.c; });
+    const dayRows = Object.keys(perDay).sort().map(k => ({ day: k, c: perDay[k] }));
+    h += choiceBlock('일별 기록 수', barList(dayRows, r => escapeHtml(r.day), '건'));
+
+    h += choiceBlock('나들이 월드컵 우승 TOP', barList(d.top.wc, r => nm(r.pid)));
+    h += choiceBlock('나들이 월드컵 준우승 TOP', barList(d.runnerUp.wc, r => nm(r.pid)));
+    h += choiceBlock('캠핑장 월드컵 우승 TOP', barList(d.top.cwc, r => nm(r.pid)));
+    h += choiceBlock('캠핑장 월드컵 준우승 TOP', barList(d.runnerUp.cwc, r => nm(r.pid)));
+    h += choiceBlock('룰렛 당첨 TOP', barList(d.top.rl, r => nm(r.pid)));
+    h += choiceBlock('룰렛 — 고른 분류', barList(d.rouletteBy.cat, r => escapeHtml(condLabel('cat', r.v))));
+    h += choiceBlock('룰렛 — 고른 지역', barList(d.rouletteBy.rg, r => escapeHtml(condLabel('rg', r.v))));
+    h += choiceBlock('"오늘 어디 갈까?" 추천된 장소 TOP', barList(d.pickPlaces, r => nm(r.pid)));
+    [['rg', '지역'], ['pl', '실내/야외'], ['co', '요금'], ['we', '평일/주말'], ['n', '장소 수'], ['rn', '날씨']].forEach(function (x) {
+      h += choiceBlock('"오늘 어디 갈까?" — ' + x[1], barList(d.pickBy[x[0]], r => escapeHtml(condLabel(x[0], r.v))));
+    });
+    el.innerHTML = h;
+  } catch (e) {
+    el.innerHTML = '네트워크 오류: ' + escapeHtml(e.message);
   }
 }
 </script>

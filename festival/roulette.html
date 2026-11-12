@@ -1023,6 +1023,7 @@ function toggleMenu() {
     if (sl) sl.setAttribute('class', 'sl hit');
     drawList(W.winner);
     syncUi();
+    try { if (window.hhStat && p) window.hhStat('rl', p.contentid, { cat: cond.cat, rg: cond.region }); } catch (e) {}   // 익명 선택 통계(당첨 장소)
     showResult(p);
   }
   function redraw() {
@@ -1394,6 +1395,7 @@ function toggleMenu() {
         })
         .catch(function () { /* 푸터 로드 실패해도 본문 표시엔 영향 없음 */ });
 </script>
+<script src="/festival/hh-stats.js" defer></script>
 <script src="/festival/detail-sheet.js?v=20261111" defer></script>
 </body>
 </html>
