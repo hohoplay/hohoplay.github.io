@@ -616,12 +616,21 @@ function toggleMenu() {
     else if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
   }
 
+  // [FIX 2026-11-12] 지역·주제·요금 버튼을 누르면 위쪽 "오늘까지!" 구간 길이가 바뀌어(예: 서울만 보면 줄어듦)
+  // 같은 스크롤 위치에서 화면이 아래로 튀어 내려가 보였다. 다시 그리기 전후로 지역 버튼 상자의 화면 위치를 맞춰
+  // 버튼은 그대로 두고 바로 아래에 고른 지역의 "이번 주말" 등이 나오게 한다.
+  function renderKeep() {
+    var f = document.querySelector('.pz-filters'), t0 = f ? f.getBoundingClientRect().top : 0;
+    render();
+    if (f) { var d = f.getBoundingClientRect().top - t0; if (Math.abs(d) > 1) { try { window.scrollBy(0, d); } catch (e) {} } }
+  }
+
   document.addEventListener('click', function (e) {
     var t = e.target;
     if (t.id === 'pz-ov' || (t.closest && t.closest('#pz-sh-x')) || (t.closest && t.closest('#pz-sh-done'))) { sheetOpen(false); return; }
-    if (t.closest && t.closest('#pz-sh-reset')) { state.region = '전체'; state.theme = '전체'; state.fee = '전체'; state.active = null; state.secTheme = {}; render(); return; }
+    if (t.closest && t.closest('#pz-sh-reset')) { state.region = '전체'; state.theme = '전체'; state.fee = '전체'; state.active = null; state.secTheme = {}; renderKeep(); return; }
     var sc = t.closest ? t.closest('.pz-schip') : null;
-    if (sc) { if (sc.disabled) return; var sid = sc.getAttribute('data-sec'), sk = sc.getAttribute('data-stheme'); if (state.secTheme[sid] === sk) delete state.secTheme[sid]; else state.secTheme[sid] = sk; render(); return; }   // 같은 주제를 다시 누르면 풀린다
+    if (sc) { if (sc.disabled) return; var sid = sc.getAttribute('data-sec'), sk = sc.getAttribute('data-stheme'); if (state.secTheme[sid] === sk) delete state.secTheme[sid]; else state.secTheme[sid] = sk; renderKeep(); return; }   // 같은 주제를 다시 누르면 풀린다
     var go = t.closest ? t.closest('a[data-go]') : null;
     if (go) {   // 바로가기 메뉴: 고정된 상단 메뉴·바로가기 줄 높이만큼 비워서 해당 구간 제목이 보이게 이동
       e.preventDefault();
@@ -634,14 +643,14 @@ function toggleMenu() {
       return;
     }
     var fb = t.closest ? t.closest('[data-fee]') : null;
-    if (fb) { var fv = fb.getAttribute('data-fee'); state.fee = state.fee === fv ? '전체' : fv; render(); return; }   // 같은 버튼을 다시 누르면 풀린다
+    if (fb) { var fv = fb.getAttribute('data-fee'); state.fee = state.fee === fv ? '전체' : fv; renderKeep(); return; }   // 같은 버튼을 다시 누르면 풀린다
     var b = t.closest ? t.closest('.pz-opt') : null;
     if (!b) return;
     if (b.hasAttribute('data-more')) { sheetOpen(true); return; }
     // 같은 버튼을 다시 누르면 선택이 풀린다('전체'는 선택 상태가 아니라 선택창을 여는 버튼)
     if (b.hasAttribute('data-region')) { var rv = b.getAttribute('data-region'); state.region = state.region === rv ? '전체' : rv; state.active = null; state.secTheme = {}; }
     else if (b.hasAttribute('data-theme')) { var tv = b.getAttribute('data-theme'); state.theme = state.theme === tv ? '전체' : tv; }
-    render();
+    renderKeep();
   });
   window.addEventListener('resize', function () { var h = document.querySelector('nav.hn-std'); if (h) document.getElementById('pz-main').style.setProperty('--pz-nav', h.offsetHeight + 'px'); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.getElementById('pz-sheet').classList.contains('open')) sheetOpen(false); });

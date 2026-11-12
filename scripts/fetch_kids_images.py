@@ -100,11 +100,11 @@ def pick_best_match(items, our_addr, our_title=""):
     return best
 
 
-def search_keyword(keyword, max_retries=3):
+def search_keyword(keyword, max_retries=2):
     last_error = None
     for attempt in range(1, max_retries + 1):
         try:
-            res = requests.get(PROXY_URL, params={"keyword": keyword}, timeout=15)
+            res = requests.get(PROXY_URL, params={"keyword": keyword}, timeout=10)
             try:
                 data = res.json()
             except ValueError:
@@ -136,6 +136,12 @@ def main():
 
     matched, no_image, not_found = 0, 0, 0
 
+    # [2026-11-12] 선택: 두 번째 인자(예: kids-0603)를 주면 그 번호 이후 장소만 조회한다.
+    # 사진이 없는 옛 장소를 매번 다시 조회하느라 오래 걸리던 문제를 피하려는 용도. 인자가 없거나 비어 있으면 전부 대상.
+    from_id = sys.argv[2].strip() if len(sys.argv) > 2 else ""
+    if from_id:
+        print(f"[범위] {from_id} 이후 장소만 조회합니다.")
+
     for i, p in enumerate(places, 1):
         title = p.get("title", "")
         addr = p.get("addr", "")
@@ -145,6 +151,8 @@ def main():
         # 이미 사진이 있으면 다시 조회하지 않는다(재실행해도 API 호출이 중복되지 않도록).
         if p.get("image"):
             continue
+        if from_id and str(p.get("contentid", "")) < from_id:
+            continue
         # [2026-11-11] imageBlocked: true 인 장소는 사진을 일부러 비워 둔 곳이다(엉뚱한 사진이 붙던 곳).
         # 다시 돌려도 자동으로 채우지 않는다. 올바른 사진 주소를 알게 되면 "image" 에 직접 적고
         # imageBlocked 는 지워도 된다.
@@ -152,7 +160,7 @@ def main():
             print(f"[{i}/{len(places)}] {title} — imageBlocked, 건너뜀")
             continue
 
-        print(f"[{i}/{len(places)}] {title} 검색 중...")
+        print(f"[{i}/{len(places)}] {title} 검색 중...", flush=True)
         # "(세종)" 같은 지역 구분 괄호가 섞여 있으면 검색이 안 될 수 있어 괄호를 뗀 이름으로 검색.
         clean_title = re.sub(r"\s*\([^)]*\)\s*$", "", title).strip() or title
         items = search_keyword(clean_title)
