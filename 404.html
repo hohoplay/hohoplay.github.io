@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<title>페이지를 찾을 수 없습니다 - hohoplay</title>
+<script>
+// 404 리디렉션 맵
+const REDIRECT_MAP = {
+  '/guides/dice-roll-guide.html':        '/guides/minigames-guide.html',
+  '/guides/card-matching-guide.html':    '/guides/hoho-tile-match-guide.html'
+};
+
+(function() {
+  var path = window.location.pathname;
+  // hohoplaylab.com 기준 경로 정규화
+  var target = REDIRECT_MAP[path];
+  if (target) {
+    window.location.replace(target);
+  }
+})();
+</script>
+<style>
+  body { background:#0f172a; color:#94a3b8; font-family:sans-serif;
+         display:flex; align-items:center; justify-content:center;
+         height:100vh; margin:0; text-align:center; }
+  h1 { color:#fff; font-size:2rem; margin-bottom:.5rem; }
+  a  { color:#6366f1; }
+</style>
+</head>
+<body>
+  <div>
+    <h1>404</h1>
+    <p>페이지를 찾을 수 없습니다.</p>
+    <p><a href="/">hohoplay 홈으로 돌아가기</a></p>
+  </div>
+</body>
+</html>
