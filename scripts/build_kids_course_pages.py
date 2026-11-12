@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """scripts/build_kids_course_pages.py
 
-대전 구별 '아이랑 나들이 추천 코스' 글 3개를 data/kids_places.json 으로 (재)생성한다.
+대전 3곳·서울 노원구/성동구 '아이랑 나들이 추천 코스' 글 5개를 data/kids_places.json 으로 (재)생성한다.
   - blog/kids-course/daejeon-yuseong.html (유성구)
   - blog/kids-course/daejeon-jung.html    (중구)
   - blog/kids-course/daejeon-seo.html     (서구)
+  - blog/kids-course/seoul-nowon.html, seoul-seongdong.html (2026-11-12 추가)
 
 껍데기(헤더·공유·댓글·푸터)는 기존 코스 글 한 개(daejeon-yuseong.html)의 것을 그대로 쓰고,
 본문(소개·한눈에 보기·장소 블록·추천 동선·마무리)만 새로 만든다.
@@ -35,9 +36,11 @@ H2_PLACE = 'font-size:19px;font-weight:900;color:#1e293b;margin:28px 0 6px'
 
 # slug → (지역명, 구 이름, 순서를 고정할 기존 장소들)
 COURSES = [
-    ('daejeon-yuseong', '대전 유성구', '유성구', ['kids-0066', 'kids-0067', 'kids-0069']),
-    ('daejeon-jung', '대전 중구', '중구', []),
-    ('daejeon-seo', '대전 서구', '서구', []),
+    ('daejeon-yuseong', '대전 유성구', '대전광역시 유성구', ['kids-0066', 'kids-0067', 'kids-0069'], DATE),
+    ('daejeon-jung', '대전 중구', '대전광역시 중구', [], DATE),
+    ('daejeon-seo', '대전 서구', '대전광역시 서구', [], DATE),
+    ('seoul-nowon', '서울 노원구', '서울특별시 노원구', [], '2026.11.12'),
+    ('seoul-seongdong', '서울 성동구', '서울특별시 성동구', [], '2026.11.12'),
 ]
 # 정보 부족 외에 코스에 어울리지 않아 뺀 곳: 충무체육관(프로배구 경기가 있는 날만 관람 가능)
 EXCLUDE = {'kids-0325'}
@@ -73,14 +76,14 @@ def place_block(i, p):
 
 
 def pick(places, gu, pinned):
-    cand = [p for p in places if p['addr'].startswith('대전광역시 ' + gu) and UNVERIFIED not in (p.get('overview') or '') and p['contentid'] not in EXCLUDE]
+    cand = [p for p in places if p['addr'].startswith(gu) and UNVERIFIED not in (p.get('overview') or '') and p['contentid'] not in EXCLUDE]
     by = {p['contentid']: p for p in cand}
     first = [by[c] for c in pinned if c in by]
     rest = sorted((p for p in cand if p['contentid'] not in pinned), key=lambda p: p['contentid'])
     return first + rest
 
 
-def build(shell, slug, region, plist):
+def build(shell, slug, region, plist, date):
     entries = [(p['contentid'], p['title'], p) for p in plist]
     n = len(plist)
     # 소개·동선·마무리 문구는 scripts/kids_course_text.py 가 장소 데이터(요금·운영시간·좌표)에서 만든다.
@@ -107,7 +110,7 @@ def build(shell, slug, region, plist):
                r'(<meta name="twitter:description" content=")[^"]*(">)'):
         s = re.sub(rx, lambda m: m.group(1) + desc + m.group(2), s, count=1)
     s = kct.ensure_noindex(s)   # 코스 글은 모두 검색 제외(noindex,follow) — 2026-11-10 결정
-    s = re.sub(r'(HOHO PLAY · )\d{4}\.\d{2}\.\d{2}', lambda m: m.group(1) + DATE, s, count=1)
+    s = re.sub(r'(HOHO PLAY · )\d{4}\.\d{2}\.\d{2}', lambda m: m.group(1) + date, s, count=1)
     return s
 
 
@@ -118,9 +121,9 @@ def main():
     shell_path = os.path.join(ROOT, 'blog', 'kids-course', SHELL_SLUG + '.html')
     with open(shell_path, encoding='utf-8') as f:
         shell = f.read()
-    for slug, region, gu, pinned in COURSES:
+    for slug, region, gu, pinned, date in COURSES:
         plist = pick(places, gu, pinned)
-        out = build(shell, slug, region, plist)
+        out = build(shell, slug, region, plist, date)
         path = os.path.join(ROOT, 'blog', 'kids-course', slug + '.html')
         print('%s: 장소 %d곳' % (slug, len(plist)), ', '.join(p['title'] for p in plist))
         if not dry:
