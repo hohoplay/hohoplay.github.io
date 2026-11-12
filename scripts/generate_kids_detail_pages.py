@@ -195,6 +195,12 @@ def main():
             else ""
         )
 
+        # [ADD] 2026-11-12: 출처 표기. 장소 정보(이름·주소·설명·요금·운영시간)는 운영자가 직접 조사해 정리한 것이고,
+        # 대표 사진은 TourAPI 키워드 검색으로 받아온 경우에만 한국관광공사 제공으로 표시한다(image가 있을 때만).
+        source_note = "장소 정보: 호호플레이가 직접 조사·정리"
+        if image:
+            source_note += "<br>대표 사진: 한국관광공사 TourAPI(공공데이터포털)"
+
         html_out = (
             template.replace("{{TITLE}}", html_escape(title))
             .replace("{{ADDR}}", html_escape(addr))
@@ -209,6 +215,7 @@ def main():
             .replace("{{DESC}}", html_escape(desc))
             .replace("{{CANONICAL_URL}}", canonical_url)
             .replace("{{IMAGE_HTML}}", image_html)
+            .replace("{{SOURCE_NOTE}}", source_note)
             .replace("{{BACK_URL}}", html_escape(back_url))
             .replace("{{CONTENTID}}", html_escape(cid))
         )
