@@ -1500,13 +1500,23 @@ function render() {
     if (!items.length) return;
     let h = S.shared ? '' : stepsHtml();
     if (S.shared) { if (!S.course) S.course = sharedCourse(); }
-    else if (allAnswered() && !S.open) { if (!S.course) S.course = makeCourse(); }
+    else if (allAnswered() && !S.open) { if (!S.course) { S.course = makeCourse(); hhPickStat(S.course); } }
     else S.course = null;
     let shown = null;
     if (S.course) { h += resultHtml(); shown = S.course; }
     else if (!S.shared) { shown = sampleCourse(); h += sampleHtml(shown); }
     root.innerHTML = h;
     renderNearby(shown);
+}
+// 익명 선택 통계: 코스가 새로 만들어질 때 한 번만, 고른 조건과 추천된 장소 번호만 기록한다(내 위치 좌표는 보내지 않음).
+function hhPickStat(c) {
+    try {
+        if (!window.hhStat || !c || !c.sched || !c.sched.length || S.shared) return;
+        const ids = c.sched.map(function (x) { return x.item && x.item.contentid; }).filter(Boolean);
+        if (!ids.length) return;
+        window.hhStat('pk', ids[0], { ids: ids, rg: S.where && S.where.key ? S.where.key : 'near', pl: S.place, co: S.cost, n: S.n,
+            we: (c.ctx.dow === 0 || c.ctx.dow === 6) ? 'we' : 'wd', rn: rainOn() ? 1 : 0 });
+    } catch (e) {}
 }
 function invalidate() { S.course = null; S.seed = 0; S.seen = {}; S.shared = null; }
 function scrollToEl(sel) { const el = document.querySelector(sel); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
@@ -1895,6 +1905,7 @@ fetch('/data/kids_places.json', { cache: 'no-cache' })
         })
         .catch(function () { /* 푸터 로드 실패해도 본문 표시엔 영향 없음 */ });
 </script>
+<script src="/festival/hh-stats.js" defer></script>
 <script src="/festival/detail-sheet.js?v=20261111" defer></script>
 </body>
 </html>

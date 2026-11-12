@@ -1070,6 +1070,7 @@ function toggleMenu() {
     var champ = S.results[rounds - 1][0];
     var finalEnts = S.rounds[rounds - 1];
     var second = finalEnts[0] === champ ? finalEnts[1] : finalEnts[0];
+    try { if (window.hhStat) window.hhStat('cwc', champ.contentid, { s: second && second.contentid, n: S.rounds[0] && S.rounds[0].length }); } catch (e) {}   // 익명 선택 통계(우승·준우승)
     var semi = S.rounds[rounds - 2] || [];
     var semiWin = S.results[rounds - 2] || [];
     var semiLosers = semi.filter(function (p) { return semiWin.indexOf(p) === -1; });
@@ -1344,6 +1345,7 @@ function toggleMenu() {
         })
         .catch(function () { /* 푸터 로드 실패해도 본문 표시엔 영향 없음 */ });
 </script>
+<script src="/festival/hh-stats.js" defer></script>
 <script src="/festival/detail-sheet.js?v=20261111" defer></script>
 </body>
 </html>
