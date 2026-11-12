@@ -1,0 +1,26 @@
+name: Update Nav Menu (4-tab)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-nav:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update navigation in all HTML files
+        run: python3 scripts/update_nav_4tab.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "nav: 아이랑 메뉴 분리 — 4탭 구조로 변경"
+
+      - name: Push
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
