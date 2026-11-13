@@ -188,24 +188,30 @@
     <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">운세·타로 사이트에 생년월일을 넣기 전, 직접 확인하는 5가지 방법</h1>
     <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.15</p>
 
-    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><p>생년월일과 이름을 넣고 오늘의 운세를 보는 일은 흔하지만, 그 값이 입력창 밖으로 나가는지 확인하는 사람은 드뭅니다. 이 글은 PC 브라우저 하나로 2~3분 안에 직접 확인할 수 있는 방법 5가지를 정리했습니다. 기준은 개인정보 보호법과 개인정보보호위원회가 2024년 1월 31일에 발표한 맞춤형 광고 개인정보 처리 정비 방안입니다.</p>
-<h2>입력값이 서버로 나가는지는 Network 탭에서 30초면 보입니다</h2>
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><p>생년월일과 이름을 넣고 오늘의 운세를 보는 일은 흔하지만, 그 값이 입력창 밖으로 나가는지 확인하는 사람은 드뭅니다. 이 글은 PC 브라우저 하나로 2~3분 안에 직접 확인할 수 있는 방법 5가지를 정리했습니다. 기준은 개인정보 보호법 제30조와 개인정보보호위원회가 2024년 1월 31일에 발표한 맞춤형 광고 개인정보 처리 정비 방안이며, 이 사이트의 운세 페이지 코드에서 요청을 보내는 부분과 처리방침(v2.0)을 대조해 예시로 넣었습니다.</p>
+<h2>1. 입력값이 서버로 나가는지는 Network 탭에서 30초면 보입니다</h2>
 <p>PC의 Chrome이나 Edge에서 운세 사이트를 연 뒤 F12 키를 눌러 개발자도구를 엽니다. 위쪽 탭에서 Network(네트워크)를 고르고 필터를 Fetch/XHR로 바꾼 다음, 생년월일을 넣고 결과 버튼을 눌러 보세요.</p>
-<p>결과 화면이 뜨는 동안 목록에 새 요청이 생기는지 봅니다. 요청 하나를 눌러 Payload(POST 방식) 또는 주소 끝의 물음표(?) 뒤(GET 방식)에 방금 넣은 생년월일이 들어 있으면 그 값이 서버로 전송된 것입니다. 새 요청이 없거나, 있어도 googletagmanager.com·googlesyndication.com 같은 통계·광고 주소뿐이라면 입력값은 브라우저 안에서만 계산된 구조일 가능성이 큽니다.</p>
-<p>모바일 브라우저에는 개발자도구가 없으니 같은 주소를 PC에서 열어 확인하는 편이 빠릅니다.</p>
-<h2>처리방침에서 찾을 4가지: 수집 항목, 보관 기간, 외부 업체, 쿠키 거부 방법</h2>
+<p>결과 화면이 뜨는 동안 목록에 새 요청이 생기는지 봅니다. 요청 하나를 눌러 Payload(POST 방식) 또는 주소 끝의 물음표(?) 뒤(GET 방식)에 방금 넣은 생년월일이 들어 있으면 그 값이 서버로 전송된 것입니다. 이 사이트의 운세 페이지 코드는 타로·MBTI·꿈해몽 탭에서 /data/ 폴더의 CSV 파일을 불러오고, 일부 탭에서는 글 목록을 가져오려고 googleapis.com에 라벨 기준으로 요청합니다. 이 요청들에는 입력한 생년월일이나 이름이 담기지 않습니다.</p>
+<p>요청 주소가 사이트 자신의 데이터 파일이거나 googletagmanager.com·googlesyndication.com 같은 통계·광고 주소뿐이라면 입력값은 브라우저 안에서만 계산된 구조일 가능성이 큽니다. 모바일 브라우저에는 개발자도구가 없으니 같은 주소를 PC에서 열어 확인하는 편이 빠릅니다.</p>
+<h2>2. 처리방침에서 찾을 4가지: 수집 항목, 보관 기간, 외부 업체, 쿠키 거부 방법</h2>
 <p>개인정보 보호법 제30조는 개인정보를 처리하는 사업자가 처리방침을 만들어 공개하도록 정하고 있습니다. 사이트 맨 아래 링크를 열면 다음 4가지가 문장이 아니라 구체적인 값으로 적혀 있어야 합니다.</p>
-<ul><li><strong>수집 항목:</strong> "생년월일, 닉네임"처럼 항목 이름이 나열되어 있는지. "서비스 제공에 필요한 정보"처럼 뭉뚱그린 표현은 구체성이 부족합니다.</li><li><strong>보관 기간:</strong> "30일", "1년"처럼 기간이 있는지. "목적 달성 시까지" 한 줄이면 언제 지워지는지 알 수 없습니다.</li><li><strong>외부 업체:</strong> 댓글 서버, 통계 도구, 광고 업체 이름이 적혀 있는지.</li><li><strong>쿠키 거부 방법:</strong> 브라우저나 광고 설정에서 끄는 경로가 안내되어 있는지.</li></ul>
+<ul><li>수집 항목: "생년월일, 닉네임"처럼 항목 이름이 나열되어 있는지. "서비스 제공에 필요한 정보"처럼 뭉뚱그린 표현은 구체성이 부족합니다.</li></ul>
+<ul><li>보관 기간: "30일", "1년"처럼 기간이 있는지. "목적 달성 시까지" 한 줄이면 언제 지워지는지 알 수 없습니다.</li></ul>
+<ul><li>외부 업체: 댓글 서버, 통계 도구, 광고 업체 이름이 적혀 있는지.</li></ul>
+<ul><li>쿠키 거부 방법: 브라우저나 광고 설정에서 끄는 경로가 안내되어 있는지.</li></ul>
 <p>개인정보보호위원회는 2024년 1월 31일 발표에서 광고를 싣는 웹사이트가 제3자의 행태정보 수집을 허용하면 그 사실을 처리방침에 공개해야 한다고 밝혔고, 2024년 3월부터 처리방침이 제대로 공개돼 있는지 확인하도록 했습니다. 또 14세 미만 아동이 주로 쓰는 사이트에는 행태정보 수집 도구를 설치할 수 없습니다.</p>
-<h2>같은 입력인데 결과가 달라지는지로 만드는 방식을 구분합니다</h2>
+<h2>3. 같은 입력인데 결과가 달라지는지로 만드는 방식을 구분합니다</h2>
 <p>같은 생년월일을 두 번 넣어 결과를 비교해 보세요. 문장이 완전히 같으면 미리 준비한 문장 데이터를 고르는 방식이고, 날짜를 바꿨을 때만 달라지면 날짜와 생년월일로 계산해 문장을 고르는 방식입니다. 반면 같은 입력인데 매번 전혀 다른 문장이 나오면 생성형 AI가 실시간으로 문장을 만들 가능성이 있습니다.</p>
-<p>생성형 AI를 쓰는 사이트라면 입력값이 AI 업체 서버로 전달되었을 수 있으니, 앞의 Network 탭 확인이 특히 중요합니다. 이 매거진을 운영하는 호호플레이의 운세는 미리 준비한 문장 데이터와 계산식으로 결과를 만들고, 절기 경계나 야자시 같은 세부 규칙은 간소화해 두었습니다. 그래서 전문 만세력과 결과가 다를 수 있어 재미·참고용으로 보시길 권합니다.</p>
-<h2>개인정보를 받지 않아도 쿠키는 남을 수 있습니다</h2>
+<p>생성형 AI를 쓰는 사이트라면 입력값이 AI 업체 서버로 전달되었을 수 있으니, 1번의 Network 탭 확인이 특히 중요합니다. 이 매거진을 운영하는 사이트의 운세는 미리 정리한 문장 데이터(타로 풀이문 468개, 꿈 풀이 240개 등)와 계산식으로 결과를 만들고, 절기 경계나 야자시 같은 세부 규칙은 간소화해 두었습니다. 그래서 전문 만세력과 결과가 다를 수 있어 재미·참고용으로 보시길 권합니다.</p>
+<h2>4. 개인정보를 받지 않아도 쿠키는 남을 수 있습니다</h2>
 <p>회원가입이 없고 입력값을 보내지 않는 사이트라도, 방문 통계(Google Analytics)나 광고(Google AdSense)를 쓰면 브라우저에 쿠키가 저장됩니다. 확인하려면 개발자도구의 Application(애플리케이션) 탭에서 Cookies 항목을 열어 보세요. 사이트 주소와 다른 도메인의 쿠키가 보이면 외부 도구가 심은 것입니다.</p>
 <p>맞춤 광고가 걱정된다면 구글 광고 설정(adssettings.google.com)에서 광고 개인 최적화를 끄고, 브라우저 설정에서 서드파티 쿠키를 차단하면 됩니다. 이 사이트도 방문 통계와 광고 도구를 쓰고 있으며, 2026년 11월 11일 개정한 처리방침(v2.0)에 쿠키 종류와 거부 방법을 적었습니다.</p>
+<h2>5. 브라우저에 남는 값은 Local Storage 칸에서 직접 지웁니다</h2>
+<p>같은 Application 탭의 Local Storage 항목에는 사이트가 브라우저에만 저장한 값이 보입니다. 이 사이트의 처리방침에는 게임 점수·기록, 환경설정, 입력한 닉네임, 월드컵·룰렛 선택 조건이 브라우저 저장소에만 저장되고 서버로 전송되지 않는다고 적혀 있습니다. 운세·사주·타로 등에 입력한 생년월일·이름·질문은 브라우저 안에서만 계산하며 서버로 전송하거나 저장하지 않는다고도 적혀 있습니다.</p>
+<p>이런 값은 사이트 데이터 삭제로 지울 수 있고, 시크릿 창에서 쓰면 창을 닫을 때 사라집니다. 서버로 전송된 값은 사업자에게 삭제를 요청해야 하니, 두 경우를 구분해 두세요.</p>
 <h2>이 글의 판단: 처리방침 문장보다 Network 탭의 실제 요청을 먼저 봅니다</h2>
-<p>처리방침은 사업자의 약속이고, Network 탭의 요청은 실제로 일어난 일의 증거입니다. 둘이 맞으면 안심해도 되고, 맞지 않으면 방침이 틀렸거나 방침 뒤에 숨은 전송이 있다는 뜻입니다. 따라서 확인 순서는 ① 요청 목록, ② 처리방침의 구체성, ③ 결과 생성 방식, ④ 쿠키 순으로 권합니다.</p>
-<p>이 사이트도 같은 이유로 처리방침을 고쳤습니다. 댓글을 쓰면 닉네임·내용과 함께 IP 주소와 국가 코드가 서버에 저장되는데, 이전 방침에는 이 내용이 없었습니다. 실제 운영과 문서가 어긋나지 않게 하는 것이 개정의 목적이었고, 독자도 이 글의 방법으로 직접 대조해 볼 수 있습니다.</p>
+<p>처리방침은 사업자의 약속이고, Network 탭의 요청은 실제로 일어난 일의 증거입니다. 둘이 맞으면 안심해도 되고, 맞지 않으면 방침이 틀렸거나 방침 뒤에 숨은 전송이 있다는 뜻입니다. 따라서 확인 순서는 ① 요청 목록, ② 처리방침의 구체성, ③ 결과 생성 방식, ④ 쿠키, ⑤ 로컬 저장소 순으로 권합니다.</p>
+<p>이 사이트도 같은 이유로 처리방침을 고쳤습니다. 댓글을 쓰면 닉네임·내용과 함께 IP 주소와 해시값, 국가 코드가 서버에 저장되는데, 이전 방침에는 이 내용이 없었습니다. 실제 운영과 문서가 어긋나지 않게 하는 것이 개정의 목적이었고, 독자도 이 글의 방법으로 직접 대조해 볼 수 있습니다.</p>
 <h2>자주 묻는 질문 (FAQ)</h2>
 <h3>행태정보란 무엇인가요?</h3>
 <p>웹사이트 방문 기록, 클릭, 검색어처럼 이용자의 온라인 활동에서 나오는 정보입니다. 이름이나 연락처가 없어도 맞춤 광고를 만드는 데 쓰이기 때문에 개인정보보호위원회가 별도 기준을 두고 있습니다. 사이트가 어떤 도구로 수집하는지는 처리방침의 "행태정보" 항목에서 확인하세요.</p>
@@ -218,7 +224,8 @@
 <h3>이미 입력한 값을 지우려면 어떻게 하나요?</h3>
 <p>브라우저에만 저장된 값이라면 설정의 사이트 데이터 삭제로 지워집니다. 서버로 전송된 값은 사업자에게 삭제를 요청해야 하며, 처리방침의 개인정보 보호책임자 이메일로 보내면 됩니다. 요청할 때는 사용한 닉네임과 입력한 날짜를 함께 알리세요.</p>
 <h2>참고한 자료</h2>
-<ul><li>국가법령정보센터 · 개인정보 보호법 제30조(개인정보 처리방침의 수립 및 공개) · www.law.go.kr</li><li>개인정보보호위원회 · 맞춤형 광고 개인정보 처리 정비 방안 발표 · 2024.1.31 (보도: ZDNet Korea, zdnet.co.kr/view/?no=20240131084835)</li><li>호호플레이 개인정보처리방침 v2.0 · 2026.11.11 개정 · hohoplaylab.com/privacy/</li></ul>
+<ul><li>국가법령정보센터 · 개인정보 보호법 제30조(개인정보 처리방침의 수립 및 공개) · https://www.law.go.kr</li><li>개인정보보호위원회 · 맞춤형 광고 개인정보 처리 정비 방안 발표 · 2024.1.31 (보도: ZDNet Korea, https://zdnet.co.kr/view/?no=20240131084835)</li><li>사이트 운영자 · 개인정보처리방침 v2.0 · 2026.11.11 개정 · https://hohoplaylab.com/privacy/</li></ul>
+<p>이 사이트의 운세 입력 항목과 처리 방식은 호호플레이 오늘의 운세(https://hohoplaylab.com/fortune/) 하단의 이용 안내에서도 볼 수 있습니다.</p>
 <p>해시태그: #운세사이트 #개인정보 #개발자도구 #쿠키 #행태정보 #처리방침 #타로 #웹프라이버시</p></div>
 
     <aside id="fortune-notice" aria-label="운세 콘텐츠 안내" style="margin-top:32px;padding:16px 18px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;font-size:13px;line-height:1.75;color:#475569"><div style="font-size:14px;font-weight:800;color:#334155;margin-bottom:6px">ℹ️ 운세 콘텐츠 안내</div>이 글은 운세·타로·꿈해몽·MBTI 해석을 전통적인 풀이와 문화의 관점에서 소개하는 읽을거리로, 재미와 참고를 위한 내용이에요. 앞으로 일어날 일을 예측하거나 결과를 보장하지 않아요. 건강·금전·투자·법률·진로처럼 중요한 결정은 이 글이 아니라 전문가 상담과 확인된 정보로 하시길 권해요. 호호플레이 운세 기능이 입력값을 어떻게 다루는지는 <a href="/fortune/" style="color:#4f46e5;font-weight:700;text-decoration:underline">운세 이용 안내</a>와 <a href="/privacy/" style="color:#4f46e5;font-weight:700;text-decoration:underline">개인정보처리방침</a>에서 확인할 수 있어요.</aside><aside aria-label="함께 보면 좋은 페이지" style="margin-top:36px;padding:18px;border:1px solid #e2e8f0;border-radius:16px;background:#fff"><div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:12px">🔗 함께 보면 좋은 페이지</div><div style="display:grid;gap:10px"><a href="/about/" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">ℹ️ 안내</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">호호플레이 소개</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호플레이가 어떤 서비스인지 소개합니다.</div></a><a href="/guides/index.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎮 게임</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">게임공략 모음</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호플레이 게임 10종의 완벽 공략을 한곳에 모은 목록입니다.</div></a><a href="/fortune/" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🔮 운세</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">오늘의 운세 · 타로 · MBTI</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">오늘의 운세와 타로, MBTI 조합 풀이를 무료로 볼 수 있습니다.</div></a><a href="/festival/" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎪 아이랑 나들이</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">아이랑 나들이 지도</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">전국 축제와 아이랑 가볼 만한 곳을 지도에서 찾아보세요.</div></a></div><div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:13px;color:#64748b"><a href="/blog/magazine/fortune/" style="color:#4f46e5;font-weight:800;text-decoration:none">🔮 운세 글 더 보기 →</a> <span style="color:#cbd5e1">·</span> <a href="/blog/magazine/" style="color:#64748b;font-weight:700;text-decoration:none">호호 매거진 전체</a></div></aside>
