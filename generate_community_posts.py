@@ -738,6 +738,21 @@ def render_post_html(template, post, magazine_titles=None, post_lanes=None):
     # 자리를 미리 준비만 해둔 것.)
     html_out = html_out.replace("{{POST_URL}}", post_output_url(post))
 
+    # [ADD] 2026-11-15: 매거진 글에서는 SNS 공유 버튼과 댓글 영역을 뺀다(대표님 요청).
+    # 템플릿의 HH_SOCIAL_START ~ HH_SOCIAL_END 구간(카카오 SDK, 공유·댓글 화면, 관련 스크립트)을
+    # 통째로 지운다. 공지·업데이트 등 다른 카테고리 글은 그대로 두고 표시 주석만 지운다.
+    # 템플릿에 이 표시가 없으면(옛 템플릿) 아무것도 지우지 않고 로그만 남긴다.
+    social_re = re.compile(r'[ \t]*<!-- HH_SOCIAL_START\b[^>]*-->.*?<!-- HH_SOCIAL_END -->[ \t]*\n?', re.S)
+    if post.get("category") == MAGAZINE_CATEGORY:
+        html_out, removed = social_re.subn("", html_out)
+        if removed == 0:
+            print(
+                f"⚠️ {post['id']}: 템플릿에 HH_SOCIAL 표시가 없어 공유·댓글 영역을 빼지 못했습니다 (템플릿 확인 필요).",
+                file=sys.stderr,
+            )
+    else:
+        html_out = re.sub(r'[ \t]*<!-- HH_SOCIAL_(?:START\b[^>]*|END) -->[ \t]*\n?', "", html_out)
+
     # [ADD] 2026-10-06: 공지사항/업데이트 글은 생성 시점에 canonical 태그 바로 다음 줄에
     # noindex 메타 태그를 자동으로 끼워넣는다. follow는 유지해서(noindex,follow) 검색엔진이
     # 이 페이지 자체는 색인하지 않지만, 페이지 안의 다른 링크(다른 글, 메뉴 등)는 계속
