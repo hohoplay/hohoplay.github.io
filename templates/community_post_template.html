@@ -11,6 +11,7 @@
     <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
     <meta charset="UTF-8">
+    <!-- HH_SOCIAL_START: 공유·댓글 영역(매거진 글에서는 생성 스크립트가 이 구간을 뺀다) -->
     <!-- ═══ Kakao SDK (실제 공유 기능) ═══ -->
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
       integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
@@ -18,6 +19,7 @@
     <script>
       if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
     </script>
+    <!-- HH_SOCIAL_END -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{TITLE}} - HOHO PLAY 커뮤니티</title>
@@ -196,6 +198,7 @@
         <a href="/blog/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-6 py-3 rounded-full transition">← 커뮤니티로 돌아가기</a>
     </div>
 
+    <!-- HH_SOCIAL_START: 공유·댓글 영역(매거진 글에서는 생성 스크립트가 이 구간을 뺀다) -->
     <div style="margin-top:24px;text-align:center;">
         <div class="text-sm font-bold text-slate-400 mb-3">🔗 이 글을 공유해보세요</div>
         <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
@@ -225,6 +228,7 @@
             <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
         </div>
     </div>
+    <!-- HH_SOCIAL_END -->
 
     </div>
     </main>
@@ -264,6 +268,7 @@
             .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
     </script>
 
+    <!-- HH_SOCIAL_START: 공유·댓글 영역(매거진 글에서는 생성 스크립트가 이 구간을 뺀다) -->
     <script>
         const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
         const CMT_GAME_ID = 'post-{{POST_ID}}';
@@ -369,6 +374,7 @@
             if (map[type]) window.open(map[type], '_blank');
         }
     </script>
+    <!-- HH_SOCIAL_END -->
 
 </body>
 </html>
