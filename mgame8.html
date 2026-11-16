@@ -27,6 +27,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dongle:wght@700&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -204,21 +205,98 @@
         <div class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3">⚡ 반응속도 테스트</h1>
             <p class="text-slate-500">색이 바뀌는 순간 클릭하세요</p>
-        <button onclick="return gameNavScroll('m-desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition inline-block mt-3">📖 게임설명</button>
+        <span id="mg-ver-top" class="text-xs md:text-sm font-bold text-slate-600 bg-slate-200 px-3 py-1.5 rounded-full inline-block mt-3 mr-1">v2.0.0</span><button onclick="return gameNavScroll('m-desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition inline-block mt-3">📖 게임설명</button>
         </div>
 
         <div id="m-quick" style="margin:0 0 20px;padding:16px 18px;border:1px solid #c7d2fe;border-radius:16px;background:#eef2ff">
             <p style="font-size:14px;font-weight:900;color:#4338ca;margin:0">💡 한눈에 보기</p>
             <ul style="list-style:none;margin:0;padding:0;font-size:13.5px;line-height:1.65;color:#334155;word-break:keep-all"><li style="margin-top:6px"><b style="color:#1e293b">이런 때 쓰세요</b> · 화면 색이 바뀌는 순간 클릭해서 내 반응속도를 밀리초(ms)로 재보는 게임입니다.</li><li style="margin-top:6px"><b style="color:#1e293b">이렇게 하세요</b> · “시작”을 누르면 빨간 화면이 되고, 1~4초 사이 무작위로 초록색으로 바뀝니다. 바뀐 뒤에 클릭하세요. 먼저 누르면 “성급했습니다!”로 처음부터 다시 시작해요.</li><li style="margin-top:6px"><b style="color:#1e293b">팁</b> · 타이밍을 예측하지 말고 초록색을 본 뒤에만 누르는 게 좋은 기록을 만듭니다. 최고 기록은 이 브라우저에 저장돼 새로고침해도 남아요.</li></ul>
         </div>
+        <style>
+.mgv2-wrap{font-family:'Dongle','Noto Sans KR',sans-serif;}
 
+.mgv2-wrap{font-weight:700;max-width:520px;margin:0 auto;color:var(--ink)}
+.mgv2-field{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:28px;border:4px solid var(--ink);box-shadow:0 6px 0 var(--ink);container-type:inline-size;user-select:none;-webkit-user-select:none}
+.mgv2-mute{position:absolute;width:48px;height:48px;min-width:48px;border-radius:16px;border:3px solid var(--ink);background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:7;touch-action:manipulation}
+.mgv2-mute svg{width:26px;height:26px}
+.mgv2-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mgv2-ov{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);transition:opacity .2s}
+.mgv2-field[data-state="play"] .mgv2-ov{opacity:0;visibility:hidden;pointer-events:none}
+.mgv2-panel{width:80%;background:var(--panel);border:4px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);padding:4.5cqw;text-align:center;color:var(--ptext,#fff)}
+.mgv2-pt{word-break:keep-all;font-size:7.2cqw;line-height:1.15;text-shadow:0 3px 0 var(--ink)}
+.mgv2-pb{font-size:15cqw;line-height:1;color:var(--pbig,#ffe45e);text-shadow:0 4px 0 var(--ink);margin:1cqw 0;word-break:keep-all}
+.mgv2-ps{font-size:5.4cqw;min-height:1.3em;word-break:keep-all}
+.mgv2-go{margin-top:3cqw;min-height:56px;min-width:56%;padding:0 6cqw;font-family:inherit;font-weight:700;font-size:7.6cqw;color:var(--ink);background:var(--btn,#ffe45e);border:4px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--ink);cursor:pointer;touch-action:manipulation}
+.mgv2-go:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.mgv2-go:disabled{opacity:.6}
+.mgv2-sub{min-height:44px;padding:0 4cqw;font-family:inherit;font-weight:700;font-size:5.4cqw;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:0 3px 0 var(--ink);cursor:pointer;touch-action:manipulation}
+.mgv2-sub:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.mgv2-cf{position:absolute;left:50%;top:42%;width:0;height:0;z-index:8;pointer-events:none}
+.mgv2-cf i{position:absolute;left:0;top:0;width:10px;height:14px;border-radius:3px;background:var(--c);opacity:0}
+.mgv2-field.go .mgv2-cf i{animation:mgv2-cf 1.2s ease-out forwards}
+.mgv2-m-joy,.mgv2-m-wow,.mgv2-m-cheer,.mgv2-m-sleep{display:none}
+[data-mood="joy"] .mgv2-m-base,[data-mood="wow"] .mgv2-m-base,[data-mood="cheer"] .mgv2-m-base,[data-mood="sleep"] .mgv2-m-base{display:none}
+[data-mood="joy"] .mgv2-m-joy,[data-mood="wow"] .mgv2-m-wow,[data-mood="cheer"] .mgv2-m-cheer,[data-mood="sleep"] .mgv2-m-sleep{display:inline}
+@keyframes mgv2-cf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.mgv2-field.go .mgv2-cf i{animation:none}}
 
+.mgv2-wrap .mgv2-pt{font-size:10.4cqw}
+.mgv2-wrap .mgv2-pb{font-size:22cqw}
+.mgv2-wrap .mgv2-ps{font-size:8.4cqw;line-height:1}
+.mgv2-wrap .mgv2-go{font-size:11cqw}
+.mgv2-field{background:#6b7280}
+.mgv2-road{position:absolute;inset:0;width:100%;height:100%}
+.mgv2-sign{position:absolute;left:4%;top:4%;background:#ffd23f;border:3px solid var(--ink);border-radius:10px;padding:.4cqw 3cqw;font-size:9.6cqw;color:var(--ink);transform:rotate(-3deg);box-shadow:0 3px 0 var(--ink);line-height:1.1;z-index:3}
+.mgv2-tl{position:absolute;left:50%;top:13%;width:25%;height:50%;margin-left:-12.5%;background:#1f2937;border:4px solid var(--ink);border-radius:5cqw;box-shadow:0 6px 0 rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:space-evenly;align-items:center;z-index:2}
+.mgv2-tl:before{content:"";position:absolute;left:50%;top:100%;width:5cqw;height:14cqw;margin-left:-2.5cqw;background:#374151;border:3px solid var(--ink);border-top:0}
+.mgv2-lt{width:15cqw;height:15cqw;border-radius:50%;border:3px solid #0b0f19;background:#3b4252;transition:background .1s,box-shadow .1s}
+#rt-r.on{background:#ef4444;box-shadow:0 0 0 2cqw rgba(239,68,68,.28)}
+#rt-y.on{background:#fbbf24;box-shadow:0 0 0 2cqw rgba(251,191,36,.28)}
+#rt-g.on{background:#22c55e;box-shadow:0 0 0 2cqw rgba(34,197,94,.3)}
+#rt-box{position:absolute;inset:0;z-index:3;cursor:pointer;touch-action:none}
+.mgv2-line{position:absolute;left:0;right:0;bottom:12%;height:2.4cqw;background:repeating-linear-gradient(90deg,#fff 0 6cqw,transparent 6cqw 9cqw);opacity:.9}
+.mgv2-run{position:absolute;left:8%;bottom:13.5%;width:15%;z-index:4;pointer-events:none;transition:transform .6s ease-in,opacity .3s .5s}
+.mgv2-run svg{width:100%;display:block;transform-origin:50% 100%;transform:scale(1.06,.9)}
+.mgv2-field[data-w="1"] .mgv2-run svg{animation:mgv2-bob .5s ease-in-out infinite}
+.mgv2-run.go{transform:translateX(66cqw);opacity:0}
+.mgv2-dust{position:absolute;left:6%;bottom:13%;width:12%;height:6%;z-index:3;pointer-events:none;opacity:0}
+.mgv2-dust i{position:absolute;bottom:0;border-radius:50%;background:#e5e7eb;width:5cqw;height:5cqw}
+.mgv2-dust i:nth-child(1){left:0}.mgv2-dust i:nth-child(2){left:5cqw;width:6cqw;height:6cqw}.mgv2-dust i:nth-child(3){left:11cqw}
+.mgv2-dust.go{animation:mgv2-dust .7s ease-out}
+#rt-hint{position:absolute;left:4%;right:4%;bottom:3%;text-align:center;font-size:9cqw;color:#fff;text-shadow:0 3px 0 var(--ink);z-index:4;pointer-events:none;line-height:1;min-height:1em}
+.mgv2-field[data-state="play"] .mgv2-ov{display:flex}
+.mgv2-field[data-state="play"] .mgv2-ov{opacity:0;visibility:hidden}
+@keyframes mgv2-bob{0%,100%{transform:scale(1.06,.9) translateY(0)}50%{transform:scale(1.06,.9) translateY(-5px)}}
+@keyframes mgv2-dust{0%{opacity:.9;transform:translateX(0) scale(.6)}100%{opacity:0;transform:translateX(-8cqw) scale(1.4)}}
+@media (prefers-reduced-motion:reduce){.mgv2-field[data-w="1"] .mgv2-run svg{animation:none}.mgv2-run{transition:none}.mgv2-dust.go{animation:none}}
 
-        <div id="rt-box" onclick="rtClick()" style="height:280px;border-radius:20px;background:#94a3b8;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;cursor:pointer;touch-action:manipulation;text-align:center;padding:20px;box-sizing:border-box">
-            시작 버튼을 눌러주세요
-        </div>
-        <button onclick="playSfx('click');rtStart()" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl" style="touch-action:manipulation">시작</button>
-        <div id="rt-best" class="text-center text-sm font-bold text-slate-500 mt-3"></div>
+</style>
+<div class="mgv2-wrap" style="--ink:#1d2433;--panel:#374151;--btn:#22c55e">
+ <div class="mgv2-field" id="mgv2-field" data-state="idle">
+  <svg class="mgv2-road" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect y="82" width="100" height="18" fill="#4b5563"/><g fill="#d1d5db"><rect x="4" y="30" width="3" height="10"/><rect x="93" y="30" width="3" height="10"/><rect x="4" y="52" width="3" height="10"/><rect x="93" y="52" width="3" height="10"/></g></svg>
+  <div class="mgv2-sign">반응속도</div>
+  <button type="button" class="mgv2-mute" id="mgv2-mute" aria-label="소리 끄기" aria-pressed="false" style="right:3%;top:3%"></button>
+  <div class="mgv2-tl" aria-hidden="true"><i class="mgv2-lt" id="rt-r"></i><i class="mgv2-lt" id="rt-y"></i><i class="mgv2-lt" id="rt-g"></i></div>
+  <div class="mgv2-line"></div>
+  <div class="mgv2-dust" id="mgv2-dust"><i></i><i></i><i></i></div>
+  <div class="mgv2-run" id="mgv2-run"><svg viewBox="0 0 104 104" id="mgv2-mascot" class="" data-mood="sleep" aria-hidden="true" style="overflow:visible">
+<rect x="6" y="6" width="92" height="92" rx="24" fill="#ffcf4a" stroke="#1d2433" stroke-width="5"/>
+<ellipse cx="24" cy="64" rx="7" ry="4" fill="#ff9e9e"/><ellipse cx="80" cy="64" rx="7" ry="4" fill="#ff9e9e"/>
+<g class="mgv2-m-base"><ellipse cx="36" cy="46" rx="7" ry="10" fill="#1d2433"/><ellipse cx="68" cy="46" rx="7" ry="10" fill="#1d2433"/><circle cx="34" cy="42" r="2.5" fill="#fff"/><circle cx="66" cy="42" r="2.5" fill="#fff"/><path d="M42 66 Q52 76 62 66" fill="none" stroke="#1d2433" stroke-width="4" stroke-linecap="round"/></g>
+<g class="mgv2-m-joy"><path d="M28 48 Q36 36 44 48" fill="none" stroke="#1d2433" stroke-width="5" stroke-linecap="round"/><path d="M60 48 Q68 36 76 48" fill="none" stroke="#1d2433" stroke-width="5" stroke-linecap="round"/><path d="M36 62 Q52 86 68 62 Z" fill="#c2412d" stroke="#1d2433" stroke-width="4" stroke-linejoin="round"/></g>
+<g class="mgv2-m-wow"><circle cx="36" cy="46" r="10" fill="#fff" stroke="#1d2433" stroke-width="4"/><circle cx="68" cy="46" r="10" fill="#fff" stroke="#1d2433" stroke-width="4"/><circle cx="36" cy="46" r="4" fill="#1d2433"/><circle cx="68" cy="46" r="4" fill="#1d2433"/><ellipse cx="52" cy="70" rx="6" ry="8" fill="#1d2433"/></g>
+<g class="mgv2-m-cheer"><path d="M26 30 L44 34" stroke="#1d2433" stroke-width="5" stroke-linecap="round"/><path d="M78 30 L60 34" stroke="#1d2433" stroke-width="5" stroke-linecap="round"/><ellipse cx="36" cy="48" rx="7" ry="10" fill="#1d2433"/><ellipse cx="68" cy="48" rx="7" ry="10" fill="#1d2433"/><circle cx="34" cy="44" r="2.5" fill="#fff"/><circle cx="66" cy="44" r="2.5" fill="#fff"/><path d="M40 66 Q52 80 64 66" fill="none" stroke="#1d2433" stroke-width="4" stroke-linecap="round"/></g>
+<g class="mgv2-m-sleep"><path d="M28 48 Q36 54 44 48" fill="none" stroke="#1d2433" stroke-width="5" stroke-linecap="round"/><path d="M60 48 Q68 54 76 48" fill="none" stroke="#1d2433" stroke-width="5" stroke-linecap="round"/><path d="M44 68 Q52 72 60 68" fill="none" stroke="#1d2433" stroke-width="4" stroke-linecap="round"/></g>
+</svg></div>
+  <div id="rt-box" aria-label="반응 영역"></div>
+  <div id="rt-hint" aria-live="polite"></div>
+  <div class="mgv2-cf" id="mgv2-cf" aria-hidden="true"></div>
+  <div class="mgv2-ov" id="mgv2-ov">
+   <div class="mgv2-panel"><div class="mgv2-pt" id="mgv2-pt">초록불에 눌러요</div><div class="mgv2-pb" id="mgv2-pb" style="display:none"></div><div class="mgv2-ps" id="rt-best"></div><button type="button" class="mgv2-go" id="rt-go" onclick="playSfx('click');rtStart()">시작</button></div>
+  </div>
+ </div>
+</div>
+
     
 
                 <section style="max-width:56rem;margin:24px auto 0;padding:0 16px">
@@ -317,6 +395,7 @@
                     </div>
                 </div>
             </div>
+<div id="game-info" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;"><h3 class="font-black text-lg text-slate-800 mb-4">시스템 정보</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-8"><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p id="mg-ver-bottom" class="text-xl font-black text-slate-800">2.0.0</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-indigo-500">전체 이용가</p></div></div><div id="game-updates" style="margin-top:20px;padding-top:18px;border-top:1px solid #f1f5f9"><h3 style="font-size:15px;font-weight:900;color:#1e293b;margin:0 0 8px">업데이트 내용</h3><p style="font-size:13px;font-weight:800;color:#4f46e5;margin:0 0 6px">v2.0.0 · 2026-11-16</p><ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.7;color:#475569;list-style:disc"><li style="margin:0 0 4px">v2 디자인을 적용했어요. 회색 도로 위에 큰 신호등과 출발선이 생겼어요. 신호등 불만 바뀌고 화면 전체는 번쩍이지 않아요.</li><li style="margin:0 0 4px">네모 마스코트가 출발선에서 준비 자세로 기다리다가, 초록불에 누르면 먼지를 일으키며 달려 나가요.</li><li style="margin:0 0 4px">너무 일찍 누르면 "아직이야!"라고 안내해요. 결과는 큰 글자로 ms를 보여주고 한 줄 평가와 최고 기록이 이어져요. 소리 켜고 끄기 버튼을 추가했고, 반응 시간 측정 방식은 그대로예요.</li></ul></div></div>
         </div>
         <script>
             function gameNavScroll(key) {
@@ -608,56 +687,142 @@
         }
 
 
+        // ── v2 디자인 공통 부품 (게임 규칙과 무관) ──
+        const MGV2_MUTE_KEY = 'hohoplay_mgv2_mute';
+        let mgv2Muted = false;
+        try { mgv2Muted = localStorage.getItem(MGV2_MUTE_KEY) === '1'; } catch (e) {}
+        const mgv2Reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        (function () {
+            const orig = window.playSfx;
+            window.playSfx = function (t) { if (mgv2Muted) return; orig(t); };
+        })();
+        const MGV2_ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="#ffcf4a"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+        const MGV2_ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="#ffcf4a"/><path d="M17 9l5 6"/><path d="M22 9l-5 6"/></svg>';
+        function mgv2PaintMute() {
+            const b = document.getElementById('mgv2-mute');
+            b.innerHTML = mgv2Muted ? MGV2_ICON_OFF : MGV2_ICON_ON;
+            b.setAttribute('aria-label', mgv2Muted ? '소리 켜기' : '소리 끄기');
+            b.setAttribute('aria-pressed', mgv2Muted ? 'true' : 'false');
+        }
+        document.getElementById('mgv2-mute').addEventListener('click', function () {
+            mgv2Muted = !mgv2Muted;
+            try { localStorage.setItem(MGV2_MUTE_KEY, mgv2Muted ? '1' : '0'); } catch (e) {}
+            mgv2PaintMute();
+            if (!mgv2Muted) playSfx('click');
+        });
+        mgv2PaintMute();
+        function mgv2Mood(m) { const e = document.getElementById('mgv2-mascot'); if (e) e.setAttribute('data-mood', m); }
+        function mgv2State(s) { document.getElementById('mgv2-field').setAttribute('data-state', s); }
+        (function () {
+            const cf = document.getElementById('mgv2-cf');
+            const cols = ['#ffe45e', '#ff8fa3', '#7fd4ff', '#ffffff', '#b5f06a', '#ffb347'];
+            for (let k = 0; k < 24; k++) {
+                const ang = (k / 24) * Math.PI * 2, d = 80 + (k % 4) * 28;
+                const el = document.createElement('i');
+                el.style.setProperty('--dx', Math.round(Math.cos(ang) * d) + 'px');
+                el.style.setProperty('--dy', Math.round(Math.sin(ang) * d - 30) + 'px');
+                el.style.setProperty('--r', (k * 47) % 360 + 'deg');
+                el.style.setProperty('--c', cols[k % cols.length]);
+                cf.appendChild(el);
+            }
+        })();
+        function mgv2Burst() {
+            if (mgv2Reduce) return;
+            const f = document.getElementById('mgv2-field');
+            f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+            setTimeout(function () { f.classList.remove('go'); }, 1400);
+        }
+
         let rtState = 'idle'; // idle, waiting, ready
         let rtTimeout = null, rtStartTime = 0;
         const RT_BEST_KEY = 'hohoplay_mgame8_best';
         let rtBest = parseInt(localStorage.getItem(RT_BEST_KEY) || '', 10) || null;
-        if (rtBest) document.getElementById('rt-best').textContent = '🏆 최고 기록: ' + rtBest + 'ms';
+        function rtBestText() { return rtBest ? ('최고 기록 ' + rtBest + 'ms') : '신호등이 초록이 되면 바로 눌러요'; }
+        document.getElementById('rt-best').textContent = rtBestText();
+        function rtLamp(c) {
+            ['r', 'y', 'g'].forEach(k => document.getElementById('rt-' + k).classList.toggle('on', k === c));
+        }
+        function rtWait(on) { document.getElementById('mgv2-field').setAttribute('data-w', on ? '1' : '0'); }
 
         function rtStart() {
-            const box = document.getElementById('rt-box');
+            if (rtState !== 'idle') return;
             rtState = 'waiting';
-            box.style.background = '#ef4444';
-            box.textContent = '초록색이 될 때까지 기다리세요...';
+            const run = document.getElementById('mgv2-run');
+            run.classList.remove('go');
+            document.getElementById('mgv2-dust').classList.remove('go');
+            mgv2Mood('cheer'); rtWait(true);
+            rtLamp('r');
+            document.getElementById('rt-hint').textContent = '초록불을 기다려요';
+            mgv2State('play');
             const delay = 1000 + Math.random() * 3000;
             rtTimeout = setTimeout(() => {
                 rtState = 'ready';
-                box.style.background = '#22c55e';
-                box.textContent = '지금 클릭하세요!';
+                rtLamp('g');
+                document.getElementById('rt-hint').textContent = '지금 눌러요!';
                 rtStartTime = performance.now();
             }, delay);
         }
 
+        function rtEndPanel(title, big, sub, btn) {
+            document.getElementById('mgv2-pt').textContent = title;
+            const pb = document.getElementById('mgv2-pb');
+            pb.style.display = big ? 'block' : 'none'; pb.textContent = big || '';
+            document.getElementById('rt-best').textContent = sub;
+            document.getElementById('rt-go').textContent = btn;
+            document.getElementById('rt-hint').textContent = '';
+            mgv2State('end');
+        }
+
         function rtClick() {
-            const box = document.getElementById('rt-box');
             if (rtState === 'waiting') {
                 clearTimeout(rtTimeout);
                 playSfx('lose');
                 rtState = 'idle';
-                box.style.background = '#94a3b8';
-                box.textContent = '성급했습니다! 다시 "시작"을 눌러주세요';
+                rtWait(false); rtLamp('');
+                mgv2Mood('wow');
+                rtEndPanel('아직이야!', '', '초록불이 켜질 때 눌러요', '다시 하기');
                 return;
             }
             if (rtState === 'ready') {
                 const elapsed = Math.round(performance.now() - rtStartTime);
                 rtState = 'idle';
-                box.style.background = '#4f46e5';
-                box.textContent = elapsed + 'ms!';
+                rtWait(false);
+                document.getElementById('mgv2-run').classList.add('go');
+                const d = document.getElementById('mgv2-dust'); d.classList.remove('go'); void d.offsetWidth; d.classList.add('go');
+                mgv2Mood('joy');
+                const remark = elapsed < 200 ? '번개처럼 빨라요!' : (elapsed < 300 ? '아주 빨라요!' : (elapsed < 450 ? '좋아요!' : '조금만 더 집중해요!'));
+                let isRecord = false;
                 if (rtBest === null || elapsed < rtBest) {
                     rtBest = elapsed;
                     localStorage.setItem(RT_BEST_KEY, String(rtBest));
+                    isRecord = true;
                     playSfx('record');
-                    const bestEl = document.getElementById('rt-best');
-                    bestEl.textContent = '🏆 신기록! 최고 기록: ' + rtBest + 'ms';
-                    bestEl.style.color = '#4f46e5';
-                    bestEl.style.transform = 'scale(1.15)';
-                    bestEl.style.transition = 'transform .3s';
-                    setTimeout(() => { bestEl.style.transform = 'scale(1)'; }, 300);
                 } else {
                     playSfx('reveal');
                 }
+                const show = function () {
+                    rtEndPanel(isRecord ? '신기록! ' + remark : remark, elapsed + 'ms', '최고 기록 ' + rtBest + 'ms', '다시 하기');
+                    if (isRecord) mgv2Burst();
+                };
+                if (mgv2Reduce) show(); else setTimeout(show, 750);
             }
         }
+        document.getElementById('rt-box').addEventListener('pointerdown', function (e) { e.preventDefault(); rtClick(); });
+        document.getElementById('rt-box').addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); rtClick(); } });
+        document.getElementById('rt-box').setAttribute('tabindex', '0');
+        document.getElementById('rt-box').setAttribute('role', 'button');
+        // 결과 화면에서 "다시 하기"를 누르면 준비 상태로 복귀 후 바로 시작
+        (function () {
+            const orig = window.rtStart;
+            window.rtStart = function () {
+                const run = document.getElementById('mgv2-run');
+                run.classList.remove('go');
+                rtLamp('');
+                mgv2Mood('sleep');
+                orig();
+            };
+        })();
+
     
     </script>
     <button id="back-to-game-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="게임 화면으로 이동"

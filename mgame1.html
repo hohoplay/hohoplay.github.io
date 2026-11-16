@@ -27,6 +27,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -204,7 +205,7 @@
         <div class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" style="display:inline-block;vertical-align:-5px;margin-right:4px"><line x1="6" y1="3" x2="6" y2="21"/><line x1="18" y1="3" x2="18" y2="21"/><line x1="6" y1="7" x2="18" y2="7"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="17" x2="18" y2="17"/></svg>사다리게임</h1>
             <p class="text-slate-500">인원수만 정하면 바로 만들어져요</p>
-        <button onclick="return gameNavScroll('m-desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition inline-block mt-3">📖 게임설명</button>
+        <span id="mg-ver-top" class="text-xs md:text-sm font-bold text-slate-600 bg-slate-200 px-3 py-1.5 rounded-full inline-block mt-3 mr-1">v2.0.0</span><button onclick="return gameNavScroll('m-desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition inline-block mt-3">📖 게임설명</button>
         </div>
 
         <div id="m-quick" style="margin:0 0 20px;padding:16px 18px;border:1px solid #c7d2fe;border-radius:16px;background:#eef2ff">
@@ -214,26 +215,82 @@
 
 
 
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8">
-            <div id="lg-setup">
-                <label class="block text-sm font-bold text-slate-600 mb-2">인원수 (2~10명)</label>
-                <input id="lg-count" type="number" min="2" max="10" value="4" class="w-24 border border-slate-200 rounded-xl px-3 py-2 font-bold text-center mb-4">
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-slate-600 mb-2">결과 항목 (줄바꿈으로 구분, 비워두면 숫자로 표시)</label>
-                    <textarea id="lg-results" rows="3" placeholder="예)
-당첨
-꽝
-꽝
-꽝" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"></textarea>
-                </div>
-                <button onclick="playSfx('click');makeLadder()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl" style="touch-action:manipulation">사다리 만들기</button>
-            </div>
-            <div id="lg-board" class="hidden">
-                <svg id="lg-svg" style="width:100%;height:320px"></svg>
-                <div id="lg-result" class="text-center font-black text-xl text-indigo-600 mt-4 min-h-[28px]"></div>
-                <button onclick="playSfx('click');resetLadder()" class="w-full mt-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl" style="touch-action:manipulation">다시 만들기</button>
-            </div>
-        </div>
+        
+        <style>
+.mgv2-wrap{font-family:'Gaegu','Noto Sans KR',sans-serif;}
+
+.mgv2-wrap{font-weight:700;max-width:520px;margin:0 auto;color:var(--ink)}
+.mgv2-field{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:28px;border:4px solid var(--ink);box-shadow:0 6px 0 var(--ink);container-type:inline-size;user-select:none;-webkit-user-select:none}
+.mgv2-mute{position:absolute;width:48px;height:48px;min-width:48px;border-radius:16px;border:3px solid var(--ink);background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:7;touch-action:manipulation}
+.mgv2-mute svg{width:26px;height:26px}
+.mgv2-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mgv2-ov{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);transition:opacity .2s}
+.mgv2-field[data-state="play"] .mgv2-ov{opacity:0;visibility:hidden;pointer-events:none}
+.mgv2-panel{width:80%;background:var(--panel);border:4px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);padding:4.5cqw;text-align:center;color:var(--ptext,#fff)}
+.mgv2-pt{word-break:keep-all;font-size:7.2cqw;line-height:1.15;text-shadow:0 3px 0 var(--ink)}
+.mgv2-pb{font-size:15cqw;line-height:1;color:var(--pbig,#ffe45e);text-shadow:0 4px 0 var(--ink);margin:1cqw 0;word-break:keep-all}
+.mgv2-ps{font-size:5.4cqw;min-height:1.3em;word-break:keep-all}
+.mgv2-go{margin-top:3cqw;min-height:56px;min-width:56%;padding:0 6cqw;font-family:inherit;font-weight:700;font-size:7.6cqw;color:var(--ink);background:var(--btn,#ffe45e);border:4px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--ink);cursor:pointer;touch-action:manipulation}
+.mgv2-go:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.mgv2-go:disabled{opacity:.6}
+.mgv2-sub{min-height:44px;padding:0 4cqw;font-family:inherit;font-weight:700;font-size:5.4cqw;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:0 3px 0 var(--ink);cursor:pointer;touch-action:manipulation}
+.mgv2-sub:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.mgv2-cf{position:absolute;left:50%;top:42%;width:0;height:0;z-index:8;pointer-events:none}
+.mgv2-cf i{position:absolute;left:0;top:0;width:10px;height:14px;border-radius:3px;background:var(--c);opacity:0}
+.mgv2-field.go .mgv2-cf i{animation:mgv2-cf 1.2s ease-out forwards}
+.mgv2-m-joy,.mgv2-m-wow,.mgv2-m-cheer,.mgv2-m-sleep{display:none}
+[data-mood="joy"] .mgv2-m-base,[data-mood="wow"] .mgv2-m-base,[data-mood="cheer"] .mgv2-m-base,[data-mood="sleep"] .mgv2-m-base{display:none}
+[data-mood="joy"] .mgv2-m-joy,[data-mood="wow"] .mgv2-m-wow,[data-mood="cheer"] .mgv2-m-cheer,[data-mood="sleep"] .mgv2-m-sleep{display:inline}
+@keyframes mgv2-cf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.mgv2-field.go .mgv2-cf i{animation:none}}
+
+.mgv2-field{background:#bfe6ff}
+.mgv2-cloud{position:absolute;inset:0;width:100%;height:100%}
+#lg-svg{position:absolute;left:0;top:0;width:100%;height:78%;display:block;overflow:visible}
+.mgv2-ttl{position:absolute;left:50%;top:44%;transform:translateX(-50%) rotate(-7deg);background:#fff6df;border:3px solid var(--ink);border-radius:10px;padding:.6cqw 4cqw;font-size:7cqw;color:var(--ink);box-shadow:0 3px 0 var(--ink);z-index:2;white-space:nowrap;line-height:1.15;pointer-events:none}
+.mgv2-strip{position:absolute;left:0;right:0;bottom:0;height:22%;background:#fff6df;border-top:3px solid var(--ink);display:flex;align-items:center;gap:2.4cqw;padding:0 3cqw;z-index:3;box-sizing:border-box}
+#lg-result{flex:1;min-width:0;height:100%;overflow-y:auto;font-size:4.6cqw;line-height:1.3;color:var(--ink);padding:1cqw 0;word-break:keep-all}
+.mgv2-strip .mgv2-mute{position:static;flex:none}
+.mgv2-strip .mgv2-sub{flex:none;padding:0 3cqw;font-size:4.6cqw}
+.lg-num{cursor:pointer;touch-action:manipulation}
+.lg-num.done{opacity:.5;cursor:default}
+.lg-tag text{font-family:inherit}
+.lg-tag.win rect{fill:#ffe45e}
+.lg-tag.win{animation:mgv2-pop .45s ease-out;transform-box:fill-box;transform-origin:50% 100%}
+.lg-ctl{display:none}
+.mgv2-field[data-state="setup"] .mgv2-strip .mgv2-sub{visibility:hidden}
+.mgv2-field[data-state="setup"] .mgv2-ov{opacity:1;visibility:visible;pointer-events:auto}
+.mgv2-field[data-state="play"] .mgv2-ov{display:none}
+.mgv2-panel{padding:3.2cqw 4cqw}
+.mgv2-lab{font-size:5.2cqw;text-align:left;margin:0 0 1cqw;display:flex;align-items:center;justify-content:space-between;gap:2cqw}
+#lg-count{width:20cqw;min-height:44px;border:3px solid var(--ink);border-radius:12px;text-align:center;font-family:inherit;font-weight:700;font-size:6.4cqw;color:var(--ink);background:#fff;box-sizing:border-box}
+#lg-results{width:100%;height:21cqw;border:3px solid var(--ink);border-radius:12px;padding:1.6cqw 3cqw;font-family:inherit;font-weight:700;font-size:5cqw;color:var(--ink);background:#fff;resize:none;box-sizing:border-box;line-height:1.2}
+@keyframes mgv2-pop{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.lg-tag.win{animation:none}}
+
+</style>
+<div class="mgv2-wrap" style="--ink:#14305e;--panel:#3a8fe0;--ptext:#fff">
+ <div class="mgv2-field" id="mgv2-field" data-state="setup">
+  <svg class="mgv2-cloud" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g fill="#fff" opacity=".9"><ellipse cx="18" cy="12" rx="11" ry="3.6"/><ellipse cx="26" cy="10" rx="7" ry="3.4"/><ellipse cx="80" cy="24" rx="12" ry="3.8"/><ellipse cx="72" cy="22" rx="7" ry="3.2"/></g></svg>
+  <svg id="lg-svg" aria-label="사다리" role="img"></svg>
+  <div class="mgv2-ttl">사다리게임</div>
+  <div class="mgv2-strip">
+   <button type="button" class="mgv2-mute" id="mgv2-mute" aria-label="소리 끄기" aria-pressed="false" ></button>
+   <div id="lg-result" aria-live="polite"></div>
+   <button type="button" class="mgv2-sub" onclick="playSfx('click');resetLadder()">다시 만들기</button>
+  </div>
+  <div class="mgv2-cf" id="mgv2-cf" aria-hidden="true"></div>
+  <div class="mgv2-ov" id="mgv2-ov">
+   <div class="mgv2-panel" id="lg-setup" style="width:86%">
+    <div class="mgv2-lab"><label for="lg-count">인원수 (2~10명)</label><input id="lg-count" type="number" min="2" max="10" value="4" inputmode="numeric"></div>
+    <div class="mgv2-lab" style="margin-bottom:.6cqw"><label for="lg-results">결과 항목 (줄바꿈, 비우면 숫자)</label></div>
+    <textarea id="lg-results" rows="3" placeholder="예)&#10;당첨&#10;꽝&#10;꽝&#10;꽝"></textarea>
+    <button type="button" class="mgv2-go" style="margin-top:2.4cqw;font-size:6.6cqw" onclick="playSfx('click');makeLadder()">사다리 만들기</button>
+   </div>
+  </div>
+ </div>
+</div>
+
     
 
                 <section style="max-width:56rem;margin:24px auto 0;padding:0 16px">
@@ -336,6 +393,7 @@
                     </div>
                 </div>
             </div>
+<div id="game-info" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;"><h3 class="font-black text-lg text-slate-800 mb-4">시스템 정보</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-8"><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p id="mg-ver-bottom" class="text-xl font-black text-slate-800">2.0.0</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-indigo-500">전체 이용가</p></div></div><div id="game-updates" style="margin-top:20px;padding-top:18px;border-top:1px solid #f1f5f9"><h3 style="font-size:15px;font-weight:900;color:#1e293b;margin:0 0 8px">업데이트 내용</h3><p style="font-size:13px;font-weight:800;color:#4f46e5;margin:0 0 6px">v2.0.0 · 2026-11-16</p><ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.7;color:#475569;list-style:disc"><li style="margin:0 0 4px">v2 디자인을 적용했어요. 하늘색 배경에 사다리 줄이 화면을 가득 채우고, 제목이 가로대처럼 비스듬히 걸려 있어요.</li><li style="margin:0 0 4px">번호를 누르면 네모 마스코트가 줄을 타고 내려가요. 가로대를 건널 때마다 "딱" 소리가 나고, 도착한 칸에는 깃발이 꽂혀요.</li><li style="margin:0 0 4px">결과 칸이 좁아지는 많은 인원에서는 글자를 줄여 보여주고, 전체 결과는 아래 목록에 적어줘요. 소리 켜고 끄기 버튼을 추가했고, 사다리 규칙은 그대로예요.</li></ul></div></div>
         </div>
         <script>
             function gameNavScroll(key) {
@@ -627,7 +685,72 @@
         }
 
 
+        // ── v2 디자인 공통 부품 (게임 규칙과 무관) ──
+        const MGV2_MUTE_KEY = 'hohoplay_mgv2_mute';
+        let mgv2Muted = false;
+        try { mgv2Muted = localStorage.getItem(MGV2_MUTE_KEY) === '1'; } catch (e) {}
+        const mgv2Reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        (function () {
+            const orig = window.playSfx;
+            window.playSfx = function (t) { if (mgv2Muted) return; orig(t); };
+        })();
+        const MGV2_ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="#ffcf4a"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+        const MGV2_ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="#ffcf4a"/><path d="M17 9l5 6"/><path d="M22 9l-5 6"/></svg>';
+        function mgv2PaintMute() {
+            const b = document.getElementById('mgv2-mute');
+            b.innerHTML = mgv2Muted ? MGV2_ICON_OFF : MGV2_ICON_ON;
+            b.setAttribute('aria-label', mgv2Muted ? '소리 켜기' : '소리 끄기');
+            b.setAttribute('aria-pressed', mgv2Muted ? 'true' : 'false');
+        }
+        document.getElementById('mgv2-mute').addEventListener('click', function () {
+            mgv2Muted = !mgv2Muted;
+            try { localStorage.setItem(MGV2_MUTE_KEY, mgv2Muted ? '1' : '0'); } catch (e) {}
+            mgv2PaintMute();
+            if (!mgv2Muted) playSfx('click');
+        });
+        mgv2PaintMute();
+        function mgv2Mood(m) { const e = document.getElementById('mgv2-mascot'); if (e) e.setAttribute('data-mood', m); }
+        function mgv2State(s) { document.getElementById('mgv2-field').setAttribute('data-state', s); }
+        (function () {
+            const cf = document.getElementById('mgv2-cf');
+            const cols = ['#ffe45e', '#ff8fa3', '#7fd4ff', '#ffffff', '#b5f06a', '#ffb347'];
+            for (let k = 0; k < 24; k++) {
+                const ang = (k / 24) * Math.PI * 2, d = 80 + (k % 4) * 28;
+                const el = document.createElement('i');
+                el.style.setProperty('--dx', Math.round(Math.cos(ang) * d) + 'px');
+                el.style.setProperty('--dy', Math.round(Math.sin(ang) * d - 30) + 'px');
+                el.style.setProperty('--r', (k * 47) % 360 + 'deg');
+                el.style.setProperty('--c', cols[k % cols.length]);
+                cf.appendChild(el);
+            }
+        })();
+        function mgv2Burst() {
+            if (mgv2Reduce) return;
+            const f = document.getElementById('mgv2-field');
+            f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+            setTimeout(function () { f.classList.remove('go'); }, 1400);
+        }
+
         let lgN = 0, lgRungs = [], lgLabels = [], lgRows = 10, lgAnimating = false, lgRevealed = new Set();
+        const LG_INK = '#14305e', LG_RAIL = '#fff6df';
+        const SVGNS = 'http://www.w3.org/2000/svg';
+        function lgEl(name, attrs, parent) {
+            const e = document.createElementNS(SVGNS, name);
+            for (const k in attrs) e.setAttribute(k, attrs[k]);
+            if (parent) parent.appendChild(e);
+            return e;
+        }
+        function lgGeom() {
+            const svg = document.getElementById('lg-svg');
+            const w = svg.clientWidth || 320, h = svg.clientHeight || 220;
+            const rr = Math.max(9, Math.min(15, (w / (lgN + 1)) * 0.42));
+            const topPad = rr * 2 + 8, botPad = 26;
+            return { svg, w, h, rr, topPad, botPad, spacing: w / (lgN + 1), usableH: h - topPad - botPad };
+        }
+        function lgShort(s, spacing) {
+            const maxc = Math.max(1, Math.floor(spacing / 10));
+            return s.length > maxc ? s.slice(0, Math.max(1, maxc - 1)) + '…' : s;
+        }
 
         // 확률상 아주 드물게(특히 맨 끝 번호) 10줄 내내 가로선을 한 번도 못 만날 수 있는데,
         // 그러면 그 번호는 세로줄 하나만 뚝 떨어진 것처럼 보여 어색함. 그런 번호가 있으면
@@ -711,63 +834,46 @@
             }
             lgEnsureEveryColumnConnected();
 
-            document.getElementById('lg-setup').classList.add('hidden');
-            document.getElementById('lg-board').classList.remove('hidden');
+            mgv2State('play');
             document.getElementById('lg-result').innerHTML = '';
             lgAnimating = false;
             lgRevealed = new Set();
             drawLadder();
         }
 
+        function lgLine(svg, x1, y1, x2, y2) {
+            lgEl('line', { x1, y1, x2, y2, stroke: LG_INK, 'stroke-width': 9, 'stroke-linecap': 'round' }, svg);
+            lgEl('line', { x1, y1, x2, y2, stroke: LG_RAIL, 'stroke-width': 4.5, 'stroke-linecap': 'round' }, svg);
+        }
+
         function drawLadder() {
-            const svg = document.getElementById('lg-svg');
-            const width = svg.clientWidth || 320;
-            const height = 320;
-            const topPad = 36, botPad = 20;
-            const usableH = height - topPad - botPad;
-            const spacing = width / (lgN + 1);
-            svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+            const g = lgGeom(), svg = g.svg;
+            svg.setAttribute('viewBox', '0 0 ' + g.w + ' ' + g.h);
             svg.innerHTML = '';
 
-            for (let i = 0; i < lgN; i++) {
-                const x = spacing * (i + 1);
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', x); line.setAttribute('y1', topPad);
-                line.setAttribute('x2', x); line.setAttribute('y2', height - botPad);
-                line.setAttribute('stroke', '#cbd5e1'); line.setAttribute('stroke-width', '3');
-                svg.appendChild(line);
-
-                const numText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                numText.setAttribute('x', x); numText.setAttribute('y', topPad - 12);
-                numText.setAttribute('text-anchor', 'middle'); numText.setAttribute('font-size', '13');
-                numText.setAttribute('font-weight', '900'); numText.setAttribute('fill', '#4f46e5');
-                numText.setAttribute('cursor', 'pointer');
-                numText.setAttribute('id', 'lg-num-' + i);
-                numText.style.touchAction = 'manipulation';
-                numText.textContent = (i + 1);
-                numText.addEventListener('click', () => runLadder(i));
-                svg.appendChild(numText);
-
-                const labelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                labelText.setAttribute('x', x); labelText.setAttribute('y', height - botPad + 16);
-                labelText.setAttribute('text-anchor', 'middle'); labelText.setAttribute('font-size', '11');
-                labelText.setAttribute('font-weight', '700'); labelText.setAttribute('fill', '#64748b');
-                labelText.textContent = '?';
-                labelText.setAttribute('id', 'lg-bottom-' + i);
-                svg.appendChild(labelText);
-            }
-
             for (let r = 0; r < lgRows; r++) {
-                const y = topPad + (usableH / (lgRows - 1)) * r;
+                const y = g.topPad + (g.usableH / (lgRows - 1)) * r;
                 lgRungs[r].forEach((has, i) => {
                     if (!has) return;
-                    const x1 = spacing * (i + 1), x2 = spacing * (i + 2);
-                    const rung = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    rung.setAttribute('x1', x1); rung.setAttribute('y1', y);
-                    rung.setAttribute('x2', x2); rung.setAttribute('y2', y);
-                    rung.setAttribute('stroke', '#cbd5e1'); rung.setAttribute('stroke-width', '3');
-                    svg.appendChild(rung);
+                    lgLine(svg, g.spacing * (i + 1), y, g.spacing * (i + 2), y);
                 });
+            }
+            for (let i = 0; i < lgN; i++) {
+                const x = g.spacing * (i + 1);
+                lgLine(svg, x, g.topPad, x, g.h - g.botPad);
+
+                const num = lgEl('g', { class: 'lg-num', id: 'lg-num-' + i, role: 'button', tabindex: '0', 'aria-label': (i + 1) + '번으로 출발' }, svg);
+                lgEl('circle', { cx: x, cy: g.topPad - g.rr - 4, r: g.rr, fill: '#fff', stroke: LG_INK, 'stroke-width': 3.5 }, num);
+                const t = lgEl('text', { x: x, y: g.topPad - g.rr - 4, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': g.rr * 1.15, 'font-weight': 700, fill: LG_INK }, num);
+                t.textContent = (i + 1);
+                num.addEventListener('pointerdown', (e) => { e.preventDefault(); runLadder(i); });
+                num.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); runLadder(i); } });
+
+                const tag = lgEl('g', { class: 'lg-tag', id: 'lg-bottom-' + i }, svg);
+                const tw = Math.min(g.spacing * 0.92, 44);
+                lgEl('rect', { x: x - tw / 2, y: g.h - g.botPad + 3, width: tw, height: 20, rx: 7, fill: '#fff', stroke: LG_INK, 'stroke-width': 3 }, tag);
+                const lt = lgEl('text', { x: x, y: g.h - g.botPad + 13, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12, 'font-weight': 700, fill: LG_INK }, tag);
+                lt.textContent = '?';
             }
         }
 
@@ -783,34 +889,29 @@
             return { end: pos, path };
         }
 
-        // 사다리를 타고 내려가는 점을 애니메이션으로 그려준 뒤 완료 콜백을 실행
+        // 사다리를 타고 내려가는 네모 말을 애니메이션으로 그려준 뒤 완료 콜백을 실행
         function animateLadderPath(path, onDone) {
-            const svg = document.getElementById('lg-svg');
-            const width = svg.clientWidth || 320;
-            const height = 320;
-            const topPad = 36, botPad = 20;
-            const spacing = width / (lgN + 1);
+            const g = lgGeom(), svg = g.svg;
             const steps = path.length;
-
-            const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            dot.setAttribute('r', 7);
-            dot.setAttribute('fill', '#f59e0b');
-            dot.setAttribute('stroke', '#fff');
-            dot.setAttribute('stroke-width', '2');
-            svg.appendChild(dot);
+            const s = g.rr * 1.5;
+            const mover = lgEl('g', { style: 'transition:transform .09s linear' }, svg);
+            lgEl('rect', { x: -s / 2, y: -s / 2, width: s, height: s, rx: s * 0.28, fill: '#ffcf4a', stroke: LG_INK, 'stroke-width': 3 }, mover);
+            lgEl('ellipse', { cx: -s * 0.2, cy: -s * 0.05, rx: s * 0.07, ry: s * 0.12, fill: LG_INK }, mover);
+            lgEl('ellipse', { cx: s * 0.2, cy: -s * 0.05, rx: s * 0.07, ry: s * 0.12, fill: LG_INK }, mover);
+            lgEl('path', { d: 'M' + (-s * 0.16) + ' ' + (s * 0.18) + ' Q0 ' + (s * 0.3) + ' ' + (s * 0.16) + ' ' + (s * 0.18), fill: 'none', stroke: LG_INK, 'stroke-width': 2.4, 'stroke-linecap': 'round' }, mover);
 
             let i = 0;
             (function step() {
-                const x = spacing * (path[i] + 1);
-                const y = topPad + (height - botPad - topPad) * (i / (steps - 1));
-                dot.setAttribute('cx', x);
-                dot.setAttribute('cy', y);
+                const x = g.spacing * (path[i] + 1);
+                const y = g.topPad + (g.h - g.botPad - g.topPad) * (i / (steps - 1));
+                mover.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+                if (i > 0 && path[i] !== path[i - 1]) playSfx('click');
                 i++;
                 if (i < steps) {
                     setTimeout(step, 90);
                 } else {
                     setTimeout(() => {
-                        if (dot.parentNode) svg.removeChild(dot);
+                        if (mover.parentNode) svg.removeChild(mover);
                         onDone();
                     }, 150);
                 }
@@ -832,23 +933,32 @@
                 playSfx('reveal');
 
                 const numEl = document.getElementById('lg-num-' + start);
-                if (numEl) { numEl.setAttribute('fill', '#94a3b8'); numEl.setAttribute('cursor', 'default'); }
+                if (numEl) { numEl.classList.add('done'); }
 
                 const line = document.createElement('div');
                 line.textContent = (start + 1) + '번 → ' + lgLabels[end];
-                line.style.marginTop = '4px';
+                line.style.marginTop = '2px';
                 document.getElementById('lg-result').appendChild(line);
 
+                const g = lgGeom();
                 const bottomEl = document.getElementById('lg-bottom-' + end);
-                if (bottomEl) { bottomEl.textContent = lgLabels[end]; bottomEl.setAttribute('fill', '#4f46e5'); }
+                if (bottomEl) {
+                    bottomEl.classList.add('win');
+                    bottomEl.querySelector('text').textContent = lgShort(lgLabels[end], g.spacing);
+                    const x = g.spacing * (end + 1), y = g.h - g.botPad + 3;
+                    lgEl('path', { d: 'M' + x + ' ' + y + ' V' + (y - 16) + ' L' + (x + 11) + ' ' + (y - 11) + ' L' + x + ' ' + (y - 6), fill: '#e5483f', stroke: LG_INK, 'stroke-width': 2.6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, bottomEl);
+                }
+                const lr = document.getElementById('lg-result'); lr.scrollTop = lr.scrollHeight;
+                if (lgRevealed.size === lgN) mgv2Burst();
             });
         }
 
-
         function resetLadder() {
-            document.getElementById('lg-setup').classList.remove('hidden');
-            document.getElementById('lg-board').classList.add('hidden');
+            if (lgAnimating) return;
+            mgv2State('setup');
         }
+        mgv2State('setup');
+
     
     </script>
     <button id="back-to-game-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="게임 화면으로 이동"
