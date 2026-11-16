@@ -27,6 +27,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -204,7 +205,7 @@
         <div class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3">🃏 카드 짝맞추기</h1>
             <p class="text-slate-500">같은 그림 카드를 모두 찾아보세요</p>
-        <button onclick="return gameNavScroll('m-desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition inline-block mt-3">📖 게임설명</button>
+        <span id="mg-ver-top" class="text-xs md:text-sm font-bold text-slate-600 bg-slate-200 px-3 py-1.5 rounded-full inline-block mt-3 mr-1">v2.0.0</span><button onclick="return gameNavScroll('m-desc')" class="text-xs md:text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition inline-block mt-3">📖 게임설명</button>
         </div>
 
         <div id="m-quick" style="margin:0 0 20px;padding:16px 18px;border:1px solid #c7d2fe;border-radius:16px;background:#eef2ff">
@@ -214,14 +215,86 @@
 
 
 
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8">
-            <div class="flex justify-between items-center mb-4">
-                <div class="text-sm font-bold text-slate-500">시도 횟수: <span id="cm-tries" class="text-indigo-600">0</span> <span id="cm-best" style="margin-left:8px;color:#94a3b8"></span></div>
-                <button onclick="playSfx('click');cmReset()" class="text-sm font-bold text-slate-500 hover:text-indigo-600" style="touch-action:manipulation">🔄 새 게임</button>
-            </div>
-            <div id="cm-board" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
-            <div id="cm-msg" class="text-center font-black text-indigo-600 mt-4 min-h-[24px]"></div>
-        </div>
+        
+        <style>
+.mgv2-wrap{font-family:'Jua','Noto Sans KR',sans-serif;}
+
+.mgv2-wrap{font-weight:700;max-width:520px;margin:0 auto;color:var(--ink)}
+.mgv2-field{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:28px;border:4px solid var(--ink);box-shadow:0 6px 0 var(--ink);container-type:inline-size;user-select:none;-webkit-user-select:none}
+.mgv2-mute{position:absolute;width:48px;height:48px;min-width:48px;border-radius:16px;border:3px solid var(--ink);background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:7;touch-action:manipulation}
+.mgv2-mute svg{width:26px;height:26px}
+.mgv2-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mgv2-ov{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);transition:opacity .2s}
+.mgv2-field[data-state="play"] .mgv2-ov{opacity:0;visibility:hidden;pointer-events:none}
+.mgv2-panel{width:80%;background:var(--panel);border:4px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);padding:4.5cqw;text-align:center;color:var(--ptext,#fff)}
+.mgv2-pt{word-break:keep-all;font-size:7.2cqw;line-height:1.15;text-shadow:0 3px 0 var(--ink)}
+.mgv2-pb{font-size:15cqw;line-height:1;color:var(--pbig,#ffe45e);text-shadow:0 4px 0 var(--ink);margin:1cqw 0;word-break:keep-all}
+.mgv2-ps{font-size:5.4cqw;min-height:1.3em;word-break:keep-all}
+.mgv2-go{margin-top:3cqw;min-height:56px;min-width:56%;padding:0 6cqw;font-family:inherit;font-weight:700;font-size:7.6cqw;color:var(--ink);background:var(--btn,#ffe45e);border:4px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--ink);cursor:pointer;touch-action:manipulation}
+.mgv2-go:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.mgv2-go:disabled{opacity:.6}
+.mgv2-sub{min-height:44px;padding:0 4cqw;font-family:inherit;font-weight:700;font-size:5.4cqw;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:0 3px 0 var(--ink);cursor:pointer;touch-action:manipulation}
+.mgv2-sub:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.mgv2-cf{position:absolute;left:50%;top:42%;width:0;height:0;z-index:8;pointer-events:none}
+.mgv2-cf i{position:absolute;left:0;top:0;width:10px;height:14px;border-radius:3px;background:var(--c);opacity:0}
+.mgv2-field.go .mgv2-cf i{animation:mgv2-cf 1.2s ease-out forwards}
+.mgv2-m-joy,.mgv2-m-wow,.mgv2-m-cheer,.mgv2-m-sleep{display:none}
+[data-mood="joy"] .mgv2-m-base,[data-mood="wow"] .mgv2-m-base,[data-mood="cheer"] .mgv2-m-base,[data-mood="sleep"] .mgv2-m-base{display:none}
+[data-mood="joy"] .mgv2-m-joy,[data-mood="wow"] .mgv2-m-wow,[data-mood="cheer"] .mgv2-m-cheer,[data-mood="sleep"] .mgv2-m-sleep{display:inline}
+@keyframes mgv2-cf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.mgv2-field.go .mgv2-cf i{animation:none}}
+
+.mgv2-field{background:#ffd3ae}
+.mgv2-top{position:absolute;left:3%;right:3%;top:3%;display:flex;justify-content:space-between;align-items:flex-start;z-index:2}
+.mgv2-ttl{background:#fff;border:3px solid var(--ink);border-radius:10px;padding:1.2cqw 3.4cqw;font-size:6.2cqw;transform:rotate(-4deg);box-shadow:0 3px 0 var(--ink);line-height:1.1}
+.mgv2-tbl{background:#fffaf0;border:3px solid var(--ink);border-radius:10px;padding:1.2cqw 3cqw;font-size:4.6cqw;line-height:1.25;transform:rotate(2deg);margin-right:56px;text-align:right}
+.mgv2-tbl b{color:#d9480f;font-size:6cqw}
+#cm-board{position:absolute;left:10%;right:10%;top:18%;bottom:19%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:2cqw}
+.mgv2-card{position:relative;border:0;background:none;padding:0;margin:0;perspective:500px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.mgv2-card .in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .3s}
+.mgv2-card .f,.mgv2-card .b{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.mgv2-card .f svg,.mgv2-card .b svg{width:100%;height:100%;display:block}
+.mgv2-card .f{transform:rotateY(180deg);background:#fffdf7;border:3px solid var(--ink);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.mgv2-card .f svg{width:78%;height:78%}
+.mgv2-card.open .in{transform:rotateY(180deg)}
+.mgv2-card.ok .f{border-color:#e0a800;box-shadow:0 0 0 3px #ffd54a}
+.mgv2-card.hop{animation:mgv2-hop .4s ease-out}
+.mgv2-card.shake{animation:mgv2-shake .4s}
+.mgv2-bot{position:absolute;left:0;right:0;bottom:2.5%;display:flex;justify-content:center;gap:3cqw;align-items:center;z-index:2}
+.mgv2-cor{position:absolute;right:2%;bottom:1.5%;width:13%;z-index:3;pointer-events:none;opacity:0;transform:translateY(20px);transition:opacity .2s,transform .2s}
+.mgv2-field.last .mgv2-cor{opacity:1;transform:none}
+.mgv2-cor svg{width:100%;display:block}
+.mgv2-stars{font-size:0;display:flex;justify-content:center;gap:2cqw;margin:1cqw 0}
+.mgv2-stars svg{width:11cqw;height:11cqw}
+@keyframes mgv2-hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}}
+@keyframes mgv2-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){.mgv2-card .in{transition-duration:.01s}.mgv2-card.hop,.mgv2-card.shake{animation:none}}
+
+</style>
+<div class="mgv2-wrap" style="--ink:#0d4f4f;--panel:#2fb5b0;--btn:#ffe45e">
+ <div class="mgv2-field" id="mgv2-field" data-state="play">
+  <div class="mgv2-top"><div class="mgv2-ttl">카드 짝맞추기</div><div class="mgv2-tbl">시도 <b id="cm-tries">0</b><br><span id="cm-best" style="font-size:4cqw"></span></div></div>
+  <button type="button" class="mgv2-mute" id="mgv2-mute" aria-label="소리 끄기" aria-pressed="false" style="right:2%;top:2.5%"></button>
+  <div id="cm-board"></div>
+  <div class="mgv2-bot"><button type="button" class="mgv2-sub" onclick="playSfx('click');cmReset()">새 게임</button></div>
+  <div class="mgv2-cor" aria-hidden="true"><svg viewBox="0 0 104 104" id="mgv2-mascot" class="" data-mood="cheer" aria-hidden="true" style="overflow:visible">
+<rect x="6" y="6" width="92" height="92" rx="24" fill="#ffcf4a" stroke="#0d4f4f" stroke-width="5"/>
+<ellipse cx="24" cy="64" rx="7" ry="4" fill="#ff9e9e"/><ellipse cx="80" cy="64" rx="7" ry="4" fill="#ff9e9e"/>
+<g class="mgv2-m-base"><ellipse cx="36" cy="46" rx="7" ry="10" fill="#0d4f4f"/><ellipse cx="68" cy="46" rx="7" ry="10" fill="#0d4f4f"/><circle cx="34" cy="42" r="2.5" fill="#fff"/><circle cx="66" cy="42" r="2.5" fill="#fff"/><path d="M42 66 Q52 76 62 66" fill="none" stroke="#0d4f4f" stroke-width="4" stroke-linecap="round"/></g>
+<g class="mgv2-m-joy"><path d="M28 48 Q36 36 44 48" fill="none" stroke="#0d4f4f" stroke-width="5" stroke-linecap="round"/><path d="M60 48 Q68 36 76 48" fill="none" stroke="#0d4f4f" stroke-width="5" stroke-linecap="round"/><path d="M36 62 Q52 86 68 62 Z" fill="#c2412d" stroke="#0d4f4f" stroke-width="4" stroke-linejoin="round"/></g>
+<g class="mgv2-m-wow"><circle cx="36" cy="46" r="10" fill="#fff" stroke="#0d4f4f" stroke-width="4"/><circle cx="68" cy="46" r="10" fill="#fff" stroke="#0d4f4f" stroke-width="4"/><circle cx="36" cy="46" r="4" fill="#0d4f4f"/><circle cx="68" cy="46" r="4" fill="#0d4f4f"/><ellipse cx="52" cy="70" rx="6" ry="8" fill="#0d4f4f"/></g>
+<g class="mgv2-m-cheer"><path d="M26 30 L44 34" stroke="#0d4f4f" stroke-width="5" stroke-linecap="round"/><path d="M78 30 L60 34" stroke="#0d4f4f" stroke-width="5" stroke-linecap="round"/><ellipse cx="36" cy="48" rx="7" ry="10" fill="#0d4f4f"/><ellipse cx="68" cy="48" rx="7" ry="10" fill="#0d4f4f"/><circle cx="34" cy="44" r="2.5" fill="#fff"/><circle cx="66" cy="44" r="2.5" fill="#fff"/><path d="M40 66 Q52 80 64 66" fill="none" stroke="#0d4f4f" stroke-width="4" stroke-linecap="round"/></g>
+<g class="mgv2-m-sleep"><path d="M28 48 Q36 54 44 48" fill="none" stroke="#0d4f4f" stroke-width="5" stroke-linecap="round"/><path d="M60 48 Q68 54 76 48" fill="none" stroke="#0d4f4f" stroke-width="5" stroke-linecap="round"/><path d="M44 68 Q52 72 60 68" fill="none" stroke="#0d4f4f" stroke-width="4" stroke-linecap="round"/></g>
+</svg></div>
+  <div class="mgv2-cf" id="mgv2-cf" aria-hidden="true"></div>
+  <div class="mgv2-ov" id="mgv2-ov" style="opacity:0;visibility:hidden;pointer-events:none">
+   <div class="mgv2-panel"><div class="mgv2-pt" id="mgv2-pt">전부 찾았어요!</div><div class="mgv2-stars" id="mgv2-stars"></div><div class="mgv2-pb" id="mgv2-pb" style="font-size:12cqw"></div><div class="mgv2-ps" id="mgv2-ps"></div><button type="button" class="mgv2-go" onclick="playSfx('click');cmReset()">다시 하기</button></div>
+  </div>
+ </div>
+ <div id="cm-msg" class="mgv2-sr" aria-live="polite"></div>
+</div>
+
+
     
 
                 <section style="max-width:56rem;margin:24px auto 0;padding:0 16px">
@@ -320,6 +393,7 @@
                     </div>
                 </div>
             </div>
+<div id="game-info" class="p-10" style="scroll-margin-top:70px;border-top:1px solid #f1f5f9;"><h3 class="font-black text-lg text-slate-800 mb-4">시스템 정보</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-8"><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">제작사</span><p class="text-xl font-black text-slate-800">HOHO PLAY</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">엔진</span><p class="text-xl font-black text-slate-800">순수 자바스크립트</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">버전</span><p id="mg-ver-bottom" class="text-xl font-black text-slate-800">2.0.0</p></div><div><span class="text-slate-400 font-bold text-xs block mb-2 uppercase tracking-widest">이용 등급</span><p class="text-xl font-black text-indigo-500">전체 이용가</p></div></div><div id="game-updates" style="margin-top:20px;padding-top:18px;border-top:1px solid #f1f5f9"><h3 style="font-size:15px;font-weight:900;color:#1e293b;margin:0 0 8px">업데이트 내용</h3><p style="font-size:13px;font-weight:800;color:#4f46e5;margin:0 0 6px">v2.0.0 · 2026-11-16</p><ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.7;color:#475569;list-style:disc"><li style="margin:0 0 4px">v2 디자인을 적용했어요. 복숭아색 테이블 위에 카드가 살짝씩 기울어져 놓여 있어요.</li><li style="margin:0 0 4px">카드 앞면 그림을 이모지에서 직접 그린 8가지 그림(별, 하트, 구름, 달, 꽃, 물방울, 번개, 나뭇잎)으로 바꿨어요.</li><li style="margin:0 0 4px">카드가 가로로 뒤집히고, 짝이 맞으면 폴짝 뛰어요. 끝나면 별 1~3개로 평가해 줘요.</li><li style="margin:0 0 4px">소리 켜고 끄기 버튼을 추가했어요. 게임 규칙은 그대로예요.</li></ul></div></div>
         </div>
         <script>
             function gameNavScroll(key) {
@@ -611,7 +685,56 @@
         }
 
 
-        const cmEmojis = ['🍎','🍌','🍇','🍉','🍓','🍒','🍑','🥝'];
+        // ── v2 디자인 공통 부품 (게임 규칙과 무관) ──
+        const MGV2_MUTE_KEY = 'hohoplay_mgv2_mute';
+        let mgv2Muted = false;
+        try { mgv2Muted = localStorage.getItem(MGV2_MUTE_KEY) === '1'; } catch (e) {}
+        const mgv2Reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        (function () {
+            const orig = window.playSfx;
+            window.playSfx = function (t) { if (mgv2Muted) return; orig(t); };
+        })();
+        const MGV2_ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="#ffcf4a"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+        const MGV2_ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="#ffcf4a"/><path d="M17 9l5 6"/><path d="M22 9l-5 6"/></svg>';
+        function mgv2PaintMute() {
+            const b = document.getElementById('mgv2-mute');
+            b.innerHTML = mgv2Muted ? MGV2_ICON_OFF : MGV2_ICON_ON;
+            b.setAttribute('aria-label', mgv2Muted ? '소리 켜기' : '소리 끄기');
+            b.setAttribute('aria-pressed', mgv2Muted ? 'true' : 'false');
+        }
+        document.getElementById('mgv2-mute').addEventListener('click', function () {
+            mgv2Muted = !mgv2Muted;
+            try { localStorage.setItem(MGV2_MUTE_KEY, mgv2Muted ? '1' : '0'); } catch (e) {}
+            mgv2PaintMute();
+            if (!mgv2Muted) playSfx('click');
+        });
+        mgv2PaintMute();
+        function mgv2Mood(m) { const e = document.getElementById('mgv2-mascot'); if (e) e.setAttribute('data-mood', m); }
+        function mgv2State(s) { document.getElementById('mgv2-field').setAttribute('data-state', s); }
+        (function () {
+            const cf = document.getElementById('mgv2-cf');
+            const cols = ['#ffe45e', '#ff8fa3', '#7fd4ff', '#ffffff', '#b5f06a', '#ffb347'];
+            for (let k = 0; k < 24; k++) {
+                const ang = (k / 24) * Math.PI * 2, d = 80 + (k % 4) * 28;
+                const el = document.createElement('i');
+                el.style.setProperty('--dx', Math.round(Math.cos(ang) * d) + 'px');
+                el.style.setProperty('--dy', Math.round(Math.sin(ang) * d - 30) + 'px');
+                el.style.setProperty('--r', (k * 47) % 360 + 'deg');
+                el.style.setProperty('--c', cols[k % cols.length]);
+                cf.appendChild(el);
+            }
+        })();
+        function mgv2Burst() {
+            if (mgv2Reduce) return;
+            const f = document.getElementById('mgv2-field');
+            f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+            setTimeout(function () { f.classList.remove('go'); }, 1400);
+        }
+
+        const MGV2_ICONS = {"star": "<path d=\"M50 14 L60 38 L86 40 L66 57 L73 83 L50 69 L27 83 L34 57 L14 40 L40 38 Z\" fill=\"#ffd54a\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linejoin=\"round\"/>", "heart": "<path d=\"M50 84 C20 62 12 42 24 28 C34 18 46 24 50 34 C54 24 66 18 76 28 C88 42 80 62 50 84 Z\" fill=\"#ff7d95\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linejoin=\"round\"/>", "cloud": "<path d=\"M28 70 C12 70 12 46 30 46 C32 28 60 26 64 44 C84 40 90 70 70 70 Z\" fill=\"#cfeeff\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linejoin=\"round\"/>", "moon": "<path d=\"M64 14 C40 18 28 40 38 62 C48 82 74 86 86 70 C62 76 48 52 64 14 Z\" fill=\"#ffe27a\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linejoin=\"round\"/>", "flower": "<g fill=\"#ff9ec7\" stroke=\"#0d4f4f\" stroke-width=\"4\"><circle cx=\"50\" cy=\"26\" r=\"14\"/><circle cx=\"74\" cy=\"44\" r=\"14\"/><circle cx=\"65\" cy=\"72\" r=\"14\"/><circle cx=\"35\" cy=\"72\" r=\"14\"/><circle cx=\"26\" cy=\"44\" r=\"14\"/></g><circle cx=\"50\" cy=\"52\" r=\"11\" fill=\"#ffd54a\" stroke=\"#0d4f4f\" stroke-width=\"4\"/>", "drop": "<path d=\"M50 12 C50 12 20 46 20 62 C20 80 34 88 50 88 C66 88 80 80 80 62 C80 46 50 12 50 12 Z\" fill=\"#6cc6ff\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linejoin=\"round\"/><path d=\"M36 64 Q38 74 48 76\" fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\"/>", "bolt": "<path d=\"M56 10 L24 54 H46 L40 90 L76 42 H54 Z\" fill=\"#ffcf3d\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linejoin=\"round\"/>", "leaf": "<path d=\"M18 80 C14 40 40 16 84 16 C86 58 62 84 18 80 Z\" fill=\"#7ed957\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linejoin=\"round\"/><path d=\"M18 80 L58 40\" stroke=\"#0d4f4f\" stroke-width=\"5\" stroke-linecap=\"round\"/>"};
+        const MGV2_BACK = '<rect x="4" y="4" width="92" height="92" rx="16" fill="#2fb5b0" stroke="#0d4f4f" stroke-width="6"/><rect x="26" y="26" width="48" height="48" rx="12" fill="#bff2ee" stroke="#0d4f4f" stroke-width="5"/><circle cx="40" cy="46" r="4" fill="#0d4f4f"/><circle cx="60" cy="46" r="4" fill="#0d4f4f"/><path d="M42 58 Q50 65 58 58" fill="none" stroke="#0d4f4f" stroke-width="4" stroke-linecap="round"/>';
+        const MGV2_STAR = '<svg viewBox="0 0 100 100"><path d="M50 10 L61 38 L90 40 L67 58 L75 88 L50 72 L25 88 L33 58 L10 40 L39 38 Z" fill="FILL" stroke="#0d4f4f" stroke-width="6" stroke-linejoin="round"/></svg>';
+        const cmEmojis = ['star','heart','cloud','moon','flower','drop','bolt','leaf'];
         let cmCards = [], cmFlipped = [], cmMatched = [], cmTries = 0, cmLock = false;
 
         function cmInit() {
@@ -623,26 +746,48 @@
             cmFlipped = []; cmMatched = []; cmTries = 0; cmLock = false;
             document.getElementById('cm-tries').textContent = '0';
             document.getElementById('cm-msg').textContent = '';
+            const f = document.getElementById('mgv2-field');
+            f.classList.remove('last');
+            const ov = document.getElementById('mgv2-ov');
+            ov.style.cssText = 'opacity:0;visibility:hidden;pointer-events:none';
+            mgv2Build();
             cmRender();
         }
 
-        function cmRender() {
+        function mgv2Build() {
             const board = document.getElementById('cm-board');
             board.innerHTML = '';
-            cmCards.forEach((emoji, i) => {
-                const isOpen = cmFlipped.includes(i) || cmMatched.includes(i);
-                const cell = document.createElement('div');
-                cell.style.cssText = 'aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;touch-action:manipulation;background:' + (isOpen ? '#eef2ff' : '#4f46e5') + ';transition:.15s';
-                cell.textContent = isOpen ? emoji : '';
-                if (!isOpen) cell.onclick = () => cmFlip(i);
-                board.appendChild(cell);
+            cmCards.forEach((k, i) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'mgv2-card';
+                b.style.transform = 'rotate(' + ((((i * 7) % 5) - 2) * 1.4) + 'deg)';
+                b.setAttribute('aria-label', '카드 ' + (i + 1));
+                b.innerHTML = '<div class="in"><div class="b"><svg viewBox="0 0 100 100">' + MGV2_BACK + '</svg></div><div class="f"><svg viewBox="0 0 100 100">' + MGV2_ICONS[k] + '</svg></div></div>';
+                b.addEventListener('pointerdown', function (e) { e.preventDefault(); cmFlip(i); });
+                b.addEventListener('click', function (e) { if (e.detail === 0) cmFlip(i); });
+                board.appendChild(b);
             });
+        }
+
+        function cmRender() {
+            document.querySelectorAll('#cm-board .mgv2-card').forEach((el, i) => {
+                const isOpen = cmFlipped.includes(i) || cmMatched.includes(i);
+                el.classList.toggle('open', isOpen);
+                el.classList.toggle('ok', cmMatched.includes(i));
+            });
+            document.getElementById('mgv2-field').classList.toggle('last', cmMatched.length === cmCards.length - 2 && cmCards.length > 0);
+        }
+        function mgv2Fx(i, cls, ms) {
+            const el = document.querySelectorAll('#cm-board .mgv2-card')[i]; if (!el) return;
+            el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+            setTimeout(function () { el.classList.remove(cls); }, ms);
         }
 
         const CM_BEST_KEY = 'hohoplay_mgame9_best';
         function cmShowBest() {
             const best = localStorage.getItem(CM_BEST_KEY);
-            document.getElementById('cm-best').textContent = best ? ('🏆 최고기록 ' + best + '번') : '';
+            document.getElementById('cm-best').textContent = best ? ('최고 ' + best + '번') : '';
         }
         cmShowBest();
 
@@ -661,17 +806,26 @@
                     cmFlipped = [];
                     cmLock = false;
                     cmRender();
+                    if (!mgv2Reduce) { mgv2Fx(a, 'hop', 450); mgv2Fx(b, 'hop', 450); }
                     if (cmMatched.length === cmCards.length) {
                         const best = parseInt(localStorage.getItem(CM_BEST_KEY) || '0', 10);
                         const isRecord = !best || cmTries < best;
                         if (isRecord) { localStorage.setItem(CM_BEST_KEY, String(cmTries)); cmShowBest(); }
                         playSfx(isRecord ? 'record' : 'win');
-                        document.getElementById('cm-msg').textContent = (isRecord ? '🏆 신기록! ' : '🎉 ') + cmTries + '번 만에 전부 맞히셨어요!';
+                        document.getElementById('cm-msg').textContent = (isRecord ? '신기록! ' : '') + cmTries + '번 만에 전부 맞히셨어요!';
+                        const n = cmTries <= 10 ? 3 : (cmTries <= 14 ? 2 : 1);
+                        document.getElementById('mgv2-stars').innerHTML = [1, 2, 3].map(k => MGV2_STAR.replace('FILL', k <= n ? '#ffd54a' : '#d8d2c4')).join('');
+                        document.getElementById('mgv2-pt').textContent = isRecord ? '신기록! 전부 찾았어요' : '전부 찾았어요!';
+                        document.getElementById('mgv2-pb').textContent = cmTries + '번';
+                        document.getElementById('mgv2-ps').textContent = '최고 기록 ' + localStorage.getItem(CM_BEST_KEY) + '번';
+                        const ov = document.getElementById('mgv2-ov');
+                        setTimeout(function () { ov.style.cssText = ''; mgv2State('end'); mgv2Burst(); }, 650);
                     } else {
                         playSfx('reveal');
                     }
                 } else {
                     playSfx('lose');
+                    if (!mgv2Reduce) { mgv2Fx(a, 'shake', 450); mgv2Fx(b, 'shake', 450); }
                     setTimeout(() => {
                         cmFlipped = [];
                         cmLock = false;
@@ -681,8 +835,9 @@
             }
         }
 
-        function cmReset() { cmInit(); }
+        function cmReset() { mgv2State('play'); cmInit(); }
         cmInit();
+
     
     </script>
     <button id="back-to-game-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="게임 화면으로 이동"
