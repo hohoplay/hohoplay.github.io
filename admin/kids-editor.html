@@ -185,6 +185,7 @@
       <option value="fee">💳 요금 없음</option>
       <option value="costunk">❓ 비용 "확인 필요"</option>
       <option value="lock">📍 좌표 고정</option>
+      <option value="hidden">⛔ 숨김 (운영 OFF)</option>
       <option value="edited">✏️ 에디터로 수정한 곳</option>
       <option value="dirty">🟡 저장 전 변경</option>
     </select>
@@ -503,6 +504,7 @@ function visible(){
       case 'fee': return !hasVal(r.fee);
       case 'costunk': return r.costTag === '확인 필요';
       case 'lock': return !!r.coordLock;
+      case 'hidden': return !!r.hidden;
       case 'edited': return hasVal(r.updatedAt);
       case 'dirty': return isDirty(r.contentid);
     }
@@ -520,6 +522,7 @@ function rowHead(r){
   if (!hasVal(r.image)) flags += '<span class="flag">📷 사진 없음</span>';
   if (!hasVal(r.tel)) flags += '<span class="flag">☎ 전화 없음</span>';
   if (!hasVal(r.hours)) flags += '<span class="flag">🕘 운영시간 없음</span>';
+  if (r.hidden) flags = '<span class="flag" style="color:#b42318;background:#fee4e2;font-weight:700">⛔ 운영 OFF · 지도·코스에 안 나와요</span>' + flags;
   if (r.coordLock) flags += '<span class="flag" style="color:var(--pine-deep);background:var(--pine-mist)">📍 좌표 고정</span>';
   var upd;
   if (dirty) upd = '<div class="upd pending">🟡 저장 전 변경 있음 — 저장하면 수정일이 기록돼요</div>';
@@ -585,6 +588,7 @@ function fld(label, key, val, extra){
 }
 function buildForm(r){
   var id = r.contentid, h = '';
+  h += '<label class="check" style="display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:10px 12px;border-radius:10px;font-weight:700;border:1px solid ' + (r.hidden ? '#fda29b;background:#fee4e2' : '#abefc6;background:#ecfdf3') + '"><input type="checkbox" data-f="open"' + (r.hidden ? '' : ' checked') + '> <span>' + (r.hidden ? '⛔ 지금 운영 OFF' : '🟢 지금 운영 중') + '</span> <span style="font-weight:400;font-size:12px">— 끄면 지도·코스·추천·월드컵에 안 나와요 (다시 켜면 바로 돌아와요)</span></label>';
   h += '<div class="grid">';
   h += fld('장소명', 'title', r.title, { req: true });
   h += '<div><label class="f">번호</label><div class="ro" style="padding:9px 2px">' + esc(id) + (r.notDuplicateOf && r.notDuplicateOf.length ? ' · "중복 아님" 표시: ' + esc(r.notDuplicateOf.join(', ')) : '') + '</div></div>';
@@ -632,6 +636,7 @@ function setField(r, key, el){
     if (!r.coordLock) { r.coordLock = true; var cb = el.closest('.formwrap').querySelector('[data-f="coordLock"]'); if (cb) cb.checked = true; }
     return;
   }
+  if (key === 'open') { if (el.checked) delete r.hidden; else r.hidden = true; var bx = el.closest('label'); if (bx) { bx.style.background = r.hidden ? '#fee4e2' : '#ecfdf3'; bx.style.borderColor = r.hidden ? '#fda29b' : '#abefc6'; bx.querySelector('span').textContent = r.hidden ? '⛔ 지금 운영 OFF' : '🟢 지금 운영 중'; } return; }
   if (key === 'coordLock' || key === 'imageBlocked') { if (el.checked) r[key] = true; else delete r[key]; return; }
   if (key === 'hasDetail') { r.hasDetail = !!el.checked; return; }
   if (key === 'placeType') { if (el.checked) r.placeType = el.value; return; }

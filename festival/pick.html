@@ -1886,7 +1886,7 @@ loadComments();
 loadFestivals();
 fetch('/data/kids_places.json', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
-    .then(function (data) { init(Array.isArray(data) ? data : (data.places || [])); })
+    .then(function (data) { init((Array.isArray(data) ? data : (data.places || [])).filter(function (p) { return p && !p.hidden; })); })
     .catch(function () { document.getElementById('pk-root').innerHTML = '<div class="pk-empty">장소 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 보시거나 <a href="/festival/">아이랑 나들이 지도</a>를 이용해 주세요.</div>'; });
 </script>
 
