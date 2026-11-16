@@ -45,6 +45,13 @@
   .status-off { background: #fee2e2; color: #b91c1c; }
   .ad-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .empty { font-size: 13px; color: #94a3b8; text-align: center; padding: 24px 0; }
+  /* [ADD] 2026-11-17: 광고주 신청(대기) 카드 */
+  .app-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .app-meta { font-size: 12px; color: #475569; margin-top: 3px; line-height: 1.6; word-break: break-all; }
+  .app-desc { font-size: 12px; color: #64748b; margin-top: 4px; white-space: pre-wrap; }
+  .btn-load { background: #f59e0b; color: #fff; }
+  .btn-rej { background: #94a3b8; color: #fff; }
+  .app-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: #fef3c7; color: #b45309; }
 </style>
 </head>
 <body>
@@ -55,6 +62,10 @@
   <label for="key">관리자 키</label>
   <input id="key" type="password" placeholder="관리자 키 입력" onchange="loadAds()">
 </div>
+
+<h2>📩 광고 신청 <span id="appCount" class="app-badge" style="display:none"></span></h2>
+<p class="hint">광고주가 <b>/partner/apply.html</b>에서 보낸 신청입니다. "불러오기"를 누르면 아래 등록 폼에 채워지고, 좌표를 확인한 뒤 <b>활성화에 체크</b>하고 저장하면 지도에 노출됩니다. 저장하면 이 신청은 목록에서 빠집니다.</p>
+<div id="appList"><p class="empty">관리자 키를 입력하면 신청이 보여요.</p></div>
 
 <h2 id="formTitle">➕ 새 광고 장소 등록</h2>
 <input type="hidden" id="editId" value="">
@@ -138,6 +149,8 @@
 <script>
 const API = 'https://old-rain-16f7.lyh0929mm.workers.dev';
 let currentAds = [];
+let currentApps = [];
+let pendingAppId = null;
 let geocoder = null;
 
 function escapeHtml(str) {
@@ -189,6 +202,7 @@ function geocodeAddress() {
 function resetForm() {
   document.getElementById('formTitle').textContent = '➕ 새 광고 장소 등록';
   document.getElementById('editId').value = '';
+  pendingAppId = null;
   ['f-title', 'f-addr', 'f-lat', 'f-lng', 'f-image', 'f-description', 'f-tel', 'f-fee', 'f-homepage', 'f-start', 'f-end']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('f-active').checked = true;
@@ -219,6 +233,7 @@ async function saveAd() {
   const key = document.getElementById('key').value;
   const statusEl = document.getElementById('saveStatus');
   const id = document.getElementById('editId').value;
+  const appId = pendingAppId;
 
   const body = {
     title: document.getElementById('f-title').value.trim(),
@@ -253,6 +268,16 @@ async function saveAd() {
       return;
     }
     statusEl.textContent = '저장되었습니다.';
+    // [ADD] 신청에서 불러온 새 등록이면 그 신청을 "처리 완료"로 바꿔 대기 목록에서 뺀다.
+    if (appId && !id) {
+      try {
+        await fetch(API + '/admin/applications?key=' + encodeURIComponent(key), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: appId, status: 'done' }),
+        });
+      } catch (e) { /* 신청 상태 갱신 실패는 등록 성공에 영향 없음 — 목록에서 수동 처리 */ }
+    }
     resetForm();
     loadAds();
   } catch (e) {
@@ -279,6 +304,7 @@ async function loadAds() {
   const key = document.getElementById('key').value;
   const listEl = document.getElementById('adList');
   if (!key) return;
+  loadApps();
 
   listEl.innerHTML = '<p class="empty">불러오는 중...</p>';
   try {
@@ -311,6 +337,115 @@ async function loadAds() {
   } catch (e) {
     listEl.innerHTML = '<p class="empty" style="color:red">네트워크 오류: ' + escapeHtml(e.message) + '</p>';
   }
+}
+
+// ══════════ [ADD] 2026-11-17 광고주 신청(대기) ══════════
+const PERIOD_LABEL = { '1': '1개월', '3': '3개월', '6': '6개월', '12': '12개월' };
+
+function fmtDateTime(ms) {
+  if (!ms) return '';
+  const d = new Date(Number(ms));
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+    + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+async function loadApps() {
+  const key = document.getElementById('key').value;
+  const listEl = document.getElementById('appList');
+  const cntEl = document.getElementById('appCount');
+  if (!key) return;
+  try {
+    const res = await fetch(API + '/admin/applications?key=' + encodeURIComponent(key) + '&status=pending');
+    const data = await res.json();
+    if (!res.ok) {
+      listEl.innerHTML = '<p class="empty" style="color:red">' + escapeHtml(data.error || '오류') + '</p>';
+      cntEl.style.display = 'none';
+      return;
+    }
+    currentApps = data.applications || [];
+    if (!currentApps.length) {
+      listEl.innerHTML = '<p class="empty">대기 중인 신청이 없습니다.</p>';
+      cntEl.style.display = 'none';
+      return;
+    }
+    cntEl.textContent = currentApps.length + '건 대기';
+    cntEl.style.display = 'inline-block';
+    listEl.innerHTML = currentApps.map(a => `
+      <div class="app-card">
+        <div class="ad-card-top">
+          <div style="min-width:0">
+            <div class="ad-title">${escapeHtml(a.title)} <span class="app-badge">${escapeHtml(a.category || '업종 미선택')}</span></div>
+            <div class="app-meta">📍 ${escapeHtml(a.addr)}</div>
+            <div class="app-meta">👤 ${escapeHtml(a.contact_name)} · ✉️ ${escapeHtml(a.contact_email)}${a.contact_phone ? ' · 📞 ' + escapeHtml(a.contact_phone) : ''}</div>
+            <div class="app-meta">📅 희망 ${a.desired_start ? escapeHtml(a.desired_start) + ' 부터 ' : '시작일 미정 · '}${escapeHtml(PERIOD_LABEL[a.period] || a.period)} · 접수 ${escapeHtml(fmtDateTime(a.created_at))}</div>
+            ${a.homepage ? '<div class="app-meta">🔗 ' + escapeHtml(a.homepage) + '</div>' : ''}
+            ${a.description ? '<div class="app-desc">' + escapeHtml(a.description) + '</div>' : ''}
+            ${a.memo ? '<div class="app-desc">💬 ' + escapeHtml(a.memo) + '</div>' : ''}
+          </div>
+          <div class="ad-card-actions" style="flex-direction:column">
+            <button type="button" class="btn-small btn-load" onclick="loadFromApp(${a.id})">불러오기</button>
+            <button type="button" class="btn-small btn-rej" onclick="rejectApp(${a.id})">보류/거절</button>
+            <button type="button" class="btn-small btn-del" onclick="deleteApp(${a.id})">삭제</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    listEl.innerHTML = '<p class="empty" style="color:red">네트워크 오류: ' + escapeHtml(e.message) + '</p>';
+  }
+}
+
+// 희망 시작일 + 기간(개월) → 종료일(YYYY-MM-DD). 시작일 기준 N개월 뒤의 전날.
+function calcEndDate(startYmd, months) {
+  const p = (startYmd || '').split('-').map(Number);
+  if (p.length !== 3 || !p[0]) return '';
+  const d = new Date(p[0], p[1] - 1 + Number(months || 1), p[2]);
+  d.setDate(d.getDate() - 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function loadFromApp(id) {
+  const a = currentApps.find(x => x.id === id);
+  if (!a) return;
+  resetForm();
+  pendingAppId = a.id;
+  document.getElementById('formTitle').textContent = '📩 신청 #' + a.id + ' 불러옴 — 내용·좌표 확인 후 활성화 체크하고 저장';
+  document.getElementById('f-title').value = a.title || '';
+  document.getElementById('f-addr').value = a.addr || '';
+  document.getElementById('f-image').value = a.image || '';
+  document.getElementById('f-description').value = a.description || '';
+  document.getElementById('f-tel').value = a.tel || '';
+  document.getElementById('f-fee').value = a.fee || '';
+  document.getElementById('f-homepage').value = a.homepage || '';
+  if (a.desired_start) {
+    document.getElementById('f-start').value = a.desired_start;
+    document.getElementById('f-end').value = calcEndDate(a.desired_start, a.period);
+  }
+  // 검수 전에는 노출되지 않도록 비활성으로 시작 — 확인 후 직접 체크
+  document.getElementById('f-active').checked = false;
+  document.getElementById('saveStatus').textContent = '신청 내용을 불러왔어요. 좌표를 확인하고(자동으로 찾는 중), 기간·문구를 점검한 뒤 "활성화"에 체크하고 저장해주세요.';
+  window.scrollTo({ top: document.getElementById('formTitle').offsetTop - 20, behavior: 'smooth' });
+  geocodeAddress();
+}
+
+async function setAppStatus(id, status) {
+  const key = document.getElementById('key').value;
+  await fetch(API + '/admin/applications?key=' + encodeURIComponent(key), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id, status: status }),
+  });
+  loadApps();
+}
+function rejectApp(id) {
+  if (!confirm('이 신청을 보류/거절 처리하고 대기 목록에서 뺄까요? (데이터는 서버에 남아요)')) return;
+  setAppStatus(id, 'rejected');
+}
+async function deleteApp(id) {
+  if (!confirm('이 신청을 완전히 삭제할까요? (복구 불가)')) return;
+  const key = document.getElementById('key').value;
+  await fetch(API + '/admin/applications?key=' + encodeURIComponent(key) + '&id=' + id, { method: 'DELETE' });
+  loadApps();
 }
 
 function editById(id) {
