@@ -1903,7 +1903,7 @@ function toggleMenu() {
         const festivals = results[0];
         const kidsPlaces = results[1];
         const adsRaw = (results[2] && Array.isArray(results[2].ads)) ? results[2].ads : [];
-        const kidsTagged = (Array.isArray(kidsPlaces) ? kidsPlaces : []).map(function (p) {
+        const kidsTagged = (Array.isArray(kidsPlaces) ? kidsPlaces : []).filter(function (p) { return p && !p.hidden; }).map(function (p) {
             return Object.assign({}, p, { type: 'kids' });
         });
         // [ADD] 2026-10-10: 광고 장소는 festivals.json/kids_places.json과 다른 필드명

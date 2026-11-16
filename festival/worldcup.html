@@ -1216,7 +1216,7 @@ function toggleMenu() {
 
   /* ---------- 데이터 로드 ---------- */
   fetch('/data/kids_places.json').then(function (r) { return r.json(); }).then(function (list) {
-    places = (list || []).filter(function (p) { return p && p.title && p.contentid; }).map(function (p) { p._r = regionOf(p.addr); p._d = districtOf(p.addr); return p; });
+    places = (list || []).filter(function (p) { return p && p.title && p.contentid && !p.hidden; }).map(function (p) { p._r = regionOf(p.addr); p._d = districtOf(p.addr); return p; });
     buildRegionSelect();
     buildDistrict();
     paintChips('typeChips', cond.type);
