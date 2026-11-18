@@ -1605,7 +1605,20 @@ function scheduleManual(list, ctx) {
     });
     return out;
 }
-function edRerender() { const y = window.scrollY; render(); window.scrollTo(0, y); }
+function edRerender() {
+    // 다시 그리는 동안 페이지 높이가 줄어 스크롤이 튀는 것을 막기 위해 높이를 잠시 고정하고, 스크롤 위치를 즉시(애니메이션 없이) 복원한다.
+    const root = document.getElementById('pk-root');
+    const y = window.scrollY;
+    const hh = root ? root.offsetHeight : 0;
+    if (root) root.style.minHeight = hh + 'px';
+    const de = document.documentElement, prev = de.style.scrollBehavior;
+    de.style.scrollBehavior = 'auto';
+    render();
+    window.scrollTo(0, y);
+    const release = function () { window.scrollTo(0, y); if (root) root.style.minHeight = ''; de.style.scrollBehavior = prev; };
+    requestAnimationFrame(function () { window.scrollTo(0, y); });
+    setTimeout(release, 400);
+}
 function edItems() { return S.course.sched.map(function (r) { return r.item; }); }
 function edAct(act, id) {
     if (!S.course || !S.course.sched) return;
