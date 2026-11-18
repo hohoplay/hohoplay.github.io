@@ -1384,15 +1384,15 @@ function makeCourse(P) {
         if (!cp.length) { campState = 'none'; chosen = pickCourse(pool, P.n, rand, ctx, widened ? 'any' : place, P); }
         else {
             const near = function (c, it) { return zoneOf(it) === zoneOf(c) && haversineDistanceKm(c.lat, c.lng, it.lat, it.lng) <= 15; };
+            // [CHANGE] 2026-11-18: 캠핑장은 "고른 곳 수"에 더해서 넣는다(3곳 + 캠핑장 1곳 = 4곳).
             let pick = cp[0].c, rest = [];
-            if (P.n > 1) {
-                for (let i = 0; i < Math.min(cp.length, 8); i++) {
-                    const sub = pool.filter(function (it) { return near(cp[i].c, it); });
-                    if (sub.length >= P.n - 1) { pick = cp[i].c; rest = sub; break; }
-                    if (i === 0) rest = sub;
-                }
-                rest = rest.length ? pickCourse(rest, P.n - 1, rand, ctx, widened ? 'any' : place, P) : [];
+            let bestN = -1;
+            for (let i = 0; i < Math.min(cp.length, 12); i++) {
+                const sub = pool.filter(function (it) { return near(cp[i].c, it); });
+                if (sub.length >= P.n) { pick = cp[i].c; rest = sub; break; }
+                if (sub.length > bestN) { bestN = sub.length; pick = cp[i].c; rest = sub; }   // 못 채우면 근처에 가장 많이 있는 캠핑장
             }
+            rest = rest.length ? pickCourse(rest, P.n, rand, ctx, widened ? 'any' : place, P) : [];
             chosen = [pick].concat(rest);
             campState = 'ok';
         }
@@ -1510,8 +1510,8 @@ function resultHtml() {
     else if (W.state === 'unknown') h += '<div class="pk-rnote warn">날씨 예보를 가져오지 못했어요. 출발 전에 날씨를 한 번 확인해 주세요.</div>';
     if (!S.shared && c.campState === 'none') h += '<div class="pk-rnote warn">🏕️ 고른 지역 가까이에 등록된 캠핑장이 없어서 캠핑장 없이 짰어요.</div>';
     else if (!S.shared && c.campState === 'free') h += '<div class="pk-rnote warn">🏕️ 캠핑장은 요금 확인이 필요해서 "무료만"에서는 넣지 않았어요. 캠핑장을 넣으려면 예산을 "유료도 괜찮아요"로 바꿔주세요.</div>';
-    else if (!S.shared && c.campState === 'ok') h += '<div class="pk-rnote">🏕️ 캠핑장 1곳을 넣었어요. 예약 가능 여부·요금·체크인 시간은 "자세히 보기"에서 꼭 확인하세요.</div>';
-    if (c.sched.length < (S.n || 1) && !S.shared) h += '<div class="pk-rnote warn">함께 다니기 좋은 가까운 곳(같은 권역·서로 약 15km 이내)이 ' + c.sched.length + '곳뿐이었어요. 다른 코스를 보거나 조건을 넓혀 보세요.</div>';
+    else if (!S.shared && c.campState === 'ok') h += '<div class="pk-rnote">🏕️ 캠핑장 1곳을 더 넣었어요(고른 곳 수 + 캠핑장). 예약 가능 여부·요금·체크인 시간은 "자세히 보기"에서 꼭 확인하세요.</div>';
+    if (c.sched.length < (S.n || 1) + (c.campState === 'ok' ? 1 : 0) && !S.shared) h += '<div class="pk-rnote warn">함께 다니기 좋은 가까운 곳(같은 권역·서로 약 15km 이내)이 ' + c.sched.length + '곳뿐이었어요. 다른 코스를 보거나 조건을 넓혀 보세요.</div>';
     h += '<div class="pk-actions">';
     if (!S.shared) h += '<button type="button" class="pk-btn pri" data-act="again">🔄 다른 코스 보기</button>';
     h += '<button type="button" class="pk-btn kakao" data-act="kakao">💬 카카오톡 공유</button><button type="button" class="pk-btn" data-act="copy">🔗 링크 복사</button>';
@@ -1520,6 +1520,7 @@ function resultHtml() {
     c.sched.forEach(function (row, i) { h += itemHtml(row, i, near); if (i < c.sched.length - 1) h += legHtml(row); });
     h += '</ol>' + festBoxHtml(c);
     const checks = checksFor(c);
+    h += '<div class="pk-box" id="pk-nearby-in" style="display:none"></div>';   // 캠핑장이 들어간 코스의 "캠핑장 근처 나들이픽" 자리(renderNearby 가 채운다)
     h += '<div class="pk-box"><h3>✅ 가기 전에 확인할 것</h3><ul>';
     if (checks.length) checks.forEach(function (t) { h += '<li>' + t + '</li>'; });
     h += '<li>휴관일·요금·운영시간은 바뀔 수 있어요. 출발 전에 장소 상세 페이지나 전화로 한 번 더 확인해 주세요.</li></ul></div>';
@@ -1663,14 +1664,18 @@ function fmtDist(km) {
     return (Math.round(km * 10) / 10).toFixed(1) + 'km';
 }
 function renderNearby(course) {
-    const box = document.getElementById('pk-nearby');
-    if (!box) return;
-    if (!course || !course.sched || !course.sched.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const boxMain = document.getElementById('pk-nearby');
+    const boxIn = document.getElementById('pk-nearby-in');
+    if (!boxMain) return;
+    [boxMain, boxIn].forEach(function (b) { if (b) { b.style.display = 'none'; b.innerHTML = ''; } });
+    let box = boxMain;
+    if (!course || !course.sched || !course.sched.length) return;
     const campRow = course.sched.filter(function (r) { return r.item && r.item._camp; })[0];
+    if (campRow && boxIn) box = boxIn;   // 캠핑장이 있으면 "가기 전에 확인할 것" 바로 위에 보여준다
     const anchor = (campRow || course.sched[0]).item;
     const ex = {}; course.sched.forEach(function (r) { ex[r.item.contentid] = 1; });
     const res = pickNearbyOf(anchor, course.ctx, ex);
-    if (!res.picks.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    if (!res.picks.length) return;
     let h = '<h3>' + (campRow ? '🧸 캠핑장 근처 아이랑 가볼 만한 곳' : '🧸 이 근처 나들이픽') + '</h3><p class="pk-np-sub">' + (campRow ? '캠핑장 ' : '코스 첫 장소 ') + esc(anchor.title) + ' 가까이에서 아이랑 가볼 만한 곳이에요. ' + ctDowChar(course.ctx.dow) + '요일에 쉬는 곳은 뺐어요.' + (res.radius > 10 ? ' 가까운 곳이 적어서 ' + res.radius + 'km까지 넓혀 찾았어요.' : '') + '</p><ul class="pk-np-list">';
     res.picks.forEach(function (c) {
         const p = c.p; let tags = '';
