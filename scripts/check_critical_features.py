@@ -43,6 +43,12 @@ CHECKS = [
     # 모른 채 옛 마커만 계속 찾다 보니, 정상적으로 배포된 파일도 "기능이 빠졌다"고
     # 오탐(false positive)하고 있었다. 지금 실제로 같은 역할을 하는 #remoteCourseBtn으로
     # 마커를 바꾼다.
+    # [ADD] 2026-11-18: 상단 메뉴 "아이랑" 항목이 통째로 비는 사고(11월 12일 수동 업로드)를 잡기 위한 체크.
+    ("game/index.html", 'href="/festival/worldcup.html"', "상단 메뉴 '아이랑' 드롭다운 항목"),
+    ("blog/index.html", 'href="/festival/worldcup.html"', "상단 메뉴 '아이랑' 드롭다운 항목"),
+    ("blog/magazine/index.html", 'href="/festival/worldcup.html"', "상단 메뉴 '아이랑' 드롭다운 항목"),
+    ("contact/index.html", 'id="hn-nav"', "상단 메뉴(문의하기)"),
+    ("festival/list.html", 'id="hn-nav"', "상단 메뉴(축제 목록)"),
     ("festival/index.html", 'id="remoteCourseBtn"', "지역별 추천 코스 보기 버튼(리모컨 메뉴)"),
 ]
 
