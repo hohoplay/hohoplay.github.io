@@ -26,10 +26,9 @@
     var MAX_PER_COORD = 2;
     var DATA_URL = '/data/kids_places.json';
 
+    // [ADD] 2026-11-18: 상세페이지(#nearby-pick)가 없어도 다른 화면(캠핑장 월드컵 결과 등)에서 window.HohoNearbyPick.mount(칸, {contentid,title,lat,lng,heading}) 로 쓸 수 있다. 스타일이 #nearby-pick 아래에만 걸려 있어 그 칸에 id="nearby-pick"을 줄 것.
     var root = document.getElementById('nearby-pick');
-    if (!root) return;
-    var selfId = root.getAttribute('data-id') || '';
-    if (!selfId) return;
+    var selfId = root ? (root.getAttribute('data-id') || '') : '';
 
     // ── 휴관 판정 (festival/index.html 과 같은 규칙) ──────────────────────────────────────
     var CT_D = '[월화수목금토일]';
@@ -249,14 +248,15 @@
         return (Math.round(km * 10) / 10).toFixed(1) + 'km';
     }
 
-    function render(result, self, today) {
+    function render(result, self, today, target) {
+        target = target || root;
         var picks = result.picks;
-        if (!picks.length) { root.style.display = 'none'; return; }
+        if (!picks.length) { target.style.display = 'none'; return; }
         injectStyle();
-        root.innerHTML = '';
+        target.innerHTML = '';
         var wrap = el('div', 'np-wrap');
         var card = el('div', 'np-card');
-        card.appendChild(el('h2', 'np-title', '🧸 이 근처 나들이픽'));
+        card.appendChild(el('h2', 'np-title', self.heading || '🧸 이 근처 나들이픽'));
         var sub = self.title + ' 가까이에서 아이랑 가볼 만한 곳이에요. 오늘(' + today.dowChar + ') 쉬는 곳은 뺐어요.';
         if (result.radius > NEAR_KM) sub += ' 가까운 곳이 적어서 ' + result.radius + 'km까지 넓혀 찾았어요.';
         card.appendChild(el('p', 'np-sub', sub));
@@ -287,7 +287,7 @@
         });
         card.appendChild(ul);
         wrap.appendChild(card);
-        root.appendChild(wrap);
+        target.appendChild(wrap);
     }
 
     function run() {
@@ -300,6 +300,18 @@
         }).catch(function () { /* 실패해도 상세페이지 표시엔 영향 없음 */ });
     }
 
+    // 다른 화면에서 부르는 입구: self = { contentid, title, lat, lng, heading? }
+    window.HohoNearbyPick = {
+        mount: function (target, self) {
+            if (!target || !self || !validCoord(self)) return;
+            fetch(DATA_URL).then(function (r) { return r.ok ? r.json() : []; }).then(function (all) {
+                if (!Array.isArray(all)) return;
+                render(pickNearby(all, self, koreaToday()), self, koreaToday(), target);
+            }).catch(function () { target.style.display = 'none'; });
+        }
+    };
+
+    if (!root || !selfId) return;
     var started = false;
     function start() { if (started) return; started = true; run(); }
 

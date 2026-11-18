@@ -1105,6 +1105,13 @@ function toggleMenu() {
     res.appendChild(win);
     loadOverview(champ, ov, ul);
 
+    // [ADD] 2026-11-18: 우승 캠핑장 근처 아이랑 가볼 만한 곳 5곳(나들이픽, festival/nearby-pick.js)
+    var npBox = el('div'); npBox.id = 'nearby-pick'; npBox.style.marginTop = '16px'; res.appendChild(npBox);
+    (function mountNp(tries) {
+      if (window.HohoNearbyPick) { window.HohoNearbyPick.mount(npBox, { contentid: champ.contentid, title: champ.title, lat: champ._lat, lng: champ._lng, heading: '🧸 캠핑장 근처 아이랑 가볼 만한 곳 5곳' }); }
+      else if (tries < 20) setTimeout(function () { mountNp(tries + 1); }, 300);
+    })(0);
+
     var h = el('h2', null, '🥈 이런 캠핑장도 좋아요 (차선책)');
     h.style.cssText = 'margin:22px 0 10px;font-size:17px;font-weight:900;color:#0f172a';
     res.appendChild(h);
@@ -1350,6 +1357,7 @@ function toggleMenu() {
 </script>
 <script src="/festival/hh-stats.js" defer></script>
 <script src="/festival/detail-sheet.js?v=20261111" defer></script>
+<script src="/festival/nearby-pick.js?v=20261118" defer></script>
 <script id="fz-goto-tool">
 /* "화면위치" 버튼: 지금 작업 중인 영역(조건 선택 / 진행 중인 게임 / 결과)으로 이동 */
 function fzGoTool(){
