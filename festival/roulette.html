@@ -1411,7 +1411,8 @@ function fzGoTool(){
       t=document.querySelector(".pk-step.open")||document.getElementById("pk-res")||document.getElementById("pk-root");
     }else{
       var ids=["game","result","stage","setup"];
-      for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(shown(e)){t=e;break;}}
+      var g=document.getElementById("pickGuide");
+      for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(shown(e)){t=(ids[i]==="game"&&g)?g:e;break;}}
     }
     if(t)t.scrollIntoView({behavior:"smooth",block:"start"});
   }catch(e){}
