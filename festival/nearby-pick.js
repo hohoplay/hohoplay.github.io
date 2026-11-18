@@ -315,7 +315,12 @@
     var started = false;
     function start() { if (started) return; started = true; run(); }
 
-    if ('IntersectionObserver' in window) {
+    // [FIX] 2026-11-18: 지도 상세 팝업(iframe) 안에서는 IntersectionObserver 가 바깥 화면 기준이라 한 번도 발동하지 않아 블록이 비어 있었다 → iframe 안이면 바로 그린다.
+    var inFrame = false;
+    try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
+    if (inFrame) {
+        start();
+    } else if ('IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (entries) {
             if (entries.some(function (e) { return e.isIntersecting; })) { io.disconnect(); start(); }
         }, { rootMargin: '600px 0px' });
