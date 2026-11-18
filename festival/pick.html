@@ -1050,6 +1050,8 @@ function regionOfAddr(addr) {
     const a = String(addr || '').trim();
     if (!a) return null;
     const tok = a.split(/\s+/)[0];
+    // [FIX] 2026-11-18: 관광공사가 광주시와 전남을 모두 "전남광주통합특별시 …"로 내려준다. 둘째 단어가 자치구(~구)면 광주, 시·군이면 전남.
+    if (tok === '전남광주통합특별시') return /구$/.test(a.split(/\s+/)[1] || '') ? 'gwangju' : 'jeonnam';
     for (let i = 0; i < REGIONS.length; i++) {          // 첫 단어(시·도)로 먼저 판정
         const kws = REGIONS[i].kw;
         for (let j = 0; j < kws.length; j++) if (tok.indexOf(kws[j]) === 0) return REGIONS[i].k;
@@ -1664,11 +1666,12 @@ function renderNearby(course) {
     const box = document.getElementById('pk-nearby');
     if (!box) return;
     if (!course || !course.sched || !course.sched.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
-    const anchor = course.sched[0].item;
+    const campRow = course.sched.filter(function (r) { return r.item && r.item._camp; })[0];
+    const anchor = (campRow || course.sched[0]).item;
     const ex = {}; course.sched.forEach(function (r) { ex[r.item.contentid] = 1; });
     const res = pickNearbyOf(anchor, course.ctx, ex);
     if (!res.picks.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
-    let h = '<h3>🧸 이 근처 나들이픽</h3><p class="pk-np-sub">코스 첫 장소 ' + esc(anchor.title) + ' 가까이에서 아이랑 가볼 만한 곳이에요. ' + ctDowChar(course.ctx.dow) + '요일에 쉬는 곳은 뺐어요.' + (res.radius > 10 ? ' 가까운 곳이 적어서 ' + res.radius + 'km까지 넓혀 찾았어요.' : '') + '</p><ul class="pk-np-list">';
+    let h = '<h3>' + (campRow ? '🧸 캠핑장 근처 아이랑 가볼 만한 곳' : '🧸 이 근처 나들이픽') + '</h3><p class="pk-np-sub">' + (campRow ? '캠핑장 ' : '코스 첫 장소 ') + esc(anchor.title) + ' 가까이에서 아이랑 가볼 만한 곳이에요. ' + ctDowChar(course.ctx.dow) + '요일에 쉬는 곳은 뺐어요.' + (res.radius > 10 ? ' 가까운 곳이 적어서 ' + res.radius + 'km까지 넓혀 찾았어요.' : '') + '</p><ul class="pk-np-list">';
     res.picks.forEach(function (c) {
         const p = c.p; let tags = '';
         if (p.placeType) tags += '<span class="pk-np-tag">' + esc(p.placeType) + '</span>';
