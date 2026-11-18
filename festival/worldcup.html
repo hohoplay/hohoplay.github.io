@@ -285,6 +285,10 @@
   @media (max-width: 640px) { .fz-remote { right: 12px; bottom: 12px; gap: 7px; } .fz-rbtn { width: 46px; height: 46px; font-size: 16px; } }
 </style>
 <!-- FZ_CSS_END -->
+<style id="fz-scroll-fix">
+/* 상단 고정 메뉴에 가려지지 않게: 화면 이동 시 위쪽 여백을 둔다 */
+#setup,#game,#stage,#result,#pk-root,#pk-res,.pk-step{scroll-margin-top:96px}
+</style>
 </head>
 <body>
 <!-- HN_START -->
@@ -412,7 +416,7 @@ function toggleMenu() {
 <div class="fz-remote" id="fzRemote">
   <a class="fz-rbtn" href="/festival/" aria-label="아이랑 나들이 지도로 가기"><span>🗺️</span><span class="lb">지도</span></a>
   <a class="fz-rbtn" href="/festival/poster.html" aria-label="축제 포스터로 가기"><span>🎪</span><span class="lb">포스터</span></a>
-  <button type="button" class="fz-rbtn" id="fzTopBtn" aria-label="맨 위로 올라가기" onclick="try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}"><span>⬆️</span><span class="lb">맨 위</span></button>
+  <button type="button" class="fz-rbtn" id="fzTopBtn" aria-label="작업 화면 위치로 이동" onclick="fzGoTool()"><span>🎯</span><span class="lb">화면위치</span></button>
   <a class="fz-rbtn" href="/" aria-label="홈으로 가기"><span>🏠</span><span class="lb">홈</span></a>
 </div>
 <!-- FZ_REMOTE_END -->
@@ -1361,5 +1365,21 @@ function toggleMenu() {
 </script>
 <script src="/festival/hh-stats.js" defer></script>
 <script src="/festival/detail-sheet.js?v=20261111" defer></script>
+<script id="fz-goto-tool">
+/* "화면위치" 버튼: 지금 작업 중인 영역(조건 선택 / 진행 중인 게임 / 결과)으로 이동 */
+function fzGoTool(){
+  try{
+    function shown(el){return !!el && el.style.display!=="none" && el.offsetHeight>0 && el.innerHTML.trim()!=="";}
+    var t=null;
+    if(document.getElementById("pk-root")){
+      t=document.querySelector(".pk-step.open")||document.getElementById("pk-res")||document.getElementById("pk-root");
+    }else{
+      var ids=["game","result","stage","setup"];
+      for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(shown(e)){t=e;break;}}
+    }
+    if(t)t.scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(e){}
+}
+</script>
 </body>
 </html>
