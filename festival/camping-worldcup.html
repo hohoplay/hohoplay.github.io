@@ -294,7 +294,7 @@
 <!-- FZ_CSS_END -->
 <style id="fz-scroll-fix">
 /* 상단 고정 메뉴에 가려지지 않게: 화면 이동 시 위쪽 여백을 둔다 */
-#setup,#game,#stage,#result,#pk-root,#pk-res,.pk-step{scroll-margin-top:96px}
+#setup,#game,#pickGuide,#stage,#result,#pk-root,#pk-res,.pk-step{scroll-margin-top:96px}
 </style>
 </head>
 <body>
@@ -830,8 +830,7 @@ function toggleMenu() {
     $('result').style.display = 'none';
     $('game').style.display = 'block';
     render();
-    $('game').scrollIntoView({ block: 'start' });
-    setTimeout(function () { var bt = $('game').getBoundingClientRect().bottom; if (bt > window.innerHeight) window.scrollBy(0, Math.min(bt - window.innerHeight + 8, 200)); }, 60);
+    $('pickGuide').scrollIntoView({ block: 'start' });   // 대진표가 아니라 "둘 중 더 가고 싶은 곳" 선택 영역이 바로 보이게
   }
   function doneCount() { var c = 0; S.results.forEach(function (a) { c += a.length; }); return c; }
   function render() {
@@ -1361,7 +1360,8 @@ function fzGoTool(){
       t=document.querySelector(".pk-step.open")||document.getElementById("pk-res")||document.getElementById("pk-root");
     }else{
       var ids=["game","result","stage","setup"];
-      for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(shown(e)){t=e;break;}}
+      var g=document.getElementById("pickGuide");
+      for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(shown(e)){t=(ids[i]==="game"&&g)?g:e;break;}}
     }
     if(t)t.scrollIntoView({behavior:"smooth",block:"start"});
   }catch(e){}
