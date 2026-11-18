@@ -1125,6 +1125,7 @@ h1{{font-size:1.5rem;font-weight:900}}
 {body}
 <a class="back-link" href="/festival/">← 지도에서 보기</a>
 </div>
+<script src="/festival/detail-sheet.js?v=20261111" defer></script>
 </body>
 </html>"""
 
