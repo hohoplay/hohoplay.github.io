@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘 어디 갈지 정하기 - 월드컵·룰렛·코스 추천 도구 모음 | HOHO PLAY</title>
+<meta name="description" content="오늘 아이랑 어디 갈지 못 정했을 때 쓰는 호호플레이 도구 모음입니다. 나들이 월드컵, 캠핑장 월드컵, 룰렛, 오늘 어디 갈까? 코스 추천 중 상황에 맞는 걸 골라 보세요. 모두 무료이고 로그인이 필요 없어요.">
+<link rel="canonical" href="https://hohoplaylab.com/festival/tools.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="오늘 어디 갈지 정하기 - 도구 모음">
+<meta property="og:description" content="월드컵·룰렛·코스 추천 중 상황에 맞는 도구로 오늘 갈 곳을 정해 보세요.">
+<meta property="og:url" content="https://hohoplaylab.com/festival/tools.html">
+<meta property="og:image" content="https://hohoplaylab.com/data/festival-og-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hohoplaylab.com/data/festival-og-banner.png">
+<link rel="icon" href="/favicon.svg">
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  /* 푸터가 Tailwind(CDN)를 쓰기 때문에 Tailwind 기본 리셋이 뒤늦게 덮어써도 이 페이지가 그대로 보이도록
+     body·링크·목록·문단은 선택자를 한 단계 더 구체적으로 지정한다. */
+  html body { margin: 0; background: #f8fafc; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+  .about a, .fest a, .info a, .ns a { color: #4f46e5; text-decoration: underline; }
+  .ns a { color: #991b1b; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 16px 16px 56px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 14px; font-weight: 700; }
+  .topbar a { text-decoration: none; color: #4f46e5; }
+  .hero { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border-radius: 20px; padding: 24px 22px; margin-bottom: 18px; }
+  .hero h1 { margin: 0 0 6px; font-size: 26px; font-weight: 900; line-height: 1.3; }
+  .hero p { margin: 0; font-size: 15px; opacity: .93; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 12px; font-size: 17px; font-weight: 900; color: #0f172a; }
+  .lbl { font-size: 13px; font-weight: 800; color: #475569; margin: 14px 0 6px; }
+  .lbl:first-of-type { margin-top: 0; }
+  select { width: 100%; padding: 12px 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; color: #1e293b; font-family: inherit; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 800; font-size: 14px; padding: 9px 15px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+  .chip[aria-pressed="true"] { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+  .wx { display: none; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 14px; font-weight: 700; }
+  .poolinfo { margin-top: 14px; font-size: 14px; font-weight: 800; color: #334155; min-height: 22px; }
+  .poolinfo.bad { color: #b91c1c; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; cursor: pointer; font-family: inherit; font-weight: 900; font-size: 16px; padding: 14px 24px; border-radius: 999px; background: #4f46e5; color: #fff; text-decoration: none; }
+  .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .btn.sub { background: #eef2ff; color: #4338ca; font-size: 14px; padding: 10px 16px; }
+  .btn.ghost { background: #fff; color: #475569; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px 16px; }
+  .startrow { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  #game, #result { display: none; }
+  .gh { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .rname { font-size: 22px; font-weight: 900; color: #4338ca; }
+  .rsub { font-size: 14px; font-weight: 800; color: #64748b; }
+  .bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 10px 0 14px; }
+  .bar > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #6366f1, #a855f7); transition: width .25s; }
+  .vs { display: grid; grid-template-columns: 1fr; gap: 10px; position: relative; }
+  .vsb { text-align: center; font-weight: 900; color: #94a3b8; font-size: 14px; letter-spacing: .1em; }
+  .cand { text-align: left; border: 2px solid #e2e8f0; background: #fff; border-radius: 16px; padding: 16px; cursor: pointer; font-family: inherit; color: inherit; transition: transform .15s, border-color .15s, background .15s, opacity .2s; width: 100%; }
+  .cand:hover, .cand:focus-visible { border-color: #818cf8; background: #f5f7ff; outline: none; }
+  .cand.sel { border-color: #4f46e5; background: #eef2ff; transform: scale(1.015); }
+  .cand.out { opacity: .35; }
+  .cand.flash { border-color: #f59e0b; background: #fffbeb; }
+  .vs.lock .cand { pointer-events: none; }
+  .ctl.rnd { margin-top: 12px; }
+  .btn.sub:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .bd { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569; }
+  .bd.in { background: #e0f2fe; color: #0369a1; }
+  .bd.out { background: #dcfce7; color: #15803d; }
+  .bd.both { background: #fef9c3; color: #a16207; }
+  .bd.free { background: #ede9fe; color: #6d28d9; }
+  .cname { font-size: 20px; font-weight: 900; color: #0f172a; line-height: 1.35; margin: 0 0 2px; word-break: keep-all; }
+  .cloc { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 8px; }
+  .cdesc { font-size: 14px; color: #475569; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; }
+  .cgo { margin-top: 12px; display: inline-block; padding: 7px 14px; border-radius: 999px; background: #e0e7ff; font-size: 14px; font-weight: 900; color: #4338ca; }
+  .ctl { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .hint { font-size: 12px; color: #94a3b8; margin-top: 10px; }
+  .hint-mo { display: none; }
+  /* [ADD] 2026-10-28: 어떻게 고르는지 모르는 사람을 위한 안내(PC·모바일 공통) */
+  .pickguide { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 2px 0 12px; padding: 10px 14px; border-radius: 12px; background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; font-size: 15px; font-weight: 900; text-align: center; line-height: 1.4; word-break: keep-all; }
+  .pickguide.busy { background: #f1f5f9; border-color: #e2e8f0; color: #64748b; }
+  .brhead { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 8px; }
+  .brhead h3 { margin: 0; font-size: 15px; font-weight: 900; color: #0f172a; }
+  .br { display: flex; gap: 10px; overflow-x: auto; padding: 4px 6px 10px; margin-bottom: 14px; -webkit-overflow-scrolling: touch; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .br.full { height: auto; overflow-y: visible; background: transparent; border: 0; padding-bottom: 10px; }
+  .brhead.tight { margin: 4px 0 8px; }
+  #treeBtn { display: none; padding: 6px 12px; font-size: 12px; flex: 0 0 auto; white-space: nowrap; }
+  .rv { display: none; margin-bottom: 14px; }
+  .rv-trk { display: none; align-items: center; gap: 3px; flex: 1; min-width: 0; margin: 0 8px; }
+  .rv-chip { font-size: 12px; font-weight: 800; color: #94a3b8; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; white-space: nowrap; }
+  .rv-chip.done { background: #e0e7ff; color: #4338ca; }
+  .rv-chip.on { background: #4f46e5; color: #fff; }
+  .rv-arr { color: #cbd5e1; font-weight: 900; }
+  .rv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-height: 240px; align-content: center; }
+  .rv-grid.one { grid-template-columns: 1fr; }
+  .rvm div { font-size: 12px; padding: 3px 8px; line-height: 1.35; }
+  .rv-grid.mid .rvm div { font-size: 13px; padding: 7px 10px; }
+  .rv-grid.big .rvm div { font-size: 14px; padding: 9px 12px; }
+  .brc { display: flex; flex-direction: column; flex: 0 0 120px; }
+  .brc.on h4 { color: #4338ca; }
+  .brc h4 { font-size: 11px; color: #64748b; text-align: center; margin: 0 0 6px; font-weight: 800; }
+  .brl { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 8px; }
+  .brm { border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; font-size: 11px; overflow: hidden; }
+  .brm div { padding: 4px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.45; color: #334155; }
+  .brm div + div { border-top: 1px solid #f1f5f9; }
+  .brm .w { font-weight: 900; color: #4338ca; background: #eef2ff; }
+  .brm .l { color: #94a3b8; text-decoration: line-through; }
+  .brm .q { color: #cbd5e1; }
+  .brm.cur { border-color: #4f46e5; box-shadow: 0 0 0 2px #c7d2fe; }
+  .brm.champ { border-color: #f59e0b; }
+  .brm.champ div { font-weight: 900; color: #b45309; background: #fffbeb; }
+  .crown { text-align: center; font-size: 15px; font-weight: 900; color: #b45309; margin-bottom: 4px; }
+  .win { border: 2px solid #f59e0b; background: #fffbeb; border-radius: 18px; padding: 20px; }
+  .win h2 { margin: 0 0 4px; font-size: 14px; font-weight: 900; color: #b45309; }
+  .win .cname { font-size: 26px; }
+  .info { margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; color: #334155; }
+  .info li { padding: 6px 0; border-top: 1px solid #fde68a; display: flex; gap: 10px; }
+  .info b { flex: 0 0 62px; color: #92400e; }
+  .info span { flex: 1; min-width: 0; word-break: break-all; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .ru { display: grid; gap: 10px; grid-template-columns: 1fr; }
+  .rui { border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; background: #fff; }
+  .rui .t { font-size: 12px; font-weight: 900; color: #64748b; }
+  .rui a.n { display: block; font-size: 16px; font-weight: 900; color: #0f172a; text-decoration: none; margin: 2px 0; }
+  .rui .d { font-size: 13px; color: #64748b; }
+  .fest { margin-top: 14px; padding: 14px; border-radius: 14px; background: #fff7ed; border: 1px solid #fed7aa; font-size: 14px; }
+  .fest b { color: #9a3412; }
+  .fest a { font-weight: 800; }
+  .about h2 { margin: 26px 0 8px; font-size: 18px; font-weight: 900; color: #0f172a; }
+  .about p, .about li { font-size: 15px; color: #475569; }
+  .about p { margin: 0 0 12px; }
+  .about ul, .about ol { padding-left: 1.4em; margin: 6px 0 12px; }
+  .about ol { list-style: decimal; }
+  .about ul { list-style: disc; }
+  .about li { margin: 4px 0; }
+  .faq { border: 1px solid #e2e8f0; background: #fff; border-radius: 12px; padding: 12px 14px; margin: 8px 0; }
+  .faq b { display: block; color: #0f172a; margin-bottom: 2px; font-size: 15px; }
+  .faq p { margin: 0; font-size: 14px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .about .links a { text-decoration: none; font-weight: 800; font-size: 14px; padding: 9px 16px; border-radius: 999px; background: #eef2ff; color: #4338ca; }
+  .ns { padding: 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; color: #991b1b; font-size: 14px; }
+  @media (min-width: 720px) {
+    .hero h1 { font-size: 32px; }
+    .vs { grid-template-columns: 1fr 40px 1fr; align-items: stretch; }
+    .vsb { align-self: center; }
+    .ru { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 719px) {
+    .cand { padding: 13px 14px; }
+    .cname { font-size: 18px; }
+    .cdesc { -webkit-line-clamp: 2; }
+    .cgo { margin-top: 10px; font-size: 13px; padding: 6px 12px; }
+    .vs { gap: 8px; }
+    .vsb { line-height: 1; margin: -2px 0; }
+    /* 모바일: 전체 트리 대신 '이번 라운드 전체'를 한눈에 보여준다. 전체 트리는 버튼으로 펼친다. */
+    .br { display: none; }
+    .br.open { display: flex; }
+    .rv { display: block; }
+    #treeBtn { display: inline-flex; }
+    .brhead.tight h3 { display: none; }
+    .brhead.tight .rv-trk { display: flex; margin: 0 8px 0 0; }
+    .hint-pc { display: none; }
+    .hint-mo { display: inline; }
+  }
+
+  /* 공유·댓글 카드 (호호플레이 다른 페이지와 같은 구성) */
+  .share { margin: 22px 0 16px; padding: 16px; background: #f1f5f9; border-radius: 16px; text-align: center; }
+  .share .st { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 10px; }
+  .share .sr { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .sb { width: 42px; height: 42px; border-radius: 50%; border: 0; padding: 0; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; }
+  .sb.fb { background: #1877f2; font-size: 18px; }
+  .sb.x { background: #000; }
+  .sb.kk { background: #fee500; color: #3c1e1e; font-size: 18px; }
+  .sb.nv { background: #03c75a; }
+  .sb.bd { background: #00c73c; font-size: 12px; }
+  .sb.ln { background: #06c755; font-size: 12px; }
+  .cmt { margin: 0 0 16px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; scroll-margin-top: 12px; }
+  .cmt h2 { margin: 0 0 4px; font-size: 16px; font-weight: 900; color: #1e293b; }
+  .cmt .cs { margin: 0 0 14px; font-size: 12px; color: #94a3b8; }
+  .cmt .cf { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .cmt input, .cmt textarea { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; font-family: inherit; color: #1e293b; background: #fff; }
+  .cmt textarea { resize: vertical; }
+  .cmt .cr { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+  .cmt .cst { font-size: 12px; color: #94a3b8; }
+  .cmt .cbtn { padding: 9px 20px; border: 0; border-radius: 10px; background: #4f46e5; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .cmt .cbtn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .cmt .cl { display: flex; flex-direction: column; gap: 10px; }
+  .cmt .ci { padding: 12px 14px; background: #f8fafc; border-radius: 12px; }
+  .cmt .ch { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .cmt .cn { font-weight: 800; font-size: 13px; color: #334155; }
+  .cmt .ct { font-size: 11px; color: #94a3b8; }
+  .cmt .cc { font-size: 14px; color: #475569; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
+  .cmt .ce { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px 0; }
+</style>
+<!-- ABOUT_CSS_START -->
+<style>
+  .about a, .pz-about a { color: #4f46e5; text-decoration: underline; }
+  .about h3 { margin: 0; }
+  .about table, .pz-about table { font-size: 13px; }
+  .about .links a, .pz-about .links a { text-decoration: none; }
+  .pz-about { margin-top: 34px; font-size: 15px; color: #475569; line-height: 1.7; }
+  .pz-about h2 { margin: 26px 0 8px; font-size: 18px; font-weight: 900; color: #0f172a; }
+  .pz-about p { margin: 0 0 12px; }
+  .pz-about .faq { border: 1px solid #e2e8f0; background: #fff; border-radius: 12px; padding: 12px 14px; margin: 8px 0; }
+  .pz-about .faq p { margin: 0; font-size: 14px; }
+  .pz-about .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pz-about .links a { font-weight: 800; font-size: 14px; padding: 9px 16px; border-radius: 999px; background: #eef2ff; color: #4338ca; }
+</style>
+<!-- ABOUT_CSS_END -->
+<!-- SMP_CSS_START -->
+<style>
+  .smp { margin-top: 22px; padding-top: 18px; border-top: 1px dashed #cbd5e1; }
+  .smp-h { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; border-radius: 14px; padding: 11px 14px; font-size: 13px; font-weight: 700; line-height: 1.55; word-break: keep-all; margin-bottom: 12px; }
+  .smp-h b { font-weight: 900; }
+  .smp-win { border: 2px dashed #f59e0b; background: #fffbeb; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
+  .smp-t { font-size: 13px; font-weight: 900; color: #b45309; margin-bottom: 6px; }
+  .smp a.smp-n { display: block; font-size: 19px; font-weight: 900; color: #0f172a; text-decoration: none; margin: 2px 0 4px; word-break: keep-all; overflow-wrap: anywhere; }
+  .smp-d { font-size: 13px; color: #475569; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .smp .cloc { margin-bottom: 4px; }
+  .smp-ft { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+</style>
+<!-- SMP_CSS_END -->
+<style id="fz-scroll-fix">
+/* 상단 고정 메뉴에 가려지지 않게: 화면 이동 시 위쪽 여백을 둔다 */
+#setup,#game,#pickGuide,#stage,#result,#pk-root,#pk-res,.pk-step{scroll-margin-top:96px}
+</style>
+<!-- HN_CSS_START -->
+<style>
+  /* 호호 매거진 등과 같은 상단 메뉴 마크업이 Tailwind 없이도 똑같이 보이도록, 그 마크업의 클래스만 옮긴 CSS */
+  nav.hn-std { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; line-height: 1.5; text-align: left; }
+  nav.hn-std *, nav.hn-std *::before, nav.hn-std *::after { box-sizing: border-box; border: 0 solid #e5e7eb; }
+  nav.hn-std a { color: inherit; text-decoration: none; }
+  nav.hn-std button { font-family: inherit; font-size: 100%; background: transparent; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; }
+  nav.hn-std svg { display: block; vertical-align: middle; }
+  nav.hn-std div, nav.hn-std span { margin: 0; }
+  nav.hn-std.sticky { position: sticky; } nav.hn-std.top-0 { top: 0; } nav.hn-std.z-50 { z-index: 50; }
+  nav.hn-std .z-50 { z-index: 50; }
+  nav.hn-std.bg-white\/80 { background-color: rgba(255,255,255,.8); }
+  nav.hn-std.backdrop-blur-md { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  nav.hn-std.border-b { border-bottom-width: 1px; }
+  nav.hn-std.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,.05); }
+  nav.hn-std .max-w-7xl { max-width: 80rem; } nav.hn-std .mx-auto { margin-left: auto; margin-right: auto; }
+  nav.hn-std .px-4 { padding-left: 16px; padding-right: 16px; } nav.hn-std .px-2 { padding-left: 8px; padding-right: 8px; }
+  nav.hn-std .py-1 { padding-top: 4px; padding-bottom: 4px; } nav.hn-std .py-2 { padding-top: 8px; padding-bottom: 8px; }
+  nav.hn-std .py-2\.5 { padding-top: 10px; padding-bottom: 10px; } nav.hn-std .py-3 { padding-top: 12px; padding-bottom: 12px; }
+  nav.hn-std .py-4 { padding-top: 16px; padding-bottom: 16px; } nav.hn-std .pb-1 { padding-bottom: 4px; } nav.hn-std .pt-1 { padding-top: 4px; }
+  nav.hn-std .flex { display: flex; } nav.hn-std .flex-col { flex-direction: column; } nav.hn-std .block { display: block; }
+  nav.hn-std .hidden { display: none; } nav.hn-std .relative { position: relative; } nav.hn-std .absolute { position: absolute; }
+  nav.hn-std .justify-between { justify-content: space-between; } nav.hn-std .justify-center { justify-content: center; } nav.hn-std .items-center { align-items: center; }
+  nav.hn-std .gap-1 { gap: 4px; } nav.hn-std .gap-1\.5 { gap: 6px; } nav.hn-std .gap-2 { gap: 8px; } nav.hn-std .gap-3 { gap: 12px; }
+  nav.hn-std .space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 8px; }
+  nav.hn-std .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 4px; }
+  nav.hn-std .h-20 { height: 80px; } nav.hn-std .h-12 { height: 48px; } nav.hn-std .h-10 { height: 40px; } nav.hn-std .h-0\.5 { height: 2px; }
+  nav.hn-std .w-12 { width: 48px; } nav.hn-std .w-10 { width: 40px; } nav.hn-std .w-6 { width: 24px; } nav.hn-std .w-40 { width: 160px; } nav.hn-std .w-44 { width: 176px; } nav.hn-std .w-48 { width: 192px; } nav.hn-std .w-52 { width: 208px; } nav.hn-std .w-56 { width: 224px; } nav.hn-std .w-60 { width: 240px; } nav.hn-std .w-64 { width: 256px; } nav.hn-std .w-full { width: 100%; }
+  nav.hn-std .left-0 { left: 0; } nav.hn-std .right-0 { right: 0; } nav.hn-std .top-full { top: 100%; } nav.hn-std .mt-2 { margin-top: 8px; } nav.hn-std .my-2 { margin-top: 8px; margin-bottom: 8px; }
+  nav.hn-std .bg-white { background-color: #fff; } nav.hn-std .bg-indigo-600 { background-color: #4f46e5; } nav.hn-std .bg-slate-700 { background-color: #334155; } nav.hn-std .bg-indigo-50 { background-color: #eef2ff; }
+  nav.hn-std .text-white { color: #fff; } nav.hn-std .text-indigo-600 { color: #4f46e5; } nav.hn-std .text-violet-500 { color: #8b5cf6; }
+  nav.hn-std .text-slate-400 { color: #94a3b8; } nav.hn-std .text-slate-500 { color: #64748b; } nav.hn-std .text-slate-600 { color: #475569; } nav.hn-std .text-slate-700 { color: #334155; }
+  nav.hn-std .text-2xl { font-size: 24px; line-height: 32px; } nav.hn-std .text-sm { font-size: 14px; line-height: 20px; } nav.hn-std .text-xs { font-size: 12px; line-height: 16px; }
+  nav.hn-std .font-black { font-weight: 900; } nav.hn-std .font-bold { font-weight: 700; } nav.hn-std .text-left { text-align: left; }
+  nav.hn-std .uppercase { text-transform: uppercase; } nav.hn-std .tracking-tighter { letter-spacing: -.05em; }
+  nav.hn-std .rounded-xl { border-radius: 12px; } nav.hn-std .rounded-2xl { border-radius: 16px; }
+  nav.hn-std .border { border-width: 1px; } nav.hn-std .border-t { border-top-width: 1px; } nav.hn-std .border-slate-100 { border-color: #f1f5f9; }
+  nav.hn-std .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1); }
+  nav.hn-std .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1); }
+  nav.hn-std .shadow-indigo-200 { box-shadow: 0 20px 25px -5px rgba(199,210,254,1), 0 8px 10px -6px rgba(199,210,254,1); }
+  nav.hn-std .opacity-0 { opacity: 0; } nav.hn-std .invisible { visibility: hidden; }
+  nav.hn-std .transition { transition: color .15s, background-color .15s, border-color .15s, opacity .15s, box-shadow .15s, transform .15s; }
+  nav.hn-std .transition-all { transition: all .15s; } nav.hn-std .duration-200 { transition-duration: .2s; } nav.hn-std .duration-300 { transition-duration: .3s; }
+  nav.hn-std .hover\:bg-indigo-50:hover { background-color: #eef2ff; } nav.hn-std .hover\:bg-slate-100:hover { background-color: #f1f5f9; } nav.hn-std .hover\:bg-slate-50:hover { background-color: #f8fafc; }
+  nav.hn-std .hover\:text-indigo-600:hover { color: #4f46e5; } nav.hn-std .hover\:text-slate-600:hover { color: #475569; }
+  nav.hn-std .group:hover .group-hover\:opacity-100 { opacity: 1; } nav.hn-std .group:hover .group-hover\:visible { visibility: visible; }
+  @media (min-width: 640px) { nav.hn-std .sm\:gap-3 { gap: 12px; } nav.hn-std .sm\:px-6 { padding-left: 24px; padding-right: 24px; } }
+  @media (min-width: 768px) { nav.hn-std .md\:flex { display: flex; } nav.hn-std .md\:hidden { display: none; } }
+  @media (min-width: 1024px) { nav.hn-std .lg\:px-8 { padding-left: 32px; padding-right: 32px; } }
+</style>
+<!-- HN_CSS_END -->
+<!-- FZ_CSS_START -->
+<style>
+  .fz-nav { margin: 0 0 14px; padding: 12px 0 0; }
+  .fz-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 700; }
+  .fz-row a { color: #4f46e5; text-decoration: none; }
+  .fz-tabs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: thin; }
+  .fz-tab { flex: 0 0 auto; display: inline-block; white-space: nowrap; padding: 8px 14px; border-radius: 999px; border: 1px solid #e2e8f0; background: #fff; color: #475569; font-size: 13px; font-weight: 800; line-height: 1.2; text-decoration: none; }
+  .fz-tab:hover { background: #eef2ff; color: #3730a3; }
+  .fz-tab[aria-current="page"] { background: #4338ca; border-color: #4338ca; color: #fff; }
+  .fz-remote { position: fixed; right: 16px; bottom: 16px; z-index: 40; display: flex; flex-direction: column; gap: 10px; }
+  .fz-rbtn { width: 54px; height: 54px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.2); display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #333; font-size: 20px; line-height: 1; border: none; padding: 0; cursor: pointer; font-family: inherit; }
+  .fz-rbtn .lb { font-size: 9px; font-weight: 700; margin-top: 2px; color: #555; }
+  .fz-rbtn:hover { background: #eef2ff; }
+  html body { padding-bottom: 120px; }
+  @media (max-width: 640px) { .fz-remote { right: 12px; bottom: 12px; gap: 7px; } .fz-rbtn { width: 46px; height: 46px; font-size: 16px; } }
+</style>
+<!-- FZ_CSS_END -->
+</head>
+<body>
+<!-- HN_START -->
+<nav class="hn-std bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <a href="/" class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-xl" style="font-size:13px;letter-spacing:-0.5px;line-height:1">HOHO<br>PLAY</div>
+                    <span class="text-2xl font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+            </a>
+                <div class="hidden md:flex space-x-2 items-center">
+                    <div class="relative group">
+                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">🗺️ 아이랑 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="absolute left-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <a href="/festival/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">아이랑 나들이 지도</a>
+                            <a href="/festival/worldcup.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이 월드컵</a>
+                            <a href="/festival/camping-worldcup.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">캠핑장 월드컵</a>
+                            <a href="/festival/pick.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">오늘 어디 갈까?</a>
+                            <a href="/festival/roulette.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">나들이·캠핑장·숲 룰렛</a>
+                            <a href="/festival/poster.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">축제 포스터</a>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="absolute left-0 top-full mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <a href="/game/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</a>
+                            <a href="/vote/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">익명투표</a>
+                            <a href="/quiz/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">상식테스트</a>
+                            <a href="/fortune/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">운세</a>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button class="text-slate-600 hover:text-indigo-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <a href="/blog/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</a>
+                            <a href="/blog/magazine/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">호호 매거진</a>
+                            <a href="/guides/index.html" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">게임공략</a>
+                            <a href="/dream/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">꿈해몽 사전</a>
+                            <a href="/partner/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</a>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button class="text-slate-400 hover:text-slate-600 font-bold transition text-sm flex items-center gap-1 px-2 py-1">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <a href="/terms/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">이용약관</a>
+                            <a href="/privacy/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">개인정보처리방침</a>
+                            <a href="/copyright/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">저작권·콘텐츠 정책</a>
+                            <a href="/guide/" class="block w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">FAQ</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+
+<!-- 햄버거 버튼 (모바일) -->
+                    <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-xl hover:bg-slate-100 transition">
+                        <span id="bar1" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                        <span id="bar2" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                        <span id="bar3" class="block w-6 h-0.5 bg-slate-700 transition-all duration-300"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- 모바일 드롭다운 메뉴 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t shadow-lg">
+            <div class="px-4 py-4 space-y-1">
+
+                <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">🗺️ 아이랑</div>
+                <a href="/festival/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">아이랑 나들이 지도</a>
+                <a href="/festival/worldcup.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">나들이 월드컵</a>
+                <a href="/festival/camping-worldcup.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">캠핑장 월드컵</a>
+                <a href="/festival/pick.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">오늘 어디 갈까?</a>
+                <a href="/festival/roulette.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">나들이·캠핑장·숲 룰렛</a>
+                <a href="/festival/poster.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">축제 포스터</a>
+
+                <div class="border-t my-2"></div>
+                <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">🎮 플레이하기</div>
+                <a href="/game/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">전체게임</a>
+                <a href="/vote/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">익명투표</a>
+                <a href="/quiz/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">상식테스트</a>
+                <a href="/fortune/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">운세</a>
+
+                <div class="border-t my-2"></div>
+                <div class="text-xs font-bold text-slate-400 px-4 pt-1 pb-1">💬 소통·정보</div>
+                <a href="/blog/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">커뮤니티</a>
+                <a href="/blog/magazine/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">호호 매거진</a>
+                <a href="/guides/index.html" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">게임공략</a>
+                <a href="/dream/" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition block">꿈해몽 사전</a>
+                <a href="/partner/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">파트너</a>
+
+                <div class="border-t my-2"></div>
+                <a href="/terms/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">이용약관</a>
+                <a href="/privacy/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">개인정보처리방침</a>
+                <a href="/copyright/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">저작권·콘텐츠 정책</a>
+                <a href="/guide/" class="block w-full text-left px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50 transition text-sm">FAQ</a>
+            </div>
+        </div>
+    </nav>
+<div id="menu-overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;background:rgba(0,0,0,0.3);"></div>
+<script>
+function toggleMenu() {
+    var menu = document.getElementById('mobile-menu');
+    var overlay = document.getElementById('menu-overlay');
+    var bar1 = document.getElementById('bar1');
+    var bar2 = document.getElementById('bar2');
+    var bar3 = document.getElementById('bar3');
+    if (!menu) return;
+    var isOpen = !menu.classList.contains('hidden');
+    if (isOpen) {
+        menu.classList.add('hidden');
+        if (overlay) overlay.style.display = 'none';
+        if (bar1) bar1.style.transform = '';
+        if (bar2) bar2.style.opacity = '1';
+        if (bar3) bar3.style.transform = '';
+    } else {
+        menu.classList.remove('hidden');
+        if (overlay) overlay.style.display = 'block';
+        if (bar1) bar1.style.transform = 'translateY(8px) rotate(45deg)';
+        if (bar2) bar2.style.opacity = '0';
+        if (bar3) bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
+    }
+}
+</script>
+<!-- HN_END -->
+<!-- FZ_REMOTE_START -->
+<div class="fz-remote" id="fzRemote">
+  <a class="fz-rbtn" href="/festival/" aria-label="아이랑 나들이 지도로 가기"><span>🗺️</span><span class="lb">지도</span></a>
+  <a class="fz-rbtn" href="/festival/poster.html" aria-label="축제 포스터로 가기"><span>🎪</span><span class="lb">포스터</span></a>
+  <button type="button" class="fz-rbtn" id="fzTopBtn" aria-label="맨 위로 올라가기" onclick="try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}"><span>⬆️</span><span class="lb">맨 위</span></button>
+  <a class="fz-rbtn" href="/" aria-label="홈으로 가기"><span>🏠</span><span class="lb">홈</span></a>
+</div>
+<!-- FZ_REMOTE_END -->
+<div class="wrap">
+  <!-- FZ_NAV_START -->
+<nav class="fz-nav" aria-label="나들이 도구 메뉴">
+  <div class="fz-row"><a href="/festival/">← 아이랑 나들이 지도</a><a href="/">🏠 홈</a></div>
+  <div class="fz-tabs"><a class="fz-tab" href="/festival/tools.html" aria-current="page">🧰 도구 모음</a><a class="fz-tab" href="/festival/worldcup.html">🏆 나들이 월드컵</a><a class="fz-tab" href="/festival/camping-worldcup.html">⛺ 캠핑장 월드컵</a><a class="fz-tab" href="/festival/pick.html">🧭 오늘 어디 갈까?</a><a class="fz-tab" href="/festival/roulette.html">🎡 나들이·캠핑장·숲 룰렛</a><a class="fz-tab" href="/festival/poster.html">🎪 축제 포스터</a></div>
+</nav>
+<script>(function(){try{var a=document.querySelector(".fz-tab[aria-current]");if(a&&a.parentNode){a.parentNode.scrollLeft=Math.max(0,a.offsetLeft-16);}}catch(e){}})();</script>
+<!-- FZ_NAV_END -->
+
+  <style>
+    .hub-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 18px; }
+    @media (min-width: 720px) { .hub-grid { grid-template-columns: 1fr 1fr; } }
+    html body a.hub-card { display: block; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 18px; color: #1e293b; transition: transform .15s, box-shadow .15s, border-color .15s; }
+    a.hub-card:hover { transform: translateY(-2px); border-color: #a5b4fc; box-shadow: 0 12px 28px rgba(79,70,229,.14); }
+    .hub-ic { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 10px; }
+    .hub-card h2 { margin: 0 0 4px; font-size: 18px; font-weight: 900; color: #312e81; }
+    .hub-card .hub-sub { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: #6366f1; }
+    .hub-card ul { margin: 0 0 12px; padding-left: 1.2em; list-style: disc; }
+    .hub-card li { font-size: 14px; color: #475569; margin: 3px 0; }
+    .hub-go { display: inline-block; font-size: 14px; font-weight: 900; color: #fff; background: #4f46e5; padding: 9px 16px; border-radius: 999px; }
+    .hub-help { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+    .hub-help h2 { margin: 0 0 10px; font-size: 17px; font-weight: 900; color: #0f172a; }
+    .hub-help table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .hub-help th, .hub-help td { text-align: left; padding: 9px 8px; border-top: 1px solid #f1f5f9; vertical-align: top; }
+    .hub-help th { font-weight: 800; color: #334155; width: 42%; }
+    .hub-help td a { font-weight: 800; color: #4f46e5; text-decoration: none; }
+    .hub-faq p { margin: 0 0 10px; font-size: 14.5px; color: #475569; }
+    .hub-faq b { color: #1e293b; }
+    @media (max-width: 640px) { .hub-help th { width: 46%; } }
+  </style>
+
+  <div class="hero">
+    <h1>🧭 오늘 어디 갈지 정하기</h1>
+    <p>고르기 어려울 땐 도구에게 맡겨 보세요. 상황에 맞는 걸 하나 골라 누르면 바로 시작돼요. 모두 무료이고 로그인이 필요 없어요.</p>
+  </div>
+
+  <div class="hub-grid">
+    <a class="hub-card" href="/festival/worldcup.html">
+      <div class="hub-ic" style="background:#eef2ff">🏆</div>
+      <h2>아이랑 나들이 월드컵</h2>
+      <p class="hub-sub">가고 싶은 곳을 대진표로 골라요</p>
+      <ul><li>지역·실내외·예산을 정하면 후보가 16강으로 모여요</li><li>두 곳씩 비교하다 보면 결승에서 한 곳이 남아요</li><li>아이에게 직접 고르게 하기 좋아요</li></ul>
+      <span class="hub-go">월드컵 시작하기 →</span>
+    </a>
+    <a class="hub-card" href="/festival/camping-worldcup.html">
+      <div class="hub-ic" style="background:#ecfdf5">⛺</div>
+      <h2>캠핑장 월드컵</h2>
+      <p class="hub-sub">이번 주말 캠핑장을 대진표로 골라요</p>
+      <ul><li>지역을 고르면 캠핑장 후보로 대진표를 만들어요</li><li>마음에 드는 곳을 비교하며 하나씩 줄여 가요</li><li>주말 캠핑 계획을 세울 때 좋아요</li></ul>
+      <span class="hub-go">캠핑장 고르기 →</span>
+    </a>
+    <a class="hub-card" href="/festival/roulette.html">
+      <div class="hub-ic" style="background:#fff7ed">🎡</div>
+      <h2>나들이·캠핑장·숲 룰렛</h2>
+      <p class="hub-sub">지역만 고르면 룰렛이 정해줘요</p>
+      <ul><li>나들이, 캠핑장, 숲 중에서 종류를 고를 수 있어요</li><li>돌리기만 하면 끝이라 가장 빨라요</li><li>정말 아무 생각이 안 날 때 좋아요</li></ul>
+      <span class="hub-go">룰렛 돌리기 →</span>
+    </a>
+    <a class="hub-card" href="/festival/pick.html">
+      <div class="hub-ic" style="background:#fdf2f8">🧭</div>
+      <h2>오늘 어디 갈까?</h2>
+      <p class="hub-sub">하나씩 고르면 오늘의 코스를 짜줘요</p>
+      <ul><li>날짜·지역·실내외·비용·장소 수를 차례로 골라요</li><li>날씨와 운영시간을 보고 하루 코스로 묶어줘요</li><li>한 곳이 아니라 하루 일정이 필요할 때 좋아요</li></ul>
+      <span class="hub-go">코스 짜기 →</span>
+    </a>
+  </div>
+
+  <section class="hub-help" aria-label="어떤 도구를 쓰면 좋을까요">
+    <h2>🤔 어떤 도구를 쓰면 좋을까요?</h2>
+    <table>
+      <tr><th>후보를 비교하며 고르고 싶어요</th><td><a href="/festival/worldcup.html">나들이 월드컵</a> · <a href="/festival/camping-worldcup.html">캠핑장 월드컵</a></td></tr>
+      <tr><th>빨리 하나만 정해 주세요</th><td><a href="/festival/roulette.html">룰렛</a></td></tr>
+      <tr><th>하루 일정(코스)이 필요해요</th><td><a href="/festival/pick.html">오늘 어디 갈까?</a></td></tr>
+      <tr><th>직접 둘러보며 찾고 싶어요</th><td><a href="/festival/">아이랑 나들이 지도</a> · <a href="/festival/poster.html">축제 포스터</a></td></tr>
+    </table>
+  </section>
+
+  <section class="hub-help hub-faq" aria-label="자주 묻는 질문">
+    <h2>💬 자주 묻는 질문</h2>
+    <p><b>모두 무료인가요?</b><br>네. 회원가입이나 로그인 없이 바로 쓸 수 있어요.</p>
+    <p><b>고른 결과가 저장되나요?</b><br>개인을 알아볼 수 있는 정보는 받지 않아요. 월드컵 우승이나 룰렛 결과처럼 어떤 곳이 많이 뽑혔는지 알 수 있는 익명 기록만 통계에 쓰여요. 자세한 내용은 개인정보처리방침에서 확인하실 수 있어요.</p>
+    <p><b>가기 전에 꼭 확인할 것이 있나요?</b><br>운영시간·요금·휴무일은 바뀔 수 있어요. 도구가 정해 준 곳은 상세 정보에서 공식 안내를 한 번 더 확인하고 출발하세요.</p>
+  </section>
+</div>
+
+<div id="site-footer"><nav aria-label="사이트 정보" style="padding:24px 16px;text-align:center;font-size:13px;line-height:2;color:#64748b"><a href="/about/" style="color:#475569;text-decoration:none">호호플레이 소개</a> · <a href="/privacy/" style="color:#475569;text-decoration:none">개인정보처리방침</a> · <a href="/terms/" style="color:#475569;text-decoration:none">이용약관</a> · <a href="/copyright/" style="color:#475569;text-decoration:none">저작권·콘텐츠 정책</a> · <a href="/contact/" style="color:#475569;text-decoration:none">문의하기</a></nav></div>
+<!-- 푸터(footer.html)가 Tailwind 클래스로 만들어져 있어 다른 상세 페이지처럼 CDN을 불러온다. 본문 뒤에서 불러 본문 표시를 막지 않는다. -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+    fetch('/footer.html')
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+            var footerEl = document.getElementById('site-footer');
+            footerEl.innerHTML = html;
+            footerEl.querySelectorAll('script').forEach(function (oldScript) {
+                var newScript = document.createElement('script');
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(function () { /* 푸터 로드 실패해도 본문 표시엔 영향 없음 */ });
+</script>
+</body>
+</html>
