@@ -1082,6 +1082,16 @@ def build_festival_list_page(list_items):
         sections += ['<h2 class="category-heading">🚤 수상레저</h2>', render_by_region(watersports)]
     body = '\n'.join(sections)
 
+    # [ADD] 2026-11-18: 상단 메뉴(메인 index.html 메뉴와 같은 항목)를 이 페이지에도 넣는다. 읽기에 실패하면 빈 값이라 목록 생성은 멈추지 않는다.
+    try:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from sync_standalone_nav import render_nav_block
+        site_nav = render_nav_block()
+    except Exception as _nav_err:
+        print(f"[nav] 상단 메뉴 블록을 만들지 못했습니다(메뉴 없이 생성): {_nav_err}")
+        site_nav = ''
+
     page = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1092,7 +1102,8 @@ def build_festival_list_page(list_items):
 <link rel="canonical" href="https://hohoplaylab.com/festival/list.html">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <style>
-body{{font-family:'Noto Sans KR',sans-serif;max-width:720px;margin:0 auto;padding:24px 16px;color:#1e293b;line-height:1.7}}
+body{{font-family:'Noto Sans KR',sans-serif;margin:0;color:#1e293b;line-height:1.7}}
+.lw{{max-width:720px;margin:0 auto;padding:24px 16px}}
 h1{{font-size:1.5rem;font-weight:900}}
 .category-heading{{font-size:1.3rem;font-weight:900;margin-top:36px;padding-bottom:8px;border-bottom:3px solid #1e293b}}
 .region-heading{{font-size:1.1rem;font-weight:800;margin-top:22px;color:#4f46e5;border-bottom:2px solid #e0e7ff;padding-bottom:6px}}
@@ -1104,11 +1115,14 @@ h1{{font-size:1.5rem;font-weight:900}}
 </style>
 </head>
 <body>
+{site_nav}
+<div class="lw">
 <h1>{month_label} 전국 축제·자연관광지 목록</h1>
 <p style="font-size:13px;color:#64748b;margin:4px 0 10px">데이터 기준일 {now.strftime('%Y.%m.%d')} (KST) · 출처: 한국관광공사 TourAPI / 공공데이터포털 · 종료된 행사는 자동으로 빠집니다.</p>
 <p>현재 진행 중이거나 곧 시작하는 전국 축제, 그리고 상시 이용 가능한 자연관광지·캠핑장·수상레저 정보를 모았습니다. 지도에서 한눈에 보고 싶다면 <a href="/festival/">축제 지도</a>를 이용해보세요.</p>
 {body}
 <a class="back-link" href="/festival/">← 지도에서 보기</a>
+</div>
 </body>
 </html>"""
 
