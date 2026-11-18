@@ -1,13 +1,14 @@
-name: Sync Standalone Nav
+name: Sync Site Nav
 
-# 문의하기(contact/)와 축제 목록(festival/list.html)처럼 Tailwind 없이 단독으로 쓰는 페이지의 상단 메뉴를
-# 메인 페이지(index.html)의 상단 메뉴와 똑같이 맞춥니다.
-#   - 메뉴는 index.html 에서만 고치면 됩니다. 이 작업이 같은 항목·같은 순서로 따라 바꿉니다.
+# 사이트 전체 상단 메뉴(PC 드롭다운 + 모바일 햄버거 + 푸터 목록)를 메인 페이지(index.html)의 메뉴와 똑같이 맞춥니다.
+#   - 메뉴는 index.html 에서만 고치면 됩니다. 항목 추가·삭제·이름변경·순서변경이 모든 페이지에 한 번에 반영됩니다.
+#   - 대상: 코스 글·매거진 글·게임·약관·문의하기·축제 목록·템플릿·footer.html 등 (자세한 목록은 scripts/sync_site_nav.py 맨 위 설명)
+#   - 나들이 도구 5페이지는 "Sync Festival Nav" 가 따로 맞춥니다(index.html 이 올라오면 그쪽도 같이 자동 실행됩니다).
 #   - 이미 같으면 아무것도 바꾸지 않고(커밋 없음), 여러 번 실행해도 결과는 같습니다.
-#   - festival/list.html 은 매일 새로 만들어지지만, 만들 때 같은 블록을 같이 넣으므로 메뉴가 사라지지 않습니다.
+#   (이 파일 이름은 예전 "Sync Standalone Nav" 때문에 sync-standalone-nav.yml 로 남겨 두었습니다. 이름만 같고 내용은 전체 동기화입니다.)
 #
 # 실행 방법
-#   1) 수동: Actions 탭 → "Sync Standalone Nav" → Run workflow
+#   1) 수동: Actions 탭 → "Sync Site Nav" → Run workflow
 #   2) 자동: index.html 이 올라오면(메인 메뉴를 바꿨을 때) 이어서 자동 실행
 
 on:
@@ -21,7 +22,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-standalone-nav
+  group: sync-site-nav
   cancel-in-progress: false
 
 jobs:
@@ -37,7 +38,7 @@ jobs:
           python-version: "3.x"
 
       - name: 메뉴 동기화
-        run: python3 scripts/sync_standalone_nav.py
+        run: python3 scripts/sync_site_nav.py
 
       - name: 변경사항 커밋 및 푸시
         run: |
@@ -47,7 +48,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
           else
-            git commit -m "chore: 문의하기·축제 목록 상단 메뉴 동기화(메인 메뉴 기준)"
+            git commit -m "chore: 전체 페이지 상단 메뉴·푸터 동기화(메인 메뉴 기준)"
             git pull --rebase
             git push
           fi
