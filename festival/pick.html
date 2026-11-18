@@ -1328,7 +1328,7 @@ function pickCourse(pool, n, rand, ctx, place, P) {
     }).sort(function (a, b) { return b.s - a.s; });
     if (!scored.length) return [];
     // 한 코스는 한 생활권 안에서만 짠다(예: 강화면 강화, 영종도면 영종도 근처). 코스 안 모든 장소 사이 거리를 COURSE_MAX_KM 이내로 제한.
-    const COURSE_MAX_KM = 15;
+    const COURSE_MAX_KM = P.maxKm || 15;
     function kmBetween(a, b) { return (a.lat && b.lat) ? haversineDistanceKm(a.lat, a.lng, b.lat, b.lng) : 999; }
     // 시작 장소: 점수 높은 순으로 보되, 반경 안에 함께 갈 곳이 충분한 곳을 우선한다(없으면 1순위)
     let start = scored[0];
@@ -1371,7 +1371,7 @@ function makeCourse(P) {
     let widened = false;
     if (pool.length < P.n && P.place === 'any' && place === 'in') { pool = poolFor(ctx, 'any', P); widened = true; }
     const rand = mulberry32(P.seed * 7919 + parseInt(P.when.slice(4), 10) + 17);
-    let chosen, campState = '';
+    let chosen, campState = '', campWiden = '';
     const campOn = !!P.camp;
     if (campOn && P.cost === 'free') { campState = 'free'; chosen = pickCourse(pool, P.n, rand, ctx, widened ? 'any' : place, P); }
     else if (campOn) {
@@ -1383,23 +1383,27 @@ function makeCourse(P) {
         }).map(function (c) { return { c: c, s: (c.image ? 3 : 0) + (seenC[c.contentid] ? -5 : 0) + rand() * 3 }; }).sort(function (a, b) { return b.s - a.s; });
         if (!cp.length) { campState = 'none'; chosen = pickCourse(pool, P.n, rand, ctx, widened ? 'any' : place, P); }
         else {
-            const near = function (c, it) { return zoneOf(it) === zoneOf(c) && haversineDistanceKm(c.lat, c.lng, it.lat, it.lng) <= 15; };
-            // [CHANGE] 2026-11-18: 캠핑장은 "고른 곳 수"에 더해서 넣는다(3곳 + 캠핑장 1곳 = 4곳).
-            let pick = cp[0].c, rest = [];
-            let bestN = -1;
-            for (let i = 0; i < Math.min(cp.length, 12); i++) {
-                const sub = pool.filter(function (it) { return near(cp[i].c, it); });
-                if (sub.length >= P.n) { pick = cp[i].c; rest = sub; break; }
-                if (sub.length > bestN) { bestN = sub.length; pick = cp[i].c; rest = sub; }   // 못 채우면 근처에 가장 많이 있는 캠핑장
+            // 같은 권역에서, 캠핑장 반경 안의 후보. 모자라면 ① 반경 25km ② 실내·야외 구분 없이 순서로 넓힌다.
+            const nearR = function (c, it, r) { return zoneOf(it) === zoneOf(c) && haversineDistanceKm(c.lat, c.lng, it.lat, it.lng) <= r; };
+            const anyPool = (place !== 'any') ? poolFor(ctx, 'any', P) : pool;
+            const steps = [{ pl: pool, r: 15, w: '' }, { pl: pool, r: 25, w: 'km' }, { pl: anyPool, r: 25, w: 'any' }];
+            let pick = cp[0].c, rest = [], bestN = -1, usedStep = steps[0], done = false;
+            for (let si = 0; si < steps.length && !done; si++) {
+                for (let i = 0; i < Math.min(cp.length, 12); i++) {
+                    const sub = steps[si].pl.filter(function (it) { return nearR(cp[i].c, it, steps[si].r); });
+                    if (sub.length >= P.n) { pick = cp[i].c; rest = sub; usedStep = steps[si]; done = true; break; }
+                    if (sub.length > bestN) { bestN = sub.length; pick = cp[i].c; rest = sub; usedStep = steps[si]; }
+                }
             }
-            rest = rest.length ? pickCourse(rest, P.n, rand, ctx, widened ? 'any' : place, P) : [];
+            rest = rest.length ? pickCourse(rest, P.n, rand, ctx, usedStep.w === 'any' ? 'any' : (widened ? 'any' : place), Object.assign({}, P, { maxKm: usedStep.r })) : [];
+            campWiden = usedStep.w;
             chosen = [pick].concat(rest);
             campState = 'ok';
         }
     } else chosen = pickCourse(pool, P.n, rand, ctx, widened ? 'any' : place, P);
     if (P.track && chosen.length) S.seen[chosen[0].contentid] = 1;
     const sched = chosen.length ? scheduleCourseItems(chosen, ctx) : [];
-    return { sched: sched, ctx: ctx, poolSize: pool.length, place: place, widened: widened, campState: campState };
+    return { sched: sched, ctx: ctx, poolSize: pool.length, place: place, widened: widened, campState: campState, campWiden: campWiden };
 }
 // 샘플: 질문에 아직 답하지 않았을 때 보여주는 3곳 예시 코스(날씨와 무관). 고른 지역·날짜·조건이 있으면 그걸 따른다.
 function sampleCourse() {
@@ -1510,7 +1514,7 @@ function resultHtml() {
     else if (W.state === 'unknown') h += '<div class="pk-rnote warn">날씨 예보를 가져오지 못했어요. 출발 전에 날씨를 한 번 확인해 주세요.</div>';
     if (!S.shared && c.campState === 'none') h += '<div class="pk-rnote warn">🏕️ 고른 지역 가까이에 등록된 캠핑장이 없어서 캠핑장 없이 짰어요.</div>';
     else if (!S.shared && c.campState === 'free') h += '<div class="pk-rnote warn">🏕️ 캠핑장은 요금 확인이 필요해서 "무료만"에서는 넣지 않았어요. 캠핑장을 넣으려면 예산을 "유료도 괜찮아요"로 바꿔주세요.</div>';
-    else if (!S.shared && c.campState === 'ok') h += '<div class="pk-rnote">🏕️ 캠핑장 1곳을 더 넣었어요(고른 곳 수 + 캠핑장). 예약 가능 여부·요금·체크인 시간은 "자세히 보기"에서 꼭 확인하세요.</div>';
+    else if (!S.shared && c.campState === 'ok') h += '<div class="pk-rnote">🏕️ 캠핑장 1곳을 더 넣었어요(고른 곳 수 + 캠핑장). 예약 가능 여부·요금·체크인 시간은 "자세히 보기"에서 꼭 확인하세요.' + (c.campWiden === 'km' ? ' 캠핑장 가까이에 장소가 적어서 반경을 약 25km까지 넓혔어요.' : (c.campWiden === 'any' ? ' 캠핑장 가까이에 고른 유형의 장소가 적어서 실내·야외 구분 없이 채웠어요.' : '')) + '</div>';
     if (c.sched.length < (S.n || 1) + (c.campState === 'ok' ? 1 : 0) && !S.shared) h += '<div class="pk-rnote warn">함께 다니기 좋은 가까운 곳(같은 권역·서로 약 15km 이내)이 ' + c.sched.length + '곳뿐이었어요. 다른 코스를 보거나 조건을 넓혀 보세요.</div>';
     h += '<div class="pk-actions">';
     if (!S.shared) h += '<button type="button" class="pk-btn pri" data-act="again">🔄 다른 코스 보기</button>';
