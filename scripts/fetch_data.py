@@ -1663,11 +1663,21 @@ def main():
     # data/manual_festivals.json에 넣어두면, 자동 수집된 축제와 완전히 동일한 방식으로
     # 지도·목록·상세페이지·사이트맵에 반영된다. endDate가 지나면 다른 축제와 똑같이
     # 자동으로 빠지므로, 한번 등록해두면 따로 지우지 않아도 된다.
+    manual_camps = []
     manual_path = os.path.join('data', 'manual_festivals.json')
     if os.path.exists(manual_path):
         with open(manual_path, 'r', encoding='utf-8') as fp:
             manual_list = json.load(fp)
         for m in manual_list:
+            if m.get('type') == 'camping':
+                # [ADD] 2026-11-19: TourAPI에 없는 캠핑장 수동 등록 (상세페이지 없이 지도·픽·월드컵에만 반영)
+                manual_camps.append({
+                    'type': 'camping', 'title': m.get('title'), 'lat': m.get('lat'), 'lng': m.get('lng'),
+                    'startDate': '', 'endDate': '', 'addr': m.get('addr', ''), 'image': m.get('image', ''),
+                    'tel': m.get('tel', ''), 'contentid': m.get('contentid'), 'manual': True,
+                    'homepage': m.get('homepage', ''),
+                })
+                continue
             end_date = m.get('endDate', '')
             if end_date and end_date < TODAY:
                 continue  # 종료된 수동 축제도 자동으로 제외
@@ -1741,6 +1751,10 @@ def main():
     except Exception as e:
         print(f"캠핑장 수집 실패, 이번 실행에서는 건너뜁니다: {e}")
 
+    camping_spots.extend(manual_camps)  # 수동 등록 캠핑장 (중복 제목 제외)
+    _seen = set()
+    camping_spots = [c for c in camping_spots if not (c['title'] in _seen or _seen.add(c['title']))]
+
     # ── 수상레저(수상스키·래프팅·보트 등) — 위와 동일한 방식.
     # cat2=A0301(수상레포츠) 하나로 충분히 좁혀져서 cat3까지는 지정하지 않았다.
     watersports_spots = []
@@ -1797,7 +1811,7 @@ def main():
     generate_detail_pages(festivals)
     attach_play_times(festivals)  # [ADD] 2026-11-01: 행사 시간대(지도 코스 시간 계산용)
     generate_nature_detail_pages(nature_spots)
-    generate_nature_detail_pages(camping_spots, page_label='캠핑장', log_label='캠핑장')
+    generate_nature_detail_pages([c for c in camping_spots if not c.get('manual')], page_label='캠핑장', log_label='캠핑장')
     generate_nature_detail_pages(watersports_spots, page_label='수상레저', log_label='수상레저')
     # [ADD] 위 generate_* 호출들의 "애드센스 코드 보정"은 이번 실행에서 받아온 활성
     # 목록(festivals/nature_spots 등)에 있는 것만 훑는다. 상단 홈 버튼 보정은 이미
