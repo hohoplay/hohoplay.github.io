@@ -102,7 +102,7 @@ def render_nav(groups):
     return (
         START + '\n'
         '<nav id="hn-nav" style="background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-family:\'Noto Sans KR\',sans-serif;text-align:left">'
-        '<div style="max-width:1280px;margin:0 auto;padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:56px">'
+        '<div style="max-width:var(--hn-w,1280px);margin:0 auto;padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:56px">'
         '<a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">'
         '<span style="width:32px;height:32px;background:#4f46e5;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:900;letter-spacing:-0.5px;line-height:1.1;text-align:center;box-shadow:0 4px 10px rgba(79,70,229,0.3)">HOHO<br>PLAY</span>'
         '<span style="font-size:1.125rem;font-weight:900;letter-spacing:-0.03em;text-transform:uppercase"><span style="color:#4f46e5">HOHO</span><span style="color:#8b5cf6"> PLAY</span></span></a>'
