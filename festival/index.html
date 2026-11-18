@@ -3513,6 +3513,20 @@ function toggleMenu() {
         renderMainPanel();
     }
 
+    // [ADD] 2026-11-18: "이 장소 주변 코스"(seed)도 영종도/제물포를 섞지 않는다.
+    // 구읍뱃터·운서 쪽 영종도와 월미도·제물포는 직선거리 3km 안팎(바다 건너)이라 반경 10km만 보면 한 코스로 묶였다.
+    // 인천 장소는 courseZoneOf 기준으로 '영종도' / '육지(제물포·동인천 등)'를 가르고, 시작 장소와 같은 쪽만 넣는다.
+    function incheonSeedZone(it) {
+        if (!it || !/인천/.test(String(it.addr || ''))) return null;
+        return courseZoneOf(it, 'incheon') || '육지';
+    }
+    function seedZoneAllows(sd, it) {
+        const sz = incheonSeedZone(sd);
+        const iz = incheonSeedZone(it);
+        if (sz) return iz === sz;          // 시작 장소가 인천이면 같은 쪽 인천 장소만
+        return iz !== '영종도';            // 인천 밖 시작 장소면 영종도만 뺀다(그 밖은 기존 그대로)
+    }
+
     function buildCourses(regionKey, seed) {
         const dateStr = getCourseDate();
         const dObj = ctParseDate(dateStr);
@@ -3683,6 +3697,7 @@ function toggleMenu() {
             if (sd && isPreciseCoord(sd)) {
                 const withDist = pool.filter(function (it) {
                     return it !== sd && it.type !== 'park' && it.lat && it.lng && isPreciseCoord(it)
+                        && seedZoneAllows(sd, it)
                         && haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) <= SEED_COURSE_RADIUS_KM;
                 }).map(function (it) { return { it: it, d: haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) }; })
                   .sort(function (a, b) { return a.d - b.d; });
