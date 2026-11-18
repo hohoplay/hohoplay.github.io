@@ -1099,9 +1099,11 @@ def build_festival_list_page(list_items):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{month_label} 전국 축제·자연관광지 목록 - HOHO PLAY 축제 지도</title>
 <meta name="description" content="{month_label} 기준 전국에서 진행 중이거나 예정된 축제, 그리고 상시 이용 가능한 자연관광지·캠핑장·수상레저 정보를 지역별로 모은 전체 목록입니다.">
+<meta name="robots" content="noindex, follow">
 <link rel="canonical" href="https://hohoplaylab.com/festival/list.html">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <style>
+:root{{--hn-w:720px}}
 body{{font-family:'Noto Sans KR',sans-serif;margin:0;color:#1e293b;line-height:1.7}}
 .lw{{max-width:720px;margin:0 auto;padding:24px 16px}}
 h1{{font-size:1.5rem;font-weight:900}}
@@ -1133,8 +1135,8 @@ h1{{font-size:1.5rem;font-weight:900}}
 
 
 def update_sitemap(list_items):
-    """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목만 지우고,
-    festival/list.html 하나만 다시 채운다. 다른 페이지(홈, 게임, 약관 등) 항목은
+    """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목만 지운다
+    (list.html은 noindex 처리했으므로 다시 채우지 않는다). 다른 페이지(홈, 게임, 약관 등) 항목은
     절대 건드리지 않는다.
 
     [정책 변경] 예전에는 축제·자연관광지 상세페이지 하나하나를 전부 sitemap.xml에
@@ -1160,16 +1162,9 @@ def update_sitemap(list_items):
         flags=re.DOTALL
     )
 
-    insertion = (
-        '  <url>\n    <loc>https://hohoplaylab.com/festival/list.html</loc>\n'
-        '    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
-    )
-    content = content.replace('</urlset>', insertion + '</urlset>') if '</urlset>' in content \
-        else content.rstrip() + '\n' + insertion
-
     with open(sitemap_path, 'w', encoding='utf-8') as fp:
         fp.write(content)
-    print(f"sitemap.xml 갱신 완료 (상세페이지 {len(list_items)}건은 목록 페이지 링크로만 노출, 사이트맵엔 festival/list.html 1건만 등록)")
+    print(f"sitemap.xml 갱신 완료 (festival/detail/*, festival/list.html 항목 제거 — 목록 페이지는 noindex)")
 
 
 def pick_region_representatives(today_list):
