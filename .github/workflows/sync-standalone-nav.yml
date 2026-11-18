@@ -1,0 +1,53 @@
+name: Sync Standalone Nav
+
+# 문의하기(contact/)와 축제 목록(festival/list.html)처럼 Tailwind 없이 단독으로 쓰는 페이지의 상단 메뉴를
+# 메인 페이지(index.html)의 상단 메뉴와 똑같이 맞춥니다.
+#   - 메뉴는 index.html 에서만 고치면 됩니다. 이 작업이 같은 항목·같은 순서로 따라 바꿉니다.
+#   - 이미 같으면 아무것도 바꾸지 않고(커밋 없음), 여러 번 실행해도 결과는 같습니다.
+#   - festival/list.html 은 매일 새로 만들어지지만, 만들 때 같은 블록을 같이 넣으므로 메뉴가 사라지지 않습니다.
+#
+# 실행 방법
+#   1) 수동: Actions 탭 → "Sync Standalone Nav" → Run workflow
+#   2) 자동: index.html 이 올라오면(메인 메뉴를 바꿨을 때) 이어서 자동 실행
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-standalone-nav
+  cancel-in-progress: false
+
+jobs:
+  sync-nav:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 메뉴 동기화
+        run: python3 scripts/sync_standalone_nav.py
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 문의하기·축제 목록 상단 메뉴 동기화(메인 메뉴 기준)"
+            git pull --rebase
+            git push
+          fi
