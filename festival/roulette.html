@@ -182,6 +182,10 @@
   .smp-ft { font-size: 12px; color: #94a3b8; margin-top: 8px; }
 </style>
 <!-- SMP_CSS_END -->
+<style id="fz-scroll-fix">
+/* 상단 고정 메뉴에 가려지지 않게: 화면 이동 시 위쪽 여백을 둔다 */
+#setup,#game,#stage,#result,#pk-root,#pk-res,.pk-step{scroll-margin-top:96px}
+</style>
 <!-- HN_CSS_START -->
 <style>
   /* 호호 매거진 등과 같은 상단 메뉴 마크업이 Tailwind 없이도 똑같이 보이도록, 그 마크업의 클래스만 옮긴 CSS */
@@ -250,10 +254,6 @@
   @media (max-width: 640px) { .fz-remote { right: 12px; bottom: 12px; gap: 7px; } .fz-rbtn { width: 46px; height: 46px; font-size: 16px; } }
 </style>
 <!-- FZ_CSS_END -->
-<style id="fz-scroll-fix">
-/* 상단 고정 메뉴에 가려지지 않게: 화면 이동 시 위쪽 여백을 둔다 */
-#setup,#game,#stage,#result,#pk-root,#pk-res,.pk-step{scroll-margin-top:96px}
-</style>
 </head>
 <body>
 <!-- HN_START -->
@@ -381,7 +381,7 @@ function toggleMenu() {
 <div class="fz-remote" id="fzRemote">
   <a class="fz-rbtn" href="/festival/" aria-label="아이랑 나들이 지도로 가기"><span>🗺️</span><span class="lb">지도</span></a>
   <a class="fz-rbtn" href="/festival/poster.html" aria-label="축제 포스터로 가기"><span>🎪</span><span class="lb">포스터</span></a>
-  <button type="button" class="fz-rbtn" id="fzTopBtn" aria-label="작업 화면 위치로 이동" onclick="fzGoTool()"><span>🎯</span><span class="lb">화면위치</span></button>
+  <button type="button" class="fz-rbtn" id="fzTopBtn" aria-label="맨 위로 올라가기" onclick="try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}"><span>⬆️</span><span class="lb">맨 위</span></button>
   <a class="fz-rbtn" href="/" aria-label="홈으로 가기"><span>🏠</span><span class="lb">홈</span></a>
 </div>
 <!-- FZ_REMOTE_END -->
