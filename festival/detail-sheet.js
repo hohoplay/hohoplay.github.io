@@ -162,6 +162,8 @@
     // 혹시 광고 코드가 들어 있어도 팝업(iframe) 안에서는 실행하지 않는다.
     html = html.replace(/<script[^>]*adsbygoogle[^>]*>[\s\S]*?<\/script>/gi, '');
     html = html.replace(/<ins[^>]*adsbygoogle[^>]*>[\s\S]*?<\/ins>/gi, '');
+    // [ADD] 2026-11-18: 나들이픽 스크립트가 브라우저에 옛 버전으로 남아 있으면 팝업에서 블록이 비어 보이므로, 팝업 안에서는 항상 새 주소(?v=)로 불러온다.
+    html = html.replace(/\/festival\/nearby-pick\.js(\?[^"'\s>]*)?/g, '/festival/nearby-pick.js?v=20261118');
     var head = '<base href="' + origin + path + '">' + FRAME_CSS + FRAME_JS.replace('__BASE__', origin + path);
     if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, function (m) { return m + head; });
     return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' + head + '</head><body>' + html + '</body></html>';
