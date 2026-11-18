@@ -1632,8 +1632,15 @@ function edCandidates(c) {
     const campRow = c.sched.filter(function (r) { return r.item && r.item._camp; })[0];
     const anchor = (campRow || c.sched[0]).item;
     const out = [];
-    festivalsNear(c).forEach(function (x) { if (!have[String(x.f.contentid)]) out.push({ o: x.f, km: x.km, tag: '🎪 축제' }); });
+    // 거리는 전부 같은 기준(anchor: 캠핑장이 있으면 캠핑장, 없으면 코스 첫 장소)에서 잰다.
+    const dist = function (o) { return haversineDistanceKm(anchor.lat, anchor.lng, o.lat, o.lng); };
+    festivalsNear(c).forEach(function (x) { if (!have[String(x.f.contentid)]) out.push({ o: x.f, km: dist(x.f), tag: '🎪 축제' }); });
+    // 캠핑장: 기준에서 30km 안, 가까운 순 3곳(빼 버린 캠핑장을 다시 넣거나, 다른 캠핑장으로 바꿀 수 있게)
+    camps.filter(function (k) { return !have[String(k.contentid)] && dist(k) <= 30; })
+        .sort(function (a, b) { return dist(a) - dist(b); }).slice(0, 3)
+        .forEach(function (k) { out.push({ o: k, km: dist(k), tag: '🏕️ 캠핑장' }); });
     pickNearbyOf(anchor, c.ctx, have).picks.forEach(function (x) { out.push({ o: x.p, km: x.km, tag: '🧸 나들이픽' }); });
+    out.anchor = anchor; out.hasCamp = !!campRow;
     return out;
 }
 function edInfoOf(it) {
@@ -1674,6 +1681,7 @@ function editorHtml(c) {
     const cands = edCandidates(c);
     const full = c.sched.length >= ED_MAX;
     h += '<h4>➕ 근처에서 더 넣기' + (full ? ' <small style="font-weight:600;color:#94a3b8">(최대 ' + ED_MAX + '곳)</small>' : '') + '</h4>';
+    if (cands.anchor) h += '<p class="pk-np-sub" style="margin:0 0 8px">거리는 ' + (cands.hasCamp ? '캠핑장 ' : '코스 첫 장소 ') + '<b>' + esc(cands.anchor.title) + '</b> 기준이에요.</p>';
     if (!cands.length) h += '<p class="pk-np-sub">근처에 더 넣을 만한 곳이 없어요.</p>';
     else {
         h += '<ul class="pk-ed-add">';
