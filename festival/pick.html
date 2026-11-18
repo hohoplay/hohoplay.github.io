@@ -968,7 +968,9 @@ function toggleMenu() {
             cur = end;
             pos = x.it;
         };
-        const remaining = precise.slice();
+        // [ADD] 2026-11-18: 캠핑장은 항상 코스의 맨 마지막(오후 체크인)에 둔다. 가까운 순 정렬에 끼어 3번째로 나오던 문제.
+        const campInfos = precise.filter(function (x) { return x.it._camp; });
+        const runPrecise = function (remaining) {
         while (remaining.length) {
             const cands = remaining.map(function (x) {
                 const dist = pos ? haversineDistanceKm(pos.lat, pos.lng, x.it.lat, x.it.lng) : 0;
@@ -990,7 +992,10 @@ function toggleMenu() {
             remaining.splice(remaining.indexOf(best.x), 1);
             take(best.x, best.travel, pos ? best.dist : null);
         }
+        };
+        runPrecise(precise.filter(function (x) { return !x.it._camp; }));
         rest.forEach(function (x) { take(x, out.length ? 20 : 0, null); });
+        runPrecise(campInfos);
         return out;
     }
 
