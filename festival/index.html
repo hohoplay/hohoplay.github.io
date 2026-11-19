@@ -1813,7 +1813,8 @@ function toggleMenu() {
         jeonbuk: ['전북특별자치도', '전라북도', '전북'],
         jeonnam: ['전남광주통합특별시', '전라남도', '전남'],
         gyeongbuk: ['경상북도', '경북'],
-        gyeongnam: ['경상남도', '경남']
+        gyeongnam: ['경상남도', '경남'],
+        gyeonggi: ['경기도', '경기']
     };
     const CITY_REGION_GROUPS = [
         { province: 'chungbuk', label: '충청북도', cities: ['청주시', '충주시', '제천시', '단양군', '괴산군', '진천군', '음성군', '증평군', '보은군', '옥천군', '영동군'] },
@@ -1822,7 +1823,9 @@ function toggleMenu() {
         { province: 'jeonnam', label: '전라남도', cities: ['여수시', '순천시', '목포시', '광양시', '나주시', '담양군', '곡성군', '구례군', '고흥군', '보성군', '화순군', '장흥군', '강진군', '해남군', '영암군', '무안군', '함평군', '영광군', '장성군', '완도군', '진도군', '신안군'] },
         // [ADD] 2026-11-02: 경북·경남도 도 단위로는 아이랑 장소가 도시마다 흩어져 코스가 안 나와서 시·군 목록으로 나눈다.
         { province: 'gyeongbuk', label: '경상북도', cities: ['포항시', '경주시', '안동시', '문경시', '구미시', '김천시', '영주시', '영천시', '상주시', '경산시', '울릉군', '영덕군', '울진군', '청도군', '봉화군', '청송군', '의성군', '고령군', '성주군', '영양군', '예천군', '칠곡군'] },
-        { province: 'gyeongnam', label: '경상남도', cities: ['창원시', '진주시', '통영시', '거제시', '남해군', '김해시', '양산시', '밀양시', '사천시', '하동군', '산청군', '함양군', '거창군', '합천군', '고성군', '의령군', '함안군', '창녕군'] }
+        { province: 'gyeongnam', label: '경상남도', cities: ['창원시', '진주시', '통영시', '거제시', '남해군', '김해시', '양산시', '밀양시', '사천시', '하동군', '산청군', '함양군', '거창군', '합천군', '고성군', '의령군', '함안군', '창녕군'] },
+        // [ADD] 2026-11-19: 경기도도 도 단위로는 너무 넓어(수원~연천 100km+) 시·군 목록으로 나눈다. 장소가 많은 시부터 앞에 둔다.
+        { province: 'gyeonggi', label: '경기도', cities: ['수원시', '김포시', '고양시', '부천시', '성남시', '파주시', '용인시', '화성시', '안산시', '안양시', '남양주시', '시흥시', '광명시', '군포시', '의왕시', '과천시', '하남시', '구리시', '평택시', '오산시', '안성시', '이천시', '여주시', '광주시', '의정부시', '양주시', '동두천시', '포천시', '가평군', '양평군', '연천군'] }
     ];
     const CITY_REGIONS = {};   // key -> { province, city, short }
     CITY_REGION_GROUPS.forEach(function (g) {
@@ -1833,6 +1836,7 @@ function toggleMenu() {
     // 전남광주통합특별시 주소의 광주 서구(구 단위)는 전라남도 목록에서도 고를 수 있게 따로 둔다.
     CITY_REGIONS['jeonnam:광주서구'] = { province: 'jeonnam', city: '광주서구', short: '광주 서구', gwangjuSeo: true };
     CITY_REGION_GROUPS[3].cities.push('광주서구');
+    CITY_REGIONS['gyeonggi:광주시'].short = '광주시';   // 광주광역시와 헷갈리지 않게
     function isCityRegion(key) { return Object.prototype.hasOwnProperty.call(CITY_REGIONS, key); }
     function cityRegionLabel(key) { return isCityRegion(key) ? CITY_REGIONS[key].short : ''; }
     function addrInCity(addr, def) {
