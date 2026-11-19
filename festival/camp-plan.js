@@ -2,6 +2,8 @@
  * 내 일정표 편집기 — 월드컵 결과 화면 아래에 펼쳐진다. 두 가지 틀(mode)을 쓴다.
  *   camp : 캠핑장 월드컵(/festival/camping-worldcup.html) — 1박 2일
  *   day  : 아이랑 나들이 월드컵(/festival/worldcup.html) — 하루 나들이 + "축제 넣기" 스위치 (2026-11-19 추가)
+ *   forest: 숲·수목원·휴양림(룰렛 /festival/roulette.html) — 하루 숲 나들이(예약·긴팔·벌레 확인표)
+ *   open(champ, { mode, over }) 의 over 로 화면 글자 일부(icon, placeLabel, fromLabel)를 바꿀 수 있다(룰렛은 "우승"이 아니라 "오늘의 장소").
  *
  * [ADD] 2026-11-19
  *  - 우승 캠핑장 + 근처 아이랑 장소 2곳(나들이픽 5곳 중 가까운 곳, 실내·실외가 섞이게)을 미리 담은 1박 2일 틀을 만들고,
@@ -20,7 +22,7 @@
 
     var MODES = {
         camp: {
-            key: 'hp_campplan_v1', days: 2, anchorKind: 'in', nearTime: '12:00', hasFest: false,
+            kind: 'camp', key: 'hp_campplan_v1', days: 2, anchorKind: 'in', nearTime: '12:00', hasFest: false,
             title: '🗓️ 내 캠핑 일정표', paperTitle: '⛺ 나의 캠핑 일정표', placeLabel: '캠핑장', icon: '⛺', fromLabel: '캠핑장에서',
             sub: '캠핑장과 근처 아이랑 장소를 미리 담아 두었어요. 시간·일정·메모를 마음대로 고치고, 아래 <b>출발 전 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.',
             dateLabel: '출발일', telNote: ' · 요금·예약은 전화로 확인하세요',
@@ -48,15 +50,15 @@
             ]
         },
         day: {
-            key: 'hp_dayplan_v1', days: 1, anchorKind: 'out', nearTime: '14:00', hasFest: true,
+            kind: 'day', key: 'hp_dayplan_v1', days: 1, anchorKind: 'out', nearTime: '14:00', hasFest: true,
             title: '🗓️ 내 하루 나들이 일정표', paperTitle: '🧸 나의 하루 나들이 일정표', placeLabel: '우승 장소', icon: '🏆', fromLabel: '우승 장소에서',
-            sub: '우승 장소와 근처 아이랑 장소를 미리 담아 두었어요. 시간·일정·메모를 마음대로 고치고, 원하면 <b>그날 열리는 축제</b>도 넣어 보세요. 아래 <b>출발 전 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.',
+            sub: '{P}와 근처 아이랑 장소를 미리 담아 두었어요. 시간·일정·메모를 마음대로 고치고, 원하면 <b>그날 열리는 축제</b>도 넣어 보세요. 아래 <b>출발 전 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.',
             dateLabel: '나들이 날짜', telNote: ' · 운영시간·요금은 전화로 확인하세요',
-            noNear: '근처 아이랑 장소를 찾지 못해서 우승 장소 일정만 담았어요. 아래 “일정 추가”로 직접 넣을 수 있어요.',
+            noNear: '근처 아이랑 장소를 찾지 못해서 {P} 일정만 담았어요. 아래 “일정 추가”로 직접 넣을 수 있어요.',
             checkNote: '운영시간·휴관일·요금은 사람이 적어 둔 안내라 바뀔 수 있어요. 공식 홈페이지나 전화로 확인하며 체크하세요.',
             footer: '호호플레이 hohoplaylab.com · 운영시간·휴관일·요금은 방문 전 공식 안내를 꼭 확인하세요.',
             checkA: [
-                ['a1', '우승 장소 운영시간·휴관일 확인 (공식 홈페이지·전화)'],
+                ['a1', '{P} 운영시간·휴관일 확인 (공식 홈페이지·전화)'],
                 ['a2', '입장료·이용 요금 확인'],
                 ['a3', '예약·시간제 입장 필요 여부 확인'],
                 ['a4', '주차장·주차 요금 확인'],
@@ -74,7 +76,36 @@
             ]
         }
     };
+    // 숲·수목원·휴양림 — 하루 틀을 바탕으로 예약·복장·벌레·통신을 확인표에 담는다
+    MODES.forest = {
+        kind: 'forest', key: 'hp_forestplan_v1', days: 1, anchorKind: 'out', nearTime: '14:00', hasFest: true,
+        title: '🗓️ 내 숲 나들이 일정표', paperTitle: '🌲 나의 숲 나들이 일정표', placeLabel: '오늘의 장소', icon: '🎯', fromLabel: '이곳에서',
+        sub: '{P}와 근처 아이랑 장소를 미리 담아 두었어요. 숲은 걷는 시간이 길어서 점심 뒤에 가까운 곳 한두 곳만 담았어요. 시간·일정·메모를 고치고, <b>예약·복장·벌레 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.',
+        dateLabel: '나들이 날짜', telNote: ' · 운영·예약은 전화로 확인하세요',
+        noNear: '근처 아이랑 장소를 찾지 못해서 {P} 일정만 담았어요. 아래 “일정 추가”로 직접 넣을 수 있어요.',
+        checkNote: '숲·수목원·휴양림은 운영 시간, 입장료, 예약 여부가 이 서비스에 없어요. 공식 홈페이지나 전화로 확인하며 체크하세요.',
+        footer: '호호플레이 hohoplaylab.com · 운영시간·입장료·예약 여부는 방문 전 공식 안내를 꼭 확인하세요.',
+        checkA: [
+            ['a1', '{P} 운영시간·휴장일 확인 (시설·계절마다 달라요)'],
+            ['a2', '입장료·주차 요금 확인'],
+            ['a3', '숲해설·체험 프로그램 예약 필요 여부 확인'],
+            ['a4', '진입 도로·주차장 상태 확인 (산길·눈·비)'],
+            ['a5', '아이 연령·키 제한, 유모차 이동 가능 여부 확인'],
+            ['a6', '날씨·일몰 시간 확인 (해가 짧은 계절은 일찍 내려오기)']
+        ],
+        checkB: [
+            ['b1', '긴팔·긴바지, 미끄럽지 않은 운동화'],
+            ['b2', '아이 간식·물·물티슈'],
+            ['b3', '벌레 기피제·모자·선크림'],
+            ['b4', '여벌 옷·양말 (젖거나 흙이 묻을 때)'],
+            ['b5', '돗자리·쓰레기봉투'],
+            ['b6', '구급용품 (밴드 등)'],
+            ['b7', '유모차·아기띠 (필요한 경우)'],
+            ['b8', '보조배터리 (산속은 통신이 약할 수 있어요)']
+        ]
+    };
     var cfg = MODES.camp;
+    function fill(t) { return String(t == null ? '' : t).replace(/\{P\}/g, cfg.placeLabel); }
 
     function esc(s) {
         return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -132,6 +163,7 @@
         return '요금 확인 필요';
     }
     function dayDefaultPlan(champ) {
+        var forest = cfg.kind === 'forest';
         var two = pickTwo(champ._near);
         var memo = [];
         if (champ.placeType) memo.push(champ.placeType);
@@ -139,16 +171,16 @@
         memo.push('운영시간 확인');
         var rows = [
             { id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' },
-            { id: uid(), day: 1, time: '10:30', title: '🏆 ' + champ.title, memo: memo.join(' · '), k: 'c' },
-            { id: uid(), day: 1, time: '12:00', title: '점심 · 휴식', memo: '근처 식당 찾기', k: 'x' }
+            { id: uid(), day: 1, time: '10:30', title: cfg.icon + ' ' + champ.title, memo: memo.join(' · '), k: 'c' },
+            { id: uid(), day: 1, time: forest ? '12:30' : '12:00', title: forest ? '점심 · 도시락' : '점심 · 휴식', memo: forest ? '도시락 또는 근처 식당' : '근처 식당 찾기', k: 'x' }
         ];
-        var times = two.length >= 2 ? ['13:30', '15:30'] : ['14:00'];
+        var times = forest ? (two.length >= 2 ? ['14:00', '16:00'] : ['14:30']) : (two.length >= 2 ? ['13:30', '15:30'] : ['14:00']);
         two.forEach(function (n, i) { rows.push(nearRow(n, times[i])); });
-        rows.push({ id: uid(), day: 1, time: '17:30', title: '귀가', memo: '', k: 'out' });
-        return { v: 1, mode: 'day', id: champ.contentid, date: '', days: 1, rows: rows, checks: {}, extra: [], note: '', fest: false };
+        rows.push({ id: uid(), day: 1, time: forest ? '17:30' : '17:30', title: '귀가', memo: '', k: 'out' });
+        return { v: 1, mode: forest ? 'forest' : 'day', id: champ.contentid, date: '', days: 1, rows: rows, checks: {}, extra: [], note: '', fest: false };
     }
     function defaultPlan(champ) {
-        if (cfg === MODES.day) return dayDefaultPlan(champ);
+        if (cfg.kind !== 'camp') return dayDefaultPlan(champ);
         var two = pickTwo(champ._near);
         var rows = [{ id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' }];
         var times = two.length >= 2 ? ['11:30', '13:30'] : ['12:00'];
@@ -163,7 +195,7 @@
 
     // ── 날짜 표시 ─────────────────────────────────────────────────────────────────
     function dayLabel(d) {
-        var s = cfg === MODES.day ? '하루 나들이' : d + '일차';
+        var s = cfg.kind === 'camp' ? d + '일차' : (cfg.kind === 'forest' ? '숲 나들이' : '하루 나들이');
         if (P.date && /^\d{4}-\d{2}-\d{2}$/.test(P.date)) {
             var p = P.date.split('-');
             var dt = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + d - 1));
@@ -277,7 +309,7 @@
         var h = '';
         h += '<a href="#result" class="cp-back" data-act="back">↑ 결과로 돌아가기</a>';
         h += '<h2>' + cfg.title + '</h2>';
-        h += '<p class="cp-sub">' + cfg.sub + '</p>';
+        h += '<p class="cp-sub">' + fill(cfg.sub) + '</p>';
 
         // 캠핑장 정보
         h += '<div class="cp-box"><div class="cp-cname">' + cfg.icon + ' ' + esc(cur.title) + '</div>';
@@ -287,7 +319,7 @@
             (cfg.hasFest ? '<div class="cp-line" id="cpDateNote" style="display:none;color:#b45309">근처 장소는 오늘 기준으로 골랐어요. 그날의 운영·휴관일은 확인표로 꼭 확인하세요.</div>' : '') + '</div>';
 
         if (!(cur._near && cur._near.length)) {
-            h += '<div class="cp-warn">' + cfg.noNear + '</div>';
+            h += '<div class="cp-warn">' + fill(cfg.noNear) + '</div>';
         }
 
         // 일정
@@ -323,7 +355,7 @@
         // 확인표
         h += '<h3>✅ 출발 전 확인표</h3>';
         h += '<p class="cp-sub" style="margin-bottom:4px">' + cfg.checkNote + '</p>';
-        cfg.checkA.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
+        cfg.checkA.forEach(function (c) { h += chkHtml(c[0], fill(c[1]), false); });
         var nc = nearChecks();
         if (nc.length) {
             h += '<div class="cp-sub" style="margin:12px 0 2px;font-weight:800;color:#334155">들를 곳 확인</div>';
@@ -408,11 +440,11 @@
         h += '<div><b>' + esc(cfg.placeLabel) + '</b> ' + esc(cur.title) + '</div>';
         if (cur.addr) h += '<div><b>주소</b> ' + esc(cur.addr) + '</div>';
         if (tel()) h += '<div><b>전화</b> ' + esc(tel()) + '</div>';
-        if (cfg === MODES.day) {
+        if (cfg.kind !== 'camp') {
             if (cur.fee) h += '<div><b>요금 안내</b> ' + esc(clip(cur.fee, 80)) + '</div>';
             if (cur.hours) h += '<div><b>운영시간(참고)</b> ' + esc(clip(cur.hours, 90)) + '</div>';
         }
-        if (P.date) h += '<div><b>' + esc(cfg.dateLabel) + '</b> ' + esc(dayLabel(1).replace(/^(1일차|하루 나들이) · /, '')) + '</div>';
+        if (P.date) h += '<div><b>' + esc(cfg.dateLabel) + '</b> ' + esc(dayLabel(1).replace(/^(1일차|하루 나들이|숲 나들이) · /, '')) + '</div>';
         h += '</div>';
         for (var d = 1; d <= P.days; d++) {
             h += '<h2>' + esc(dayLabel(d)) + '</h2><table><tr><th style="width:62px">시간</th><th style="width:38%">일정</th><th>메모</th></tr>';
@@ -427,7 +459,7 @@
         }
         function ck(id, text) { return '<div class="ck">' + (isOn(id) ? '☑' : '☐') + ' ' + esc(text) + '</div>'; }
         h += '<h2>출발 전 확인표</h2><div class="cols">';
-        cfg.checkA.forEach(function (c) { h += ck(c[0], c[1]); });
+        cfg.checkA.forEach(function (c) { h += ck(c[0], fill(c[1])); });
         nearChecks().forEach(function (c) { h += ck(c[0], c[1]); });
         h += '</div><h2>준비물</h2><div class="cols">';
         cfg.checkB.forEach(function (c) { h += ck(c[0], c[1]); });
@@ -591,7 +623,14 @@
     window.HohoCampPlan = {
         open: function (champ, opts) {
             if (!champ || !champ.contentid || !ensure()) return;
-            cfg = MODES[(opts && opts.mode) || 'camp'] || MODES.camp;
+            var base = MODES[(opts && opts.mode) || 'camp'] || MODES.camp;
+            cfg = base;
+            if (opts && opts.over) {                         // 화면 글자 일부만 바꿔 쓴다(룰렛: 우승 → 오늘의 장소). 원본 틀은 건드리지 않는다.
+                cfg = {};
+                Object.keys(base).forEach(function (k) { cfg[k] = base[k]; });
+                ['icon', 'placeLabel', 'fromLabel'].forEach(function (k) { if (opts.over[k]) cfg[k] = String(opts.over[k]); });
+                cfg.key = base.key;
+            }
             festList = [];
             cur = champ;
             P = load(champ.contentid) || defaultPlan(champ);
