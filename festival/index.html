@@ -3731,7 +3731,9 @@ function toggleMenu() {
                     baseLabel: group.label,
                     items: c.items,
                     hasFestival: c.items.some(isCourseFestival),
-                    minPlaces: gMin,
+                    // [FIX] 2026-11-19: 시·군을 직접 고른 경우, 구별 분리 그룹은 "나누기"만 3곳 기준이고 시간표 통과는 1곳부터 인정한다.
+                    // (고양: 구마다 갈 수 있는 곳이 늦은 시간에 2곳씩이라 전부 탈락해 코스가 0개가 됐다)
+                    minPlaces: (cityMode && group.guSplit) ? minPlaces : gMin,
                     zone: group.zone
                 });
             });
@@ -3824,10 +3826,23 @@ function toggleMenu() {
                 // 앞 장소들이 시간을 쓰는 바람에 뒤에 놓인 곳(혼자라면 갈 수 있는 곳)까지 통째로 사라져서, 코스가 1~3곳으로 줄었다
                 // (예: 오후 3시 반에 청주 코스에서 17:30 마감인 국립청주해양과학관이 빠짐). 이제는 우선순위 순서대로 한 곳씩 넣어 보고,
                 // 시간표가 맞는 곳만 담는다 → 갈 수 있는 곳이 최대 4곳까지 채워진다.
-                let picked = [];
-                for (let ci = 0; ci < pref.length && picked.length < MAX_COURSE_PLACES; ci++) {
-                    const trial = picked.concat([pref[ci]]);
-                    if (!badOf(scheduleCourseItems(trial, ctx)).length) picked = trial;
+                const greedyPick = function (order) {
+                    let got = [];
+                    for (let ci = 0; ci < order.length && got.length < MAX_COURSE_PLACES; ci++) {
+                        const trial = got.concat([order[ci]]);
+                        if (!badOf(scheduleCourseItems(trial, ctx)).length) got = trial;
+                    }
+                    return got;
+                };
+                let picked = greedyPick(pref);
+                // [FIX] 2026-11-19: 늦은 시간(예: 오후 5시)에 마감 임박한 곳(만화박물관 18:00)이 먼저 담기면 그 뒤 장소가 전부 시간 초과가 되어
+                // 코스가 1곳만 남아 통째로 사라졌다(부천). 모자라면 "늦게까지 여는 곳 먼저" 순서로 다시 담아 보고, 더 많이 담길 때만 그쪽을 쓴다.
+                if (picked.length < MAX_COURSE_PLACES) {
+                    const closeOf = function (it) { const w = getItemWindow(it, ctx); return w.allDay ? 1440 : w.close; };
+                    const alt = greedyPick(pref.map(function (it, i) { return { it: it, i: i }; })
+                        .sort(function (x, y) { return (closeOf(y.it) - closeOf(x.it)) || (x.i - y.i); })
+                        .map(function (o) { return o.it; }));
+                    if (alt.length > picked.length) picked = alt;
                 }
                 if (picked.length) {
                     // 늦게까지 하는 아이랑 장소가 이 지역에 있으면 저녁 칸에 쓸 수 있게 한 곳을 바꿔 넣는다(바꿔도 시간표가 맞을 때만).
