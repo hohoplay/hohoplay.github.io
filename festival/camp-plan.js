@@ -153,7 +153,7 @@
         if (n.km != null) meta.push(cfg.fromLabel + ' 약 ' + fmtKm(n.km));
         if (n.placeType) meta.push(n.placeType);
         meta.push('운영시간 확인');
-        return { id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n' };
+        return { id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n', pid: n.contentid || '' };
     }
     function costLabel(c) {
         var t = c && c.costTag;
@@ -172,7 +172,7 @@
         memo.push('운영시간 확인');
         var rows = [
             { id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' },
-            { id: uid(), day: 1, time: '10:30', title: cfg.icon + ' ' + champ.title, memo: memo.join(' · '), k: 'c' },
+            { id: uid(), day: 1, time: '10:30', title: cfg.icon + ' ' + champ.title, memo: memo.join(' · '), k: 'c', pid: champ.hasDetail === false ? '' : champ.contentid },
             { id: uid(), day: 1, time: forest ? '12:30' : '12:00', title: forest ? '점심 · 도시락' : '점심 · 휴식', memo: forest ? '도시락 또는 근처 식당' : '근처 식당 찾기', k: 'x' }
         ];
         var times = forest ? (two.length >= 2 ? ['14:00', '16:00'] : ['14:30']) : (two.length >= 2 ? ['13:30', '15:30'] : ['14:00']);
@@ -186,7 +186,7 @@
         var rows = [{ id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' }];
         var times = two.length >= 2 ? ['11:30', '13:30'] : ['12:00'];
         two.forEach(function (n, i) { rows.push(nearRow(n, times[i])); });
-        rows.push({ id: uid(), day: 1, time: '15:30', title: '⛺ 캠핑장 체크인', memo: '체크인 시간은 캠핑장에 확인', k: 'in' });
+        rows.push({ id: uid(), day: 1, time: '15:30', title: '⛺ 캠핑장 체크인', memo: '체크인 시간은 캠핑장에 확인', k: 'in', pid: champ.hasDetail === false ? '' : champ.contentid });
         rows.push({ id: uid(), day: 1, time: '18:00', title: '저녁 · 불멍', memo: '', k: 'x' });
         rows.push({ id: uid(), day: 2, time: '09:00', title: '아침 식사 · 짐 정리', memo: '', k: 'x' });
         rows.push({ id: uid(), day: 2, time: '11:00', title: '⛺ 캠핑장 체크아웃', memo: '퇴실 시간 확인 · 쓰레기 정리', k: 'out' });
@@ -237,6 +237,13 @@
             '#campPlan .cp-time{width:72px;flex:0 0 auto;text-align:center;font-weight:800}' +
             '#campPlan .cp-col{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}' +
             '#campPlan .cp-col input{width:100%}' +
+            '#campPlan .cp-tcol{flex:0 0 72px;width:72px;display:flex;flex-direction:column;gap:6px}' +
+            '#campPlan .cp-tcol .cp-time{width:100%}' +
+            '#campPlan .cp-detail{display:block;text-align:center;font-size:12px;font-weight:800;color:#4f46e5;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:5px 0;text-decoration:none;line-height:1.2}' +
+            '#campPlan .cp-detail:hover{background:#e0e7ff}' +
+            '#campPlan .cp-col textarea,#campPlan .cp-add textarea{min-height:0;resize:none;overflow:hidden;line-height:1.45;display:block;white-space:pre-wrap;overflow-wrap:anywhere}' +
+            '#campPlan .cp-col textarea{width:100%}' +
+            '#campPlan .cp-add textarea{flex:1 1 auto;width:auto;min-width:0}' +
             '#campPlan .cp-title{font-weight:800}' +
             '#campPlan .cp-memo{font-size:13px!important;color:#475569}' +
             '#campPlan .cp-btns{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}' +
@@ -288,12 +295,29 @@
         document.head.appendChild(st);
     }
 
+    // [ADD] 2026-11-19: 일정 줄의 장소 상세페이지 링크(시간 칸 아래) + 일정·메모 칸 자동 줄바꿈
+    // 예전에 저장된 일정(pid 없음)도 장소 이름으로 찾아 링크를 붙인다.
+    function rowPid(r) {
+        var id = r.pid || '';
+        if (!id && cur) {
+            if (r.k === 'c' || r.k === 'in') id = cur.hasDetail === false ? '' : cur.contentid;
+            else if (r.k === 'n' && cur._near) {
+                var t = String(r.title || '').replace(/^\S+\s/, '').trim();
+                for (var i = 0; i < cur._near.length; i++) { if (cur._near[i] && cur._near[i].title === t) { id = cur._near[i].contentid; break; } }
+            }
+        }
+        return /^[A-Za-z0-9_\-]+$/.test(String(id || '')) ? String(id) : '';
+    }
     function rowHtml(r) {
+        var pid = rowPid(r);
         return '<div class="cp-row" data-id="' + r.id + '">' +
+            '<div class="cp-tcol">' +
             '<input class="cp-time" type="text" inputmode="numeric" maxlength="5" value="' + esc(r.time) + '" data-f="time" placeholder="00:00" aria-label="시간 (24시간, 예 13:30)">' +
+            (pid ? '<a class="cp-detail" href="/festival/detail/' + pid + '.html" target="_blank" rel="noopener" aria-label="장소 상세페이지 (새 창)">상세보기</a>' : '') +
+            '</div>' +
             '<div class="cp-col">' +
-            '<input class="cp-title" type="text" maxlength="60" value="' + esc(r.title) + '" data-f="title" placeholder="일정" aria-label="일정">' +
-            '<input class="cp-memo" type="text" maxlength="100" value="' + esc(r.memo) + '" data-f="memo" placeholder="메모 (예: 예약번호, 준비할 것)" aria-label="메모">' +
+            '<textarea class="cp-title" rows="1" maxlength="60" data-f="title" placeholder="일정" aria-label="일정">' + esc(r.title) + '</textarea>' +
+            '<textarea class="cp-memo" rows="1" maxlength="100" data-f="memo" placeholder="메모 (예: 예약번호, 준비할 것)" aria-label="메모">' + esc(r.memo) + '</textarea>' +
             '</div>' +
             '<div class="cp-btns">' +
             '<button type="button" class="cp-ib" data-act="up" aria-label="위로">↑</button>' +
@@ -305,6 +329,20 @@
         return '<label class="cp-chk' + (isOn(id) ? ' on' : '') + '"><input type="checkbox" data-chk="' + esc(id) + '"' + (isOn(id) ? ' checked' : '') + '><span>' + esc(text) + '</span>' +
             (removable ? '<button type="button" class="x" data-act="xextra" data-id="' + esc(id) + '" aria-label="삭제">✕</button>' : '') + '</label>';
     }
+
+    // 글자 칸 높이를 글자 수에 맞춘다(길게 쓰면 자동으로 아래 줄로 내려가 모두 보인다). 화면에 안 보이는 동안엔 높이를 못 재므로 건너뛴다.
+    function fit(el) {
+        if (!el || !el.scrollHeight) return;
+        el.style.height = 'auto';
+        el.style.height = (el.scrollHeight + 2) + 'px';
+    }
+    function fitAll() {
+        if (!root) return;
+        var a = root.querySelectorAll('.cp-col textarea, #cpExtraIn');
+        for (var i = 0; i < a.length; i++) fit(a[i]);
+    }
+    var fitTimer = 0;
+    function onResize() { clearTimeout(fitTimer); fitTimer = setTimeout(fitAll, 120); }
 
     function render() {
         var h = '';
@@ -365,7 +403,7 @@
         h += '<div class="cp-sub" style="margin:12px 0 2px;font-weight:800;color:#334155">준비물</div>';
         cfg.checkB.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
         P.extra.forEach(function (c) { h += chkHtml(c.id, c.text, true); });
-        h += '<div class="cp-add"><input type="text" id="cpExtraIn" maxlength="40" placeholder="내 준비물·할 일 추가"><button type="button" class="cp-btn small" data-act="addextra">추가</button></div>';
+        h += '<div class="cp-add"><textarea id="cpExtraIn" rows="1" maxlength="40" placeholder="내 준비물·할 일 추가"></textarea><button type="button" class="cp-btn small" data-act="addextra">추가</button></div>';
 
         // 메모
         h += '<h3>📝 메모</h3><textarea id="cpNote" maxlength="600" placeholder="예약 번호, 차량 번호, 같이 가는 사람, 장볼 목록 등을 적어 두세요.">' + esc(P.note) + '</textarea>';
@@ -374,6 +412,7 @@
         h += '<div class="cp-acts"><button type="button" class="cp-btn pri" data-act="print">🖨️ 일정표 인쇄·PDF 저장</button><button type="button" class="cp-btn" data-act="reset">↺ 처음 상태로</button></div>';
         h += '<div class="cp-hint"><b style="color:#334155">PDF로 저장하는 방법</b><br>인쇄 창에서 <b>대상(프린터)</b> 칸을 눌러 “PDF로 저장”(또는 “Microsoft Print to PDF”)을 고른 뒤, 오른쪽 아래 버튼이 “저장”으로 바뀌면 누르세요. 편집한 내용은 이 기기에만 저장되고 서버로 보내지 않아요.</div>';
         root.innerHTML = h;
+        fitAll();
         updateDateNote();
         if (cfg.hasFest && P.fest) updateFest();
     }
@@ -529,7 +568,7 @@
             if (!fx) return;
             var fi = -1; P.rows.forEach(function (rr, x) { if (fi < 0 && rr.day === 1 && rr.k === 'out') fi = x; });
             if (fi < 0) fi = lastIndexOfDay(1) + 1;
-            P.rows.splice(fi, 0, { id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f' });
+            P.rows.splice(fi, 0, { id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f', pid: fx.f.contentid || fx.f.id || '' });
         } else if (act === 'addextra') {
             var inp = $('cpExtraIn'); var v = inp ? inp.value.trim() : '';
             if (!v) return;
@@ -552,10 +591,15 @@
         var t = e.target;
         var f = t.getAttribute && t.getAttribute('data-f');
         if (f) {
+            if (f !== 'time' && t.tagName === 'TEXTAREA') {
+                if (/[\r\n]/.test(t.value)) t.value = t.value.replace(/[\r\n]+/g, ' ');   // 붙여넣은 줄바꿈은 공백으로
+                fit(t);
+            }
             var rowEl = t.closest('.cp-row');
             var i = rowEl ? rowIndex(rowEl.getAttribute('data-id')) : -1;
             if (i >= 0) { P.rows[i][f] = t.value; save(); }
-        } else if (t.id === 'cpNote') { P.note = t.value; save(); }
+        } else if (t.id === 'cpExtraIn') { if (/[\r\n]/.test(t.value)) t.value = t.value.replace(/[\r\n]+/g, ' '); fit(t); }
+        else if (t.id === 'cpNote') { P.note = t.value; save(); }
         else if (t.id === 'cpDate') { P.date = t.value; save(); updateDayLabels(); updateDateNote(); if (cfg.hasFest && P.fest) updateFest(); }
     }
     function updateDayLabels() {
@@ -598,6 +642,11 @@
         }
     }
     function onKey(e) {
+        if (e.key === 'Enter' && e.target && e.target.tagName === 'TEXTAREA' && e.target.getAttribute('data-f')) {
+            e.preventDefault();          // 글자는 칸 너비에 맞춰 알아서 내려가므로 줄바꿈 키는 입력 끝으로 쓴다
+            e.target.blur();
+            return;
+        }
         if (e.key === 'Enter' && e.target && e.target.id === 'cpExtraIn') {
             e.preventDefault();
             var b = root.querySelector('[data-act="addextra"]'); if (b) b.click();
@@ -616,6 +665,7 @@
             root.addEventListener('change', onChange);
             root.addEventListener('keydown', onKey);
             root.addEventListener('focusout', onBlur);
+            window.addEventListener('resize', onResize);
         }
         injectStyle();
         return true;
@@ -645,6 +695,7 @@
             save();
             render();
             sec.style.display = 'block';
+            fitAll();
             try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { sec.scrollIntoView(); }
         },
         hide: function () {
