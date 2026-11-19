@@ -162,9 +162,10 @@
         if (t === '유료(일부 무료 조건 있음)') return '일부 무료';
         return '요금 확인 필요';
     }
+    var defNearOff = false;
     function dayDefaultPlan(champ) {
         var forest = cfg.kind === 'forest';
-        var two = pickTwo(champ._near);
+        var two = defNearOff ? [] : pickTwo(champ._near);
         var memo = [];
         if (champ.placeType) memo.push(champ.placeType);
         memo.push(costLabel(champ));
@@ -177,7 +178,7 @@
         var times = forest ? (two.length >= 2 ? ['14:00', '16:00'] : ['14:30']) : (two.length >= 2 ? ['13:30', '15:30'] : ['14:00']);
         two.forEach(function (n, i) { rows.push(nearRow(n, times[i])); });
         rows.push({ id: uid(), day: 1, time: forest ? '17:30' : '17:30', title: '귀가', memo: '', k: 'out' });
-        return { v: 1, mode: forest ? 'forest' : 'day', id: champ.contentid, date: '', days: 1, rows: rows, checks: {}, extra: [], note: '', fest: false };
+        return { v: 1, mode: forest ? 'forest' : 'day', id: champ.contentid, date: champ._date || '', days: 1, rows: rows, checks: {}, extra: [], note: '', fest: false };
     }
     function defaultPlan(champ) {
         if (cfg.kind !== 'camp') return dayDefaultPlan(champ);
@@ -628,12 +629,19 @@
             if (opts && opts.over) {                         // 화면 글자 일부만 바꿔 쓴다(룰렛: 우승 → 오늘의 장소). 원본 틀은 건드리지 않는다.
                 cfg = {};
                 Object.keys(base).forEach(function (k) { cfg[k] = base[k]; });
-                ['icon', 'placeLabel', 'fromLabel'].forEach(function (k) { if (opts.over[k]) cfg[k] = String(opts.over[k]); });
-                cfg.key = base.key;
+                // 글자(icon·placeLabel·fromLabel·title·paperTitle·sub·dateLabel·noNear), 확인표(checkA), 저장 칸(key), 축제 스위치(hasFest)를 바꿔 쓸 수 있다.
+                ['icon', 'placeLabel', 'fromLabel', 'title', 'paperTitle', 'sub', 'dateLabel', 'noNear'].forEach(function (k) { if (opts.over[k]) cfg[k] = String(opts.over[k]); });
+                if (Array.isArray(opts.over.checkA)) cfg.checkA = opts.over.checkA;
+                if (opts.over.key) cfg.key = String(opts.over.key);
+                if (typeof opts.over.hasFest === 'boolean') cfg.hasFest = opts.over.hasFest;
             }
             festList = [];
             cur = champ;
-            P = load(champ.contentid) || defaultPlan(champ);
+            // [ADD] 2026-11-19: opts.variant — 같은 장소로 서로 다른 일정표(예: 축제만 / 축제+나들이)를 따로 저장한다. opts.noDefaultNear — 근처 장소를 처음엔 일정에 넣지 않고 “더 넣기” 버튼으로만 보여 준다.
+            var pid = champ.contentid + (opts && opts.variant ? ':' + String(opts.variant) : '');
+            defNearOff = !!(opts && opts.noDefaultNear);
+            P = load(pid);
+            if (!P) { P = defaultPlan(champ); P.id = pid; }
             save();
             render();
             sec.style.display = 'block';
