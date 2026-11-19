@@ -1706,7 +1706,8 @@ function editorHtml(c) {
     }
     h += '<h4>🗒 메모</h4><textarea class="pk-ed-in" id="pk-ed-memo" rows="3" maxlength="300" placeholder="예약 번호, 준비물, 가족 역할 등을 적어 두세요">' + esc(ed.memo) + '</textarea>';
     h += '<h4>📄 일정표 미리보기 <small style="font-weight:600;color:#94a3b8">(A4 한 장)</small></h4><div id="pk-paper" class="pk-paper">' + paperHtml(c) + '</div>';
-    h += '<div class="pk-actions" style="margin-top:12px"><button type="button" class="pk-btn pri" data-act="ed-print">🖨 일정표 인쇄·PDF 저장</button><button type="button" class="pk-btn" data-act="ed-restore">↩ 처음 추천으로 되돌리기</button></div></div>';
+    h += '<div class="pk-actions" style="margin-top:12px"><button type="button" class="pk-btn pri" data-act="ed-print">🖨 일정표 인쇄·PDF 저장</button><button type="button" class="pk-btn" data-act="ed-restore">↩ 처음 추천으로 되돌리기</button></div>'
+        + '<div style="margin-top:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;line-height:1.7;color:#475569"><b style="color:#334155">PDF로 저장하는 방법</b><br>인쇄 창이 열리면 아래 순서로 해 주세요.<ol style="margin:4px 0 0;padding-left:18px"><li>"대상" 칸을 눌러서 "PDF로 저장"(또는 "Microsoft Print to PDF")을 고른다.</li><li>오른쪽 아래 버튼이 "저장"으로 바뀌면 누른다.</li><li>파일 이름과 위치를 정하면 PDF가 만들어진다.</li></ol></div></div>';
     return h;
 }
 document.addEventListener('input', function (e) {
