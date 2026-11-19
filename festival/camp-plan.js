@@ -1,5 +1,7 @@
 /*
- * 내 캠핑 일정표 — 캠핑장 월드컵(/festival/camping-worldcup.html) 결과 화면 아래에 펼쳐지는 일정표 편집기.
+ * 내 일정표 편집기 — 월드컵 결과 화면 아래에 펼쳐진다. 두 가지 틀(mode)을 쓴다.
+ *   camp : 캠핑장 월드컵(/festival/camping-worldcup.html) — 1박 2일
+ *   day  : 아이랑 나들이 월드컵(/festival/worldcup.html) — 하루 나들이 + "축제 넣기" 스위치 (2026-11-19 추가)
  *
  * [ADD] 2026-11-19
  *  - 우승 캠핑장 + 근처 아이랑 장소 2곳(나들이픽 5곳 중 가까운 곳, 실내·실외가 섞이게)을 미리 담은 1박 2일 틀을 만들고,
@@ -7,35 +9,72 @@
  *  - 이 서비스에 없는 정보(요금·예약·운영 기간·반려동물)는 "출발 전 확인표"로 바꿔 체크하게 한다. 준비물 체크도 함께.
  *  - 인쇄·PDF 저장은 일정표만 A4로 나오게 한다(pick.html 의 인쇄 방식과 같음: 화면의 나머지는 인쇄 때만 숨김).
  *  - 편집 내용은 이 기기 브라우저(localStorage)에만 저장한다. 서버로 보내지 않는다. 다른 캠핑장이 우승하면 새로 시작한다.
- *  - 입구: window.HohoCampPlan.open(champ)  — champ = { contentid, title, addr, _tel?, _near? }
+ *  - 입구: window.HohoCampPlan.open(champ, { mode: 'camp' | 'day' })  (mode 생략 = 'camp') — champ = { contentid, title, addr, lat?, lng?, tel?/_tel?, fee?, hours?, placeType?, costTag?, _near? }
  *          champ._near 는 nearby-pick.js 의 onPicks 콜백이 채운다([{ title, km, placeType, contentid }]).
  *          window.HohoCampPlan.hide() — 월드컵을 다시 시작할 때 일정표를 접는다.
  */
 (function () {
     'use strict';
 
-    var KEY = 'hp_campplan_v1';
     var sec = null, root = null, cur = null, P = null;
 
-    var CHECK_A = [
-        ['a1', '예약 확인서(예약 날짜·사이트 번호) 챙기기'],
-        ['a2', '이용 요금·추가 인원 요금 확인'],
-        ['a3', '운영 기간·휴장일 확인 (겨울철 휴장·단축 운영 가능)'],
-        ['a4', '체크인·체크아웃 시간 확인'],
-        ['a5', '반려동물 동반 가능 여부 확인'],
-        ['a6', '우천·취소·환불 규정 확인'],
-        ['a7', '화로대·장작·전기 사용 가능 여부 확인']
-    ];
-    var CHECK_B = [
-        ['b1', '텐트·타프·팩 (글램핑·카라반은 생략)'],
-        ['b2', '침낭·매트·담요'],
-        ['b3', '계절에 맞는 난방·방한용품'],
-        ['b4', '취사도구·식재료·식수'],
-        ['b5', '랜턴·멀티탭·보조배터리'],
-        ['b6', '아이 여벌 옷·여분 신발·물티슈'],
-        ['b7', '구급용품·벌레 퇴치용품'],
-        ['b8', '쓰레기봉투']
-    ];
+    var MODES = {
+        camp: {
+            key: 'hp_campplan_v1', days: 2, anchorKind: 'in', nearTime: '12:00', hasFest: false,
+            title: '🗓️ 내 캠핑 일정표', paperTitle: '⛺ 나의 캠핑 일정표', placeLabel: '캠핑장', icon: '⛺', fromLabel: '캠핑장에서',
+            sub: '캠핑장과 근처 아이랑 장소를 미리 담아 두었어요. 시간·일정·메모를 마음대로 고치고, 아래 <b>출발 전 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.',
+            dateLabel: '출발일', telNote: ' · 요금·예약은 전화로 확인하세요',
+            noNear: '근처 아이랑 장소를 찾지 못해서 캠핑장 일정만 담았어요. 아래 “일정 추가”로 직접 넣을 수 있어요.',
+            checkNote: '요금·예약 가능 여부·운영 기간·반려동물 동반은 이 서비스에 없는 정보예요. 캠핑장 공식 홈페이지나 전화로 확인하며 체크하세요.',
+            footer: '호호플레이 hohoplaylab.com · 요금·예약·운영 시간은 방문 전 캠핑장에 꼭 확인하세요.',
+            checkA: [
+                ['a1', '예약 확인서(예약 날짜·사이트 번호) 챙기기'],
+                ['a2', '이용 요금·추가 인원 요금 확인'],
+                ['a3', '운영 기간·휴장일 확인 (겨울철 휴장·단축 운영 가능)'],
+                ['a4', '체크인·체크아웃 시간 확인'],
+                ['a5', '반려동물 동반 가능 여부 확인'],
+                ['a6', '우천·취소·환불 규정 확인'],
+                ['a7', '화로대·장작·전기 사용 가능 여부 확인']
+            ],
+            checkB: [
+                ['b1', '텐트·타프·팩 (글램핑·카라반은 생략)'],
+                ['b2', '침낭·매트·담요'],
+                ['b3', '계절에 맞는 난방·방한용품'],
+                ['b4', '취사도구·식재료·식수'],
+                ['b5', '랜턴·멀티탭·보조배터리'],
+                ['b6', '아이 여벌 옷·여분 신발·물티슈'],
+                ['b7', '구급용품·벌레 퇴치용품'],
+                ['b8', '쓰레기봉투']
+            ]
+        },
+        day: {
+            key: 'hp_dayplan_v1', days: 1, anchorKind: 'out', nearTime: '14:00', hasFest: true,
+            title: '🗓️ 내 하루 나들이 일정표', paperTitle: '🧸 나의 하루 나들이 일정표', placeLabel: '우승 장소', icon: '🏆', fromLabel: '우승 장소에서',
+            sub: '우승 장소와 근처 아이랑 장소를 미리 담아 두었어요. 시간·일정·메모를 마음대로 고치고, 원하면 <b>그날 열리는 축제</b>도 넣어 보세요. 아래 <b>출발 전 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.',
+            dateLabel: '나들이 날짜', telNote: ' · 운영시간·요금은 전화로 확인하세요',
+            noNear: '근처 아이랑 장소를 찾지 못해서 우승 장소 일정만 담았어요. 아래 “일정 추가”로 직접 넣을 수 있어요.',
+            checkNote: '운영시간·휴관일·요금은 사람이 적어 둔 안내라 바뀔 수 있어요. 공식 홈페이지나 전화로 확인하며 체크하세요.',
+            footer: '호호플레이 hohoplaylab.com · 운영시간·휴관일·요금은 방문 전 공식 안내를 꼭 확인하세요.',
+            checkA: [
+                ['a1', '우승 장소 운영시간·휴관일 확인 (공식 홈페이지·전화)'],
+                ['a2', '입장료·이용 요금 확인'],
+                ['a3', '예약·시간제 입장 필요 여부 확인'],
+                ['a4', '주차장·주차 요금 확인'],
+                ['a5', '아이 나이·키 제한 등 이용 조건 확인'],
+                ['a6', '날씨 확인 (실외라면 우산·방한 준비)']
+            ],
+            checkB: [
+                ['b1', '아이 간식·물·물티슈'],
+                ['b2', '여벌 옷·기저귀 (필요한 경우)'],
+                ['b3', '유모차·아기띠 (필요한 경우)'],
+                ['b4', '모자·선크림·우산 (날씨에 맞게)'],
+                ['b5', '구급용품 (밴드 등)'],
+                ['b6', '보조배터리·결제 수단'],
+                ['b7', '돗자리·장난감 (야외라면)']
+            ]
+        }
+    };
+    var cfg = MODES.camp;
 
     function esc(s) {
         return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -54,13 +93,13 @@
     // ── 저장 ──────────────────────────────────────────────────────────────────────
     function load(id) {
         try {
-            var o = JSON.parse(localStorage.getItem(KEY) || 'null');
+            var o = JSON.parse(localStorage.getItem(cfg.key) || 'null');
             if (o && o.v === 1 && o.id === id && Array.isArray(o.rows) && o.days >= 1) return o;
         } catch (e) { /* 저장소를 못 쓰는 환경 */ }
         return null;
     }
     function save() {
-        try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) { /* 무시 */ }
+        try { localStorage.setItem(cfg.key, JSON.stringify(P)); } catch (e) { /* 무시 */ }
         var pp = $('cpPaper'); if (pp && cur && P) pp.innerHTML = paperHtml();   // 미리보기에 바로 반영
     }
 
@@ -80,12 +119,36 @@
     }
     function nearRow(n, time) {
         var meta = [];
-        if (n.km != null) meta.push('캠핑장에서 약 ' + fmtKm(n.km));
+        if (n.km != null) meta.push(cfg.fromLabel + ' 약 ' + fmtKm(n.km));
         if (n.placeType) meta.push(n.placeType);
         meta.push('운영시간 확인');
         return { id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n' };
     }
+    function costLabel(c) {
+        var t = c && c.costTag;
+        if (t === '완전무료') return '무료';
+        if (t === '유료') return '유료';
+        if (t === '유료(일부 무료 조건 있음)') return '일부 무료';
+        return '요금 확인 필요';
+    }
+    function dayDefaultPlan(champ) {
+        var two = pickTwo(champ._near);
+        var memo = [];
+        if (champ.placeType) memo.push(champ.placeType);
+        memo.push(costLabel(champ));
+        memo.push('운영시간 확인');
+        var rows = [
+            { id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' },
+            { id: uid(), day: 1, time: '10:30', title: '🏆 ' + champ.title, memo: memo.join(' · '), k: 'c' },
+            { id: uid(), day: 1, time: '12:00', title: '점심 · 휴식', memo: '근처 식당 찾기', k: 'x' }
+        ];
+        var times = two.length >= 2 ? ['13:30', '15:30'] : ['14:00'];
+        two.forEach(function (n, i) { rows.push(nearRow(n, times[i])); });
+        rows.push({ id: uid(), day: 1, time: '17:30', title: '귀가', memo: '', k: 'out' });
+        return { v: 1, mode: 'day', id: champ.contentid, date: '', days: 1, rows: rows, checks: {}, extra: [], note: '', fest: false };
+    }
     function defaultPlan(champ) {
+        if (cfg === MODES.day) return dayDefaultPlan(champ);
         var two = pickTwo(champ._near);
         var rows = [{ id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' }];
         var times = two.length >= 2 ? ['11:30', '13:30'] : ['12:00'];
@@ -95,12 +158,12 @@
         rows.push({ id: uid(), day: 2, time: '09:00', title: '아침 식사 · 짐 정리', memo: '', k: 'x' });
         rows.push({ id: uid(), day: 2, time: '11:00', title: '⛺ 캠핑장 체크아웃', memo: '퇴실 시간 확인 · 쓰레기 정리', k: 'out' });
         rows.push({ id: uid(), day: 2, time: '12:30', title: '귀가 · 점심', memo: '', k: 'x' });
-        return { v: 1, id: champ.contentid, date: '', days: 2, rows: rows, checks: {}, extra: [], note: '' };
+        return { v: 1, mode: 'camp', id: champ.contentid, date: '', days: 2, rows: rows, checks: {}, extra: [], note: '', fest: false };
     }
 
     // ── 날짜 표시 ─────────────────────────────────────────────────────────────────
     function dayLabel(d) {
-        var s = d + '일차';
+        var s = cfg === MODES.day ? '하루 나들이' : d + '일차';
         if (P.date && /^\d{4}-\d{2}-\d{2}$/.test(P.date)) {
             var p = P.date.split('-');
             var dt = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + d - 1));
@@ -108,12 +171,13 @@
         }
         return s;
     }
-    function tel() { return cur && cur._tel ? String(cur._tel) : ''; }
+    function tel() { return cur ? String(cur._tel || cur.tel || '') : ''; }
 
     // ── 확인표 항목(근처 장소 확인은 일정 줄에서 만든다) ─────────────────────────────
     function nearChecks() {
-        return P.rows.filter(function (r) { return r.k === 'n'; }).map(function (r) {
-            return ['n_' + r.id, '「' + String(r.title).replace(/^📍\s*/, '') + '」 운영시간·휴관일 확인'];
+        return P.rows.filter(function (r) { return r.k === 'n' || r.k === 'f'; }).map(function (r) {
+            var nm = String(r.title).replace(/^(?:📍|🎪)\s*/, '');
+            return ['n_' + r.id, '「' + nm + '」 ' + (r.k === 'f' ? '행사 시간·장소 확인' : '운영시간·휴관일 확인')];
         });
     }
     function isOn(id) { return !!P.checks[id]; }
@@ -164,6 +228,7 @@
             '#campPlan textarea{width:100%;min-height:84px;resize:vertical;line-height:1.6}' +
             '#campPlan .cp-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}' +
             '#campPlan .cp-hint{margin-top:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;line-height:1.7;color:#475569}' +
+            '#campPlan .cp-fest{margin:6px 0 0;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:12.5px;color:#92400e;line-height:1.6}' +
             '#campPlan .cp-warn{font-size:12.5px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px 12px;margin:0 0 10px;line-height:1.6}' +
             '@media (max-width:480px){#campPlan .cp-row{padding:7px}}' +
             // 인쇄: 일정표 종이(#cp-print-host)만 A4 한 장으로
@@ -211,17 +276,18 @@
     function render() {
         var h = '';
         h += '<a href="#result" class="cp-back" data-act="back">↑ 결과로 돌아가기</a>';
-        h += '<h2>🗓️ 내 캠핑 일정표</h2>';
-        h += '<p class="cp-sub">캠핑장과 근처 아이랑 장소를 미리 담아 두었어요. 시간·일정·메모를 마음대로 고치고, 아래 <b>출발 전 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.</p>';
+        h += '<h2>' + cfg.title + '</h2>';
+        h += '<p class="cp-sub">' + cfg.sub + '</p>';
 
         // 캠핑장 정보
-        h += '<div class="cp-box"><div class="cp-cname">⛺ ' + esc(cur.title) + '</div>';
+        h += '<div class="cp-box"><div class="cp-cname">' + cfg.icon + ' ' + esc(cur.title) + '</div>';
         if (cur.addr) h += '<div class="cp-line">📍 ' + esc(cur.addr) + '</div>';
-        if (tel()) h += '<div class="cp-line">☎ <a href="tel:' + esc(tel().replace(/[^0-9+\-]/g, '')) + '">' + esc(tel()) + '</a> · 요금·예약은 전화로 확인하세요</div>';
-        h += '<div class="cp-date"><label for="cpDate">출발일</label><input type="date" id="cpDate" value="' + esc(P.date) + '"><span style="font-weight:600;color:#94a3b8;font-size:12px">(선택)</span></div></div>';
+        if (tel()) h += '<div class="cp-line">☎ <a href="tel:' + esc(tel().replace(/[^0-9+\-]/g, '')) + '">' + esc(tel()) + '</a>' + cfg.telNote + '</div>';
+        h += '<div class="cp-date"><label for="cpDate">' + cfg.dateLabel + '</label><input type="date" id="cpDate" value="' + esc(P.date) + '"><span style="font-weight:600;color:#94a3b8;font-size:12px">(선택)</span></div>' +
+            (cfg.hasFest ? '<div class="cp-line" id="cpDateNote" style="display:none;color:#b45309">근처 장소는 오늘 기준으로 골랐어요. 그날의 운영·휴관일은 확인표로 꼭 확인하세요.</div>' : '') + '</div>';
 
         if (!(cur._near && cur._near.length)) {
-            h += '<div class="cp-warn">근처 아이랑 장소를 찾지 못해서 캠핑장 일정만 담았어요. 아래 “일정 추가”로 직접 넣을 수 있어요.</div>';
+            h += '<div class="cp-warn">' + cfg.noNear + '</div>';
         }
 
         // 일정
@@ -229,6 +295,13 @@
             h += '<div class="cp-dayhd"><span>' + esc(dayLabel(d)) + '</span></div>';
             P.rows.forEach(function (r) { if (r.day === d) h += rowHtml(r); });
             h += '<button type="button" class="cp-btn small" data-act="addrow" data-day="' + d + '">＋ 일정 추가</button>';
+        }
+
+        // 축제 넣기 스위치 (하루 나들이 틀에서만)
+        if (cfg.hasFest) {
+            h += '<h3>🎪 축제도 넣을까요?</h3>';
+            h += '<label class="cp-chk"><input type="checkbox" id="cpFestOn"' + (P.fest ? ' checked' : '') + '><span>그날 근처에서 열리는 축제를 후보로 보여 주세요 (켜면 날짜가 필요해요)</span></label>';
+            if (P.fest) h += '<div id="cpFestBox" class="cp-fest"></div>';
         }
 
         // 근처 후보
@@ -249,15 +322,15 @@
 
         // 확인표
         h += '<h3>✅ 출발 전 확인표</h3>';
-        h += '<p class="cp-sub" style="margin-bottom:4px">요금·예약 가능 여부·운영 기간·반려동물 동반은 이 서비스에 없는 정보예요. 캠핑장 공식 홈페이지나 전화로 확인하며 체크하세요.</p>';
-        CHECK_A.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
+        h += '<p class="cp-sub" style="margin-bottom:4px">' + cfg.checkNote + '</p>';
+        cfg.checkA.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
         var nc = nearChecks();
         if (nc.length) {
             h += '<div class="cp-sub" style="margin:12px 0 2px;font-weight:800;color:#334155">들를 곳 확인</div>';
             nc.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
         }
         h += '<div class="cp-sub" style="margin:12px 0 2px;font-weight:800;color:#334155">준비물</div>';
-        CHECK_B.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
+        cfg.checkB.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
         P.extra.forEach(function (c) { h += chkHtml(c.id, c.text, true); });
         h += '<div class="cp-add"><input type="text" id="cpExtraIn" maxlength="40" placeholder="내 준비물·할 일 추가"><button type="button" class="cp-btn small" data-act="addextra">추가</button></div>';
 
@@ -268,15 +341,78 @@
         h += '<div class="cp-acts"><button type="button" class="cp-btn pri" data-act="print">🖨️ 일정표 인쇄·PDF 저장</button><button type="button" class="cp-btn" data-act="reset">↺ 처음 상태로</button></div>';
         h += '<div class="cp-hint"><b style="color:#334155">PDF로 저장하는 방법</b><br>인쇄 창에서 <b>대상(프린터)</b> 칸을 눌러 “PDF로 저장”(또는 “Microsoft Print to PDF”)을 고른 뒤, 오른쪽 아래 버튼이 “저장”으로 바뀌면 누르세요. 편집한 내용은 이 기기에만 저장되고 서버로 보내지 않아요.</div>';
         root.innerHTML = h;
+        updateDateNote();
+        if (cfg.hasFest && P.fest) updateFest();
+    }
+
+    // 새로 넣는 줄의 시간: 바로 앞 줄 시간 + 1시간 30분(앞 줄 시간을 읽을 수 없으면 기본값)
+    function timeAfter(idx, fallback) {
+        var prev = idx > 0 ? P.rows[idx - 1] : null;
+        var m = prev && /^(\d{1,2}):(\d{2})$/.exec(String(prev.time || ''));
+        if (!m) return fallback;
+        var t = +m[1] * 60 + +m[2] + 90;
+        if (t > 21 * 60) t = 21 * 60;
+        return ('0' + Math.floor(t / 60)).slice(-2) + ':' + ('0' + (t % 60)).slice(-2);
+    }
+    function clip(t, n) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n).trimEnd() + '…' : t; }
+
+    // ── 축제 넣기 (하루 나들이 틀) ───────────────────────────────────────────────────
+    var festData = null, festErr = false, festList = [];
+    function todayKST() { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
+    function kmBetween(a, b, c, d) {
+        var R = 6371, rad = Math.PI / 180, dl = (c - a) * rad, dg = (d - b) * rad;
+        var x = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(a * rad) * Math.cos(c * rad) * Math.sin(dg / 2) * Math.sin(dg / 2);
+        return 2 * R * Math.asin(Math.min(1, Math.sqrt(x)));
+    }
+    function md(s) { return s && s.length === 8 ? (+s.slice(4, 6)) + '.' + (+s.slice(6, 8)) : ''; }
+    function loadFestData(cb) {
+        if (festData) { cb(); return; }
+        fetch('/data/festivals.json').then(function (r) { return r.ok ? r.json() : []; }).then(function (a) {
+            festData = Array.isArray(a) ? a : []; cb();
+        }).catch(function () { festData = []; festErr = true; cb(); });
+    }
+    function updateDateNote() {
+        var n = $('cpDateNote');
+        if (n) n.style.display = (P.date && P.date !== todayKST()) ? '' : 'none';
+    }
+    function updateFest() {
+        var box = $('cpFestBox');
+        if (!box) return;
+        if (!P.date) { box.textContent = '위쪽 “나들이 날짜”를 고르면 그날 열리는 근처 축제를 보여 드려요.'; return; }
+        box.textContent = '축제 정보를 불러오는 중이에요…';
+        loadFestData(function () {
+            var b = $('cpFestBox'); if (!b) return;
+            var lat = +cur.lat, lng = +cur.lng;
+            if (festErr) { b.textContent = '축제 정보를 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.'; festErr = false; festData = null; return; }
+            if (!isFinite(lat) || !isFinite(lng)) { b.textContent = '우승 장소의 좌표가 없어서 근처 축제를 찾지 못했어요.'; return; }
+            var key = P.date.replace(/-/g, '');
+            var have = {}; P.rows.forEach(function (r) { have[String(r.title).replace(/^(?:📍|🎪)\s*/, '')] = true; });
+            festList = festData.filter(function (f) {
+                return f && f.type === 'festival' && f.startDate <= key && key <= f.endDate && isFinite(+f.lat) && isFinite(+f.lng) && !have[f.title];
+            }).map(function (f) { return { f: f, km: kmBetween(lat, lng, +f.lat, +f.lng) }; })
+              .filter(function (x) { return x.km <= 40; })
+              .sort(function (a, c) { return a.km - c.km; }).slice(0, 6);
+            if (!festList.length) { b.innerHTML = '이 날짜에 우승 장소 근처(40km 안)에서 열리는 축제가 없어요. 다른 날짜를 골라 보세요.'; return; }
+            var h = '<div class="cp-chips">';
+            festList.forEach(function (x, i) {
+                h += '<button type="button" class="cp-chip" data-act="addfest" data-i="' + i + '">＋ 🎪 ' + esc(x.f.title) + ' · ' + esc(fmtKm(x.km)) + ' · ' + esc(md(x.f.startDate) + '~' + md(x.f.endDate)) + '</button>';
+            });
+            h += '</div><div class="cp-sub" style="margin:8px 0 0">축제 정보는 한국관광공사 TourAPI 기준이에요. 행사 시간·장소는 공식 안내를 꼭 확인하세요.</div>';
+            b.innerHTML = h;
+        });
     }
 
     // ── 인쇄용 종이 ─────────────────────────────────────────────────────────────────
     function paperHtml() {
-        var h = '<div class="cpp"><h1>⛺ 나의 캠핑 일정표</h1><div class="info">';
-        h += '<div><b>캠핑장</b> ' + esc(cur.title) + '</div>';
+        var h = '<div class="cpp"><h1>' + esc(cfg.paperTitle) + '</h1><div class="info">';
+        h += '<div><b>' + esc(cfg.placeLabel) + '</b> ' + esc(cur.title) + '</div>';
         if (cur.addr) h += '<div><b>주소</b> ' + esc(cur.addr) + '</div>';
         if (tel()) h += '<div><b>전화</b> ' + esc(tel()) + '</div>';
-        if (P.date) h += '<div><b>출발일</b> ' + esc(dayLabel(1).replace(/^1일차 · /, '')) + '</div>';
+        if (cfg === MODES.day) {
+            if (cur.fee) h += '<div><b>요금 안내</b> ' + esc(clip(cur.fee, 80)) + '</div>';
+            if (cur.hours) h += '<div><b>운영시간(참고)</b> ' + esc(clip(cur.hours, 90)) + '</div>';
+        }
+        if (P.date) h += '<div><b>' + esc(cfg.dateLabel) + '</b> ' + esc(dayLabel(1).replace(/^(1일차|하루 나들이) · /, '')) + '</div>';
         h += '</div>';
         for (var d = 1; d <= P.days; d++) {
             h += '<h2>' + esc(dayLabel(d)) + '</h2><table><tr><th style="width:62px">시간</th><th style="width:38%">일정</th><th>메모</th></tr>';
@@ -291,13 +427,13 @@
         }
         function ck(id, text) { return '<div class="ck">' + (isOn(id) ? '☑' : '☐') + ' ' + esc(text) + '</div>'; }
         h += '<h2>출발 전 확인표</h2><div class="cols">';
-        CHECK_A.forEach(function (c) { h += ck(c[0], c[1]); });
+        cfg.checkA.forEach(function (c) { h += ck(c[0], c[1]); });
         nearChecks().forEach(function (c) { h += ck(c[0], c[1]); });
         h += '</div><h2>준비물</h2><div class="cols">';
-        CHECK_B.forEach(function (c) { h += ck(c[0], c[1]); });
+        cfg.checkB.forEach(function (c) { h += ck(c[0], c[1]); });
         P.extra.forEach(function (c) { h += ck(c.id, c.text); });
         h += '</div><h2>메모</h2><div class="memo">' + esc(P.note) + '</div>';
-        h += '<div class="foot">호호플레이 hohoplaylab.com · 요금·예약·운영 시간은 방문 전 캠핑장에 꼭 확인하세요.</div></div>';
+        h += '<div class="foot">' + esc(cfg.footer) + '</div></div>';
         return h;
     }
     function doPrint() {
@@ -352,9 +488,15 @@
         } else if (act === 'addnear') {
             var nn = cur._near[+t.getAttribute('data-i')];
             if (!nn) return;
-            var ni = -1; P.rows.forEach(function (rr, x) { if (ni < 0 && rr.day === 1 && rr.k === 'in') ni = x; });
+            var ni = -1; P.rows.forEach(function (rr, x) { if (ni < 0 && rr.day === 1 && rr.k === cfg.anchorKind) ni = x; });
             if (ni < 0) ni = lastIndexOfDay(1) + 1;
-            P.rows.splice(ni, 0, nearRow(nn, '12:00'));
+            P.rows.splice(ni, 0, nearRow(nn, timeAfter(ni, cfg.nearTime)));
+        } else if (act === 'addfest') {
+            var fx = festList[+t.getAttribute('data-i')];
+            if (!fx) return;
+            var fi = -1; P.rows.forEach(function (rr, x) { if (fi < 0 && rr.day === 1 && rr.k === 'out') fi = x; });
+            if (fi < 0) fi = lastIndexOfDay(1) + 1;
+            P.rows.splice(fi, 0, { id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f' });
         } else if (act === 'addextra') {
             var inp = $('cpExtraIn'); var v = inp ? inp.value.trim() : '';
             if (!v) return;
@@ -381,7 +523,7 @@
             var i = rowEl ? rowIndex(rowEl.getAttribute('data-id')) : -1;
             if (i >= 0) { P.rows[i][f] = t.value; save(); }
         } else if (t.id === 'cpNote') { P.note = t.value; save(); }
-        else if (t.id === 'cpDate') { P.date = t.value; save(); updateDayLabels(); }
+        else if (t.id === 'cpDate') { P.date = t.value; save(); updateDayLabels(); updateDateNote(); if (cfg.hasFest && P.fest) updateFest(); }
     }
     function updateDayLabels() {
         var hs = root.querySelectorAll('.cp-dayhd > span');
@@ -389,6 +531,11 @@
     }
     function onChange(e) {
         var t = e.target;
+        if (t.id === 'cpFestOn') {
+            P.fest = !!t.checked;
+            if (P.fest && !P.date) P.date = todayKST();
+            save(); render(); return;
+        }
         var cid = t.getAttribute && t.getAttribute('data-chk');
         if (cid) {
             if (t.checked) P.checks[cid] = true; else delete P.checks[cid];
@@ -442,8 +589,10 @@
     }
 
     window.HohoCampPlan = {
-        open: function (champ) {
+        open: function (champ, opts) {
             if (!champ || !champ.contentid || !ensure()) return;
+            cfg = MODES[(opts && opts.mode) || 'camp'] || MODES.camp;
+            festList = [];
             cur = champ;
             P = load(champ.contentid) || defaultPlan(champ);
             save();
