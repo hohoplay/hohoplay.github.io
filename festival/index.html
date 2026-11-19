@@ -3526,6 +3526,17 @@ function toggleMenu() {
     // [ADD] 2026-11-03: "이 장소 주변 코스" — 장소 카드의 버튼을 누르면 그 장소를 시작점으로 반경 안의 장소를 묶어 코스를 만든다.
     // 구·시 경계와 상관없이 가까운 곳끼리 묶는다(예: 계양구엔 등록 장소가 1곳뿐이라 구 단위 코스를 못 만든다).
     const SEED_COURSE_RADIUS_KM = 10;
+    // [ADD] 2026-11-19: 주변 코스가 안 나오던 외딴 곳 대응.
+    //  ① 10km 안에 장소가 없으면 20km → 30km 로 단계적으로 넓혀 찾는다(넓힌 경우 안내 문구를 붙인다).
+    //  ② 그래도 없으면 그 장소 한 곳만 코스로 보여주고, 가장 가까운 장소 3곳(거리)을 알려준다.
+    //  ③ 바다 건너 섬(배로만 가는 곳)은 육지와 섞지 않는다 — 섬 장소는 같은 섬 안에서만, 육지 장소는 섬을 빼고 찾고, 반경도 넓히지 않는다.
+    const SEED_RADII_KM = [10, 20, 30];
+    const CT_ISLAND_SEA_RE = /울릉군|옹진군\s+(?!영흥면)|신안군\s+(?!압해읍|지도읍)|완도군\s+(?:청산면|생일면)|통영시\s+(?:욕지면|사량면|한산면)|보령시\s+(?:삽시도|외연도|호도)/;
+    function isSeaIslandItem(item) { return !!(item && CT_ISLAND_SEA_RE.test(String(item.addr || ''))); }
+    let seedRadiusUsed = SEED_COURSE_RADIUS_KM;   // 이번 주변 코스에 실제로 쓴 반경
+    let seedAlone = false;                        // 묶을 장소가 없어 시작 장소 한 곳만 보여주는 중인지
+    let seedIsland = false;                       // 시작 장소가 바다 건너 섬인지
+    let seedNearest = [];                         // 한 곳만 보여줄 때 알려줄 가까운 장소 [{ it, km }]
     let seedAutoShowPending = false;  // "이 장소 주변 코스"를 누른 직후 한 번만, 코스 선(점선)을 지도에 자동으로 그린다
     let courseSeedItem = null;       // 지금 코스 패널이 "이 장소 주변 코스"로 보이는 중이면 그 장소
     let cardSeedCandidate = null;    // 지금 열려 있는 장소 카드의 장소(버튼용)
@@ -3741,24 +3752,39 @@ function toggleMenu() {
         if (seed) {
             const sd = pool.filter(function (it) { return it.contentid === seed.contentid; })[0];
             if (sd && isPreciseCoord(sd)) {
-                const withDist = pool.filter(function (it) {
-                    return it !== sd && it.type !== 'park' && it.lat && it.lng && isPreciseCoord(it)
-                        && seedZoneAllows(sd, it)
-                        && haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) <= SEED_COURSE_RADIUS_KM;
-                }).map(function (it) { return { it: it, d: haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) }; })
-                  .sort(function (a, b) { return a.d - b.d; });
-                let fc = 0;
-                const near = [];
-                withDist.forEach(function (o) {
-                    if (isCourseFestival(o.it)) { if (fc >= COURSE_MAX_FESTIVALS) return; fc++; }
-                    if (near.length < 12) near.push(o.it);
-                });
+                const isl = isSeaIslandItem(sd);
+                seedIsland = isl; seedAlone = false; seedNearest = []; seedRadiusUsed = SEED_RADII_KM[0];
+                const radii = isl ? [SEED_RADII_KM[0]] : SEED_RADII_KM;   // 섬은 반경을 넓히지 않는다
+                let near = [];
+                for (let ri = 0; ri < radii.length && !near.length; ri++) {
+                    const R = radii[ri];
+                    const withDist = pool.filter(function (it) {
+                        return it !== sd && it.type !== 'park' && it.lat && it.lng && isPreciseCoord(it)
+                            && seedZoneAllows(sd, it)
+                            && isSeaIslandItem(it) === isl
+                            && haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) <= R;
+                    }).map(function (it) { return { it: it, d: haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) }; })
+                      .sort(function (a, b) { return a.d - b.d; });
+                    let fc = 0;
+                    withDist.forEach(function (o) {
+                        if (isCourseFestival(o.it)) { if (fc >= COURSE_MAX_FESTIVALS) return; fc++; }
+                        if (near.length < 12) near.push(o.it);
+                    });
+                    if (near.length) seedRadiusUsed = R;
+                }
+                if (!near.length) {
+                    seedAlone = true;
+                    seedNearest = pool.filter(function (it) { return it !== sd && it.type === 'kids' && it.lat && it.lng && isPreciseCoord(it); })
+                        .map(function (it) { return { it: it, km: haversineDistanceKm(sd.lat, sd.lng, it.lat, it.lng) }; })
+                        .sort(function (a, b) { return a.km - b.km; }).slice(0, 3);
+                }
                 const nm = String(sd.title || '').replace(/\s*\([^)]*\)\s*/g, ' ').trim();
                 subGroups.push({
                     label: nm + ' 주변',
                     baseLabel: nm + ' 주변',
                     items: [sd].concat(near),
                     hasFestival: near.some(isCourseFestival),
+                    minPlaces: seedAlone ? 1 : undefined,   // 주변에 묶을 곳이 없으면 시작 장소 한 곳짜리 코스
                     seed: sd
                 });
             }
@@ -4085,7 +4111,7 @@ function toggleMenu() {
         const seedBackBtn = '<button type="button" class="course-coverage-btn" onclick="clearSeedCourse()">지역 코스로 돌아가기</button>';
         if (courseSeedItem && currentCourses.length === 0) {
             const dl0 = ctDateLabel(getCourseDate());
-            listEl.innerHTML = '<li class="course-note course-seed-note">📍 <b>' + escapeHtml(courseSeedItem.title) + '</b> 주변 코스를 만들지 못했어요. ' + dl0 + '에 쉬는 곳이거나, 가까운(반경 약 ' + SEED_COURSE_RADIUS_KM + 'km) 곳에 등록된 장소가 없어요.' + seedBackBtn + '</li>';
+            listEl.innerHTML = '<li class="course-note course-seed-note">📍 <b>' + escapeHtml(courseSeedItem.title) + '</b> 주변 코스를 만들지 못했어요. ' + dl0 + '에 쉬는 곳이거나, 지금 시간에는 이용할 수 있는 시간이 남지 않았어요.' + seedBackBtn + '</li>';
             return;
         }
         if (currentCourses.length === 0) {
@@ -4107,8 +4133,20 @@ function toggleMenu() {
         allCourseItems.forEach(function (it) { if (it.type === 'kids' && !it.isAd) inCourseIds.add(it.contentid); });
         if (courseSeedItem) {
             const few = currentCourses[0] && currentCourses[0].items.length < 3;
-            coverage = '<li class="course-note course-seed-note">📍 <b>' + escapeHtml(courseSeedItem.title) + '</b> 근처(반경 약 ' + SEED_COURSE_RADIUS_KM + 'km) 장소로 만든 코스예요.'
-                + (few ? ' 이 근처엔 등록된 곳이 아직 적어요.' : '') + seedBackBtn + '</li>';
+            const ttl = '📍 <b>' + escapeHtml(courseSeedItem.title) + '</b> ';
+            if (seedAlone) {
+                // 묶을 장소가 없어 이 장소 한 곳만 보여주는 경우: 가장 가까운 장소 3곳을 알려준다
+                const near3 = seedNearest.map(function (o) { return escapeHtml(o.it.title) + ' (직선 약 ' + (o.km < 10 ? o.km.toFixed(1) : Math.round(o.km)) + 'km)'; }).join(' · ');
+                coverage = '<li class="course-note course-seed-note">' + ttl
+                    + (seedIsland ? '은(는) 바다 건너 섬이라 육지 장소와는 묶지 않았어요. 이 곳만 보여드려요. 배편과 이동 시간을 먼저 확인하세요.'
+                                  : '은(는) 가까운 곳(반경 약 ' + SEED_RADII_KM[SEED_RADII_KM.length - 1] + 'km)에 함께 묶을 장소가 없어요. 이 곳만 보여드려요.')
+                    + (near3 && !seedIsland ? '<br>가장 가까운 장소: ' + near3 : '') + seedBackBtn + '</li>';
+            } else if (seedRadiusUsed > SEED_COURSE_RADIUS_KM) {
+                coverage = '<li class="course-note course-seed-note">' + ttl + '근처 반경 ' + SEED_COURSE_RADIUS_KM + 'km 안에 장소가 없어 반경 약 ' + seedRadiusUsed + 'km까지 넓혀 만든 코스예요. 이동 시간을 넉넉히 잡아 주세요.' + seedBackBtn + '</li>';
+            } else {
+                coverage = '<li class="course-note course-seed-note">' + ttl + '근처(반경 약 ' + SEED_COURSE_RADIUS_KM + 'km) 장소로 만든 코스예요.'
+                    + (few ? ' 이 근처엔 등록된 곳이 아직 적어요.' : '') + seedBackBtn + '</li>';
+            }
         } else if (kidsPool.length > inCourseIds.size) {
             coverage = '<li class="course-note course-coverage">🗺 이 지역 아이랑 장소 <b>' + kidsPool.length + '곳</b> 중 <b>' + inCourseIds.size + '곳</b>이 코스에 담겨 지도에 보여요. 나머지는 코스에 못 담았거나 그날 쉬는 곳이에요.'
                 + '<button type="button" class="course-coverage-btn" onclick="setCourseMode(false)">전체 목록으로 보기</button></li>';
