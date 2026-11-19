@@ -494,6 +494,9 @@ function toggleMenu() {
   <!-- 3) 결과 -->
   <section id="result" aria-live="polite"></section>
 
+  <!-- [ADD] 2026-11-19: 내 캠핑 일정표 (결과의 "내 캠핑 일정표 만들기" 버튼을 눌러야 펼쳐짐, festival/camp-plan.js) -->
+  <section id="campPlan" class="card" aria-label="내 캠핑 일정표" style="display:none"><div id="cpRoot"></div></section>
+
   <!-- 이용 안내 (검색·접근성을 위해 항상 보이는 정적 텍스트) -->
   <section class="about" aria-label="캠핑장 월드컵 이용 안내">
     <!-- ABOUT_START -->
@@ -501,6 +504,7 @@ function toggleMenu() {
     <p style="font-size:12px;color:#94a3b8;margin-top:-4px">출처: 문화체육관광부 「2025년 국민여행조사」(2026.6 공개) — 1박 이상 국내여행 비중 41.3%</p>
     <h2>⛺ 이렇게 진행돼요 (조작 가이드)</h2>
     <p>지역과 캠핑 유형을 고르고, 사진과 이름·주소를 보며 두 곳 중 하나씩 고르면 됩니다. 설정 화면의 “🎲 랜덤으로 바로 정하기”는 조건만 고르고 결승까지 자동으로 진행해요.</p>
+    <p>결과가 나오면 “🗓️ 내 캠핑 일정표 만들기”를 눌러 보세요. 우승 캠핑장과 근처 아이랑 장소 2곳이 담긴 1박 2일 일정표가 열리고, 시간·일정·메모를 고치거나 하루를 더 넣을 수 있어요. 요금·예약·운영 기간처럼 이 서비스에 없는 정보는 “출발 전 확인표”로 체크하고, 인쇄하거나 PDF로 저장할 수 있어요. 편집한 내용은 이 기기에만 저장돼요.</p>
     <div style="margin:16px 0 8px"><div style="font-weight:900;font-size:14px;color:#334155;margin-bottom:8px">월드컵 한 판의 진행 흐름</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:300px"><thead><tr><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">단계</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">하는 일</th><th style="padding:9px 11px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:13px;text-align:left;border:1px solid #e2e8f0;word-break:keep-all">확인할 점</th></tr></thead><tbody><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">1. 조건 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">지역, 시·군·구(선택), 캠핑 유형 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">모두 “상관없어요”면 전국에서 뽑아요. 마지막 조건은 이 브라우저에만 저장돼요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">2. 시작</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“🏁 월드컵 시작!” 누르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">조건에 맞는 캠핑장 16곳으로 16강, 후보가 적으면 8강·4강. 사진이 있는 곳을 먼저 뽑아요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">3. 두 곳 중 고르기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">카드를 누르거나 키보드 ← → (또는 1, 2)</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">사진·이름·주소로 비교해요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">4. 막힐 때</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“🎲 이 경기 랜덤”, “⏩ 남은 경기 자동”</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">자동 진행 중에도 “⏹ 멈추기”로 직접 이어서 고를 수 있어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">5. 되돌리기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">“← 이전 선택으로”, “처음으로”</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">마음이 바뀌면 직전 선택으로 돌아갈 수 있어요</td></tr><tr><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all;font-weight:800;color:#1e293b;min-width:84px;background:#f8fafc">6. 결과 보기</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">최종 캠핑장과 차선책 3곳 확인</td><td style="padding:9px 11px;color:#475569;font-size:13px;line-height:1.6;border:1px solid #e2e8f0;vertical-align:top;word-break:keep-all">예약이 어려우면 준우승·4강 탈락 캠핑장 중에서 고르면 돼요</td></tr></tbody></table></div></div>
     <h2>🏕️ 캠핑 유형은 이렇게 달라요</h2>
     <p>후보는 호호플레이 <a href="/festival/">아이랑 나들이 지도</a>에 담긴 전국 캠핑장이에요. 캠핑 유형은 캠핑장 이름에 들어간 말(“오토캠핑”, “글램핑”, “카라반”)로 나눈 것이고, 아무 표시가 없으면 “일반 캠핑장·야영장”으로 분류해서 실제 시설과 다를 수 있어요. 사진이 등록되지 않은 캠핑장은 사진 대신 아이콘이 나옵니다.</p>
@@ -828,6 +832,7 @@ function toggleMenu() {
     $('bracket').classList.remove('open'); $('treeBtn').textContent = '전체 보기'; $('treeBtn').setAttribute('aria-expanded', 'false');
     $('setup').style.display = 'none';
     $('result').style.display = 'none';
+    if (window.HohoCampPlan) window.HohoCampPlan.hide();
     $('game').style.display = 'block';
     render();
     $('pickGuide').scrollIntoView({ block: 'start' });   // 대진표가 아니라 "둘 중 더 가고 싶은 곳" 선택 영역이 바로 보이게
@@ -970,6 +975,7 @@ function toggleMenu() {
       S.r--; S.results[S.r].pop(); S.m = S.results[S.r].length;
     } else return;
     $('result').style.display = 'none';
+    if (window.HohoCampPlan) window.HohoCampPlan.hide();
     $('game').style.display = 'block';
     render();
   }
@@ -1069,6 +1075,7 @@ function toggleMenu() {
   }
   function finish() {
     stopAuto(); cancelRoll();
+    if (window.HohoCampPlan) window.HohoCampPlan.hide();
     var rounds = S.results.length;
     var champ = S.results[rounds - 1][0];
     var finalEnts = S.rounds[rounds - 1];
@@ -1108,9 +1115,19 @@ function toggleMenu() {
     // [ADD] 2026-11-18: 우승 캠핑장 근처 아이랑 가볼 만한 곳 5곳(나들이픽, festival/nearby-pick.js)
     var npBox = el('div'); npBox.id = 'nearby-pick'; npBox.style.marginTop = '16px'; res.appendChild(npBox);
     (function mountNp(tries) {
-      if (window.HohoNearbyPick) { window.HohoNearbyPick.mount(npBox, { contentid: champ.contentid, title: champ.title, lat: champ._lat, lng: champ._lng, heading: '🧸 캠핑장 근처 아이랑 가볼 만한 곳 5곳' }); }
+      if (window.HohoNearbyPick) { window.HohoNearbyPick.mount(npBox, { contentid: champ.contentid, title: champ.title, lat: champ._lat, lng: champ._lng, heading: '🧸 캠핑장 근처 아이랑 가볼 만한 곳 5곳', onPicks: function (list) { champ._near = list; } }); }
       else if (tries < 20) setTimeout(function () { mountNp(tries + 1); }, 300);
     })(0);
+
+    // [ADD] 2026-11-19: 내 캠핑 일정표 — 근처 아이랑 장소 2곳 + 출발 전 확인표가 담긴 1박 2일 일정표를 결과 아래에 펼친다.
+    var planCard = el('div', 'win');
+    planCard.style.cssText = 'margin-top:16px;text-align:center';
+    planCard.appendChild(el('h2', null, '🗓️ 내 캠핑 일정표 만들기'));
+    planCard.appendChild(el('p', 'ov', '우승 캠핑장과 근처 아이랑 장소 2곳을 담은 1박 2일 일정표예요. 시간·메모를 고치고, 요금·예약 확인표와 준비물까지 체크해 인쇄하거나 PDF로 저장할 수 있어요.'));
+    var planBtn = el('button', 'btn', '🗓️ 일정표 만들기'); planBtn.type = 'button';
+    planBtn.addEventListener('click', function () { if (window.HohoCampPlan) window.HohoCampPlan.open(champ); });
+    planCard.appendChild(planBtn);
+    res.appendChild(planCard);
 
     var h = el('h2', null, '🥈 이런 캠핑장도 좋아요 (차선책)');
     h.style.cssText = 'margin:22px 0 10px;font-size:17px;font-weight:900;color:#0f172a';
@@ -1150,13 +1167,13 @@ function toggleMenu() {
           ovEl.textContent = text;
         } else ovEl.style.display = 'none';
         var tel = data && !data.error && data.tel ? String(data.tel).replace(/<[^>]*>/g, ' ').trim() : '';
-        if (tel) { var row = li('전화', tel); if (row) { ulEl.appendChild(row); ulEl.style.display = 'block'; } }
+        if (tel) { p._tel = tel; var row = li('전화', tel); if (row) { ulEl.appendChild(row); ulEl.style.display = 'block'; } }
       })
       .catch(function () { ovEl.style.display = 'none'; });
   }
   function toSetup() {
     stopAuto(); cancelRoll();
-    $('game').style.display = 'none'; $('result').style.display = 'none'; $('setup').style.display = 'block';
+    $('game').style.display = 'none'; $('result').style.display = 'none'; if (window.HohoCampPlan) window.HohoCampPlan.hide(); $('setup').style.display = 'block';
     S = null;
     $('setup').scrollIntoView({ block: 'start' });
   }
@@ -1357,7 +1374,8 @@ function toggleMenu() {
 </script>
 <script src="/festival/hh-stats.js" defer></script>
 <script src="/festival/detail-sheet.js?v=20261111" defer></script>
-<script src="/festival/nearby-pick.js?v=20261118" defer></script>
+<script src="/festival/nearby-pick.js?v=20261119" defer></script>
+<script src="/festival/camp-plan.js?v=20261119" defer></script>
 <script id="fz-goto-tool">
 /* "화면위치" 버튼: 지금 작업 중인 영역(조건 선택 / 진행 중인 게임 / 결과)으로 이동 */
 function fzGoTool(){
