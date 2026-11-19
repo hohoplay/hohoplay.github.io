@@ -3667,10 +3667,18 @@ function toggleMenu() {
             const zone = courseZoneOf(item, itemRegionKey);
             if (zone) sub = zone;
             else if (itemRegionKey === 'incheon' && (sub === '중구' || sub === '동구' || sub === '제물포구')) sub = '제물포·동인천';
+            // [ADD] 2026-11-19: 청주시는 상당·서원·흥덕·청원 4개 구에 걸쳐 넓고 장소가 많아(14곳) 한 코스로 묶으면 일부 장소가
+            // 코스에 영영 안 담힌다(예: 청원구 국립청주해양과학관). 구별로 따로 코스를 만들고, 3곳이 안 되는 구는 아래 leftovers 로
+            // 모아 "청주시" 코스 하나로 합친다(인천 영종도·제물포 분리와 같은 방식).
+            let guSplit = false;
+            if (sub === '청주시') {
+                const gm = /(상당구|서원구|흥덕구|청원구)/.exec(item.addr);
+                if (gm) { sub = '청주시 ' + gm[1]; guSplit = true; }
+            }
             const groupKey = itemRegionKey + '|' + (sub || '__whole__');
             if (!groups.has(groupKey)) {
                 const label = sub ? (REGION_LABELS[itemRegionKey] + ' ' + sub) : (REGION_LABELS[itemRegionKey] + ' 전체');
-                groups.set(groupKey, { label: label, items: [], hasFestival: false, regionKey: itemRegionKey, zone: zone });
+                groups.set(groupKey, { label: label, items: [], hasFestival: false, regionKey: itemRegionKey, zone: zone, guSplit: guSplit });
             }
             const group = groups.get(groupKey);
             group.items.push(item);
@@ -3686,7 +3694,7 @@ function toggleMenu() {
             // 영종도 안에서는 7km 반경으로 나눠 동부(운서·구읍)와 서부(공항·용유)를 따로 코스로 만든다.
             const allParts = splitGroupByDistance(sorted, cityMode ? COURSE_NEIGHBOR_RADIUS_KM : (group.zone ? ISLAND_COURSE_RADIUS_KM : undefined), !!group.zone);
             // 영종도처럼 따로 떨어진 구역은 2곳부터 코스로 본다(큰 리조트 둘만으로도 나들이가 됨). 그 구역 장소는 이웃과 합치지 않는다.
-            const gMin = group.zone ? Math.min(minPlaces, 2) : minPlaces;
+            const gMin = group.zone ? Math.min(minPlaces, 2) : (group.guSplit ? MIN_COURSE_PLACES : minPlaces);   // 구별 분리 그룹은 도시 모드에서도 3곳 이상일 때만 코스
             const parts = allParts.filter(function (c) { return c.items.length >= gMin; });
             allParts.forEach(function (c) {
                 if (c.items.length >= gMin) return;
