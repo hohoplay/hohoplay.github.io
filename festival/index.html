@@ -2804,6 +2804,7 @@ function toggleMenu() {
     // 따로 묶는다. 아이랑 장소(kids) 주소는 아직 옛 이름 "중구"라서 구 이름만으로는 영종과 내항을 못 가른다 → 주소 단어와 좌표로 판정.
     const CT_ISLAND_ADDR_RE = /영종|운서|운남|운북|중산동|을왕|용유|무의|공항로|공항문화로|구읍|은하수로|자연대로|하늘초롱길|하늘도시/;
     const CT_MAINLAND_GU_RE = /(서구|남동구|부평구|계양구|연수구|미추홀구|동구|제물포구|검단구|서해구|강화군|옹진군)(\s|$)/;
+    const CT_GU_SPLIT_CITIES = ['청주시', '창원시', '수원시', '고양시', '부천시', '성남시', '용인시'];   // 구별로 코스를 나누는 시
     function courseZoneOf(item, regionKey) {
         if (regionKey !== 'incheon' || !item) return null;
         const addr = String(item.addr || '');
@@ -3667,13 +3668,13 @@ function toggleMenu() {
             const zone = courseZoneOf(item, itemRegionKey);
             if (zone) sub = zone;
             else if (itemRegionKey === 'incheon' && (sub === '중구' || sub === '동구' || sub === '제물포구')) sub = '제물포·동인천';
-            // [ADD] 2026-11-19: 청주시는 상당·서원·흥덕·청원 4개 구에 걸쳐 넓고 장소가 많아(14곳) 한 코스로 묶으면 일부 장소가
-            // 코스에 영영 안 담힌다(예: 청원구 국립청주해양과학관). 구별로 따로 코스를 만들고, 3곳이 안 되는 구는 아래 leftovers 로
-            // 모아 "청주시" 코스 하나로 합친다(인천 영종도·제물포 분리와 같은 방식).
+            // [ADD] 2026-11-19: 구가 여럿이고 장소가 많은 시(CT_GU_SPLIT_CITIES)는 한 코스로 묶으면 일부 장소가 코스에 영영 안 담긴다
+            // (예: 청원구 국립청주해양과학관). 구별로 따로 코스를 만들고, 3곳이 안 되는 구는 아래 leftovers 로 모아 시 코스 하나로 합친다
+            // (인천 영종도·제물포 분리와 같은 방식). 다른 시도 늘리려면 CT_GU_SPLIT_CITIES 에 시 이름만 추가하면 된다.
             let guSplit = false;
-            if (sub === '청주시') {
-                const gm = /(상당구|서원구|흥덕구|청원구)/.exec(item.addr);
-                if (gm) { sub = '청주시 ' + gm[1]; guSplit = true; }
+            if (sub && CT_GU_SPLIT_CITIES.indexOf(sub) >= 0) {
+                const gm = new RegExp(sub + '\\s+([가-힣]+구)').exec(item.addr);
+                if (gm) { sub = sub + ' ' + gm[1]; guSplit = true; }
             }
             const groupKey = itemRegionKey + '|' + (sub || '__whole__');
             if (!groups.has(groupKey)) {
