@@ -59,7 +59,10 @@
         } catch (e) { /* 저장소를 못 쓰는 환경 */ }
         return null;
     }
-    function save() { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) { /* 무시 */ } }
+    function save() {
+        try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) { /* 무시 */ }
+        var pp = $('cpPaper'); if (pp && cur && P) pp.innerHTML = paperHtml();   // 미리보기에 바로 반영
+    }
 
     // ── 기본 일정 ─────────────────────────────────────────────────────────────────
     // 가까운 곳 + (있으면) 실내·실외가 다른 곳 1곳
@@ -165,18 +168,20 @@
             '@media (max-width:480px){#campPlan .cp-row{padding:7px}}' +
             // 인쇄: 일정표 종이(#cp-print-host)만 A4 한 장으로
             '#cp-print-host{display:none}' +
-            '#cp-print-host .cpp{font-family:inherit;color:#111;font-size:12.5px;line-height:1.5}' +
-            '#cp-print-host .cpp h1{font-size:21px;margin:0 0 8px}' +
-            '#cp-print-host .cpp .info{border:1px solid #999;padding:7px 10px;margin-bottom:10px}' +
-            '#cp-print-host .cpp .info div{margin:1px 0}' +
-            '#cp-print-host .cpp h2{font-size:14px;margin:12px 0 5px;padding-bottom:2px;border-bottom:2px solid #333}' +
-            '#cp-print-host .cpp table{width:100%;border-collapse:collapse}' +
-            '#cp-print-host .cpp th,#cp-print-host .cpp td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}' +
-            '#cp-print-host .cpp th{background:#eee;font-size:12px}' +
-            '#cp-print-host .cpp .cols{column-count:2;column-gap:18px}' +
-            '#cp-print-host .cpp .ck{break-inside:avoid;margin:2px 0}' +
-            '#cp-print-host .cpp .memo{border:1px solid #999;min-height:70px;padding:6px 8px;white-space:pre-wrap;margin-top:4px}' +
-            '#cp-print-host .cpp .foot{margin-top:10px;font-size:11px;color:#555}' +
+            '#campPlan .cp-paper{background:#fff;border:1px solid #94a3b8;border-radius:6px;padding:14px;margin-top:8px;overflow-x:auto}' +
+            '#cpPaper .cpp table{min-width:430px}' +
+            '#cp-print-host .cpp,#cpPaper .cpp{font-family:inherit;color:#111;font-size:12.5px;line-height:1.5}' +
+            '#cp-print-host .cpp h1,#cpPaper .cpp h1{font-size:21px;margin:0 0 8px}' +
+            '#cp-print-host .cpp .info,#cpPaper .cpp .info{border:1px solid #999;padding:7px 10px;margin-bottom:10px}' +
+            '#cp-print-host .cpp .info div,#cpPaper .cpp .info div{margin:1px 0}' +
+            '#cp-print-host .cpp h2,#cpPaper .cpp h2{font-size:14px;margin:12px 0 5px;padding-bottom:2px;border-bottom:2px solid #333}' +
+            '#cp-print-host .cpp table,#cpPaper .cpp table{width:100%;border-collapse:collapse}' +
+            '#cp-print-host .cpp th,#cp-print-host .cpp td,#cpPaper .cpp th,#cp-print-host .cpp td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}' +
+            '#cp-print-host .cpp th,#cpPaper .cpp th{background:#eee;font-size:12px}' +
+            '#cp-print-host .cpp .cols,#cpPaper .cpp .cols{column-count:2;column-gap:18px}' +
+            '#cp-print-host .cpp .ck,#cpPaper .cpp .ck{break-inside:avoid;margin:2px 0}' +
+            '#cp-print-host .cpp .memo,#cpPaper .cpp .memo{border:1px solid #999;min-height:70px;padding:6px 8px;white-space:pre-wrap;margin-top:4px}' +
+            '#cp-print-host .cpp .foot,#cpPaper .cpp .foot{margin-top:10px;font-size:11px;color:#555}' +
             '@media print{' +
             'body.cp-printing > *:not(#cp-print-host){display:none!important}' +
             'body.cp-printing #cp-print-host{display:block!important}' +
@@ -221,23 +226,25 @@
 
         // 일정
         for (var d = 1; d <= P.days; d++) {
-            h += '<div class="cp-dayhd"><span>' + esc(dayLabel(d)) + '</span>' +
-                (d > 1 && d < P.days ? '<button type="button" class="cp-btn small" data-act="delday" data-day="' + d + '">이 날 빼기</button>' : '') + '</div>';
+            h += '<div class="cp-dayhd"><span>' + esc(dayLabel(d)) + '</span></div>';
             P.rows.forEach(function (r) { if (r.day === d) h += rowHtml(r); });
             h += '<button type="button" class="cp-btn small" data-act="addrow" data-day="' + d + '">＋ 일정 추가</button>';
         }
-        h += '<div style="margin-top:10px"><button type="button" class="cp-btn small" data-act="addday">＋ 하루 더 넣기 (2박 3일)</button></div>';
 
         // 근처 후보
         if (cur._near && cur._near.length) {
             var have = {};
             P.rows.forEach(function (r) { have[String(r.title).replace(/^📍\s*/, '')] = true; });
-            h += '<h3>🧸 근처 아이랑 장소 <span style="font-size:11.5px;font-weight:600;color:#94a3b8">눌러서 1일차에 넣기</span></h3><div class="cp-chips">';
-            cur._near.forEach(function (n, i) {
-                var on = !!have[n.title];
-                h += '<button type="button" class="cp-chip" data-act="addnear" data-i="' + i + '"' + (on ? ' disabled' : '') + '>' + (on ? '✓ ' : '＋ ') + esc(n.title) + ' · ' + esc(fmtKm(n.km)) + '</button>';
-            });
-            h += '</div>';
+            // 이미 일정에 담은 곳은 빼고, 더 넣을 곳이 남아 있을 때만 보여 준다.
+            var left = [];
+            cur._near.forEach(function (n, i) { if (!have[n.title]) left.push([n, i]); });
+            if (left.length) {
+                h += '<h3>🧸 근처 아이랑 장소 더 넣기 <span style="font-size:11.5px;font-weight:600;color:#94a3b8">눌러서 1일차에 넣기</span></h3><div class="cp-chips">';
+                left.forEach(function (x) {
+                    h += '<button type="button" class="cp-chip" data-act="addnear" data-i="' + x[1] + '">＋ ' + esc(x[0].title) + ' · ' + esc(fmtKm(x[0].km)) + '</button>';
+                });
+                h += '</div>';
+            }
         }
 
         // 확인표
@@ -257,6 +264,7 @@
         // 메모
         h += '<h3>📝 메모</h3><textarea id="cpNote" maxlength="600" placeholder="예약 번호, 차량 번호, 같이 가는 사람, 장볼 목록 등을 적어 두세요.">' + esc(P.note) + '</textarea>';
 
+        h += '<h3>📄 일정표 미리보기 <span style="font-size:11.5px;font-weight:600;color:#94a3b8">(A4 한 장)</span></h3><div id="cpPaper" class="cp-paper">' + paperHtml() + '</div>';
         h += '<div class="cp-acts"><button type="button" class="cp-btn pri" data-act="print">🖨️ 일정표 인쇄·PDF 저장</button><button type="button" class="cp-btn" data-act="reset">↺ 처음 상태로</button></div>';
         h += '<div class="cp-hint"><b style="color:#334155">PDF로 저장하는 방법</b><br>인쇄 창에서 <b>대상(프린터)</b> 칸을 눌러 “PDF로 저장”(또는 “Microsoft Print to PDF”)을 고른 뒤, 오른쪽 아래 버튼이 “저장”으로 바뀌면 누르세요. 편집한 내용은 이 기기에만 저장되고 서버로 보내지 않아요.</div>';
         root.innerHTML = h;
@@ -341,19 +349,6 @@
                 var nx = -1; for (var k = d + 1; k <= P.days && nx < 0; k++) nx = firstIndexOfDay(k);
                 if (nx < 0) P.rows.push(nr); else P.rows.splice(nx, 0, nr);
             }
-        } else if (act === 'addday') {
-            var n = P.days;                               // 마지막 날을 한 칸 뒤로 밀고, 그 앞에 새 날을 넣는다
-            P.rows.forEach(function (rr) { if (rr.day === n) rr.day = n + 1; });
-            var at = firstIndexOfDay(n + 1); if (at < 0) at = P.rows.length;
-            P.rows.splice(at, 0, newRow(n, '09:00', '아침 식사', 'x'), newRow(n, '10:30', '근처 즐길 거리', 'x'), newRow(n, '18:00', '저녁 · 불멍', 'x'));
-            P.days = n + 1;
-        } else if (act === 'delday') {
-            var dd = +t.getAttribute('data-day');
-            if (dd > 1 && dd < P.days && window.confirm(dd + '일차 일정을 모두 뺄까요?')) {
-                P.rows = P.rows.filter(function (rr) { return rr.day !== dd; });
-                P.rows.forEach(function (rr) { if (rr.day > dd) rr.day -= 1; });
-                P.days -= 1;
-            } else return;
         } else if (act === 'addnear') {
             var nn = cur._near[+t.getAttribute('data-i')];
             if (!nn) return;
