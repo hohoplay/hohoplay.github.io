@@ -1282,14 +1282,22 @@ def update_map_html(festivals, today):
     try:
         with open(map_path, 'r', encoding='utf-8') as f:
             content2 = f.read()
-        a = content2.find('<!-- DATA_UPDATED_START -->')
-        b = content2.find('<!-- DATA_UPDATED_END -->')
-        if a != -1 and b != -1 and a < b:
-            label = NOW_KST.strftime('%Y.%m.%d %H:%M')
-            content2 = (content2[:a + len('<!-- DATA_UPDATED_START -->')]
-                        + f'데이터 기준일: {label} (KST)' + content2[b:])
-            with open(map_path, 'w', encoding='utf-8') as f:
-                f.write(content2)
+        label = NOW_KST.strftime('%Y.%m.%d %H:%M')
+        S_, E_ = '<!-- DATA_UPDATED_START -->', '<!-- DATA_UPDATED_END -->'
+        pos = 0
+        # [수정] 2026-11-19: 패널 하단과 지도 소개 위 안내 블록, 두 곳 이상의 마커를 모두 갱신한다.
+        while True:
+            a = content2.find(S_, pos)
+            if a == -1:
+                break
+            b = content2.find(E_, a)
+            if b == -1:
+                break
+            rep = f'데이터 기준일: {label} (KST)'
+            content2 = content2[:a + len(S_)] + rep + content2[b:]
+            pos = a + len(S_) + len(rep) + len(E_)
+        with open(map_path, 'w', encoding='utf-8') as f:
+            f.write(content2)
     except Exception as e:
         print(f"데이터 기준일 표시 갱신 건너뜀: {e}")
 
