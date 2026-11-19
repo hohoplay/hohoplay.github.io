@@ -1,0 +1,464 @@
+/*
+ * 내 캠핑 일정표 — 캠핑장 월드컵(/festival/camping-worldcup.html) 결과 화면 아래에 펼쳐지는 일정표 편집기.
+ *
+ * [ADD] 2026-11-19
+ *  - 우승 캠핑장 + 근처 아이랑 장소 2곳(나들이픽 5곳 중 가까운 곳, 실내·실외가 섞이게)을 미리 담은 1박 2일 틀을 만들고,
+ *    사용자가 시간·일정·메모를 고치고, 순서를 바꾸고, 하루를 더 넣거나 뺄 수 있다.
+ *  - 이 서비스에 없는 정보(요금·예약·운영 기간·반려동물)는 "출발 전 확인표"로 바꿔 체크하게 한다. 준비물 체크도 함께.
+ *  - 인쇄·PDF 저장은 일정표만 A4로 나오게 한다(pick.html 의 인쇄 방식과 같음: 화면의 나머지는 인쇄 때만 숨김).
+ *  - 편집 내용은 이 기기 브라우저(localStorage)에만 저장한다. 서버로 보내지 않는다. 다른 캠핑장이 우승하면 새로 시작한다.
+ *  - 입구: window.HohoCampPlan.open(champ)  — champ = { contentid, title, addr, _tel?, _near? }
+ *          champ._near 는 nearby-pick.js 의 onPicks 콜백이 채운다([{ title, km, placeType, contentid }]).
+ *          window.HohoCampPlan.hide() — 월드컵을 다시 시작할 때 일정표를 접는다.
+ */
+(function () {
+    'use strict';
+
+    var KEY = 'hp_campplan_v1';
+    var sec = null, root = null, cur = null, P = null;
+
+    var CHECK_A = [
+        ['a1', '예약 확인서(예약 날짜·사이트 번호) 챙기기'],
+        ['a2', '이용 요금·추가 인원 요금 확인'],
+        ['a3', '운영 기간·휴장일 확인 (겨울철 휴장·단축 운영 가능)'],
+        ['a4', '체크인·체크아웃 시간 확인'],
+        ['a5', '반려동물 동반 가능 여부 확인'],
+        ['a6', '우천·취소·환불 규정 확인'],
+        ['a7', '화로대·장작·전기 사용 가능 여부 확인']
+    ];
+    var CHECK_B = [
+        ['b1', '텐트·타프·팩 (글램핑·카라반은 생략)'],
+        ['b2', '침낭·매트·담요'],
+        ['b3', '계절에 맞는 난방·방한용품'],
+        ['b4', '취사도구·식재료·식수'],
+        ['b5', '랜턴·멀티탭·보조배터리'],
+        ['b6', '아이 여벌 옷·여분 신발·물티슈'],
+        ['b7', '구급용품·벌레 퇴치용품'],
+        ['b8', '쓰레기봉투']
+    ];
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    function uid() { return 'r' + Math.random().toString(36).slice(2, 8); }
+    function $(id) { return document.getElementById(id); }
+
+    function fmtKm(km) {
+        if (typeof km !== 'number' || !isFinite(km)) return '';
+        if (km < 1) return Math.max(100, Math.round(km * 10) * 100) + 'm';
+        return (Math.round(km * 10) / 10).toFixed(1) + 'km';
+    }
+
+    // ── 저장 ──────────────────────────────────────────────────────────────────────
+    function load(id) {
+        try {
+            var o = JSON.parse(localStorage.getItem(KEY) || 'null');
+            if (o && o.v === 1 && o.id === id && Array.isArray(o.rows) && o.days >= 1) return o;
+        } catch (e) { /* 저장소를 못 쓰는 환경 */ }
+        return null;
+    }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) { /* 무시 */ } }
+
+    // ── 기본 일정 ─────────────────────────────────────────────────────────────────
+    // 가까운 곳 + (있으면) 실내·실외가 다른 곳 1곳
+    function pickTwo(list) {
+        var a = (list || []).filter(function (n) { return n && n.title; });
+        if (a.length <= 2) return a;
+        var first = a[0];
+        var second = null;
+        var t0 = first.placeType;
+        if (t0 === '실내' || t0 === '실외') {
+            var want = t0 === '실내' ? '실외' : '실내';
+            for (var i = 1; i < a.length; i++) { if (a[i].placeType === want) { second = a[i]; break; } }
+        }
+        return [first, second || a[1]];
+    }
+    function nearRow(n, time) {
+        var meta = [];
+        if (n.km != null) meta.push('캠핑장에서 약 ' + fmtKm(n.km));
+        if (n.placeType) meta.push(n.placeType);
+        meta.push('운영시간 확인');
+        return { id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n' };
+    }
+    function defaultPlan(champ) {
+        var two = pickTwo(champ._near);
+        var rows = [{ id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' }];
+        var times = two.length >= 2 ? ['11:30', '13:30'] : ['12:00'];
+        two.forEach(function (n, i) { rows.push(nearRow(n, times[i])); });
+        rows.push({ id: uid(), day: 1, time: '15:30', title: '⛺ 캠핑장 체크인', memo: '체크인 시간은 캠핑장에 확인', k: 'in' });
+        rows.push({ id: uid(), day: 1, time: '18:00', title: '저녁 · 불멍', memo: '', k: 'x' });
+        rows.push({ id: uid(), day: 2, time: '09:00', title: '아침 식사 · 짐 정리', memo: '', k: 'x' });
+        rows.push({ id: uid(), day: 2, time: '11:00', title: '⛺ 캠핑장 체크아웃', memo: '퇴실 시간 확인 · 쓰레기 정리', k: 'out' });
+        rows.push({ id: uid(), day: 2, time: '12:30', title: '귀가 · 점심', memo: '', k: 'x' });
+        return { v: 1, id: champ.contentid, date: '', days: 2, rows: rows, checks: {}, extra: [], note: '' };
+    }
+
+    // ── 날짜 표시 ─────────────────────────────────────────────────────────────────
+    function dayLabel(d) {
+        var s = d + '일차';
+        if (P.date && /^\d{4}-\d{2}-\d{2}$/.test(P.date)) {
+            var p = P.date.split('-');
+            var dt = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + d - 1));
+            s += ' · ' + (dt.getUTCMonth() + 1) + '/' + dt.getUTCDate() + '(' + '일월화수목금토'.charAt(dt.getUTCDay()) + ')';
+        }
+        return s;
+    }
+    function tel() { return cur && cur._tel ? String(cur._tel) : ''; }
+
+    // ── 확인표 항목(근처 장소 확인은 일정 줄에서 만든다) ─────────────────────────────
+    function nearChecks() {
+        return P.rows.filter(function (r) { return r.k === 'n'; }).map(function (r) {
+            return ['n_' + r.id, '「' + String(r.title).replace(/^📍\s*/, '') + '」 운영시간·휴관일 확인'];
+        });
+    }
+    function isOn(id) { return !!P.checks[id]; }
+
+    // ── 화면 ─────────────────────────────────────────────────────────────────────
+    function injectStyle() {
+        if ($('cp-style')) return;
+        var st = document.createElement('style');
+        st.id = 'cp-style';
+        st.textContent =
+            '#campPlan{scroll-margin-top:96px}' +
+            '#campPlan .cp-back{display:inline-block;font-size:12.5px;font-weight:800;color:#047857;text-decoration:none;margin-bottom:8px}' +
+            '#campPlan h2{margin:0 0 4px;font-size:18px;font-weight:900;color:#0f172a}' +
+            '#campPlan .cp-sub{font-size:12.5px;color:#64748b;line-height:1.6;margin:0 0 12px}' +
+            '#campPlan .cp-box{border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;padding:12px 14px;margin:0 0 14px}' +
+            '#campPlan .cp-cname{font-size:15px;font-weight:900;color:#0f172a}' +
+            '#campPlan .cp-line{font-size:12.5px;color:#475569;line-height:1.6;margin-top:2px;word-break:keep-all}' +
+            '#campPlan .cp-line a{color:#4f46e5;font-weight:800;text-decoration:none}' +
+            '#campPlan .cp-date{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;font-weight:800;color:#334155;flex-wrap:wrap}' +
+            '#campPlan input[type=date],#campPlan input[type=time],#campPlan input[type=text],#campPlan textarea{font:inherit;font-size:14px;border:1px solid #cbd5e1;border-radius:8px;padding:7px 8px;background:#fff;color:#0f172a;box-sizing:border-box;max-width:100%}' +
+            '#campPlan h3{margin:18px 0 8px;font-size:15px;font-weight:900;color:#0f172a;display:flex;align-items:center;justify-content:space-between;gap:8px}' +
+            '#campPlan .cp-dayhd{background:#ecfdf5;border-radius:10px;padding:7px 12px;font-size:14px;font-weight:900;color:#065f46;margin:14px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}' +
+            '#campPlan .cp-row{display:flex;gap:8px;align-items:flex-start;border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:8px;margin-bottom:8px}' +
+            '#campPlan .cp-time{width:72px;flex:0 0 auto;text-align:center;font-weight:800}' +
+            '#campPlan .cp-col{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}' +
+            '#campPlan .cp-col input{width:100%}' +
+            '#campPlan .cp-title{font-weight:800}' +
+            '#campPlan .cp-memo{font-size:13px!important;color:#475569}' +
+            '#campPlan .cp-btns{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}' +
+            '#campPlan .cp-ib{border:1px solid #cbd5e1;background:#fff;border-radius:8px;width:34px;height:30px;font-size:14px;font-weight:800;color:#334155;cursor:pointer;padding:0}' +
+            '#campPlan .cp-ib:hover{background:#f1f5f9}' +
+            '#campPlan .cp-ib.del{color:#b91c1c}' +
+            '#campPlan .cp-btn{border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:800;color:#334155;cursor:pointer}' +
+            '#campPlan .cp-btn:hover{background:#f1f5f9}' +
+            '#campPlan .cp-btn.pri{background:#047857;border-color:#047857;color:#fff}' +
+            '#campPlan .cp-btn.pri:hover{background:#065f46}' +
+            '#campPlan .cp-btn.small{padding:5px 10px;font-size:12px}' +
+            '#campPlan .cp-chips{display:flex;flex-wrap:wrap;gap:6px}' +
+            '#campPlan .cp-chip{border:1px dashed #94a3b8;background:#fff;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;color:#334155;cursor:pointer}' +
+            '#campPlan .cp-chip:hover{background:#eef2ff;border-color:#818cf8}' +
+            '#campPlan .cp-chip[disabled]{opacity:.5;cursor:default;background:#f1f5f9}' +
+            '#campPlan .cp-chk{display:flex;gap:8px;align-items:flex-start;padding:7px 4px;font-size:13.5px;color:#1e293b;line-height:1.5;cursor:pointer;border-bottom:1px solid #f1f5f9}' +
+            '#campPlan .cp-chk input{margin-top:3px;width:17px;height:17px;flex:0 0 auto}' +
+            '#campPlan .cp-chk.on span{color:#94a3b8;text-decoration:line-through}' +
+            '#campPlan .cp-chk .x{margin-left:auto;border:0;background:none;color:#b91c1c;font-weight:800;cursor:pointer}' +
+            '#campPlan .cp-add{display:flex;gap:6px;margin-top:8px}' +
+            '#campPlan .cp-add input{flex:1 1 auto;min-width:0}' +
+            '#campPlan textarea{width:100%;min-height:84px;resize:vertical;line-height:1.6}' +
+            '#campPlan .cp-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}' +
+            '#campPlan .cp-hint{margin-top:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;line-height:1.7;color:#475569}' +
+            '#campPlan .cp-warn{font-size:12.5px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px 12px;margin:0 0 10px;line-height:1.6}' +
+            '@media (max-width:480px){#campPlan .cp-row{padding:7px}}' +
+            // 인쇄: 일정표 종이(#cp-print-host)만 A4 한 장으로
+            '#cp-print-host{display:none}' +
+            '#cp-print-host .cpp{font-family:inherit;color:#111;font-size:12.5px;line-height:1.5}' +
+            '#cp-print-host .cpp h1{font-size:21px;margin:0 0 8px}' +
+            '#cp-print-host .cpp .info{border:1px solid #999;padding:7px 10px;margin-bottom:10px}' +
+            '#cp-print-host .cpp .info div{margin:1px 0}' +
+            '#cp-print-host .cpp h2{font-size:14px;margin:12px 0 5px;padding-bottom:2px;border-bottom:2px solid #333}' +
+            '#cp-print-host .cpp table{width:100%;border-collapse:collapse}' +
+            '#cp-print-host .cpp th,#cp-print-host .cpp td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}' +
+            '#cp-print-host .cpp th{background:#eee;font-size:12px}' +
+            '#cp-print-host .cpp .cols{column-count:2;column-gap:18px}' +
+            '#cp-print-host .cpp .ck{break-inside:avoid;margin:2px 0}' +
+            '#cp-print-host .cpp .memo{border:1px solid #999;min-height:70px;padding:6px 8px;white-space:pre-wrap;margin-top:4px}' +
+            '#cp-print-host .cpp .foot{margin-top:10px;font-size:11px;color:#555}' +
+            '@media print{' +
+            'body.cp-printing > *:not(#cp-print-host){display:none!important}' +
+            'body.cp-printing #cp-print-host{display:block!important}' +
+            '@page{size:A4;margin:12mm}' +
+            '}';
+        document.head.appendChild(st);
+    }
+
+    function rowHtml(r) {
+        return '<div class="cp-row" data-id="' + r.id + '">' +
+            '<input class="cp-time" type="text" inputmode="numeric" maxlength="5" value="' + esc(r.time) + '" data-f="time" placeholder="00:00" aria-label="시간 (24시간, 예 13:30)">' +
+            '<div class="cp-col">' +
+            '<input class="cp-title" type="text" maxlength="60" value="' + esc(r.title) + '" data-f="title" placeholder="일정" aria-label="일정">' +
+            '<input class="cp-memo" type="text" maxlength="100" value="' + esc(r.memo) + '" data-f="memo" placeholder="메모 (예: 예약번호, 준비할 것)" aria-label="메모">' +
+            '</div>' +
+            '<div class="cp-btns">' +
+            '<button type="button" class="cp-ib" data-act="up" aria-label="위로">↑</button>' +
+            '<button type="button" class="cp-ib" data-act="down" aria-label="아래로">↓</button>' +
+            '<button type="button" class="cp-ib del" data-act="del" aria-label="삭제">✕</button>' +
+            '</div></div>';
+    }
+    function chkHtml(id, text, removable) {
+        return '<label class="cp-chk' + (isOn(id) ? ' on' : '') + '"><input type="checkbox" data-chk="' + esc(id) + '"' + (isOn(id) ? ' checked' : '') + '><span>' + esc(text) + '</span>' +
+            (removable ? '<button type="button" class="x" data-act="xextra" data-id="' + esc(id) + '" aria-label="삭제">✕</button>' : '') + '</label>';
+    }
+
+    function render() {
+        var h = '';
+        h += '<a href="#result" class="cp-back" data-act="back">↑ 결과로 돌아가기</a>';
+        h += '<h2>🗓️ 내 캠핑 일정표</h2>';
+        h += '<p class="cp-sub">캠핑장과 근처 아이랑 장소를 미리 담아 두었어요. 시간·일정·메모를 마음대로 고치고, 아래 <b>출발 전 확인표</b>까지 체크한 뒤 인쇄하거나 PDF로 저장하세요.</p>';
+
+        // 캠핑장 정보
+        h += '<div class="cp-box"><div class="cp-cname">⛺ ' + esc(cur.title) + '</div>';
+        if (cur.addr) h += '<div class="cp-line">📍 ' + esc(cur.addr) + '</div>';
+        if (tel()) h += '<div class="cp-line">☎ <a href="tel:' + esc(tel().replace(/[^0-9+\-]/g, '')) + '">' + esc(tel()) + '</a> · 요금·예약은 전화로 확인하세요</div>';
+        h += '<div class="cp-date"><label for="cpDate">출발일</label><input type="date" id="cpDate" value="' + esc(P.date) + '"><span style="font-weight:600;color:#94a3b8;font-size:12px">(선택)</span></div></div>';
+
+        if (!(cur._near && cur._near.length)) {
+            h += '<div class="cp-warn">근처 아이랑 장소를 찾지 못해서 캠핑장 일정만 담았어요. 아래 “일정 추가”로 직접 넣을 수 있어요.</div>';
+        }
+
+        // 일정
+        for (var d = 1; d <= P.days; d++) {
+            h += '<div class="cp-dayhd"><span>' + esc(dayLabel(d)) + '</span>' +
+                (d > 1 && d < P.days ? '<button type="button" class="cp-btn small" data-act="delday" data-day="' + d + '">이 날 빼기</button>' : '') + '</div>';
+            P.rows.forEach(function (r) { if (r.day === d) h += rowHtml(r); });
+            h += '<button type="button" class="cp-btn small" data-act="addrow" data-day="' + d + '">＋ 일정 추가</button>';
+        }
+        h += '<div style="margin-top:10px"><button type="button" class="cp-btn small" data-act="addday">＋ 하루 더 넣기 (2박 3일)</button></div>';
+
+        // 근처 후보
+        if (cur._near && cur._near.length) {
+            var have = {};
+            P.rows.forEach(function (r) { have[String(r.title).replace(/^📍\s*/, '')] = true; });
+            h += '<h3>🧸 근처 아이랑 장소 <span style="font-size:11.5px;font-weight:600;color:#94a3b8">눌러서 1일차에 넣기</span></h3><div class="cp-chips">';
+            cur._near.forEach(function (n, i) {
+                var on = !!have[n.title];
+                h += '<button type="button" class="cp-chip" data-act="addnear" data-i="' + i + '"' + (on ? ' disabled' : '') + '>' + (on ? '✓ ' : '＋ ') + esc(n.title) + ' · ' + esc(fmtKm(n.km)) + '</button>';
+            });
+            h += '</div>';
+        }
+
+        // 확인표
+        h += '<h3>✅ 출발 전 확인표</h3>';
+        h += '<p class="cp-sub" style="margin-bottom:4px">요금·예약 가능 여부·운영 기간·반려동물 동반은 이 서비스에 없는 정보예요. 캠핑장 공식 홈페이지나 전화로 확인하며 체크하세요.</p>';
+        CHECK_A.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
+        var nc = nearChecks();
+        if (nc.length) {
+            h += '<div class="cp-sub" style="margin:12px 0 2px;font-weight:800;color:#334155">들를 곳 확인</div>';
+            nc.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
+        }
+        h += '<div class="cp-sub" style="margin:12px 0 2px;font-weight:800;color:#334155">준비물</div>';
+        CHECK_B.forEach(function (c) { h += chkHtml(c[0], c[1], false); });
+        P.extra.forEach(function (c) { h += chkHtml(c.id, c.text, true); });
+        h += '<div class="cp-add"><input type="text" id="cpExtraIn" maxlength="40" placeholder="내 준비물·할 일 추가"><button type="button" class="cp-btn small" data-act="addextra">추가</button></div>';
+
+        // 메모
+        h += '<h3>📝 메모</h3><textarea id="cpNote" maxlength="600" placeholder="예약 번호, 차량 번호, 같이 가는 사람, 장볼 목록 등을 적어 두세요.">' + esc(P.note) + '</textarea>';
+
+        h += '<div class="cp-acts"><button type="button" class="cp-btn pri" data-act="print">🖨️ 일정표 인쇄·PDF 저장</button><button type="button" class="cp-btn" data-act="reset">↺ 처음 상태로</button></div>';
+        h += '<div class="cp-hint"><b style="color:#334155">PDF로 저장하는 방법</b><br>인쇄 창에서 <b>대상(프린터)</b> 칸을 눌러 “PDF로 저장”(또는 “Microsoft Print to PDF”)을 고른 뒤, 오른쪽 아래 버튼이 “저장”으로 바뀌면 누르세요. 편집한 내용은 이 기기에만 저장되고 서버로 보내지 않아요.</div>';
+        root.innerHTML = h;
+    }
+
+    // ── 인쇄용 종이 ─────────────────────────────────────────────────────────────────
+    function paperHtml() {
+        var h = '<div class="cpp"><h1>⛺ 나의 캠핑 일정표</h1><div class="info">';
+        h += '<div><b>캠핑장</b> ' + esc(cur.title) + '</div>';
+        if (cur.addr) h += '<div><b>주소</b> ' + esc(cur.addr) + '</div>';
+        if (tel()) h += '<div><b>전화</b> ' + esc(tel()) + '</div>';
+        if (P.date) h += '<div><b>출발일</b> ' + esc(dayLabel(1).replace(/^1일차 · /, '')) + '</div>';
+        h += '</div>';
+        for (var d = 1; d <= P.days; d++) {
+            h += '<h2>' + esc(dayLabel(d)) + '</h2><table><tr><th style="width:62px">시간</th><th style="width:38%">일정</th><th>메모</th></tr>';
+            var any = false;
+            P.rows.forEach(function (r) {
+                if (r.day !== d) return;
+                any = true;
+                h += '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.title) + '</td><td>' + esc(r.memo) + '</td></tr>';
+            });
+            if (!any) h += '<tr><td colspan="3">&nbsp;</td></tr>';
+            h += '</table>';
+        }
+        function ck(id, text) { return '<div class="ck">' + (isOn(id) ? '☑' : '☐') + ' ' + esc(text) + '</div>'; }
+        h += '<h2>출발 전 확인표</h2><div class="cols">';
+        CHECK_A.forEach(function (c) { h += ck(c[0], c[1]); });
+        nearChecks().forEach(function (c) { h += ck(c[0], c[1]); });
+        h += '</div><h2>준비물</h2><div class="cols">';
+        CHECK_B.forEach(function (c) { h += ck(c[0], c[1]); });
+        P.extra.forEach(function (c) { h += ck(c.id, c.text); });
+        h += '</div><h2>메모</h2><div class="memo">' + esc(P.note) + '</div>';
+        h += '<div class="foot">호호플레이 hohoplaylab.com · 요금·예약·운영 시간은 방문 전 캠핑장에 꼭 확인하세요.</div></div>';
+        return h;
+    }
+    function doPrint() {
+        var host = $('cp-print-host');
+        if (!host) { host = document.createElement('div'); host.id = 'cp-print-host'; document.body.appendChild(host); }
+        host.innerHTML = paperHtml();
+        document.body.classList.add('cp-printing');
+        var done = function () { document.body.classList.remove('cp-printing'); window.removeEventListener('afterprint', done); };
+        window.addEventListener('afterprint', done);
+        window.print();
+    }
+
+    // ── 동작 ─────────────────────────────────────────────────────────────────────
+    function rowIndex(id) { for (var i = 0; i < P.rows.length; i++) if (P.rows[i].id === id) return i; return -1; }
+    function lastIndexOfDay(d) { var idx = -1; P.rows.forEach(function (r, i) { if (r.day === d) idx = i; }); return idx; }
+    function firstIndexOfDay(d) { for (var i = 0; i < P.rows.length; i++) if (P.rows[i].day === d) return i; return -1; }
+    function newRow(day, time, title, k) { return { id: uid(), day: day, time: time || '', title: title || '', memo: '', k: k || 'x' }; }
+
+    function onClick(e) {
+        var t = e.target.closest ? e.target.closest('[data-act]') : null;
+        if (!t || !root.contains(t)) return;
+        var act = t.getAttribute('data-act');
+        var rowEl = t.closest('.cp-row');
+        var id = rowEl ? rowEl.getAttribute('data-id') : '';
+        var i;
+        if (act === 'back') {
+            e.preventDefault();
+            var rs = $('result'); if (rs && rs.scrollIntoView) rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        if (act === 'up' || act === 'down') {
+            i = rowIndex(id); if (i < 0) return;
+            var r = P.rows[i];
+            if (act === 'up') {
+                if (i > 0 && P.rows[i - 1].day === r.day) { P.rows[i] = P.rows[i - 1]; P.rows[i - 1] = r; }
+                else if (r.day > 1) r.day -= 1;           // 그날의 맨 위 → 전날 맨 아래로
+            } else {
+                if (i < P.rows.length - 1 && P.rows[i + 1].day === r.day) { P.rows[i] = P.rows[i + 1]; P.rows[i + 1] = r; }
+                else if (r.day < P.days) r.day += 1;      // 그날의 맨 아래 → 다음날 맨 위로
+            }
+        } else if (act === 'del') {
+            i = rowIndex(id); if (i >= 0) P.rows.splice(i, 1);
+        } else if (act === 'addrow') {
+            var d = +t.getAttribute('data-day');
+            var li = lastIndexOfDay(d);
+            var nr = newRow(d, '', '', 'x');
+            if (li >= 0) P.rows.splice(li + 1, 0, nr);
+            else {                                         // 비어 있는 날: 다음 날 첫 줄 앞에 넣는다
+                var nx = -1; for (var k = d + 1; k <= P.days && nx < 0; k++) nx = firstIndexOfDay(k);
+                if (nx < 0) P.rows.push(nr); else P.rows.splice(nx, 0, nr);
+            }
+        } else if (act === 'addday') {
+            var n = P.days;                               // 마지막 날을 한 칸 뒤로 밀고, 그 앞에 새 날을 넣는다
+            P.rows.forEach(function (rr) { if (rr.day === n) rr.day = n + 1; });
+            var at = firstIndexOfDay(n + 1); if (at < 0) at = P.rows.length;
+            P.rows.splice(at, 0, newRow(n, '09:00', '아침 식사', 'x'), newRow(n, '10:30', '근처 즐길 거리', 'x'), newRow(n, '18:00', '저녁 · 불멍', 'x'));
+            P.days = n + 1;
+        } else if (act === 'delday') {
+            var dd = +t.getAttribute('data-day');
+            if (dd > 1 && dd < P.days && window.confirm(dd + '일차 일정을 모두 뺄까요?')) {
+                P.rows = P.rows.filter(function (rr) { return rr.day !== dd; });
+                P.rows.forEach(function (rr) { if (rr.day > dd) rr.day -= 1; });
+                P.days -= 1;
+            } else return;
+        } else if (act === 'addnear') {
+            var nn = cur._near[+t.getAttribute('data-i')];
+            if (!nn) return;
+            var ni = -1; P.rows.forEach(function (rr, x) { if (ni < 0 && rr.day === 1 && rr.k === 'in') ni = x; });
+            if (ni < 0) ni = lastIndexOfDay(1) + 1;
+            P.rows.splice(ni, 0, nearRow(nn, '12:00'));
+        } else if (act === 'addextra') {
+            var inp = $('cpExtraIn'); var v = inp ? inp.value.trim() : '';
+            if (!v) return;
+            P.extra.push({ id: 'x_' + uid(), text: v.slice(0, 40) });
+        } else if (act === 'xextra') {
+            var xid = t.getAttribute('data-id');
+            P.extra = P.extra.filter(function (c) { return c.id !== xid; });
+            delete P.checks[xid];
+            e.preventDefault();
+        } else if (act === 'reset') {
+            if (!window.confirm('편집한 내용을 지우고 처음 상태로 되돌릴까요?')) return;
+            P = defaultPlan(cur);
+        } else if (act === 'print') {
+            doPrint();
+            return;
+        } else return;
+        save(); render();
+    }
+    function onInput(e) {
+        var t = e.target;
+        var f = t.getAttribute && t.getAttribute('data-f');
+        if (f) {
+            var rowEl = t.closest('.cp-row');
+            var i = rowEl ? rowIndex(rowEl.getAttribute('data-id')) : -1;
+            if (i >= 0) { P.rows[i][f] = t.value; save(); }
+        } else if (t.id === 'cpNote') { P.note = t.value; save(); }
+        else if (t.id === 'cpDate') { P.date = t.value; save(); updateDayLabels(); }
+    }
+    function updateDayLabels() {
+        var hs = root.querySelectorAll('.cp-dayhd > span');
+        for (var i = 0; i < hs.length; i++) hs[i].textContent = dayLabel(i + 1);
+    }
+    function onChange(e) {
+        var t = e.target;
+        var cid = t.getAttribute && t.getAttribute('data-chk');
+        if (cid) {
+            if (t.checked) P.checks[cid] = true; else delete P.checks[cid];
+            var lab = t.closest('.cp-chk'); if (lab) lab.classList.toggle('on', t.checked);
+            save();
+        }
+    }
+    // 시간 칸: 1330 → 13:30, 9 → 09:00 처럼 24시간 HH:MM으로 정리한다(알아볼 수 없으면 그대로 둔다).
+    function normTime(v) {
+        var d = String(v || '').replace(/[^0-9]/g, '');
+        if (!d) return '';
+        var h, m;
+        if (d.length <= 2) { h = +d; m = 0; }
+        else if (d.length === 3) { h = +d.slice(0, 1); m = +d.slice(1); }
+        else { h = +d.slice(0, 2); m = +d.slice(2, 4); }
+        if (h > 23 || m > 59) return String(v);
+        return ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2);
+    }
+    function onBlur(e) {
+        var t = e.target;
+        if (!t.getAttribute || t.getAttribute('data-f') !== 'time') return;
+        var v = normTime(t.value);
+        if (v !== t.value) {
+            t.value = v;
+            var rowEl = t.closest('.cp-row'); var i = rowEl ? rowIndex(rowEl.getAttribute('data-id')) : -1;
+            if (i >= 0) { P.rows[i].time = v; save(); }
+        }
+    }
+    function onKey(e) {
+        if (e.key === 'Enter' && e.target && e.target.id === 'cpExtraIn') {
+            e.preventDefault();
+            var b = root.querySelector('[data-act="addextra"]'); if (b) b.click();
+        }
+    }
+
+    // ── 입구 ─────────────────────────────────────────────────────────────────────
+    function ensure() {
+        sec = $('campPlan');
+        if (!sec) return false;
+        if (!root) {
+            root = $('cpRoot');
+            if (!root) { root = document.createElement('div'); root.id = 'cpRoot'; sec.appendChild(root); }
+            root.addEventListener('click', onClick);
+            root.addEventListener('input', onInput);
+            root.addEventListener('change', onChange);
+            root.addEventListener('keydown', onKey);
+            root.addEventListener('focusout', onBlur);
+        }
+        injectStyle();
+        return true;
+    }
+
+    window.HohoCampPlan = {
+        open: function (champ) {
+            if (!champ || !champ.contentid || !ensure()) return;
+            cur = champ;
+            P = load(champ.contentid) || defaultPlan(champ);
+            save();
+            render();
+            sec.style.display = 'block';
+            try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { sec.scrollIntoView(); }
+        },
+        hide: function () {
+            var s = $('campPlan');
+            if (s) s.style.display = 'none';
+        }
+    };
+})();

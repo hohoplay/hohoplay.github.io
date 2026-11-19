@@ -251,6 +251,10 @@
     function render(result, self, today, target) {
         target = target || root;
         var picks = result.picks;
+        // [ADD] 2026-11-19: 다른 화면(캠핑 일정표)이 고른 곳을 재사용할 수 있게 넘겨 준다. 못 찾았으면 빈 배열.
+        if (typeof self.onPicks === 'function') {
+            try { self.onPicks(picks.map(function (c) { return { contentid: c.p.contentid, title: c.p.title, km: c.km, placeType: c.p.placeType || '' }; })); } catch (e) { /* 무시 */ }
+        }
         if (!picks.length) { target.style.display = 'none'; return; }
         injectStyle();
         target.innerHTML = '';
