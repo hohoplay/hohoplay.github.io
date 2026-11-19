@@ -313,7 +313,7 @@
         return '<div class="cp-row" data-id="' + r.id + '">' +
             '<div class="cp-tcol">' +
             '<input class="cp-time" type="text" inputmode="numeric" maxlength="5" value="' + esc(r.time) + '" data-f="time" placeholder="00:00" aria-label="시간 (24시간, 예 13:30)">' +
-            (pid ? '<a class="cp-detail" href="/festival/detail/' + pid + '.html" target="_blank" rel="noopener" aria-label="장소 상세페이지 (새 창)">상세보기</a>' : '') +
+            (pid ? '<a class="cp-detail" href="/festival/detail/' + pid + '.html" target="_blank" rel="noopener" aria-label="장소 상세페이지 (팝업)">상세보기</a>' : '') +
             '</div>' +
             '<div class="cp-col">' +
             '<textarea class="cp-title" rows="1" maxlength="60" data-f="title" placeholder="일정" aria-label="일정">' + esc(r.title) + '</textarea>' +
@@ -524,7 +524,51 @@
     function firstIndexOfDay(d) { for (var i = 0; i < P.rows.length; i++) if (P.rows[i].day === d) return i; return -1; }
     function newRow(day, time, title, k) { return { id: uid(), day: day, time: time || '', title: title || '', memo: '', k: k || 'x' }; }
 
+    // [ADD] 2026-11-19: 상세보기는 일정표 위에 겹쳐 뜨는 팝업창으로 연다(일정표 화면·입력 내용은 그대로 남는다).
+    // Ctrl/Shift/가운데 클릭이면 평소처럼 새 탭으로 연다. 팝업을 못 만드는 환경이면 링크가 그대로 새 창으로 열린다.
+    var popEl = null, popKey = null, popPrevFocus = null;
+    function closeDetail() {
+        if (!popEl) return;
+        try { document.body.removeChild(popEl); } catch (e) { /* 무시 */ }
+        popEl = null;
+        document.documentElement.style.overflow = popPrevOverflow;
+        if (popKey) { document.removeEventListener('keydown', popKey, true); popKey = null; }
+        if (popPrevFocus && popPrevFocus.focus) { try { popPrevFocus.focus(); } catch (e) { /* 무시 */ } }
+    }
+    var popPrevOverflow = '';
+    function openDetail(href, name) {
+        closeDetail();
+        popPrevFocus = document.activeElement;
+        var d = document.createElement('div');
+        d.id = 'cpPop';
+        d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', '장소 상세페이지');
+        d.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box';
+        d.innerHTML = '<div style="background:#fff;border-radius:16px;width:100%;max-width:760px;height:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)">' +
+            '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #e2e8f0;background:#f8fafc;flex:0 0 auto">' +
+            '<b style="font-size:14px;color:#0f172a;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📄 ' + esc(name || '장소 상세페이지') + '</b>' +
+            '<a href="' + esc(href) + '" target="_blank" rel="noopener" style="font-size:12px;font-weight:800;color:#4f46e5;text-decoration:none;white-space:nowrap">새 창으로 열기 ↗</a>' +
+            '<button type="button" id="cpPopX" aria-label="닫기" style="border:1px solid #cbd5e1;background:#fff;border-radius:8px;width:34px;height:30px;font-size:15px;font-weight:800;color:#334155;cursor:pointer;padding:0">✕</button>' +
+            '</div>' +
+            '<iframe src="' + esc(href) + '" title="장소 상세페이지" style="border:0;width:100%;flex:1 1 auto;min-height:0;background:#fff"></iframe></div>';
+        d.addEventListener('click', function (ev) { if (ev.target === d) closeDetail(); });
+        document.body.appendChild(d);
+        popEl = d;
+        popPrevOverflow = document.documentElement.style.overflow;
+        document.documentElement.style.overflow = 'hidden';
+        var x = d.querySelector('#cpPopX'); x.addEventListener('click', closeDetail); try { x.focus(); } catch (e) { /* 무시 */ }
+        popKey = function (ev) { if (ev.key === 'Escape') { ev.preventDefault(); closeDetail(); } };
+        document.addEventListener('keydown', popKey, true);
+    }
     function onClick(e) {
+        var dl = e.target.closest ? e.target.closest('a.cp-detail') : null;
+        if (dl && root.contains(dl)) {
+            if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;      // 새 탭 열기는 기본 동작 그대로
+            e.preventDefault();
+            var nm = ''; var re = dl.closest('.cp-row'); var ta = re ? re.querySelector('.cp-title') : null;
+            if (ta) nm = String(ta.value || '').replace(/^\S+\s/, '').trim();
+            openDetail(dl.getAttribute('href'), nm);
+            return;
+        }
         var t = e.target.closest ? e.target.closest('[data-act]') : null;
         if (!t || !root.contains(t)) return;
         var act = t.getAttribute('data-act');
@@ -699,6 +743,7 @@
             try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { sec.scrollIntoView(); }
         },
         hide: function () {
+            closeDetail();
             var s = $('campPlan');
             if (s) s.style.display = 'none';
         }
