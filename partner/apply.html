@@ -103,6 +103,7 @@
         <select id="category">
           <option value="">선택해 주세요</option>
           <option>식당</option>
+          <option>카페</option>
           <option>키즈카페</option>
           <option>숙소</option>
           <option>체험·놀이시설</option>
@@ -288,6 +289,7 @@
       var code = p.category_group_code || '', nm = (p.category_name || '') + ' ' + (p.place_name || '');
       if (/키즈카페/.test(nm)) $('category').value = '키즈카페';
       else if (code === 'FD6') $('category').value = '식당';
+      else if (code === 'CE7') $('category').value = '카페';
       else if (code === 'AD5') $('category').value = '숙소';
     }
     hideSug();
