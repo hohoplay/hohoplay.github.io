@@ -97,6 +97,9 @@
   .pz-cw .pz-card { border: 0; border-radius: 0; flex: 1; }
   .pz-cw .pz-card:hover { transform: none; box-shadow: none; }
   .pz-cw:hover { box-shadow: 0 6px 18px rgba(15,23,42,.10); }
+  .pz-acth { padding: 0 11px 5px; font-size: 11px; font-weight: 700; color: #94a3b8; line-height: 1.4; }
+  .pz-hint { margin: -4px 0 10px; font-size: 12px; color: #4f46e5; line-height: 1.5; font-weight: 700; }
+  .pz-hint b { color: #3730a3; }
   .pz-act { display: flex; gap: 6px; padding: 0 8px 10px; }
   .pz-act button { flex: 1; min-width: 0; font: inherit; font-size: 12px; font-weight: 800; line-height: 1.3; padding: 8px 4px; border-radius: 10px; border: 1px solid #c7d2fe; background: #eef2ff; color: #3730a3; cursor: pointer; word-break: keep-all; }
   .pz-act button.alt { border-color: #a7f3d0; background: #ecfdf5; color: #065f46; }
@@ -530,7 +533,7 @@ function toggleMenu() {
       '<div class="pz-photo' + (it.img ? '' : ' pz-none') + '">' + (b.c ? '<span class="pz-badge ' + b.c + '">' + esc(b.t) + '</span>' : '') + photo + (dd ? '<span class="pz-dday ' + dd.c + '">' + esc(dd.t) + '</span>' : '') + '</div>' +
       '<div class="pz-body"><h3 class="pz-title">' + esc(it.title) + '</h3>' +
       '<p class="pz-meta"><span>' + esc(it.region) + '</span><span>' + esc(it.long && it.e - it.s > 330 ? '연중 운영' : fmtRange(it.s, it.e)) + '</span>' + (it.fee ? '<span class="pz-fee-tag ' + it.fee + '">' + esc(FEE_LABEL[it.fee]) + '</span>' : '') + '</p></div></a>' +
-      '<div class="pz-act"><button type="button" data-plan="' + esc(it.id) + '" data-v="solo" aria-label="' + esc(it.title) + ' 축제 일정표 만들기">🗓️ 축제만</button>' +
+      '<div class="pz-acth">눌러서 하루 일정표 만들기</div><div class="pz-act"><button type="button" data-plan="' + esc(it.id) + '" data-v="solo" aria-label="' + esc(it.title) + ' 축제 일정표 만들기">🗓️ 축제만</button>' +
       '<button type="button" class="alt" data-plan="' + esc(it.id) + '" data-v="near" aria-label="' + esc(it.title) + ' 축제와 주변 나들이 1일 코스 일정표 만들기">🧸 +나들이</button></div></div>';
   }
   // 원형 이모지 버튼 하나. 건수가 0이면 흐리게(눌러도 되지만 결과가 없다는 뜻).
@@ -603,7 +606,7 @@ function toggleMenu() {
           return '<button type="button" class="pz-schip" data-sec="' + sec.id + '" data-stheme="' + t.key + '" aria-pressed="' + (cur === t.key) + '"' + (tc[t.key] ? '' : ' disabled') + '>' + t.emoji + ' ' + esc(t.name) + '<small>' + tc[t.key] + '</small></button>';
         }).join('') + '</div>';
       }
-      var block = '<section class="pz-sec" id="sec-' + sec.id + '"><h2>' + esc(sec.title) + '<small>' + list.length + '곳</small></h2><p class="pz-desc">' + esc(desc) + '</p>' + chips + '<div class="pz-grid">' +
+      var block = '<section class="pz-sec" id="sec-' + sec.id + '"><h2>' + esc(sec.title) + '<small>' + list.length + '곳</small></h2><p class="pz-desc">' + esc(desc) + '</p><p class="pz-hint">🗓️ 카드 아래 <b>축제만</b>은 축제 하나로, <b>+나들이</b>는 근처 아이랑 장소까지 담아 하루 일정표를 만들어 드려요.</p>' + chips + '<div class="pz-grid">' +
         list.map(function (it) { var lazy = (sec.id !== 'deadline') && n++ >= 6; return cardHtml(it, lazy); }).join('') + '</div></section>';
       if (sec.id === 'deadline') topHtml += block; else { html += block; navItems.push({ id: sec.id, title: sec.title, n: list.length }); }   // '오늘까지! 놓치면 끝'은 지역·주제 버튼 위, 맨 위에 둔다
     });
