@@ -3783,15 +3783,34 @@ function toggleMenu() {
             let schedule = [];
             // 시간표를 짜 봤는데 도착했을 때 이미 문 닫을 시간인 곳(운영시간을 읽은 곳, 또는 아이랑 장소의 기본 가정)은
             // 빼고 다음 후보로 바꿔 다시 짠다. 후보가 모자라면(3곳 미만) 그 지역 코스는 만들지 않는다.
-            for (let tries = 0; tries < 12; tries++) {
+            const badOf = function (sch) {
+                return sch.filter(function (x) {
+                    return ((x.win.known || x.item.type === 'kids') && x.start + 30 > x.win.close) || x.end > 1410;   // 23:30을 넘기는 일정도 제외
+                }).map(function (x) { return x.item; });
+            };
+            if (!group.seed) {
+                // [FIX] 2026-11-19: 예전엔 앞 4곳으로 시간표를 짜 보고 "시간이 안 맞는 곳"을 한꺼번에 영구 제외했다. 그래서 늦은 시간에는
+                // 앞 장소들이 시간을 쓰는 바람에 뒤에 놓인 곳(혼자라면 갈 수 있는 곳)까지 통째로 사라져서, 코스가 1~3곳으로 줄었다
+                // (예: 오후 3시 반에 청주 코스에서 17:30 마감인 국립청주해양과학관이 빠짐). 이제는 우선순위 순서대로 한 곳씩 넣어 보고,
+                // 시간표가 맞는 곳만 담는다 → 갈 수 있는 곳이 최대 4곳까지 채워진다.
+                let picked = [];
+                for (let ci = 0; ci < pref.length && picked.length < MAX_COURSE_PLACES; ci++) {
+                    const trial = picked.concat([pref[ci]]);
+                    if (!badOf(scheduleCourseItems(trial, ctx)).length) picked = trial;
+                }
+                if (picked.length) {
+                    // 늦게까지 하는 아이랑 장소가 이 지역에 있으면 저녁 칸에 쓸 수 있게 한 곳을 바꿔 넣는다(바꿔도 시간표가 맞을 때만).
+                    const ev = ensureEveningPick(picked, pref, ctx);
+                    if (ev !== picked && !badOf(scheduleCourseItems(ev, ctx)).length) picked = ev;
+                    schedule = scheduleCourseItems(picked, ctx);
+                }
+            } else for (let tries = 0; tries < 12; tries++) {
                 let picked = pref.slice(0, MAX_COURSE_PLACES);
                 // 늦게까지 하는 아이랑 장소가 이 지역에 있으면 저녁 칸에 쓸 수 있게 한 곳을 바꿔 넣는다.
                 picked = ensureEveningPick(picked, pref, ctx);
                 if (group.seed && picked.indexOf(group.seed) < 0) picked[picked.length - 1] = group.seed;
                 schedule = scheduleCourseItems(picked, ctx);
-                const bad = schedule.filter(function (x) {
-                    return ((x.win.known || x.item.type === 'kids') && x.start + 30 > x.win.close) || x.end > 1410;   // 23:30을 넘기는 일정도 제외
-                }).map(function (x) { return x.item; });
+                const bad = badOf(schedule);
                 if (!bad.length) break;
                 pref = pref.filter(function (it) { return bad.indexOf(it) < 0; });
                 if (pref.length < gMin) { schedule = []; break; }
