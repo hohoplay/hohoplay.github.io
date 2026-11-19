@@ -4206,6 +4206,8 @@ function toggleMenu() {
     // 요약 줄의 "닫기": 번호 핀을 걷어내고, 코스 목록을 그렸을 때와 같은 일반 마커 화면으로 되돌린다.
     function exitCourseMapView() {
         closeFestivalCard();
+        // [ADD] 2026-11-19: "이 장소 주변 코스"를 보던 중 지도 위 "✕ 닫기"를 누르면, 코스 추천 처음 화면(지역 코스)으로 돌아간다.
+        if (courseSeedItem) { clearSeedCourse(); return; }
         const all = [];
         currentCourses.forEach(function (course) { all.push.apply(all, course.items); });
         renderMarkers(all);   // 안에서 번호 핀·요약 줄도 함께 정리된다
