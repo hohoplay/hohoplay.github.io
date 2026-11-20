@@ -1319,6 +1319,31 @@ function toggleMenu() {
         }
     })();
 
+    // [ADD] 2026-11-20: 계절 테마는 제철이 아닐 때 테마 드롭다운에서 자동으로 숨긴다
+    // (무더위쉼터와 같은 방식 — 날짜만 보고 매년 자동으로 켜지고 꺼진다, 코드 수정 불필요).
+    // [시작월, 끝월] 이고 시작>끝이면 연말을 넘기는 구간(예: 11~3월). 개화·단풍·눈 시기보다
+    // 한두 달 앞서 보이게 잡아서 미리 나들이를 계획할 수 있게 했다. 구간을 바꾸려면 아래
+    // 숫자만 고치면 된다. 여기 없는 테마(특산물·불꽃·수목원/공원·캠핑장)는 항상 보인다.
+    (function hideThemeOptionsOutOfSeason() {
+        const THEME_OPTION_MONTHS = {
+            cherry:      [2, 5],   // 벚꽃: 2~5월
+            foliage:     [9, 11],  // 단풍: 9~11월
+            winter:      [11, 3],  // 겨울/눈: 11~3월
+            flower:      [3, 10],  // 꽃: 3~10월
+            watersports: [6, 9]    // 수상레저: 6~9월
+        };
+        const m = new Date().getMonth() + 1;
+        const sel = document.getElementById('themeSelect');
+        if (!sel) return;
+        Object.keys(THEME_OPTION_MONTHS).forEach(function (key) {
+            const r = THEME_OPTION_MONTHS[key];
+            const inRange = r[0] <= r[1] ? (m >= r[0] && m <= r[1]) : (m >= r[0] || m <= r[1]);
+            if (inRange) return;
+            const opt = sel.querySelector('option[value="' + key + '"]');
+            if (opt) opt.remove();
+        });
+    })();
+
     const container = document.getElementById('map');
     const mapOption = { center: new kakao.maps.LatLng(36.3504, 127.3845), level: 11 };
     const map = new kakao.maps.Map(container, mapOption);
