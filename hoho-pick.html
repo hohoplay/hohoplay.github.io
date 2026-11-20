@@ -1,4 +1,8 @@
 <style>
+/* [FIX] 2026-11-20: 바로가기 메뉴(줄바꿈 없는 칩 5개)가 길어서, 호호픽을 끼워 넣은 페이지(예: /blog/)에서 호호픽 영역이 화면보다 넓어졌다.
+   모바일에서 페이지 전체가 가로로 넓어져 호호픽만 커 보이던 문제 — 영역 폭을 화면 폭 안으로 묶고(좁은 화면에서만), 메뉴는 줄 안에서 옆으로 밀리게 한다. */
+#hoho-pick-placeholder{box-sizing:border-box;min-width:0;}
+@media(max-width:720px){#hoho-pick-placeholder{max-width:100% !important;}}
 .curated-board{background:#fff;border:1px solid #f1f5f9;border-radius:20px;padding:6px 22px;}
 .curated-board-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 2px;border-bottom:1px solid #f1f5f9;}
 .curated-more{font-size:12px;font-weight:800;color:#7c3aed;text-decoration:none;white-space:nowrap;}
