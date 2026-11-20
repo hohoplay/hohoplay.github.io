@@ -2203,6 +2203,14 @@ function toggleMenu() {
         const cardImg = document.getElementById('cardImg');
         if (item.image) {
             cardImg.src = item.image;
+            cardImg.alt = '포스터';
+            cardImg.classList.remove('no-image');
+        } else if (item.type === 'kids') {
+            // [ADD] 2026-11-20: 사진이 없는 아이랑 나들이 장소는 유형별 일러스트("사진 준비 중")로 대신 보여준다.
+            // 실제 장소 사진이 아니라는 점이 이미지 안의 문구로 드러나게 했고, 저작권 문제가 없는 직접 만든 SVG다.
+            // (상세페이지는 scripts/generate_kids_detail_pages.py가 같은 규칙으로 넣는다 — 규칙을 바꾸면 둘 다 바꿔야 함)
+            cardImg.src = '/data/placeholders/' + kidsPlaceholderCategory(item) + '.svg';
+            cardImg.alt = (item.title || '장소') + ' 사진 준비 중';
             cardImg.classList.remove('no-image');
         } else {
             cardImg.src = '';
@@ -2584,6 +2592,22 @@ function toggleMenu() {
         }
         return false;
     }
+    // [ADD] 2026-11-20: 사진 없는 아이랑 나들이 장소의 일러스트 유형. 위에서부터 먼저 맞는 규칙을 쓴다.
+    // scripts/generate_kids_detail_pages.py 의 category()와 같은 규칙이어야 한다.
+    const KIDS_PLACEHOLDER_RULES = [
+        ['animal', /동물|먹이주기|목장|농장|알파카|양떼|수달|곤충|파충류/],
+        ['aqua', /아쿠아|수족관|고래|해양|물고기|바다/],
+        ['museum', /박물관|미술관|전시|과학관|천문|기념관|문화관|도서관|갤러리|미디어아트|뮤지엄/],
+        ['play', /키즈카페|놀이터|놀이|랜드|볼풀|트램폴린|어드벤처/],
+        ['exp', /체험|만들기|공방|직업|교육관|안전/],
+        ['nature', /수목원|공원|숲|정원|산|해변|호수|계곡|둘레길|생태|습지|꽃|농원/]
+    ];
+    function kidsPlaceholderCategory(item) {
+        const t = (item.title || '') + ' ' + (item.desc || '');
+        for (const r of KIDS_PLACEHOLDER_RULES) { if (r[1].test(t)) return r[0]; }
+        return item.placeType === '실내' ? 'indoor' : (item.placeType === '실외' || item.placeType === '실내외') ? 'outdoor' : 'indoor';
+    }
+
 
     function escapeHtml(str) {
         const div = document.createElement('div');
