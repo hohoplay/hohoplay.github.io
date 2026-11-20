@@ -248,10 +248,10 @@
             '#campPlan h3{margin:18px 0 8px;font-size:15px;font-weight:900;color:#0f172a;display:flex;align-items:center;justify-content:space-between;gap:8px}' +
             '#campPlan .cp-dayhd{background:#ecfdf5;border-radius:10px;padding:7px 12px;font-size:14px;font-weight:900;color:#065f46;margin:14px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}' +
             '#campPlan .cp-row{display:flex;gap:8px;align-items:flex-start;border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:8px;margin-bottom:8px}' +
-            '#campPlan .cp-time{width:72px;flex:0 0 auto;text-align:center;font-weight:800}' +
+            '#campPlan .cp-time{width:104px;flex:0 0 auto;text-align:center;font-weight:800;font-size:13px;padding:7px 4px}' +
             '#campPlan .cp-col{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}' +
             '#campPlan .cp-col input{width:100%}' +
-            '#campPlan .cp-tcol{flex:0 0 72px;width:72px;display:flex;flex-direction:column;gap:6px}' +
+            '#campPlan .cp-tcol{flex:0 0 104px;width:104px;display:flex;flex-direction:column;gap:6px}' +
             '#campPlan .cp-tcol .cp-time{width:100%}' +
             '#campPlan .cp-detail{display:block;text-align:center;font-size:12px;font-weight:800;color:#4f46e5;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:5px 0;text-decoration:none;line-height:1.2}' +
             '#campPlan .cp-detail:hover{background:#e0e7ff}' +
@@ -343,11 +343,22 @@
         tags.forEach(function (t) { h += '<span class="cp-bd' + (t[0] ? ' ' + esc(t[0]) : '') + '">' + esc(t[1]) + '</span>'; });
         return h + '</div>';
     }
+    // [CHG] 2026-11-20: 시간 칸을 시간 입력창(type=time)으로 — 숫자 직접 입력도 되고 시간 선택창(드롭다운·휠)도 열린다.
+    // 예전에 저장된 글자(예: 1330)는 HH:MM으로 바꿔 보여주고, 알아볼 수 없으면 빈 칸으로 둔다(저장값은 그대로).
+    function timeVal(v) {
+        var s = String(v || '');
+        if (/^\d{2}:\d{2}$/.test(s)) return s;
+        var d = s.replace(/[^0-9]/g, ''), h, m;
+        if (!d) return '';
+        if (d.length <= 2) { h = +d; m = 0; } else if (d.length === 3) { h = +d.slice(0, 1); m = +d.slice(1); } else { h = +d.slice(0, 2); m = +d.slice(2, 4); }
+        if (h > 23 || m > 59) return '';
+        return ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2);
+    }
     function rowHtml(r) {
         var pid = rowPid(r);
         return '<div class="cp-row" data-id="' + r.id + '">' +
             '<div class="cp-tcol">' +
-            '<input class="cp-time" type="text" inputmode="numeric" maxlength="5" value="' + esc(r.time) + '" data-f="time" placeholder="00:00" aria-label="시간 (24시간, 예 13:30)">' +
+            '<input class="cp-time" type="time" step="300" value="' + esc(timeVal(r.time)) + '" data-f="time" aria-label="시간 (직접 입력하거나 선택, 예 13:30)">' +
             (pid ? '<a class="cp-detail" href="/festival/detail/' + pid + '.html" aria-label="장소 상세페이지 (팝업)">상세보기</a>' : '') +
             '</div>' +
             '<div class="cp-col">' +
