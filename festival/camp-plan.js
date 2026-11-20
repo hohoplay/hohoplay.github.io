@@ -148,13 +148,6 @@
         }
         return [first, second || a[1]];
     }
-    function nearRow(n, time) {
-        var meta = [];
-        if (n.km != null) meta.push(cfg.fromLabel + ' 약 ' + fmtKm(n.km));
-        if (n.placeType) meta.push(n.placeType);
-        meta.push('운영시간 확인');
-        return { id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n', pid: n.contentid || '' };
-    }
     function costLabel(c) {
         var t = c && c.costTag;
         if (t === '완전무료') return '무료';
@@ -162,17 +155,38 @@
         if (t === '유료(일부 무료 조건 있음)') return '일부 무료';
         return '요금 확인 필요';
     }
+    // [ADD] 2026-11-20: 일정 줄에 "실내/실외 · 무료/유료" 배지를 보여 준다. 줄을 만들 때 tg 로 함께 저장해 두므로
+    // 저장된 일정을 다시 열어도, 근처 장소 목록이 아직 안 불러와져 있어도 그대로 보인다. (c: free=초록, in/out=파랑 계열)
+    function tagsOf(src) {
+        var t = [];
+        if (!src) return t;
+        if (src.placeType === '실내') t.push(['in', '🏠 실내']);
+        else if (src.placeType === '실외') t.push(['out', '🌳 야외']);
+        else if (src.placeType === '실내외') t.push(['in', '🏠🌳 실내·야외']);
+        if (src.costTag !== undefined) t.push([src.costTag === '완전무료' ? 'free' : '', costLabel(src)]);
+        return t;
+    }
+    function festTags(f) {
+        var ft = f && f.feeType;
+        if (ft === 'free') return [['free', '무료']];
+        if (ft === 'paid') return [['', '유료']];
+        if (ft === 'mixed') return [['', '일부 유료']];
+        return [['', '요금 확인 필요']];
+    }
+    function nearRow(n, time) {
+        var meta = [];
+        if (n.km != null) meta.push(cfg.fromLabel + ' 약 ' + fmtKm(n.km));
+        meta.push('운영시간 확인');
+        return { id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n', pid: n.contentid || '', tg: tagsOf(n) };
+    }
     var defNearOff = false;
     function dayDefaultPlan(champ) {
         var forest = cfg.kind === 'forest';
         var two = defNearOff ? [] : pickTwo(champ._near);
-        var memo = [];
-        if (champ.placeType) memo.push(champ.placeType);
-        memo.push(costLabel(champ));
-        memo.push('운영시간 확인');
+        var memo = ['운영시간 확인'];
         var rows = [
             { id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' },
-            { id: uid(), day: 1, time: '10:30', title: cfg.icon + ' ' + champ.title, memo: memo.join(' · '), k: 'c', pid: champ.hasDetail === false ? '' : champ.contentid },
+            { id: uid(), day: 1, time: '10:30', title: cfg.icon + ' ' + champ.title, memo: memo.join(' · '), k: 'c', pid: champ.hasDetail === false ? '' : champ.contentid, tg: tagsOf(champ) },
             { id: uid(), day: 1, time: forest ? '12:30' : '12:00', title: forest ? '점심 · 도시락' : '점심 · 휴식', memo: forest ? '도시락 또는 근처 식당' : '근처 식당 찾기', k: 'x' }
         ];
         var times = forest ? (two.length >= 2 ? ['14:00', '16:00'] : ['14:30']) : (two.length >= 2 ? ['13:30', '15:30'] : ['14:00']);
@@ -246,6 +260,10 @@
             '#campPlan .cp-add textarea{flex:1 1 auto;width:auto;min-width:0}' +
             '#campPlan .cp-title{font-weight:800}' +
             '#campPlan .cp-memo{font-size:13px!important;color:#475569}' +
+            '#campPlan .cp-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}' +
+            '#campPlan .cp-bd{display:inline-block;font-size:11.5px;font-weight:800;line-height:1;padding:4px 8px;border-radius:999px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}' +
+            '#campPlan .cp-bd.in,#campPlan .cp-bd.out{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}' +
+            '#campPlan .cp-bd.free{background:#ecfdf5;color:#047857;border-color:#a7f3d0}' +
             '#campPlan .cp-btns{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}' +
             '#campPlan .cp-ib{border:1px solid #cbd5e1;background:#fff;border-radius:8px;width:34px;height:30px;font-size:14px;font-weight:800;color:#334155;cursor:pointer;padding:0}' +
             '#campPlan .cp-ib:hover{background:#f1f5f9}' +
@@ -308,6 +326,23 @@
         }
         return /^[A-Za-z0-9_\-]+$/.test(String(id || '')) ? String(id) : '';
     }
+    // 예전에 저장된 줄(tg 없음)은 지금 열린 장소·근처 목록에서 찾아 본다. 못 찾으면 배지를 안 보여 준다.
+    function rowTags(r) {
+        if (r && r.tg) return r.tg;
+        if (!cur || !r) return [];
+        if (r.k === 'c') return tagsOf(cur);
+        if (r.k === 'n' && cur._near) {
+            var pid = rowPid(r);
+            for (var i = 0; i < cur._near.length; i++) { if (cur._near[i] && pid && cur._near[i].contentid === pid) return tagsOf(cur._near[i]); }
+        }
+        return [];
+    }
+    function chipsHtml(tags) {
+        if (!tags || !tags.length) return '';
+        var h = '<div class="cp-chips" aria-label="장소 정보">';
+        tags.forEach(function (t) { h += '<span class="cp-bd' + (t[0] ? ' ' + esc(t[0]) : '') + '">' + esc(t[1]) + '</span>'; });
+        return h + '</div>';
+    }
     function rowHtml(r) {
         var pid = rowPid(r);
         return '<div class="cp-row" data-id="' + r.id + '">' +
@@ -318,6 +353,7 @@
             '<div class="cp-col">' +
             '<textarea class="cp-title" rows="1" maxlength="60" data-f="title" placeholder="일정" aria-label="일정">' + esc(r.title) + '</textarea>' +
             '<textarea class="cp-memo" rows="1" maxlength="100" data-f="memo" placeholder="메모 (예: 예약번호, 준비할 것)" aria-label="메모">' + esc(r.memo) + '</textarea>' +
+            chipsHtml(rowTags(r)) +
             '</div>' +
             '<div class="cp-btns">' +
             '<button type="button" class="cp-ib" data-act="up" aria-label="위로">↑</button>' +
@@ -492,7 +528,8 @@
             P.rows.forEach(function (r) {
                 if (r.day !== d) return;
                 any = true;
-                h += '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.title) + '</td><td>' + esc(r.memo) + '</td></tr>';
+                var tgs = rowTags(r).map(function (t) { return t[1]; }).join(' · ');
+                h += '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.title) + (tgs ? '<div style="font-size:11px;color:#555">' + esc(tgs) + '</div>' : '') + '</td><td>' + esc(r.memo) + '</td></tr>';
             });
             if (!any) h += '<tr><td colspan="3">&nbsp;</td></tr>';
             h += '</table>';
@@ -579,7 +616,7 @@
             if (!fx) return;
             var fi = -1; P.rows.forEach(function (rr, x) { if (fi < 0 && rr.day === 1 && rr.k === 'out') fi = x; });
             if (fi < 0) fi = lastIndexOfDay(1) + 1;
-            P.rows.splice(fi, 0, { id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f', pid: fx.f.contentid || fx.f.id || '' });
+            P.rows.splice(fi, 0, { id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f', pid: fx.f.contentid || fx.f.id || '', tg: festTags(fx.f) });
         } else if (act === 'addextra') {
             var inp = $('cpExtraIn'); var v = inp ? inp.value.trim() : '';
             if (!v) return;
