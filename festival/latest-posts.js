@@ -30,6 +30,7 @@
       });
       h += '</ul><p style="margin:10px 0 0;"><a href="/blog/" class="detail-link">매거진 전체 보기 →</a></p>';
       box.innerHTML = h;
+      box.style.display = '';
     })
     .catch(hide);
 })();
