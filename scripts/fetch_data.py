@@ -326,6 +326,44 @@ def build_detail_page_html(festival, overview, intro):
         if program else ''
     )
 
+    # [CHANGE] 2026-11-21: 앞으로 새로 만들어지는 축제 상세페이지는 아이랑 나들이 장소 상세페이지(kids_detail_template.html)와
+    # 같은 구성으로 만든다: 제목 → 인사 → 사진 → 목차 → 번호 섹션 → 호호매거진 최신 글 → 이 근처 나들이픽.
+    # 이미 만들어진 축제 페이지는 건드리지 않는다(patch_existing_detail_pages 가 끼워 넣는 표식 — 📅 날짜, <h1, 이용요금 행,
+    # "지도로 돌아가기" 줄, <div id="site-footer"> — 은 모두 그대로 유지해서 기존 후처리가 새 페이지에도 똑같이 동작한다).
+    _addr_tokens = addr.split()
+    _region = ' '.join(_addr_tokens[:2]) if len(_addr_tokens) >= 2 else (_addr_tokens[0] if _addr_tokens else '')
+    if _region:
+        greeting = f"{_region}에서 열리는 행사, <b>{title}</b> 정보를 정리했어요. 기간은 {date_label}이에요."
+    else:
+        greeting = f"<b>{title}</b> 정보를 정리했어요. 기간은 {date_label}이에요."
+
+    _sec_names = ['장소·문의', '일정·요금', '행사 소개']
+    if program:
+        _sec_names.append('프로그램')
+    _sec_names.append('방문 전 체크리스트')
+    _sec_names.append('위치')
+    toc_items = ''.join(f'<li><a href="#pt-s{i + 1}">{n}</a></li>' for i, n in enumerate(_sec_names))
+    n_prog = 4 if program else None
+    n_check = len(_sec_names) - 1
+    n_map = len(_sec_names)
+    program_section = (
+        f'<div class="detail-card" id="pt-s4"><h2 class="pt-h2">4. 프로그램</h2>'
+        f'<div class="detail-overview">{program}</div></div>'
+        if program else ''
+    )
+    try:
+        _lat_num = float(lat)
+        _lng_num = float(lng)
+        np_script = (
+            '<script>window.addEventListener("load",function(){try{if(window.HohoNearbyPick){'
+            'window.HohoNearbyPick.mount(document.getElementById("nearby-pick"),'
+            '{contentid:"' + str(festival.get('contentid') or '') + '",title:' + json.dumps(festival.get('title') or '이 행사', ensure_ascii=False)
+            + ',lat:' + repr(_lat_num) + ',lng:' + repr(_lng_num) + '});}}catch(e){}});</script>'
+        )
+    except (TypeError, ValueError):
+        np_script = ''  # 좌표가 없는 행사는 근처 나들이픽을 만들 수 없어 칸만 비워 둔다
+    map_section_link = map_link_html or '<span style="font-size:13px;color:#94a3b8">위치 좌표 정보가 없습니다.</span>'
+
     return f'''<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -355,6 +393,22 @@ def build_detail_page_html(festival, overview, intro):
   .detail-link {{ color: #1a73e8; font-weight: 700; text-decoration: none; }}
   .detail-link:hover {{ text-decoration: underline; }}
   .detail-overview {{ font-size: 14px; color: #444; line-height: 1.6; white-space: pre-line; }}
+  .kids-badge {{ display: inline-block; font-size: 11px; font-weight: 800; color: #1a73e8; background: #eef2ff; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }}
+  .visit-check h2 {{ font-size: 15px; font-weight: 800; color: #111; margin: 0 0 6px; }}
+  .visit-check ul {{ list-style: none; margin: 0; padding: 0; }}
+  .visit-check li {{ font-size: 14px; color: #334155; line-height: 1.6; padding: 9px 0; border-bottom: 1px solid #f1f5f9; }}
+  .visit-check li:last-child {{ border-bottom: none; }}
+  .visit-check li b {{ color: #111; }}
+  .pt-hello {{ font-size: 15px; line-height: 1.7; color: #334155; margin: 0 0 16px; }}
+  .pt-toc summary {{ cursor: pointer; font-weight: 800; font-size: 15px; color: #111; }}
+  .pt-toc ol {{ margin: 10px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.9; }}
+  .pt-toc a {{ color: #1a73e8; text-decoration: none; font-weight: 600; }}
+  .pt-h2 {{ font-size: 16px; font-weight: 800; color: #111; margin: 0 0 8px; }}
+  .pt-links {{ list-style: none; margin: 6px 0 0; padding: 0; }}
+  .pt-links li {{ padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }}
+  .pt-links li:last-child {{ border-bottom: none; }}
+  .pt-sub {{ font-size: 12px; color: #94a3b8; margin-left: 6px; }}
+  html {{ scroll-behavior: smooth; }}
 </style>
 </head>
 <body>
@@ -363,26 +417,63 @@ def build_detail_page_html(festival, overview, intro):
     <a href="/festival/" class="detail-back" style="margin-bottom:0;">← 지도로 돌아가기</a>
     <a href="/" style="color:#1a73e8; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>
   </div>
-  {image_html}
   <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:8px;">{title}</h1>
-  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:20px;">📅 {date_label}</p>
+  <p style="font-size:13px; color:#ff5722; font-weight:700; margin-bottom:12px;">📅 {date_label}</p>
+  <span class="kids-badge">🎪 축제·행사</span>
+  <p class="pt-hello">{greeting}</p>
+  {image_html}
 
-  <div class="detail-card">
+  <details class="detail-card pt-toc" open>
+    <summary>📚 이 페이지 목차</summary>
+    <ol>{toc_items}</ol>
+  </details>
+
+  <div class="detail-card" id="pt-s1">
+    <h2 class="pt-h2">1. 장소·문의</h2>
     <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">{addr}{(' · ' + eventplace) if eventplace else ''}</div></div>
-    {time_rows}<div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">{fee}</div></div>
     <div class="detail-row"><div class="detail-label">주최/주관</div><div class="detail-value">{sponsor_label}</div></div>
     <div class="detail-row"><div class="detail-label">대표번호</div><div class="detail-value">{tel or '정보 없음'}</div></div>
     <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value">{homepage_raw or '정보 없음'}</div></div>
   </div>
 
-  <div class="detail-card">
+  <div class="detail-card" id="pt-s2">
+    <h2 class="pt-h2">2. 일정·요금</h2>
+    <div class="detail-row"><div class="detail-label">기간</div><div class="detail-value">{date_label}</div></div>
+    {time_rows}<div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">{fee}</div></div>
+  </div>
+
+  <div class="detail-card" id="pt-s3">
+    <h2 class="pt-h2">3. 행사 소개</h2>
     <div class="detail-overview">{overview_html}</div>
   </div>
 
-  {program_block}
+  {program_section}
 
-  <div style="margin-top:20px;">{map_link_html}</div>
+  <div class="detail-card visit-check" id="pt-s{n_check}">
+    <h2 class="pt-h2">{n_check}. ✅ 방문 전 체크리스트</h2>
+    <ul>
+      <li><b>일정부터</b> — 행사 기간·시간은 바뀌거나 취소될 수 있어요. 위의 홈페이지나 전화로 확인해 주세요.</li>
+      <li><b>주차·교통</b> — 행사장 주변은 혼잡할 수 있어요. 주차 가능 여부와 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.</li>
+      <li><b>날씨</b> — 야외에서 열리는 행사라면 당일 날씨와 아이 복장을 확인하고, 비 올 때 갈 실내 대안을 챙겨 두세요.</li>
+      <li><b>아이 동반</b> — 유모차 이용, 수유실, 반려동물 동반 가능 여부는 행사마다 달라요. 필요하면 미리 문의해 보세요.</li>
+    </ul>
+  </div>
+
+  <div class="detail-card" id="pt-s{n_map}">
+    <h2 class="pt-h2">{n_map}. 위치</h2>
+    <p style="font-size:14px;color:#334155;margin:0 0 6px;line-height:1.6;">{addr}</p>
+    <div>{map_section_link}</div>
+  </div>
 </div>
+<!-- [2026-11-21] 호호매거진 최신 글 + 이 근처 나들이픽: 둘 다 페이지를 열 때 스크립트가 채운다(festival/latest-posts.js, festival/nearby-pick.js).
+     글이 없거나 불러오기에 실패하면 칸이 스스로 숨는다. -->
+<div style="max-width:640px;margin:0 auto 16px;padding:0 20px;box-sizing:border-box;">
+  <div class="detail-card" id="latest-magazine" style="display:none"></div>
+</div>
+<script src="/festival/latest-posts.js?v=20261121" defer></script>
+<div id="nearby-pick"></div>
+<script src="/festival/nearby-pick.js" defer></script>
+{np_script}
 <div id="site-footer"></div>
 <script>
     fetch('/footer.html')
@@ -423,7 +514,21 @@ def generate_detail_pages(festivals):
             continue
         out_path = os.path.join(detail_dir, f'{content_id}.html')
         if os.path.exists(out_path):
-            continue  # 이미 생성된 페이지는 건드리지 않음
+            # [FIX] 2026-11-21: TourAPI는 같은 행사의 다음 회차(예: 제3차 → 제4차)나 일정이 바뀐 행사에 같은 contentid를
+            # 그대로 쓴다. 예전엔 "이미 있으면 무조건 건너뜀"이라, 지도 카드는 새 일정(제4차 11.21~11.22)인데 상세보기를
+            # 누르면 옛 회차(제3차 10.17~10.18, "종료되었어요" 배너)가 열렸다. 이제는 페이지에 적힌 행사 기간이 이번 데이터의
+            # 기간과 다를 때만 그 한 건을 다시 만든다(기간이 같으면 예전처럼 건드리지 않음 — TourAPI 호출도 그만큼만 늘어남).
+            _s, _e = f.get('startDate') or '', f.get('endDate') or ''
+            _fmt = lambda raw: (f"{raw[:4]}.{raw[4:6]}.{raw[6:8]}" if len(raw) == 8 else raw)
+            _expected = f"{_fmt(_s)} ~ {_fmt(_e)}"
+            try:
+                with open(out_path, 'r', encoding='utf-8') as _fp:
+                    _old_html = _fp.read()
+            except OSError:
+                _old_html = ''
+            if not _s or not _e or _expected in _old_html:
+                continue  # 기간이 같거나(또는 기간 정보가 없으면) 이미 생성된 페이지는 건드리지 않음
+            print(f"  상세페이지 기간 변경으로 재생성: {content_id} ({f.get('title')}) → {_expected}")
 
         overview = f.get('overview')  # 수동 등록 축제는 이미 설명이 주어져 있어 TourAPI를 안 부름
         if overview is None:
