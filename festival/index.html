@@ -817,7 +817,7 @@ function toggleMenu() {
             <button type="button" id="indoorToggleBtn" class="indoor-toggle-btn" onclick="toggleIndoorOnly()" aria-pressed="false" title="실내에서 놀 수 있는 곳만 보기">☔ 실내만</button>
         </div>
         <!-- [ADD] 2026-11-20: 계절 특화 필터 (아이랑 모드 전용) -->
-        <div id="seasonFilterRow" class="season-filter-row" style="display:none;">
+        <div id="seasonFilterRow" class="season-filter-row" style="display:flex;">
             <button type="button" id="seasonBtnSpring" class="season-btn spring" onclick="setSeasonFilter('spring')" title="봄 특화 장소만 보기">🌸 봄</button>
             <button type="button" id="seasonBtnSummer" class="season-btn summer" onclick="setSeasonFilter('summer')" title="여름 특화 장소만 보기">💧 여름</button>
             <button type="button" id="seasonBtnFall"   class="season-btn fall"   onclick="setSeasonFilter('fall')"   title="가을 특화 장소만 보기">🍂 가을</button>
@@ -1531,8 +1531,9 @@ function toggleMenu() {
         else renderMainPanel();
     }
     function syncSeasonFilterRow() {
+        // festival/index.html 은 항상 아이랑 모드이므로 계절 필터는 항상 표시
         const row = document.getElementById('seasonFilterRow');
-        if (row) row.style.display = (currentMode === 'kids') ? 'flex' : 'none';
+        if (row) row.style.display = 'flex';
     }
         function toggleIndoorOnly(isAutoFromWeather) {
         if (!isAutoFromWeather) indoorAutoEnabledByWeather = false;
