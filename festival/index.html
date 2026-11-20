@@ -492,6 +492,21 @@
             cursor: pointer; white-space: nowrap; font-family: inherit;
         }
         .indoor-toggle-btn.active { background: #4338ca; border-color: #4338ca; color: #fff; }
+        /* [ADD] 2026-11-20: 계절 특화 필터 버튼 */
+        .season-filter-row {
+            display: flex; gap: 6px; padding: 6px 12px 2px; flex-wrap: wrap;
+        }
+        .season-btn {
+            flex: 1 1 auto; min-width: 0; padding: 7px 6px; border: 1.5px solid #e2e8f0;
+            border-radius: 10px; background: #fff; color: #334155; font-weight: 700;
+            font-size: 12px; cursor: pointer; white-space: nowrap; font-family: inherit;
+            text-align: center;
+        }
+        .season-btn.active { color: #fff; }
+        .season-btn.spring.active  { background: #ec4899; border-color: #ec4899; }
+        .season-btn.summer.active  { background: #0ea5e9; border-color: #0ea5e9; }
+        .season-btn.fall.active    { background: #f97316; border-color: #f97316; }
+        .season-btn.winter.active  { background: #6366f1; border-color: #6366f1; }
         .place-type-badge {
             display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
             border-radius: 20px; margin-left: 6px; vertical-align: middle;
@@ -800,6 +815,13 @@ function toggleMenu() {
             </select>
             <!-- [ADD] 2026-10-19: 비 오는 날용 실내 장소 필터(리스트·코스 모드 공통). -->
             <button type="button" id="indoorToggleBtn" class="indoor-toggle-btn" onclick="toggleIndoorOnly()" aria-pressed="false" title="실내에서 놀 수 있는 곳만 보기">☔ 실내만</button>
+        </div>
+        <!-- [ADD] 2026-11-20: 계절 특화 필터 (아이랑 모드 전용) -->
+        <div id="seasonFilterRow" class="season-filter-row" style="display:none;">
+            <button type="button" id="seasonBtnSpring" class="season-btn spring" onclick="setSeasonFilter('spring')" title="봄 특화 장소만 보기">🌸 봄</button>
+            <button type="button" id="seasonBtnSummer" class="season-btn summer" onclick="setSeasonFilter('summer')" title="여름 특화 장소만 보기">💧 여름</button>
+            <button type="button" id="seasonBtnFall"   class="season-btn fall"   onclick="setSeasonFilter('fall')"   title="가을 특화 장소만 보기">🍂 가을</button>
+            <button type="button" id="seasonBtnWinter" class="season-btn winter" onclick="setSeasonFilter('winter')" title="겨울 특화 장소만 보기">❄️ 겨울</button>
         </div>
         <!-- [ADD] 2026-11-01: 코스 모드 전용 날짜 선택 바. syncCourseModeUI()가 코스 모드일 때만 보이게 한다.
              고른 날짜에 "열려 있는" 축제 + 그 요일에 문 연 아이랑 장소로 코스를 만든다. -->
@@ -1473,6 +1495,8 @@ function toggleMenu() {
     //  - 무더위쉼터(shelter): 실내 시설이라 그대로 둔다
     //  - 축제·공원·캠핑장·수상레저: 실내 여부를 알 수 없거나 야외라 뺀다
     let indoorOnly = false;
+    // [ADD] 2026-11-20: 계절 특화 필터 상태. null=전체, 'spring'/'summer'/'fall'/'winter'
+    let seasonFilter = null;
     // [ADD] 2026-10-19: 날씨 배너가 자동으로 켠 상태인지 추적한다. 사용자가 버튼을 직접
     // 누르면(아래 isAutoFromWeather 없이 호출됨) 날씨 쪽 자동 제어를 넘겨받아서, 나중에
     // 비 예보가 사라져도 사용자가 고른 상태를 임의로 되돌리지 않는다.
@@ -1493,7 +1517,24 @@ function toggleMenu() {
             btn.setAttribute('aria-pressed', indoorOnly ? 'true' : 'false');
         }
     }
-    function toggleIndoorOnly(isAutoFromWeather) {
+    // [ADD] 2026-11-20: 계절 필터 적용
+    function setSeasonFilter(season) {
+        seasonFilter = (seasonFilter === season) ? null : season;
+        ['spring','summer','fall','winter'].forEach(function(s) {
+            const btn = document.getElementById('seasonBtn' + s.charAt(0).toUpperCase() + s.slice(1));
+            if (btn) {
+                btn.classList.toggle('active', seasonFilter === s);
+                btn.setAttribute('aria-pressed', (seasonFilter === s) ? 'true' : 'false');
+            }
+        });
+        if (gpsModeActive) renderNearbyPanel();
+        else renderMainPanel();
+    }
+    function syncSeasonFilterRow() {
+        const row = document.getElementById('seasonFilterRow');
+        if (row) row.style.display = (currentMode === 'kids') ? 'flex' : 'none';
+    }
+        function toggleIndoorOnly(isAutoFromWeather) {
         if (!isAutoFromWeather) indoorAutoEnabledByWeather = false;
         setIndoorOnlyState(!indoorOnly);
         if (gpsModeActive) {
@@ -1503,7 +1544,16 @@ function toggleMenu() {
         }
     }
     function getFilteredData() {
-        const base = indoorOnly ? festivalData.filter(isIndoorFriendly) : festivalData;
+        // [ADD] 2026-11-20: 계절 필터
+        let base = indoorOnly ? festivalData.filter(isIndoorFriendly) : festivalData;
+        if (seasonFilter) {
+            const sf = seasonFilter;
+            base = base.filter(function(item) {
+                if (item.type !== 'kids') return true; // 축제·캠핑은 그대로
+                if (!item.seasonTag) return false;
+                return item.seasonTag.indexOf(sf) !== -1;
+            });
+        }
         if (!courseModeActive || costFilterMode === 'all') return base;
         return base.filter(function (item) {
             if (item.type !== 'kids') return true;
@@ -4396,6 +4446,7 @@ function toggleMenu() {
     // 쓰기 위해 분리했다 — 로직이 두 곳에 따로 있으면 나중에 한쪽만 고치고 잊어버리는
     // 사고가 나기 쉽다.
     function syncCourseModeUI() {
+        syncSeasonFilterRow();
         const btn = document.getElementById('courseModeBtn');
         if (btn) {
             btn.textContent = courseModeActive
