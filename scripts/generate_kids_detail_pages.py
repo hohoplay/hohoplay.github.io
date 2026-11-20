@@ -53,6 +53,26 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
 
 
+# [ADD] 2026-11-20: 사진이 없는 장소는 유형별 일러스트(/data/placeholders/*.svg, "사진 준비 중")를 대신 넣는다.
+# 유형 규칙은 festival/index.html 의 kidsPlaceholderCategory()와 같아야 한다(바꾸면 둘 다 바꿀 것).
+PLACEHOLDER_RULES = [
+    ("animal", r"동물|먹이주기|목장|농장|알파카|양떼|수달|곤충|파충류"),
+    ("aqua", r"아쿠아|수족관|고래|해양|물고기|바다"),
+    ("museum", r"박물관|미술관|전시|과학관|천문|기념관|문화관|도서관|갤러리|미디어아트|뮤지엄"),
+    ("play", r"키즈카페|놀이터|놀이|랜드|볼풀|트램폴린|어드벤처"),
+    ("exp", r"체험|만들기|공방|직업|교육관|안전"),
+    ("nature", r"수목원|공원|숲|정원|산|해변|호수|계곡|둘레길|생태|습지|꽃|농원"),
+]
+
+
+def placeholder_category(p) -> str:
+    text = (p.get("title") or "") + " " + (p.get("desc") or "")
+    for name, rx in PLACEHOLDER_RULES:
+        if re.search(rx, text):
+            return name
+    return "indoor" if p.get("placeType") == "실내" else ("outdoor" if p.get("placeType") in ("실외", "실내외") else "indoor")
+
+
 def html_escape(s: str) -> str:
     return (
         (s or "")
@@ -189,17 +209,23 @@ def main():
         # [ADD] TourAPI 키워드 검색(scripts/fetch_kids_images.py)으로 받아온 공식 사진이
         # 있으면 축제 상세페이지와 똑같은 모양(.detail-image)으로 넣고, 없으면 그 자리를
         # 통째로 비워 레이아웃이 깨지지 않게 한다 — fetch_data.py의 image_html 처리와 동일한 방식.
-        image_html = (
-            f'<img src="{html_escape(image)}" alt="{html_escape(title)}" class="detail-image">'
-            if image
-            else ""
-        )
+        if image:
+            image_html = f'<img src="{html_escape(image)}" alt="{html_escape(title)}" class="detail-image">'
+        else:
+            # 사진이 없으면 유형별 일러스트(이미지 안에 "사진 준비 중" 문구 포함)로 대신한다. 실제 장소 사진이 아니다.
+            image_html = (
+                f'<img src="/data/placeholders/{placeholder_category(p)}.svg" '
+                f'alt="{html_escape(title)} 사진 준비 중" class="detail-image" '
+                f'style="max-width:420px;margin:0 auto 20px;">'
+            )
 
         # [ADD] 2026-11-12: 출처 표기. 장소 정보(이름·주소·설명·요금·운영시간)는 운영자가 직접 조사해 정리한 것이고,
         # 대표 사진은 TourAPI 키워드 검색으로 받아온 경우에만 한국관광공사 제공으로 표시한다(image가 있을 때만).
         source_note = "장소 정보: 호호플레이가 직접 조사·정리"
         if image:
             source_note += "<br>대표 사진: 한국관광공사 TourAPI(공공데이터포털)"
+        else:
+            source_note += "<br>대표 이미지: 사진 준비 중이라 일러스트로 대신 표시합니다(실제 장소 사진이 아닙니다)"
 
         html_out = (
             template.replace("{{TITLE}}", html_escape(title))
