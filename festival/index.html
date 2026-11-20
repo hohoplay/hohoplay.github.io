@@ -3235,17 +3235,26 @@ function toggleMenu() {
             }
             // "화~토 09:30~11:30 / 13:30~15:30"처럼 라벨 뒤에 시간대가 이어지면 하나의 운영 구간(회차제)으로 합친다
             let win = ctMakeWin(m[3], m[4], m[5], m[6]);
+            const segs = [win];   // [ADD] 2026-11-20: 이어지는 시간대를 따로 모아 회차제(짧은 구간 여러 개)인지 판단한다
             const contRe = new RegExp('^\\s*[/·,]\\s*' + CT_RANGE_SRC);
             let rest = t.slice(labelRe.lastIndex), cm;
             while ((cm = contRe.exec(rest)) !== null) {
                 const w2 = ctMakeWin(cm[1], cm[2], cm[3], cm[4]);
                 win = { open: Math.min(win.open, w2.open), close: Math.max(win.close, w2.close) };
+                segs.push(w2);
                 labelRe.lastIndex += cm[0].length;
                 rest = t.slice(labelRe.lastIndex);
+            }
+            // [ADD] 2026-11-20: "11:00~11:30 / 14:00~14:30"처럼 짧은 구간(90분 미만)만 여러 개면 연속 운영이 아니라 회차제다.
+            // 예전엔 11:00~14:30 하나로 합쳐 90분 체류가 마지막 회차 종료를 넘겨 잡혔다 → 회차 시작 시각에 맞춘다.
+            if (segs.length > 1 && segs.every(function (g) { return g.close - g.open < 90; })) {
+                const st = segs.map(function (g) { return g.open; }).sort(function (a, b) { return a - b; });
+                win = { open: st[0], close: st[st.length - 1] + 90, shows: st };
             }
             if (match) hits.push(win);
         }
         if (labeled > 0) {
+            if (hits.length === 1) return hits[0];   // [ADD] 2026-11-20: 회차(shows) 정보를 잃지 않게 그대로 돌려준다
             if (!hits.length) return null;   // 라벨은 있는데 그 날짜에 해당하는 구간이 없으면 판단 불가
             // 같은 날짜에 해당하는 구간이 여러 개(시설별 시간 등)면 가장 보수적인 값(늦게 열고 일찍 닫음)을 쓴다
             let o = -1, c = 1e9;
@@ -3294,7 +3303,7 @@ function toggleMenu() {
         }
         const w = txt ? parseHoursWindow(txt, ctx.dow, ctx.month) : null;
         const eveTitle = isEveningFestival(item);
-        if (w) return { open: w.open, close: w.close, known: true, evening: w.open >= 1020 };
+        if (w) return { open: w.open, close: w.close, known: true, evening: w.open >= 1020, shows: w.shows };
         // [ADD] 2026-11-03: 범위 없이 회차 시각만 있는 행사(공연·투어)는 회차 시작에 맞춰 배치한다.
         if (item.type !== 'kids' && item.type !== 'park') {
             const st = parseShowTimes(txt);
