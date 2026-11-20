@@ -1445,7 +1445,7 @@ function toggleMenu() {
     // 이 단어들을 먼저 지우고 나서 키워드를 검사해서, 우연히 글자가 겹치는 것과 실제
     // 그 테마인 것을 구분한다.
     const THEME_KEYWORD_EXCLUDE = {
-        seafood: ['동굴', '굴포천', '불굴']
+        seafood: ['동굴', '굴포천', '불굴', '골굴', '용문굴', '천장굴', '굴포', '대전어']
     };
     let currentThemes = new Set(); // 비어있으면 "전체(공원 제외)"와 동일
     let currentPeriod = 'today'; // 'today' | 'month' | 'nextmonth'
@@ -2535,6 +2535,13 @@ function toggleMenu() {
         const kws = THEME_KEYWORDS[themeKey];
         if (!kws) return true;
         if (!item.title) return false;
+        // [FIX 2026-11-20] 특산물 테마는 축제 항목만 대상 — 공원·캠핑장·아이와 갈 곳의
+        // 이름(골굴암, 사과나무 캠핑장, 대전어린이회관의 '전어' 등)이 키워드 글자에
+        // 우연히 걸리는 오탐 방지. (themes 필드로 직접 지정된 항목은 위에서 이미 통과)
+        if (themeKey === 'seafood' && item.type !== 'festival') return false;
+        // [FIX 2026-11-20] 캠핑장 이름(산꽃벚꽃마을, 얼음골까투리, 해바라기캠핑장 등)은
+        // 이름만으로 벚꽃·눈꽃·꽃 테마 장소가 되지 않는다 — 키워드 판정에서 캠핑장 제외
+        if (item.type === 'camping') return false;
         // 제외 복합어(동굴/굴포천 등)를 먼저 지운 뒤에 키워드를 검사한다 — 그래야
         // "굴포천 생태하천"이 '굴'(특산물) 테마에 안 걸리고, "강화 대하축제"처럼
         // 진짜 키워드가 들어있는 건 그대로 걸린다.
