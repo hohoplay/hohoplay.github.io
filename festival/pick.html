@@ -91,6 +91,10 @@
   .pk-ropt[aria-pressed="true"] .pk-rcnt { background: #4f46e5; }
   .pk-datein { margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #64748b; }
   .pk-datein input { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; }
+  .pk-stin { margin-top: 12px; font-size: 12.5px; color: #64748b; }
+  .pk-stin .pk-stbtns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .pk-stbtn { padding: 7px 13px; border: 1px solid #cbd5e1; background: #fff; border-radius: 999px; font-family: inherit; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; }
+  .pk-stbtn[aria-pressed="true"] { background: #4f46e5; border-color: #4f46e5; color: #fff; }
 
   /* 결과 */
   .pk-res { margin-top: 18px; }
@@ -1159,9 +1163,13 @@ function rainForDate(data, dateStr) {
 }
 
 /* ═══ 상태 ═══ */
-const S = { ed: null, edited: false, when: null, where: null, place: null, camp: false, cost: null, n: null, open: null, seed: 0, seen: {}, course: null, shared: null };
+const S = { ed: null, edited: false, when: null, where: null, place: null, camp: false, cost: null, n: null, start: null, open: null, seed: 0, seen: {}, course: null, shared: null };
 const W = { pt: null, label: '', dateStr: null, state: 'none', maxPop: null, token: 0 };   // state: none | loading | rain | clear | unknown
 const STEPS = ['when', 'where', 'place', 'cost', 'n'];
+// [ADD] 2026-11-20: 출발 시각 칩(질문 1 안, 선택 사항). 고르지 않으면 예전처럼 10:00 출발로 계산한다.
+const START_OPTS = [[540, '9시'], [600, '10시'], [660, '11시'], [780, '오후 1시']];
+function startLabel(m) { for (let i = 0; i < START_OPTS.length; i++) if (START_OPTS[i][0] === m) return START_OPTS[i][1]; return ''; }
+function okStart(m) { return START_OPTS.some(function (o) { return o[0] === m; }); }
 const QUESTIONS = { when: '언제 가세요?', where: '어디로 갈까요?', place: '실내가 좋아요, 야외가 좋아요?', cost: '예산은 어떻게 할까요?', n: '몇 곳 돌아볼까요?' };
 
 function defaultDate() { return ctKstNowMin() >= 19 * 60 ? ctShiftDate(ctKstTodayStr(), 1) : ctKstTodayStr(); }
@@ -1171,7 +1179,7 @@ function placeLabel(p) { return { in: '🏠 실내', out: '🌳 야외', any: '�
 function placeLabelFull(p, camp) { const b = placeLabel(p); if (!b) return ''; return camp ? (p === 'any' ? '🏕️ 캠핑장 포함(어디든)' : b + ' + 🏕️ 캠핑장') : b; }
 function costLabel(c) { return { free: '🆓 무료만', paid: '💳 유료도 괜찮아요' }[c] || ''; }
 function answerText(step) {
-    if (step === 'when') return S.when ? whenLabel(S.when) + (whenLabel(S.when) === ctDateLabel(S.when) ? '' : ' ' + ctDateLabel(S.when).replace(/^(\d+월 \d+일)/, '$1')) : '';
+    if (step === 'when') return S.when ? whenLabel(S.when) + (whenLabel(S.when) === ctDateLabel(S.when) ? '' : ' ' + ctDateLabel(S.when).replace(/^(\d+월 \d+일)/, '$1')) + (S.start && okStart(S.start) ? ' · ' + startLabel(S.start) + ' 출발' : '') : '';
     if (step === 'where') return whereLabel(S.where);
     if (step === 'place') return placeLabelFull(S.place, S.camp);
     if (step === 'cost') return costLabel(S.cost);
@@ -1254,6 +1262,10 @@ function stepBodyHtml(step) {
         h += '<div class="pk-opts">';
         dateOptions().forEach(function (o) { h += '<button type="button" class="pk-opt" data-act="pick" data-step="when" data-val="' + o.d + '" aria-pressed="' + (S.when === o.d) + '">' + o.l + '<small>' + ctDateLabel(o.d) + '</small></button>'; });
         h += '</div><div class="pk-datein"><label for="pk-date">다른 날</label><input type="date" id="pk-date" min="' + ctKstTodayStr().replace(/(\d{4})(\d\d)(\d\d)/, '$1-$2-$3') + '" max="' + ctShiftDate(ctKstTodayStr(), 60).replace(/(\d{4})(\d\d)(\d\d)/, '$1-$2-$3') + '"></div>';
+        const curStart = S.start && okStart(S.start) ? S.start : CT_DAY_START;
+        h += '<div class="pk-stin"><span>출발 시각 <small>(안 고르면 10시)</small></span><div class="pk-stbtns">';
+        START_OPTS.forEach(function (o) { h += '<button type="button" class="pk-stbtn" data-act="start" data-val="' + o[0] + '" aria-pressed="' + (curStart === o[0]) + '">' + o[1] + '</button>'; });
+        h += '</div></div>';
     } else if (step === 'where') {
         h += '<button type="button" class="pk-near" data-act="near">📍 내 위치 근처로 찾기</button><div class="pk-rgrid">';
         REGIONS.forEach(function (r) {
@@ -1311,10 +1323,11 @@ function stepsHtml() {
 
 /* ═══ 코스 만들기 ═══ */
 function normTitle(t) { return String(t || '').replace(/\([^)]*\)|\[[^\]]*\]/g, '').replace(/[\s·\-_.,:：]/g, ''); }
-function buildCtx(dateStr) {
+function buildCtx(dateStr, start) {
     const dObj = ctParseDate(dateStr);
     const isToday = dateStr === ctKstTodayStr();
-    const startMin = isToday ? Math.max(CT_DAY_START, Math.ceil(ctKstNowMin() / 30) * 30) : CT_DAY_START;
+    const base = start && okStart(start) ? start : CT_DAY_START;
+    const startMin = isToday ? Math.max(base, Math.ceil(ctKstNowMin() / 30) * 30) : base;
     return { dow: dObj.getUTCDay(), month: dObj.getUTCMonth() + 1, startMin: startMin, dateStr: dateStr, isToday: isToday };
 }
 function placeOk(it, p) {
@@ -1412,8 +1425,8 @@ function pickCourse(pool, n, rand, ctx, place, P) {
 }
 // P: { when, where, place, cost, n, seed, rain, track } — track=true 면 "다른 코스 보기"용으로 이미 보여준 시작 장소를 기억한다.
 function makeCourse(P) {
-    P = P || { when: S.when, where: S.where, place: S.place, camp: S.camp, cost: S.cost, n: S.n, seed: S.seed, rain: rainOn(), track: true };
-    const ctx = buildCtx(P.when);
+    P = P || { when: S.when, where: S.where, place: S.place, camp: S.camp, cost: S.cost, n: S.n, seed: S.seed, rain: rainOn(), track: true, start: S.start };
+    const ctx = buildCtx(P.when, P.start);
     const place = (P.place === 'any' && P.rain) ? 'in' : P.place;
     let pool = poolFor(ctx, place, P);
     let widened = false;
@@ -1945,6 +1958,7 @@ function setAnswer(step, val) {
     else if (step === 'place') { const pv = String(val).split('+'); S.place = pv[0]; S.camp = pv[1] === 'camp'; }
     else if (step === 'cost') S.cost = val;
     else if (step === 'n') S.n = parseInt(val, 10);
+    else if (step === 'start') { const m = parseInt(val, 10); S.start = okStart(m) ? m : null; }
 }
 function afterAnswer(step) {
     invalidate();
@@ -1965,13 +1979,14 @@ function setNear(loc) {
     afterAnswer('where');
 }
 function sharedCourse() {
-    const ctx = buildCtx(S.shared.d);
+    const ctx = buildCtx(S.shared.d, S.shared.t);
     const list = S.shared.ids.map(itemById).filter(Boolean);
     return { sched: list.length ? scheduleCourseItems(list, ctx) : [], ctx: ctx, poolSize: list.length, place: 'any', widened: false };
 }
 function courseUrl() {
     const c = S.course;
-    return location.origin + '/festival/pick.html?d=' + c.ctx.dateStr + '&ids=' + c.sched.map(function (r) { return encodeURIComponent(r.item.contentid); }).join(',');
+    const st = (S.start && okStart(S.start) && S.start !== CT_DAY_START) ? '&t=' + S.start : '';
+    return location.origin + '/festival/pick.html?d=' + c.ctx.dateStr + st + '&ids=' + c.sched.map(function (r) { return encodeURIComponent(r.item.contentid); }).join(',');
 }
 // 지도 페이지(/festival/)가 이 코스를 번호 핀으로 바로 보여주는 주소: ?region=…&date=…&pick=id,id,…
 function mapUrl() {
@@ -2052,7 +2067,7 @@ function applySay(q) {
     if (S.where && !S.where.near) refreshWeather();
 }
 function resetAll() {
-    S.when = S.where = S.place = S.cost = S.n = null; S.camp = false; S.open = null; invalidate();
+    S.when = S.where = S.place = S.cost = S.n = S.start = null; S.camp = false; S.open = null; invalidate();
     document.getElementById('pk-say-in').value = '';
     render();
     scrollToEl('.pk-sub');
@@ -2063,6 +2078,7 @@ document.addEventListener('click', function (e) {
     if (!b) return;
     const act = b.getAttribute('data-act');
     if (act === 'pick') { setAnswer(b.getAttribute('data-step'), b.getAttribute('data-val')); afterAnswer(b.getAttribute('data-step')); }
+    else if (act === 'start') { setAnswer('start', b.getAttribute('data-val')); afterAnswer('start'); }
     else if (act === 'toggle') { const st = b.getAttribute('data-step'); S.open = (S.open === st && S[st]) ? null : st; S.course = null; render(); }
     else if (act === 'near') { useMyLocation(setNear); }
     else if (act === 'rainin') {
@@ -2111,7 +2127,8 @@ function init(list) {
     if (ids.length) {
         let d = (qs.get('d') || '').replace(/\D/g, '');
         if (d.length !== 8 || d < ctKstTodayStr()) d = defaultDate();
-        S.shared = { d: d, ids: ids.slice(0, 6) };
+        const tq = parseInt(qs.get('t') || '', 10);
+        S.shared = { d: d, ids: ids.slice(0, 6), t: okStart(tq) ? tq : null };
         S.when = d;
         const first = itemById(ids[0]);
         if (first && first._rk) { S.where = { key: first._rk }; }
