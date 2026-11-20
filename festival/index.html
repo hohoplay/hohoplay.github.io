@@ -1544,9 +1544,38 @@ function toggleMenu() {
             renderMainPanel();
         }
     }
+    // [ADD] 2026-11-20: 현재 월 기준으로 반대 계절 전용 장소 자동 숨김
+    // seasonTag가 오직 비수기 계절만 있는 장소는 목록에서 제외한다.
+    // 복수 계절 태그(예: ['summer','fall'])는 하나라도 현재 계절이면 표시.
+    // seasonTag 없는 장소(연중)는 항상 표시.
+    function getCurrentSeason() {
+        const m = new Date().getMonth() + 1; // 1~12
+        if (m >= 3 && m <= 5) return 'spring';
+        if (m >= 6 && m <= 8) return 'summer';
+        if (m >= 9 && m <= 11) return 'fall';
+        return 'winter';
+    }
+    // 현재 계절과 완전히 반대인 계절 목록 (숨길 대상)
+    const OFF_SEASON_MAP = {
+        spring: ['winter'],
+        summer: ['winter'],
+        fall:   ['summer'],
+        winter: ['summer']
+    };
+    function isOffSeasonOnly(item) {
+        if (item.type !== 'kids') return false;
+        const tags = item.seasonTag;
+        if (!tags || tags.length === 0) return false; // 연중 → 숨기지 않음
+        const offSeasons = OFF_SEASON_MAP[getCurrentSeason()] || [];
+        // 모든 태그가 비수기 계절에만 속하면 숨김
+        return tags.every(function(t) { return offSeasons.indexOf(t) !== -1; });
+    }
+
     function getFilteredData() {
         // [ADD] 2026-11-20: 계절 필터
         let base = indoorOnly ? festivalData.filter(isIndoorFriendly) : festivalData;
+        // [ADD] 2026-11-20: 반대 계절 전용 장소 자동 숨김
+        base = base.filter(function(item) { return !isOffSeasonOnly(item); });
         if (seasonFilter) {
             const sf = seasonFilter;
             base = base.filter(function(item) {
