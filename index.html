@@ -307,7 +307,7 @@
         window.addEventListener('focus', function() { checkVersion(true); });
     })();
     </script>
-  <meta name="build-version" content="20261120031129_cb542bb6">
+  <meta name="build-version" content="20261120032833_49b5645c">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
@@ -633,6 +633,8 @@
                 <span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:8px">Contact</span>
                 <h2 style="font-size:1.4rem;font-weight:900;color:#1e293b;margin:8px 0 4px">문의하기</h2>
                 <p style="font-size:13px;color:#94a3b8;margin:0">호호플레이에 대한 의견·제안·오류를 남겨주세요</p>
+                <!-- [ADD] 2026-11-20: 메일 앱이 없거나 안 열리는 기기(웹메일 사용 PC, 일부 모바일)를 위한 주소 복사 -->
+                <div style="margin-top:12px;font-size:12px;color:#94a3b8">메일 앱이 안 열리면<div style="margin-top:6px"><button type="button" onclick="copyInquiryText('addr')" aria-label="문의 이메일 주소 복사" style="background:#fff;border:1.5px solid #c7d2fe;color:#4f46e5;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit">📋 lyh0929mm@gmail.com 복사</button></div></div>
             </div>
             <div style="margin-bottom:16px">
                 <label style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;display:block">이메일 <span style="color:#f87171">*</span></label>
@@ -670,6 +672,12 @@
             <div id="iq-error" style="display:none;margin-top:10px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:13px;font-weight:600"></div>
             <div id="iq-success" style="display:none;margin-top:10px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;color:#065f46;font-size:13px;font-weight:700;text-align:center">
                 메일 앱이 열립니다. 내용을 확인하고 전송해 주세요!
+                <div style="margin-top:10px;font-size:12px;font-weight:600;color:#047857">메일 앱이 안 열리면 아래 버튼으로 복사해서 보내 주세요.</div>
+                <div style="margin-top:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+                    <button type="button" onclick="copyInquiryText('addr')" style="background:#fff;border:1.5px solid #c7d2fe;color:#4f46e5;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit">📋 이메일 주소 복사</button>
+                    <button type="button" onclick="copyInquiryText('body')" style="background:#fff;border:1.5px solid #c7d2fe;color:#4f46e5;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit">📋 작성한 내용 복사</button>
+                </div>
+                <div id="iq-copy-msg" role="status" aria-live="polite" style="margin-top:8px;font-size:12px;font-weight:800;color:#047857;min-height:16px"></div>
             </div>
             <button id="iq-btn" onclick="submitInquiry()"
                 style="margin-top:18px;width:100%;background:#4f46e5;color:#fff;padding:14px;border-radius:14px;font-weight:900;font-size:15px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
@@ -685,6 +693,33 @@
         // [ADD] 2026-10-19: 보안문자(스팸 방지용 간단 산수 문제) 정답을 들고 있는 변수.
         // 모달을 열 때, 새로고침 버튼을 누를 때, 제출에 실패(오답)했을 때마다 새로 뽑는다.
         let iqCaptchaAnswer = 0;
+
+        // [ADD] 2026-11-20: 메일 앱이 안 열리는 환경용 복사 버튼. 제출하면 입력칸이 비워지므로,
+        // 보낸 내용은 iqLastBody 에 따로 담아 두었다가 "작성한 내용 복사"에서 쓴다.
+        const INQUIRY_TO = 'lyh0929mm@gmail.com';
+        let iqLastBody = '';
+        function copyInquiryText(kind) {
+            const text = kind === 'body' ? iqLastBody : INQUIRY_TO;
+            const out = document.getElementById('iq-copy-msg');
+            function done(ok) {
+                const m = ok ? (kind === 'body' ? '작성한 내용을 복사했어요.' : '이메일 주소를 복사했어요.') : '복사하지 못했어요. 주소를 직접 선택해 복사해 주세요: ' + INQUIRY_TO;
+                if (out) out.textContent = m;
+            }
+            if (!text) { done(false); return; }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () { done(true); }, function () { fallback(); });
+            } else { fallback(); }
+            function fallback() {
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+                    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    done(!!ok);
+                } catch (e) { done(false); }
+            }
+        }
         function refreshInquiryCaptcha() {
             const a = Math.floor(Math.random() * 8) + 1;
             const b = Math.floor(Math.random() * 8) + 1;
@@ -730,12 +765,14 @@
             sp.style.display = 'inline-block';
             const typeLabel = { bug: '버그 신고', idea: '개선 제안·아이디어', other: '기타 문의' }[type] || type;
             const body = '[' + INQUIRY_GAME_NAME + ' 문의]\n답장받을 이메일: ' + email + '\n유형: ' + typeLabel + '\n\n' + msg;
+            iqLastBody = '받는 사람: ' + INQUIRY_TO + '\n제목: [' + INQUIRY_GAME_NAME + ' 문의] ' + typeLabel + '\n\n' + body;
             window.location.href = 'mailto:lyh0929mm@gmail.com?subject=' + encodeURIComponent('[' + INQUIRY_GAME_NAME + ' 문의] ' + typeLabel) + '&body=' + encodeURIComponent(body);
             setTimeout(() => {
                 btn.disabled = false;
                 tx.textContent = '문의 보내기';
                 sp.style.display = 'none';
                 suc.style.display = 'block';
+                const cm = document.getElementById('iq-copy-msg'); if (cm) cm.textContent = '';
                 document.getElementById('iq-email').value = '';
                 document.getElementById('iq-type').value = '';
                 document.getElementById('iq-msg').value = '';
