@@ -248,10 +248,13 @@
             '#campPlan h3{margin:18px 0 8px;font-size:15px;font-weight:900;color:#0f172a;display:flex;align-items:center;justify-content:space-between;gap:8px}' +
             '#campPlan .cp-dayhd{background:#ecfdf5;border-radius:10px;padding:7px 12px;font-size:14px;font-weight:900;color:#065f46;margin:14px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}' +
             '#campPlan .cp-row{display:flex;gap:8px;align-items:flex-start;border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:8px;margin-bottom:8px}' +
-            '#campPlan .cp-time{width:104px;flex:0 0 auto;text-align:center;font-weight:800;font-size:13px;padding:7px 4px}' +
+            '#campPlan .cp-time{width:100%;min-width:0;max-width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none;display:block;flex:0 0 auto;text-align:center;font-weight:800;font-size:13px;padding:7px 2px;line-height:1.2}' +
+            '#campPlan .cp-time::-webkit-date-and-time-value{text-align:center;min-height:1.2em}' +
+            '@media (max-width:560px){#campPlan .cp-time::-webkit-calendar-picker-indicator{display:none}}' +
             '#campPlan .cp-col{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}' +
             '#campPlan .cp-col input{width:100%}' +
-            '#campPlan .cp-tcol{flex:0 0 104px;width:104px;display:flex;flex-direction:column;gap:6px}' +
+            '#campPlan .cp-tcol{flex:0 0 136px;width:136px;min-width:0;display:flex;flex-direction:column;gap:6px}' +
+            '@media (max-width:560px){#campPlan .cp-tcol{flex:0 0 98px;width:98px}}' +
             '#campPlan .cp-tcol .cp-time{width:100%}' +
             '#campPlan .cp-detail{display:block;text-align:center;font-size:12px;font-weight:800;color:#4f46e5;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:5px 0;text-decoration:none;line-height:1.2}' +
             '#campPlan .cp-detail:hover{background:#e0e7ff}' +
