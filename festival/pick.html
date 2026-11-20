@@ -1590,6 +1590,7 @@ function resultHtml() {
     else if (rainOn()) h += '<div class="pk-rnote">☔ 비 예보(강수확률 ' + W.maxPop + '%)가 있지만 실내 장소 위주라 괜찮아요.</div>';
     else if (W.state === 'clear') h += '<div class="pk-rnote">☀️ 비 걱정은 적어요(강수확률 ' + W.maxPop + '%).</div>';
     else if (W.state === 'unknown') h += '<div class="pk-rnote warn">날씨 예보를 가져오지 못했어요. 출발 전에 날씨를 한 번 확인해 주세요.</div>';
+    if (S.shared && S.shared.o && Object.keys(S.shared.o).length) h += '<div class="pk-rnote">⏰ 보낸 사람이 직접 고친 시간이 반영되어 있어요. 아래 일정표에서 다시 고칠 수도 있어요.</div>';
     if (!S.shared && c.campState === 'none') h += '<div class="pk-rnote warn">🏕️ 고른 지역 가까이에 등록된 캠핑장이 없어서 캠핑장 없이 짰어요.</div>';
     else if (!S.shared && c.campState === 'free') h += '<div class="pk-rnote warn">🏕️ 캠핑장은 요금 확인이 필요해서 "무료만"에서는 넣지 않았어요. 캠핑장을 넣으려면 예산을 "유료도 괜찮아요"로 바꿔주세요.</div>';
     else if (!S.shared && c.campState === 'ok') h += '<div class="pk-rnote">🏕️ 캠핑장 1곳을 더 넣었어요(고른 곳 수 + 캠핑장). 예약 가능 여부·요금·체크인 시간은 "자세히 보기"에서 꼭 확인하세요.' + (c.campWiden === 'km' ? ' 캠핑장 가까이에 장소가 적어서 반경을 약 25km까지 넓혔어요.' : (c.campWiden === 'any' ? ' 캠핑장 가까이에 고른 유형의 장소가 적어서 실내·야외 구분 없이 채웠어요.' : '')) + '</div>';
@@ -2047,15 +2048,48 @@ function setNear(loc) {
     S.where = { near: { lat: loc.lat, lng: loc.lng } };
     afterAnswer('where');
 }
+// [ADD] 2026-11-20: 공유 링크에 "직접 고친 시간"을 담는다. 형식: &o=장소id:s840:l60,장소id:s600  (s=시작 분 단위 시각, l=머무는 시간(분))
+// 링크에 없으면(예전 링크 포함) 지금까지와 똑같이 자동 계산한다. 범위를 벗어나거나 형식이 이상한 값은 무시한다.
+function parseOv(raw, ids) {
+    const out = {};
+    String(raw || '').split(',').slice(0, 8).forEach(function (part) {
+        const seg = part.split(':'), id = seg[0];
+        if (!id || ids.indexOf(id) < 0) return;
+        const o = {};
+        seg.slice(1).forEach(function (tk) {
+            const n = parseInt(tk.slice(1), 10);
+            if (tk[0] === 's' && n >= 300 && n <= 1410) o.start = n;
+            else if (tk[0] === 'l' && n >= 10 && n <= 720) o.stay = n;
+        });
+        if (o.start != null || o.stay > 0) out[id] = o;
+    });
+    return out;
+}
+function ovParam() {
+    const ov = (S.ed && S.ed.ov) || {}, c = S.course, parts = [];
+    if (!c || !c.sched) return '';
+    c.sched.forEach(function (r) {
+        const id = String(r.item.contentid), o = ov[id];
+        if (!o || (o.start == null && !(o.stay > 0))) return;
+        parts.push(encodeURIComponent(id) + (o.start != null ? ':s' + o.start : '') + (o.stay > 0 ? ':l' + o.stay : ''));
+    });
+    return parts.length ? '&o=' + parts.join(',') : '';
+}
 function sharedCourse() {
     const ctx = buildCtx(S.shared.d, S.shared.t);
     const list = S.shared.ids.map(itemById).filter(Boolean);
+    if (list.length && S.shared.o && Object.keys(S.shared.o).length) {
+        S.ed = { title: '', memo: '', orig: list.slice(), ov: S.shared.o };
+        S.edited = true;
+        return { sched: scheduleManual(list, ctx), ctx: ctx, poolSize: list.length, place: 'any', widened: false };
+    }
     return { sched: list.length ? scheduleCourseItems(list, ctx) : [], ctx: ctx, poolSize: list.length, place: 'any', widened: false };
 }
 function courseUrl() {
     const c = S.course;
-    const st = (S.start && okStart(S.start) && S.start !== CT_DAY_START) ? '&t=' + S.start : '';
-    return location.origin + '/festival/pick.html?d=' + c.ctx.dateStr + st + '&ids=' + c.sched.map(function (r) { return encodeURIComponent(r.item.contentid); }).join(',');
+    const t0 = S.start || (S.shared && S.shared.t) || 0;   // [FIX] 공유받은 링크를 다시 공유해도 출발 시각 유지
+    const st = (okStart(t0) && t0 !== CT_DAY_START) ? '&t=' + t0 : '';
+    return location.origin + '/festival/pick.html?d=' + c.ctx.dateStr + st + '&ids=' + c.sched.map(function (r) { return encodeURIComponent(r.item.contentid); }).join(',') + ovParam();
 }
 // 지도 페이지(/festival/)가 이 코스를 번호 핀으로 바로 보여주는 주소: ?region=…&date=…&pick=id,id,…
 function mapUrl() {
@@ -2064,7 +2098,7 @@ function mapUrl() {
 }
 function courseText() {
     const c = S.course;
-    const lines = c.sched.map(function (r, i) { return (i + 1) + '. ' + r.item.title + ' (' + ctFmtApprox(r.start) + '~)'; });
+    const lines = c.sched.map(function (r, i) { return (i + 1) + '. ' + r.item.title + ' (' + ((r.manual || r.stayManual) ? ctFmt(r.start) : ctFmtApprox(r.start)) + '~)'; });
     return '[' + ctDateLabel(c.ctx.dateStr) + ' 아이랑 나들이 코스]\n' + lines.join('\n');
 }
 function copyText(txt) {
@@ -2197,7 +2231,7 @@ function init(list) {
         let d = (qs.get('d') || '').replace(/\D/g, '');
         if (d.length !== 8 || d < ctKstTodayStr()) d = defaultDate();
         const tq = parseInt(qs.get('t') || '', 10);
-        S.shared = { d: d, ids: ids.slice(0, 6), t: okStart(tq) ? tq : null };
+        S.shared = { d: d, ids: ids.slice(0, 6), t: okStart(tq) ? tq : null, o: parseOv(qs.get('o'), ids.slice(0, 6)) };
         S.when = d;
         const first = itemById(ids[0]);
         if (first && first._rk) { S.where = { key: first._rk }; }
