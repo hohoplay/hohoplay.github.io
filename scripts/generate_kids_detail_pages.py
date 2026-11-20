@@ -227,6 +227,27 @@ def main():
         else:
             source_note += "<br>대표 이미지: 사진 준비 중이라 일러스트로 대신 표시합니다(실제 장소 사진이 아닙니다)"
 
+        # [ADD] 2026-11-21: 새 상세페이지 구성(인사 → 사진 → 목차 → 섹션 → 최신 글 → 나들이픽).
+        # 인사 문장은 이 장소의 데이터(지역·실내외·한 줄 설명)에서만 만든다 — 데이터에 없는 사실은 쓰지 않는다.
+        # 제목 옆 빨간 문구(titleNote)는 마감일이 있는 시즌 행사처럼 JSON에 titleNote 가 직접 적힌 장소에만 붙는다.
+        _theme_labels = {"foliage": "단풍", "cherry": "벚꽃", "winter": "겨울", "seafood": "특산물"}
+        _themes = [_theme_labels[t] for t in (p.get("themes") or []) if t in _theme_labels]
+        badge = "🧒 아이랑 갈만한 곳" + ("".join(f" · {t}" for t in _themes[:2]))
+        _addr_tokens = str(addr or "").split()
+        _region = " ".join(_addr_tokens[:2]) if len(_addr_tokens) >= 2 else (_addr_tokens[0] if _addr_tokens else "")
+        _kind = {"실내": "실내", "실외": "야외", "실내외": "실내·야외"}.get(str(p.get("placeType") or "").strip(), "")
+        if _region and _kind:
+            greeting = f"{html_escape(_region)}에서 아이랑 가기 좋은 {_kind} 나들이 장소, <b>{html_escape(title)}</b> 정보를 정리했어요."
+        elif _region:
+            greeting = f"{html_escape(_region)}에 있는 나들이 장소, <b>{html_escape(title)}</b> 정보를 정리했어요."
+        else:
+            greeting = f"아이랑 가볼 만한 곳, <b>{html_escape(title)}</b> 정보를 정리했어요."
+        if desc:
+            greeting += f"<br>📌 {html_escape(desc)}"
+        _tn = str(p.get("titleNote") or "").strip()
+        title_note = f' <span class="pt-note">{html_escape(_tn)}</span>' if _tn else ""
+        visit_check = visit_check.replace('<div class="detail-card visit-check">', '<div class="detail-card visit-check" id="pt-s4">', 1).replace("<h2>✅ 방문 전 체크리스트</h2>", '<h2 class="pt-h2">4. ✅ 방문 전 체크리스트</h2>', 1)
+
         html_out = (
             template.replace("{{TITLE}}", html_escape(title))
             .replace("{{ADDR}}", html_escape(addr))
@@ -243,6 +264,9 @@ def main():
             .replace("{{IMAGE_HTML}}", image_html)
             .replace("{{SOURCE_NOTE}}", source_note)
             .replace("{{BACK_URL}}", html_escape(back_url))
+            .replace("{{BADGE}}", badge)
+            .replace("{{TITLE_NOTE}}", title_note)
+            .replace("{{GREETING}}", greeting)
             .replace("{{CONTENTID}}", html_escape(cid))
         )
 
