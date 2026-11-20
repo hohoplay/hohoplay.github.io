@@ -140,6 +140,12 @@
   .pk-ed-main { flex: 1 1 auto; min-width: 0; }
   .pk-ed-name { font-size: 14px; font-weight: 800; color: #0f172a; word-break: keep-all; }
   .pk-ed-sub { font-size: 12px; color: #64748b; line-height: 1.45; }
+  .pk-ed-time { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; font-size: 12px; font-weight: 700; color: #475569; }
+  .pk-ed-time label { display: inline-flex; align-items: center; gap: 4px; }
+  .pk-ed-t, .pk-stcustom input { font: inherit; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px 6px; background: #fff; color: #0f172a; }
+  .pk-ed-auto { border: 1px solid #c7d2fe; background: #eef2ff; color: #4338ca; border-radius: 8px; padding: 5px 9px; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+  .pk-ed-warn { margin-top: 4px; font-size: 11.5px; font-weight: 700; color: #b45309; }
+  .pk-stcustom { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; font-weight: 700; color: #475569; }
   .pk-ed-btns { display: flex; gap: 4px; flex: 0 0 auto; }
   .pk-ed-b { min-width: 34px; height: 34px; border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; font-size: 14px; font-weight: 800; color: #334155; cursor: pointer; }
   .pk-ed-b:disabled { opacity: .35; cursor: default; }
@@ -1177,7 +1183,10 @@ const STEPS = ['when', 'where', 'place', 'cost', 'n'];
 // [ADD] 2026-11-20: 출발 시각 칩(질문 1 안, 선택 사항). 고르지 않으면 예전처럼 10:00 출발로 계산한다.
 const START_OPTS = [[540, '9시'], [600, '10시'], [660, '11시'], [780, '오후 1시']];
 function startLabel(m) { for (let i = 0; i < START_OPTS.length; i++) if (START_OPTS[i][0] === m) return START_OPTS[i][1]; return ''; }
-function okStart(m) { return START_OPTS.some(function (o) { return o[0] === m; }); }
+// [CHG] 2026-11-20: 출발 시각을 직접 입력할 수 있게 4개 고정값 → 06:00~20:30 사이 5분 단위 아무 값
+function okStart(m) { return typeof m === 'number' && isFinite(m) && m >= 360 && m <= 1230 && m % 5 === 0; }
+function hmOf(min) { const v = ((min % 1440) + 1440) % 1440; return String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0'); }
+function parseHM(v) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || '')); if (!m) return null; const h = +m[1], mi = +m[2]; if (h > 23 || mi > 59) return null; return h * 60 + mi; }
 const QUESTIONS = { when: '언제 가세요?', where: '어디로 갈까요?', place: '실내가 좋아요, 야외가 좋아요?', cost: '예산은 어떻게 할까요?', n: '몇 곳 돌아볼까요?' };
 
 function defaultDate() { return ctKstNowMin() >= 19 * 60 ? ctShiftDate(ctKstTodayStr(), 1) : ctKstTodayStr(); }
@@ -1273,7 +1282,7 @@ function stepBodyHtml(step) {
         const curStart = S.start && okStart(S.start) ? S.start : CT_DAY_START;
         h += '<div class="pk-stin"><span>출발 시각 <small>(안 고르면 10시)</small></span><div class="pk-stbtns">';
         START_OPTS.forEach(function (o) { h += '<button type="button" class="pk-stbtn" data-act="start" data-val="' + o[0] + '" aria-pressed="' + (curStart === o[0]) + '">' + o[1] + '</button>'; });
-        h += '</div></div>';
+        h += '</div><label class="pk-stcustom">직접 입력 <input type="time" id="pk-st-time" step="300" min="06:00" max="20:30" value="' + hmOf(curStart) + '" aria-label="출발 시각 직접 입력"></label></div>';
     } else if (step === 'where') {
         h += '<button type="button" class="pk-near" data-act="near">📍 내 위치 근처로 찾기</button><div class="pk-rgrid">';
         REGIONS.forEach(function (r) {
@@ -1515,7 +1524,7 @@ function reasonChips(row, near) {
 }
 function itemHtml(row, idx, near) {
     const it = row.item;
-    const timeTxt = ctFmtApprox(row.start) + ' ~ ' + ctFmtApprox(row.end) + ' (예상)';
+    const timeTxt = (row.manual || row.stayManual) ? ctFmt(row.start) + ' ~ ' + ctFmt(row.end) + ' (직접 입력)' : ctFmtApprox(row.start) + ' ~ ' + ctFmtApprox(row.end) + ' (예상)';
     let h = '<li class="pk-item">';
     h += '<div class="pk-photo">' + (it.image ? '<img src="' + esc(it.image) + '" alt="' + esc(it.title) + '" loading="lazy" onerror="this.parentNode.style.display=\'none\'">' : '') + '<span class="pk-order">' + (idx + 1) + '</span><span class="pk-time">' + row.label + ' · ' + timeTxt + '</span></div>';
     h += '<div class="pk-ibody"><h3 class="pk-ititle">' + esc(it.title) + '</h3><p class="pk-iaddr">' + esc(it.addr) + '</p>';
@@ -1611,17 +1620,22 @@ function resultHtml() {
    S.course.sched 를 직접 고친다(빼기·순서·넣기). 순서는 사용자가 정한 그대로 두고 시간만 이어서 다시 계산한다(직선거리 기준 예상).
    장소는 최대 6곳(공유 링크 ?ids= 가 6곳까지라서). 제목·메모는 입력할 때마다 S.ed 에 저장하고 일정표 미리보기에 바로 반영한다. */
 const ED_MAX = 6;
-function edState() { if (!S.ed) S.ed = { title: '', memo: '', orig: null }; return S.ed; }
+function edState() { if (!S.ed) S.ed = { title: '', memo: '', orig: null, ov: {} }; if (!S.ed.ov) S.ed.ov = {}; return S.ed; }
 function scheduleManual(list, ctx) {
     list.forEach(function (it) { it._distToNextKm = undefined; });
     const out = []; let cur = ctx.startMin || CT_DAY_START, pos = null;
+    const ov = (S.ed && S.ed.ov) || {};   // [ADD] 2026-11-20: 직접 고친 시작 시각·머무는 시간(장소 id별)
     list.forEach(function (it) {
-        const win = getItemWindow(it, ctx), stay = getStayMin(it);
+        const o = ov[String(it.contentid)] || {};
+        const win = getItemWindow(it, ctx), stay = o.stay > 0 ? o.stay : getStayMin(it);
         const dist = pos && it.lat && pos.lat ? haversineDistanceKm(pos.lat, pos.lng, it.lat, it.lng) : null;
         const travel = pos ? (dist === null ? 20 : Math.min(90, Math.max(10, Math.round(dist * 1.3 / 25 * 60)))) : 0;
-        const start = ctStartAt(win, cur + travel), end = start + stay;
+        const manual = o.start != null;
+        const start = manual ? o.start : ctStartAt(win, cur + travel), end = start + stay;
         if (pos && out.length && dist !== null) out[out.length - 1].item._distToNextKm = dist;
-        out.push({ item: it, start: start, end: end, label: ctSlotLabel(start), win: win, late: end > win.close });
+        out.push({ item: it, start: start, end: end, label: ctSlotLabel(start), win: win, late: end > win.close,
+            manual: manual, stayManual: o.stay > 0, overlap: manual && out.length > 0 && start < cur,
+            early: manual && win.known && !win.allDay && start < win.open });
         cur = end; pos = it;
     });
     return out;
@@ -1647,7 +1661,7 @@ function edAct(act, id) {
     if (!ed.orig) ed.orig = edItems();
     let list = edItems();
     const i = list.findIndex(function (it) { return String(it.contentid) === id; });
-    if (act === 'ed-del') { if (list.length <= 1) { toast('일정에는 최소 1곳이 있어야 해요.'); return; } if (i < 0) return; list.splice(i, 1); }
+    if (act === 'ed-del') { if (list.length <= 1) { toast('일정에는 최소 1곳이 있어야 해요.'); return; } if (i < 0) return; list.splice(i, 1); delete ed.ov[id]; }
     else if (act === 'ed-up') { if (i <= 0) return; const t = list[i - 1]; list[i - 1] = list[i]; list[i] = t; }
     else if (act === 'ed-down') { if (i < 0 || i >= list.length - 1) return; const t = list[i + 1]; list[i + 1] = list[i]; list[i] = t; }
     else if (act === 'ed-add') {
@@ -1656,11 +1670,45 @@ function edAct(act, id) {
         const last = list[list.length - 1];
         if (last && last._camp && !o._camp) list.splice(list.length - 1, 0, o); else list.push(o);   // 캠핑장은 계속 마지막에
     }
-    else if (act === 'ed-restore') { list = ed.orig.slice(); }
+    else if (act === 'ed-restore') { list = ed.orig.slice(); ed.ov = {}; }
+    else if (act === 'ed-auto') { delete ed.ov[id]; }
     S.course.sched = scheduleManual(list, S.course.ctx);
     S.edited = act !== 'ed-restore';
     edRerender();
 }
+// [ADD] 2026-11-20: 일정표 편집기에서 시작·종료 시각을 직접 고친다(키보드 입력 또는 시간 선택창).
+// 시작을 고치면 그 장소만 그 시각으로 고정되고 뒤 장소는 이어서 다시 계산한다. 종료를 고치면 머무는 시간이 바뀐다.
+function edTime(id, kind, m) {
+    if (!S.course || !S.course.sched) return;
+    const ed = edState();
+    const row = S.course.sched.filter(function (r) { return String(r.item.contentid) === id; })[0];
+    if (!row) return;
+    if (m < 300 || m > 1435) { toast('시간은 05:00~23:55 사이로 넣어 주세요.'); edRerender(); return; }
+    if (kind === 'start' ? m === row.start : m === row.end) return;   // 값이 그대로면 직접 입력으로 바꾸지 않는다
+    if (!ed.orig) ed.orig = edItems();
+    const o = ed.ov[id] || (ed.ov[id] = {});
+    if (kind === 'start') { o.start = m; }
+    else {
+        if (m <= row.start) { toast('종료 시간은 시작 시간보다 늦어야 해요.'); edRerender(); return; }
+        o.stay = Math.max(10, m - row.start);
+    }
+    S.course.sched = scheduleManual(edItems(), S.course.ctx);
+    S.edited = true;
+    edRerender();
+}
+document.addEventListener('change', function (e) {
+    const t = e.target; if (!t || !t.getAttribute) return;
+    if (t.id === 'pk-st-time') {
+        const m = parseHM(t.value);
+        if (m !== null && okStart(m)) { setAnswer('start', m); afterAnswer('start'); }
+        else { toast('출발 시각은 06:00~20:30 사이로 넣어 주세요.'); t.value = hmOf(S.start && okStart(S.start) ? S.start : CT_DAY_START); }
+        return;
+    }
+    if (!t.classList || !t.classList.contains('pk-ed-t')) return;
+    const m = parseHM(t.value);
+    if (m === null) { edRerender(); return; }
+    edTime(t.getAttribute('data-id') || '', t.getAttribute('data-kind') || 'start', m);
+});
 function edCandidates(c) {
     const have = {}; c.sched.forEach(function (r) { have[String(r.item.contentid)] = 1; });
     const campRow = c.sched.filter(function (r) { return r.item && r.item._camp; })[0];
@@ -1689,14 +1737,27 @@ function paperHtml(c) {
     const title = ed.title.trim() || (dateTxt + ' 아이랑 나들이');
     let h = '<div class="pp-brand">HOHO PLAY · 아이랑 나들이 일정표</div><div class="pp-title">' + esc(title) + '</div>';
     h += '<div class="pp-meta">' + esc(dateTxt) + (S.where ? ' · ' + esc(whereLabel(S.where)) : '') + ' · ' + c.sched.length + '곳</div>';
-    h += '<div class="pp-wrap"><table><thead><tr><th>순서</th><th>예상 시간</th><th>장소</th><th>운영·요금·연락</th></tr></thead><tbody>';
+    h += '<div class="pp-wrap"><table><thead><tr><th>순서</th><th>시간</th><th>장소</th><th>운영·요금·연락</th></tr></thead><tbody>';
     c.sched.forEach(function (r, i) {
         const it = r.item, inf = edInfoOf(it);
-        h += '<tr><td class="c">' + (i + 1) + '</td><td class="c">' + ctFmtApprox(r.start) + '<br>~' + ctFmtApprox(r.end) + '</td><td><b>' + esc(it.title) + '</b><br>' + esc(it.addr || '') + '</td><td>' + esc(inf.hrs) + (inf.fee ? '<br>' + (/^요금/.test(inf.fee) ? '' : '요금 ') + esc(inf.fee) : '') + (it.tel ? '<br>☎ ' + esc(it.tel) : '') + '</td></tr>';
+        h += '<tr><td class="c">' + (i + 1) + '</td><td class="c">' + ((r.manual || r.stayManual) ? ctFmt(r.start) + '<br>~' + ctFmt(r.end) : ctFmtApprox(r.start) + '<br>~' + ctFmtApprox(r.end)) + '</td><td><b>' + esc(it.title) + '</b><br>' + esc(it.addr || '') + '</td><td>' + esc(inf.hrs) + (inf.fee ? '<br>' + (/^요금/.test(inf.fee) ? '' : '요금 ') + esc(inf.fee) : '') + (it.tel ? '<br>☎ ' + esc(it.tel) : '') + '</td></tr>';
     });
     h += '</tbody></table></div>';
     h += '<div class="pp-memo">' + (ed.memo.trim() ? esc(ed.memo) : '메모 ') + '</div>';
-    h += '<div class="pp-foot">※ 시간은 운영시간과 이동시간(직선거리 기준)으로 계산한 대략치예요. 휴관일·요금·운영시간은 바뀔 수 있으니 출발 전에 꼭 확인하세요. · hohoplaylab.com</div>';
+    h += '<div class="pp-foot">※ 시간은 운영시간과 이동시간(직선거리 기준)으로 계산한 대략치이고, 직접 고친 시간은 입력한 그대로 표시돼요. 휴관일·요금·운영시간은 바뀔 수 있으니 출발 전에 꼭 확인하세요. · hohoplaylab.com</div>';
+    return h;
+}
+function edTimeHtml(r, id) {
+    const o = (S.ed && S.ed.ov && S.ed.ov[id]) || {};
+    let h = '<div class="pk-ed-time"><label>시작 <input class="pk-ed-t" type="time" step="300" data-kind="start" data-id="' + id + '" value="' + hmOf(r.start) + '" aria-label="시작 시각"></label>' +
+        '<label>종료 <input class="pk-ed-t" type="time" step="300" data-kind="end" data-id="' + id + '" value="' + hmOf(r.end) + '" aria-label="종료 시각"></label>';
+    if (o.start != null || o.stay > 0) h += '<button type="button" class="pk-ed-auto" data-act="ed-auto" data-id="' + id + '">자동으로</button>';
+    h += '</div>';
+    const w = [];
+    if (r.overlap) w.push('앞 장소 일정과 시간이 겹쳐요');
+    if (r.early) w.push('운영 시작(' + hmOf(r.win.open) + ') 전이에요');
+    if (r.win && r.win.known && !r.win.allDay && r.end > r.win.close) w.push('운영 마감(' + hmOf(r.win.close) + ') 뒤까지예요');
+    if (w.length) h += '<div class="pk-ed-warn">⚠ ' + w.join(' · ') + '</div>';
     return h;
 }
 function editorHtml(c) {
@@ -1706,7 +1767,7 @@ function editorHtml(c) {
     h += '<ol class="pk-ed-list">';
     c.sched.forEach(function (r, i) {
         const it = r.item, id = esc(String(it.contentid));
-        h += '<li class="pk-ed-row"><span class="pk-ed-no">' + (i + 1) + '</span><div class="pk-ed-main"><div class="pk-ed-name">' + esc(it.title) + '</div><div class="pk-ed-sub">' + ctFmtApprox(r.start) + ' ~ ' + ctFmtApprox(r.end) + ' (예상)' + (it._camp ? ' · 🏕️ 캠핑장' : '') + '</div></div>' +
+        h += '<li class="pk-ed-row"><span class="pk-ed-no">' + (i + 1) + '</span><div class="pk-ed-main"><div class="pk-ed-name">' + esc(it.title) + '</div><div class="pk-ed-sub">' + (r.manual || r.stayManual ? ctFmt(r.start) + ' ~ ' + ctFmt(r.end) : ctFmtApprox(r.start) + ' ~ ' + ctFmtApprox(r.end)) + (r.manual || r.stayManual ? ' (직접 입력)' : ' (예상)') + (it._camp ? ' · 🏕️ 캠핑장' : '') + '</div>' + edTimeHtml(r, id) + '</div>' +
             '<div class="pk-ed-btns"><button type="button" class="pk-ed-b" data-act="ed-up" data-id="' + id + '" aria-label="위로"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
             '<button type="button" class="pk-ed-b" data-act="ed-down" data-id="' + id + '" aria-label="아래로"' + (i === c.sched.length - 1 ? ' disabled' : '') + '>↓</button>' +
             '<button type="button" class="pk-ed-b del" data-act="ed-del" data-id="' + id + '" aria-label="빼기"' + (c.sched.length <= 1 ? ' disabled' : '') + '>✕</button></div></li>';
@@ -2101,7 +2162,7 @@ document.addEventListener('click', function (e) {
         host.innerHTML = '<div class="pk-paper">' + src.innerHTML + '</div>';   // 인쇄할 때는 이 칸만 보이게(다른 내용은 인쇄에서 숨김)
         window.print();
     }
-    else if (/^ed-(del|up|down|add|restore)$/.test(act)) { edAct(act, b.getAttribute('data-id') || ''); }
+    else if (/^ed-(del|up|down|add|restore|auto)$/.test(act)) { edAct(act, b.getAttribute('data-id') || ''); }
     else if (act === 'again') { S.seed++; S.ed = null; S.edited = false; S.course = makeCourse(); render(); scrollToEl('#pk-res'); }
     else if (act === 'reset') resetAll();
     else if (act === 'kakao') shareKakao();
