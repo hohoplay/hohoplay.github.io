@@ -40,6 +40,18 @@
     display: inline-block; font-size: 11px; font-weight: 800; color: #1a73e8;
     background: #eef2ff; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
   }
+  /* [ADD] 2026-11-21: 상세페이지 새 구성(인사 → 사진 → 목차 → 섹션 → 최신 글 → 나들이픽) */
+  .pt-hello{font-size:15px;line-height:1.7;color:#334155;margin:0 0 16px}
+  .pt-toc summary{cursor:pointer;font-weight:800;font-size:15px;color:#111}
+  .pt-toc ol{margin:10px 0 0;padding-left:20px;font-size:14px;line-height:1.9}
+  .pt-toc a{color:#1a73e8;text-decoration:none;font-weight:600}
+  .pt-h2{font-size:16px;font-weight:800;color:#111;margin:0 0 8px}
+  .pt-links{list-style:none;margin:6px 0 0;padding:0}
+  .pt-links li{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px}
+  .pt-links li:last-child{border-bottom:none}
+  .pt-sub{font-size:12px;color:#94a3b8;margin-left:6px}
+  .pt-note{font-size:15px;color:#dc2626;font-weight:700}
+  html{scroll-behavior:smooth}
 </style>
 </head>
 <body>
@@ -48,28 +60,46 @@
     <a href="/festival/?id=kids-0637&amp;lat=36.3285783&amp;lng=127.3508486" class="detail-back" style="margin-bottom:0;">← 나들이 지도로 돌아가기</a>
     <a href="/" style="color:#1a73e8; font-weight:700; text-decoration:none; font-size:14px;">🏠 홈</a>
   </div>
-  <img src="https://tong.visitkorea.or.kr/cms/resource/88/4055788_image2_1.png" alt="갑천 생태호수공원" class="detail-image">
   <span class="kids-badge">🧒 아이랑 갈만한 곳</span>
-  <h1 style="font-size:22px; font-weight:800; color:#111; margin-bottom:20px;">갑천 생태호수공원</h1>
+  <h1 style="font-size:22px; font-weight:800; color:#111; margin:0 0 10px;">갑천 생태호수공원</h1>
+  <p class="pt-hello">대전 서구에서 아이랑 가기 좋은 야외 나들이 장소, <b>갑천 생태호수공원</b> 정보를 정리했어요.<br>📌 2025.9 개장한 대전 첫 호수공원. 출렁다리·전망대·어린이 놀이터·물놀이장, 무료</p>
+  <img src="https://tong.visitkorea.or.kr/cms/resource/88/4055788_image2_1.png" alt="갑천 생태호수공원" class="detail-image">
 
-  <div class="detail-card">
+  <details class="detail-card pt-toc" open>
+    <summary>📚 이 페이지 목차</summary>
+    <ol>
+      <li><a href="#pt-s1">기본 정보</a></li>
+      <li><a href="#pt-s2">요금·운영시간</a></li>
+      <li><a href="#pt-s3">아이랑 갈 때 알아둘 점</a></li>
+      <li><a href="#pt-s4">방문 전 체크리스트</a></li>
+      <li><a href="#pt-s5">위치</a></li>
+    </ol>
+  </details>
+
+  <div class="detail-card" id="pt-s1">
+    <h2 class="pt-h2">1. 기본 정보</h2>
     <div class="detail-row"><div class="detail-label">장소</div><div class="detail-value">대전 서구 도안동 2383</div></div>
-    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
-    <div class="detail-row"><div class="detail-label">운영시간</div><div class="detail-value">목 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 금 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 토 갑천생태호수공원	00:00 - 24:00 관리사무실	정기휴무 (매주 토요일) 일 갑천생태호수공원	00:00 - 24:00 관리사무실	정기휴무 (매주 일요일) 월 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 화 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 수 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00접기</div></div>
-    <div class="detail-row"><div class="detail-label">정보 확인</div><div class="detail-value">2026년 11월 기준 · 요금·운영시간은 바뀔 수 있어 방문 전 공식 안내를 확인해 주세요</div></div>
     <div class="detail-row"><div class="detail-label">전화번호</div><div class="detail-value"><a href="tel:0507-1397-7205" class="detail-link">0507-1397-7205</a></div></div>
     <div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value"><a href="https://www.daejeon.go.kr/glPark/index.do" target="_blank" rel="noopener" class="detail-link">https://www.daejeon.go.kr/glPark/index.do</a></div></div>
   </div>
 
-  <div class="detail-card">
+  <div class="detail-card" id="pt-s2">
+    <h2 class="pt-h2">2. 요금·운영시간</h2>
+    <div class="detail-row"><div class="detail-label">이용요금</div><div class="detail-value">무료</div></div>
+    <div class="detail-row"><div class="detail-label">운영시간</div><div class="detail-value">목 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 금 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 토 갑천생태호수공원	00:00 - 24:00 관리사무실	정기휴무 (매주 토요일) 일 갑천생태호수공원	00:00 - 24:00 관리사무실	정기휴무 (매주 일요일) 월 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 화 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00 수 갑천생태호수공원	00:00 - 24:00 관리사무실	09:00 - 18:00접기</div></div>
+    <div class="detail-row"><div class="detail-label">정보 확인</div><div class="detail-value">2026년 11월 기준 · 요금·운영시간은 바뀔 수 있어 방문 전 공식 안내를 확인해 주세요</div></div>
+  </div>
+
+  <div class="detail-card" id="pt-s3">
+    <h2 class="pt-h2">3. 아이랑 갈 때 알아둘 점</h2>
     <div class="detail-overview">2025년 9월 문을 연 대전 최초의 호수공원으로 서구와 유성구에 걸쳐 있습니다. 전망대, 출렁다리, 테마섬, 어린이 놀이터와 물놀이 공간이 있고 산책로가 완만해 가족 나들이에 알맞습니다. 야간에는 전망대·분수·출렁다리에 조명이 켜집니다. 주차장과 화장실이 있습니다.
 
 편의
 단체 이용 가능, 반려동물 동반, 주차</div>
   </div>
 
-<div class="detail-card visit-check">
-    <h2>✅ 방문 전 체크리스트</h2>
+<div class="detail-card visit-check" id="pt-s4">
+    <h2 class="pt-h2">4. ✅ 방문 전 체크리스트</h2>
     <ul>
       <li><b>오늘 문 여는지</b> — 운영시간과 휴관일은 바뀔 수 있어요. 위의 전화번호나 홈페이지에서 확인해 주세요.</li>
       <li><b>주차·교통</b> — 주차 가능 여부와 요금, 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.</li>
@@ -79,7 +109,11 @@
     <p class="vc-rain">🌧 비 오는 날이라면 <a href="/festival/" class="detail-link">아이랑 나들이 지도</a>에서 "실내만"을 켜고 대체 장소를 찾아보세요.</p>
   </div>
 
-  <div style="margin-top:20px;"><a href="https://map.kakao.com/link/map/%EA%B0%91%EC%B2%9C%20%EC%83%9D%ED%83%9C%ED%98%B8%EC%88%98%EA%B3%B5%EC%9B%90,36.3285783,127.3508486" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+  <div class="detail-card" id="pt-s5">
+    <h2 class="pt-h2">5. 위치</h2>
+    <p style="font-size:14px;color:#334155;margin:0 0 6px;line-height:1.6;">대전 서구 도안동 2383</p>
+    <div><a href="https://map.kakao.com/link/map/%EA%B0%91%EC%B2%9C%20%EC%83%9D%ED%83%9C%ED%98%B8%EC%88%98%EA%B3%B5%EC%9B%90,36.3285783,127.3508486" target="_blank" rel="noopener" class="detail-link">지도에서 보기 →</a></div>
+  </div>
 
   <!-- [2026-10-27] 애드센스 "가치가 별로 없는 콘텐츠" 대응: 본문이 짧은 자동 생성 상세페이지에는 광고를 넣지 않는다. -->
   <p style="font-size:11px; color:#94a3b8; text-align:center; margin-top:24px; line-height:1.6;">
@@ -87,6 +121,16 @@
     장소 정보: 호호플레이가 직접 조사·정리<br>대표 사진: 한국관광공사 TourAPI(공공데이터포털)
   </p>
 </div>
+<!-- [2026-11-21] 호호매거진 최신 글(맨 위 3개) + 나들이픽: 둘 다 페이지를 열 때 스크립트가 채운다(상세페이지를 다시 만들 필요 없음).
+     latest-posts.js 는 /blog 와 같은 글 API 로 "호호 매거진" 글만 불러오고, 실패하거나 글이 없으면 칸을 숨긴다. -->
+<div style="max-width:640px;margin:0 auto 16px;padding:0 20px;box-sizing:border-box;">
+  <div class="detail-card" id="latest-magazine" style="display:none"></div>
+</div>
+<script src="/festival/latest-posts.js?v=20261121" defer></script>
+<!-- [2026-11-04] 나들이픽: "이 근처 나들이픽 5곳". 추천은 페이지를 열 때 /festival/nearby-pick.js 가 data/kids_places.json 으로 계산한다
+     (장소가 늘거나 좌표가 보정돼도 상세페이지를 다시 만들 필요 없음). 규칙을 바꿀 땐 nearby-pick.js 만 고친다. [2026-11-21] 댓글 위로 옮김. -->
+<div id="nearby-pick" data-id="kids-0637"></div>
+<script src="/festival/nearby-pick.js" defer></script>
 <!-- [2026-10-30] 댓글: 장소 상세페이지 댓글(old-rain-16f7 Worker /comments, game_id 자리에 contentid 사용).
      Fetch Kids Images 워크플로가 상세페이지를 통째로 다시 만들 때 댓글 칸이 사라지지 않도록 템플릿에 포함. -->
 <div style="max-width:640px;margin:0 auto 16px;padding:0 20px;box-sizing:border-box;">
@@ -108,10 +152,6 @@
     </div>
   </div>
 </div>
-<!-- [2026-11-04] 나들이픽: 댓글 아래에 "이 근처 나들이픽 5곳". 추천은 페이지를 열 때 /festival/nearby-pick.js 가 data/kids_places.json 으로 계산한다
-     (장소가 늘거나 좌표가 보정돼도 상세페이지를 다시 만들 필요 없음). 규칙을 바꿀 땐 nearby-pick.js 만 고친다. -->
-<div id="nearby-pick" data-id="kids-0637"></div>
-<script src="/festival/nearby-pick.js" defer></script>
 <script>
     // [ADD] 2026-10-10: 게임 페이지와 동일한 댓글 백엔드(old-rain-16f7 Worker + D1) 재사용.
     // game_id 자리에 각 장소의 contentid를 그대로 쓰므로 백엔드 수정 없이 바로 동작한다.
