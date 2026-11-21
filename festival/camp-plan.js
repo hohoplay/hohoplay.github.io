@@ -194,6 +194,19 @@
         rows.push({ id: uid(), day: 1, time: forest ? '17:30' : '17:30', title: '귀가', memo: '', k: 'out' });
         return { v: 1, mode: forest ? 'forest' : 'day', id: champ.contentid, date: champ._date || '', days: 1, rows: rows, checks: {}, extra: [], note: '', fest: false };
     }
+    var seedRows = null;
+    function newPlan(champ) {
+        var pl = defaultPlan(champ);
+        if (seedRows) {
+            pl.rows = seedRows.map(function (r) {
+                var o = { id: uid(), day: 1, time: r.time || '', title: r.title || '', memo: r.memo || '', k: r.k || 'x' };
+                if (r.pid) o.pid = r.pid;
+                if (r.src) o.tg = r.k === 'f' ? festTags(r.src) : tagsOf(r.src);
+                return o;
+            });
+        }
+        return pl;
+    }
     function defaultPlan(champ) {
         if (cfg.kind !== 'camp') return dayDefaultPlan(champ);
         var two = pickTwo(champ._near);
@@ -407,7 +420,7 @@
         h += '<div class="cp-date"><label for="cpDate">' + cfg.dateLabel + '</label><input type="date" id="cpDate" value="' + esc(P.date) + '"><span style="font-weight:600;color:#94a3b8;font-size:12px">(선택)</span></div>' +
             (cfg.hasFest ? '<div class="cp-line" id="cpDateNote" style="display:none;color:#b45309">근처 장소는 오늘 기준으로 골랐어요. 그날의 운영·휴관일은 확인표로 꼭 확인하세요.</div>' : '') + '</div>';
 
-        if (!(cur._near && cur._near.length)) {
+        if (cfg.noNear && !(cur._near && cur._near.length)) {
             h += '<div class="cp-warn">' + fill(cfg.noNear) + '</div>';
         }
 
@@ -642,7 +655,7 @@
             e.preventDefault();
         } else if (act === 'reset') {
             if (!window.confirm('편집한 내용을 지우고 처음 상태로 되돌릴까요?')) return;
-            P = defaultPlan(cur);
+            var keepId = P.id; P = newPlan(cur); P.id = keepId;
         } else if (act === 'print') {
             doPrint();
             return;
@@ -743,6 +756,7 @@
                 Object.keys(base).forEach(function (k) { cfg[k] = base[k]; });
                 // 글자(icon·placeLabel·fromLabel·title·paperTitle·sub·dateLabel·noNear), 확인표(checkA), 저장 칸(key), 축제 스위치(hasFest)를 바꿔 쓸 수 있다.
                 ['icon', 'placeLabel', 'fromLabel', 'title', 'paperTitle', 'sub', 'dateLabel', 'noNear'].forEach(function (k) { if (opts.over[k]) cfg[k] = String(opts.over[k]); });
+                if (opts.over.noNear === '') cfg.noNear = '';   // [ADD] 2026-11-22: 빈 글자면 "근처 장소를 못 찾았어요" 안내를 숨긴다(코스 일정표)
                 if (Array.isArray(opts.over.checkA)) cfg.checkA = opts.over.checkA;
                 if (opts.over.key) cfg.key = String(opts.over.key);
                 if (typeof opts.over.hasFest === 'boolean') cfg.hasFest = opts.over.hasFest;
@@ -753,7 +767,10 @@
             var pid = champ.contentid + (opts && opts.variant ? ':' + String(opts.variant) : '');
             defNearOff = !!(opts && opts.noDefaultNear);
             P = load(pid);
-            if (!P) { P = defaultPlan(champ); P.id = pid; }
+            // [ADD] 2026-11-22: opts.rows — 지도의 코스 카드처럼 여러 곳을 한 번에 담은 일정표. 저장된 일정이 없을 때(그리고 "처음 상태로")만 이 줄들로 채운다.
+            //   rows: [{ time:'10:00', title, memo, k:'x'|'n'|'f', pid?, src? }]  (src = costTag·placeType 가 든 장소 정보 → 실내/야외·무료/유료 배지)
+            seedRows = (opts && Array.isArray(opts.rows) && opts.rows.length) ? opts.rows : null;
+            if (!P) { P = newPlan(champ); P.id = pid; }
             save();
             render();
             sec.style.display = 'block';
