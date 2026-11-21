@@ -29,6 +29,7 @@
       'border-radius:18px 18px 0 0;box-shadow:0 -10px 40px rgba(15,23,42,.35);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}' +
     '#hpPlanRoot .hpp-bar{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #e2e8f0;}' +
     '#hpPlanRoot .hpp-bar b{font-size:14px;font-weight:900;color:#0f172a;}' +
+    '#hpPlanRoot .hpp-g{margin-left:auto;font-size:12.5px;font-weight:800;color:#4f46e5;text-decoration:none;white-space:nowrap;}' +
     '#hpPlanRoot .hpp-x{border:0;background:#111827;color:#fff;font-size:13px;font-weight:800;border-radius:99px;padding:8px 14px;cursor:pointer;}' +
     '#hpPlanRoot .hpp-x:focus-visible{outline:3px solid #93c5fd;outline-offset:2px;}' +
     '#hpPlanRoot #campPlan{margin:12px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;}' +
@@ -49,7 +50,7 @@
     root.innerHTML =
       '<div class="hpp-bd"></div>' +
       '<div class="hpp-box">' +
-        '<div class="hpp-bar"><b>🗓️ 나들이 일정표</b><button type="button" class="hpp-x" aria-label="일정표 닫기">✕ 닫기</button></div>' +
+        '<div class="hpp-bar"><b>🗓️ 나들이 일정표</b><a class="hpp-g" href="/festival/plan-guide.html" target="_blank" rel="noopener">샘플·사용법</a><button type="button" class="hpp-x" aria-label="일정표 닫기">✕ 닫기</button></div>' +
         '<div class="hpp-msg" id="hppMsg">불러오는 중…</div>' +
         '<section id="campPlan" aria-label="내 일정표" style="display:none"><div id="cpRoot"></div></section>' +
       '</div>';
