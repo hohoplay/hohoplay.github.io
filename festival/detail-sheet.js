@@ -27,7 +27,9 @@
   var lastFocus = null;
   var prevOverflow = '';
   var closeTimer = null;
-  var root, panel, body, frame, loading, closeBtn, grab, backdrop;
+  var curPath = '';
+  var root, panel, body, frame, loading, closeBtn, grab, backdrop, planBtn;
+  var KIDS_RE = /^\/festival\/detail\/(kids-\d+)\.html$/;
 
   var CSS = '' +
     '#hpSheetRoot{position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;display:none;}' +
@@ -49,6 +51,11 @@
       'box-shadow:0 6px 18px rgba(15,23,42,.45);-webkit-tap-highlight-color:transparent;}' +
     '#hpSheetRoot .hp-close:hover{background:#1f2937;}' +
     '#hpSheetRoot .hp-close:focus-visible{outline:3px solid #93c5fd;outline-offset:2px;}' +
+    '#hpSheetRoot .hp-plan{position:absolute;left:16px;bottom:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5;height:52px;padding:0 18px;border-radius:99px;display:none;align-items:center;' +
+      'border:0;background:#4f46e5;color:#fff;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(15,23,42,.45);-webkit-tap-highlight-color:transparent;}' +
+    '#hpSheetRoot .hp-plan.hp-show{display:inline-flex;}' +
+    '#hpSheetRoot .hp-plan:hover{background:#4338ca;}' +
+    '#hpSheetRoot .hp-plan:focus-visible{outline:3px solid #93c5fd;outline-offset:2px;}' +
     '@media (prefers-reduced-motion:reduce){#hpSheetRoot .hp-panel,#hpSheetRoot .hp-bd{transition:none;}}';
 
   // iframe 안에 넣는 보정: 맨 위 줄(← 지도로 돌아가기 / 홈)과 푸터를 숨기고, 아래쪽에 ✕ 버튼이 안 가리도록 여백을 둔다.
@@ -56,6 +63,8 @@
     '.detail-wrap>div:first-child{display:none!important;}' +
     '#site-footer{display:none!important;}' +
     '.detail-wrap{padding-top:16px!important;padding-bottom:110px!important;}' +
+    '.detail-wrap>p[style*="font-size:11px"]{margin-top:12px!important;}' +
+    'div:has(>#latest-magazine:empty){display:none!important;}' +
     'html{-webkit-text-size-adjust:100%;}' +
     '</style>';
 
@@ -91,6 +100,7 @@
         '<div class="hp-body">' +
           '<div class="hp-loading">불러오는 중…</div>' +
         '</div>' +
+        '<button type="button" class="hp-plan" aria-label="이 장소로 일정표 만들기">🗓️ 이 장소로 일정표</button>' +
         '<button type="button" class="hp-close" aria-label="닫기">✕</button>' +
       '</div>';
     document.body.appendChild(root);
@@ -101,8 +111,21 @@
     body = root.querySelector('.hp-body');
     loading = root.querySelector('.hp-loading');
     closeBtn = root.querySelector('.hp-close');
+    planBtn = root.querySelector('.hp-plan');
 
     closeBtn.addEventListener('click', function () { close(); });
+    // [ADD] 2026-11-22: 아이랑 장소 상세 팝업에서 바로 일정표 열기(festival/plan-modal.js 를 처음 누를 때만 불러온다).
+    planBtn.addEventListener('click', function () {
+      var m = KIDS_RE.exec(curPath || '');
+      if (!m) return;
+      var id = m[1];
+      if (window.HohoPlanModal) { window.HohoPlanModal.openPlace(id); return; }
+      var s = document.createElement('script');
+      s.src = '/festival/plan-modal.js?v=20261122a';
+      s.onload = function () { if (window.HohoPlanModal) window.HohoPlanModal.openPlace(id); };
+      s.onerror = function () { try { alert('일정표를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); } catch (_) {} };
+      document.head.appendChild(s);
+    });
     backdrop.addEventListener('click', function () { close(); });
     document.addEventListener('keydown', function (e) {
       if (opened && (e.key === 'Escape' || e.key === 'Esc')) { e.preventDefault(); close(); }
@@ -206,6 +229,8 @@
       try { history.pushState({ hpSheet: 1 }, '', location.href); pushed = true; } catch (_) { pushed = false; }
       closeBtn.focus({ preventScroll: true });
     }
+    curPath = path;
+    if (planBtn) planBtn.classList.toggle('hp-show', KIDS_RE.test(path));
     setFrame(null);
     load(path);
   }
