@@ -288,6 +288,165 @@ def build_time_rows_html(play_time, content_id):
     return TIME_ROW_START + '\n    '.join(rows) + TIME_ROW_END + '\n    '
 
 
+# [ADD] 2026-11-22: 방문 전 체크리스트·"아이랑 가면 좋은 점"을 행사마다 다르게 만든다.
+# 모든 행사에 똑같은 문장("주차 확인, 날씨 확인")이 들어가면 복사한 페이지처럼 보이기 때문.
+# 원칙: TourAPI가 준 사실(이용요금·운영시간·기간·행사 소개·프로그램 글)에서 확인되는 것만 쓴다. 데이터에 없는 사실
+# (유모차 진입 가능 여부, 혼잡도 등)은 지어내지 않는다. 단서가 부족하면 문장을 덜 보여 주고, 3줄이 안 되면 공통 문장으로 채운다.
+_CP_COLD_MONTHS = {11, 12, 1, 2, 3}
+_CP_WARM_MONTHS = {6, 7, 8, 9}
+_CP_STOP_WORDS = ('다양한', '각종', '여러', '및', '그리고', '또한', '등')
+
+
+def _cp_plain(raw):
+    t = re.sub(r'<[^>]+>', ' ', str(raw or ''))
+    t = html.unescape(t).replace('\xa0', ' ')
+    return re.sub(r'\s+', ' ', t).strip()
+
+
+def _cp_month(raw):
+    raw = str(raw or '')
+    try:
+        return int(raw[4:6]) if len(raw) == 8 else 0
+    except ValueError:
+        return 0
+
+
+def _cp_experience_name(text):
+    """프로그램 글에서 "○○ 만들기 체험" 같은 이름을 하나 뽑는다. 못 찾으면 빈 문자열."""
+    for m in re.finditer(r'((?:[가-힣A-Za-z0-9]+\s){0,3}[가-힣A-Za-z0-9]*(?:만들기\s?체험|만들기|체험\s?프로그램|체험))', text):
+        name = re.sub(r'\s+', ' ', m.group(1)).strip()
+        first = name.split(' ')[0]
+        if first in _CP_STOP_WORDS or first.startswith(_CP_STOP_WORDS):
+            name = ' '.join(name.split(' ')[1:])
+        if 4 <= len(name) <= 18 and name not in ('체험', '체험 프로그램'):
+            return name
+    return ''
+
+
+def build_festival_visit_info(festival, overview, intro, date_label):
+    """(체크리스트 <li> HTML, "아이랑 가면 좋은 점" 블록 HTML)을 돌려준다. 블록은 근거가 없으면 빈 문자열."""
+    fee = _cp_plain(intro.get('usetimefestival'))
+    play = format_play_time_for_page(festival.get('playTime'))
+    program = _cp_plain(intro.get('program'))
+    place = _cp_plain(intro.get('eventplace'))
+    ov = _cp_plain(overview)
+    blob = ' '.join([ov, program, place, play])
+    sm, em = _cp_month(festival.get('startDate')), _cp_month(festival.get('endDate'))
+    try:
+        _sd = datetime.date(int(str(festival.get('startDate'))[:4]), sm, int(str(festival.get('startDate'))[6:8]))
+        _ed = datetime.date(int(str(festival.get('endDate'))[:4]), em, int(str(festival.get('endDate'))[6:8]))
+        period_days = (_ed - _sd).days + 1
+    except (TypeError, ValueError):
+        period_days = 0
+    cold = sm in _CP_COLD_MONTHS and em in _CP_COLD_MONTHS
+    warm = sm in _CP_WARM_MONTHS and em in _CP_WARM_MONTHS
+
+    has_won = bool(re.search(r'\d[\d,]*\s*원', fee))
+    is_free = ('무료' in fee) and not has_won
+    child_free = ''
+    m = re.search(r'((?:초등학생|미취학(?:\s?아동)?|영유아|유아|어린이|만\s?\d+\s?세|\d+\s?세)[^\n,;/]{0,10}?무료)', fee)
+    if m:
+        child_free = re.sub(r'\s+', ' ', m.group(1)).strip()
+    else:
+        # "※ 무료 - 초등학생 이하" 처럼 무료가 앞에 오는 표기
+        m2 = re.search(r'무료\s*[-:·]?\s*((?:초등학생|미취학(?:\s?아동)?|영유아|유아|어린이|만\s?\d+\s?세|\d+\s?세)(?:\s?이하|\s?미만)?)', fee)
+        if m2:
+            child_free = re.sub(r'\s+', ' ', m2.group(1)).strip() + ' 무료'
+    prebook = ('사전' in fee) and ('현장' in fee)
+
+    has_indoor = '실내' in blob
+    has_outdoor = bool(re.search(r'야외|공원|광장|해변|바닷가|강변|들판|정원|캠핑', blob))
+    indoor_only = has_indoor and not re.search(r'야외', blob)
+    outdoor_only = (not has_indoor) and has_outdoor
+
+    end_hours = [int(x) for x in re.findall(r'[~\-–]\s*(\d{1,2}):\d{2}', play)]
+    last_end = max(end_hours) if end_hours else 0
+    night = last_end >= 20
+
+    days = ''
+    dm = re.search(r'매주\s*([월화수목금토일](?:\s*[·,~]\s*[월화수목금토일])*)', play + ' ' + program)
+    if dm:
+        days = re.sub(r'\s+', '', dm.group(1))
+
+    has_show = bool(re.search(r'공연|퍼레이드|행진|콘서트|라이브', blob))
+    has_food = bool(re.search(r'푸드|F&B|먹거리|미식|음식|푸드트럭', blob))
+    has_exp = '체험' in blob or '만들기' in blob
+    has_photo = '포토존' in blob
+    exp_name = _cp_experience_name(program + ' ' + ov) if has_exp else ''
+
+    e = html.escape
+    items = []
+    # 1) 일정 — 기간·운영시간을 이 행사의 값으로 적는다.
+    when = date_label + ((', ' + play) if play and len(play) <= 40 else '')
+    items.append(('일정', f'{e(when)}. 바뀌거나 취소될 수 있으니 출발 전에 위의 홈페이지나 전화로 확인하세요.'))
+    # 2) 운영 요일
+    if days:
+        items.append(('운영 요일', f'매주 {e(days)}에 열려요. 그 밖의 요일에는 열리지 않으니 날짜를 맞춰 가세요.'))
+    # 3) 요금·예약·혼잡
+    if prebook:
+        items.append(('요금·예약', '사전 예매와 현장 구매 요금이 달라요. 위의 이용요금을 보고 미리 예매할지 정하세요.'))
+    elif is_free and period_days and period_days <= 45:
+        items.append(('붐비는 시간', '무료 행사는 주말 낮에 사람이 몰리는 경우가 많아요. 아이와 가신다면 오전 일찍이나 평일을 생각해 보세요.'))
+    # 4) 날씨·복장
+    if indoor_only:
+        items.append(('날씨', '실내에서 열려 날씨 영향은 적지만, 주차장에서 행사장까지 걷는 구간은 겉옷을 챙기세요.'))
+    elif outdoor_only:
+        tip = '아이 방한복과 핫팩' if cold else ('모자·물·자외선 차단제' if warm else '날씨에 맞는 겉옷과 우산')
+        items.append(('날씨', f'야외에서 보내는 시간이 있는 행사예요. 당일 날씨를 확인하고 {tip}을 챙기세요.'))
+    elif has_indoor and has_outdoor:
+        items.append(('날씨', '실내와 야외 공간이 함께 있어요. 야외에서 머물 때를 생각해 겉옷을 챙기세요.'))
+    # 5) 늦은 시간
+    if night:
+        tip = '아이 겉옷과 목도리를 챙기세요' if cold else '귀가 시간과 아이 잠자는 시간을 생각해 계획하세요'
+        items.append(('늦은 시간', f'운영이 {last_end}시까지 이어져 해가 진 뒤에도 머물 수 있어요. {tip}.'))
+    # 6) 공연·먹거리·유모차 안내
+    if has_show:
+        items.append(('공연·퍼레이드', '시간대가 정해져 있을 수 있어요. 보고 싶은 공연이 있다면 시간을 먼저 확인하세요.'))
+    if has_food:
+        items.append(('먹거리', '먹거리 코너가 있다고 안내돼 있어요. 아이 식사와 간식을 현장에서 해결할지 미리 정해 두세요.'))
+    if '유모차' in blob or '수유' in blob:
+        items.append(('유모차·수유실', '안내에 유모차·수유실 이야기가 있어요. 위치와 이용 방법은 공식 안내로 확인하세요.'))
+    items = items[:5]
+    # 단서가 적은 행사는 공통 문장으로 채운다(최소 3줄).
+    fillers = [
+        ('주차·교통', '행사장 주변은 혼잡할 수 있어요. 주차 가능 여부와 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.'),
+        ('날씨', '야외 일정이 있다면 당일 날씨와 아이 복장을 확인하고, 비 올 때 갈 실내 대안을 챙겨 두세요.'),
+        ('아이 동반', '유모차 이용, 수유실, 반려동물 동반 가능 여부는 행사마다 달라요. 필요하면 미리 문의해 보세요.'),
+    ]
+    used = {k for k, _ in items}
+    for k, t in fillers:
+        if len(items) >= 3:
+            break
+        if k not in used:
+            items.append((k, t))
+    check_html = '\n      '.join(f'<li><b>{k}</b> — {t}</li>' for k, t in items)
+
+    # "아이랑 가면 좋은 점" — 근거가 있는 것만, 최대 2줄.
+    pts = []
+    if child_free:
+        pts.append(f'이용요금에 "{e(child_free)}"라고 안내돼 있어 아이 입장 요금 부담이 적어요.')
+    if has_exp:
+        if exp_name:
+            pts.append(f'"{e(exp_name)}" 같은 체험이 있어 아이가 보기만 하지 않고 직접 해볼 수 있어요.')
+        else:
+            pts.append('체험 프로그램이 있어 아이가 보기만 하지 않고 직접 해볼 수 있어요.')
+    if indoor_only:
+        pts.append('실내에서 열려 비가 오거나 추운 날에도 계획을 세우기 편해요.')
+    if has_show:
+        pts.append('공연이나 퍼레이드를 구경할 수 있어 아이와 함께 볼거리가 있어요.')
+    if has_photo:
+        pts.append('포토존이 있어 아이와 사진을 남기기 좋아요.')
+    if is_free:
+        pts.append('무료로 열려 입장료 부담 없이 가볍게 둘러보기 좋아요.')
+    pts = pts[:2]
+    kid_html = ''
+    if pts:
+        kid_html = ('<div class="kid-points"><b>👶 아이랑 가면 좋은 점</b><ul>'
+                    + ''.join(f'<li>{p}</li>' for p in pts) + '</ul></div>')
+    return check_html, kid_html
+
+
+
 def build_detail_page_html(festival, overview, intro):
     """축제 1건에 대한 독립 상세페이지(festival/detail/{contentid}.html)를 만든다."""
     title = html.escape(festival.get('title') or '')
@@ -363,6 +522,7 @@ def build_detail_page_html(festival, overview, intro):
     except (TypeError, ValueError):
         np_script = ''  # 좌표가 없는 행사는 근처 나들이픽을 만들 수 없어 칸만 비워 둔다
     map_section_link = map_link_html or '<span style="font-size:13px;color:#94a3b8">위치 좌표 정보가 없습니다.</span>'
+    check_items_html, kid_points_html = build_festival_visit_info(festival, overview, intro, date_label)
 
     return f'''<!DOCTYPE html>
 <html lang="ko">
@@ -398,6 +558,9 @@ def build_detail_page_html(festival, overview, intro):
   .visit-check ul {{ list-style: none; margin: 0; padding: 0; }}
   .visit-check li {{ font-size: 14px; color: #334155; line-height: 1.6; padding: 9px 0; border-bottom: 1px solid #f1f5f9; }}
   .visit-check li:last-child {{ border-bottom: none; }}
+  .kid-points {{ margin-top: 14px; padding: 12px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; font-size: 14px; color: #14532d; line-height: 1.6; }}
+  .kid-points ul {{ margin: 6px 0 0; padding-left: 18px; }}
+  .kid-points li {{ margin: 3px 0; }}
   .visit-check li b {{ color: #111; }}
   .pt-hello {{ font-size: 15px; line-height: 1.7; color: #334155; margin: 0 0 16px; }}
   .pt-toc summary {{ cursor: pointer; font-weight: 800; font-size: 15px; color: #111; }}
@@ -445,6 +608,7 @@ def build_detail_page_html(festival, overview, intro):
   <div class="detail-card" id="pt-s3">
     <h2 class="pt-h2">3. 행사 소개</h2>
     <div class="detail-overview">{overview_html}</div>
+    {kid_points_html}
   </div>
 
   {program_section}
@@ -452,10 +616,7 @@ def build_detail_page_html(festival, overview, intro):
   <div class="detail-card visit-check" id="pt-s{n_check}">
     <h2 class="pt-h2">{n_check}. ✅ 방문 전 체크리스트</h2>
     <ul>
-      <li><b>일정부터</b> — 행사 기간·시간은 바뀌거나 취소될 수 있어요. 위의 홈페이지나 전화로 확인해 주세요.</li>
-      <li><b>주차·교통</b> — 행사장 주변은 혼잡할 수 있어요. 주차 가능 여부와 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.</li>
-      <li><b>날씨</b> — 야외에서 열리는 행사라면 당일 날씨와 아이 복장을 확인하고, 비 올 때 갈 실내 대안을 챙겨 두세요.</li>
-      <li><b>아이 동반</b> — 유모차 이용, 수유실, 반려동물 동반 가능 여부는 행사마다 달라요. 필요하면 미리 문의해 보세요.</li>
+      {check_items_html}
     </ul>
   </div>
 
