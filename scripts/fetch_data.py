@@ -672,6 +672,8 @@ def generate_detail_pages(festivals):
 
 
     new_count = 0
+    regen_old = 0
+    REGEN_OLD_PER_RUN = 30
     for f in festivals:
         content_id = f.get('contentid')
         if not content_id:
@@ -690,9 +692,17 @@ def generate_detail_pages(festivals):
                     _old_html = _fp.read()
             except OSError:
                 _old_html = ''
-            if not _s or not _e or _expected in _old_html:
-                continue  # 기간이 같거나(또는 기간 정보가 없으면) 이미 생성된 페이지는 건드리지 않음
-            print(f"  상세페이지 기간 변경으로 재생성: {content_id} ({f.get('title')}) → {_expected}")
+            _period_same = (not _s or not _e or _expected in _old_html)
+            if _period_same:
+                # [ADD] 2026-11-22: 행사별 체크리스트·'아이랑 가면 좋은 점'이 들어가기 전에 만든 옛 형식 페이지는
+                # 한 번에 전부 다시 만들지 않고, 실행 한 번에 최대 REGEN_OLD_PER_RUN건씩만 새 형식으로 바꾼다
+                # (TourAPI 호출·실행 시간이 갑자기 늘지 않도록). 새 형식 페이지에는 class="basic-guide"가 있어 그걸로 구분한다.
+                if ('class="basic-guide"' in _old_html) or (not _old_html) or regen_old >= REGEN_OLD_PER_RUN:
+                    continue  # 기간이 같고 이미 새 형식이거나(또는 이번 실행 한도를 채웠으면) 건드리지 않음
+                regen_old += 1
+                print(f"  상세페이지 새 형식으로 재생성: {content_id} ({f.get('title')})")
+            else:
+                print(f"  상세페이지 기간 변경으로 재생성: {content_id} ({f.get('title')}) → {_expected}")
 
         overview = f.get('overview')  # 수동 등록 축제는 이미 설명이 주어져 있어 TourAPI를 안 부름
         if overview is None:
@@ -722,7 +732,7 @@ def generate_detail_pages(festivals):
         new_count += 1
         time.sleep(0.3)  # TourAPI에 과도하게 연속 호출하지 않도록 약간의 간격
 
-    print(f"상세페이지 신규 생성: {new_count}건 (festival/detail/)")
+    print(f"상세페이지 신규·재생성: {new_count}건 (festival/detail/) — 그중 옛 형식을 새 형식으로 바꾼 것 {regen_old}건")
 
 
 def clean_play_time(raw):
