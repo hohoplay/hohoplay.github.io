@@ -324,7 +324,7 @@ def _cp_experience_name(text):
 
 
 def build_festival_visit_info(festival, overview, intro, date_label):
-    """(체크리스트 <li> HTML, "아이랑 가면 좋은 점" 블록 HTML)을 돌려준다. 블록은 근거가 없으면 빈 문자열."""
+    """(체크리스트 <li> HTML, "아이랑 가면 좋은 점" 블록 HTML, 접어 둔 기본 안내 HTML)을 돌려준다. 두 번째 블록은 근거가 없으면 빈 문자열."""
     fee = _cp_plain(intro.get('usetimefestival'))
     play = format_play_time_for_page(festival.get('playTime'))
     program = _cp_plain(intro.get('program'))
@@ -407,18 +407,15 @@ def build_festival_visit_info(festival, overview, intro, date_label):
     if '유모차' in blob or '수유' in blob:
         items.append(('유모차·수유실', '안내에 유모차·수유실 이야기가 있어요. 위치와 이용 방법은 공식 안내로 확인하세요.'))
     items = items[:5]
-    # 단서가 적은 행사는 공통 문장으로 채운다(최소 3줄).
-    fillers = [
+    # [CHANGE] 2026-11-22: 단서가 적은 행사도 공통 문장으로 줄 수를 채우지 않는다(1~2줄이어도 그대로 둠).
+    # 주차·날씨·아이 동반 같은 공통 안내는 모든 행사에 똑같으므로 접어 둔 "방문 전 기본 안내"로 따로 모은다.
+    basic = [
         ('주차·교통', '행사장 주변은 혼잡할 수 있어요. 주차 가능 여부와 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.'),
         ('날씨', '야외 일정이 있다면 당일 날씨와 아이 복장을 확인하고, 비 올 때 갈 실내 대안을 챙겨 두세요.'),
         ('아이 동반', '유모차 이용, 수유실, 반려동물 동반 가능 여부는 행사마다 달라요. 필요하면 미리 문의해 보세요.'),
     ]
-    used = {k for k, _ in items}
-    for k, t in fillers:
-        if len(items) >= 3:
-            break
-        if k not in used:
-            items.append((k, t))
+    basic_html = ('<details class="basic-guide"><summary>방문 전 기본 안내 (모든 행사 공통)</summary><ul>'
+                  + ''.join(f'<li><b>{k}</b> — {t}</li>' for k, t in basic) + '</ul></details>')
     check_html = '\n      '.join(f'<li><b>{k}</b> — {t}</li>' for k, t in items)
 
     # "아이랑 가면 좋은 점" — 근거가 있는 것만, 최대 2줄.
@@ -443,7 +440,7 @@ def build_festival_visit_info(festival, overview, intro, date_label):
     if pts:
         kid_html = ('<div class="kid-points"><b>👶 아이랑 가면 좋은 점</b><ul>'
                     + ''.join(f'<li>{p}</li>' for p in pts) + '</ul></div>')
-    return check_html, kid_html
+    return check_html, kid_html, basic_html
 
 
 
@@ -522,7 +519,7 @@ def build_detail_page_html(festival, overview, intro):
     except (TypeError, ValueError):
         np_script = ''  # 좌표가 없는 행사는 근처 나들이픽을 만들 수 없어 칸만 비워 둔다
     map_section_link = map_link_html or '<span style="font-size:13px;color:#94a3b8">위치 좌표 정보가 없습니다.</span>'
-    check_items_html, kid_points_html = build_festival_visit_info(festival, overview, intro, date_label)
+    check_items_html, kid_points_html, basic_guide_html = build_festival_visit_info(festival, overview, intro, date_label)
 
     return f'''<!DOCTYPE html>
 <html lang="ko">
@@ -559,6 +556,11 @@ def build_detail_page_html(festival, overview, intro):
   .visit-check li {{ font-size: 14px; color: #334155; line-height: 1.6; padding: 9px 0; border-bottom: 1px solid #f1f5f9; }}
   .visit-check li:last-child {{ border-bottom: none; }}
   .kid-points {{ margin-top: 14px; padding: 12px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; font-size: 14px; color: #14532d; line-height: 1.6; }}
+  .basic-guide {{ margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; }}
+  .basic-guide summary {{ cursor: pointer; font-size: 13px; font-weight: 700; color: #64748b; }}
+  .basic-guide ul {{ list-style: none; margin: 6px 0 0; padding: 0; }}
+  .basic-guide li {{ font-size: 13px; color: #64748b; line-height: 1.6; padding: 6px 0; }}
+  .basic-guide li b {{ color: #475569; }}
   .kid-points ul {{ margin: 6px 0 0; padding-left: 18px; }}
   .kid-points li {{ margin: 3px 0; }}
   .visit-check li b {{ color: #111; }}
@@ -618,6 +620,7 @@ def build_detail_page_html(festival, overview, intro):
     <ul>
       {check_items_html}
     </ul>
+    {basic_guide_html}
   </div>
 
   <div class="detail-card" id="pt-s{n_map}">
