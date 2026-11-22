@@ -173,11 +173,16 @@
         if (ft === 'mixed') return [['', '일부 유료']];
         return [['', '요금 확인 필요']];
     }
+    // [ADD] 2026-11-22: 줄에 장소 위치(lat·lng)를 같이 저장 → 이동 순서 그림이 순서·장소가 바뀔 때마다 직선거리를 다시 계산한다.
+    function withGeo(row, o) {
+        if (o && o.lat !== '' && o.lat != null && o.lng !== '' && o.lng != null && isFinite(+o.lat) && isFinite(+o.lng)) { row.lat = +o.lat; row.lng = +o.lng; }
+        return row;
+    }
     function nearRow(n, time) {
         var meta = [];
         if (n.km != null) meta.push(cfg.fromLabel + ' 약 ' + fmtKm(n.km));
         meta.push('운영시간 확인');
-        return { id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n', pid: n.contentid || '', tg: tagsOf(n) };
+        return withGeo({ id: uid(), day: 1, time: time, title: '📍 ' + n.title, memo: meta.join(' · '), k: 'n', pid: n.contentid || '', tg: tagsOf(n) }, n);
     }
     var defNearOff = false;
     function dayDefaultPlan(champ) {
@@ -186,7 +191,7 @@
         var memo = ['운영시간 확인'];
         var rows = [
             { id: uid(), day: 1, time: '10:00', title: '집 출발', memo: '', k: 'x' },
-            { id: uid(), day: 1, time: '10:30', title: cfg.icon + ' ' + champ.title, memo: memo.join(' · '), k: 'c', pid: champ.hasDetail === false ? '' : champ.contentid, tg: tagsOf(champ) },
+            withGeo({ id: uid(), day: 1, time: '10:30', title: cfg.icon + ' ' + champ.title, memo: memo.join(' · '), k: 'c', pid: champ.hasDetail === false ? '' : champ.contentid, tg: tagsOf(champ) }, champ),
             { id: uid(), day: 1, time: forest ? '12:30' : '12:00', title: forest ? '점심 · 도시락' : '점심 · 휴식', memo: forest ? '도시락 또는 근처 식당' : '근처 식당 찾기', k: 'x' }
         ];
         var times = forest ? (two.length >= 2 ? ['14:00', '16:00'] : ['14:30']) : (two.length >= 2 ? ['13:30', '15:30'] : ['14:00']);
@@ -201,6 +206,7 @@
             pl.rows = seedRows.map(function (r) {
                 var o = { id: uid(), day: 1, time: r.time || '', title: r.title || '', memo: r.memo || '', k: r.k || 'x' };
                 if (r.pid) o.pid = r.pid;
+                withGeo(o, r);
                 if (r.src) o.tg = r.k === 'f' ? festTags(r.src) : tagsOf(r.src);
                 return o;
             });
@@ -321,6 +327,17 @@
             '#cp-print-host .cpp .ck,#cpPaper .cpp .ck{break-inside:avoid;margin:2px 0}' +
             '#cp-print-host .cpp .memo,#cpPaper .cpp .memo{border:1px solid #999;min-height:70px;padding:6px 8px;white-space:pre-wrap;margin-top:4px}' +
             '#cp-print-host .cpp .foot,#cpPaper .cpp .foot{margin-top:10px;font-size:11px;color:#555}' +
+            '#cp-print-host .cpp .rt-cap,#cpPaper .cpp .rt-cap{font-size:11px;color:#64748b;margin:2px 0 0}' +
+            '#cp-print-host .cpp .rt,#cpPaper .cpp .rt{display:flex;margin:4px 0 8px;padding-top:16px}' +
+            '#cp-print-host .cpp .rt-n,#cpPaper .cpp .rt-n{flex:1 1 0;min-width:84px;position:relative;text-align:center}' +
+            '#cp-print-host .cpp .rt-t,#cpPaper .cpp .rt-t{display:flex;align-items:center}' +
+            '#cp-print-host .cpp .rt-t i,#cpPaper .cpp .rt-t i{flex:1;height:0;border-top:2px solid #64748b}' +
+            '#cp-print-host .cpp .rt-t i.off,#cpPaper .cpp .rt-t i.off{border-top-color:transparent}' +
+            '#cp-print-host .cpp .rt-t b,#cpPaper .cpp .rt-t b{flex:none;width:26px;height:26px;box-sizing:border-box;border:2px solid #334155;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#111;background:#fff;line-height:1}' +
+            '#cp-print-host .cpp .rt-d,#cpPaper .cpp .rt-d{position:absolute;left:0;top:-15px;transform:translateX(-50%);font-size:10px;color:#475569;white-space:nowrap}' +
+            '#cp-print-host .cpp .rt-nm,#cpPaper .cpp .rt-nm{font-size:11.5px;font-weight:700;line-height:1.3;margin-top:4px;padding:0 3px;overflow-wrap:anywhere;min-height:2.6em}' +
+            '#cp-print-host .cpp .rt-tm,#cpPaper .cpp .rt-tm{font-size:11px;color:#334155;margin-top:1px}' +
+            '#cp-print-host .cpp .rt-hr,#cpPaper .cpp .rt-hr{font-size:10px;color:#64748b;margin-top:1px;line-height:1.3;padding:0 2px}' +
             '@media print{' +
             'body.cp-printing > *:not(#cp-print-host){display:none!important}' +
             'body.cp-printing #cp-print-host{display:block!important}' +
@@ -538,6 +555,55 @@
     }
 
     // ── 인쇄용 종이 ─────────────────────────────────────────────────────────────────
+    // [ADD] 2026-11-22: 일정표 종이 맨 위 "이동 순서" 그림 — 집 출발 → 장소들 → 귀가를 점과 선으로 잇고,
+    // 점마다 시간·운영시간, 선 위에는 앞 장소와의 직선거리를 적는다. 줄(memo) 글자에서 읽어 오므로 새 저장값이 필요 없다.
+    // 이동 방법·소요 시간·대중교통은 일부러 넣지 않는다(지도앱이 더 정확).
+    function plainTitle(t) { return String(t || '').replace(/^(?:[←-⯿️‍]|[\uD83C-\uD83E][\uDC00-\uDFFF])+\s*/, '').replace(/\s+/g, ' ').trim(); }
+    function routeStops(d) {
+        var out = [], n = 0;
+        var hasGeo = P.rows.some(function (r) { return r.lat != null && isFinite(+r.lat) && isFinite(+r.lng); });
+        var lastGeo = null;
+        P.rows.forEach(function (r) {
+            if (r.day !== d) return;
+            var title = plainTitle(r.title);
+            if (!title) return;
+            var icon, home = /^(집 출발|출발|귀가)/.test(title), meal = !home && /^(점심|저녁|아침|식사|간식|카페|브런치)/.test(title);
+            if (home) icon = '🏠'; else if (meal) icon = '🍴'; else icon = String(++n);
+            var conn = '', place = '', hours = '';
+            String(r.memo || '').split(' · ').forEach(function (m) {
+                m = m.trim();
+                if (!m) return;
+                if (/^앞 장소와 같은 곳/.test(m)) conn = '같은 곳';
+                else if (/^앞 장소에서 약\s*[\d.,]+\s*(km|m)/i.test(m)) conn = '약 ' + m.replace(/^앞 장소에서 약\s*/, '');
+                else if (/약\s*[\d.,]+\s*(km|m)\b/i.test(m)) place = m;
+                else if (/^(운영 |회차 |상시 개방|운영시간 확인)/.test(m)) hours = m;
+            });
+            if (hasGeo) {   // 위치가 저장된 줄이 있으면 앞 장소와의 거리를 지금 순서대로 다시 계산한다(메모 속 옛 거리는 쓰지 않음)
+                conn = '';
+                if (r.lat != null && isFinite(+r.lat) && isFinite(+r.lng)) {
+                    if (lastGeo) { var kmv = kmBetween(lastGeo.lat, lastGeo.lng, +r.lat, +r.lng); conn = kmv < 0.1 ? '같은 곳' : '약 ' + fmtKm(kmv); }
+                    lastGeo = { lat: +r.lat, lng: +r.lng };
+                }
+            }
+            out.push({ icon: icon, title: title.length > 18 ? title.slice(0, 17) + '…' : title, time: timeVal(r.time), conn: conn, place: place, hours: (home || meal) ? '' : hours });
+        });
+        return out;
+    }
+    function routeHtml(d) {
+        if (cfg.kind === 'camp') return '';
+        var st = routeStops(d);
+        if (st.length < 3 || st.length > 9) return '';
+        var h = '<div class="rt-cap">🧭 이동 순서 · 거리는 직선 기준이에요. 가는 방법과 시간은 지도앱에서 확인하세요.</div><div class="rt">';
+        st.forEach(function (x, i) {
+            h += '<div class="rt-n">' + (i > 0 && x.conn ? '<span class="rt-d">' + esc(x.conn) + '</span>' : '') +
+                '<div class="rt-t"><i' + (i === 0 ? ' class="off"' : '') + '></i><b>' + esc(x.icon) + '</b><i' + (i === st.length - 1 ? ' class="off"' : '') + '></i></div>' +
+                '<div class="rt-nm">' + esc(x.title) + '</div>' +
+                (x.time ? '<div class="rt-tm">' + esc(x.time) + '</div>' : '') +
+                (x.place ? '<div class="rt-hr">' + esc(x.place) + '</div>' : '') +
+                (x.hours ? '<div class="rt-hr">' + esc(x.hours) + '</div>' : '') + '</div>';
+        });
+        return h + '</div>';
+    }
     function paperHtml() {
         var h = '<div class="cpp"><h1>' + esc(cfg.paperTitle) + '</h1><div class="info">';
         h += '<div><b>' + esc(cfg.placeLabel) + '</b> ' + esc(cur.title) + '</div>';
@@ -550,7 +616,7 @@
         if (P.date) h += '<div><b>' + esc(cfg.dateLabel) + '</b> ' + esc(dayLabel(1).replace(/^(1일차|하루 나들이|숲 나들이) · /, '')) + '</div>';
         h += '</div>';
         for (var d = 1; d <= P.days; d++) {
-            h += '<h2>' + esc(dayLabel(d)) + '</h2><table><tr><th style="width:62px">시간</th><th style="width:38%">일정</th><th>메모</th></tr>';
+            h += '<h2>' + esc(dayLabel(d)) + '</h2>' + routeHtml(d) + '<table><tr><th style="width:62px">시간</th><th style="width:38%">일정</th><th>메모</th></tr>';
             var any = false;
             P.rows.forEach(function (r) {
                 if (r.day !== d) return;
@@ -643,7 +709,7 @@
             if (!fx) return;
             var fi = -1; P.rows.forEach(function (rr, x) { if (fi < 0 && rr.day === 1 && rr.k === 'out') fi = x; });
             if (fi < 0) fi = lastIndexOfDay(1) + 1;
-            P.rows.splice(fi, 0, { id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f', pid: fx.f.contentid || fx.f.id || '', tg: festTags(fx.f) });
+            P.rows.splice(fi, 0, withGeo({ id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f', pid: fx.f.contentid || fx.f.id || '', tg: festTags(fx.f) }, fx.f));
         } else if (act === 'addextra') {
             var inp = $('cpExtraIn'); var v = inp ? inp.value.trim() : '';
             if (!v) return;
@@ -672,7 +738,14 @@
             }
             var rowEl = t.closest('.cp-row');
             var i = rowEl ? rowIndex(rowEl.getAttribute('data-id')) : -1;
-            if (i >= 0) { P.rows[i][f] = t.value; save(); }
+            if (i >= 0) {
+                var rr0 = P.rows[i];
+                if (f === 'title' && rr0.lat != null) {   // 다른 장소 이름으로 바꾸면 옛 위치가 남지 않게 지운다(거리는 비워 두고 틀린 값은 보여 주지 않음)
+                    var oldNm = plainTitle(rr0.title).slice(0, 3);
+                    if (!oldNm || plainTitle(t.value).indexOf(oldNm) < 0) { delete rr0.lat; delete rr0.lng; }
+                }
+                rr0[f] = t.value; save();
+            }
         } else if (t.id === 'cpExtraIn') { if (/[\r\n]/.test(t.value)) t.value = t.value.replace(/[\r\n]+/g, ' '); fit(t); }
         else if (t.id === 'cpNote') { P.note = t.value; save(); }
         else if (t.id === 'cpDate') { P.date = t.value; save(); updateDayLabels(); updateDateNote(); if (cfg.hasFest && P.fest) updateFest(); }
