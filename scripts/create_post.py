@@ -4803,6 +4803,11 @@ def build_zodiac_weekly_post(today_str, combine=False):
         tag_html_all = "".join(f'<span class="tag">{t}</span>' for t in all_tags)
         title_c = (f"별자리 {week_label} 주간운세 {week_range} TOP5 — 이번 주 1위는 {_w_top1}" if _w_top1 else f"별자리 {week_label} 주간운세 {week_range} | 12별자리 한눈에 보기")
         sky_html = sky_basis_html(mon_date, sun_date, "week")   # 이번 주 하늘의 움직임(근거)
+        # TOP5 형식에서는 FAQ 뒤에 마무리 문구를 붙이지 않는다(순위 구성이 실패해 기존 형식으로 돌아간 경우만 유지)
+        _w_closing = "" if _w_top1 else (
+            f'<div style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:0 auto 1.4em">'
+            f'<p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{pick_insight_bridge(kst_day+2, mode="weekly")}</p>'
+            f'{_weekly_closing_html(_W_ENDINGS[ref_date.day % len(_W_ENDINGS)], kst_day)}</div>')
         content_c = f"""{style()}
 <div class="wrap">
   <div class="hero">
@@ -4818,10 +4823,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
 
   {sections}
 
-  <div style="font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto 1.4em">
-    <p style="margin:0 0 1.4em 0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{pick_insight_bridge(kst_day+2, mode='weekly')}</p>
-    {_weekly_closing_html(_W_ENDINGS[ref_date.day % len(_W_ENDINGS)], kst_day)}
-  </div>
+  {_w_closing}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html_all}</div>
@@ -5251,6 +5253,8 @@ def build_chinese_monthly_post(today_str, combine=False):
             f'font-size:14px;line-height:1.95;color:#6d28d9;word-break:keep-all">'
             f'이달을 잘 살아내는 것으로 충분합니다. 열두 띠의 흐름을 함께 살펴보았습니다. 자신의 띠가 건네는 방향을 기억하며 한 달을 천천히 걸어가시기 바랍니다.</p>'
         )
+        if _m_top1:
+            closing = ""   # TOP5 형식: FAQ 뒤 마무리 문구 없음
         _body_text = re.sub(r"<[^>]+>", "", intro + sections + closing)
         _body_len  = len(re.sub(r"\s", "", _body_text))
         print(f"📏 띠별 월간운세 통합 본문 길이: 공백 제외 {_body_len:,}자" +
