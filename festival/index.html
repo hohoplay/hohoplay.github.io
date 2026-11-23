@@ -3042,6 +3042,9 @@ function toggleMenu() {
     }
     // playTime이 비어 있는 축제의 상세 페이지 "프로그램" 문구(페이지를 열 때 몇 건만 읽어 둔다).
     const festivalDayTextExtra = {};
+    // [ADD] 2026-11-23: 데이터(festivals.json)에 요일 정보가 없는 상시 행사의 운영 요일 보정(데이터를 새로 받아도 유지됨).
+    // 2026 숭례문 파수의식: 화~일 운영, 매주 월요일 휴무 → 월요일 코스·오늘 열리는 축제에서 제외.
+    const festivalDayTextFix = { '3107059': '매주 월요일 휴무 (화~일 10:00~15:40)' };
     // [ADD] 2026-11-02: "매월 N째 X요일"처럼 TourAPI 운영시간에는 없고 공식 안내로만 확인된 개최 요일(contentid 기준).
     //  - 2786391 광안리 M(Marvelous) 드론 라이트쇼: 매월 첫째·셋째 토요일 (공식 홈페이지 해상 통제 안내 기준)
     const FESTIVAL_NTH_WEEKDAY_RULES = { '2786391': { dow: '토', nth: [1, 3] } };
@@ -3109,7 +3112,7 @@ function toggleMenu() {
         return r.dow === dowChar && r.nth.indexOf(Math.ceil(dateObj.getUTCDate() / 7)) >= 0;
     }
     function getFestivalDayText(item) {
-        return (item && item.playTime) || festivalDayTextExtra[String((item && item.contentid) || '')] || '';
+        return festivalDayTextFix[String((item && item.contentid) || '')] || (item && item.playTime) || festivalDayTextExtra[String((item && item.contentid) || '')] || '';
     }
     function fetchFestivalDayText(item) {
         const cid = String(item.contentid || '');
