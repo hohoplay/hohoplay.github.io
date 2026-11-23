@@ -1,7 +1,7 @@
 """
 운세 자동화 (2026-10-21 기준)
   매일     : 오늘의 명언 1개
-  일요일   : 별과띠가만나는시간 주간판 1개 (다음 주 월~일, 별자리×띠 12쌍·궁합 계산)
+  일요일   : 별과띠가만나는시간 주간판 1개 (다음 주 월~일, 별자리×띠 12개 조합의 조화 지수 TOP5 + 전체 순위표)
   월요일   : 별자리 주간운세 1개 (12별자리 통합, 본문 3,000자 이상)
   마지막 월요일 : 띠별 월간운세 1개 (12띠 통합, 본문 3,000자 이상)
   발행 중단 : 띠운세·별자리운세 개별 12개씩(10/4~), 별자리통합·띠통합(10/21~)
@@ -5860,72 +5860,124 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
         _used.update(norm(o) for o in out)
         return out
 
-    def _bars(curve):
-        blocks = "▁▂▃▄▅▆▇█"
-        lo, hi = min(curve), max(curve)
-        out = []
-        for d, v in zip(_OW_DAYS, curve):
-            lvl = 0 if hi == lo else int((v - lo) / (hi - lo) * 7)
-            out.append(f'<span style="display:inline-block;text-align:center;margin:0 5px">'
-                       f'<span style="display:block;font-size:17px;color:#7c3aed;line-height:1.1">{blocks[lvl]}</span>'
-                       f'<span style="font-size:11px;color:#9ca3af">{d}</span></span>')
-        return "".join(out)
-
-    rows, sections = [], []
+    # ── [2026-11-23 TOP5 개편] 12개 조합의 조화 지수를 계산해 상위 5개만 이야기로 풀고, 나머지는 순위표로 보여 준다 ──
+    #   · 순위마다 띠 → 별자리 → 두 기운(조합) 이야기 1개씩, '가장 좋은 요일'과 요일 그래프는 뺀다
+    #   · 5개를 훑은 뒤 '✅ 한 번에 정리'(SEO 프롬프트 v9.5 19.5)로 총정리, 예전 맺음말 블록(ending·closing)은 숨긴다
+    #   · 한줄요약·목차·FAQ는 코드가 값으로만 만든다(Gemini·지어낸 사실 없음)
+    MEDALS = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"]
+    pairs = []
     for i, z_kr in enumerate(z_names):
         c_idx = (i + shift) % len(c_names)
         c_kr  = c_names[c_idx]
-        sc    = _ow_pair_scores(z_kr, c_kr, week_seed, i, c_idx)
-        best_d, low_d = sc["best"], sc["low"]
-        best_date = mon_date + timedelta(days=best_d)
-        low_date  = mon_date + timedelta(days=low_d)
-        z_first, z_rel = _z_lines(z_kr)
+        pairs.append({"i": i, "z": z_kr, "c": c_kr, "sc": _ow_pair_scores(z_kr, c_kr, week_seed, i, c_idx)})
+    ranked = sorted(pairs, key=lambda p: (-p["sc"]["score"], (p["i"] + week_seed) % 12))   # 동점은 주마다 순서가 바뀌게
+    for rk, p in enumerate(ranked, 1):
+        p["rank"] = rk
+    top5 = ranked[:5]
+
+    sections = []
+    for p in top5:
+        z_kr, c_kr, sc, rk = p["z"], p["c"], p["sc"], p["rank"]
+        z_first, _z_rel = _z_lines(z_kr)
         c_two = _c_lines(c_kr)
-
         adv = _OMNIBUS_SPECIAL_ADVICE.get((z_kr, c_kr))
-        adv_reason = _ow_weekly_text(adv[0], 'reason') if adv else ""
-        adv_action = _ow_weekly_text(adv[1], 'action') if adv else ""
-
+        adv_txt = (_ow_weekly_text(adv[0], 'reason') + " " + _ow_weekly_text(adv[1], 'action')) if adv else ""
         zp = _ow_particle(z_kr, "은", "는")
         cp = _ow_particle(c_kr, "은", "는")
-        rows.append(
-            f'<tr><td>{i+1}</td><td>{z_kr} × {c_kr}</td><td><b>{sc["score"]}점</b></td>'
-            f'<td>{sc["rel_name"]}</td><td>{_OW_DAYS[best_d]}요일</td></tr>'
-        )
-        sec = f"""
-    <div style="margin:0 0 2.2em 0">
-      <h2 style="font-size:17px;color:#4c1d95;margin:0 0 .3em;font-weight:700">{z_emoji.get(z_kr,'')} {z_kr} × {c_emoji.get(c_kr,'')} {c_kr}</h2>
-      <p style="font-size:12px;color:#9ca3af;margin:0 0 .9em">이번 주 궁합 {sc["score"]}점 · {sc["rel_name"]}</p>
-      <p style="margin:0 0 .9em"><b style="color:#7c3aed">{z_kr}</b> {z_first}</p>
-      {f'<p style="margin:0 0 .9em;color:#6b7280">{z_rel}</p>' if z_rel else ''}
-      <p style="margin:0 0 .9em"><b style="color:#b45309">{c_kr}</b> {" ".join(c_two)}</p>
-      <p style="margin:0 0 .9em">{z_kr}{zp} {sc["zel"]}의 별자리, {c_kr}{cp} {sc["cel"]}의 기운을 가진 띠입니다. {sc["sentence"]}</p>
-      {f'<p style="margin:0 0 .9em">{adv_reason} {adv_action}</p>' if adv else ''}
-      <p style="margin:0 0 .5em;font-size:13px;color:#6b7280">이번 주 두 기운의 흐름이 가장 좋은 날은 <b>{_OW_DAYS[best_d]}요일({best_date.month}/{best_date.day})</b>, 한 박자 쉬어가면 좋은 날은 <b>{_OW_DAYS[low_d]}요일({low_date.month}/{low_date.day})</b>입니다.</p>
-      <div style="text-align:center;margin:.4em 0 0">{_bars(sc["curve"])}</div>
+        c_line = f'<p style="margin:0 0 .8em"><span style="font-size:12px;color:#b45309;font-weight:700">🐾 띠 이야기</span><br><b style="color:#b45309">{c_kr}</b> {c_two[0] if c_two else ""}</p>'
+        z_line = f'<p style="margin:0 0 .8em"><span style="font-size:12px;color:#7c3aed;font-weight:700">⭐ 별자리 이야기</span><br><b style="color:#7c3aed">{z_kr}</b> {z_first}</p>' if z_first else ''
+        both   = (f'<p style="margin:0 0 .4em"><span style="font-size:12px;color:#4c1d95;font-weight:700">🌙 두 기운 이야기</span><br>'
+                  f'{z_kr}{zp} {sc["zel"]}의 별자리, {c_kr}{cp} {sc["cel"]}의 기운을 가진 띠입니다. {sc["sentence"]}'
+                  f'{(" " + adv_txt) if adv_txt else ""}</p>')
+        sections.append(f"""
+    <div id="ow-top{rk}" style="margin:0 0 2em 0">
+      <h2 style="font-size:17px;color:#4c1d95;margin:0 0 .3em;font-weight:700">{MEDALS[rk-1]} {rk}위 · {z_emoji.get(z_kr,'')} {z_kr} × {c_emoji.get(c_kr,'')} {c_kr}</h2>
+      <p style="font-size:12px;color:#9ca3af;margin:0 0 .9em">이번 주 조화 지수 {sc["score"]}점 · {sc["rel_name"]}</p>
+      {c_line}
+      {z_line}
+      {both}
     </div>
-    <div class="novel-rule">&middot; &middot; &middot;</div>"""
-        sections.append(sec)
+    <div class="novel-rule">&middot; &middot; &middot;</div>""")
 
-    title = f"🌙 별과띠가만나는시간 {week_label} {week_range} — 이번 주 별자리와 띠가 전하는 이야기"
-    quote_clean = _plain(str(pick_quote()[0]), 120)
-    kw_tags = (["별과띠가만나는시간", "주간운세", "별자리와띠", "이번주운세", week_label, week_range,
-                f"{mon_date.year}년 {mon_date.month}월 주간운세", "별자리 띠 궁합", "별자리 띠 주간궁합",
+    t1 = top5[0]
+    title = (f"🌙 별과띠가만나는시간 {week_label} {week_range} TOP5 — "
+             f"이번 주 1위는 {t1['z']} × {t1['c']}")
+    kw_tags = (["별과띠가만나는시간", "별과띠 TOP5", "이번주 TOP5", "주간운세", "별자리와띠", "이번주운세", week_label, week_range,
+                f"{mon_date.year}년 {mon_date.month}월 주간운세", "별자리 띠 궁합", "별자리 띠 조합",
                 "무료운세", f"운세{mon_date.year}"] + z_names + c_names)
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_tags)
 
+    # ── 한줄요약(📌) ──
+    top_names = ", ".join(f"{p['z']} × {p['c']}" for p in top5)
+    summary_txt = (f"{week_range} 별자리×띠 조합 12개 중 조화 지수 1위는 {t1['z']} × {t1['c']}({t1['sc']['score']}점)입니다. "
+                   f"TOP5는 {top_names}이며, 나머지 순위는 아래 표에서 확인할 수 있습니다.")
+    summary_box = (
+        '<div style="margin:0 0 1.2em;padding:12px 16px;background:#fffbeb;border:1px solid #fcd34d;border-radius:12px">'
+        '<div style="font-weight:800;color:#1e293b;font-size:14px;margin-bottom:4px">📌 한줄요약</div>'
+        f'<div style="line-height:1.8;color:#334155;font-size:14px">{summary_txt}</div></div>')
+
+    # ── 목차(📚) ──
+    toc_items = [(f"ow-top{p['rank']}", f"{p['rank']}위 {p['z']} × {p['c']}") for p in top5]
+    toc_items += [("ow-table", "12개 조합 전체 순위표"), ("ow-sum", "한 번에 정리"), ("ow-faq", "자주 묻는 질문")]
+    toc_box = (
+        '<div style="margin:0 0 1.6em;padding:12px 16px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px">'
+        '<div style="font-weight:800;color:#312e81;font-size:14px;margin-bottom:4px">📚 목차</div>'
+        '<ol style="margin:0;padding-left:22px;line-height:1.9;font-size:14px">' +
+        "".join(f'<li><a href="#{a}" style="color:#4f46e5;text-decoration:none">{t}</a></li>' for a, t in toc_items) +
+        '</ol></div>')
+
+    # ── 전체 순위표 ──
+    rows = []
+    for p in ranked:
+        hi = ' style="background:#faf5ff"' if p["rank"] <= 5 else ''
+        rows.append(f'<tr{hi}><td>{p["rank"]}</td><td>{p["z"]} × {p["c"]}</td><td><b>{p["sc"]["score"]}점</b></td><td>{p["sc"]["rel_name"]}</td></tr>')
     table_html = (
-        '<table style="width:100%;border-collapse:collapse;font-size:13px;text-align:center;margin:0 0 1.6em">'
+        '<table style="width:100%;border-collapse:collapse;font-size:13px;text-align:center;margin:0 0 1em">'
         '<thead><tr style="color:#7c3aed;border-bottom:1px solid #ddd6fe">'
-        '<th>번호</th><th>이번 주 만남</th><th>궁합</th><th>해석</th><th>좋은 요일</th></tr></thead>'
+        '<th>순위</th><th>이번 주 조합</th><th>조화 지수</th><th>관계</th></tr></thead>'
         '<tbody>' + "".join(rows) + '</tbody></table>'
     )
     method_html = (
         '<p style="font-size:12px;color:#9ca3af;line-height:1.9;margin:0 0 1.6em;word-break:keep-all">'
-        '※ 궁합 점수는 별자리의 4원소(불·흙·공기·물)와 띠의 기운(삼합 기준)의 관계, '
-        '그리고 그 주의 변동값을 합산해 계산한 재미용 지표입니다. 짝은 매주 바뀌며 열두 주가 지나면 '
-        '모든 조합이 한 번씩 만나게 됩니다.</p>'
+        '※ 조화 지수는 한 사람 안의 두 기운, 즉 별자리의 4원소(불·흙·공기·물)와 띠의 기운(삼합 기준)이 얼마나 어우러지는지를 '
+        '그 주의 변동값과 합산해 계산한 재미용 지표입니다. 두 사람 사이의 궁합이 아니라 내 별자리와 내 띠의 조합을 읽는 방식이며, '
+        '조합은 매주 바뀌고 열두 주가 지나면 모든 조합이 한 번씩 순위에 오릅니다.</p>'
     )
+
+    # ── ✅ 한 번에 정리 — 5개 총정리 ──
+    from collections import Counter as _Counter
+    rel_c  = _Counter(p["sc"]["rel_name"] for p in top5).most_common(1)[0]
+    zel_c  = _Counter(p["sc"]["zel"] for p in top5)
+    cel_c  = _Counter(p["sc"]["cel"] for p in top5)
+    _fmt   = lambda c: " · ".join(f"{k} {v}개" for k, v in c.most_common())
+    sum_lis = "".join(
+        f'<li style="margin:0 0 4px">{MEDALS[p["rank"]-1]} <b>{p["z"]} × {p["c"]}</b> · {p["sc"]["score"]}점 — {p["sc"]["rel_name"]}</li>'
+        for p in top5)
+    sum_box = (
+        '<div id="ow-sum" style="margin:1.4em 0 1.8em;padding:14px 16px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px">'
+        '<div style="font-weight:800;color:#0c4a6e;font-size:15px;margin-bottom:6px">✅ 한 번에 정리 — 이번 주 TOP5</div>'
+        f'<ul style="margin:0 0 8px;padding-left:18px;line-height:1.8;color:#334155;font-size:14px;list-style:none">{sum_lis}</ul>'
+        f'<p style="margin:0 0 4px;line-height:1.8;color:#334155;font-size:14px">TOP5 {"모두" if rel_c[1] == 5 else f"중 {rel_c[1]}개가"} \'{rel_c[0]}\' 관계였고, '
+        f'별자리 원소는 {_fmt(zel_c)}, 띠 기운은 {_fmt(cel_c)}로 모였습니다.</p>'
+        f'<p style="margin:0;line-height:1.8;color:#334155;font-size:14px;font-weight:700">결국 {week_range}의 조화 지수 1위는 '
+        f'{t1["z"]} × {t1["c"]}({t1["sc"]["score"]}점)이고, 5위는 {top5[4]["sc"]["score"]}점입니다.</p></div>')
+
+    # ── FAQ(코드 작성 — 계산 방식·확인 방법만) ──
+    _faq = [
+        ("TOP5는 어떻게 정하나요?",
+         f"이번 주({week_range}) 별자리 12개와 띠 12개가 짝지어진 열두 조합마다 조화 지수를 계산하고, 점수가 높은 순서로 다섯 개를 골랐습니다. "
+         "점수는 별자리 4원소와 띠 기운의 관계에 그 주의 변동값을 더한 재미용 지표입니다."),
+        ("내 조합이 TOP5에 없으면 나쁜 한 주인가요?",
+         "아닙니다. 순위는 두 기운이 얼마나 어우러지는지를 상대적으로 비교한 값일 뿐입니다. "
+         "아래 12개 조합 순위표에서 내 조합을 찾아 보고, 관계 설명을 참고하시면 됩니다."),
+        ("내 별자리와 띠는 어떻게 확인하나요?",
+         "별자리는 양력 생일 기준이고, 띠는 태어난 해 기준입니다. 1~2월생은 설날을 기준으로 보는지 입춘을 기준으로 보는지에 따라 "
+         "띠가 달라질 수 있어, 평소 보던 기준을 그대로 쓰시면 됩니다."),
+    ]
+    faq_html = (
+        '<h2 id="ow-faq" style="font-size:15px;color:#4c1d95;margin:1.6em 0 .6em">자주 묻는 질문</h2>' +
+        "".join(f'<h3 style="font-size:14px;color:#4c1d95;margin:.9em 0 .2em">Q. {q}</h3>'
+                f'<p style="margin:0 0 .6em;font-size:14px;line-height:1.9;color:#374151">{a}</p>' for q, a in _faq))
 
     content_html = f"""{style()}
 <style>
@@ -5935,34 +5987,27 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
 .novel-subtitle {{ font-size:12px; text-align:center; color:#9ca3af; margin-bottom:1.2rem; }}
 .novel-rule {{ text-align:center; color:#d1d5db; letter-spacing:.4em; margin:1.1rem 0; font-size:12px; }}
 .novel-opening {{ font-size:14px; line-height:1.85; color:#6b7280; margin-bottom:1rem; font-style:italic; padding:0 2px; word-break:keep-all; }}
-.novel-footer {{ margin-top:1.2rem; padding-top:1.2rem; border-top:1px solid #f3f4f6; font-size:13px; color:#9ca3af; text-align:center; line-height:1.9; font-style:italic; }}
 .ow-body p {{ word-break:keep-all; }}
 </style>
 
 <div class="wrap">
   <div class="novel-page">
     <div class="novel-date">{week_range} · {week_label} · {season}</div>
-    <h1 class="novel-title">🌙 별과띠가만나는시간</h1>
-    <p class="novel-subtitle">이번 주 하늘이 당신에게 건네는 이야기</p>
+    <h1 class="novel-title">🌙 별과띠가만나는시간 · 이번 주 TOP5</h1>
+    <p class="novel-subtitle">이번 주 내 별자리와 내 띠, 두 기운이 가장 잘 어우러지는 조합</p>
     <div class="novel-rule">&middot; &middot; &middot;</div>
     <p class="novel-opening">{opening}</p>
 
     <div class="ow-body" style="font-size:14.5px;line-height:1.95;color:#374151;word-break:keep-all">
+    {summary_box}
     {sky_html}
-    <h2 style="font-size:15px;color:#4c1d95;margin:0 0 .6em">한눈에 보는 이번 주 열두 가지 만남</h2>
+    {toc_box}
+    {"".join(sections)}
+    {sum_box}
+    <h2 id="ow-table" style="font-size:15px;color:#4c1d95;margin:0 0 .6em">12개 조합 전체 순위표</h2>
     {table_html}
     {method_html}
-    <div class="novel-rule">&middot; &middot; &middot;</div>
-    {"".join(sections)}
-
-    <div style="margin:2.4rem 0 0 0">
-      <p style="font-size:12px;font-weight:700;color:#7c3aed;letter-spacing:.12em;margin:0 0 .8rem 0">🌙 이번 주 별과 띠가 함께 전하는 말</p>
-      <p style="font-size:15.5px;line-height:2.05;color:#374151;margin:0 0 1.1rem 0;font-weight:500">{ending["insight"]}</p>
-      <p style="font-size:14px;line-height:1.95;color:#6d28d9;margin:0 0 1.6rem 0">{ending["bridge"]}</p>
-      <p style="font-size:11px;color:#9ca3af;letter-spacing:.14em;margin:0 0 .5rem 0;font-weight:600">이번 주 단 하나만 한다면</p>
-      <p style="font-size:17px;font-weight:800;color:#4c1d95;line-height:1.6;margin:0 0 1.6rem 0">❝ {ending["action"]} ❞</p>
-    </div>
-    <div class="novel-footer">{closing}</div>
+    {faq_html}
     </div>
   </div>
 
@@ -5980,12 +6025,11 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
 </div>"""
     labels = ["별과띠가만나는시간", "주간운세", "운세"]
     body_len = len(re.sub(r"\s", "", re.sub(r"<[^>]+>", "", "".join(sections) + table_html)))
-    print(f"📏 별과띠가만나는시간 주간판 본문 길이: 공백 제외 {body_len:,}자" +
-          ("" if body_len >= 3000 else "  ⚠️ 3,000자 미만"))
+    print(f"📏 별과띠가만나는시간 주간판(TOP5) 본문 길이: 공백 제외 {body_len:,}자" +
+          ("" if body_len >= 1500 else "  ⚠️ 1,500자 미만"))
     search_description = _plain(
-        f"{week_range} 별과 띠가 만나는 시간 — 이번 주 별자리 12개와 띠 12개가 짝을 이루는 열두 가지 만남과 궁합 지수, 요일별 흐름을 정리했습니다.", 155)
+        f"{week_range} 별과 띠가 만나는 시간 — 별자리×띠 조합 12개 중 이번 주 조화 지수 TOP5와 전체 순위표를 정리했습니다.", 155)
     return title, content_html, labels, search_description
-
 
 # ═══════════════════════════════════════════════════════════════════
 # 별자리 통합운세 / 띠 통합운세 — "이야기"형 통합 포스트 (2026-09-27 신설)
