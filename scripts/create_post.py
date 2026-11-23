@@ -4300,6 +4300,194 @@ def _mo_action_html(c_kr):
     )
 
 
+
+# ══════════════════════════════════════════════════════════════════
+# TOP5 공통: 별자리 주간 / 띠별 월간 (2026-11)
+# ══════════════════════════════════════════════════════════════════
+_T5_MEDAL = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"]
+_T5_SERIF = "font-family:'Noto Serif KR',Georgia,serif;max-width:660px;margin:0 auto"
+
+
+def _t5_box(title, inner, bg="#f5f3ff", bd="#ddd6fe", fg="#4c1d95"):
+    return (f'<div style="{_T5_SERIF};margin-bottom:1.6em;background:{bg};border:1px solid {bd};border-radius:14px;padding:16px 18px">'
+            f'<p style="margin:0 0 .6em;font-size:14px;font-weight:700;color:{fg}">{title}</p>{inner}</div>')
+
+
+def _t5_p(txt, extra=""):
+    return (f'<p style="margin:0 0 .7em;font-size:14px;line-height:1.95;color:#374151;word-break:keep-all;{extra}">{txt}</p>')
+
+
+def _zodiac_week_rank(mon_date, sun_date, week_seed):
+    """별자리 12개를 '이번 주 하늘' 기준으로 점수화한다.
+    달: 같은 별자리에 머문 날 +2 / 같은 원소 별자리에 머문 날 +1 (7일, 정오 기준)
+    금성: 같은 별자리 +2.5 / 같은 원소 +1.5, 목성: 같은 별자리 +2 / 같은 원소 +1 (주 중간 기준)
+    태양이 그 별자리에 있으면 +1. 동점은 주차 시드로 가른다.
+    반환: [(별자리, 점수, 근거문장)] 점수 내림차순. 천문 계산이 안 되면 None."""
+    try:
+        e = _sky_lib()
+        if not e:
+            return None
+        from datetime import timedelta as _td
+        moon_days = []
+        for k in range(7):
+            d = mon_date + _td(days=k)
+            moon_days.append(_SKY_SIGNS[int(_sky_ecl_lon(e.Moon, _sky_kst_noon_utc(d)) // 30) % 12])
+        mid = _sky_kst_noon_utc(mon_date + _td(days=3))
+        ven = _SKY_SIGNS[int(_sky_ecl_lon(e.Venus, mid) // 30) % 12]
+        jup = _SKY_SIGNS[int(_sky_ecl_lon(e.Jupiter, mid) // 30) % 12]
+        sun = _SKY_SIGNS[int(_sky_ecl_lon(e.Sun, mid) // 30) % 12]
+        out = []
+        for i, sg in enumerate(_SKY_SIGNS):
+            el = _SKY_ELEMENT[sg]
+            own = sum(1 for m in moon_days if m == sg)
+            same = sum(1 for m in moon_days if m != sg and _SKY_ELEMENT[m] == el)
+            sc = own * 2 + same * 1
+            parts = []
+            if own:
+                parts.append(f"달이 {sg}에 {own}일 머묾")
+            if same:
+                parts.append(f"달이 같은 {el} 원소 별자리에 {same}일 머묾")
+            if ven == sg:
+                sc += 2.5; parts.append(f"금성이 {sg}에 있음")
+            elif _SKY_ELEMENT[ven] == el:
+                sc += 1.5; parts.append(f"금성이 같은 {el} 원소({ven})에 있음")
+            if jup == sg:
+                sc += 2; parts.append(f"목성이 {sg}에 있음")
+            elif _SKY_ELEMENT[jup] == el:
+                sc += 1; parts.append(f"목성이 같은 {el} 원소({jup})에 있음")
+            if sun == sg:
+                sc += 1; parts.append("태양이 머무는 계절")
+            sc += ((i + week_seed) % 12) * 0.01
+            out.append((sg, sc, " · ".join(parts) if parts else "하늘의 큰 자극이 적은 조용한 주간"))
+        out.sort(key=lambda x: -x[1])
+        return out
+    except Exception as _ex:
+        print(f"⚠️ 별자리 순위 하늘 계산 실패: {_ex}")
+        return None
+
+
+_BR_NAMES = ["자(子)", "축(丑)", "인(寅)", "묘(卯)", "진(辰)", "사(巳)", "오(午)", "미(未)", "신(申)", "유(酉)", "술(戌)", "해(亥)"]
+_BR_EL = ["물", "흙", "나무", "나무", "흙", "불", "불", "흙", "쇠", "쇠", "흙", "물"]
+_BR_EN = ["rat", "ox", "tiger", "rabbit", "dragon", "snake", "horse", "sheep", "monkey", "rooster", "dog", "pig"]
+_BR_GEN = {"나무": "불", "불": "흙", "흙": "쇠", "쇠": "물", "물": "나무"}   # 상생
+_BR_HAP6 = [(0, 1), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)]
+_BR_HAP3 = [{8, 0, 4}, {2, 6, 10}, {5, 9, 1}, {11, 3, 7}]
+
+
+def _animal_month_rank(month_str, month_seed):
+    """12띠를 그 달의 월지(양력 월 기준 근사)와의 관계로 점수화한다.
+    육합 +3 / 삼합 +2 / 같은 띠 +1 / 월지가 그 띠의 오행을 생(生)해 줌 +1 / 충 -1."""
+    m = re.match(r"\s*(\d{4})년\s*(\d{1,2})월", month_str)
+    mo = int(m.group(2)) if m else 1
+    bi = mo % 12
+    out = []
+    for i in range(12):
+        sc, why = 0.0, []
+        if (i, bi) in _BR_HAP6 or (bi, i) in _BR_HAP6:
+            sc += 3; why.append(f"{_BR_NAMES[bi]}월과 육합(六合)")
+        elif i != bi and any(i in g and bi in g for g in _BR_HAP3):
+            sc += 2; why.append(f"{_BR_NAMES[bi]}월과 삼합(三合)")
+        if i == bi:
+            sc += 1; why.append(f"{_BR_NAMES[bi]}월 — 본인의 달")
+        if (i - bi) % 12 == 6:
+            sc -= 1; why.append(f"{_BR_NAMES[bi]}월과 충(冲) — 변화가 큰 달")
+        if _BR_GEN.get(_BR_EL[bi]) == _BR_EL[i] and _BR_EL[bi] != _BR_EL[i]:
+            sc += 1; why.append(f"월의 기운({_BR_EL[bi]})이 {_BR_EL[i]} 기운을 도움(상생)")
+        sc += ((i + month_seed) % 12) * 0.01
+        out.append((i, sc, " · ".join(why) if why else "월지와 직접 맞닿는 관계가 적은 평온한 달"))
+    out.sort(key=lambda x: -x[1])
+    return out, bi
+
+
+def _t5_assemble(kind, ranked, stories, compact, period, subject, accent="#7c3aed"):
+    """kind: 'week'|'month'. ranked: [(name, emoji, score, basis)] 순위순. stories: name->상세 HTML.
+    compact: name->(핵심한줄, 해야 할 일, 피할 일). 반환: (intro_html, sections_html)."""
+    unit = "이번 주" if kind == "week" else "이달"
+    n = len(ranked)
+    top = ranked[:5]
+    rest = ranked[5:]
+    anchor = lambda i: (f"t5-{i+1}")
+    # 1) 한줄요약 + 목차
+    first = top[0][0]
+    summ = _t5_box("📌 한 줄 요약",
+                   _t5_p(f"{period} {subject} TOP5의 1위는 <b>{first}</b>입니다. 2위 {top[1][0]}, 3위 {top[2][0]}, "
+                         f"4위 {top[3][0]}, 5위 {top[4][0]} 순이며, 6~12위는 '한 박자 쉬어 가는 흐름'으로 짧게 정리했습니다.", "margin:0"))
+    toc_links = [f'<a href="#{anchor(i)}">{_T5_MEDAL[i]} {nm}</a>' for i, (nm, *_r) in enumerate(top)]
+    toc_links += [f'<a href="#t5-rest">6~12위 간단 정리</a>', '<a href="#t5-table">12개 전체 순위표</a>',
+                  '<a href="#t5-sum">한 번에 정리</a>', '<a href="#t5-faq">자주 묻는 질문</a>']
+    toc = _t5_box("📚 목차", f'<p style="margin:0;font-size:13px;line-height:2.3;word-break:keep-all">{" · ".join(toc_links)}</p>')
+    # 2) 순위 기준 안내
+    if kind == "week":
+        how = ("순위는 이번 주(월~일) 달의 위치와 금성·목성의 자리를 바탕으로, 각 별자리와 같은 별자리·같은 원소에 하늘의 기운이 "
+               "얼마나 모이는지 점수로 계산한 <b>재미용 지표</b>입니다. 아래 &lsquo;하늘 근거&rsquo;에 어떤 점수가 붙었는지 적어 두었습니다.")
+    else:
+        how = ("순위는 이달의 월지(月支)와 각 띠의 관계(육합·삼합·상생·충)를 점수로 계산한 <b>재미용 지표</b>입니다. "
+               "절기 기준 월지는 월초 며칠 차이가 있을 수 있어 양력 월 기준으로 근사했고, 각 띠 아래에 &lsquo;월지 근거&rsquo;를 적어 두었습니다.")
+    how_box = _t5_box("🔎 순위는 이렇게 정했습니다", _t5_p(how, "margin:0"), "#f9fafb", "#e5e7eb", "#374151")
+    intro = (f'<p style="{_T5_SERIF};margin-bottom:1.2em;font-size:15px;line-height:2.0;color:#374151;word-break:keep-all">'
+             f'{period}의 {subject}를 <b>TOP5</b>로 먼저 보여드립니다. 1~5위는 자세히, 6~12위는 핵심만 짧게 정리했고, '
+             f'맨 아래 전체 순위표에서 본인의 {"별자리" if kind=="week" else "띠"}를 바로 찾을 수 있습니다.</p>'
+             f'{summ}{toc}{how_box}')
+    # 3) TOP5 상세
+    secs = []
+    for i, (nm, em, sc, basis) in enumerate(top):
+        secs.append(
+            f'<h2 id="{anchor(i)}" style="{_T5_SERIF};margin-top:1.8em;margin-bottom:.4em;font-size:20px;color:#4c1d95">'
+            f'{_T5_MEDAL[i]} {i+1}위 · {em + " " if em else ""}{nm}</h2>'
+            f'<p style="{_T5_SERIF};margin-bottom:1em;font-size:12.5px;color:#7c3aed;word-break:keep-all">'
+            f'{"🔭 하늘 근거" if kind=="week" else "🀄 월지 근거"} — {basis}</p>'
+            f'{stories[nm]}<div class="z-divider">✦</div>')
+    # 4) 6~12위 간단
+    cards = []
+    for j, (nm, em, sc, basis) in enumerate(rest):
+        rk = 6 + j
+        hl, do1, av1 = compact[nm]
+        hl = re.sub(r'^\s*\S*\s*'+re.escape(nm)+r'(은|는|이|가)?\s*', '', hl).strip() or hl
+        cards.append(
+            f'<div id="t5-r{rk}" style="margin:0 0 1em;padding:12px 14px;border:1px solid #ede9fe;border-radius:12px">'
+            f'<p style="margin:0 0 .4em;font-size:14.5px;font-weight:700;color:#4c1d95">{rk}위 · {em + " " if em else ""}{nm}</p>'
+            f'{_t5_p(hl, "margin:0 0 .4em")}'
+            f'{_t5_p("✅ <b>해 보면 좋은 일</b> — " + do1, "margin:0 0 .3em;font-size:13.5px")}'
+            f'{_t5_p("🚫 <b>피하면 좋은 일</b> — " + av1, "margin:0;font-size:13.5px")}'
+            f'</div>')
+    rest_html = (f'<h2 id="t5-rest" style="{_T5_SERIF};margin-top:1.8em;margin-bottom:.4em;font-size:19px;color:#4c1d95">'
+                 f'🍃 6~12위 — 한 박자 쉬어 가는 흐름</h2>'
+                 f'{_t5_p("순위가 낮다고 운이 나쁜 것은 아닙니다. 하늘의 자극이 덜 모인 만큼 서두르지 않고 리듬을 고르기 좋은 흐름이라는 뜻으로, 핵심만 짧게 적었습니다.")}'
+                 + "".join(cards))
+    # 5) 전체 순위표
+    rows = []
+    for i, (nm, em, sc, basis) in enumerate(ranked):
+        tgt = f"#{anchor(i)}" if i < 5 else f"#t5-r{i+1}"
+        mk = _T5_MEDAL[i] if i < 5 else str(i + 1)
+        short = basis.split(" · ")[0]
+        rows.append(f'<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px 4px">{mk}</td>'
+                    f'<td style="padding:6px 4px;white-space:nowrap"><a href="{tgt}">{em + " " if em else ""}{nm}</a></td>'
+                    f'<td style="padding:6px 4px;font-size:12px;color:#6b7280;text-align:left;word-break:keep-all">{short}</td></tr>')
+    table = (f'<h2 id="t5-table" style="{_T5_SERIF};margin-top:1.8em;margin-bottom:.5em;font-size:19px;color:#4c1d95">'
+             f'📋 12개 전체 순위표</h2>'
+             f'<table style="width:100%;max-width:660px;margin:0 auto 1.6em;border-collapse:collapse;font-size:13px;text-align:center">'
+             f'<thead><tr style="color:{accent};border-bottom:1px solid #ddd6fe"><th>순위</th><th>{"별자리" if kind=="week" else "띠"}</th>'
+             f'<th>{"하늘 근거" if kind=="week" else "월지 근거"}(대표)</th></tr></thead><tbody>{"".join(rows)}</tbody></table>')
+    # 6) 한 번에 정리
+    _cl = lambda nm: re.sub(r'^\s*\S*\s*'+re.escape(nm)+r'(은|는|이|가)?\s*', '', compact[nm][0]).strip() or compact[nm][0]
+    li = "".join(f'<li style="margin-bottom:.4em">{_T5_MEDAL[i]} <b>{nm}</b> — {_cl(nm)}</li>' for i, (nm, *_r) in enumerate(top))
+    sumbox = (f'<div id="t5-sum">' + _t5_box("✅ 한 번에 정리 — TOP5",
+              f'<ul style="margin:0 0 .6em 1.1em;padding:0;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{li}</ul>'
+              + _t5_p(f"6~12위도 {unit} 해 보면 좋은 일 한 가지씩만 챙기면 충분합니다. 순위는 재미로 보는 참고 지표이니 부담 없이 활용해 보시기 바랍니다.", "margin:0")) + '</div>')
+    # 7) FAQ
+    who = "별자리" if kind == "week" else "띠"
+    faqs = [
+        (f"순위는 어떻게 정했나요?", how.replace("<b>", "").replace("</b>", "").replace("&lsquo;", "'").replace("&rsquo;", "'")),
+        (f"순위가 낮으면 {unit} 운이 나쁜 건가요?", f"아닙니다. 순위는 하늘(또는 월지)과의 맞닿음 정도를 비교한 재미용 지표일 뿐, {unit} 일이 잘 풀리고 안 풀리고를 단정하지 않습니다. 6~12위는 서두르지 않고 속도를 조절하기 좋은 흐름으로 읽으시면 됩니다."),
+        (f"내 {who}는 어디서 찾나요?", f"위의 '12개 전체 순위표'에서 {who} 이름을 누르면 해당 설명으로 바로 이동합니다. 1~5위는 상세 풀이, 6~12위는 간단 정리로 연결됩니다."),
+    ]
+    fq = "".join(f'<p style="margin:0 0 .3em;font-size:14px;font-weight:700;color:#4c1d95">Q. {q}</p>'
+                 f'{_t5_p("A. " + a)}' for q, a in faqs)
+    faq = f'<div id="t5-faq">' + _t5_box("❓ 자주 묻는 질문", fq, "#fff", "#e5e7eb", "#374151") + '</div>'
+    return intro, "\n".join(secs) + rest_html + table + sumbox + faq
+
+
+
 def build_zodiac_weekly_post(today_str, combine=False):
     """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성
     combine=True (2026-10-21~): 12개를 한 편의 통합 포스트 1개로 합쳐 [그 1개짜리 리스트]를 반환한다."""
@@ -4401,6 +4589,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
 
     results = []
     _stories = []   # combine=True 일 때 별자리별 본문을 모아 둔다
+    _cmp = {}   # TOP5 간단 정리용 (이름 → (핵심 한 줄, 할 일, 피할 일))
     for z in ZODIACS:
         fortune  = zodiac_weekly_fortune(z['kr'])
         rating   = stars()
@@ -4544,6 +4733,8 @@ def build_zodiac_weekly_post(today_str, combine=False):
 
         if combine:
             _stories.append((z, story_html))
+            _wk_todo, _wk_av = _WK_ACTION.get(z['kr'], (['한 가지 일에 먼저 집중하기'], '서두르며 결정하는 선택'))
+            _cmp[z['kr']] = (_plain(str(empathy), 70), _wk_todo[0], _wk_av)
             continue
 
         content_html = f"""{style()}
@@ -4592,6 +4783,16 @@ def build_zodiac_weekly_post(today_str, combine=False):
             f'아래 목차에서 본인의 별자리로 이동하여 읽어보시기 바랍니다.</p>'
             f'<p style="max-width:660px;margin:0 auto 2em;font-size:13px;line-height:2.2;color:#7c3aed;word-break:keep-all">{toc}</p>'
         )
+        _wseed = mon_date.toordinal() // 7
+        _rk = _zodiac_week_rank(mon_date, sun_date, _wseed)
+        if _rk:
+            _emo = {zz['kr']: (zz.get('emoji') or '') for zz, _ in _stories}
+            _smap = {zz['kr']: sh for zz, sh in _stories}
+            _ranked = [(nm, _emo.get(nm, ''), sc, why) for nm, sc, why in _rk]
+            intro, sections = _t5_assemble("week", _ranked, _smap, _cmp, f"{week_range} {week_label}", "별자리 주간운세")
+            _w_top1 = _ranked[0][0]
+        else:
+            _w_top1 = None
         _body_text = re.sub(r"<[^>]+>", "", intro + sections)
         _body_len  = len(re.sub(r"\s", "", _body_text))
         print(f"📏 별자리 주간운세 통합 본문 길이: 공백 제외 {_body_len:,}자" +
@@ -4600,7 +4801,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
             "별자리 주간운세", f"{week_label} 주간운세", f"{week_range} 주간운세",
             f"{mon_date.year}년 {month_str} 별자리 주간운세", "12별자리 주간운세", "이번주 별자리운세"]
         tag_html_all = "".join(f'<span class="tag">{t}</span>' for t in all_tags)
-        title_c = f"별자리 {week_label} 주간운세 {week_range} | 12별자리 한눈에 보기"
+        title_c = (f"별자리 {week_label} 주간운세 {week_range} TOP5 — 이번 주 1위는 {_w_top1}" if _w_top1 else f"별자리 {week_label} 주간운세 {week_range} | 12별자리 한눈에 보기")
         sky_html = sky_basis_html(mon_date, sun_date, "week")   # 이번 주 하늘의 움직임(근거)
         content_c = f"""{style()}
 <div class="wrap">
@@ -4633,7 +4834,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
   {comment_prompt("weekly")}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매주 업데이트</div>
 </div>"""
-        desc_c = _plain(f"{week_range} 별자리 주간운세 — 양자리부터 물고기자리까지 열두 별자리의 이번 주 관계·일·돈·건강 흐름을 한 번에 정리했습니다.", 155)
+        desc_c = _plain(f"{week_range} 별자리 주간운세 TOP5 — 이번 주 하늘의 움직임으로 순위를 매기고, 1~5위는 관계·일·돈·건강까지 자세히, 6~12위는 핵심만 정리했습니다.", 155)
         return [(title_c, content_c, ["별자리주간", "주간운세"], desc_c)]
     return results
 
@@ -4669,6 +4870,7 @@ def build_chinese_monthly_post(today_str, combine=False):
     month_str = get_next_month_str()
     results   = []
     _stories  = []   # combine=True 일 때 띠별 본문을 모아 둔다
+    _cmp_m    = {}   # TOP5 간단 정리용
     _summ     = []   # combine=True 일 때 (띠, 핵심 메시지, 행운 키워드) — 한눈에 보기 표용
 
     v2_df    = csv("chinese_monthly_v2.csv")
@@ -4949,6 +5151,8 @@ def build_chinese_monthly_post(today_str, combine=False):
             _stories.append((c, story_html))
             _mh = re.search(r'["“]([^"”]{2,30})["”]', _hl)
             _summ.append((c, _mh.group(1) if _mh else _hl, lucky_kw))
+            _ma = _MO_ACTION.get(c['kr'], {})
+            _cmp_m[c['kr']] = (_plain(_hl, 70), (_ma.get('do') or ['한 달 일정을 주 단위로 나눠 적기'])[0], (_ma.get('avoid') or ['서두르며 결정하기'])[0])
             continue
 
         # ── 이미지 저장 카드 (띠별 월간 전용) ──
@@ -5027,6 +5231,20 @@ def build_chinese_monthly_post(today_str, combine=False):
             f'{table_html}'
             f'<p style="max-width:660px;margin:0 auto 2em;font-size:13px;line-height:2.2;color:#7c3aed;word-break:keep-all">{toc}</p>'
         )
+        _mseed = kst_now.year * 12 + kst_now.month
+        try:
+            _mrk, _bi = _animal_month_rank(month_str, _mseed)
+            _by_en = {cc['en']: (cc, sh) for cc, sh in _stories}
+            _ranked_m, _smap_m, _cmap_m = [], {}, {}
+            for i, sc, why in _mrk:
+                cc, sh = _by_en[_BR_EN[i]]
+                _ranked_m.append((cc['kr'], cc['emoji'], sc, why))
+                _smap_m[cc['kr']] = sh
+            intro, sections = _t5_assemble("month", _ranked_m, _smap_m, _cmp_m, month_str, "띠별 월간운세")
+            _m_top1 = _ranked_m[0][0]
+        except Exception as _ex:
+            print(f"⚠️ 띠 TOP5 구성 실패, 기존 형식 사용: {_ex}")
+            _m_top1 = None
         quote_clean = _plain(str(pick_quote()[0]), 120)
         closing = (
             f'<p style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:1.4em auto 0;'
@@ -5040,7 +5258,7 @@ def build_chinese_monthly_post(today_str, combine=False):
         all_tags = [f"{cc['kr']} 월간운세" for cc, _ in _stories] + [
             "띠별 월간운세", f"{month_str} 월간운세", f"{month_str} 띠별운세", "12띠 월간운세", "이달의 띠별운세"]
         tag_html_all = "".join(f'<span class="tag">{t}</span>' for t in all_tags)
-        title_c = f"띠별 {month_str} 월간운세 | 12띠 한눈에 보기"
+        title_c = (f"띠별 {month_str} 월간운세 TOP5 — 이달 1위는 {_m_top1}" if _m_top1 else f"띠별 {month_str} 월간운세 | 12띠 한눈에 보기")
         try:
             import calendar as _calm
             _mm = re.match(r"(\d{4})년\s*(\d{1,2})월", month_str)
@@ -5077,7 +5295,7 @@ def build_chinese_monthly_post(today_str, combine=False):
   {comment_prompt("monthly")}
   <div class="meta">※ 재미로 보는 운세 콘텐츠입니다 · 매월 업데이트</div>
 </div>"""
-        desc_c = _plain(f"{month_str} 띠별 월간운세 — 쥐띠부터 돼지띠까지 열두 띠의 이달 흐름과 상순·중순·하순 운세를 한 번에 정리했습니다.", 155)
+        desc_c = _plain(f"{month_str} 띠별 월간운세 TOP5 — 이달 월지와의 관계로 순위를 매기고, 1~5위는 상순·중순·하순과 실행 가이드까지 자세히, 6~12위는 핵심만 정리했습니다.", 155)
         return [(title_c, content_c, ["띠별월간", "월간운세"], desc_c)]
     return results
 
