@@ -2231,6 +2231,149 @@ _QUOTE_TITLE_PATTERNS = [
     "{today} 오늘의 명언 · 현실 위로형 스토리텔링",
 ]
 
+# ─────────────────────────────────────────
+# 오늘의명언 문장 풀 확장 (2026-11-23) — 주 1회 발행이라 풀이 작으면 몇 달 만에 같은 문장이 반복되어
+# '반복 콘텐츠'로 보일 수 있다. 공감 5→8, 감정 3→8, 위로 3→8 (카테고리당). 기존 문장은 그대로 두고 뒤에 이어 붙인다.
+# ─────────────────────────────────────────
+_EXTRA_EMPATHY = {
+    "인생": [
+        "달력을 넘기다가 올해도 벌써 이만큼 지났다는 사실에 잠시 멈추게 되는 날이 있습니다. 해낸 일보다 미뤄 둔 일이 먼저 떠오르는 것도 흔한 일입니다.",
+        "퇴근길이나 하굣길에 창밖을 멍하니 보다가, 이 하루가 어디로 갔는지 모르겠다고 느끼는 날이 있습니다. 바쁘게 지냈는데 남은 것이 없는 듯한 기분입니다.",
+        "남들의 소식을 접하다 보면 내 속도가 맞는지 자꾸 확인하게 되는 때가 있습니다. 비교하지 말자고 다짐하면서도 마음은 어느새 숫자를 세고 있습니다.",
+    ],
+    "성장": [
+        "분명히 배우고 연습하고 있는데 어제와 오늘이 똑같아 보이는 시기가 있습니다. 눈에 보이는 변화가 없으면 노력 자체를 의심하게 되기 쉽습니다.",
+        "새로운 것을 배우기 시작하면 처음의 설렘이 지나고 서툰 자신을 마주하는 순간이 옵니다. 그 어색함 때문에 그만둘까 고민해 본 분이 적지 않을 것입니다.",
+        "열심히 하는 사람 옆에 있으면 자극이 되기도 하지만, 어느 날은 그 모습이 조급함으로 바뀌기도 합니다. 내 걸음이 느린 것 같아 마음이 바빠지는 날입니다.",
+    ],
+    "도전": [
+        "하고 싶은 일이 있는데 지금이 맞는 때인지 몇 번이고 되묻게 되는 날이 있습니다. 준비가 다 된 상태에서 시작하는 사람은 생각보다 많지 않은데도 말입니다.",
+        "주변에서 응원하는 말은 들리는데, 정작 결과에 책임지는 것은 나라는 생각에 마음이 무거워지는 날이 있습니다. 응원과 부담은 종종 함께 찾아옵니다.",
+        "해 보겠다고 말해 놓고 막상 첫걸음 앞에서 며칠을 망설이는 일이 있습니다. 망설임이 길어지는 것은 그만큼 진지하게 고민하고 있다는 모습이기도 합니다.",
+    ],
+    "인내": [
+        "기다리는 시간이 길어질수록 처음의 확신이 조금씩 닳아 가는 느낌이 드는 때가 있습니다. 그래도 아직 그 자리에 서 있다는 사실은 가볍지 않습니다.",
+        "참는 것이 미덕이라고 배웠는데, 참을수록 마음 한쪽이 단단해지기보다 먹먹해지는 날이 있습니다. 그 느낌을 말로 꺼내기가 쉽지 않습니다.",
+        "하루하루는 별일 없이 지나가는데 한 달, 한 해 단위로 보면 지쳐 있다는 걸 알게 되는 때가 있습니다. 천천히 쌓이는 피로는 알아차리기가 어렵습니다.",
+    ],
+    "관계": [
+        "가까운 사람에게 서운했던 마음을 말할까 말까 하다가 결국 삼키고 돌아선 날이 있습니다. 관계를 지키려는 마음과 나를 지키려는 마음이 부딪히는 순간입니다.",
+        "메시지 창을 열었다가 아무것도 보내지 못하고 닫은 적이 있을 것입니다. 연락이 뜸해진 사이일수록 첫 마디가 더 무겁게 느껴집니다.",
+        "많은 사람 사이에 있는데도 이야기가 통하는 사람이 없다고 느끼는 날이 있습니다. 사람이 곁에 있는 것과 마음이 닿는 것은 다른 문제이기 때문입니다.",
+    ],
+}
+_EXTRA_EMOTION = {
+    "인생": [
+        "지금 느끼는 막막함은 약해서 생기는 것이 아닙니다. 책임질 것이 많은 사람일수록 앞이 더 무겁게 보이기 마련입니다.",
+        "아무 일도 없는데 지치는 날이 있습니다. 눈에 띄는 사건이 없어도 마음은 하루 종일 일을 하고 있었기 때문입니다.",
+        "계획대로 되지 않는 하루가 쌓이면 스스로를 탓하게 됩니다. 하지만 하루의 결과가 나라는 사람 전체를 말해 주는 것은 아닙니다.",
+        "요즘 웃음이 줄었다는 걸 문득 깨닫는 때가 있습니다. 그것을 알아차렸다는 것은 마음이 아직 신호를 보내고 있다는 뜻입니다.",
+        "좋은 일을 기대하는 마음이 조심스러워지는 시기가 있습니다. 실망에 대비하려는 마음은 한 번쯤 다친 적이 있는 사람의 자연스러운 반응입니다.",
+    ],
+    "성장": [
+        "성장이 더디게 느껴지는 것은 멈췄기 때문이 아니라 눈에 보이지 않는 곳에서 쌓이고 있기 때문인 경우가 많습니다. 뿌리가 먼저 자라는 시기에는 겉이 조용합니다.",
+        "남과 비교하며 조급해지는 마음은 더 잘하고 싶다는 마음에서 나옵니다. 그 마음을 나쁘게만 볼 필요는 없습니다.",
+        "서툴러 보이는 것이 부끄러운 날이 있습니다. 하지만 처음부터 능숙했던 사람은 없고, 서툰 시기를 지났다는 점이 나중에는 기준이 됩니다.",
+        "어제의 나보다 조금만 나아도 충분하다는 말이 막상 와닿지 않는 날이 있습니다. 그런 날은 기준을 낮추는 것이 아니라 보폭을 줄이는 것이라고 생각해도 됩니다.",
+        "실수를 되짚다 보면 자신감이 줄어드는 느낌이 듭니다. 그러나 실수를 알아보는 눈이 생겼다는 것은 이전보다 보는 범위가 넓어졌다는 의미이기도 합니다.",
+    ],
+    "도전": [
+        "두려움이 크다는 것은 그 일이 나에게 의미가 있다는 신호이기도 합니다. 아무래도 괜찮은 일 앞에서는 망설일 이유가 없으니까요.",
+        "결과가 기대에 못 미쳤다고 해서 시도한 시간까지 사라지는 것은 아닙니다. 해 본 사람만 아는 정보가 남습니다.",
+        "다시 시작할 힘이 나지 않는 날은 쉬어도 됩니다. 쉬는 것과 포기하는 것은 다른 일입니다.",
+        "작은 시도조차 버겁게 느껴지는 시기가 있습니다. 그때는 크기를 더 줄여서 오늘 할 수 있는 한 가지만 생각해도 괜찮습니다.",
+        "앞서가는 사람이 보이면 마음이 급해집니다. 그러나 출발선도, 가진 시간도 모두 다르다는 점을 떠올려 볼 만합니다.",
+    ],
+    "인내": [
+        "오래 참고 있다는 것은 그만큼 놓고 싶지 않은 무언가가 있다는 뜻입니다. 지치는 것은 약해서가 아니라 오래 들고 있었기 때문입니다.",
+        "기다림이 길어지면 의미를 잃은 것처럼 느껴지기도 합니다. 하지만 시간이 걸리는 일일수록 중간 과정은 눈에 잘 보이지 않습니다.",
+        "참는 일에도 쉬는 시간이 필요합니다. 잠시 숨을 고르는 것을 게으름으로 여기지 않아도 됩니다.",
+        "조급한 마음은 결과가 걱정될 때 커집니다. 걱정이 크다는 것은 그만큼 진지하게 임하고 있다는 의미이기도 합니다.",
+        "버티는 날과 나아가는 날이 따로 있는 것이 아니라, 버티는 날들이 모여 나아가는 길이 되기도 합니다.",
+    ],
+    "관계": [
+        "서운함을 느낀다는 것은 그 관계를 소중히 여긴다는 뜻이기도 합니다. 마음이 없다면 서운할 일도 없습니다.",
+        "모든 사람과 잘 지내지 못해도 괜찮습니다. 맞는 사람과 오래 이어지는 것만으로도 관계는 충분히 의미가 있습니다.",
+        "말하지 못한 마음은 시간이 지나도 사라지지 않고 쌓입니다. 꺼내는 방식은 천천히 고민해도 됩니다.",
+        "나를 이해해 주지 않는 사람 앞에서 지치는 것은 당연합니다. 이해받지 못하는 경험은 생각보다 많은 에너지를 씁니다.",
+        "거리를 두고 싶은 마음이 드는 때가 있습니다. 그것은 관계를 끊겠다는 선언이 아니라 숨 쉴 공간이 필요하다는 신호일 수 있습니다.",
+    ],
+}
+_EXTRA_COMFORT = {
+    "인생": [
+        "오늘 할 수 있었던 만큼만 해도 충분합니다. 내일의 몫은 내일의 내가 이어서 하면 됩니다.",
+        "천천히 가는 날도 같은 길 위에 있습니다. 속도보다 방향을 놓치지 않았다는 점을 기억해 두세요.",
+        "오늘 하루 수고 많으셨습니다. 잠들기 전에 한 가지만이라도 스스로를 칭찬해 보세요.",
+        "답이 보이지 않을 때는 답을 찾는 대신 오늘 할 수 있는 가장 작은 일 하나만 정해 보세요. 그것만으로도 하루는 앞으로 갑니다.",
+        "지금의 막막함도 시간이 지나면 지나온 풍경 중 하나가 됩니다. 오늘은 따뜻한 음식과 충분한 잠으로 자신을 돌봐 주세요.",
+    ],
+    "성장": [
+        "오늘의 한 걸음이 작아 보여도 괜찮습니다. 작은 걸음이 모이면 어느 날 돌아보았을 때 꽤 멀리 와 있습니다.",
+        "배우는 중인 자신에게 조금 더 너그러워져도 좋습니다. 서툰 시간을 지나는 중이라는 것은 자라고 있다는 뜻입니다.",
+        "오늘 배운 것 한 가지만 적어 두세요. 눈에 보이는 기록은 흔들리는 날에 다시 꺼내 볼 수 있는 근거가 됩니다.",
+        "쉬어 가는 것도 성장의 일부입니다. 충분히 쉰 뒤의 한 걸음은 생각보다 가볍습니다.",
+        "비교는 잠시 내려놓고 어제의 나와만 견줘 보세요. 그 기준에서는 달라진 점이 하나쯤 있을 것입니다.",
+    ],
+    "도전": [
+        "시작하기 전의 떨림은 자연스러운 것입니다. 떨리는 채로 첫 한 걸음을 내딛는 사람도 많습니다.",
+        "오늘은 크게 하지 않아도 됩니다. 가장 작은 첫 단계 하나만 해 보면 다음 걸음이 한결 쉬워집니다.",
+        "실패했다고 느껴지는 날에도 배운 것은 남습니다. 오늘 얻은 정보 한 가지를 적어 두는 것으로 충분합니다.",
+        "결과를 기다리는 동안에는 할 수 있는 일에만 집중해 보세요. 통제할 수 없는 부분은 잠시 내려놓아도 괜찮습니다.",
+        "도전하는 자신에게 오늘 한마디만 건네 보세요. '여기까지 온 것만으로도 잘하고 있다'고요.",
+    ],
+    "인내": [
+        "오늘도 버텨낸 자신에게 고맙다고 말해 주세요. 그 한마디가 내일을 위한 작은 힘이 됩니다.",
+        "기다리는 동안 몸과 마음을 돌보는 일도 일의 한 부분입니다. 오늘은 일찍 쉬어 보세요.",
+        "한꺼번에 해결하려 하지 않아도 됩니다. 하루치의 무게만 들면 되는 날도 있습니다.",
+        "지금은 길게 느껴져도 이 시간에는 끝이 있습니다. 그때까지 스스로를 다독이며 가면 됩니다.",
+        "쉬어도 되고 멈춰도 됩니다. 다시 걷고 싶어질 때 걸으면 길은 그 자리에 있습니다.",
+    ],
+    "관계": [
+        "오늘은 나를 가장 편하게 해 주는 사람에게 짧은 안부를 보내 보세요. 긴 말이 아니어도 충분합니다.",
+        "말하기 어려운 마음은 먼저 글로 적어 보세요. 정리된 문장은 꺼내기가 한결 쉬워집니다.",
+        "관계에도 속도가 있습니다. 서두르지 않고 천천히 이어 가도 좋습니다.",
+        "나를 아끼는 마음이 먼저여야 남에게도 여유가 생깁니다. 오늘은 나에게 먼저 다정해져 보세요.",
+        "서두르지 않아도 됩니다. 마음의 준비가 되었을 때 건네는 연락이 더 오래 이어지곤 합니다.",
+    ],
+}
+for _pool, _extra in ((_EMPATHY_POOL, _EXTRA_EMPATHY), (_EMOTION_POOL, _EXTRA_EMOTION), (_COMFORT_POOL, _EXTRA_COMFORT)):
+    for _k, _v in _extra.items():
+        _pool.setdefault(_k, []).extend(x for x in _v if x not in _pool[_k])
+
+
+def _rot_pick(pool, n, stride=1):
+    """발행 순번(n)으로 풀을 순환 선택 — random.choice처럼 같은 문장이 연달아 나오는 일 없이,
+    풀 길이만큼 발행해야 같은 문장으로 돌아온다. stride는 풀 길이와 서로소가 되게 맞춘다."""
+    import math
+    L = len(pool)
+    stride = max(1, stride)
+    while math.gcd(stride, L) != 1:
+        stride += 1
+    return pool[(n * stride) % L]
+
+
+def _quote_post_no():
+    """지금까지 발행한 명언 글 수(슬러그 순번 기준). 상태 파일이 없거나 깨져도 0으로 안전하게."""
+    try:
+        return max(0, int(_load_quote_state().get("next_number", 10001)) - 10001)
+    except Exception:
+        return 0
+
+
+def _has_batchim(s):
+    ch = (s or "").strip()[-1:]
+    return bool(ch) and "가" <= ch <= "힣" and (ord(ch) - 0xAC00) % 28 != 0
+
+
+def _first_sent(t):
+    """문장 하나만 — 한줄요약·FAQ를 본문 문단 통째 복사가 되지 않게 짧게 쓴다."""
+    t = (t or "").strip()
+    if not t or t == "nan":
+        return ""
+    parts = _re.split(r"(?<=[.!?。])\s+", t)
+    return parts[0].strip()
+
+
 def build_quote_post(today_str):
     """실존 명언 기반 정보성 스토리텔링 포스트 — 1,000자 이상, 출처·의미·배경·적용 포함"""
     (quote, quote_en, author_ko, author_en, birth, profession, meaning, background, apply_, category,
@@ -2258,9 +2401,10 @@ def build_quote_post(today_str):
 
     # ── 공감·위로 파트 — category별 맞춤 풀 선택 ──
     _cat = str(category) if category and str(category) in _EMPATHY_POOL else "인생"
-    empathy = random.choice(_EMPATHY_POOL[_cat])
-    emotion  = random.choice(_EMOTION_POOL[_cat])
-    comfort  = random.choice(_COMFORT_POOL[_cat])
+    _pn = _quote_post_no()   # 발행 순번 — 같은 문장이 연달아/자주 반복되지 않게 순환 선택 (v9.5 23.6)
+    empathy = _rot_pick(_EMPATHY_POOL[_cat], _pn, 1)
+    emotion  = _rot_pick(_EMOTION_POOL[_cat], _pn, 3)
+    comfort  = _rot_pick(_COMFORT_POOL[_cat], _pn, 5)
 
     # ── 서재 브릿지 ──
     cat = str(category) if category and str(category) != 'nan' else '인생'
@@ -2293,8 +2437,8 @@ def build_quote_post(today_str):
     tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
 
     _qs = _QUOTE_QUESTIONS.get(cat, _QUOTE_QUESTIONS["인생"])
-    _q1 = _qs[kst_day % len(_qs)]
-    _q2 = _qs[(kst_day + 3) % len(_qs)]
+    _q1 = _rot_pick(_qs, _pn, 1)
+    _q2 = _qs[(_pn + len(_qs) // 2) % len(_qs)]
     q_html = (
         '<div style="margin:1.2rem 0 1.4rem;padding:12px 16px;background:#f9fafb;'
         'border-left:3px solid #d1d5db;border-radius:0 8px 8px 0">'
@@ -2316,6 +2460,67 @@ def build_quote_post(today_str):
                 '<p style="font-size:12px;font-weight:700;color:#7c3aed;margin:0 0 6px">🔤 오늘의 영어 표현</p>'
                 f'<ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.9;color:#374151">{_lis}</ul>'
                 '</div>')
+
+
+    # ── [v9.5] 📌 한줄요약 · 자주 묻는 질문 · 출처 안내 — CSV 값으로만 만든다(Gemini·지어낸 사실 없음) ──
+    import html as _hm
+    _e = lambda x: _hm.escape(str(x), quote=False)
+    _n = _quote_post_no()
+    _bd = birth if birth and birth != "nan" else ""
+    _prof = profession if profession and profession != "nan" else ""
+    _qshort = quote if len(quote) <= 24 else quote[:24].rstrip() + "…"
+    _eun = "은" if _has_batchim(author_ko) else "는"
+    _mean1, _apply1 = _first_sent(meaning), _first_sent(apply_)
+    _subj = f"{author_ko}의 말로 전해지는" if unsure else f"{author_ko}의"
+
+    summary_html = ""
+    if _mean1:
+        _sum = f"{_subj} 이 명언은 '{cat}'에 관한 한 줄입니다. {_mean1}"
+        if _apply1:
+            _sum += f" {_apply1}"
+        summary_html = (
+            '<div style="margin:0 0 1.3rem;padding:12px 16px;background:#fffbeb;border:1px solid #fcd34d;'
+            'border-radius:12px;text-align:left"><div style="font-weight:800;color:#1e293b;font-size:14px;'
+            f'margin-bottom:4px">📌 한줄요약</div><div style="line-height:1.8;color:#334155;font-size:14px;'
+            f'word-break:keep-all">{_e(_sum)}</div></div>')
+
+    unsure_html = ""
+    if unsure:
+        unsure_html = (
+            '<p style="font-size:12px;color:#b45309;background:#fffbeb;border-radius:8px;padding:8px 12px;'
+            'line-height:1.7;margin:0 0 1rem">※ 이 문장은 원문 출처가 확실하지 않아 \'전해지는 말\'로 소개합니다. '
+            '인용할 때는 \'~의 말로 전해진다\'고 표기해 주세요.</p>')
+
+    _q1_var = [f"“{_qshort}” 명언은 누가 한 말인가요?",
+               f"“{_qshort}” 이 말을 남긴 사람은 누구인가요?",
+               f"이 명언을 남긴 {author_ko}{_eun} 어떤 사람인가요?"][_n % 3]
+    if unsure:
+        _a1 = (f"{author_ko}의 말로 전해지지만 원문 출처가 확실하지 않은 문장입니다. 인용하거나 공유할 때는 "
+               f"'{author_ko}의 말로 전해진다'고 표기하고, 원문이 필요하면 도서·연설 기록 같은 1차 자료에서 직접 확인하시기 바랍니다.")
+    else:
+        _a1 = (f"{author_ko}" + (f"({_bd})" if _bd else "") + "의 말로 알려진 문장입니다."
+               + (f" 소개 정보는 '{_prof}'입니다." if _prof else "")
+               + " 인용 표기가 필요하면 이름과 함께 원문 출처를 확인해 적는 것이 안전합니다.")
+    _q2_var = [f"“{_qshort}”는 무슨 뜻인가요?",
+               f"“{_qshort}”를 쉬운 말로 풀면 어떤 의미인가요?",
+               "이 명언이 말하려는 핵심은 무엇인가요?"][(_n + 1) % 3]
+    _a2 = (meaning or "").strip()
+    if not unsure:
+        _c1 = _first_sent(context_txt)
+        if _c1 and _c1 not in _a2:
+            _a2 += f" {_c1}"
+    _q3_var = ["오늘 이 명언을 일상에 어떻게 적용할 수 있나요?",
+               "이 말을 힘든 날 어떻게 떠올리면 좋을까요?",
+               "이 명언을 실천으로 옮기는 가장 작은 방법은 무엇인가요?"][(_n + 2) % 3]
+    _a3 = (apply_ or "").strip() + f" 오늘 스스로에게 이런 질문을 던져 보세요. {_q1}"
+
+    _faq_items = [(_q1_var, _a1), (_q2_var, _a2), (_q3_var, _a3)]
+    faq_html = (
+        '<div class="card"><h2 style="font-size:17px;color:#4c1d95;margin:0 0 10px">자주 묻는 질문</h2>' +
+        "".join(f'<h3 style="font-size:15px;color:#4c1d95;margin:14px 0 4px;line-height:1.5">Q. {_e(q)}</h3>'
+                f'<p style="font-size:14px;line-height:1.9;color:#374151;margin:0 0 8px;word-break:keep-all">{_e(a)}</p>'
+                for q, a in _faq_items if q and a.strip()) +
+        '</div>')
 
     content = f"""{style()}
 <style>
@@ -2375,6 +2580,7 @@ def build_quote_post(today_str):
     <p class="qc-sub">{author_ko}{("의 말로 전해지는 한 줄" if unsure else (("이" if (ord(author_ko[-1]) - 0xAC00) % 28 != 0 else "가") + " 오늘 당신에게 건네는 한 줄"))}</p>
     <div class="qc-rule">&middot; &middot; &middot;</div>
 
+    {summary_html}
     <!-- 💭 공감 -->
     <div class="qc-body">
       <p>{empathy}</p>
@@ -2404,6 +2610,7 @@ def build_quote_post(today_str):
       </p>
       <p style="font-size:12px;color:#9ca3af;line-height:1.6;margin:0">{quote_en}</p>
     </div>
+    {unsure_html}
 
     <div class="qc-rule">&middot; &middot; &middot;</div>
 
@@ -2426,6 +2633,8 @@ def build_quote_post(today_str):
   <!-- /이미지 저장 카드 끝 -->
 
   {save_btn}
+
+  {faq_html}
 
   <!-- SEO 키워드 -->
   <div class="card">
