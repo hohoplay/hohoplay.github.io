@@ -68,7 +68,7 @@ def get_access_token_for_knowledge():
     return ""
 
 
-def post_blogger_scheduled(access_token, title, content, labels, published_iso=None, slug_number=None, custom_meta=None):
+def post_blogger_scheduled(access_token, title, content, labels, published_iso=None, slug_number=None, custom_meta=None, is_draft=False):
     """운세상식 전용 발행 함수 — 기존 post_blogger()는 절대 건드리지 않고 별도로 둠.
     published_iso를 주면 예약 발행, 생략하면 즉시 발행 (지금 구조는 즉시 발행만 사용).
     slug_number를 주면 [숫자만으로 된 제목으로 생성 → 한글 제목으로 수정] 2단계로 발행해서
@@ -80,6 +80,7 @@ def post_blogger_scheduled(access_token, title, content, labels, published_iso=N
         return True
 
     url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
+    qs = {"isDraft": "true"} if is_draft else None   # 초안 모드: 공개하지 않고 Blogger 초안함에만 저장
 
     slug_title = str(slug_number) if slug_number else None
     insert_title = slug_title or title
@@ -92,7 +93,7 @@ def post_blogger_scheduled(access_token, title, content, labels, published_iso=N
 
     post_id = None
     for attempt in range(1, 4):  # 최대 3회 재시도 (기존 post_blogger()와 동일한 패턴)
-        resp = requests.post(url,
+        resp = requests.post(url, params=qs,
             headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
             json=body)
         if resp.status_code in (200, 201):
@@ -1233,7 +1234,7 @@ def pick_intro_pattern(history):
     return cands[len(history) % len(cands)]
 
 
-def run(count=1):
+def run(count=1, draft=False):
     if not GEMINI_API_KEY:
         print("❌ GEMINI_API_KEY 환경변수가 없습니다.")
         sys.exit(1)
@@ -1243,6 +1244,8 @@ def run(count=1):
         print("❌ Blogger 인증 실패 — 발행을 진행할 수 없습니다.")
         sys.exit(1)
 
+    if draft:
+        print("📝 초안 모드 — 블로그에 공개하지 않고 Blogger 초안함에만 저장합니다. 상태 파일(발행 기록)은 바꾸지 않아 주제가 소진되지 않습니다.")
     state = load_state()
     coupang_links = load_coupang_links()
     success_count = 0
@@ -1360,9 +1363,13 @@ def run(count=1):
 </div>"""
 
         slug_number = state["next_slug_number"]
-        ok = post_blogger_scheduled(access_token, title, content, ["운세상식"], slug_number=slug_number,
-                                    custom_meta=f"topic:{topic}")
+        ok = post_blogger_scheduled(access_token, title, content, ["운세상식"], slug_number=(None if draft else slug_number),
+                                    custom_meta=f"topic:{topic}", is_draft=draft)
 
+        if ok and draft:
+            print("  📝 초안 저장 완료 — Blogger 관리자 > 게시물 > 초안에서 확인하세요. (공개할 때는 퍼머링크를 숫자로 직접 지정하면 기존 주소 형식과 같아집니다)")
+            success_count += 1
+            break
         if ok:
             state["last_index"] = idx
             used_norm.add(_norm_title(topic))
@@ -1398,10 +1405,13 @@ def main():
     parser = argparse.ArgumentParser(description="운세상식 카테고리 자동 생성/발행")
     parser.add_argument("--count", type=int, default=1,
                          help="이번 실행에서 생성할 글 개수 (기본 1, 초기 시드 배치는 --count 10 처럼 크게)")
+    parser.add_argument("--draft", action="store_true",
+                         help="초안 모드 — 공개하지 않고 Blogger 초안함에만 저장(처음 확인용). 환경변수 KNOWLEDGE_DRAFT=1도 같음")
     args = parser.parse_args()
+    draft = args.draft or os.environ.get("KNOWLEDGE_DRAFT", "").strip().lower() in ("1", "true", "yes")
 
-    print(f"🚀 운세상식 생성 시작 — {args.count}개")
-    success_count, exhausted = run(args.count)
+    print(f"🚀 운세상식 생성 시작 — {args.count}개" + (" (초안 모드)" if draft else ""))
+    success_count, exhausted = run(1 if draft else args.count, draft=draft)
 
     if success_count == 0 and exhausted:
         print("ℹ️ 발행할 새 주제가 없어 이번 실행은 아무것도 하지 않고 종료합니다.")
