@@ -13,12 +13,17 @@
  *  - 편집 내용은 이 기기 브라우저(localStorage)에만 저장한다. 서버로 보내지 않는다. 다른 캠핑장이 우승하면 새로 시작한다.
  *  - 입구: window.HohoCampPlan.open(champ, { mode: 'camp' | 'day' })  (mode 생략 = 'camp') — champ = { contentid, title, addr, lat?, lng?, tel?/_tel?, fee?, hours?, placeType?, costTag?, _near? }
  *          champ._near 는 nearby-pick.js 의 onPicks 콜백이 채운다([{ title, km, placeType, contentid }]).
+ *
+ * [ADD] 2026-11-23 식사 칸: 일정 아래 "🍴 식당·카페 넣기" — 앞 장소 근처 음식점(FD6)·카페(CE7)를 카카오 장소검색으로 찾아 일정에 넣는다(줄 종류 k:'m').
+ *    카카오 지도 SDK(services)는 처음 누를 때만 불러온다(지도 페이지는 이미 불러와 있으면 재사용). 영업시간·메뉴는 저장하지 않고 카카오맵 확인으로 안내한다.
  *          window.HohoCampPlan.hide() — 월드컵을 다시 시작할 때 일정표를 접는다.
  */
 (function () {
     'use strict';
 
     var sec = null, root = null, cur = null, P = null;
+    var mealUI = null;   // 식사 찾기 패널 상태 { day, ref, cat, q, rad, rep, results, status }
+    var KAKAO_KEY = '9e0536bde5120d8fcdd09c780e431ea3';
 
     var MODES = {
         camp: {
@@ -241,9 +246,9 @@
 
     // ── 확인표 항목(근처 장소 확인은 일정 줄에서 만든다) ─────────────────────────────
     function nearChecks() {
-        return P.rows.filter(function (r) { return r.k === 'n' || r.k === 'f'; }).map(function (r) {
-            var nm = String(r.title).replace(/^(?:📍|🎪)\s*/, '');
-            return ['n_' + r.id, '「' + nm + '」 ' + (r.k === 'f' ? '행사 시간·장소 확인' : '운영시간·휴관일 확인')];
+        return P.rows.filter(function (r) { return r.k === 'n' || r.k === 'f' || r.k === 'm'; }).map(function (r) {
+            var nm = String(r.title).replace(/^(?:📍|🎪|🍴)\s*/, '');
+            return ['n_' + r.id, '「' + nm + '」 ' + (r.k === 'f' ? '행사 시간·장소 확인' : (r.k === 'm' ? '영업시간·휴무·대기 확인' : '운영시간·휴관일 확인'))];
         });
     }
     function isOn(id) { return !!P.checks[id]; }
@@ -309,6 +314,16 @@
             '#campPlan .cp-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}' +
             '#campPlan .cp-hint{margin-top:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;line-height:1.7;color:#475569}' +
             '#campPlan .cp-fest{margin:6px 0 0;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:12.5px;color:#92400e;line-height:1.6}' +
+            '#campPlan .cp-bd.meal{background:#fff7ed;color:#c2410c;border-color:#fed7aa}' +
+            '#campPlan .cp-meal{border:1px solid #fed7aa;background:#fffbf5;border-radius:12px;padding:12px;margin:8px 0}' +
+            '#campPlan .cp-meal h4{margin:0 0 8px;font-size:14px;font-weight:900;color:#9a3412}' +
+            '#campPlan .cp-meal select{font:inherit;font-size:13px;border:1px solid #cbd5e1;border-radius:8px;padding:6px;background:#fff;max-width:100%}' +
+            '#campPlan .cp-mrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0;font-size:12.5px;color:#475569}' +
+            '#campPlan .cp-mres{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;border:1px solid #e2e8f0;background:#fff;border-radius:10px;padding:8px 10px;margin-top:6px}' +
+            '#campPlan .cp-mres b{font-size:13.5px;color:#0f172a}' +
+            '#campPlan .cp-mres .mi{font-size:12px;color:#64748b;line-height:1.5;word-break:keep-all}' +
+            '#campPlan .cp-mres a{color:#4f46e5;font-weight:800;text-decoration:none}' +
+            '#campPlan .cp-mnote{font-size:11.5px;color:#94a3b8;margin-top:8px;line-height:1.5}' +
             '#campPlan .cp-warn{font-size:12.5px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px 12px;margin:0 0 10px;line-height:1.6}' +
             '@media (max-width:480px){#campPlan .cp-row{padding:7px}}' +
             // 인쇄: 일정표 종이(#cp-print-host)만 A4 한 장으로
@@ -445,7 +460,9 @@
         for (var d = 1; d <= P.days; d++) {
             h += '<div class="cp-dayhd"><span>' + esc(dayLabel(d)) + '</span></div>';
             P.rows.forEach(function (r) { if (r.day === d) h += rowHtml(r); });
-            h += '<button type="button" class="cp-btn small" data-act="addrow" data-day="' + d + '">＋ 일정 추가</button>';
+            h += '<button type="button" class="cp-btn small" data-act="addrow" data-day="' + d + '">＋ 일정 추가</button> ' +
+                '<button type="button" class="cp-btn small" data-act="mealopen" data-day="' + d + '">🍴 식당·카페 넣기</button>';
+            if (mealUI && mealUI.day === d) h += '<div id="cpMeal" class="cp-meal">' + mealInner() + '</div>';
         }
 
         // 축제 넣기 스위치 (하루 나들이 틀에서만)
@@ -554,6 +571,132 @@
         });
     }
 
+
+    // ── 식사 칸: 카카오 장소검색으로 앞 장소 근처 음식점·카페 찾기 ────────────────────────────
+    function withKakao(ok, fail) {
+        function ready() { return window.kakao && kakao.maps && kakao.maps.services; }
+        if (ready()) { ok(); return; }
+        function go() { try { kakao.maps.load(function () { ready() ? ok() : fail(); }); } catch (e) { fail(); } }
+        if (window.kakao && kakao.maps && kakao.maps.load) { go(); return; }
+        var ex = document.getElementById('cp-kakao-sdk');
+        if (ex) { ex.addEventListener('load', go); ex.addEventListener('error', fail); return; }
+        var s = document.createElement('script');
+        s.id = 'cp-kakao-sdk';
+        s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + KAKAO_KEY + '&libraries=services&autoload=false';
+        s.onload = go; s.onerror = function () { s.parentNode && s.parentNode.removeChild(s); fail(); };
+        document.head.appendChild(s);
+    }
+    function dayGeoRows(d) { return P.rows.filter(function (r) { return r.day === d && r.lat != null && isFinite(+r.lat) && isFinite(+r.lng); }); }
+    function lunchPlaceholder(d) {
+        for (var i = 0; i < P.rows.length; i++) { var r = P.rows[i]; if (r.day === d && r.k === 'x' && /^(점심|식사|브런치)/.test(plainTitle(r.title))) return r; }
+        return null;
+    }
+    // 기준 장소: 점심 칸이 있으면 그 바로 앞 장소, 없으면 12:30 이전의 마지막 장소(없으면 첫 장소)
+    function defaultRef(d) {
+        var lp = lunchPlaceholder(d), best = null, any = null;
+        for (var i = 0; i < P.rows.length; i++) {
+            var r = P.rows[i];
+            if (r.day !== d) continue;
+            if (lp && r.id === lp.id) break;
+            if (r.lat != null && isFinite(+r.lat) && isFinite(+r.lng)) {
+                if (!any) any = r;
+                if (lp || !r.time || timeVal(r.time) <= '12:30') best = r;
+            }
+        }
+        return (best || any || {}).id || '';
+    }
+    function mealOpen(d) {
+        var geo = dayGeoRows(d);
+        mealUI = { day: d, ref: defaultRef(d), cat: 'FD6', q: '', rad: 1000, rep: true, results: null, status: '', busy: false };
+        if (!mealUI.ref && !geo.length && !(cur && isFinite(+cur.lat) && isFinite(+cur.lng))) mealUI.status = '기준이 될 장소 위치가 없어요. 아래 검색창에 "지역 + 음식 종류"(예: 차이나타운 짜장면)를 넣어 찾아 보세요.';
+    }
+    function refPoint() {
+        var r = null;
+        if (mealUI.ref) { var i = rowIndex(mealUI.ref); if (i >= 0) r = P.rows[i]; }
+        if (r && r.lat != null && isFinite(+r.lat)) return { lat: +r.lat, lng: +r.lng, name: plainTitle(r.title) };
+        if (cur && isFinite(+cur.lat) && isFinite(+cur.lng) && cur.lat !== '' && cur.lat != null) return { lat: +cur.lat, lng: +cur.lng, name: plainTitle(cur.title) };
+        return null;
+    }
+    function mealInner() {
+        var u = mealUI, h = '<h4>🍴 식당·카페 찾아서 넣기</h4>';
+        var geo = dayGeoRows(u.day);
+        if (geo.length) {
+            h += '<div class="cp-mrow"><label for="cpMealRef">기준 장소</label><select id="cpMealRef">';
+            geo.forEach(function (r) { h += '<option value="' + esc(r.id) + '"' + (r.id === u.ref ? ' selected' : '') + '>' + esc(clip(plainTitle(r.title), 20)) + (r.time ? ' (' + esc(timeVal(r.time)) + ')' : '') + '</option>'; });
+            h += '</select><label for="cpMealRad">반경</label><select id="cpMealRad">';
+            [[500, '500m'], [1000, '1km'], [2000, '2km'], [3000, '3km']].forEach(function (x) { h += '<option value="' + x[0] + '"' + (x[0] === u.rad ? ' selected' : '') + '>' + x[1] + '</option>'; });
+            h += '</select></div>';
+        }
+        h += '<div class="cp-mrow"><button type="button" class="cp-chip" data-act="mealcat" data-cat="FD6"' + (u.cat === 'FD6' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>🍚 음식점</button>' +
+            '<button type="button" class="cp-chip" data-act="mealcat" data-cat="CE7"' + (u.cat === 'CE7' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>☕ 카페</button></div>';
+        h += '<div class="cp-mrow"><input type="text" id="cpMealQ" maxlength="30" placeholder="직접 검색 (예: 칼국수, 돈까스, 키즈카페)" value="' + esc(u.q) + '" style="flex:1 1 160px"><button type="button" class="cp-btn small" data-act="mealsearch">검색</button></div>';
+        if (lunchPlaceholder(u.day)) h += '<label class="cp-chk" style="border:0;padding:2px 0"><input type="checkbox" id="cpMealRep"' + (u.rep ? ' checked' : '') + '><span>일정의 “점심” 줄을 고른 곳으로 바꾸기</span></label>';
+        if (u.busy) h += '<div class="cp-mnote">찾는 중이에요…</div>';
+        else if (u.status) h += '<div class="cp-mnote" style="color:#b45309">' + esc(u.status) + '</div>';
+        if (u.results) {
+            if (!u.results.length) h += '<div class="cp-mnote">근처에서 찾지 못했어요. 반경을 넓히거나 다른 검색어를 써 보세요.</div>';
+            u.results.forEach(function (x, i) {
+                h += '<div class="cp-mres"><div><b>' + esc(x.name) + '</b><div class="mi">' + esc(x.cat) + (x.km != null ? ' · 기준 장소에서 약 ' + esc(fmtKm(x.km)) : '') + (x.addr ? '<br>' + esc(x.addr) : '') + (x.phone ? ' · ☎ ' + esc(x.phone) : '') + '</div>' +
+                    (x.url ? '<a class="mi" href="' + esc(x.url) + '" target="_blank" rel="noopener">카카오맵에서 보기 ↗</a>' : '') + '</div>' +
+                    '<button type="button" class="cp-btn small pri" data-act="mealadd" data-i="' + i + '">＋ 넣기</button></div>';
+            });
+        }
+        h += '<div class="cp-mnote">검색 결과는 카카오맵 기준이에요. 영업시간·휴무·메뉴·예약은 카카오맵이나 전화로 꼭 확인하세요.</div>' +
+            '<div class="cp-mrow" style="margin-top:8px"><input type="text" id="cpMealMan" maxlength="30" placeholder="찾는 곳이 없으면 이름 직접 입력" style="flex:1 1 160px"><button type="button" class="cp-btn small" data-act="mealman">직접 넣기</button><button type="button" class="cp-btn small" data-act="mealclose">닫기</button></div>';
+        return h;
+    }
+    function mealRefresh() { var b = $('cpMeal'); if (b && mealUI) { b.innerHTML = mealInner(); fitAll(); } }
+    function mealSearch() {
+        var u = mealUI; if (!u || u.busy) return;
+        var pt = refPoint(), q = (u.q || '').trim();
+        if (!pt && !q) { u.status = '기준 장소 위치가 없어요. 검색어를 입력해 주세요.'; mealRefresh(); return; }
+        u.busy = true; u.status = ''; u.results = null; mealRefresh();
+        var done = function (data, st) {
+            if (!mealUI || mealUI !== u) return;
+            u.busy = false;
+            var S = window.kakao && kakao.maps && kakao.maps.services;
+            if (S && st === S.Status.OK) {
+                u.results = data.slice(0, 8).map(function (p) {
+                    var parts = String(p.category_name || '').split('>').map(function (z) { return z.trim(); }).filter(Boolean);
+                    var km = (pt && isFinite(+p.y) && isFinite(+p.x)) ? kmBetween(pt.lat, pt.lng, +p.y, +p.x) : null;
+                    return { name: p.place_name, cat: clip(parts.slice(1).join('·') || parts[0] || '', 22), addr: p.road_address_name || p.address_name || '', phone: p.phone || '', url: /^https?:\/\//.test(p.place_url || '') ? p.place_url : '', lat: +p.y, lng: +p.x, km: km };
+                });
+            } else if (S && st === S.Status.ZERO_RESULT) u.results = [];
+            else u.status = '검색하지 못했어요. 잠시 뒤 다시 시도하거나 아래에서 직접 넣어 주세요.';
+            mealRefresh();
+        };
+        withKakao(function () {
+            var ps = new kakao.maps.services.Places();
+            var o = { size: 10 };
+            if (pt) { o.location = new kakao.maps.LatLng(pt.lat, pt.lng); o.radius = u.rad; o.sort = kakao.maps.services.SortBy.DISTANCE; }
+            if (q) ps.keywordSearch(q, done, o); else ps.categorySearch(u.cat, done, o);
+        }, function () { u.busy = false; u.status = '검색 서비스를 불러오지 못했어요. 아래에서 직접 넣어 주세요.'; mealRefresh(); });
+    }
+    // 고른 곳을 일정에 넣는다: "점심" 칸이 있고 체크돼 있으면 그 칸을 바꾸고, 아니면 기준 장소 바로 뒤에 새 줄
+    function mealPut(x) {
+        var u = mealUI, d = u.day;
+        var memo = [];
+        if (x.cat) memo.push(x.cat);
+        if (x.phone) memo.push('☎ ' + x.phone);
+        memo.push('영업시간 확인');
+        var data = { title: '🍴 ' + x.name, memo: clip(memo.join(' · '), 100), k: 'm', tg: [['meal', '🍴 식당·카페']] };
+        var lp = u.rep ? lunchPlaceholder(d) : null;
+        var row;
+        if (lp) { row = lp; row.title = data.title; row.memo = data.memo; row.k = 'm'; row.tg = data.tg; delete row.pid; }
+        else {
+            var ri = u.ref ? rowIndex(u.ref) : -1;
+            var at = ri >= 0 ? ri + 1 : lastIndexOfDay(d) + 1;
+            if (at <= 0) at = P.rows.length;
+            row = newRow(d, '', data.title, 'm'); row.memo = data.memo; row.tg = data.tg;
+            var prev = at > 0 ? P.rows[at - 1] : null;
+            var pm = prev && /^(\d{1,2}):(\d{2})$/.exec(String(prev.time || ''));
+            row.time = (pm && +pm[1] * 60 + +pm[2] >= 11 * 60 + 30) ? timeAfter(at, '12:00') : '12:00';
+            P.rows.splice(at, 0, row);
+        }
+        if (x.lat != null && isFinite(x.lat) && isFinite(x.lng)) { row.lat = x.lat; row.lng = x.lng; } else { delete row.lat; delete row.lng; }
+        mealUI = null;
+    }
+
     // ── 인쇄용 종이 ─────────────────────────────────────────────────────────────────
     // [ADD] 2026-11-22: 일정표 종이 맨 위 "이동 순서" 그림 — 집 출발 → 장소들 → 귀가를 점과 선으로 잇고,
     // 점마다 시간·운영시간, 선 위에는 앞 장소와의 직선거리를 적는다. 줄(memo) 글자에서 읽어 오므로 새 저장값이 필요 없다.
@@ -567,7 +710,7 @@
             if (r.day !== d) return;
             var title = plainTitle(r.title);
             if (!title) return;
-            var icon, home = /^(집 출발|출발|귀가)/.test(title), meal = !home && /^(점심|저녁|아침|식사|간식|카페|브런치)/.test(title);
+            var icon, home = /^(집 출발|출발|귀가)/.test(title), meal = !home && (r.k === 'm' || /^(점심|저녁|아침|식사|간식|카페|브런치)/.test(title));
             if (home) icon = '🏠'; else if (meal) icon = '🍴'; else icon = String(++n);
             var conn = '', place = '', hours = '';
             String(r.memo || '').split(' · ').forEach(function (m) {
@@ -710,6 +853,27 @@
             var fi = -1; P.rows.forEach(function (rr, x) { if (fi < 0 && rr.day === 1 && rr.k === 'out') fi = x; });
             if (fi < 0) fi = lastIndexOfDay(1) + 1;
             P.rows.splice(fi, 0, withGeo({ id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f', pid: fx.f.contentid || fx.f.id || '', tg: festTags(fx.f) }, fx.f));
+        } else if (act === 'mealopen') {
+            mealOpen(+t.getAttribute('data-day'));
+        } else if (act === 'mealclose') {
+            mealUI = null;
+        } else if (act === 'mealcat') {
+            if (!mealUI) return;
+            mealUI.cat = t.getAttribute('data-cat') === 'CE7' ? 'CE7' : 'FD6'; mealUI.q = '';
+            var qi = $('cpMealQ'); if (qi) qi.value = '';
+            mealSearch(); return;
+        } else if (act === 'mealsearch') {
+            if (!mealUI) return;
+            var qv = $('cpMealQ'); mealUI.q = qv ? qv.value : '';
+            mealSearch(); return;
+        } else if (act === 'mealadd') {
+            if (!mealUI || !mealUI.results) return;
+            var mx = mealUI.results[+t.getAttribute('data-i')]; if (!mx) return;
+            mealPut(mx);
+        } else if (act === 'mealman') {
+            var mi = $('cpMealMan'); var mv = mi ? mi.value.trim() : '';
+            if (!mv || !mealUI) return;
+            mealPut({ name: mv.slice(0, 30), cat: '', phone: '', lat: null, lng: null });
         } else if (act === 'addextra') {
             var inp = $('cpExtraIn'); var v = inp ? inp.value.trim() : '';
             if (!v) return;
@@ -721,7 +885,7 @@
             e.preventDefault();
         } else if (act === 'reset') {
             if (!window.confirm('편집한 내용을 지우고 처음 상태로 되돌릴까요?')) return;
-            var keepId = P.id; P = newPlan(cur); P.id = keepId;
+            var keepId = P.id; P = newPlan(cur); P.id = keepId; mealUI = null;
         } else if (act === 'print') {
             doPrint();
             return;
@@ -747,6 +911,7 @@
                 rr0[f] = t.value; save();
             }
         } else if (t.id === 'cpExtraIn') { if (/[\r\n]/.test(t.value)) t.value = t.value.replace(/[\r\n]+/g, ' '); fit(t); }
+        else if (t.id === 'cpMealQ') { if (mealUI) mealUI.q = t.value; }
         else if (t.id === 'cpNote') { P.note = t.value; save(); }
         else if (t.id === 'cpDate') { P.date = t.value; save(); updateDayLabels(); updateDateNote(); if (cfg.hasFest && P.fest) updateFest(); }
     }
@@ -761,6 +926,9 @@
             if (P.fest && !P.date) P.date = todayKST();
             save(); render(); return;
         }
+        if (t.id === 'cpMealRef' && mealUI) { mealUI.ref = t.value; if (mealUI.results || mealUI.q) mealSearch(); return; }
+        if (t.id === 'cpMealRad' && mealUI) { mealUI.rad = +t.value || 1000; if (mealUI.results) mealSearch(); return; }
+        if (t.id === 'cpMealRep' && mealUI) { mealUI.rep = !!t.checked; return; }
         var cid = t.getAttribute && t.getAttribute('data-chk');
         if (cid) {
             if (t.checked) P.checks[cid] = true; else delete P.checks[cid];
@@ -795,6 +963,8 @@
             e.target.blur();
             return;
         }
+        if (e.key === 'Enter' && e.target && e.target.id === 'cpMealQ') { e.preventDefault(); if (mealUI) { mealUI.q = e.target.value; mealSearch(); } return; }
+        if (e.key === 'Enter' && e.target && e.target.id === 'cpMealMan') { e.preventDefault(); var mb = root.querySelector('[data-act="mealman"]'); if (mb) mb.click(); return; }
         if (e.key === 'Enter' && e.target && e.target.id === 'cpExtraIn') {
             e.preventDefault();
             var b = root.querySelector('[data-act="addextra"]'); if (b) b.click();
@@ -835,6 +1005,7 @@
                 if (typeof opts.over.hasFest === 'boolean') cfg.hasFest = opts.over.hasFest;
             }
             festList = [];
+            mealUI = null;
             cur = champ;
             // [ADD] 2026-11-19: opts.variant — 같은 장소로 서로 다른 일정표(예: 축제만 / 축제+나들이)를 따로 저장한다. opts.noDefaultNear — 근처 장소를 처음엔 일정에 넣지 않고 “더 넣기” 버튼으로만 보여 준다.
             var pid = champ.contentid + (opts && opts.variant ? ':' + String(opts.variant) : '');

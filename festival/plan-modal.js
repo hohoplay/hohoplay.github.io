@@ -15,7 +15,7 @@
   'use strict';
   if (window.HohoPlanModal) return;
 
-  var CP_URL = '/festival/camp-plan.js?v=20261122b';
+  var CP_URL = '/festival/camp-plan.js?v=20261123a';
   var DATA_URL = '/data/kids_places.json';
   var NEAR_KM = 10, FAR_KM = 25, WANT = 5, UNKNOWN_HOURS_PENALTY_KM = 2;
   var root, box, opened = false, pushed = false, prevOverflow = '';

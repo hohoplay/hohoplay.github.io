@@ -121,7 +121,7 @@
       var id = m[1];
       if (window.HohoPlanModal) { window.HohoPlanModal.openPlace(id); return; }
       var s = document.createElement('script');
-      s.src = '/festival/plan-modal.js?v=20261122a';
+      s.src = '/festival/plan-modal.js?v=20261123a';
       s.onload = function () { if (window.HohoPlanModal) window.HohoPlanModal.openPlace(id); };
       s.onerror = function () { try { alert('일정표를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); } catch (_) {} };
       document.head.appendChild(s);
