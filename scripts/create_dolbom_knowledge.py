@@ -36,6 +36,34 @@ create_dolbom_knowledge.py — '돌봄상식' 카테고리 정보성 글 자동 
   - 주제(TOPICS)가 두 바퀴째 순환할 때부터는 관점(기본 개념/생활 활용/흔한 오해 바로잡기/
     상황별 가이드/체크리스트)을 자동으로 바꿔가며 써서, 같은 주제를 다시 다룰 때도 내용이
     겹치지 않게 한다(§22.7, 애드센스 "가치 없는 콘텐츠" 반려 대응).
+
+2026-11-23 업데이트 (MULTI_PLATFORM_SEO_MASTER v9.5 §19.5~19.7·§23 HOHO MAGAZINE
+EDITORIAL MODULE 적용 — v9.5는 "호호매거진, 운세상식, 돌봄상식 등 정보형 글"에 §23을
+명시적으로 적용 대상으로 지정함):
+  - TITLE/INTRO/BODY/FAQ/CLOSING 5개 필수 구분자는 v7.6과 동일하게 유지해 기존에 안정적으로
+    검증된 핵심 흐름(재시도·품질 게이트·인프라 오류 구분)을 그대로 보존한다. 그 위에 선택
+    구분자 SUMMARY(📌 한줄요약)/MYPOINT(📍 나만의 포인트)/ONESHOT(✅ 한 번에 정리)/
+    TIPS(🛠 실전 팁)/CLOSINGQ(💬 마무리 질문)를 추가한다 — 있으면 본문에 넣고 없으면 그
+    박스만 생략한 채 발행한다(§19.2 구조 적용 예외와 같은 원칙 — 선택 섹션이 없다고 발행을
+    막지 않는다. 반복 가능한 주간 자동화에서 "완벽히 못 채우면 건너뛴다"를 선택 섹션에까지
+    적용하면 매주 멈출 위험이 커지므로 핵심 5개 구분자에만 하드 게이트를 둔다).
+  - 📚 목차와 "확인하면 좋은 기관"(§23.4 "참고한 자료"에 대응, 실제 출처 인용이 아니라 고정된
+    확인 기관 안내로 구현 — 돌봄상식은 호호플레이 같은 자체 집계 데이터가 없어 특정 자료명·
+    통계를 지어낼 위험이 있다고 판단해, 사실관계를 지어내지 않는 쪽을 택함)는 AI에게 맡기지
+    않고 코드에서 직접 만든다: 목차는 본문 <h2>를 그대로 추출해 id(hh-s1, hh-s2 …)를 부여하고
+    앵커로 연결하므로(§19.5-C) 목차와 본문이 어긋나거나 자리표시자가 남는 문제가 구조적으로
+    발생하지 않는다.
+  - 각 <h2> 섹션 바로 뒤에 📝 간단 정리(class="mini-sum")를 받아 본문에 포함하되, 분량
+    (2,000자) 집계에서는 제외한다(§23.7 분량 기준 — 한줄요약·나만의 포인트·목차·간단 정리·
+    한 번에 정리는 제외, 실전 팁은 새 정보라서 포함). FAQ에는 "(제도)"·"[대상]"·"OOO" 같은
+    분류 라벨·자리표시자가 남지 않았는지(§23.5) 새 하드 게이트로 코드에서 직접 검사한다.
+  - 금지 표현 목록에 실제 발행 글에서 반복됐던 상투적 시작 틀과, 이 블로그에는 애초에 해당
+    없는 "직접 방문·체험" 표현("가봤더니"·"다녀와 보니" 등, §23.8)을 추가했다 — 돌봄상식은
+    운영자가 현장을 방문해 쓰는 글이 아니므로 체험 표현이 섞이면 거짓 경험을 암시하게 된다.
+  - 3종 표(§8.9.5)는 이번 적용 범위에서 **제외**했다 — 표 안의 구체적인 수치(요금·기간 등)를
+    실제 데이터 없이 AI가 메꾸게 될 위험이, 얻는 정보 가치보다 크다고 판단했다. 제목 3후보·
+    썸네일 지시(§19.1/§19.7-C)도 실제 사람이 고르거나 이미지를 붙이는 단계가 이 완전 자동
+    파이프라인에는 없어 제외했다(제목은 상황형 1개만 바로 채택).
 """
 
 import os
@@ -160,6 +188,26 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F7F6F0;color:#333;padding
 .faq-q{font-size:15px;color:#2F4A34;margin-bottom:6px;line-height:1.6}
 .faq-a{font-size:14px;line-height:1.8;color:#4B5B4E;margin-bottom:0}
 .meta{color:#aaa;font-size:12px;text-align:center;padding:20px 0}
+.box-label{font-weight:800;color:#2F4A34;font-size:14px;margin-bottom:6px}
+.box-summary{background:#F3F6F1;border:1px solid #CFE0CB;border-radius:12px;padding:14px 16px;margin:0 0 14px}
+.box-summary p{margin:0;font-size:14.5px;line-height:1.75;color:#374151}
+.box-mypoint{background:#EFF6EE;border:1px solid #CFE0CB;border-radius:12px;padding:14px 16px;margin:0 0 14px}
+.box-mypoint ul{margin:0;padding-left:20px}
+.box-mypoint li{font-size:14px;line-height:1.7;color:#374151;margin-bottom:4px}
+.box-toc{background:#FAFAF7;border:1px solid #E5E7EB;border-radius:12px;padding:14px 16px;margin:0 0 18px}
+.box-toc ol{margin:0;padding-left:20px}
+.box-toc li{font-size:14px;line-height:1.8}
+.box-toc a{color:#3F5D45;text-decoration:none}
+.mini-sum{background:#F7F6F0;border-left:3px solid #9DB89F;padding:6px 10px;font-size:13px;color:#4C6B52;margin:0 0 16px;border-radius:0 6px 6px 0}
+.box-oneshot{background:#EAF1EC;border:1px solid #BFD4C2;border-radius:12px;padding:14px 16px;margin:16px 0 0}
+.box-oneshot p{margin:0;font-size:14.5px;line-height:1.75;color:#2F4A34}
+.box-tips{background:#FBF3EF;border:1px solid #E8C9B8;border-radius:12px;padding:14px 16px;margin:14px 0 0}
+.box-tips ul{margin:0;padding-left:20px}
+.box-tips li{font-size:14px;line-height:1.7;color:#4B3A2E;margin-bottom:4px}
+.ref-block{font-size:12.5px;color:#6b7280;margin-bottom:10px}
+.ref-block ul{margin:4px 0 0;padding-left:18px}
+.ref-block li{margin-bottom:3px}
+.closing-q{font-size:13.5px;color:#4C6B52;font-style:italic;text-align:center;margin:0}
 </style>"""
 
 
@@ -178,6 +226,25 @@ _RELATED_LINKS = [
 _COUPANG_DISCLOSURE = (
     "이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다."
 )
+
+# v9.5 §23.4 "참고한 자료" 대응 — 돌봄상식은 호호플레이처럼 자체 집계 데이터가 없어 AI에게
+# 특정 자료명·통계를 맡기면 지어낼 위험이 있다. 대신 실제로 틀릴 수 없는 고정된 "확인 기관"
+# 안내로 코드에서 직접 만든다(기관명·연락처만 쓰고, 특정 발표자료·통계는 인용하지 않음).
+_CHECK_ORGS = [
+    ("국민건강보험공단 (노인장기요양보험)", "1577-1000", "https://www.nhis.or.kr"),
+    ("보건복지부 (보건복지상담센터)", "129", "https://www.mohw.go.kr"),
+    ("거주지 주민센터·보건소", "", ""),
+]
+
+
+def _build_checkpoints_html():
+    """실제 발표자료를 인용하는 대신, 언제나 맞는 고정된 확인 기관 목록을 코드에서 직접 만든다."""
+    items = "".join(
+        f"<li><b>{org}</b>" + (f" · {phone}" if phone else "") +
+        (f' · <a href="{url}">{url}</a>' if url else "") + "</li>"
+        for org, phone, url in _CHECK_ORGS
+    )
+    return f'<div class="ref-block"><div class="box-label">🔎 확인하면 좋은 기관</div><ul>{items}</ul></div>'
 
 
 # ─────────────────────────────────────────
@@ -207,19 +274,30 @@ TOPICS = [
 _CHECKLIST_TAGS = {"치매체크리스트", "낙상예방", "행정처리", "신청대상"}
 
 
-def build_prompt(topic, perspective, style, recent_titles, feedback=""):
-    """MULTI_PLATFORM_SEO_MASTER v7.6 §22(정보형 블로그 모듈) + §11.4(FAQ) + §22.5-B(돌봄상식
-    전용 규칙)을 적용한 프롬프트. 구분자(<!--XXX_START/END-->)로 섹션을 나눠 받아서
-    generate_dolbom_post()가 분량·FAQ 개수·금지 표현을 코드로 검증할 수 있게 한다."""
+def build_prompt(topic, perspective, style, recent_history, feedback=""):
+    """MULTI_PLATFORM_SEO_MASTER v9.5 §23(HOHO MAGAZINE EDITORIAL MODULE — "호호매거진, 운세상식,
+    돌봄상식 등 정보형 글"에 명시적으로 적용 대상) + §19.5~19.7(한줄요약·목차·나만의 포인트·
+    간단 정리·한 번에 정리·실전 팁·홈판 대응 모듈)을 적용한 프롬프트.
 
-    recent_titles_block = ""
-    if recent_titles:
-        titles_list = "\n".join(f"- {t}" for t in recent_titles if t)
-        if titles_list:
-            recent_titles_block = f"""
+    TITLE/INTRO/BODY/FAQ/CLOSING 5개는 v7.6과 동일하게 "필수" 구분자로 유지하고(파싱 실패 시
+    재시도 — 기존에 안정적으로 검증된 부분을 건드리지 않는다), SUMMARY/MYPOINT/ONESHOT/TIPS/
+    CLOSINGQ는 "선택" 구분자로 추가한다. 📚 목차와 "확인하면 좋은 기관"은 여기서 AI에게 맡기지
+    않고 generate_dolbom_post()/run()이 본문 <h2>와 고정 기관 목록에서 직접 만든다."""
 
-[최근 발행한 글 제목 — 아래 제목들과 제목·도입 문장·소제목이 겹치지 않게 쓰세요 (§22.7)]
-{titles_list}"""
+    recent_block = ""
+    if recent_history:
+        lines = []
+        for h in recent_history:
+            if not h.get("title"):
+                continue
+            h2_part = ", ".join(h.get("h2") or []) or "(기록 없음)"
+            fw_part = h.get("first_words") or "(기록 없음)"
+            lines.append(f"- 제목: {h['title']} / 소제목: {h2_part} / 첫 문장 시작: {fw_part}")
+        if lines:
+            recent_block = (
+                "\n\n[최근 발행한 글 — 아래와 제목·소제목(H2)·도입 첫 문장 시작 어구가 겹치지 "
+                "않게 쓰세요 (§23.6)]\n" + "\n".join(lines)
+            )
 
     checklist_rule = ""
     if style == "checklist":
@@ -234,31 +312,55 @@ def build_prompt(topic, perspective, style, recent_titles, feedback=""):
 
     return f"""당신은 고령자 돌봄·복지 제도와 관련 행정 절차를 알기 쉽게 설명하는 정보 전문 필자입니다.
 이 글을 읽는 사람은 대부분 부모님을 돌보는 자녀 세대이며, 절차를 몰라 막막해하며 검색해서 들어온 독자입니다.
+글 전체에서 "호호플레이"나 특정 서비스 이름을 언급하지 마세요 — 이 블로그는 정보 제공이 유일한 목적입니다.
 
 주제: {topic}
 이번 글의 관점: {perspective} — 본문의 초점과 소제목을 이 관점에 맞춰 구성하세요.
   (예: "체크리스트" 관점이면 실천 목록 중심, "흔한 오해 바로잡기" 관점이면 잘못 알려진 내용을
-  바로잡는 구성, "상황별 가이드" 관점이면 상황별 분기로 구성){recent_titles_block}
+  바로잡는 구성, "상황별 가이드" 관점이면 상황별 분기로 구성){recent_block}
 
-[출력 형식 — 반드시 아래 구분자를 정확히 그대로 포함해서 출력하세요. 인사말이나 설명 문장은 쓰지 마세요]
+[출력 형식 — 반드시 아래 구분자를 정확히 그대로 포함해서 출력하세요. 인사말이나 설명 문장은
+쓰지 마세요. TITLE/INTRO/BODY/FAQ/CLOSING은 필수이며, SUMMARY/MYPOINT/ONESHOT/TIPS/CLOSINGQ는
+가능하면 채우되 구분자 자체는 항상 출력하세요(정말 보탤 내용이 없으면 안쪽만 비워도 됩니다)]
 <!--TITLE_START-->
-(28~40자, 주제어를 포함한 제목. 과장 표현 없이. 태그 없이 텍스트만)
+(28~40자. [대상·상황]+[무엇을]+[얻는 것]이 드러나는 제목. 예: "장기요양등급 신청, 서류부터
+순서까지 한눈에 정리"처럼 검색하는 사람의 상황이 보이게 쓰세요. 과장 표현 없이. 태그 없이 텍스트만)
 <!--TITLE_END-->
 <!--INTRO_START-->
-(도입 요약 — <p> 태그, 공백 제외 150~250자. 첫 3문장 안에 이 글의 핵심 답을 제시하세요.
-"오늘은 ~에 대해 알아보겠습니다" 같은 예고 문장이나 인사말로 시작하지 마세요. 독자의 상황을
-한 문장으로 짚고 → 결론 → 이 글에서 다룰 내용 순으로 쓰세요.)
+(<p> 태그, 공백 제외 150~250자, 3문장 이내. 첫 문장은 독자의 구체적인 상황이나 조건으로 열고
+("부모님이 갑자기 거동이 불편해지셨는데 장기요양등급이 뭔지부터 막막하다면,"처럼), 인사말이나
+"오늘은 ~에 대해 알아보겠습니다" 같은 예고 문장으로 시작하지 마세요. "아침에 눈을 떠서", "주말이
+다가오면", "~를 바탕으로 살펴보면" 같은 뻔한 시작 틀도 쓰지 마세요. 둘째 문장에서 이 글이 바로
+답하는 결론을 제시하고, 셋째 문장에서 이 글이 다룰 내용을 간단히 짚으세요. 구체적인 통계나 발표
+자료를 지어내지 말고, 필요하면 "국민건강보험공단·보건복지부 기준으로" 정도만 자연스럽게 언급하세요.)
 <!--INTRO_END-->
+<!--SUMMARY_START-->
+(📌 한줄요약 — <p> 태그 1~2문장, 공백 제외 100~200자. 이 글의 결론을 독립된 문장만 읽어도
+이해되게 쓰세요. 도입부 문장을 그대로 옮기지 말고, 본문에 실제로 나오는 조건·기준만 요약하세요.
+확인하지 못한 구체 수치는 "확인 필요"로 쓰거나 아예 쓰지 마세요. "~에 대해 정리했습니다" 같은
+예고형 문장은 쓰지 마세요.)
+<!--SUMMARY_END-->
+<!--MYPOINT_START-->
+(📍 나만의 포인트 — <ul><li> 1~3개, 항목당 한 문장(약 40~90자). 이 글이 다른 글과 다르게 짚는
+확인 순서·선정 기준·놓치기 쉬운 조건을 쓰세요. "방문 전 확인이 중요합니다" 같은 일반론은 쓰지
+말고, 본문에 실제로 나오는 내용에 근거해서 쓰세요. 한줄요약과 같은 말을 반복하지 마세요.)
+<!--MYPOINT_END-->
 <!--BODY_START-->
-(<h2> 소제목 4~5개, 각 섹션은 <h2> 다음 <p> 1~2개, 섹션당 공백 제외 300~450자.
+(<h2> 소제목 4~5개, 각 섹션은 <h2> 다음 <p> 1~2개(섹션당 공백 제외 300~450자), 그리고 그 섹션의
+맨 마지막에 <p class="mini-sum">📝 간단 정리 — (그 섹션에서 독자가 가져갈 결론 한 줄, 공백 포함
+20~90자. 새 사실을 추가하지 말고 섹션 안의 내용만 한 줄로 정리하세요)</p>를 반드시 붙이세요.
 다음 흐름 중 이번 관점({perspective})에 맞는 것을 골라 구성하세요: 기본 개념/정의, 원리·과정,
 구체적 예시(지어낸 일화가 아닌 일반적인 상황), 생활 속 적용 방법(단계 또는 체크리스트), 흔한
 오해·비교·주의. 모든 글에 같은 구조를 쓰지 마세요. 각 섹션은 주장 → 설명 → 구체적 예시/적용
 순서로 쓰고, 섹션마다 독자가 새로 알게 되는 정보가 하나 이상 있어야 합니다. 소제목은 독자가
 실제로 검색할 만한 말로 쓰세요(예: "장기요양등급은 어떻게 신청하나요?"). 첫 문단은 사전적
-정의로 시작하지 말고 독자가 겪을 법한 구체적 상황으로 여세요. 예: "부모님이 갑자기 거동이
-불편해지셨는데 장기요양등급이 뭔지부터 막막하다면,"{checklist_rule})
+정의로 시작하지 말고 독자가 겪을 법한 구체적 상황으로 여세요.{checklist_rule})
 <!--BODY_END-->
+<!--ONESHOT_START-->
+(✅ 한 번에 정리 — <p> 태그, 3~6문장(공백 포함 약 250~450자). 위 본문 소제목들을 관통하는 공통
+기준 → 그래서 어떤 순서로 보면 되는지 → 마지막 한 줄 결론("결국 …")의 순서로 쓰세요. 각 섹션의
+간단 정리를 그대로 이어 붙이지 말고 섹션들 사이의 관계와 우선순위를 새로 묶어서 쓰세요.)
+<!--ONESHOT_END-->
 <!--FAQ_START-->
 (아래 5가지 유형에 각각 답하는 FAQ를 class="faq-item" 블록 정확히 5개로 작성하세요. 각 블록은
 다음 형식을 그대로 따르세요:
@@ -270,27 +372,46 @@ def build_prompt(topic, perspective, style, recent_titles, feedback=""):
 4. [대상·상황] 특히 해당되거나 필요한 사람·상황은 어떤 경우인가요?
 5. [주의·오해] 흔히 하는 오해나 꼭 알아둘 주의사항은 무엇인가요?
 답변은 각각 공백 제외 120~220자, 첫 문장에서 바로 답하세요. 본문 내용을 그대로 요약하지 말고
-본문과 다른 각도의 보충 설명으로 쓰세요. 5개 질문의 문형을 서로 다르게 쓰세요.)
+본문과 다른 각도의 보충 설명으로 쓰세요. 5개 중 최소 2개는 본문에 없는 새로운 정보(관련 제도,
+놓치기 쉬운 예외, 추가 확인처 등)를 담으세요. 5개 질문의 문형과 끝맺는 말을 서로 다르게 쓰세요.
+질문에 "(제도)", "[대상]", "OOO", "○○" 같은 분류 라벨이나 자리표시자를 절대 쓰지 말고, 완성된
+문장으로만 쓰세요.)
 <!--FAQ_END-->
 <!--CLOSING_START-->
-(마무리 — <p> 태그 2~3문장, 공백 제외 100~200자. 핵심 한 줄 정리 + 독자가 바로 해볼 수 있는
-행동 한 가지. "정확한 최신 기준은 국민건강보험공단(1577-1000)·보건복지부·지자체(주민센터·
+(마무리 — <p> 태그 2~4문장, 공백 제외 100~220자. 먼저 편집자 관점에서 이 글이 권하는 판단을
+한 문장으로 쓰세요(예: "결국 장기요양등급은 신청 시점보다 등급 판정 기준을 먼저 아는 쪽이 유리
+합니다"처럼 근거가 붙는 한 문장). 그다음 핵심 한 줄 정리와 독자가 바로 해볼 수 있는 행동 한
+가지를 덧붙이고, "정확한 최신 기준은 국민건강보험공단(1577-1000)·보건복지부·지자체(주민센터·
 보건소)에서 다시 확인하시길 바랍니다"라는 취지와 "이 글은 일반적인 정보이며 의료·법률 상담을
 대신하지 않습니다"라는 취지를 자연스럽게 포함하되, 매번 같은 문장을 복사하지 말고 표현을
 조금씩 바꿔서 쓰세요.)
 <!--CLOSING_END-->
+<!--TIPS_START-->
+(🛠 실전 팁 — <ul><li> 2~4개, 항목당 한 문장. "오늘 바로 확인하세요", "~부터 준비하세요" 같은
+행동형 문장으로 쓰고, 가능하면 확인 순서나 확인처를 함께 쓰세요. 바로 위 CLOSING의 판단 문장을
+그대로 반복하지 마세요. "미리 확인하세요"처럼 무엇을 확인하는지 없는 빈 팁은 쓰지 마세요.)
+<!--TIPS_END-->
+<!--CLOSINGQ_START-->
+(💬 마무리 질문 — 한 줄. 독자의 상황을 묻는 질문 하나로 쓰세요. 예: "부모님 장기요양등급을
+이미 신청해 보신 분들은 어느 단계에서 가장 막막하셨나요?" 공감·저장을 구걸하는 문구를 쓰지
+마세요.)
+<!--CLOSINGQ_END-->
 
 [문장 톤 규칙]
 - 어조는 "~합니다", "~해보세요"체의 다정하고 담백한 존댓말을 사용하세요. "~에요", "~죠",
   "~잖아요" 같은 구어체는 쓰지 마세요.
 - "A는 ~합니다. 또한 B합니다. 그리고 C합니다." 같은 단순 나열식 문장 반복은 피하고, 문장 길이와
   구조를 문단마다 다르게 가져가세요. 같은 문장 종결 패턴이 두 문장 이상 연속으로 이어지지 않게
-  하세요. 모든 소제목을 같은 문형으로 만들지 마세요.
+  하세요. 모든 소제목을 같은 문형으로 만들지 마세요. 문단마다 "또한/한편/따라서/결론적으로"로
+  시작하지 마세요.
 - 같은 내용을 도입·본문·마무리에서 반복해 분량을 채우지 마세요. 분량은 새로운 정보와 구체적인
   예시로 채우세요.
 - 다음 표현은 쓰지 마세요: "최고", "무조건", "100%", "완치", "효과 보장", "완벽 보장",
   "단번에 해결", "역대급", "~에 대해 알아보겠습니다", "결론적으로", "마무리하며", "도움이
-  되셨으면 좋겠습니다". "매우 중요합니다"·"다양한"·"효과적인" 같은 표현도 반복해서 쓰지 마세요.
+  되셨으면 좋겠습니다", "누구나 한 번쯤", "아련한 추억", "~의 매력과 가치", "~를 바탕으로
+  살펴보면", "직접 가봤더니", "다녀와 보니", "제가 경험한 바로는"(이 블로그는 직접 방문·경험
+  콘텐츠가 아니므로 체험 표현은 절대 쓰지 마세요). "매우 중요합니다"·"다양한"·"효과적인" 같은
+  표현도 반복해서 쓰지 마세요.
 
 [사실관계 정확성 규칙 — 반드시 지켜야 함]
 - 신청기한·금액·등급기준 등 구체적인 수치는 일반적으로 널리 알려진 내용 위주로 서술하고,
@@ -371,11 +492,17 @@ PERSPECTIVES = ["기본 개념", "생활 활용", "흔한 오해 바로잡기", 
 # 정상적인 글에서도 자연스럽게 쓰일 수 있어 코드 단계의 강제 재생성 대상에서 제외하고
 # (아래 build_prompt의 문장 톤 규칙으로만 안내), 아래 목록은 실제로 발생 시 재생성할
 # 가치가 있는 과장 표현만 추렸다.
+# v9.5 §23.2(실제 발행 글에서 반복된 상투적 시작 틀)·§23.8(이 블로그에는 없는 "직접 방문·체험"
+# 표현)에서 정밀하게 추린 문구를 추가했다 — 둘 다 평범한 글에서 우연히 나올 가능성이 낮은
+# 멀티워드 문구만 골라서, 과하게 걸려 매주 재생성/건너뛰기가 늘어나는 부작용을 피했다.
 _BANNED_HARD = [
     "최고의", "무조건", "100% 효과", "완치", "효과 보장", "완벽 보장", "단번에 해결", "역대급",
     "새로운 가치를 만듭니다", "당신의 성공과 함께합니다", "차별화된 서비스", "고객 만족을 최우선으로",
     "정성을 다하겠습니다", "에 대해 알아보겠습니다", "결론적으로", "마무리하며",
     "도움이 되셨으면 좋겠습니다",
+    "누구나 한 번쯤", "아련한 추억", "의 매력과 가치", "를 바탕으로 살펴보면",
+    "데이터를 바탕으로 분석한 결과",
+    "직접 가봤더니", "다녀와 보니", "제가 경험한 바로는", "먹어봤는데", "써 보니",
 ]
 
 
@@ -394,6 +521,13 @@ def _visible_len(html_fragment):
     return len(text)
 
 
+def _first_words(text, n=12):
+    """첫 문장 앞 n어절만 뽑아 중복 방지용 기록에 쓴다 (§23.6)."""
+    plain = _TAG_RE.sub(" ", text or "")
+    plain = _WS_RE.sub(" ", plain).strip()
+    return " ".join(plain.split(" ")[:n])
+
+
 _SECTION_PATTERNS = {
     "title":   re.compile(r"<!--TITLE_START-->(.*?)<!--TITLE_END-->", re.S),
     "intro":   re.compile(r"<!--INTRO_START-->(.*?)<!--INTRO_END-->", re.S),
@@ -402,6 +536,63 @@ _SECTION_PATTERNS = {
     "closing": re.compile(r"<!--CLOSING_START-->(.*?)<!--CLOSING_END-->", re.S),
 }
 _FAQ_ITEM_RE = re.compile(r'class="faq-item"', re.I)
+
+# v9.5 선택 섹션 — 있으면 쓰고 없으면 그 박스만 생략한다(필수 5개 구분자와 달리 파싱 실패로
+# 재시도를 유발하지 않는다). §19.5(한줄요약·목차)·§19.6(나만의 포인트·간단 정리·한 번에
+# 정리·실전 팁)·§19.7-F(마무리 질문).
+_OPTIONAL_SECTION_PATTERNS = {
+    "summary":  re.compile(r"<!--SUMMARY_START-->(.*?)<!--SUMMARY_END-->", re.S),
+    "mypoint":  re.compile(r"<!--MYPOINT_START-->(.*?)<!--MYPOINT_END-->", re.S),
+    "oneshot":  re.compile(r"<!--ONESHOT_START-->(.*?)<!--ONESHOT_END-->", re.S),
+    "tips":     re.compile(r"<!--TIPS_START-->(.*?)<!--TIPS_END-->", re.S),
+    "closingq": re.compile(r"<!--CLOSINGQ_START-->(.*?)<!--CLOSINGQ_END-->", re.S),
+}
+
+# §23.5 — FAQ 질문에 분류 라벨·자리표시자가 남으면(예: "(제도)", "[대상]", "OOO", "○○")
+# 발행된 글에 템플릿 조각이 그대로 노출되는 것이므로 길이·FAQ 개수와 동급의 하드 게이트로 검사한다.
+_PLACEHOLDER_RE = re.compile(r'[\(\[][^)\]]{0,24}/[^)\]]{0,24}[\)\]]|○{2,}|[Oo]{3,}|[xX]{3,}')
+
+# §19.6-B — 각 <h2> 섹션 뒤의 "📝 간단 정리"는 분량(2,000자) 집계에서 뺀다(§23.7).
+_MINI_SUM_RE = re.compile(r'<p[^>]*class="mini-sum"[^>]*>.*?</p>', re.S | re.I)
+_H2_RE = re.compile(r'<h2[^>]*>(.*?)</h2>', re.S | re.I)
+
+
+def _find_placeholder(text):
+    return _PLACEHOLDER_RE.findall(text or "")
+
+
+def _strip_mini_sum(body_html):
+    return _MINI_SUM_RE.sub("", body_html or "")
+
+
+def _extract_h2_titles(body_html):
+    titles = []
+    for m in _H2_RE.finditer(body_html or ""):
+        t = _TAG_RE.sub("", m.group(1)).strip()
+        if t:
+            titles.append(t)
+    return titles
+
+
+def _inject_h2_ids(body_html):
+    """<h2>마다 고유 id(hh-s1, hh-s2 …)를 코드에서 직접 부여해 목차 앵커와 정확히 대응시킨다
+    (§19.5-C/§23.10-B) — AI에게 id를 맡기면 누락·중복 위험이 있다."""
+    counter = {"n": 0}
+
+    def _add_id(m):
+        counter["n"] += 1
+        return f'<h2 id="hh-s{counter["n"]}">{m.group(1)}</h2>'
+
+    return _H2_RE.sub(_add_id, body_html or "")
+
+
+def _build_toc_html(h2_titles):
+    """📚 목차는 AI에게 맡기지 않고 실제 본문 <h2>에서 그대로 뽑아 만든다 — 목차와 본문이
+    어긋날 위험을 구조적으로 없앤다 (§19.5-C)."""
+    if not h2_titles:
+        return ""
+    items = "".join(f'<li><a href="#hh-s{i + 1}">{t}</a></li>' for i, t in enumerate(h2_titles))
+    return f'<div class="box-toc"><div class="box-label">📚 목차</div><ol>{items}</ol></div>'
 
 
 def _parse_sections(raw):
@@ -414,6 +605,14 @@ def _parse_sections(raw):
     return sections
 
 
+def _parse_optional_sections(raw):
+    out = {}
+    for key, rx in _OPTIONAL_SECTION_PATTERNS.items():
+        m = rx.search(raw)
+        out[key] = m.group(1).strip() if m else ""
+    return out
+
+
 def pick_perspective(state, idx):
     """주제 idx를 몇 번째로 다루는지에 따라 관점을 순환시킨다. (첫 바퀴=기본 개념, 둘째 바퀴=생활 활용, …)"""
     visits = state.setdefault("topic_visit_count", {})
@@ -423,29 +622,35 @@ def pick_perspective(state, idx):
 
 
 class ContentQualityError(Exception):
-    """분량·FAQ 개수·금지 표현 기준을 끝내 충족하지 못해 발행을 보류함.
+    """분량·FAQ 개수·금지 표현·FAQ 자리표시자 기준을 끝내 충족하지 못해 발행을 보류함.
     인프라(Gemini API·인증 등) 문제가 아니라 콘텐츠 품질 기준에 의한 의도된 보류이므로,
     run()/main()에서 '정상 종료(exit 0)'로 처리해야 할 신호로 구분해서 쓴다."""
     pass
 
 
-def generate_dolbom_post(topic, perspective, style, recent_titles):
-    """제목·도입·본문·FAQ·마무리를 생성하고 분량(2,000자 이상)·FAQ 개수(5개)·금지 표현 여부를
-    코드에서 직접 검증한다 (§22.8). 기준 미달이면 최대 2회 재생성하고, 분량만 부족하면
-    보강 섹션을 한 번 더 추가해본다. 끝까지 기준을 못 채우면 ContentQualityError를 던져
-    발행을 보류한다 — 이는 인프라 문제가 아니라 의도된 품질 게이트이므로 run()이 구분해서
-    처리한다 (기준 미달 글을 올리는 것보다 한 주 건너뛰는 편이 낫다는 §22.8.6 원칙).
+def generate_dolbom_post(topic, perspective, style, recent_history):
+    """제목·도입·본문·FAQ·마무리(필수 5개, v7.6과 동일)와 한줄요약·나만의 포인트·한 번에 정리·
+    실전 팁·마무리 질문(선택 5개, v9.5 신설)을 생성하고, 분량(2,000자 이상 — 한줄요약·나만의
+    포인트·목차·간단 정리·한 번에 정리는 제외, 실전 팁은 포함 §23.7)·FAQ 개수(5개)·금지 표현·
+    FAQ 자리표시자 여부를 코드에서 직접 검증한다. 기준 미달이면 최대 2회 재생성하고, 분량만
+    부족하면 보강 섹션을 한 번 더 추가해본다. 끝까지 기준을 못 채우면 ContentQualityError를
+    던져 발행을 보류한다 — 이는 인프라 문제가 아니라 의도된 품질 게이트이므로 run()이 구분해서
+    처리한다 (기준 미달 글을 올리는 것보다 한 주 건너뛰는 편이 낫다는 §22.8.6/§23.7 원칙).
     반면 Gemini 호출 자체가 매 시도 다 실패해 파싱 가능한 응답을 한 번도 못 받았다면
     이는 인프라 문제이므로 RuntimeError를 그대로 위로 전파한다(이 경우 run()은 종전처럼
-    경고 후 건너뛰고, 결국 success_count==0이면 main()이 exit(1)로 알린다)."""
+    경고 후 건너뛰고, 결국 success_count==0이면 main()이 exit(1)로 알린다).
+
+    선택 섹션(한줄요약 등)은 파싱 실패로 재시도를 유발하지 않는다 — 반복되는 주간 자동화에서
+    "완벽히 못 채우면 건너뛴다"를 선택 섹션에까지 적용하면 매주 멈출 위험이 커지기 때문이다."""
     client = genai.Client(api_key=GEMINI_API_KEY)
     feedback = ""
-    last_sections, last_total, last_faq_count, last_banned = None, 0, 0, []
+    last_sections, last_optional, last_total = None, None, 0
+    last_faq_count, last_banned, last_placeholder = 0, [], []
     ever_parsed = False
     last_infra_err = None
 
     for attempt in range(3):
-        prompt = build_prompt(topic, perspective, style, recent_titles, feedback=feedback)
+        prompt = build_prompt(topic, perspective, style, recent_history, feedback=feedback)
         try:
             raw = _call_gemini_with_fallback(client, prompt)
         except Exception as e:
@@ -462,10 +667,21 @@ def generate_dolbom_post(topic, perspective, style, recent_titles):
             continue
 
         ever_parsed = True
-        total_len = sum(_visible_len(sections[k]) for k in ("intro", "body", "faq", "closing"))
+        optional = _parse_optional_sections(raw)
+        body_for_count = _strip_mini_sum(sections["body"])
+        total_len = (_visible_len(sections["intro"]) + _visible_len(body_for_count) +
+                     _visible_len(sections["faq"]) + _visible_len(sections["closing"]) +
+                     _visible_len(optional.get("tips", "")))
         faq_count = len(_FAQ_ITEM_RE.findall(sections["faq"]))
-        banned_hits = _find_banned(sections["intro"] + sections["body"] + sections["closing"])
-        last_sections, last_total, last_faq_count, last_banned = sections, total_len, faq_count, banned_hits
+        banned_scan = "".join([
+            sections["intro"], sections["body"], sections["closing"],
+            optional.get("summary", ""), optional.get("mypoint", ""),
+            optional.get("oneshot", ""), optional.get("tips", ""),
+        ])
+        banned_hits = _find_banned(banned_scan)
+        placeholder_hits = _find_placeholder(sections["faq"])
+        last_sections, last_optional, last_total = sections, optional, total_len
+        last_faq_count, last_banned, last_placeholder = faq_count, banned_hits, placeholder_hits
 
         problems = []
         if total_len < 2000:
@@ -474,17 +690,21 @@ def generate_dolbom_post(topic, perspective, style, recent_titles):
             problems.append(f"FAQ {faq_count}개(5개 필요)")
         if banned_hits:
             problems.append(f"금지 표현 포함: {', '.join(banned_hits)}")
+        if placeholder_hits:
+            problems.append(f"FAQ에 분류 라벨/자리표시자 포함: {', '.join(placeholder_hits)}")
 
         if not problems:
-            return sections, total_len
+            return sections, optional, total_len
 
         print(f"  ⚠️ 품질 기준 미달({attempt + 1}/3): {' / '.join(problems)}")
         feedback = ("직전 결과가 다음 기준을 충족하지 못했습니다 — " + " / ".join(problems) +
                     ". 같은 주제와 관점을 유지한 채 본문 섹션과 FAQ 답변에 구체적인 설명을 "
-                    "보강해서 전체를 다시 작성하세요.")
+                    "보강해서 다시 작성하세요. FAQ 질문에는 분류 라벨이나 자리표시자를 쓰지 말고 "
+                    "완성된 문장으로만 쓰세요.")
 
-    # 분량만 부족하고 FAQ 개수·금지 표현은 정상이면, 겹치지 않는 섹션 하나를 추가로 생성해 붙여본다.
-    if last_sections and last_faq_count == 5 and not last_banned and last_total < 2000:
+    # 분량만 부족하고 나머지는 정상이면, 겹치지 않는 섹션 하나를 추가로 생성해 붙여본다.
+    if (last_sections and last_faq_count == 5 and not last_banned and not last_placeholder
+            and last_total < 2000):
         try:
             supplement_prompt = (
                 f"주제 '{topic}'에 대한 블로그 글을 쓰고 있습니다. 아래는 지금까지 작성된 본문입니다.\n\n"
@@ -496,13 +716,18 @@ def generate_dolbom_post(topic, perspective, style, recent_titles):
             extra_raw = _call_gemini_with_fallback(client, supplement_prompt)
             if _visible_len(extra_raw) > 50:
                 last_sections["body"] += "\n" + extra_raw
-                last_total = sum(_visible_len(last_sections[k]) for k in ("intro", "body", "faq", "closing"))
+                last_total = (_visible_len(last_sections["intro"]) +
+                              _visible_len(_strip_mini_sum(last_sections["body"])) +
+                              _visible_len(last_sections["faq"]) +
+                              _visible_len(last_sections["closing"]) +
+                              _visible_len(last_optional.get("tips", "")))
         except Exception as e:
             print(f"  ⚠️ 보강 생성 실패: {e}")
 
-    if last_sections and last_faq_count == 5 and not last_banned and last_total >= 2000:
+    if (last_sections and last_faq_count == 5 and not last_banned and not last_placeholder
+            and last_total >= 2000):
         print(f"  ✅ 보강 후 기준 충족 ({last_total}자)")
-        return last_sections, last_total
+        return last_sections, last_optional, last_total
 
     if not ever_parsed:
         # 3번 다 Gemini 호출/형식 단계에서 막혀 내용을 한 번도 못 받음 — 품질 문제가 아니라 인프라 문제.
@@ -597,12 +822,15 @@ def run(count=1):
             if idx == 0 and state["last_index"] != -1 else ""
         print(f"[{i+1}/{count}] 주제 #{idx}: {topic} / 관점: {perspective}{cycle_note}")
 
-        recent_titles = [h.get("title") for h in state.get("history", [])[-8:] if h.get("title")]
+        recent_history = [
+            {"title": h.get("title"), "h2": h.get("h2") or [], "first_words": h.get("first_words")}
+            for h in state.get("history", [])[-8:] if h.get("title")
+        ]
 
         try:
-            sections, total_len = generate_dolbom_post(topic, perspective, style, recent_titles)
+            sections, optional, total_len = generate_dolbom_post(topic, perspective, style, recent_history)
         except ContentQualityError:
-            # 품질 기준(분량/FAQ/금지표현) 미달로 의도적으로 보류 — 인프라 문제 아님.
+            # 품질 기준(분량/FAQ/금지표현/자리표시자) 미달로 의도적으로 보류 — 인프라 문제 아님.
             # 이 주제에 계속 멈춰 있지 않도록 인덱스만 전진시켜 저장한다(관점 카운트·history는 그대로 —
             # 다음 바퀴에 이 주제를 다시 만나면 같은 관점으로 한 번 더 시도).
             state["last_index"] = idx
@@ -612,6 +840,23 @@ def run(count=1):
             print(f"  ⚠️ '{topic}' 생성 중 인프라 오류: {e} — 이 주제는 건너뜁니다.")
             hard_failure = True
             continue
+
+        # §19.5-C/§23.10-B — 목차 앵커는 AI에게 맡기지 않고 본문 <h2>에서 직접 뽑아 id를 부여한다.
+        h2_titles = _extract_h2_titles(sections["body"])
+        body_html = _inject_h2_ids(sections["body"])
+        toc_html = _build_toc_html(h2_titles)
+
+        def _box(label, inner_html, css_class):
+            return (f'<div class="{css_class}"><div class="box-label">{label}</div>{inner_html}</div>'
+                    if inner_html else "")
+
+        summary_html  = _box("📌 한줄요약", optional.get("summary", ""), "box-summary")
+        mypoint_html  = _box("📍 나만의 포인트", optional.get("mypoint", ""), "box-mypoint")
+        oneshot_html  = _box("✅ 한 번에 정리", optional.get("oneshot", ""), "box-oneshot")
+        tips_html     = _box("🛠 실전 팁", optional.get("tips", ""), "box-tips")
+        closingq_html = (f'<p class="closing-q">💬 {optional["closingq"]}</p>'
+                          if optional.get("closingq") else "")
+        checkpoints_html = _build_checkpoints_html()
 
         kw_list  = [topic] + tags + ["돌봄상식"]
         tag_html = "".join(f'<span class="tag">{t}</span>' for t in kw_list)
@@ -648,14 +893,23 @@ def run(count=1):
   {disclosure_html}
   <div class="card">
     <p class="intro">{sections['intro']}</p>
-    {sections['body']}
+    {summary_html}
+    {mypoint_html}
+    {toc_html}
+    {body_html}
+    {oneshot_html}
   </div>
   {product_html}
+  <div class="card">
+    {sections['closing']}
+    {tips_html}
+  </div>
   <div class="card"><span class="badge">🙋 자주 묻는 질문</span>
     {sections['faq']}
   </div>
   <div class="card">
-    {sections['closing']}
+    {checkpoints_html}
+    {closingq_html}
   </div>
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html}</div>
@@ -682,6 +936,8 @@ def run(count=1):
                 "char_count":  total_len,
                 "slug":        str(slug_number),
                 "posted_at":   datetime.now(timezone.utc).isoformat(),
+                "h2":          h2_titles,
+                "first_words": _first_words(sections["intro"]),
             })
             save_state(state)
             success_count += 1
