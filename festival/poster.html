@@ -404,6 +404,7 @@ function toggleMenu() {
     <div class="links"><a href="/festival/">🗺️ 아이랑 나들이 지도</a><a href="/festival/list.html">📋 전체 목록</a><a href="/festival/worldcup.html">🏆 나들이 월드컵</a><a href="/blog/magazine/">📰 호호 매거진</a></div>
     <!-- ABOUT_END -->
   </section>
+  <div id="pz-sample" style="display:none"></div>
 
   <p class="pz-note">축제 정보는 한국관광공사 TourAPI 자료를 매일 자동으로 갱신해 보여줘요. 사진 출처는 한국관광공사이고, 일정·운영시간은 바뀔 수 있으니 가기 전에 공식 안내를 꼭 확인하세요. 일정이 1년 가까이 이어지는 행사는 &lsquo;상설·장기&rsquo;로 따로 모았어요.</p>
 </div>
@@ -724,9 +725,28 @@ function toggleMenu() {
     window.HohoNearbyPick.mount(document.createElement('div'), { contentid: it.id, title: it.title, lat: lat, lng: lng, onPicks: function (list) { finish(list); back(); } });
   });
 
+  // [ADD] 2026-11-23: 샘플 일정표 — 지금 진행 중인 축제 하나(같은 날엔 같은 축제)로 "축제 + 주변 나들이 1일 코스" 예시를 보여 준다(festival/sample-plan.js).
+  function md2(it) { var a = dayParts(it.s), b = dayParts(it.e); return a.m + '.' + a.d + '~' + b.m + '.' + b.d; }
+  function renderSamplePlan() {
+    var box = document.getElementById('pz-sample');
+    if (!box) return;
+    var pool = items.filter(function (x) { return status(x) === 'ongoing' && !x.long && isFinite(x.lat) && isFinite(x.lng); })
+      .sort(function (a, c) { return String(a.id) < String(c.id) ? -1 : 1; });
+    if (pool.length < 3) { box.style.display = 'none'; return; }
+    var h = 2166136261, key = String(TODAY);
+    for (var i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619); }
+    var it = pool[(h >>> 0) % pool.length];
+    box.style.display = 'block';
+    box.innerHTML = '<h2 style="font-size:18px;font-weight:900;margin:26px 0 4px">👀 샘플 일정표 · 축제 + 주변 나들이</h2><p style="margin:0 0 6px;font-size:12.5px;color:#64748b;line-height:1.6">지금 진행 중인 축제 하나로 만든 예시예요(같은 날엔 같은 축제가 나와요). 카드 아래 “🧸 +나들이” 버튼을 누르면 내가 고른 축제로 이런 일정표가 열려요.</p><div id="pz-sample-in"></div>';
+    var inner = document.getElementById('pz-sample-in');
+    (function t(n) {
+      if (window.HohoSamplePlan) window.HohoSamplePlan.render(inner, { contentid: it.id, title: it.title, lat: it.lat, lng: it.lng }, 'day', { icon: '🎪', from: '이 축제에서', anchorMemo: '행사 시간 확인 · ' + md2(it), intro: '위 축제로' });
+      else if (n < 20) setTimeout(function () { t(n + 1); }, 300);
+    })(0);
+  }
   fetch('/data/festivals.json', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
-    .then(function (data) { items = prepare(Array.isArray(data) ? data : []); render(); })
+    .then(function (data) { items = prepare(Array.isArray(data) ? data : []); render(); renderSamplePlan(); })
     .catch(function () {
       document.getElementById('pz-sub').textContent = '';
       document.getElementById('pz-main').innerHTML = '<div class="pz-empty">축제 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 보시거나 <a href="/festival/list.html">전체 목록</a>을 이용해 주세요.</div>';
@@ -751,6 +771,7 @@ function toggleMenu() {
 </script>
 <script src="/festival/detail-sheet.js?v=20261111" defer></script>
 <script src="/festival/nearby-pick.js?v=20261119" defer></script>
+<script src="/festival/sample-plan.js?v=20261123b" defer></script>
 <script src="/festival/camp-plan.js?v=20261123a" defer></script>
 </body>
 </html>
