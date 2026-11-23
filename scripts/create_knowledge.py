@@ -68,7 +68,7 @@ def get_access_token_for_knowledge():
     return ""
 
 
-def post_blogger_scheduled(access_token, title, content, labels, published_iso=None, slug_number=None, custom_meta=None, is_draft=False):
+def post_blogger_scheduled(access_token, title, content, labels, published_iso=None, slug_number=None, custom_meta=None, is_draft=False, search_description=None):
     """운세상식 전용 발행 함수 — 기존 post_blogger()는 절대 건드리지 않고 별도로 둠.
     published_iso를 주면 예약 발행, 생략하면 즉시 발행 (지금 구조는 즉시 발행만 사용).
     slug_number를 주면 [숫자만으로 된 제목으로 생성 → 한글 제목으로 수정] 2단계로 발행해서
@@ -86,6 +86,8 @@ def post_blogger_scheduled(access_token, title, content, labels, published_iso=N
     insert_title = slug_title or title
 
     body = {"title": insert_title, "content": content, "labels": labels}
+    if search_description:
+        body["searchDescription"] = search_description   # 검색 결과·메타 description (150자 이내)
     if custom_meta:
         body["customMetaData"] = custom_meta   # 주제 키 저장 — 제목이 상황형이라 제목만으로는 중복 판단이 안 됨
     if published_iso:
@@ -128,6 +130,19 @@ def post_blogger_scheduled(access_token, title, content, labels, published_iso=N
     return True
 
 KST = timezone(timedelta(hours=9))
+
+def _search_desc(d, limit=150):
+    """meta description용 — 한줄요약(없으면 도입)을 태그 없이 150자 이내로 자른다."""
+    import re as _re
+    t = str(d.get("summary") or d.get("intro") or "")
+    t = _re.sub(r"<[^>]+>", "", t).replace("\n", " ")
+    t = _re.sub(r"\s+", " ", t).strip()
+    if len(t) <= limit:
+        return t
+    cut = t[:limit - 1]
+    k = max(cut.rfind(". "), cut.rfind("다 "), cut.rfind(","))
+    return (cut[:k + 1] if k > limit * 0.6 else cut).rstrip() + ("" if k > limit * 0.6 else "…")
+
 
 
 # ─────────────────────────────────────────
@@ -1364,7 +1379,8 @@ def run(count=1, draft=False):
 
         slug_number = state["next_slug_number"]
         ok = post_blogger_scheduled(access_token, title, content, ["운세상식"], slug_number=(None if draft else slug_number),
-                                    custom_meta=f"topic:{topic}", is_draft=draft)
+                                    custom_meta=f"topic:{topic}", is_draft=draft,
+                                    search_description=_search_desc(d))
 
         if ok and draft:
             print("  📝 초안 저장 완료 — Blogger 관리자 > 게시물 > 초안에서 확인하세요. (공개할 때는 퍼머링크를 숫자로 직접 지정하면 기존 주소 형식과 같아집니다)")
