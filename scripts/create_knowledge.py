@@ -598,6 +598,23 @@ def build_prompt(item, meta, ptype, intro_pat, recent, sky_text, retry_note=""):
     else:
         recent_block = "[직전 글 목록] 없음"
 
+    # 직전 글들이 이미 쓴 FAQ 질문·H2는 문장 그대로 다시 쓰면 검증에서 탈락하므로, 금지 목록으로 따로 못 박는다.
+    _ban_q = []
+    _ban_h = []
+    for r in (recent or []):
+        for q in r.get("faq", []):
+            if q and q not in _ban_q:
+                _ban_q.append(q)
+        for h in r.get("h2", []):
+            if h and h not in _ban_h:
+                _ban_h.append(h)
+    if _ban_q or _ban_h:
+        recent_block += ("\n\n[사용 금지 문장 — 아래와 똑같거나 어미만 바꾼 문장은 쓰면 즉시 탈락]\n"
+                         + ("FAQ 질문 금지: " + " | ".join(_ban_q) + "\n" if _ban_q else "")
+                         + ("소제목(H2) 금지: " + " | ".join(_ban_h) if _ban_h else "")
+                         + "\n'과학적 근거가 있나요?'·'신화가 사실인가요?'처럼 직전 글과 같은 의도의 질문도 피하고, "
+                           "이 주제만의 구체적 질문(관측 시기·찾는 방법·이름의 유래·비교·주의점 등)으로 5개 모두 새로 쓰세요.")
+
     src_note = (f"본문에서 기관 이름을 쓸 때는 {', '.join(src_names)}만 쓸 수 있습니다. 자료명·보고서명·통계 수치는 쓰지 마세요. "
                 f"도입 2~3번째 문장에 '{src_names[0]}에서 확인할 수 있는 ○○ 정보' 정도로 확인처를 연결하세요."
                 if src_names else
@@ -884,10 +901,10 @@ def validate(d, recent, existing_title_norms):
     prev_faq = {re.sub(r"\s+", "", q) for r in recent for q in r.get("faq", [])}
     dup_h2 = [h for h in h2s if re.sub(r"\s+", "", h) in prev_h2]
     if dup_h2:
-        hard.append("직전 글과 같은 소제목: " + " / ".join(dup_h2))
+        hard.append("직전 글과 같은 소제목: " + " / ".join(dup_h2) + " → 이 소제목을 쓰지 말고 완전히 다른 관점의 소제목으로 교체")
     dup_q = [f["q"] for f in faq if re.sub(r"\s+", "", f["q"]) in prev_faq]
     if dup_q:
-        hard.append("직전 글과 같은 FAQ 질문: " + " / ".join(dup_q))
+        hard.append("직전 글과 같은 FAQ 질문: " + " / ".join(dup_q) + " → 이 질문과 같은 의도의 질문을 모두 빼고, 이 주제만의 새 질문으로 교체(어미만 바꾸는 것 금지)")
     prev_first = {" ".join(r.get("intro12", "").split()[:5]) for r in recent if r.get("intro12")}
     if intro and " ".join(intro.split()[:5]) in prev_first:
         soft.append("도입 첫 문장 시작이 직전 글과 같음")
