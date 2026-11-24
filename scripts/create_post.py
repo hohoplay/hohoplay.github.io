@@ -4488,6 +4488,48 @@ def _t5_assemble(kind, ranked, stories, compact, period, subject, accent="#7c3ae
 
 
 
+
+# ══════════════════════════════════════════════════════════════════
+# 🧭 오늘의 기운 맞춤 나들이 — 블로그 글 끝(FAQ 뒤) 링크 카드 (2026-11-24)
+#  도구 본체는 호호플레이(hohoplaylab.com)의 festival/today-outing.html. 주소가 바뀌면 아래 한 줄만 고친다.
+# ══════════════════════════════════════════════════════════════════
+OUTING_URL = "https://hohoplaylab.com/festival/today-outing.html"
+_OUTING_TEXT = {
+    "week": [
+        "이번 주 별자리 흐름을 읽었다면, 오늘 하루는 어디서 보낼까요? 생년월일을 넣으면 오늘운세와 간단 사주를 보여 주고, 오늘의 기운에 맞는 나들이 장소 3곳과 일정표를 PDF로 만들어 드립니다.",
+        "별자리 흐름을 확인한 뒤에는 몸을 움직여 볼 차례입니다. 간단 사주로 오늘 부족한 기운을 살피고, 그 기운을 채워 줄 가볼 만한 곳과 하루 일정표를 받아 보세요.",
+    ],
+    "month": [
+        "이달의 띠 흐름을 읽은 뒤, 오늘의 기운에 맞는 나들이를 골라 보세요. 생년월일만 넣으면 오늘운세와 간단 사주, 어울리는 장소 3곳, 하루 일정표까지 한 번에 확인할 수 있습니다.",
+        "한 달의 흐름을 봤다면 오늘 하루의 기운도 가볍게 살펴보세요. 부족한 기운을 채워 줄 나들이 장소를 추천받고, 일정표는 PDF로 저장해 가족과 나눌 수 있습니다.",
+    ],
+    "omni": [
+        "이번 주 어울리는 조합을 봤다면, 오늘은 직접 나가 볼 차례입니다. 생년월일 하나로 오늘의 기운에 맞는 나들이 코스와 일정표를 확인해 보세요.",
+        "별과 띠의 궁합을 읽은 다음에는 오늘의 기운으로 하루를 계획해 보세요. 간단 사주와 오늘운세를 보고, 가볼 만한 곳 3곳을 일정표로 받아 보실 수 있습니다.",
+    ],
+}
+
+
+def outing_card_html(kind, seed=0):
+    """FAQ 뒤에 붙는 '오늘의 기운 맞춤 나들이' 링크 카드. 글 종류별·주차별로 설명 문구가 달라진다."""
+    try:
+        pool = _OUTING_TEXT.get(kind) or _OUTING_TEXT["week"]
+        txt = pool[int(seed) % len(pool)]
+        return (
+            '<div style="font-family:\'Noto Serif KR\',Georgia,serif;max-width:660px;margin:1.6em auto;'
+            'background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:16px;padding:18px 20px">'
+            '<p style="margin:0 0 .5em;font-size:16px;font-weight:700;color:#4c1d95">🧭 오늘의 기운 맞춤 나들이</p>'
+            f'<p style="margin:0 0 .9em;font-size:14px;line-height:1.9;color:#374151;word-break:keep-all">{txt}</p>'
+            f'<a href="{OUTING_URL}" target="_blank" rel="noopener" '
+            'style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;font-size:14px;font-weight:700;'
+            'padding:10px 20px;border-radius:12px">🧭 나들이 추천 받으러 가기</a>'
+            '<p style="margin:.8em 0 0;font-size:12px;color:#6b7280">재미와 참고를 위한 도구이며, 입력한 정보는 저장되지 않습니다.</p>'
+            '</div>'
+        )
+    except Exception:
+        return ""
+
+
 def build_zodiac_weekly_post(today_str, combine=False):
     """별자리별 주간운세 12개 — 관계·일·돈·건강 4영역 구성
     combine=True (2026-10-21~): 12개를 한 편의 통합 포스트 1개로 합쳐 [그 1개짜리 리스트]를 반환한다."""
@@ -4824,6 +4866,8 @@ def build_zodiac_weekly_post(today_str, combine=False):
   {sections}
 
   {_w_closing}
+
+  {outing_card_html('week', mon_date.toordinal() // 7)}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html_all}</div>
@@ -5287,6 +5331,8 @@ def build_chinese_monthly_post(today_str, combine=False):
   {sections}
 
   {closing}
+
+  {outing_card_html('month', kst_now.month)}
 
   <div class="card"><span class="badge">🔍 관련 키워드</span>
     <div class="tag-cloud">{tag_html_all}</div>
@@ -6232,6 +6278,8 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
     {faq_html}
     </div>
   </div>
+
+  {outing_card_html('omni', week_seed)}
 
   <div class="card">
     <span class="badge">🔍 관련 키워드</span>
