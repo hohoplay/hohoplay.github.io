@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>오늘의 기운 맞춤 나들이 — 오늘운세·간단 사주·나들이 추천</title><link rel="canonical" href="https://hohoplaylab.com/festival/today-outing.html"><meta name="description" content="생년월일로 오늘운세와 간단 사주를 보고, 오늘의 기운에 어울리는 나들이 장소 3곳과 하루 일정표를 PDF로 저장하는 재미용 도구입니다.">
+<style>
+:root{--p:#7c3aed;--pd:#4c1d95;--bg:#f8f7ff;--line:#e9e3ff;--tx:#374151}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--bg);color:var(--tx);padding:24px 14px}
+.wrap{max-width:700px;margin:0 auto}
+.badge{display:inline-block;font-size:11px;background:#ede9fe;color:var(--pd);border-radius:20px;padding:3px 10px;margin-bottom:8px}
+h1{font-size:22px;color:var(--pd);margin-bottom:6px}
+.lead{font-size:14px;line-height:1.9;margin-bottom:16px;word-break:keep-all}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+.card h2{font-size:16px;color:var(--pd);margin-bottom:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+select,button{font:inherit;font-size:14px;padding:9px 10px;border:1px solid #ddd6fe;border-radius:10px;background:#fff}
+.go{background:var(--p);color:#fff;border:0;font-weight:700;padding:10px 18px;cursor:pointer}
+.go:disabled{opacity:.6}
+.pil{display:flex;gap:8px;margin:8px 0 12px}
+.pil div{flex:1;text-align:center;border-radius:12px;padding:10px 4px;background:#faf8ff;border:1px solid var(--line)}
+.pil b{display:block;font-size:18px}.pil span{font-size:11px;color:#6b7280}
+.bar{display:flex;height:12px;border-radius:8px;overflow:hidden;margin:6px 0}
+.legend{font-size:12px;color:#6b7280}
+.chip{display:inline-block;font-size:12px;border-radius:20px;padding:3px 10px;background:#ede9fe;color:var(--pd);margin:2px 4px 2px 0}
+.fz p{font-size:14px;line-height:1.95;margin-bottom:6px;word-break:keep-all}
+.score{font-size:30px;font-weight:800;color:var(--p)}
+.pick{display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--line);padding:12px 0}
+.pick:first-of-type{border-top:0}
+.no{flex:0 0 30px;height:30px;border-radius:50%;background:var(--p);color:#fff;text-align:center;line-height:30px;font-weight:700}
+.pick h3{font-size:15px;color:var(--pd)}
+.pick p{font-size:13px;line-height:1.8;color:#4b5563}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f3efff;color:var(--pd);text-align:left;padding:8px}td{padding:8px;border-bottom:1px solid #f0ecff;vertical-align:top}
+.note{font-size:12px;color:#9ca3af;line-height:1.8;margin-top:10px}
+@media print{body{background:#fff}.noprint{display:none}}
+.st{font-size:14px;line-height:1.95;color:#374151;word-break:keep-all;margin-bottom:8px}ol.st{padding-left:20px}.q{font-size:14px;font-weight:700;color:var(--pd);margin:10px 0 2px}.card table{margin-top:8px}.card td,.card th{font-size:13px}@media print{.static{display:none}}.toc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:2.3}.toc b{color:var(--pd);margin-right:6px}.toc a{display:inline-block;margin:0 6px 0 0;padding:2px 10px;border-radius:20px;background:#f3efff;color:var(--pd);text-decoration:none;white-space:nowrap}.toc a:hover{background:#e4dbff}.card{position:relative}.back{position:absolute;right:16px;top:18px;font-size:12px;color:#7c3aed;text-decoration:none}html{scroll-behavior:smooth}section.card,#tool{scroll-margin-top:12px}.ck{display:inline-flex;align-items:center;gap:4px;font-size:13px;padding:0 6px}.dim{color:#9ca3af;font-size:12px}.sm{font-size:12px;color:#4b5563}.warn{color:#b45309;font-size:12px}.pick h3 a{color:var(--pd);text-decoration:none;border-bottom:1px dotted #a78bfa}.card td{vertical-align:top}</style></head><body><div class="wrap">
+<div class="badge">재미로 보는 나들이 도구</div>
+<h1>🧭 오늘의 기운 맞춤 나들이</h1>
+<p class="lead">생년월일을 넣으면 오늘 운세와 간단 사주를 보여 주고, 오늘의 기운에 어울리는 나들이 장소 3곳과 하루 일정표를 만들어 드립니다. 재미로 보는 참고용이며, 입력한 정보는 이 브라우저 안에서만 계산됩니다.</p>
+<nav class="toc noprint" aria-label="목차"><b>📚 목차</b> <a href="#tool">🧭 도구 바로 쓰기</a><a href="#what">이 도구는 무엇인가요</a><a href="#how">이렇게 사용하세요</a><a href="#rel">오늘의 기운 읽는 법</a><a href="#el">부족한 기운과 장소</a><a href="#calc">사주 계산 기준</a><a href="#faq">자주 묻는 질문</a></nav>
+<div id="tool"></div>
+<div class="card noprint"><h2>① 정보 입력</h2><div class="row">
+<select id="fy"></select><select id="fm"></select><select id="fd"></select><select id="fh"></select></div>
+<div class="row" style="margin-top:8px"><select id="fr"></select><select id="fs"></select>
+<label class="ck"><input type="checkbox" id="ffree"> 무료만</label><label class="ck"><input type="checkbox" id="fin"> ☔ 실내만</label>
+<button class="go" onclick="run()">나들이 추천 받기</button></div>
+<p class="note">양력 생년월일 기준입니다. 태어난 시간을 모르면 '모름'을 선택하세요. 시간 없이도 결과가 나옵니다.</p></div>
+<div id="pdfArea"><div id="out"></div></div>
+<div class="noprint" style="margin:6px 0 14px"><button id="pdfBtn" class="go" onclick="savePdf('pdfArea','오늘의기운_맞춤나들이')">📄 PDF로 저장</button></div>
+<nav class="toc noprint" aria-label="설명 바로가기"><b>📖 더 알아보기</b> <a href="#what">이 도구는 무엇인가요</a><a href="#how">이렇게 사용하세요</a><a href="#rel">오늘의 기운, 이렇게 읽습니다</a><a href="#faq">자주 묻는 질문</a></nav><div style="height:14px"></div>
+<div class="static">
+<section class="card" id="what"><h2>이 도구는 무엇인가요</h2><a class="back noprint" href="#tool">↑ 도구로</a>
+<p class="st">'오늘의 기운 맞춤 나들이'는 생년월일로 간단한 사주(연·월·일·시 기둥)를 세우고, 오늘의 일진과 비교해 오늘 어울리는 나들이 성격을 골라 주는 재미용 도구입니다. 결과로 오늘운세, 간단 사주, 어울리는 장소 3곳, 하루 일정표와 정리표가 나오며 PDF로 저장할 수 있습니다. 아이와 함께 갈 만한 곳을 직접 조사해 정리한 <a href="/festival/">아이랑 나들이 지도</a>의 장소를 바탕으로 추천합니다.</p></section>
+<section class="card" id="how"><h2>이렇게 사용하세요</h2><a class="back noprint" href="#tool">↑ 도구로</a>
+<ol class="st"><li>생년월일을 고르고, 태어난 시간을 모르면 '모름'을 선택합니다.</li><li>가고 싶은 지역을 선택하고 '나들이 추천 받기'를 누릅니다.</li><li>오늘운세와 간단 사주, 추천 장소 3곳, 일정표를 확인합니다.</li><li>마음에 들면 'PDF로 저장'으로 일정표를 내려받아 가족과 공유합니다.</li></ol></section>
+<section class="card" id="rel"><h2>오늘의 기운, 이렇게 읽습니다</h2><a class="back noprint" href="#tool">↑ 도구로</a>
+<p class="st">내 일간(태어난 날의 천간)과 오늘의 천간이 어떤 관계인지에 따라 오늘의 성격을 다섯 가지로 나눕니다. 전통 해석을 바탕으로 한 단순화이며, 나들이 성격은 참고용 추천 규칙입니다.</p>
+<table><tr><th>관계</th><th>뜻</th><th>오늘의 성격</th><th>어울리는 나들이</th></tr>
+<tr><td>인성</td><td>나를 받쳐 주는 기운</td><td>채우고 배우는 날</td><td>박물관·전시관 같은 차분한 실내</td></tr>
+<tr><td>비화</td><td>나와 같은 기운</td><td>함께 움직이는 날</td><td>공원·놀이터 같은 야외 활동</td></tr>
+<tr><td>식상</td><td>내가 내보내는 기운</td><td>표현하고 노는 날</td><td>체험관·만들기 등 체험 중심 코스</td></tr>
+<tr><td>재성</td><td>내가 다루는 기운</td><td>발품이 보람 되는 날</td><td>탐방로·시장·농장 같은 야외 탐험</td></tr>
+<tr><td>관성</td><td>나를 다스리는 기운</td><td>차분히 걷는 날</td><td>산책로·호숫가처럼 여유 있는 야외</td></tr></table></section>
+<section class="card" id="el"><h2>부족한 기운은 이런 장소에서 채웁니다</h2><a class="back noprint" href="#tool">↑ 도구로</a>
+<p class="st">사주의 여덟 글자(시간을 모르면 여섯 글자)를 오행으로 나누어 가장 적은 기운을 '부족한 기운'으로 봅니다. 아래는 오행별로 어울린다고 보는 장소 성격입니다.</p>
+<table><tr><th>오행</th><th>어울리는 장소 성격</th><th>예</th></tr>
+<tr><td>목(木)</td><td>숲·공원·정원</td><td>숲길 산책, 수목원</td></tr><tr><td>화(火)</td><td>따뜻한 체험·활기찬 놀이</td><td>놀이시설, 체험 공방</td></tr>
+<tr><td>토(土)</td><td>박물관·농장·흙길</td><td>어린이박물관, 체험 농장</td></tr><tr><td>금(金)</td><td>과학·전시·공예</td><td>과학관, 전시관</td></tr>
+<tr><td>수(水)</td><td>물가·호수·바다</td><td>호수공원, 해변</td></tr></table></section>
+<section class="card" id="calc"><h2>간단 사주는 어떻게 계산하나요</h2><a class="back noprint" href="#tool">↑ 도구로</a>
+<p class="st">연·월·일·시를 각각 하늘의 글자(천간)와 땅의 글자(지지)로 바꿔 네 기둥을 만듭니다. 연주와 월주는 입춘·절기 날짜를 기준으로 가르는데, 이 도구는 해마다 같은 대략의 절기 날짜를 쓰는 간이 방식이라 절기 당일 전후에 태어난 분은 정통 만세력과 하루 정도 차이가 날 수 있습니다. 태어난 시간을 모르면 시주 없이 세 기둥으로 계산합니다. 정확한 사주 풀이가 필요하다면 전문가나 정통 만세력을 이용해 주세요.</p></section>
+<section class="card" id="faq"><h2>자주 묻는 질문</h2><a class="back noprint" href="#tool">↑ 도구로</a>
+<p class="q">Q. 입력한 생년월일은 저장되나요?</p><p class="st">A. 아니요. 모든 계산은 지금 보고 계신 브라우저 안에서만 이루어지며 서버로 전송되거나 저장되지 않습니다.</p>
+<p class="q">Q. 태어난 시간을 몰라도 되나요?</p><p class="st">A. 네. '모름'을 선택하면 시주를 빼고 계산합니다. 추천 결과는 그대로 받으실 수 있습니다.</p>
+<p class="q">Q. 추천 장소는 어떻게 고르나요?</p><p class="st">A. 선택한 지역의 장소 중에서 부족한 오행과 오늘의 성격, 계절, 첫 장소와의 거리를 점수로 따져 3곳을 보여 드립니다. 같은 날 같은 생년월일이면 같은 결과가 나옵니다.</p>
+<p class="q">Q. 운세 결과를 그대로 믿어도 되나요?</p><p class="st">A. 재미와 참고를 위한 콘텐츠입니다. 나들이 장소를 고르는 계기로만 가볍게 활용해 주세요.</p>
+<p class="q">Q. 장소의 운영 시간과 요금은 믿을 수 있나요?</p><p class="st">A. 직접 조사해 정리한 정보이지만 요금과 운영시간은 바뀔 수 있습니다. 방문 전에 공식 안내에서 운영 여부와 요금을 다시 확인해 주세요.</p></section>
+
+<p class="note" style="margin-bottom:30px">※ 재미와 참고를 위한 콘텐츠입니다. 사진 일부는 한국관광공사 TourAPI 자료이며, 방문 전 공식 안내를 꼭 확인해 주세요.</p></div>
+</div>
+<script>
+        const RATINGS  = ['★★★☆☆','★★★★☆','★★★★★','★★☆☆☆','★★★★☆'];
+        const COLORS   = ['골드','라벤더','민트그린','스카이블루','코랄','퍼플','로즈핑크','버건디',
+                          '웜그레이','화이트','딥블루','오렌지','그린'];
+        const DOW_ADJUST = [
+            { total: 2, money:-3, health: 4, love: 1, golden:'오전 10시~12시 (월요일 집중력 황금타임)' },  // 월
+            { total: 4, money: 5, health: 2, love: 2, golden:'오후 2시~4시 (화요일 추진력 최고조)' },      // 화
+            { total:-2, money: 3, health:-1, love: 4, golden:'오전 9시~11시 (수요일 창의력 활성)' },       // 수
+            { total: 5, money: 4, health: 3, love: 3, golden:'오전 10시~오후 1시 (목요일 에너지 피크)' },  // 목
+            { total: 3, money: 6, health: 1, love: 5, golden:'오후 3시~6시 (금요일 연애·마무리 최적)' },   // 금
+            { total:-3, money:-4, health: 5, love: 3, golden:'오전 7시~10시 (토요일 이른 아침 충전)' },    // 토
+            { total:-1, money:-5, health: 6, love:-2, golden:'오후 4시~7시 (일요일 내일 준비 골든타임)' }, // 일
+        ];
+        const MON_ADJUST = [3,-2,4,2,5,1,-1,0,3,4,2,-3]; // 1월~12월 (index 0=1월)
+        const DOW_KR = ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'];
+        const MON_KR = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+        function applyAdjustments(total, money, health, love) {
+            const kst  = kstNow();
+            const dow  = (kst.getUTCDay() + 6) % 7; // JS 0=일 → 0=월 변환
+            const mon  = kst.getUTCMonth();           // 0-based
+            const da   = DOW_ADJUST[dow];
+            const ma   = MON_ADJUST[mon];
+            const clamp = v => Math.max(1, Math.min(100, v));
+
+            const adj = {
+                total:  clamp(total  + da.total  + ma),
+                money:  clamp(money  + da.money  + ma),
+                health: clamp(health + da.health + ma),
+                love:   clamp(love   + da.love   + ma),
+            };
+            const maSign = ma >= 0 ? '▲' : '▼';
+            const daSign = da.total >= 0 ? '▲' : '▼';
+
+            const calcHtml = `
+<div style="background:#f8faff;border:1px solid #c7d2fe;border-radius:14px;padding:16px;margin:14px 0">
+  <div style="font-size:13px;font-weight:700;color:#3730a3;margin-bottom:10px">📐 오늘의 운세 지수 계산 방식</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e0e7ff;font-size:12px">
+      <div style="color:#6b7280;margin-bottom:3px">📅 요일 보정 (${DOW_KR[dow]})</div>
+      <div style="font-weight:700;color:#4f46e5">${daSign} 총운 ${da.total>0?'+':''}${da.total} · 금전 ${da.money>0?'+':''}${da.money} · 건강 ${da.health>0?'+':''}${da.health} · 연애 ${da.love>0?'+':''}${da.love}</div>
+    </div>
+    <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ede9fe;font-size:12px">
+      <div style="color:#6b7280;margin-bottom:3px">🗓 월별 분위기 (${MON_KR[mon]})</div>
+      <div style="font-weight:700;color:#7c3aed">${maSign} 전체 지수 ${ma>0?'+':''}${ma}점 조정</div>
+    </div>
+  </div>
+  <div style="background:#eff6ff;border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
+    <div style="color:#1e40af;font-weight:700;margin-bottom:6px">🔢 최종 보정 지수</div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <span>🌟 종합 <b>${adj.total}점</b></span>
+      <span>💰 금전 <b>${adj.money}점</b></span>
+      <span>💪 건강 <b>${adj.health}점</b></span>
+      <span>❤️ 연애 <b>${adj.love}점</b></span>
+    </div>
+  </div>
+  <div style="font-size:12px;color:#374151">⏰ <b>오늘의 골든 타임:</b> ${da.golden}</div>
+</div>`;
+            return { ...adj, calcHtml };
+        }
+        function _seededHash(seed){
+            // 간단한 32bit 해시 (xorshift)
+            let h = 0;
+            for(let i=0;i<seed.length;i++){
+                h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
+            }
+            h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16;
+            return (h >>> 0) / 4294967296;
+        }
+        // 시드 문자열 → 0~(n-1) 정수
+        function _seededInt(seed, n){ return Math.floor(_seededHash(seed) * n); }
+        // 시드 기반 배열 선택
+        function seededRnd(a, seed){ return a[_seededInt(seed, a.length)]; }
+        // 시드 기반 1~99
+        function seededRndN(seed){ return _seededInt(seed, 99) + 1; }
+
+        // 운세 시드 생성: 오늘날짜 + 생년월일 + 탭 조합
+        function _fortuneSeed(year, month, day, tab){
+            const today = [kstNow().getFullYear(), kstNow().getMonth()+1, kstNow().getDate()].join('-');
+            return today + '|' + year + '-' + month + '-' + day + '|' + tab;
+        }
+
+        // KST(UTC+9) 기준 현재 날짜 반환 — 자정 00:00 KST에 날짜 전환
+        function kstNow(){
+            const now = new Date();
+            // UTC+9 오프셋 적용
+            return new Date(now.getTime() + 9*60*60*1000);
+        }
+        function todayStr(){const d=kstNow();return d.getUTCFullYear()+'년 '+(d.getUTCMonth()+1)+'월 '+d.getUTCDate()+'일'}
+        function getChineseZodiac(year){
+            const a=['원숭이','닭','개','돼지','쥐','소','호랑이','토끼','용','뱀','말','양'];
+            const e=['🐵','🐓','🐶','🐷','🐭','🐮','🐯','🐰','🐲','🐍','🐴','🐑'];
+            const i=year%12; return {name:a[i]+'띠',emoji:e[i]};
+        }
+        function getZodiacSign(month,day){
+            const s=[
+                {name:'염소자리',emoji:'♑',m:1,d:19},{name:'물병자리',emoji:'♒',m:2,d:18},
+                {name:'물고기자리',emoji:'♓',m:3,d:20},{name:'양자리',emoji:'♈',m:4,d:19},
+                {name:'황소자리',emoji:'♉',m:5,d:20},{name:'쌍둥이자리',emoji:'♊',m:6,d:21},
+                {name:'게자리',emoji:'♋',m:7,d:22},{name:'사자자리',emoji:'♌',m:8,d:22},
+                {name:'처녀자리',emoji:'♍',m:9,d:22},{name:'천칭자리',emoji:'♎',m:10,d:22},
+                {name:'전갈자리',emoji:'♏',m:11,d:21},{name:'사수자리',emoji:'♐',m:12,d:21},
+                {name:'염소자리',emoji:'♑',m:12,d:31},
+            ];
+            for(const x of s){ if(month<x.m||(month===x.m&&day<=x.d)) return x; }
+            return s[0];
+        }
+        var CHINESE_FORTUNE = {'쥐띠':['쥐띠 특유의 기민함이 오늘 빛을 발합니다. 작은 정보 하나를 놓치지 말고 빠르게 움직이세요.','오늘 쥐띠에게는 예상치 못한 곳에서 기회가 열립니다. 직감을 믿고 먼저 손을 내미세요.','쥐띠의 사교성이 오늘 든든한 무기입니다.','오늘은 천천히 살펴보는 것이 득이 됩니다. 쥐띠의 세밀한 눈이 숨은 가능성을 찾아냅니다.'],'소띠':['소띠의 꾸준함이 오늘 결실로 이어집니다.','오늘 소띠에게는 묵묵한 노력이 주변의 신뢰를 얻는 날입니다.','소띠 특유의 책임감이 오늘 관계를 단단하게 만듭니다.','오늘은 계획한 일을 하나씩 완성해 나가는 날입니다.'],'호랑이띠':['호랑이띠의 추진력이 오늘 최고조에 달합니다.','오늘 호랑이띠는 리더십이 자연스럽게 발휘됩니다.','호랑이띠 특유의 용기가 오늘 막혔던 문을 엽니다.','오늘은 과감한 결단이 필요한 날입니다.'],'토끼띠':['토끼띠의 섬세함이 오늘 빛납니다.','오늘 토끼띠는 유연한 대처 능력이 빛을 발합니다.','토끼띠 특유의 공감 능력이 오늘 관계를 따뜻하게 만듭니다.','오늘은 급하게 서두르기보다 최적의 타이밍을 기다리는 것이 현명합니다.'],'용띠':['용띠의 카리스마가 오늘 주변을 끌어당깁니다.','오늘 용띠에게는 큰 그림을 그리기 좋은 날입니다.','용띠 특유의 창의력이 오늘 독창적인 해결책을 만들어냅니다.','오늘은 용띠의 에너지가 주변에 긍정적인 영향을 미칩니다.'],'뱀띠':['뱀띠의 통찰력이 오늘 진가를 발휘합니다.','오늘 뱀띠는 신중하고 깊이 있는 판단이 빛납니다.','뱀띠 특유의 집중력이 오늘 복잡한 문제를 단순하게 만듭니다.','오늘은 조용히 움직이는 것이 득이 됩니다.'],'말띠':['말띠의 활기찬 에너지가 오늘 모든 것을 앞으로 나아가게 합니다.','오늘 말띠에게는 새로운 도전이 설레는 기회로 다가옵니다.','말띠 특유의 자유로운 발상이 오늘 막힌 상황을 돌파합니다.','오늘은 말띠의 넓은 인맥이 예상치 못한 도움을 가져옵니다.'],'양띠':['양띠의 온화한 기운이 오늘 주변을 편안하게 만듭니다.','오늘 양띠는 협력과 조화에서 최선의 결과가 나옵니다.','양띠 특유의 공감 능력이 오늘 갈등을 자연스럽게 해소합니다.','오늘은 감성적인 접근이 논리보다 효과적인 날입니다.'],'원숭이띠':['원숭이띠의 재치가 오늘 빛을 발합니다.','오늘 원숭이띠는 빠른 판단력과 적응력이 강점입니다.','원숭이띠 특유의 호기심이 오늘 새로운 발견으로 이어집니다.','오늘은 원숭이띠의 다재다능함이 여러 가지 가능성을 동시에 열어줍니다.'],'닭띠':['닭띠의 꼼꼼함이 오늘 완성도 높은 결과를 만들어냅니다.','오늘 닭띠에게는 준비해온 것들을 보여줄 시간이 찾아옵니다.','닭띠 특유의 성실함이 오늘 주변의 신뢰를 쌓습니다.','오늘은 닭띠의 분석력이 복잡한 상황을 명확하게 정리합니다.'],'개띠':['개띠의 충직함이 오늘 깊은 신뢰를 만들어냅니다.','오늘 개띠는 정의감과 책임감이 빛을 발합니다.','개띠 특유의 헌신이 오늘 소중한 관계를 더 단단하게 만듭니다.','오늘은 개띠의 직관적인 판단이 정확하게 맞아떨어집니다.'],'돼지띠':['돼지띠의 풍요로운 기운이 오늘 행운을 불러옵니다.','오늘 돼지띠에게는 진심 어린 노력이 풍성한 결실로 돌아옵니다.','돼지띠 특유의 긍정 에너지가 오늘 주변을 밝게 만듭니다.','오늘은 돼지띠의 성실함과 여유로움이 균형을 이루는 날입니다.']};
+        var ZODIAC_LOVE = {'양자리':['양자리의 솔직한 표현이 오늘 상대방의 마음을 움직입니다.','오늘 양자리는 적극적인 매력이 빛납니다.','양자리 특유의 열정이 오늘 연애 에너지를 높입니다.','오늘은 양자리의 직진 스타일이 통하는 날입니다.'],'황소자리':['황소자리의 안정적인 매력이 오늘 상대방에게 깊은 신뢰를 심어줍니다.','오늘 황소자리는 감각적인 즐거움이 관계를 풍요롭게 만듭니다.','황소자리 특유의 헌신이 오늘 상대방에게 든든한 존재감으로 전해집니다.','오늘은 서두르지 않는 황소자리의 방식이 가장 깊은 인연을 만들어냅니다.'],'쌍둥이자리':['쌍둥이자리의 재치 있는 대화가 오늘 관계의 활기를 불어넣습니다.','오늘 쌍둥이자리는 다채로운 매력이 상대방을 끌어당깁니다.','쌍둥이자리 특유의 호기심이 오늘 상대방과의 대화를 풍성하게 만듭니다.','오늘은 가볍고 재미있는 분위기가 관계를 한 단계 발전시킵니다.'],'게자리':['게자리의 따뜻한 공감 능력이 오늘 상대방의 마음을 어루만집니다.','오늘 게자리는 세심한 배려가 관계를 더욱 단단하게 만듭니다.','게자리 특유의 감성이 오늘 깊고 진한 감정의 교류를 만들어냅니다.','오늘은 게자리의 보호 본능이 상대방에게 포근한 안정감을 전해줍니다.'],'사자자리':['사자자리의 빛나는 존재감이 오늘 주변의 시선을 사로잡습니다.','오늘 사자자리는 자신감 넘치는 매력이 관계를 이끌어 나갑니다.','사자자리 특유의 열정이 오늘 상대방의 마음에 불을 지핍니다.','오늘은 사자자리의 관대한 마음이 관계를 더욱 풍요롭게 만듭니다.'],'처녀자리':['처녀자리의 세심한 배려가 오늘 상대방에게 특별하게 전해집니다.','오늘 처녀자리는 진실된 마음이 그 어떤 말보다 강하게 전달됩니다.','처녀자리 특유의 세밀한 관찰력이 오늘 상대방의 필요를 먼저 알아차립니다.','오늘은 처녀자리의 성실함이 상대방에게 신뢰와 안정감을 만들어줍니다.'],'천칭자리':['천칭자리의 균형 감각이 오늘 관계의 조화를 이끌어냅니다.','오늘 천칭자리는 아름다운 분위기 메이킹 능력이 관계를 낭만적으로 만듭니다.','천칭자리 특유의 외교적 감각이 오늘 갈등을 자연스럽게 해소합니다.','오늘은 천칭자리의 매력적인 균형감이 상대방의 마음을 사로잡습니다.'],'전갈자리':['전갈자리의 깊고 진한 감정이 오늘 강렬한 연결을 만들어냅니다.','오늘 전갈자리는 신뢰를 바탕으로 한 깊은 관계가 더욱 단단해지는 날입니다.','전갈자리 특유의 직관이 오늘 상대방의 진심을 정확하게 읽어냅니다.','오늘은 전갈자리의 변신 능력이 관계에 새로운 국면을 만들어냅니다.'],'사수자리':['사수자리의 자유로운 에너지가 오늘 관계에 신선한 바람을 불어넣습니다.','오늘 사수자리는 솔직하고 쾌활한 매력이 주변을 환하게 만듭니다.','사수자리 특유의 모험심이 오늘 관계를 더욱 흥미롭고 다채롭게 만들어냅니다.','오늘은 사수자리의 낙관적인 에너지가 상대방의 마음을 따뜻하게 녹입니다.'],'염소자리':['염소자리의 신뢰할 수 있는 매력이 오늘 관계의 깊이를 더합니다.','오늘 염소자리는 차분하고 성숙한 모습이 상대방에게 든든한 인상을 남깁니다.','염소자리 특유의 진지함이 오늘 의미 있는 대화와 교감을 만들어냅니다.','오늘은 염소자리의 꾸준한 노력이 관계에서 빛을 발합니다.'],'물병자리':['물병자리의 독창적인 매력이 오늘 상대방의 호기심을 자극합니다.','오늘 물병자리는 특유의 개성이 관계를 신선하고 흥미롭게 만듭니다.','물병자리 특유의 인류애적 따뜻함이 오늘 진정한 연결을 만들어냅니다.','오늘은 물병자리의 자유로운 사고방식이 관계에 새로운 가능성을 열어줍니다.'],'물고기자리':['물고기자리의 감성적인 교감 능력이 오늘 상대방의 마음 깊은 곳을 건드립니다.','오늘 물고기자리는 직관적인 공감이 말보다 더 깊은 이해를 만들어냅니다.','물고기자리 특유의 낭만적인 감성이 오늘 특별한 분위기를 자아냅니다.','오늘은 물고기자리의 희생적인 사랑이 관계를 더욱 아름답게 만들어줍니다.']};
+        const SCORE_TONE = {총운:{최상:['오늘은 당신을 위해 준비된 날입니다. 자신감을 갖고 원하는 것을 향해 과감하게 나아가세요. 망설이던 일이 있다면 지금이 바로 움직일 때입니다. 🌟','최상의 에너지가 흐르는 오늘, 오래 미뤄온 중요한 결정을 내리기에 더없이 좋습니다. 주저하지 말고 마음먹은 것을 실행에 옮겨보세요. 오늘의 선택이 앞으로의 흐름을 크게 바꿔놓을 수 있습니다.','오늘 모든 흐름이 당신에게 유리하게 작용합니다. 큰 목표를 향해 힘차게 한 발 내딛어보세요. 주변의 응원도 자연스럽게 따라올 시기입니다. 💫'],양호:['오늘은 전반적으로 안정된 흐름 속에 있습니다. 서두르지 않아도 원하는 방향으로 차근차근 나아갈 수 있습니다. 지금의 페이스를 유지하는 것만으로도 충분합니다. 😊','좋은 기운이 감돌고 있습니다. 계획한 일을 실행에 옮기기 좋은 날입니다. 미뤄뒀던 일을 하나씩 시작해보기에 좋은 타이밍입니다. 🌈','오늘 주변의 도움과 협력이 자연스럽게 이루어집니다. 함께하면 더 좋은 결과가 나옵니다. 혼자 애쓰기보다 주변에 마음을 열어보세요. 🤝'],보통:['오늘은 큰 기대보다는 꾸준한 노력이 빛을 발하는 날입니다. 화려한 성과보다 작은 진전에 집중해보세요. 그 꾸준함이 결국 큰 결실로 이어집니다. 🌱','평범한 듯 보이지만 오늘의 노력이 내일의 발판이 됩니다. 지금 하는 작은 노력을 가볍게 여기지 마세요. 시간이 지나면 든든한 밑거름이 되어줄 것입니다. 💪','오늘 하루 인내심을 갖고 꾸준히 나아가는 것이 중요합니다. 당장 결과가 보이지 않아도 조급해하지 마세요. 묵묵히 나아가다 보면 좋은 흐름이 찾아옵니다. 🌙'],주의:['오늘은 무리하게 나서기보다 한 발짝 물러서서 상황을 살피는 것이 현명합니다. 중요한 결정은 잠시 미뤄두는 것이 좋습니다. 차분히 상황을 지켜보면 더 나은 판단을 할 수 있습니다. ⚠️','에너지가 다소 낮은 날입니다. 현재 진행 중인 일에 집중하는 것이 좋습니다. 새로운 일을 벌이기보다 하던 일을 마무리하는 데 힘을 쏟아보세요. 🔄','오늘은 자신을 돌보는 날로 삼으세요. 무리한 일정보다 충분한 휴식이 필요한 시기입니다. 스스로를 다독이는 시간을 가져보세요. 🌿']},금전:{최상:['금전 흐름이 활짝 열려있는 날입니다. 열린 마음으로 새로운 가능성을 탐색해보세요. 생각지 못한 곳에서 좋은 제안이 들어올 수 있습니다. 💰','예상치 못한 수입이나 좋은 소식이 찾아올 수 있습니다. 평소 관심 있던 일을 시도해보기 좋은 시기입니다. 작은 행동 하나가 뜻밖의 기회로 이어질 수 있습니다. ✨','재정적으로 최상의 흐름입니다. 중요한 금전 결정을 오늘 내리면 좋은 결과로 이어집니다. 미뤄왔던 재정 계획이 있다면 지금 실행해도 좋습니다. 🌟'],양호:['금전 운이 안정적입니다. 꾸준한 관리와 계획적인 지출이 중요합니다. 지금의 관리 습관을 계속 이어가면 안정적인 흐름이 오래갑니다. 💵','오늘 작은 절약이 큰 차이를 만들 수 있습니다. 무심코 나가는 지출을 한 번 점검해보세요. 작은 습관의 변화가 큰 여유로 돌아옵니다. 📊','재정적으로 균형 잡힌 하루입니다. 수입과 지출이 자연스럽게 맞아떨어지는 흐름입니다. 지금처럼만 유지해도 충분히 안정적입니다. 🏦'],보통:['금전 흐름이 평이한 날입니다. 무리한 투자보다는 안정적인 관리에 초점을 맞추세요. 확신이 서지 않는 지출은 다음으로 미뤄두는 것이 좋습니다. 💼','오늘은 큰 금전 결정보다는 현재 상황을 점검하는 날로 삼으세요. 가계부나 지출 내역을 한 번 살펴보기 좋은 시기입니다. 흐름을 파악해두면 다음 결정이 한결 쉬워집니다. ⏳','평소보다 지출이 늘어날 수 있습니다. 충동 소비에 주의하세요. 구매 전 한 번 더 생각해보는 습관이 도움이 됩니다. 🛒'],주의:['오늘 금전적인 부분에서 신중함이 필요합니다. 큰 지출이나 투자 결정은 다음으로 미뤄두세요. 신중하게 살피는 것만으로도 손해를 줄일 수 있습니다. ⚠️','예상치 못한 지출이 생길 수 있습니다. 비상금을 확인하세요. 여유 자금을 미리 점검해두면 갑작스러운 상황에도 당황하지 않습니다. 🔒','금전 운이 다소 낮은 날입니다. 무리한 지출이나 새로운 투자는 잠시 미뤄두세요. 오늘은 지키는 데 집중하는 것이 현명합니다. 🚫']},직장:{최상:['직장 운이 최고조입니다. 자신 있게 나서세요. 그동안 준비해온 것을 마음껏 펼쳐볼 좋은 기회입니다. 🏆','오늘 당신의 능력이 빛을 발하는 날입니다. 자신 있게 의견을 내고 나서보세요. 주변에서도 그 능력을 알아봐 줄 것입니다. 🌟','직장에서의 노력이 드디어 인정받는 날입니다. 그동안 묵묵히 해온 일들이 좋은 평가로 돌아옵니다. 자신감을 갖고 하루를 시작해보세요. ✨'],양호:['직장에서 자연스러운 협력이 이루어지는 날입니다. 동료들과 호흡이 잘 맞아 일이 수월하게 풀립니다. 먼저 손을 내밀어보는 것도 좋습니다. 🤝','오늘 업무 흐름이 원활합니다. 막혀있던 일도 자연스럽게 풀리는 시기입니다. 계획한 일들을 차근차근 진행해보세요. 💻','직장 운이 안정적입니다. 평소 하던 대로 꾸준히 임하면 무리 없이 흘러갑니다. 큰 변화 없이도 좋은 흐름이 이어집니다. 📋'],보통:['오늘은 현재 업무를 충실히 마무리하는 데 집중하세요. 새로운 일을 벌이기보다 마무리에 힘쓰는 것이 좋습니다. 하나씩 정리해나가면 마음도 한결 가벼워집니다. 📝','직장에서 소소한 변수가 생길 수 있습니다. 당황하지 말고 유연하게 대처해보세요. 큰 문제가 아니라 금방 지나갈 흐름입니다. 🔄','오늘은 묵묵히 맡은 바를 다하는 하루입니다. 눈에 띄는 성과보다 기본에 충실한 것이 중요합니다. 꾸준함이 결국 좋은 평가로 이어집니다. 💼'],주의:['오늘 직장에서 불필요한 갈등을 피하는 것이 좋습니다. 예민한 주제는 되도록 피하고 말을 아끼는 것이 현명합니다. 감정적인 대응은 나중에 후회로 남을 수 있습니다. 🤫','업무 처리 시 실수가 생기지 않도록 꼼꼼하게 확인하세요. 평소보다 집중력이 흐트러지기 쉬운 날입니다. 중요한 문서나 숫자는 한 번 더 검토해보세요. ✅','오늘은 중요한 결정이나 발표를 미루는 것이 현명합니다. 컨디션이 좋아질 때까지 잠시 기다려보세요. 서두르지 않아도 기회는 다시 찾아옵니다. ⏸']},건강:{최상:['몸과 마음의 활력이 넘치는 날입니다. 평소보다 컨디션이 좋아 활동적으로 움직이기 좋습니다. 이 에너지를 원하는 일에 마음껏 써보세요. 💪','건강 운이 최상입니다. 자기 관리에 시간을 투자해보세요. 지금의 좋은 컨디션을 유지할 습관을 하나 만들어보는 것도 좋습니다. 🌿','오늘 에너지가 풍부합니다. 가볍게 몸을 움직이기 좋은 날입니다. 산책이나 운동으로 활력을 더 끌어올려보세요. 🏃'],양호:['건강 상태가 전반적으로 양호합니다. 규칙적인 식사와 충분한 수분 섭취로 컨디션을 유지하세요. 지금의 좋은 습관을 계속 이어가는 것만으로도 충분합니다. 🥗','몸이 활기찬 날입니다. 가벼운 산책이나 스트레칭으로 몸을 깨워보세요. 활기가 하루 종일 이어질 수 있습니다. 🚶','건강 운이 좋습니다. 무리하지 않는 선에서 몸을 움직여보세요. 편안한 컨디션이 계속 이어지는 시기입니다. 🌙'],보통:['오늘은 몸의 신호에 귀를 기울이는 날입니다. 작은 불편함도 무시하지 말고 살펴보세요. 몸이 보내는 신호를 놓치지 않는 것이 중요합니다. 🍎','평소보다 피로감이 느껴질 수 있습니다. 충분한 수면으로 컨디션을 회복해보세요. 무리한 일정은 잠시 미뤄두는 것이 좋습니다. 😴','건강 관리에 평소보다 조금 더 신경 쓰는 날입니다. 가벼운 스트레칭이나 명상으로 몸과 마음을 다독여보세요. 작은 관리가 컨디션을 지켜줍니다. 🧘'],주의:['오늘 컨디션이 다소 좋지 않을 수 있습니다. 무리한 일정은 피하고 몸을 아껴주세요. 충분한 휴식이 최우선입니다. ⚠️','면역력이 약해질 수 있는 날입니다. 따뜻한 차 한 잔과 충분한 수면으로 몸을 보호해보세요. 감기 등 잔병치레에 유의하는 것이 좋습니다. 🍵','오늘은 무리한 운동을 자제하세요. 가벼운 스트레칭 정도로 몸을 풀어주는 것이 좋습니다. 오늘만큼은 휴식을 우선순위에 두세요. 🌿']}};
+const FORTUNE_SECTIONS={
+            총운:[
+                '오늘 당신의 전체적인 기운은 따뜻하고 안정적입니다. 지금까지 묵묵히 걸어온 당신의 발걸음이 드디어 빛을 발하기 시작하는 시기입니다. 서두르지 않아도 됩니다. 당신만의 속도와 방향이 있으며, 그것은 언제나 옳습니다. 주변의 작은 변화들에 귀를 기울이면 예상보다 훨씬 좋은 기회가 찾아올 것입니다. 오늘 하루, 스스로를 믿고 당당하게 나아가세요. 당신은 이미 충분합니다. ✨',
+                '오늘 하루 특별한 에너지가 당신의 주변을 포근히 감싸고 있습니다. 오래 고민하던 일들이 자연스럽게 풀려나가는 흐름이 느껴지는 날입니다. 때로는 힘들고 지치는 순간도 있었겠지만, 그 모든 순간들이 지금의 당신을 만들어주었습니다. 포기하지 않고 여기까지 온 당신이 정말 대단합니다. 오늘도 그 용기와 인내로 한 걸음 더 나아가보세요. 💫',
+                '오늘은 새로운 시작을 알리는 기운이 강하게 흐릅니다. 그동안 주저했던 일들을 시작하기에 더없이 좋은 날입니다. 완벽한 준비를 기다리기보다 지금 이 순간의 용기가 훨씬 더 중요합니다. 당신의 가능성은 스스로 생각하는 것보다 훨씬 넓고 깊습니다. 오늘 작은 한 걸음이 내일의 큰 변화를 만들어냅니다. 당신을 진심으로 응원합니다. 🌟',
+                '오늘 하루 인내심을 갖고 꾸준히 나아가는 것이 중요합니다. 눈에 보이지 않는 곳에서도 당신의 노력은 조용히 쌓이고 있습니다. 결과가 늦게 보인다고 해서 포기하지 마세요. 씨앗이 땅 속에서 오래 자라야 더 단단한 나무가 되듯, 당신의 노력도 반드시 아름다운 결실이 될 것입니다. 오늘도 당신의 길을 믿어주세요. 🌙',
+                '완벽하지 않아도 괜찮습니다. 매일 조금씩 성장하는 것으로 충분합니다. 오늘 하루 최선을 다하는 당신의 모습 자체가 이미 빛나고 있습니다. 스스로에게 너무 엄격하지 말고, 오늘만큼은 자신을 충분히 아껴주세요. 지금 이 순간 당신이 느끼는 감정들이 모두 소중하며, 그 감정들이 당신을 더욱 깊고 넓은 사람으로 만들어주고 있습니다. ⭐',
+            ],
+            애정운:['오늘 애정운이 따뜻하게 빛납니다. 솔직한 마음을 표현하는 것이 관계를 더욱 깊게 만들어줄 것입니다. 먼저 다가가는 용기가 아름다운 인연을 만들어냅니다.','소중한 사람에게 먼저 연락해보세요. 작은 관심과 배려가 관계를 더욱 풍요롭게 만들어줍니다. 진심은 반드시 상대방에게 전해집니다.','오늘은 감정을 솔직하게 표현하기 좋은 날입니다. 마음속에 담아두었던 말을 전해보세요. 진정한 소통이 더 깊은 유대감을 만들어줄 것입니다.','혼자가 아니라는 것을 기억하세요. 주변에 당신을 아끼는 사람들이 있습니다. 그 소중한 인연들에게 감사함을 표현해보세요.'],
+            금전운:['오늘 재물 흐름이 서서히 안정되어 가고 있습니다. 충동적인 소비보다는 계획적인 지출이 장기적으로 더 큰 여유를 만들어줍니다. 작은 절약이 모여 큰 안정이 됩니다.','오늘은 금전적인 결정을 내릴 때 신중함이 필요합니다. 서두르지 말고 충분히 검토한 후 판단하세요. 현명한 선택이 미래의 풍요를 만들어냅니다.','예상치 못한 수입이나 좋은 기회가 찾아올 수 있습니다. 열린 마음으로 새로운 가능성을 탐색해보세요. 기회는 항상 준비된 사람에게 찾아옵니다.','재물운이 조금씩 상승하는 흐름입니다. 꾸준한 노력이 경제적 안정으로 이어집니다. 오늘 하루도 성실하게 임하면 반드시 좋은 결과가 따라옵니다.'],
+            직장운:['오늘 직장에서 당신의 능력이 빛을 발하는 날입니다. 그동안 쌓아온 경험과 실력이 인정받을 수 있는 기회가 생깁니다. 자신감을 갖고 의견을 표현해보세요.','동료들과의 협력이 오늘 특히 중요합니다. 함께 나누는 아이디어가 더 큰 성과를 만들어냅니다. 소통하고 배려하는 자세가 팀 전체를 빛나게 합니다.','새로운 도전 앞에서 주저하지 마세요. 오늘은 용기 있게 한 발 나아가기 좋은 날입니다. 당신이 생각하는 것보다 훨씬 잘 해낼 수 있습니다.','업무에서 예상치 못한 기회나 제안이 올 수 있습니다. 열린 마음으로 받아들이고 적극적으로 임해보세요. 오늘의 작은 도전이 큰 성장으로 이어집니다.'],
+            학업운:['오늘 집중력이 높아지는 날입니다. 어렵게 느껴지던 내용도 오늘은 이해가 잘 될 것입니다. 꾸준한 노력이 반드시 좋은 결과로 돌아옵니다.','오늘 학습 의욕이 넘치는 날입니다. 새로운 것을 배우고 익히기에 최적의 기운이 흐릅니다. 지금 쌓는 지식이 미래의 든든한 자산이 됩니다.','포기하고 싶은 순간이 와도 한 걸음만 더 나아가보세요. 그 한 걸음이 전체를 바꿉니다. 당신의 노력은 절대 헛되지 않습니다.','오늘 예상보다 좋은 성과를 거둘 수 있는 날입니다. 자신을 믿고 최선을 다해보세요. 준비한 만큼 반드시 결과가 따라옵니다.'],
+            건강운:['오늘 몸과 마음의 균형에 신경 써주세요. 충분한 수면과 규칙적인 식사가 오늘의 활력을 높여줍니다. 자신을 아끼는 것이 모든 것의 시작입니다.','스트레스를 잘 관리하는 것이 중요한 날입니다. 잠깐의 휴식이 오히려 더 큰 에너지를 만들어냅니다. 자신에게 친절해지는 하루를 보내세요.','오늘 컨디션이 좋은 날입니다. 가벼운 운동이나 산책으로 활력을 높여보세요. 건강한 몸에 건강한 마음이 깃듭니다.','무리하지 말고 자신의 페이스를 지켜가세요. 건강은 가장 소중한 자산입니다. 오늘 하루 자신을 잘 돌봐주세요.'],
+            인간관계운:['오늘은 주변 사람들과의 관계에서 좋은 흐름이 이어집니다. 오랫동안 소원했던 사람과도 자연스럽게 다시 가까워질 수 있는 날입니다. 먼저 안부를 전하는 작은 용기가 좋은 인연으로 이어집니다.','사람들과의 교류에서 예상치 못한 도움을 얻을 수 있는 날입니다. 혼자 해결하려 애쓰기보다 주변에 마음을 열어보세요. 뜻밖의 조언이나 손길이 큰 힘이 되어줄 것입니다.','오늘은 말 한마디의 힘이 큰 날입니다. 상대방을 배려하는 따뜻한 말 한마디가 관계를 더욱 단단하게 만들어줍니다. 작은 오해는 먼저 다가가 풀어보는 것이 좋습니다.','새로운 사람과의 만남이 기대되는 날입니다. 처음 만나는 인연이라도 편안하게 마음을 열어보세요. 뜻밖의 좋은 인연으로 이어질 수 있습니다.','가까운 사람의 마음을 세심하게 살펴야 하는 날입니다. 사소한 다툼은 감정보다 대화로 풀어가는 것이 좋습니다. 진심 어린 한마디가 관계를 회복시켜 줍니다.'],
+        };
+        const LUCKY_ITEMS=[
+            '수정 팔찌','흰색 손수건','은반지','작은 거울','네잎클로버',
+            '파란 볼펜','노란 메모지','향초','초록 식물','나무 빗',
+            '실크 스카프','가죽 지갑','금색 열쇠고리','책갈피','작은 수첩',
+            '라벤더 향주머니','흰 조약돌','나침반','유리구슬','빨간 실',
+            '청금석','자수정','로즈쿼츠','흑요석','호안석',
+            '나비 모양 핀','달 모양 귀걸이','별자리 카드','조개껍데기','나무 연필',
+        ];
+/* ===== 오늘의 기운 맞춤 나들이 — 본 로직 (사주: 간이 계산 / 운세 문장: fortune.html 엔진 그대로) ===== */
+var ST=["갑","을","병","정","무","기","경","신","임","계"], STH=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+var BR=["자","축","인","묘","진","사","오","미","신","유","술","해"], BRH=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+var EL=["목","화","토","금","수"], ELH=["木","火","土","金","水"];
+var SE=[0,0,1,1,2,2,3,3,4,4], BE=[4,2,0,0,2,1,1,2,3,3,2,4];
+var ELCOLOR=["#16a34a","#ef4444","#d97706","#64748b","#2563eb"];
+var DOW=["일","월","화","수","목","금","토"];
+var DATA_URLS=["/data/kids_places.json","../data/kids_places.json","data/kids_places.json"];
+var DETAIL_URL=function(id){return "/festival/detail/"+id+".html";};
+var MAP_URL="/festival/";
+function jdn(y,m,d){var a=Math.floor((14-m)/12),y2=y+4800-a,m2=m+12*a-3;return d+Math.floor((153*m2+2)/5)+365*y2+Math.floor(y2/4)-Math.floor(y2/100)+Math.floor(y2/400)-32045;}
+function dayIdx(y,m,d){return (jdn(y,m,d)+49)%60;}
+function monthBranch(m,d){var t=[[12,7,0],[11,7,11],[10,8,10],[9,8,9],[8,8,8],[7,7,7],[6,6,6],[5,6,5],[4,5,4],[3,6,3],[2,4,2],[1,6,1]];
+  for(var i=0;i<t.length;i++){if(m>t[i][0]||(m==t[i][0]&&d>=t[i][1]))return t[i][2];}return 0;}
+function pillars(y,m,d,h){
+  var ly=(m>2||(m==2&&d>=4))?y:y-1, ys=((ly-4)%10+10)%10, yb=((ly-4)%12+12)%12;
+  var mb=monthBranch(m,d), base=((ys%5)*2+2)%10, ms=(base+((mb-2+12)%12))%10;
+  var di=dayIdx(y,m,d), ds=di%10, db=di%12, P=[{k:"년",s:ys,b:yb},{k:"월",s:ms,b:mb},{k:"일",s:ds,b:db}];
+  if(h>=0){var hs=((ds%5)*2+h)%10; P.push({k:"시",s:hs,b:h});}
+  return P;}
+function hashStr(s){var h=7;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
+var REL={
+ "인성":{label:"채우고 배우는 날",pref:"실내"},"비화":{label:"함께 움직이는 날",pref:"실외"},
+ "식상":{label:"표현하고 노는 날",pref:"체험"},"재성":{label:"발품이 보람 되는 날",pref:"실외"},"관성":{label:"차분히 걷는 날",pref:"실외"}};
+var LACK={"목":"숲·공원·정원","화":"따뜻한 체험·활기찬 놀이","토":"박물관·농장·흙길","금":"과학·전시·공예","수":"물가·호수·바다"};
+var KW=[["숲","공원","수목원","정원","산책","나무","생태","휴양림","둘레길","식물","꽃","잔디","자연"],
+        ["놀이","체험","키즈","짚라인","썰매","에어바운스","레일바이크","모노레일","축제","공방","만들기","놀이공원","액티비티"],
+        ["박물관","농장","목장","갯벌","역사","유적","민속","도자","전통","한옥","교육","체험농","마을"],
+        ["과학","전시","미술관","공예","로봇","천문","기념관","항공","디지털","미디어아트","도서관","아트"],
+        ["바다","해변","해수욕장","호수","강","계곡","물놀이","수족관","아쿠아","워터","저수지","습지","해안","폭포","물"]];
+function relOf(me,t){if(t==me)return"비화";if((t+1)%5==me)return"인성";if((me+1)%5==t)return"식상";if((me+2)%5==t)return"재성";return"관성";}
+var SIDO={"서울특별시":"서울","서울":"서울","인천광역시":"인천","경기도":"경기","경기":"경기","부산광역시":"부산","대구광역시":"대구","대구":"대구","대전광역시":"대전","대전":"대전","광주광역시":"광주","울산광역시":"울산","세종특별자치시":"세종","강원특별자치도":"강원","강원도":"강원","충청북도":"충북","충청남도":"충남","전북특별자치도":"전북","전라북도":"전북","전라남도":"전남","경상북도":"경북","경상남도":"경남","제주특별자치도":"제주","전남광주통합특별시":"전남"};
+var PLACES=[];
+function prep(raw){
+  return raw.filter(function(p){return !p.hidden&&p.lat&&p.lng;}).map(function(p){
+    var t=(p.addr||"").split(/\s+/);p._r=SIDO[t[0]]||t[0];p._s=t[1]||"";
+    var txt=(p.title+" "+(p.desc||"")+" "+(p.overview||"").slice(0,300)),best=-1,bs=0;
+    KW.forEach(function(ws,i){var c=0;ws.forEach(function(w){if(txt.indexOf(w)>=0)c++;});if(c>bs){bs=c;best=i;}});
+    p._e=best;p._x=/체험|만들기|공방|키즈|놀이/.test(txt);p._walk=/공원|산책|둘레길|숲|호수|해변/.test(txt);return p;});}
+function loadPlaces(cb,i){i=i||0;if(i>=DATA_URLS.length){cb(new Error("data"));return;}
+  fetch(DATA_URLS[i]).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){PLACES=prep(j);cb();}).catch(function(){loadPlaces(cb,i+1);});}
+function seasonOf(m){return m==12||m<=2?"winter":m<=5?"spring":m<=8?"summer":"fall";}
+function inSeason(p,m){var st=p.seasonTag;if(st&&st.length&&st.indexOf(seasonOf(m))<0)return false;
+  var th=p.themes;if(th){var a=[].concat(th);if(a.indexOf("cherry")>=0&&!(m==3||m==4))return false;if(a.indexOf("foliage")>=0&&!(m==10||m==11))return false;if(a.indexOf("winter")>=0&&!(m==12||m<=2))return false;}return true;}
+function km(a,b){var R=6371,dr=Math.PI/180,dl=(b.lat-a.lat)*dr,dn=(b.lng-a.lng)*dr,x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a.lat*dr)*Math.cos(b.lat*dr)*Math.sin(dn/2)*Math.sin(dn/2);return 2*R*Math.asin(Math.sqrt(x));}
+function todayFortune(y,m,d){
+  var chinese=getChineseZodiac(y),zodiac=getZodiacSign(m,d),tab="today",S=function(s){return _fortuneSeed(y,m,d,tab+s);};
+  var raw={total:_seededInt(S("총운"),40)+55,love:_seededInt(S("애정"),40)+55,money:_seededInt(S("금전"),40)+55,work:_seededInt(S("직장"),40)+55,health:_seededInt(S("건강"),40)+55};
+  var tier=function(s){return s>=85?"최상":s>=70?"양호":s>=55?"보통":"주의";};
+  var pick=function(pool,key,seed){if(!pool||!pool[key])return null;var a=pool[key];return a[_seededInt(seed,a.length)];};
+  var sec=[{l:"🌟 총운",t:pick(CHINESE_FORTUNE,chinese.name,S("총운"))||seededRnd(SCORE_TONE.총운[tier(raw.total)],S("총운"))},
+   {l:"❤️ 애정운",t:pick(ZODIAC_LOVE,zodiac.name,S("애정"))||seededRnd(FORTUNE_SECTIONS.애정운,S("애정"))},
+   {l:"💰 금전운",t:seededRnd(SCORE_TONE.금전[tier(raw.money)],S("금전"))},
+   {l:"💼 직장운",t:seededRnd(SCORE_TONE.직장[tier(raw.work)],S("직장"))},
+   {l:"💪 건강운",t:seededRnd(SCORE_TONE.건강[tier(raw.health)],S("건강"))}];
+  var adj=applyAdjustments(raw.total,raw.money,raw.health,raw.love);
+  return {sec:sec,score:adj.total,rating:seededRnd(RATINGS,S("rating")),color:seededRnd(COLORS,S("color")),item:seededRnd(LUCKY_ITEMS,S("item")),chinese:chinese,zodiac:zodiac};}
+function calc(o){
+  var P=pillars(o.y,o.m,o.d,o.h),now=o.today,ty=now.getFullYear(),tm=now.getMonth()+1,td=now.getDate(),ti=dayIdx(ty,tm,td);
+  var ts=ti%10,me=SE[P[2].s],tel=SE[ts],rel=relOf(me,tel),R=REL[rel];
+  var cnt=[0,0,0,0,0];P.forEach(function(p){cnt[SE[p.s]]++;cnt[BE[p.b]]++;});
+  var lack=0,strong=0;for(var i=1;i<5;i++){if(cnt[i]<cnt[lack])lack=i;if(cnt[i]>cnt[strong])strong=i;}
+  var F=todayFortune(o.y,o.m,o.d),seed=hashStr(o.y+"-"+o.m+"-"+o.d+"|"+ty+"-"+tm+"-"+td);
+  var cand=PLACES.filter(function(p){return(o.region==="전체"||p._r===o.region)&&(o.sub==="전체"||p._s===o.sub)&&inSeason(p,tm)&&(!o.free||/무료/.test(p.costTag||""))&&(!o.indoor||p.placeType!=="실외");});
+  var winter=(tm==12||tm<=2);
+  cand.forEach(function(p){var s=0;if(p._e===lack)s+=3;if(p._e===tel)s+=1;
+    if(R.pref==="실내"&&p.placeType!=="실외")s+=2;
+    if(R.pref==="실외"&&p.placeType!=="실내")s+=2;if(R.pref==="실외"&&p._walk)s+=0.5;
+    if(R.pref==="체험"&&(p._x||p.placeType!=="실외"))s+=2;
+    if(winter&&p.placeType!=="실외")s+=1;if(p.hasDetail)s+=0.3;
+    s+=(hashStr(p.contentid+seed)%100)/100;p._s0=s;});
+  cand.sort(function(a,b){return b._s0-a._s0;});
+  var picks=[];
+  if(cand.length){picks.push(cand[0]);
+    var rest=cand.slice(1,80).map(function(p){var d=km(cand[0],p),b=d<12?1.5:d<30?0.8:d<60?0:-1.5;return {p:p,s:p._s0+b,d:d};}).sort(function(a,b){return b.s-a.s;});
+    for(var k=0;k<rest.length&&picks.length<3;k++){
+      var dup=picks.some(function(q){return q.title===rest[k].p.title||q.title.slice(0,4)===rest[k].p.title.slice(0,4);});if(!dup){rest[k].p._d=rest[k].d;picks.push(rest[k].p);}}}
+  picks=picks.map(function(p){var why=[];
+    if(p._e===lack)why.push("부족한 "+EL[lack]+"("+ELH[lack]+") 기운을 채워 주는 "+LACK[EL[lack]]+" 성격");
+    if(R.pref==="실내"&&p.placeType!=="실외")why.push("차분히 채우는 날에 맞는 실내 코스");
+    if(R.pref==="실외"&&p.placeType!=="실내")why.push("몸을 움직이기 좋은 날에 맞는 야외 코스");
+    if(R.pref==="체험"&&(p._x||p.placeType!=="실외"))why.push("표현하고 체험하기 좋은 날에 맞는 코스");
+    if(!why.length)why.push("오늘의 흐름과 무리 없이 어울리는 곳");
+    return {p:p,why:why[0]};});
+  return {P:P,cnt:cnt,lack:lack,strong:strong,rel:rel,R:R,F:F,picks:picks,tel:tel,o:o,total:cand.length};}
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function ymdStr(d){return d.getFullYear()+"년 "+(d.getMonth()+1)+"월 "+d.getDate()+"일 ("+DOW[d.getDay()]+")";}
+function cut(s,n){s=String(s||"");return s.length>n?s.slice(0,n-1)+"…":s;}
+function costLabel(c){return c==="완전무료"?"무료":c==="유료(일부 무료 조건 있음)"?"일부 무료":(c||"확인 필요");}
+function fillForm(){var fy=el("fy"),fm=el("fm"),fd=el("fd"),fh=el("fh"),fr=el("fr"),i;
+  for(i=2010;i>=1930;i--)fy.innerHTML+='<option value="'+i+'">'+i+'년</option>';
+  for(i=1;i<=12;i++)fm.innerHTML+='<option value="'+i+'">'+i+'월</option>';
+  for(i=1;i<=31;i++)fd.innerHTML+='<option value="'+i+'">'+i+'일</option>';
+  fh.innerHTML='<option value="-1">태어난 시간 모름</option>';
+  var hn=["자시(23~01시)","축시(01~03시)","인시(03~05시)","묘시(05~07시)","진시(07~09시)","사시(09~11시)","오시(11~13시)","미시(13~15시)","신시(15~17시)","유시(17~19시)","술시(19~21시)","해시(21~23시)"];
+  for(i=0;i<12;i++)fh.innerHTML+='<option value="'+i+'">'+hn[i]+'</option>';
+  var rs=["서울","인천","경기","부산","대구","대전","광주","울산","세종","강원","충북","충남","전북","전남","경북","경남","제주"];
+  fr.innerHTML='<option>전체</option>'+rs.map(function(r){return '<option>'+r+'</option>';}).join("");
+  fy.value=1990;fm.value=5;fd.value=15;fh.value=-1;fr.value="인천";fillSub();}
+function fillSub(){var r=el("fr").value,s={};PLACES.forEach(function(p){if(r==="전체"||p._r===r){s[p._s]=(s[p._s]||0)+1;}});
+  var keys=Object.keys(s).filter(Boolean).sort();el("fs").innerHTML='<option>전체</option>'+keys.map(function(k){return '<option>'+esc(k)+'</option>';}).join("");}
+function readForm(){return {y:+el("fy").value,m:+el("fm").value,d:+el("fd").value,h:+el("fh").value,region:el("fr").value,sub:el("fs").value,free:el("ffree").checked,indoor:el("fin").checked,today:new Date()};}
+function run(){
+  var R=calc(readForm()),o=R.o,h="",F=R.F;
+  h+='<div class="card"><h2>② 오늘운세 · '+ymdStr(o.today)+'</h2><div class="fz"><div class="score">'+F.score+'점 <span style="font-size:14px;color:#6b7280">'+F.chinese.emoji+' '+F.chinese.name+' · '+F.zodiac.emoji+' '+F.zodiac.name+' · '+F.rating+'</span></div>';
+  F.sec.forEach(function(s){h+='<p><b>'+s.l+'</b> — '+esc(s.t)+'</p>';});
+  h+='<p><span class="chip">행운의 색 '+esc(F.color)+'</span><span class="chip">행운 아이템 '+esc(F.item)+'</span></p></div></div>';
+  h+='<div class="card"><h2>③ 간단 사주 · 오늘의 기운</h2><div class="pil">';
+  R.P.slice().reverse().forEach(function(p){h+='<div><span>'+p.k+'주</span><b>'+STH[p.s]+BRH[p.b]+'</b><span>'+ST[p.s]+BR[p.b]+' · '+EL[SE[p.s]]+'/'+EL[BE[p.b]]+'</span></div>';});
+  h+='</div><div class="bar">';R.cnt.forEach(function(c,i){if(c)h+='<div style="flex:'+c+';background:'+ELCOLOR[i]+'"></div>';});h+='</div><div class="legend">';
+  R.cnt.forEach(function(c,i){h+=EL[i]+ELH[i]+' '+c+'　';});
+  h+='</div><p style="font-size:14px;line-height:1.9;margin-top:8px"><span class="chip">강한 기운 '+EL[R.strong]+'</span><span class="chip">부족한 기운 '+EL[R.lack]+'</span><span class="chip">오늘 '+R.rel+' · '+R.R.label+'</span><br>오늘은 '+EL[R.tel]+' 기운이 들어오는 날이라, 부족한 '+EL[R.lack]+' 기운을 '+LACK[EL[R.lack]]+' 쪽에서 채워 보시길 권합니다.</p></div>';
+  var loc=o.region+(o.sub!=="전체"?" "+o.sub:"");
+  h+='<div class="card"><h2>④ 오늘 어울리는 나들이 '+R.picks.length+'곳 · '+esc(loc)+'</h2>';
+  R.picks.forEach(function(x,i){var p=x.p;
+    h+='<div class="pick"><div class="no">'+(i+1)+'</div><div><h3><a href="'+DETAIL_URL(p.contentid)+'" target="_blank" rel="noopener">'+esc(p.title)+'</a> <span class="chip">'+esc(p.placeType)+'</span><span class="chip">'+esc(costLabel(p.costTag))+'</span></h3>'
+     +'<p>'+esc(p.desc)+'<br>📍 '+esc(p.addr)+(p._d!=null&&i>0?' <span class="dim">(첫 장소에서 약 '+Math.round(p._d)+'km)</span>':'')+'<br>👉 '+esc(x.why)
+     +(p.ageWarning?'<br><span class="warn">⚠️ 방문 전 확인: '+esc(cut(p.ageWarning,70))+'</span>':'')+'</p></div></div>';});
+  if(!R.picks.length)h+='<p>조건에 맞는 장소가 없습니다. 지역이나 필터를 바꿔 보세요.</p>';
+  h+='<p class="note">조건에 맞는 장소 '+R.total+'곳 중에서 골랐습니다. 장소 이름을 누르면 상세 안내로 이동합니다.</p></div>';
+  var pk=R.picks,tm=["오전 10:00","오후 13:30","오후 15:30"],ms=["도착해서 가볍게 둘러보기","점심 뒤 활동 중심으로","여유 있게 마무리 (운영시간 확인)"];
+  h+='<div class="card"><h2>⑤ 오늘의 일정표 · 정리표</h2><table><tr><th>시간</th><th>장소</th><th>유형·비용</th><th>요금·운영 안내</th><th>메모</th></tr>';
+  pk.forEach(function(x,i){var p=x.p;h+='<tr><td>'+tm[i]+'</td><td><b>'+esc(p.title)+'</b><br><span class="dim">'+esc(cut(p.addr,30))+'</span></td><td>'+esc(p.placeType)+' · '+esc(costLabel(p.costTag))+'</td><td class="sm">'+esc(cut(p.fee||"방문 전 확인",50))+'<br>'+esc(cut(p.hours||"",50))+'</td><td>'+ms[i]+'</td></tr>';});
+  h+='</table><p class="note">요금과 운영시간은 바뀔 수 있으니 방문 전 공식 안내를 꼭 확인해 주세요.</p></div>';
+  el("out").innerHTML=h;}
+function loadScript(src,cb){var s=document.createElement("script");s.src=src;s.onload=function(){cb();};s.onerror=function(){cb(new Error("load"));};document.head.appendChild(s);}
+function savePdf(areaId,name){
+  var btn=el("pdfBtn");if(btn){btn.disabled=true;btn.textContent="PDF 만드는 중…";}
+  function done(){if(btn){btn.disabled=false;btn.textContent="📄 PDF로 저장";}}
+  function go(){try{var node=el(areaId);
+    window.html2canvas(node,{scale:2,backgroundColor:"#ffffff",useCORS:true}).then(function(cv){
+      var J=window.jspdf.jsPDF,pdf=new J("p","mm","a4"),W=210,H=297,m=8,iw=W-m*2,pageH=H-m*2,pos=0,pxPage=Math.floor(cv.width*pageH/iw);
+      while(pos<cv.height){var c2=document.createElement("canvas");c2.width=cv.width;c2.height=Math.min(pxPage,cv.height-pos);
+        c2.getContext("2d").drawImage(cv,0,pos,cv.width,c2.height,0,0,cv.width,c2.height);
+        if(pos>0)pdf.addPage();pdf.addImage(c2.toDataURL("image/jpeg",0.92),"JPEG",m,m,iw,c2.height*iw/cv.width);pos+=pxPage;}
+      pdf.save(name+".pdf");done();}).catch(function(){done();window.print();});}catch(e){done();window.print();}}
+  if(window.html2canvas&&window.jspdf){go();return;}
+  loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",function(e1){if(e1){done();window.print();return;}
+    loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",function(e2){if(e2){done();window.print();return;}go();});});}
+function boot(){fillForm();loadPlaces(function(err){if(err){el("out").innerHTML='<div class="card"><p>장소 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p></div>';return;}fillSub();el("fr").onchange=fillSub;run();});}
+
+boot();
+</script></body></html>
