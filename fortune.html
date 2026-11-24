@@ -2701,7 +2701,7 @@ ${info.usage}`;
         }
         function monthJJ(month) { return (month + 1) % 12; } // 인(寅)=2월
 
-        // 일주 (갑자일 기준: 2000-01-01 = 갑진일 → 갑=0, 진=4)
+        // 일주 (2000-01-01 = 무오일 → 무=4, 오=6)
         function dayPillar(year, month, day) {
             // Julian Day Number 기반
             const a = Math.floor((14 - month) / 12);
@@ -2709,10 +2709,10 @@ ${info.usage}`;
             const m = month + 12 * a - 3;
             const jdn = day + Math.floor((153*m+2)/5) + 365*y
                 + Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400) - 32045;
-            const base = 2451545; // 2000-01-01 JDN (갑진일 → cg=0,jj=4)
+            const base = 2451545; // 2000-01-01 JDN = 무오(戊午)일 → cg=4(무), jj=6(오)  ※2026-11-24 수정: 기존엔 갑자 기준이라 일주가 어긋났음
             const diff = jdn - base;
-            const cg = ((diff % 10) + 10) % 10;
-            const jj = ((diff % 12) + 12) % 12;
+            const cg = (((diff + 4) % 10) + 10) % 10;
+            const jj = (((diff + 6) % 12) + 12) % 12;
             return {cg, jj};
         }
 
