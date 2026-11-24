@@ -1,0 +1,28 @@
+name: 🧹 옛 링크 버튼 제거 (1회성)
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "true면 실제 수정, false면 미리보기만"
+        required: true
+        default: "false"
+
+jobs:
+  remove_buttons:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 버튼 제거
+        env:
+          BLOG_ID: ${{ secrets.BLOG_ID }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          APPLY: ${{ github.event.inputs.apply }}
+        run: python remove_old_buttons.py
