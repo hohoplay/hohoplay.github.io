@@ -195,10 +195,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F7F6F0;color:#333;padding
 # ─────────────────────────────────────────
 GEMINI_MODEL_CANDIDATES = [
     "gemini-3.1-flash-lite",
+    "gemini-3.5-flash-lite",   # 서로 다른 모델은 수용량이 따로라, 한쪽이 과부하여도 다른 쪽은 될 수 있음
     "gemini-flash-latest",
+    "gemini-3.6-flash",
 ]
 _GEMINI_CONFIG = types.GenerateContentConfig(max_output_tokens=8192)
-_RETRYABLE_MARKERS = ("UNAVAILABLE", "RESOURCE_EXHAUSTED", "DEADLINE_EXCEEDED", "503", "429")
+_RETRYABLE_MARKERS = ("UNAVAILABLE", "RESOURCE_EXHAUSTED", "DEADLINE_EXCEEDED", "INTERNAL",
+                      "503", "500", "429")
+_MODEL_GONE_MARKERS = ("NOT_FOUND", "404")   # 후보 모델이 없어진 경우 — 그 모델만 건너뛰고 나머지로 계속
+GEMINI_ROUNDS = 3                            # 전체 후보를 몇 바퀴 시도할지
+GEMINI_ROUND_WAITS = (30, 60)                # 바퀴 사이 대기 초 (과부하는 보통 수 분 안에 풀림)
 
 
 def _is_retryable(err):
@@ -206,13 +212,19 @@ def _is_retryable(err):
     return any(marker in msg for marker in _RETRYABLE_MARKERS)
 
 
+def _is_model_gone(err):
+    msg = str(err)
+    return any(marker in msg for marker in _MODEL_GONE_MARKERS)
+
+
 def _call_gemini_with_fallback(client, prompt):
-    """모델 후보를 순서대로 시도하고, 전원이 '일시적' 오류로만 실패하면 30초 뒤 전체를 한 번 더 시도."""
+    """모델 후보를 순서대로 시도하고, 전원이 '일시적' 오류로만 실패하면 대기 후 전체를 다시 시도(최대 GEMINI_ROUNDS 바퀴)."""
     last_err = None
-    for attempt in range(2):
+    for attempt in range(GEMINI_ROUNDS):
         if attempt > 0:
-            print("  ⏳ 모든 모델이 일시적 오류(과부하 등)로 실패 — 30초 대기 후 전체 재시도")
-            time.sleep(30)
+            wait = GEMINI_ROUND_WAITS[min(attempt - 1, len(GEMINI_ROUND_WAITS) - 1)]
+            print(f"  ⏳ 모든 모델이 일시적 오류(과부하 등)로 실패 — {wait}초 대기 후 전체 재시도 ({attempt + 1}/{GEMINI_ROUNDS}바퀴)")
+            time.sleep(wait)
 
         all_retryable = True
         for model_name in GEMINI_MODEL_CANDIDATES:
@@ -227,7 +239,7 @@ def _call_gemini_with_fallback(client, prompt):
             except Exception as e:
                 print(f"  ⚠️ 모델 '{model_name}' 실패: {e} — 다음 후보로 재시도합니다.")
                 last_err = e
-                if not _is_retryable(e):
+                if not _is_retryable(e) and not _is_model_gone(e):
                     all_retryable = False
 
         if not all_retryable:
@@ -688,17 +700,16 @@ def generate_post(card, fact_map, recent_history):
     client = genai.Client(api_key=GEMINI_API_KEY)
     feedback = ""
     ever_parsed = False
-    last_infra_err = None
 
     for attempt in range(MAX_ATTEMPTS):
         prompt = build_prompt(card, fact_map, recent_history, feedback=feedback)
         try:
             raw = _call_gemini_with_fallback(client, prompt)
         except Exception as e:
+            # 이미 여러 바퀴 재시도한 뒤의 실패 — 서버 문제이므로 더 두드리지 않고 인프라 오류로 알린다
+            # (게이트 미달이 아니므로 카드의 연속 실패 횟수에는 들어가지 않는다)
             print(f"  ⚠️ Gemini 생성 실패({attempt + 1}/{MAX_ATTEMPTS}): {e}")
-            last_infra_err = e
-            feedback = ""
-            continue
+            raise RuntimeError(f"Gemini 응답을 받지 못했습니다. 마지막 에러: {e}")
 
         sections = _parse_sections(raw)
         if sections is None:
@@ -720,7 +731,7 @@ def generate_post(card, fact_map, recent_history):
                     "보강해서 다시 작성하세요.")
 
     if not ever_parsed:
-        raise RuntimeError(f"Gemini 응답을 한 번도 정상적으로 받지 못했습니다. 마지막 에러: {last_infra_err}")
+        raise RuntimeError("Gemini 응답이 매번 지정한 구분자 형식을 지키지 않아 파싱하지 못했습니다.")
     print("  ❌ 게이트를 끝내 통과하지 못해 이번 카드는 발행을 보류합니다(인프라 문제 아님).")
     raise ContentQualityError(card["id"])
 
