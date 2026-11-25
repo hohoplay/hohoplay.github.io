@@ -553,6 +553,10 @@ TITLE/INTRO/ACTIONS/OPTIONS/BRANCHES/STEPS/FAQ/CLOSING은 필수이며, SUMMARY/
   "제가 경험한 바로는". 이 블로그는 직접 방문·체험 콘텐츠가 아닙니다.
 
 [안전 규칙]
+- 사실에 적힌 서술의 강도와 범위를 바꾸지 마세요. "마쳐야 한다"는 "~이내에 마치도록 정해져 있습니다"처럼 기한임을 밝히고,
+  "이내에 완료됩니다", "이내에 나옵니다"처럼 결과를 보장하는 말로 바꾸지 마세요. 기한이 연장되어 늦어질 수 있는 경우에는
+  그 점을 함께 쓰세요. 사실의 자격·조건을 더 넓은 대상에 적용하는 문장도 쓰지 마세요.
+- "분기"라는 단어는 글에 쓰지 말고 "상황별"로 쓰세요.
 - 의료적 진단이나 처방, 법률 판단으로 읽힐 수 있는 단정은 하지 말고, 최종 확인은 해당 기관에 문의하도록
   안내하세요. 법령이나 제도는 바뀔 수 있다는 점을 자연스럽게 밝히세요.
 - 보호자의 죄책감이나 불안을 자극하는 표현("방치하면 큰일 납니다" 등)은 쓰지 마세요.
@@ -581,7 +585,11 @@ _BANNED_HARD = [
     "도움이 되셨으면 좋겠습니다", "누구나 한 번쯤", "아련한 추억", "의 매력과 가치", "를 바탕으로 살펴보면",
     "데이터를 바탕으로 분석한 결과", "직접 가봤더니", "다녀와 보니", "제가 경험한 바로는", "먹어봤는데", "써 보니",
     "반드시", "절대", "틀림없이", "확실히", "100%",
+    "분기별", "분기",
 ]
+
+# 법정 기한을 결과 보장처럼 단정하는 표현(예: "30일 이내에 완료됩니다")
+_DEADLINE_ASSERT_RE = re.compile(r"이내에\s*(?:등급\s*판정이\s*|결과가\s*|심사가\s*)?(?:완료|나옵|나오게|끝납|끝나|이뤄|이루어|확정)")
 
 # 기관·단체 이름으로 보이는 표현(앞에 한글 2자 이상 + 기관 접미어)
 _AGENCY_RE = re.compile(
@@ -668,6 +676,8 @@ def check_gates(card, fact_map, sections, optional):
         problems.append(f"금지 표현 포함: {', '.join(banned)}")
     if _FORBIDDEN_MARKUP_RE.search(scan_text):
         problems.append("소제목·표·링크·주소 등 지정하지 않은 마크업 포함")
+    if _DEADLINE_ASSERT_RE.search(_visible_text(scan_text)):
+        problems.append("법정 기한을 결과 보장처럼 단정함 ('~이내에 완료/나옵니다' 금지 — '~이내에 마치도록 정해져 있고 연장될 수 있다'로)")
 
     # 4. 구조 일치
     for key, expected, label in (("actions", len(card["today_actions"]), "오늘 할 일"),
@@ -778,15 +788,35 @@ def _korean_date(iso):
 
 
 def _build_sources(card, fact_map):
-    seen, items = set(), []
+    """같은 주소는 한 줄로 묶는다. 법령 조문은 '노인장기요양보험법 제12조·제13조…' 형태로 합친다."""
+    groups = {}                      # 주소 → 출처 문자열 목록 (입력 순서 유지)
     for key in card["fact_refs"]:
         f = fact_map[key]
-        pair = (f.get("source", ""), f.get("source_url", ""))
-        if pair in seen or not pair[0]:
+        src = f.get("source", "")
+        if not src:
             continue
-        seen.add(pair)
-        link = f' (<a href="{_e(pair[1])}">원문 보기</a>)' if pair[1] else ""
-        items.append(f"<li>{_e(pair[0])}{link}</li>")
+        groups.setdefault(f.get("source_url", ""), []).append(src)
+
+    items = []
+    for url, srcs in groups.items():
+        law_nums, others = [], []
+        for src in srcs:
+            for part in (p.strip() for p in src.split(",")):
+                if not part:
+                    continue
+                if part.startswith("노인장기요양보험법") or re.match(r"^제\d+조", part):   # "법 제2조, 제12조"의 뒤쪽 조문도 법령으로 묶음
+                    for n in re.findall(r"제(\d+)조", part):
+                        if n not in law_nums:
+                            law_nums.append(n)
+                elif part not in others:
+                    others.append(part)
+        label_parts = []
+        if law_nums:
+            label_parts.append("노인장기요양보험법 " + "·".join(f"제{n}조" for n in sorted(law_nums, key=int)))
+        label_parts += others
+        label = ", ".join(label_parts)
+        link = f' (<a href="{_e(url)}">원문 보기</a>)' if url else ""
+        items.append(f"<li>{_e(label)}{link}</li>")
     return ('<div class="ref-block"><div class="box-label">📎 이 글의 근거 자료</div><ul>'
             + "".join(items) + "</ul></div>") if items else ""
 
