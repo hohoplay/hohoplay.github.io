@@ -1,0 +1,62 @@
+name: 🧭 돌봄 이럴땐이렇게 자동 발행
+
+on:
+  schedule:
+    - cron: '30 0 * * 3'   # 매주 수요일 KST 09:30 (UTC 00:30) — 돌봄상식(일요일)과 요일을 분리해 동시 커밋 충돌 방지
+  workflow_dispatch:        # 수동 실행
+    inputs:
+      count:
+        description: '이번 실행에서 발행할 글 개수 (평소엔 1)'
+        required: false
+        default: '1'
+
+jobs:
+  publish_dolbom_when:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write   # dolbom_when_state.json 커밋·푸시를 위해 필요 (기본은 읽기 전용)
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v5
+
+      - name: 🐍 Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: 📦 패키지 설치
+        run: pip install requests google-genai
+
+      - name: 🧭 이럴땐이렇게 생성 및 발행
+        env:
+          BLOG_ID: ${{ secrets.DOLBOM_BLOG_ID }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DATA_DIR: ${{ github.workspace }}/data
+        run: |
+          COUNT="${{ github.event.inputs.count }}"
+          COUNT="${COUNT:-1}"
+          python scripts/create_dolbom_when.py --count "$COUNT"
+
+      # ─────────────────────────────────────────────────────────
+      # dolbom_when_state.json(발행한 카드 기록)만 커밋합니다.
+      # 카드 파일(dolbom_when_cards.json)과 사실표(dolbom_fact_sheet.json)는
+      # 사람이 수정하는 파일이라 이 워크플로우에서는 읽기만 하고 커밋하지 않습니다.
+      # 돌봄상식의 dolbom_knowledge_state.json 도 건드리지 않습니다.
+      # ─────────────────────────────────────────────────────────
+      - name: 💾 진행 상태 커밋
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -f data/dolbom_when_state.json ]; then
+            git add data/dolbom_when_state.json
+            git diff --staged --quiet || git commit -m "🧭 이럴땐이렇게 발행 기록 업데이트 $(date +'%Y-%m-%d')"
+            git pull --rebase
+            git push
+          else
+            echo "ℹ️ dolbom_when_state.json 없음 — 이번 실행에서 발행 성공이 없었던 것으로 보입니다. 커밋 생략."
+          fi
