@@ -66,6 +66,17 @@ def apply_robots(page, slug):
         return CANONICAL_RE.sub(lambda m: m.group(1) + '\n    ' + ROBOTS, page, count=1)
     return _NOINDEX_META_RE.sub('', page)
 
+# [2026-11-27] 코스 글 본문 글자 드래그(선택) 방지. 입력칸·.allow-copy 는 선택 가능. 상세페이지(fetch_data.NOCOPY_STYLE)와 같은 CSS.
+NOCOPY_STYLE = '<style id="hp-nocopy">html,body{-webkit-user-select:none;user-select:none}input,textarea,select,[contenteditable="true"],.allow-copy{-webkit-user-select:text;user-select:text}img{-webkit-user-drag:none;user-drag:none}</style>'
+
+
+def apply_nocopy(page):
+    """</head> 앞에 드래그 방지 CSS 한 줄을 넣는다(이미 있으면 그대로)."""
+    if 'id="hp-nocopy"' in page or '</head>' not in page:
+        return page
+    return page.replace('</head>', NOCOPY_STYLE + '\n</head>', 1)
+
+
 # 장소 3곳 이하이고 본문이 2,000자 미만이던 글 (2026-10-28 기준).
 NOINDEX_FILES = {'busan-buk.html', 'busan-suyeong.html', 'busan-yeongdo.html'}
 
