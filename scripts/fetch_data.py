@@ -1607,6 +1607,47 @@ def _kids_region_of(addr):
     return None
 
 
+def visible_kids(places):
+    """[ADD] 2026-11-26: 지도·목록에 실제로 보이는 장소만 센다(hidden=true 제외). 장소 수를 말하는 모든 문구가 이 값을 쓴다."""
+    return [p for p in places if isinstance(p, dict) and not p.get('hidden')]
+
+
+KIDS_COUNT_START = '<!-- KIDS_COUNT_START -->'
+KIDS_COUNT_END = '<!-- KIDS_COUNT_END -->'
+# 처음 한 번만 쓰이는 옛 고정 문구("…정리한 570여 곳입니다") — 마커로 바꿔 넣는다.
+_KIDS_COUNT_LEGACY_RE = re.compile(r'(요금과 운영시간까지 정리한 )\d[\d,]*\s*여?\s*곳(입니다)')
+_KIDS_COUNT_MARKED_RE = re.compile(re.escape(KIDS_COUNT_START) + r'.*?' + re.escape(KIDS_COUNT_END) + r'\s*곳', re.S)
+
+
+def update_kids_count_text():
+    """[ADD] 2026-11-26: festival/index.html 소개문의 '아이랑 갈 만한 곳 N곳'을 data/kids_places.json 기준으로 갱신한다.
+    예전에는 '570여 곳'이 손으로 적혀 있어 지역별 요약(676곳)과 어긋났다. 이제 마커 사이를 매번 다시 쓴다."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    map_path = os.path.join('festival', 'index.html')
+    if not (os.path.exists(kids_path) and os.path.exists(map_path)):
+        print('아이랑 장소 수 문구 갱신 건너뜀(파일 없음)')
+        return
+    with open(kids_path, 'r', encoding='utf-8') as f:
+        n = len(visible_kids(json.load(f)))
+    if n < 20:
+        print('kids_places.json 장소가 너무 적어(수신·파일 이상 의심) 장소 수 문구 갱신 건너뜀')
+        return
+    with open(map_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    marked = f'{KIDS_COUNT_START}{n}{KIDS_COUNT_END}곳'
+    if _KIDS_COUNT_MARKED_RE.search(content):
+        updated = _KIDS_COUNT_MARKED_RE.sub(lambda m: marked, content, count=1)
+    elif _KIDS_COUNT_LEGACY_RE.search(content):
+        updated = _KIDS_COUNT_LEGACY_RE.sub(lambda m: m.group(1) + marked + m.group(2), content, count=1)
+    else:
+        print('장소 수 문구 자리를 찾지 못해 갱신 건너뜀')
+        return
+    if updated != content:
+        with open(map_path, 'w', encoding='utf-8') as f:
+            f.write(updated)
+    print(f"festival/index.html 아이랑 장소 수 문구 갱신 완료 ({n}곳)")
+
+
 def build_kids_region_summary_html(places):
     groups = {}
     for pl in places:
@@ -1680,12 +1721,13 @@ def update_kids_region_summary():
     if si == -1 or ei == -1:
         print('KIDS_REGION_SUMMARY 마커를 찾지 못해 지역별 요약 갱신 건너뜀')
         return
+    places = visible_kids(places)
     new_html = build_kids_region_summary_html(places)
     updated = content[:si + len(start_marker)] + '\n' + new_html + '\n' + content[ei:]
     if updated != content:
         with open(map_path, 'w', encoding='utf-8') as f:
             f.write(updated)
-    print(f"festival/index.html 지역별 아이랑 장소 요약 갱신 완료 (전체 {len(places)}곳)")
+    print(f"festival/index.html 지역별 아이랑 장소 요약 갱신 완료 (표시 {len(places)}곳)")
 
 
 # ── 월드컵 두 페이지의 "후보 현황" (festival/worldcup.html, festival/camping-worldcup.html 안내 글 구간) ──
@@ -1812,7 +1854,7 @@ def update_worldcup_stats():
     fest_path = os.path.join('data', 'festivals.json')
     if os.path.exists(kids_path):
         with open(kids_path, 'r', encoding='utf-8') as f:
-            places = json.load(f)
+            places = visible_kids(json.load(f))
         if len(places) >= 20:
             _replace_between_markers(os.path.join('festival', 'worldcup.html'), WC_KIDS_START, WC_KIDS_END,
                                      build_wc_kids_stats_html(places), '나들이 월드컵 후보 현황')
@@ -1912,7 +1954,7 @@ def update_roulette_stats():
         print('룰렛 후보 현황: 데이터 파일이 없어 갱신 건너뜀')
         return
     with open(kids_path, 'r', encoding='utf-8') as f:
-        kids = json.load(f)
+        kids = visible_kids(json.load(f))
     with open(fest_path, 'r', encoding='utf-8') as f:
         items = json.load(f)
     camps = [it for it in items if it.get('type') == 'camping' and it.get('title') and it.get('contentid')]
@@ -2140,6 +2182,7 @@ def main():
 
     update_map_html(all_map_items, TODAY)
     update_kids_region_summary()
+    update_kids_count_text()
     update_worldcup_stats()
     update_roulette_stats()
 
