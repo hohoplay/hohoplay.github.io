@@ -94,6 +94,14 @@ def main():
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
+    # [ADD] 2026-11-26: 운영자가 직접 정리한 "추천 대상 / 주의할 점 / 가족 비용" (data/kids_notes.json, contentid → 필드).
+    # 장소 데이터(요금·운영시간·소개)에서 확인되는 사실만 적는다. 파일이나 해당 장소 항목이 없으면 카드를 넣지 않는다.
+    notes_path = data_path.parent / "kids_notes.json"
+    notes = {}
+    if notes_path.exists():
+        with open(notes_path, "r", encoding="utf-8") as f:
+            notes = json.load(f)
+
     out_dir.mkdir(parents=True, exist_ok=True)
 
     written = 0
@@ -248,6 +256,23 @@ def main():
         title_note = f' <span class="pt-note">{html_escape(_tn)}</span>' if _tn else ""
         visit_check = visit_check.replace('<div class="detail-card visit-check">', '<div class="detail-card visit-check" id="pt-s4">', 1).replace("<h2>✅ 방문 전 체크리스트</h2>", '<h2 class="pt-h2">4. ✅ 방문 전 체크리스트</h2>', 1)
 
+        # [ADD] 2026-11-26: "우리 가족에게 맞을까?" 블록 — 3번 섹션(아이랑 갈 때 알아둘 점) 안에 들어간다.
+        my_notes = ""
+        _n = notes.get(cid) or {}
+        _rows = [(lbl, str(_n.get(k) or "").strip()) for lbl, k in (("추천 대상", "fitFor"), ("주의할 점", "caution"), ("가족 비용", "familyCost"))]
+        _rows = [(lbl, txt) for lbl, txt in _rows if txt]
+        if _rows:
+            my_notes = (
+                '    <div class="pt-mynote">\n'
+                '      <div class="pt-mynote-h">🧭 호호플레이가 정리한 우리 가족 체크</div>\n'
+                + "".join(
+                    f'      <div class="detail-row"><div class="detail-label">{lbl}</div><div class="detail-value">{html_escape(txt)}</div></div>\n'
+                    for lbl, txt in _rows
+                )
+                + '      <p class="pt-mynote-sub">가족 비용은 성인 2명+아이 1명 기준으로 위의 요금 안내를 더한 값이에요. 요금은 바뀔 수 있어요.</p>\n'
+                '    </div>\n'
+            )
+
         html_out = (
             template.replace("{{TITLE}}", html_escape(title))
             .replace("{{ADDR}}", html_escape(addr))
@@ -257,6 +282,7 @@ def main():
             .replace("{{TEL_VALUE}}", tel_value)
             .replace("{{HOMEPAGE_VALUE}}", homepage_value)
             .replace("{{OVERVIEW}}", overview_html)
+            .replace("{{MY_NOTES}}", my_notes)
             .replace("{{VISIT_CHECK}}", visit_check)
             .replace("{{MAP_LINK}}", map_link)
             .replace("{{DESC}}", html_escape(desc))
