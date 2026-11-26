@@ -790,9 +790,10 @@ def run_tourapi(args):
     if ids:
         targets = [by_id[i] for i in ids if i in by_id]
     else:
-        # redo=true 면 아직 승인(promoted)되지 않은 초안(draft·empty·no_match·error)도 전부 다시 만든다.
+        # 아직 처리 안 한 장소를 대상으로 하고, redo=true 면 '오류(error)'로 끝난 장소도 다시 한다.
+        # (TourAPI 일일 호출 한도로 502가 났던 곳 등. draft·empty·no_match 는 다시 만들지 않는다 — 호출 한도를 아끼려고)
         cand = [p for cid, p in by_id.items()
-                if cid not in notes and (cid not in draft or (args.redo and draft[cid].get("status") != "promoted"))]
+                if cid not in notes and (cid not in draft or (args.redo and draft[cid].get("status") == "error"))]
         targets = cand[: args.count]
     print(f"대상 {len(targets)}곳")
     ok = 0
