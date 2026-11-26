@@ -1,265 +1,69 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VGTXTM4R91');
-    </script>
-    <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>슈퍼 마리오부터 쿠키런까지: 횡스크롤 달리기 게임(Endless Runner)의 역사와 진화 - HOHO PLAY 커뮤니티</title>
-    <meta name="description" content="캐릭터가 멈추지 않고 앞으로 달려가며 장애물을 피하고 코인을 모으는 &#x27;횡스크롤 달리기 게임&#x27;은 단순한 조작만으로 극상의 몰입감을 선사하는 퍼즐 ">
-    <link rel="canonical" href="https://hohoplaylab.com/blog/magazine/21.html">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
-    <style>
-    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
-       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
-       .magazine-content 규칙과 같은 모양으로 맞춘다. */
-    /* [FIX] 2026-11-15: 모바일에서 긴 주소(URL)가 줄바꿈되지 않아 글 영역이 화면보다 넓어지고, 브라우저가 페이지를 축소해 보여 주던 문제 */
-    .magazine-content{overflow-wrap:anywhere;word-break:break-word;min-width:0}
-    .magazine-content a{overflow-wrap:anywhere}
-    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
-    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
-    .magazine-content strong{font-weight:800;color:#1e293b}
-    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
-    .magazine-content li{margin-bottom:8px}
-    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
-    </style>
-</head>
-<body class="min-h-screen flex flex-col">
-
-        <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-14 items-center">
-                <a href="/" class="flex items-center gap-2 cursor-pointer">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
-                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">호호 매거진</span>
-                </a>
-                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🗺️ 아이랑 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
-                            <a href="/festival/worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이 월드컵</a>
-                            <a href="/festival/camping-worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">캠핑장 월드컵</a>
-                            <a href="/festival/pick.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">오늘 어디 갈까?</a>
-                            <a href="/festival/roulette.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
-                            <a href="/festival/poster.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 포스터</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/game/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
-                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
-                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/blog/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
-                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
-                            <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
-                            <a href="/partner/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/terms/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
-                            <a href="/privacy/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
-                            <a href="/copyright/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
-                            <a href="/guide/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
-                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
-            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🗺️ 아이랑</div>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
-                <a href="/festival/worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이 월드컵</a>
-                <a href="/festival/camping-worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">캠핑장 월드컵</a>
-                <a href="/festival/pick.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">오늘 어디 갈까?</a>
-                <a href="/festival/roulette.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
-                <a href="/festival/poster.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 포스터</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">🎮 플레이하기</div>
-                <a href="/game/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
-                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
-                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
-                <a href="/blog/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
-                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
-                <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
-                <a href="/partner/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <a href="/terms/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
-                <a href="/privacy/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
-                <a href="/copyright/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
-                <a href="/guide/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
-            </div>
-        </div>
-    </nav>
-    <script>
-        function applyGameNavResponsive(){
-            var isWide = window.innerWidth >= 768;
-            var d1 = document.getElementById('g-nav-desktop');
-            var d2 = document.getElementById('g-nav-cta');
-            var m1 = document.getElementById('g-nav-cta-m');
-            var m2 = document.getElementById('g-nav-hamburger');
-            if(d1) d1.style.display = isWide ? 'flex' : 'none';
-            if(d2) d2.style.display = isWide ? 'flex' : 'none';
-            if(m1) m1.style.display = isWide ? 'none' : 'flex';
-            if(m2) m2.style.display = isWide ? 'none' : 'flex';
-            if(isWide){
-                var mm = document.getElementById('game-mobile-menu');
-                if(mm) mm.style.display = 'none';
-            }
-        }
-        applyGameNavResponsive();
-        window.addEventListener('resize', applyGameNavResponsive);
-        function toggleGameMenu(){
-            var m = document.getElementById('game-mobile-menu');
-            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
-            var isOpen = m.style.display === 'block';
-            if(!isOpen){
-                m.style.display = 'block';
-                b1.style.transform = 'translateY(6px) rotate(45deg)';
-                b2.style.opacity = '0';
-                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
-            } else {
-                m.style.display = 'none';
-                b1.style.transform = '';
-                b2.style.opacity = '1';
-                b3.style.transform = '';
-            }
-        }
-    </script>
-
-    <main class="max-w-3xl mx-auto px-4 py-10 w-full">
-    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
-
-    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">호호 매거진</span>
-        <a href="/blog/magazine/game/" class="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full" style="text-decoration:none">🎮 게임</a>
-        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
-    </div>
-    <script>
-      (function() {
-          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=post-21')
-              .then(function(r) { return r.json(); })
-              .then(function(data) {
-                  var el = document.getElementById('page-view-num');
-                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
-              })
-              .catch(function() {});
-      })();
-    </script>
-
-    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">슈퍼 마리오부터 쿠키런까지: 횡스크롤 달리기 게임(Endless Runner)의 역사와 진화</h1>
-    <p class="text-slate-500 mb-8">HOHO PLAY · 2026.10.01</p>
-
-    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h1>[매일 읽는 게임 상식] 슈퍼 마리오부터 쿠키런까지: 횡스크롤 달리기 게임(Endless Runner)의 역사와 진화</h1>
-<p>캐릭터가 멈추지 않고 앞으로 달려가며 장애물을 피하고 코인을 모으는 '횡스크롤 달리기 게임'은 단순한 조작만으로 극상의 몰입감을 선사하는 퍼즐 및 액션 플랫폼 장르입니다.</p>
-<p>복잡한 튜토리얼 없이도 점프와 슬라이딩만으로 누구나 직관적으로 플레이할 수 있어 아케이드 오락실 시절부터 모바일 플랫폼 시대에 이르기까지 가장 대중적인 사랑을 받아왔습니다. 오락실 고전 명작부터 모바일 러닝 게임 전성기까지, 횡스크롤 달리기 게임의 발전사와 메커니즘을 상세히 알아보겠습니다.</p>
-<p>---</p>
-<h2>1. 횡스크롤 달리기 게임의 원류와 고전 아케이드 시대</h2>
-<p>자동 또는 수동으로 스크롤되는 화면을 배경으로 캐릭터가 달려나가는 구조는 1980년대 아케이드 오락실 게임들의 등장과 궤를 같이합니다.</p>
-<h3>아케이드 오락실의 명작 &lt;원더보이&gt;와 초기 러닝 요소</h3>
-<p>1986년 셉트(Escape/LJN)가 개발하고 세가(SEGA)에서 출시한 &lt;원더보이(Wonder Boy)&gt;는 횡스크롤 달리기 게임의 초기 형태를 잘 보여주는 대표작입니다.</p>
-<p>주인공이 원시 시대를 배경으로 스케이트보드를 타고 달리거나 끊임없이 이동하며 장애물을 넘어야 했던 이 게임은 플레이어의 순발력과 타이밍 감각을 극대화했습니다. 체력 게이지가 시간이 지남에 따라 줄어들기 때문에 지속적으로 음식을 먹으며 앞으로 달려 나가야만 했던 규칙은 이후 달리기 게임들의 주요 기믹으로 자리 잡았습니다.</p>
-<h3>플랫폼 장르와의 결합 및 스피드감의 확립</h3>
-<p>이후 닌텐도의 &lt;슈퍼 마리오 브라더스&gt;와 세가의 &lt;소닉 더 헤지혹&gt; 시리즈는 횡스크롤 진행에 압도적인 속도감과 정밀한 점프 컨트롤을 이식했습니다.</p>
-<p>특히 소닉 시리즈는 초고속으로 스테이지를 달려나가는 '스피드 러닝'의 재미를 전 세계 게이머들에게 각인시켰습니다. 가로 방향으로 펼쳐진 트랙 위에서 지형지물을 활용해 속도를 유지하고 공중 점프를 성공시키는 연속 동작은 횡스크롤 달리기 장르의 핵심적 쾌감으로 자리잡게 되었습니다.</p>
-<p>---</p>
-<h2>2. 스마트폰 모바일 혁명과 엔드리스 러너(Endless Runner)의 부흥</h2>
-<p>2010년대 초반 스마트폰의 보급과 터치스크린 인터페이스의 등장으로 횡스크롤 달리기 게임은 제2의 전성기를 맞이했습니다.</p>
-<h3>터치 조작의 직관성과 무한 달리기의 완성</h3>
-<p>기존의 복잡한 방향키 조작 대신, 화면 터치 한 번으로 점프하고 아래로 드래그하여 슬라이딩하는 간편한 조작법이 완성되면서 접근성이 비약적으로 향상되었습니다.</p>
-<p>스테이지의 끝이 정해져 있지 않고 플레이어가 실수를 할 때까지 무한히 달려나가는 '엔드리스 러너(Endless Runner)' 시스템이 정착되었습니다. 게임이 진행될수록 이동 속도가 점차 빨라지고 장애물의 배치가 치밀해지면서, 플레이어는 한순간도 방심할 수 없는 신기록 경신 피드백을 제공받았습니다.</p>
-<h3>국산 모바일 러닝 게임의 대중화: &lt;윈드러너&gt;와 &lt;쿠키런&gt;</h3>
-<p>국내 모바일 게임 시장에서는 2013년 전후로 카카오톡 플랫폼과 결합한 횡스크롤 러닝 게임들이 범국민적인 인기를 끌었습니다.</p>
-<p>위메이드의 &lt;윈드러너&gt;와 데브시스터즈의 &lt;쿠키런&gt;은 귀여운 캐릭터, 소환수 및 스킬 조합 시스템, 그리고 카카오톡 친구들과의 주간 점수 경쟁을 결합하여 폭발적인 성장을 이루어냈습니다. 단순히 달리는 것에 그치지 않고 캐릭터를 성장시키고 고유 능력을 세팅하는 RPG적 재미 요소까지 가미되며 대중 장르로 확고히 자리를 잡았습니다.</p>
-<p>---</p>
-<h2>3. 현대 횡스크롤 달리기 게임의 다변화와 레벨 디자인의 진화</h2>
-<p>오늘날의 횡스크롤 달리기 게임은 단순한 피하기를 넘어 리듬 게임, 액션, 대전 모드 등 다채로운 장르 융합을 선보이고 있습니다.</p>
-<h3>리듬 및 음악 요소와의 결합</h3>
-<p>현대 러닝 게임의 대표적인 진화 형태 중 하나는 음악의 비트에 맞춰 점프와 공격을 수행하는 리듬 러닝 장르입니다.</p>
-<p>대표적으로 &lt;뮤즈 다쉬(Muse Dash)&gt;나 &lt;지오메트리 대시(Geometry Dash)&gt; 같은 작품들은 배경음악의 박자에 맞추어 장애물을 넘고 적을 처치하도록 설계되었습니다. 시각적 반응 속도뿐만 아니라 청각적 리듬감이 어우러지면서 플레이어는 한층 높은 몰입감과 완성도 높은 조작감을 느끼게 됩니다.</p>
-<h3>비대면 실시간 멀티플레이와 서바이벌 레이스</h3>
-<p>최근의 횡스크롤 달리기 게임들은 싱글 플레이 기록 경신을 넘어 여러 유저가 실시간으로 동시에 달리는 대전 레이스 모드를 강화하고 있습니다.</p>
-<p>상대방에게 방해 아이템을 사용하거나 장애물 판정을 먼저 통과하는 등의 전략적 대전 요소가 추가되었습니다. 1980년대 단순한 발판 뛰어넘기로 시작했던 횡스크롤 달리기 게임은 이제 정밀한 피지컬 요소와 풍부한 콘텐츠 시스템이 통합된 대표적인 퍼즐·액션 장르로 계속해서 발전해 나가고 있습니다.</p></div>
-
-    <aside aria-label="함께 보면 좋은 페이지" style="margin-top:36px;padding:18px;border:1px solid #e2e8f0;border-radius:16px;background:#fff"><div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:12px">🔗 함께 보면 좋은 페이지</div><div style="display:grid;gap:10px"><a href="/guides/hoho-dash-guide.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎮 게임</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">HOHO DASH 공략</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">거리 구간별 STAGE 변화와 아이템 판단 기준, 상점 업그레이드 순서를 정리한 공략입니다.</div></a><a href="/guides/hoho-run-guide.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎮 게임</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">HOHO RUN 공략</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">높이 구간별 장애물과 화염구, 상점 비용과 부활 티켓 사용 시점을 정리한 공략입니다.</div></a><a href="/blog/magazine/15.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">📖 호호 매거진</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">[게임 상식] 동키콩부터 점프킹까지: 점프 게임(Platformer)의 역사와 가로·세로 스크롤의 진화</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호 매거진의 관련 글입니다.</div></a><a href="/blog/magazine/14.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">📖 호호 매거진</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">[게임 상식] 오락실에서 콘솔까지: 레트로 레이싱 게임의 역사와 명작들의 매력</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호 매거진의 관련 글입니다.</div></a></div><div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:13px;color:#64748b"><a href="/blog/magazine/game/" style="color:#4f46e5;font-weight:800;text-decoration:none">🎮 게임 글 더 보기 →</a> <span style="color:#cbd5e1">·</span> <a href="/blog/magazine/" style="color:#64748b;font-weight:700;text-decoration:none">호호 매거진 전체</a></div></aside>
-
-    <div class="mt-10 text-center">
-        <a href="/blog/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-6 py-3 rounded-full transition">← 커뮤니티로 돌아가기</a>
-    </div>
-
-
-    </div>
-    </main>
-
-    <!-- [ADD] 2026-10-24: 글 하단 HOHO PICK. 2/3/4/6번 등 기존 글과 blog/index.html과 같은 방식
-         (/hoho-pick.html을 불러와 끼우고, 안에 든 script는 다시 만들어 실행). 템플릿에 없어서
-         매거진 글을 클릭해 들어오면 빠져 있었음. -->
-    <div id="hoho-pick-placeholder" data-exclude="community" style="width:100%;box-sizing:border-box;max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
-    <script>
-    (function(){
-        var ph = document.getElementById('hoho-pick-placeholder');
-        if (!ph) return;
-        // [ADD] 2026-10-26: 이 템플릿은 커뮤니티 글(blog/posts/)과 호호 매거진 글(blog/magazine/)이
-        // 같이 쓴다. 매거진 글 아래에는 "호호 매거진" 추천이 또 나오지 않게 magazine을 빼고,
-        // 커뮤니티 글은 기존대로 community를 뺀다. 주소(경로)로 구분하므로 생성 스크립트는 안 바꿔도 된다.
-        ph.setAttribute('data-exclude', location.pathname.indexOf('/blog/magazine/') === 0 ? 'magazine' : 'community');
-        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
-            ph.innerHTML = html;
-            var scripts = ph.querySelectorAll('script');
-            for (var i = 0; i < scripts.length; i++) {
-                var old = scripts[i];
-                var s = document.createElement('script');
-                for (var j = 0; j < old.attributes.length; j++) {
-                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
-                }
-                s.textContent = old.textContent;
-                old.parentNode.replaceChild(s, old);
-            }
-        }).catch(function(){});
-    })();
-    </script>
-
-    <div id="footer-placeholder"><nav aria-label="사이트 정보" style="padding:24px 16px;text-align:center;font-size:13px;line-height:2;color:#64748b"><a href="/about/" style="color:#475569;text-decoration:none">호호플레이 소개</a> · <a href="/privacy/" style="color:#475569;text-decoration:none">개인정보처리방침</a> · <a href="/terms/" style="color:#475569;text-decoration:none">이용약관</a> · <a href="/copyright/" style="color:#475569;text-decoration:none">저작권·콘텐츠 정책</a> · <a href="/contact/" style="color:#475569;text-decoration:none">문의하기</a></nav></div>
-    <script>
-        fetch('/footer.html')
-            .then(r => r.text())
-            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
-    </script>
-
-
-</body>
-</html>
+<p style="font-size:13px;color:#64748b;margin:0 0 12px;">🗓 최종 수정: 2026년 11월 26일</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><div style="font-weight:900;margin-bottom:4px;">📌 한줄요약</div>러너 게임은 1986년 원더보이의 달리는 액션에서 출발해 2009년 엔드리스 러너 장르가 되었고, 구간별 난도 상승과 한 번의 점프가 핵심이다.</div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#f59e0b;"><div style="font-weight:900;margin-bottom:4px;">📍 나만의 포인트</div>이 글은 러너 게임을 세 기준으로 다룬다. ① 연도와 작품을 확인할 수 있을 것 ② 달리기가 자동인지 조작인지 ③ 점수 구간에서 무엇이 바뀌는지 숫자로 비교할 수 있을 것. 도트 그래픽 러너의 구간 수치와 상점 수치를 직접 확인해 설명했다.</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">점프 버튼 하나뿐인데 몇십 분이 사라지는 게임이 있다. 조작이 단순할수록 한 번의 실수가 더 크게 느껴지고, 다시 시작하는 속도가 빨라서 멈추기 어렵다. 러너 장르가 어떻게 만들어졌는지, 그리고 구간 설계가 재미를 어떻게 이끄는지 정리했다.</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><div style="font-weight:900;margin-bottom:6px;">📚 목차</div><ol style="margin:0;padding-left:20px;"><li style="margin:4px 0;"><a href="#wonderboy" style="color:#4f46e5;text-decoration:underline;">1986년 원더보이와 1991년 소닉: 달리는 액션의 출발</a></li><li style="margin:4px 0;"><a href="#endless" style="color:#4f46e5;text-decoration:underline;">2009년 엔드리스 러너: 자동 달리기와 한 번의 점프</a></li><li style="margin:4px 0;"><a href="#design" style="color:#4f46e5;text-decoration:underline;">러너가 질리지 않는 설계: 구간·아이템·성장</a></li><li style="margin:4px 0;"><a href="#own-dash" style="color:#4f46e5;text-decoration:underline;">도트 러너 게임의 구간과 상점 숫자</a></li></ol></div>
+<h2 id="wonderboy">1986년 원더보이와 1991년 소닉: 달리는 액션의 출발</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">1986년 세가 계열 아케이드로 나온 원더보이는 달리면서 뛰고 아이템을 먹는 횡스크롤 액션이다. 체력이 시간과 함께 줄어드는 방식이라 달리지 않으면 지는 구조였다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">1991년 소닉 더 헤지혹은 달리는 속도 자체를 게임의 얼굴로 만들었다. 두 작품 모두 '멈추지 않는 것'이 재미라는 점에서 이후 러너 게임의 뿌리가 된다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 원더보이(1986)와 소닉(1991)이 '멈추면 지는 달리기'의 뿌리를 만들었다.</p>
+<h2 id="endless">2009년 엔드리스 러너: 자동 달리기와 한 번의 점프</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">2009년 캐나벌트가 자동으로 달리고 점프만 하는 구조로 엔드리스 러너를 열었다. 속도는 시간이 지나며 빨라지고, 끝이 없어 점수가 곧 달린 거리가 된다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">2010년대 초 국내 모바일에서 윈드러너와 쿠키런(2013) 같은 작품이 캐릭터와 수집 요소를 붙여 대중화했다. 2013년 지오메트리 대시는 리듬과 결합해 '외워서 넘는' 방향을 만들었다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 캐나벌트(2009)가 자동 달리기+점프를 장르로 만들고 쿠키런(2013)이 캐릭터 성장과 결합했다.</p>
+<h2 id="design">러너가 질리지 않는 설계: 구간·아이템·성장</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">러너의 난도는 속도보다 구간마다 새 요소를 투입하는 방식으로 조절된다. 일정 점수마다 장애물 종류나 아이템이 바뀌면 같은 달리기가 새롭게 느껴진다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">아이템은 위험과 보상을 동시에 만든다. 공중 아이템을 먹으려고 점프하는 순간 장애물과 겹칠 수 있기 때문이다. 상점 성장은 기록이 쌓이지 않는 짧은 판에도 장기 목표를 만들어 준다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 구간별 새 요소, 위험을 동반한 아이템, 상점 성장이 러너를 오래 하게 만든다.</p>
+<h2 id="own-dash">도트 러너 게임의 구간과 상점 숫자</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">아래 수치는 HOHO DASH 공략 페이지(2026년 10월 기준 게임 버전)에서 직접 확인했다. 점수는 달린 거리이고 100점에서 STAGE 2(NETWORK), 400점 STAGE 3(FIREWALL), 800점 STAGE 4(CORE), 1,300점 STAGE 5(OVERCLOCK)로 알림이 뜬다. 200점 미만에서는 자석과 방패만 나오고, 200점부터 거인과 무지개가, 600점부터 떨어지는 블록이 추가된다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">무지개는 7초 동안 속도가 2배가 되고 장애물을 부수며 점프 횟수 제한이 없지만 그동안 새 코인과 아이템이 나오지 않는다. 상점은 코인·자석·거인·피버 네 항목이고 다음 레벨까지 비용이 레벨 1에서 750코인, 레벨 2에서 1,000코인, 레벨 3에서 1,250코인, 레벨 4에서 1,500코인이다. 코인 배율은 레벨 1에서 ×1.5, 레벨 4에서 ×3.0이며 자석·거인은 6초에서 9초로, 피버는 7초에서 10초로 늘어난다. 2단 점프가 가능하고 방패는 충돌 1회를 막으며, 저장되는 것은 코인과 업그레이드뿐이다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 100·400·800·1,300점에서 스테이지가 바뀌고, 상점은 750→1,500코인으로 올라가며 코인 배율은 ×1.5에서 ×3.0이다.</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#10b981;"><div style="font-weight:900;margin-bottom:6px;">✅ 한 번에 정리</div><p style="margin:0 0 6px;">· 원더보이(1986)와 소닉(1991)이 달리는 액션의 뿌리, 캐나벌트(2009)가 엔드리스 러너의 출발점이다.</p><p style="margin:0 0 6px;">· 러너는 구간별로 새 요소를 투입해 난도를 조절한다.</p><p style="margin:0 0 6px;">· 도트 러너는 100·400·800·1,300점에서 스테이지가 바뀐다.</p><p style="margin:0 0 6px;">· 상점은 레벨당 750~1,500코인이고 코인 배율은 ×1.5에서 ×3.0까지 오른다.</p></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">러너 게임 연표</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">러너 장르의 방향을 만든 작품만 골랐다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">연도</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">작품</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">특징</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1986</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">원더보이</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">달리며 뛰는 횡스크롤 액션</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1991</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">소닉 더 헤지혹</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">속도감 자체가 핵심</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2009</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">캐나벌트</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">자동 달리기 + 점프, 엔드리스 러너의 시작</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2013</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">쿠키런</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">캐릭터·수집을 결합한 모바일 러너</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2013</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">지오메트리 대시</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">리듬과 결합한 외우기형 러너</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">조작 방식 비교</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">달리기가 자동인지 조작인지, 실패 방식은 어떤지 비교했다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">유형</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">달리기</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">핵심 조작</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">실패</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">원더보이형</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">조작으로 이동</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">점프·공격</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">시간·체력 소진</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">엔드리스 러너</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">자동</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">점프(슬라이드)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">장애물 충돌</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">외우기형</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">자동</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">정해진 타이밍의 점프</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">한 번 충돌하면 처음부터</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">도트 러너 구간표</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">2026년 10월 기준 공략 페이지에서 확인한 구간별 변화다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">점수</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">변화</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">의미</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">0~100</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">점프 거리 감각 맞추기</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">아이템은 자석·방패뿐(200점 미만)</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">100~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">STAGE 2 (NETWORK)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">장애물 종류 증가</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">200~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">거인·무지개 등장</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">아이템 선택 판단 증가</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">400~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">STAGE 3 (FIREWALL)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">장애물 종류 증가</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">600~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">떨어지는 블록 등장</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">위쪽 위협 추가</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">800~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">STAGE 4 (CORE)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">-</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1,300~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">STAGE 5 (OVERCLOCK)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">무작위 혼합 구간</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🧭 이 글의 판단</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">러너 장르의 본질은 조작 난이도가 아니라 '다시 시작하는 속도'에 있다고 본다. 점프 하나로 구성된 게임은 실패해도 곧바로 재도전할 수 있어 중독성이 생긴다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">다만 구간이 바뀌어도 점수가 오르는 것 말고는 보상이 없다면 금방 지루해진다. 도트 러너처럼 구간 알림과 상점 성장을 함께 두는 구조가 짧은 판의 반복을 가장 오래 지탱한다고 판단한다. 최고 점수가 저장되지 않는 설계는 아쉽지만 결과 공유나 캡처로 보완하는 방식도 현실적이다.</p>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🛠 실전 팁</div>
+<ul style="margin:0 0 16px;padding-left:20px;line-height:1.9;color:#334155;"><li style="margin:4px 0;">처음 100점 구간에서는 점수보다 한 번 점프로 날아가는 거리를 몸에 익힌다.</li><li style="margin:4px 0;">무지개 피버 중에는 새 코인과 아이템이 나오지 않으므로 직전에 코인을 모아 둔다.</li><li style="margin:4px 0;">상점은 한 항목만 올리기보다 레벨이 낮은 항목부터 고르게 올리는 편이 코인당 효과가 높다.</li><li style="margin:4px 0;">최고 점수가 저장되지 않으므로 잘 나온 판은 결과 공유나 캡처로 남긴다.</li></ul>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">❓ 자주 묻는 질문</div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 엔드리스 러너란 무엇인가요?</p><p style="margin:0;color:#334155;">끝없이 달리는 구조의 게임으로 달린 거리가 점수가 된다. 보통 달리기는 자동이고 점프·슬라이드만 조작한다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 원더보이와 엔드리스 러너의 차이는?</p><p style="margin:0;color:#334155;">원더보이는 직접 이동하며 공격하는 액션이고, 엔드리스 러너는 자동 달리기 중 장애물 회피에 집중한다. 둘 다 멈추지 않는 점이 공통이다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 상점 업그레이드는 무엇부터 올려야 하나요?</p><p style="margin:0;color:#334155;">한 레벨당 효과는 거의 일정한데 비용은 계속 커지므로 낮은 레벨 항목부터 고르게 올리는 편이 코인당 효과가 크다. 코인 배율은 점수를 올려 주지 않고 코인 획득량만 늘린다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 쿠키런 같은 러너와 도트 러너의 차이는?</p><p style="margin:0;color:#334155;">쿠키런류는 캐릭터와 수집 요소가 강하고, 도트 러너는 스테이지와 아이템으로 난도를 조절하는 단순한 구조가 많다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 피버 중 주의할 점은 무엇인가요?</p><p style="margin:0;color:#334155;">속도가 2배가 되고 점프 횟수 제한이 없어 거리를 가장 많이 벌 수 있지만, 그동안 새 코인과 아이템이 나오지 않는다. 시간을 아끼기보다 장애물 파괴 타이밍을 계산한다.</p></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🔧 함께 쓰면 좋은 도구</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">구간별 변화를 직접 확인하려면 <a href="https://hohoplaylab.com/hoho-dash.html" style="color:#4f46e5;text-decoration:underline;">HOHO DASH</a>에서 100점·400점·800점·1,300점 알림을 순서대로 확인해 볼 수 있다.</p>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">📚 참고한 자료</div>
+<ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#475569;font-size:14px;"><li style="margin:3px 0;">세가 원더보이(1986)·소닉 더 헤지혹(1991), 캐나벌트(2009), 쿠키런(2013), 지오메트리 대시(2013) 출시 정보</li><li style="margin:3px 0;">웹게임 사이트 게임 공략 페이지 (본문에 밝힌 출처, 2026년 10월 기준 게임 버전)</li></ul>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#ec4899;"><div style="font-weight:900;margin-bottom:4px;">💬 마무리 질문</div>러너 게임에서 가장 높은 기록을 낸 건 몇 점(몇 미터)이었나요? 그 판에서 가장 아슬아슬했던 순간도 궁금합니다.</div>
+<p style="color:#6366f1;line-height:1.9;margin:8px 0 0;">#러너게임 #횡스크롤 #엔드리스러너 #원더보이 #소닉 #쿠키런 #도트게임 #게임상식 #웹게임</p>
