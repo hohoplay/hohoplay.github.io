@@ -173,6 +173,30 @@ def is_noindex(file_path: str) -> bool:
     return bool(re.search(r'<meta\s+name=["\']robots["\']\s+content=["\'][^"\']*noindex', head, re.I))
 
 
+# [ADD] 2026-11-26: 글 본문에 적힌 "최종 수정: 2026년 11월 26일" 날짜를 lastmod 로 반영한다.
+# 이 날짜는 글을 고쳐 다시 올릴 때 사람이 갱신하는 값이라, 파일 수정 시각(자동 동기화로 매번 바뀜)보다 믿을 만하다.
+LASTMOD_FROM_BODY_DIRS = ["blog/magazine/", "blog/posts/"]
+_BODY_DATE_RE = re.compile(r"최종\s*수정\s*[:：]?\s*(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일")
+
+
+def body_modified_date(file_path: str, today: str):
+    """본문의 '최종 수정' 날짜를 YYYY-MM-DD 로 돌려준다. 없거나 미래 날짜이면 None."""
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            text = f.read()
+    except OSError:
+        return None
+    best = None
+    for y, m, d in _BODY_DATE_RE.findall(text):
+        try:
+            iso = datetime.date(int(y), int(m), int(d)).isoformat()
+        except ValueError:
+            continue
+        if iso <= today and (best is None or iso > best):
+            best = iso
+    return best
+
+
 def load_sitemap(sitemap_path: str):
     """sitemap.xml을 파싱해서 loc -> {element, lastmod, changefreq, priority} 딕셔너리로."""
     tree = ET.parse(sitemap_path)
@@ -288,6 +312,30 @@ def main():
         else:
             notices.append(loc)
 
+    # 3) [ADD] 2026-11-26: 감시 폴더 글의 lastmod 를 본문 '최종 수정' 날짜로 맞춘다(더 새로운 날짜일 때만).
+    refreshed = []
+    for loc, url_el in entries.items():
+        rel_path = url_to_rel_path(loc)
+        if not any(rel_path.startswith(d) for d in LASTMOD_FROM_BODY_DIRS):
+            continue
+        full_path = os.path.join(root, rel_path)
+        if not os.path.isfile(full_path):
+            continue
+        new_date = body_modified_date(full_path, today)
+        if not new_date:
+            continue
+        lm_el = url_el.find(f"{{{SITEMAP_NS}}}lastmod")
+        old_date = (lm_el.text or "").strip() if lm_el is not None else ""
+        if old_date >= new_date:
+            continue
+        if lm_el is None:
+            lm_el = ET.Element(f"{{{SITEMAP_NS}}}lastmod")
+            loc_el = url_el.find(f"{{{SITEMAP_NS}}}loc")
+            url_el.insert(list(url_el).index(loc_el) + 1, lm_el)
+        lm_el.text = new_date
+        refreshed.append(f"{loc}  ({old_date or '없음'} → {new_date})")
+        changed = True
+
     if changed:
         indent_xml(root_el)
         if root_el.text is None or not root_el.text.strip():
@@ -317,6 +365,10 @@ def main():
         print(f"\n추가된 항목 ({len(added)}개) — blog/posts 또는 blog/magazine에 새로 생긴 파일:")
         for loc in added:
             print(f"  + {loc}")
+    if refreshed:
+        print(f"\nlastmod 갱신 ({len(refreshed)}개) — 본문 '최종 수정' 날짜 기준:")
+        for line in refreshed:
+            print(f"  ~ {line}")
     if notices:
         print(f"\n[알림] sitemap에 없는 페이지가 발견됐지만 자동 추가 대상이 아닙니다 "
               f"(우선순위/주기를 직접 정해서 넣어주세요):")
