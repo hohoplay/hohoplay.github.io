@@ -646,7 +646,7 @@ def short_ok(t, n=70):
     return bool(t) and len(t) <= n and not BANNED.search(t)
 
 
-SUFFIX = " 한국관광공사 공공데이터 기준이라 방문 전 공식 안내 확인이 필요해요."
+SUFFIX = " (한국관광공사 공공데이터 기준, 방문 전 확인 필요)"
 
 
 def sentences_from_item(item):
@@ -655,22 +655,25 @@ def sentences_from_item(item):
     acc, rul, tip = [], [], []
 
     park = pick(item, "parking", exclude=("parkingfee",))
-    if park:
-        ok, t = yn(park)
-        ev["parking"] = park[:80]
-        if ok is True:
-            acc.append("주차장이 있다고 안내돼 있어요.")
-        elif ok is False:
-            acc.append("주차장이 없거나 이용이 어렵다고 안내돼 있어요.")
-        elif short_ok(t):
-            acc.append(f"주차는 “{t}”(으)로 안내돼 있어요.")
     pfee = pick(item, "parkingfee")
+    if park:
+        ev["parking"] = park[:80]
     if pfee:
         ev["parkingfee"] = pfee[:80]
-        if "무료" in pfee and "유료" not in pfee:
-            acc.append("주차는 무료로 안내돼 있어요.")
-        elif "유료" in pfee and "무료" not in pfee:
-            acc.append("주차는 유료로 안내돼 있어요.")
+    ok, t = yn(park) if park else (None, "")
+    cap = re.search(r"(\d[\d,]*)\s*대", park or "")
+    free = ("무료" in (park or "") or "무료" in (pfee or "")) and "유료" not in (park or "") + (pfee or "")
+    paid = (not free) and ("유료" in (park or "") + (pfee or "") or bool(re.search(r"\d[\d,]*\s*원", pfee or "")))
+    if ok is True:
+        acc.append(f"주차장이 있고 {cap.group(1)}대 규모라고 안내돼 있어요." if cap else "주차장이 있다고 안내돼 있어요.")
+    elif ok is False:
+        acc.append("주차장이 없거나 이용이 어렵다고 안내돼 있어요.")
+    elif park and short_ok(t):
+        acc.append(f"주차는 “{t}”(으)로 안내돼 있어요.")
+    if free:
+        acc.append("주차는 무료로 안내돼 있어요.")
+    elif paid:
+        acc.append("주차는 유료이고 이용 시간에 따라 요금이 달라요.")
 
     stroller = pick(item, "chkbabycarriage")
     if stroller:
@@ -679,7 +682,7 @@ def sentences_from_item(item):
         if ok is True:
             rul.append("유모차 대여가 가능하다고 안내돼 있어요.")
         elif ok is False:
-            rul.append("유모차 대여는 어렵다고 안내돼 있어요.")
+            rul.append("유모차 대여 서비스는 없다고 안내돼 있어요.")
     pet = pick(item, "chkpet")
     if pet:
         ev["chkpet"] = pet[:80]
