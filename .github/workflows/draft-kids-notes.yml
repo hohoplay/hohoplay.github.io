@@ -1,0 +1,73 @@
+name: Draft Kids Notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "draft = 초안 작성(사이트 영향 없음) / promote = 승인한 장소를 kids_notes.json에 반영"
+        required: true
+        default: draft
+        type: choice
+        options:
+          - draft
+          - promote
+      ids:
+        description: "contentid 쉼표 구분 (예: kids-0066,kids-0192). draft에서 비우면 자동 선택, promote에서는 필수"
+        required: false
+        default: ""
+      count:
+        description: "draft에서 ids를 비웠을 때 처리할 장소 수"
+        required: false
+        default: "5"
+      redo:
+        description: "draft에서 이미 초안이 있는 장소도 다시 작성 (true/false)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: draft-kids-notes
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install google-genai
+
+      - name: Run
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MODE: ${{ inputs.mode }}
+          IDS: ${{ inputs.ids }}
+          COUNT: ${{ inputs.count }}
+          REDO: ${{ inputs.redo }}
+        run: |
+          set -e
+          ARGS=("$MODE" "--ids=$IDS" "--count=$COUNT")
+          if [ "$REDO" = "true" ]; then ARGS+=("--redo"); fi
+          python scripts/draft_kids_notes.py "${ARGS[@]}"
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/kids_notes_draft.json data/kids_notes_draft_review.md data/kids_notes.json
+          if git diff --cached --quiet; then
+            echo "변경 없음"
+          else
+            git commit -m "Draft kids notes (${{ inputs.mode }})"
+            for i in 1 2 3; do
+              git pull --rebase origin ${{ github.ref_name }} && git push && break || sleep 5
+            done
+          fi
