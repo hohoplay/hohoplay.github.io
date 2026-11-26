@@ -296,6 +296,12 @@ def main():
             .replace("{{CONTENTID}}", html_escape(cid))
         )
 
+        # [ADD] 2026-11-26: 지도에서 숨긴(hidden) 장소는 상세페이지가 있어도 검색에는 나오지 않게 한다.
+        if p.get("hidden"):
+            html_out = html_out.replace(
+                f'<link rel="canonical" href="{canonical_url}">',
+                f'<link rel="canonical" href="{canonical_url}">\n<meta name="robots" content="noindex,follow">', 1)
+
         out_path = out_dir / f"{cid}.html"
         with open(out_path, "w", encoding="utf-8", newline="") as f:
             f.write(html_out)
