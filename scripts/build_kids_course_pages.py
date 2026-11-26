@@ -109,7 +109,7 @@ def build(shell, slug, region, plist, date):
     for rx in (r'(<meta name="description" content=")[^"]*(">)', r'(<meta property="og:description" content=")[^"]*(">)',
                r'(<meta name="twitter:description" content=")[^"]*(">)'):
         s = re.sub(rx, lambda m: m.group(1) + desc + m.group(2), s, count=1)
-    s = kct.ensure_noindex(s)   # 코스 글은 모두 검색 제외(noindex,follow) — 2026-11-10 결정
+    s = rte.apply_robots(s, slug)   # 2026-11-26: 얇은 글만 noindex, 나머지는 검색 허용(예전 2026-11-10 전체 noindex 번복)
     s = re.sub(r'(HOHO PLAY · )\d{4}\.\d{2}\.\d{2}', lambda m: m.group(1) + date, s, count=1)
     return s
 

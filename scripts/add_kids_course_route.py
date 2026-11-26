@@ -46,6 +46,26 @@ KR_BLOCK_RE = re.compile(re.escape(KR_START) + r'.*?' + re.escape(KR_END), re.S)
 CANONICAL_RE = re.compile(r'(<link rel="canonical" href="[^"]*">)')
 ROBOTS = '<meta name="robots" content="noindex,follow">'
 
+# [CHG] 2026-11-26: 코스 글은 이제 기본적으로 검색을 허용한다(애드센스 "핵심 서비스 글이 검색에서 빠져 있음" 대응).
+#   장소 수가 적고 본문이 짧은 글만 보강하기 전까지 noindex,follow 로 둔다.
+#   글이 보강되면 이 목록에서 slug 를 지우고 다시 실행하면 noindex 가 풀린다.
+THIN_NOINDEX_SLUGS = {'busan-suyeong', 'busan-buk', 'busan-yeongdo', 'seoul-seongdong'}
+_NOINDEX_META_RE = re.compile(r'[ \t]*<meta name="robots" content="[^"]*noindex[^"]*">[ \t]*\n?')
+
+
+def apply_robots(page, slug):
+    """slug(또는 파일명)에 맞는 robots 메타로 맞춘다.
+    - THIN_NOINDEX_SLUGS: canonical 아래에 noindex,follow 를 넣는다(이미 robots 메타가 있으면 그대로).
+    - 그 외 코스 글: noindex 메타를 지운다(다른 robots 지시는 건드리지 않음)."""
+    slug = os.path.basename(slug)
+    if slug.endswith('.html'):
+        slug = slug[:-5]
+    if slug in THIN_NOINDEX_SLUGS:
+        if 'name="robots"' in page:
+            return page
+        return CANONICAL_RE.sub(lambda m: m.group(1) + '\n    ' + ROBOTS, page, count=1)
+    return _NOINDEX_META_RE.sub('', page)
+
 # 장소 3곳 이하이고 본문이 2,000자 미만이던 글 (2026-10-28 기준).
 NOINDEX_FILES = {'busan-buk.html', 'busan-suyeong.html', 'busan-yeongdo.html'}
 
@@ -321,10 +341,11 @@ def transform(page, places, fname):
             return None, '마무리 제목("이 코스, 이렇게 다녀오세요")을 찾지 못함'
         out = page[:m.start()] + block + page[m.start():]
 
-    if 'name="robots"' not in out:   # 2026-11-10: 코스 글 전체를 noindex 처리 (예전 NOINDEX_FILES 3곳 → 전부)
+    # 2026-11-26: 전부 noindex 하던 방식(2026-11-10)을 바꿔, 얇은 글(THIN_NOINDEX_SLUGS)만 noindex 로 둔다.
+    if fname in THIN_NOINDEX_SLUGS or os.path.basename(fname).replace('.html', '') in THIN_NOINDEX_SLUGS:
         if not CANONICAL_RE.search(out):
             return None, 'canonical 링크를 찾지 못해 noindex 를 넣지 못함'
-        out = CANONICAL_RE.sub(lambda m: m.group(1) + '\n    ' + ROBOTS, out, count=1)
+    out = apply_robots(out, fname)
     return out, 'ok'
 
 
