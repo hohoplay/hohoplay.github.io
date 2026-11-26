@@ -1414,6 +1414,29 @@ h1{{font-size:1.5rem;font-weight:900}}
     print(f"festival/list.html 갱신 완료 (축제 {len(festivals)}건 + 자연관광지 {len(parks)}건 + 캠핑장 {len(campings)}건 + 수상레저 {len(watersports)}건)")
 
 
+def _kids_sitemap_entries():
+    """sitemap 에 올릴 아이랑 장소 상세 <url> 블록들을 만든다. 데이터를 못 읽거나 너무 적으면 None(=건드리지 않음)."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    if not os.path.exists(kids_path):
+        return None
+    try:
+        with open(kids_path, 'r', encoding='utf-8') as f:
+            places = json.load(f)
+    except (OSError, ValueError):
+        return None
+    vis = [p for p in visible_kids(places) if p.get('contentid') and p.get('hasDetail', True)]
+    if len(vis) < 20:
+        return None
+    out = []
+    for p in sorted(vis, key=lambda x: str(x['contentid'])):
+        cid = html.escape(str(p['contentid']))
+        ck = str(p.get('checkedAt') or '')
+        lastmod = f"<lastmod>{ck}-01</lastmod>" if re.match(r'^\d{4}-\d{2}$', ck) else ''
+        out.append(f"  <url>\n    <loc>https://hohoplaylab.com/festival/detail/{cid}.html</loc>\n    {lastmod}\n"
+                   f"    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>".replace("    \n", ""))
+    return '\n'.join(out)
+
+
 def update_sitemap(list_items):
     """sitemap.xml에서 festival/detail/* 및 festival/list.html 항목만 지운다
     (list.html은 noindex 처리했으므로 다시 채우지 않는다). 다른 페이지(홈, 게임, 약관 등) 항목은
@@ -1435,16 +1458,26 @@ def update_sitemap(list_items):
     with open(sitemap_path, 'r', encoding='utf-8') as fp:
         content = fp.read()
 
-    content = re.sub(
-        r'\s*<url>\s*<loc>https://hohoplaylab\.com/festival/(?:detail/[^<]+|list\.html)</loc>.*?</url>',
-        '',
-        content,
-        flags=re.DOTALL
-    )
+    # [CHG] 2026-11-26: 아이랑 나들이 장소 상세페이지(festival/detail/kids-*)는 운영자가 직접 정리한 페이지라
+    # 검색에 노출하기로 했다(robots.txt 허용 + sitemap 등록). 축제·자연관광지·캠핑장 상세(공공데이터 기반 짧은 페이지)는
+    # 예전 정책 그대로 sitemap 에서 뺀다. kids_places.json 을 못 읽으면 기존 kids-* 항목은 건드리지 않는다.
+    kids_entries = _kids_sitemap_entries()
+    if kids_entries is None:
+        remove_re = r'\s*<url>\s*<loc>https://hohoplaylab\.com/festival/(?:detail/(?!kids-)[^<]+|list\.html)</loc>.*?</url>'
+    else:
+        remove_re = r'\s*<url>\s*<loc>https://hohoplaylab\.com/festival/(?:detail/[^<]+|list\.html)</loc>.*?</url>'
+    content = re.sub(remove_re, '', content, flags=re.DOTALL)
+    if kids_entries:
+        idx = content.rfind('</urlset>')
+        if idx == -1:
+            print("sitemap.xml 에 </urlset> 이 없어 장소 상세 등록을 건너뜁니다.")
+        else:
+            content = content[:idx].rstrip('\n') + '\n' + kids_entries + '\n' + content[idx:]
 
     with open(sitemap_path, 'w', encoding='utf-8') as fp:
         fp.write(content)
-    print(f"sitemap.xml 갱신 완료 (festival/detail/*, festival/list.html 항목 제거 — 목록 페이지는 noindex)")
+    n_kids = kids_entries.count('<url>') if kids_entries else 0
+    print(f"sitemap.xml 갱신 완료 (축제·자연 상세와 list.html 항목 제거, 아이랑 장소 상세 {n_kids}곳 등록)")
 
 
 def pick_region_representatives(today_list):
