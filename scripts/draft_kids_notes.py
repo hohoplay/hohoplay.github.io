@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-아이랑 나들이 "우리 가족 체크" 초안 자동 작성 (Gemini + 구글 검색 연동)
+아이랑 나들이 "우리 가족 체크" 초안 자동 작성 v2 — 공식 홈페이지 글을 직접 읽어 Gemini로 추려 쓰기 (검색 연동 불필요)
 
 흐름
-  1) draft  : data/kids_places.json 에서 아직 카드가 없는 장소를 골라 Gemini(구글 검색 연동)에 물어보고
-              data/kids_notes_draft.json 에 '초안'으로만 저장한다. 사이트에는 아무 영향이 없다.
-              같은 내용을 사람이 훑어볼 수 있게 data/kids_notes_draft_review.md 도 만든다.
-  2) promote: 대표님이 골라 승인한 contentid 만 data/kids_notes.json 으로 옮긴다(주차·교통 / 이용 규칙 / 관람 팁).
-              그 뒤 Fetch Kids Place Images(kids-9999)를 돌리면 사이트에 반영된다.
+  1) draft  : data/kids_places.json 의 homepage 주소를 GitHub Actions 에서 직접 열어(이용안내·주차·오시는 길 같은 하위 페이지 포함)
+              글을 가져온 뒤, 그 글에 '실제로 적힌 사실'만 Gemini 에게 뽑게 한다.
+              결과는 data/kids_notes_draft.json 에 '초안'으로만 저장된다(사이트 영향 없음).
+              사람이 보기 쉽게 data/kids_notes_draft_review.md 도 만든다(근거 문장·출처 링크 포함).
+  2) promote: 승인한 contentid 만 data/kids_notes.json 으로 옮긴다. 그 뒤 Fetch Kids Place Images(kids-9999)로 반영.
+  3) probe  : 모델이 응답하는지 아주 짧게 점검한다.
 
 안전장치
-  - 구글 검색에서 실제로 가져온 출처(URL)가 하나도 없으면 그 장소는 내용을 비워 'no_source'로 둔다.
-  - 요금 금액, 버스 번호, 출구 번호, 도보 몇 분 같은 자주 바뀌는 수치는 문장째 버린다.
-  - 확인 안 된 항목은 모델이 비워 두도록 하고, 비어 있으면 카드에 그 행이 나오지 않는다.
-  - 기존 data/kids_notes.json 은 promote 때만, 그리고 이미 적힌 칸은 덮어쓰지 않고(--force 없이는) 건드리지 않는다.
+  - Gemini 가 낸 문장마다 '원문 인용'을 같이 받고, 그 인용이 가져온 글 안에 실제로 있는지 코드가 대조한다. 없으면 그 칸은 버린다.
+  - 홈페이지가 없거나(또는 인스타·블로그 등) 글을 못 가져오면 그 장소는 비워 둔다.
+  - 사이트의 robots.txt 가 막은 주소는 열지 않는다. 호출 사이에 간격을 둔다.
+  - 요금 금액·버스 번호·출구 번호·도보 분이 든 문장은 문장째 버린다.
+  - 기존 data/kids_notes.json 은 promote 때만, 이미 적힌 칸은 --force 없이는 덮어쓰지 않는다.
 
-환경변수: GEMINI_API_KEY (필수, draft 때만)
+환경변수: GEMINI_API_KEY (draft·probe 때 필수)
 """
 import argparse
 import json
@@ -24,7 +26,11 @@ import os
 import re
 import sys
 import time
+import urllib.parse
+import urllib.request
+import urllib.robotparser
 from datetime import datetime, timezone, timedelta
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,21 +39,26 @@ NOTES = ROOT / "data" / "kids_notes.json"
 DRAFT = ROOT / "data" / "kids_notes_draft.json"
 REVIEW = ROOT / "data" / "kids_notes_draft_review.md"
 
-MODELS = ["gemini-3.1-flash-lite", "gemini-3-flash", "gemini-flash-latest"]
+MODELS = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.5-flash"]
 FIELDS = ("access", "rules", "tip")
 LABELS = {"access": "주차·교통", "rules": "이용 규칙", "tip": "관람 팁"}
 MAX_LEN = 240
-SLEEP_SEC = 6  # 호출 사이 간격(쿼터 보호)
+SLEEP_SEC = 5
+UA = "Mozilla/5.0 (compatible; HohoplayBot/1.0; +https://hohoplaylab.com)"
+MAX_SUBPAGES = 4
+PAGE_CHARS = 5000
+TOTAL_CHARS = 18000
+SKIP_HOSTS = ("instagram.com", "facebook.com", "blog.naver.com", "cafe.naver.com", "m.blog.naver.com",
+              "youtube.com", "youtu.be", "naver.me", "map.naver.com", "kakao.com", "twitter.com", "x.com")
 
 KST = timezone(timedelta(hours=9))
 
-# 자주 바뀌거나 단정하기 어려운 수치가 든 문장은 버린다.
 BANNED = re.compile(
-    r"\d[\d,]*\s*원"            # 요금 금액
-    r"|(?:버스|마을버스|간선|지선)\s*\d"  # 버스 번호
-    r"|\d+\s*번\s*출구"          # 출구 번호
+    r"\d[\d,]*\s*원"
+    r"|(?:버스|마을버스|간선|지선)\s*\d"
+    r"|\d+\s*번\s*출구"
     r"|\d+\s*번\s*(?:버스|노선)"
-    r"|도보\s*(?:약\s*)?\d+\s*분"  # 도보 분
+    r"|도보\s*(?:약\s*)?\d+\s*분"
     r"|걸어서\s*(?:약\s*)?\d+\s*분"
 )
 
@@ -70,6 +81,185 @@ def save_json(path, data):
         f.write("\n")
 
 
+# ---------------------------------------------------------------- 홈페이지 주소·가져오기
+def usable_homepage(p):
+    """homepage 필드에서 http(s) 주소를 꺼낸다. 인스타·블로그 등은 글을 못 읽으니 제외."""
+    m = re.search(r"https?://[^\s,;)\]]+", str(p.get("homepage") or ""))
+    if not m:
+        return ""
+    url = m.group(0).rstrip(".")
+    host = urllib.parse.urlparse(url).netloc.lower()
+    if any(host == h or host.endswith("." + h) for h in SKIP_HOSTS):
+        return ""
+    return url
+
+
+class _TextParser(HTMLParser):
+    BLOCK = {"p", "div", "li", "br", "tr", "h1", "h2", "h3", "h4", "h5", "h6", "section", "article", "table", "ul", "ol", "dd", "dt", "dl"}
+    SKIP = {"script", "style", "noscript", "svg", "head"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.links = []
+        self._skip = 0
+        self._href = None
+        self._ltxt = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.SKIP:
+            self._skip += 1
+        if tag in self.BLOCK:
+            self.parts.append("\n")
+        if tag == "a":
+            self._href = dict(attrs).get("href")
+            self._ltxt = []
+
+    def handle_endtag(self, tag):
+        if tag in self.SKIP and self._skip:
+            self._skip -= 1
+        if tag in self.BLOCK:
+            self.parts.append("\n")
+        if tag == "a" and self._href is not None:
+            self.links.append((self._href, " ".join("".join(self._ltxt).split())))
+            self._href = None
+
+    def handle_data(self, data):
+        if self._skip:
+            return
+        self.parts.append(data)
+        if self._href is not None:
+            self._ltxt.append(data)
+
+
+def html_to_text(html):
+    p = _TextParser()
+    try:
+        p.feed(html)
+    except Exception:
+        pass
+    lines, prev = [], None
+    for ln in "".join(p.parts).splitlines():
+        ln = " ".join(ln.split())
+        if len(ln) < 2 or ln == prev:
+            continue
+        lines.append(ln)
+        prev = ln
+    return "\n".join(lines), p.links
+
+
+def _decode(raw, header_charset):
+    cands = []
+    if header_charset:
+        cands.append(header_charset)
+    m = re.search(rb"charset=[\"']?([\w-]+)", raw[:3000], re.I)
+    if m:
+        cands.append(m.group(1).decode("ascii", "ignore"))
+    cands += ["utf-8", "cp949"]
+    for enc in cands:
+        try:
+            return raw.decode(enc)
+        except Exception:
+            continue
+    return raw.decode("utf-8", "ignore")
+
+
+_ROBOTS = {}
+
+
+def allowed_by_robots(url):
+    u = urllib.parse.urlparse(url)
+    base = f"{u.scheme}://{u.netloc}"
+    rp = _ROBOTS.get(base)
+    if rp is None:
+        rp = urllib.robotparser.RobotFileParser()
+        try:
+            req = urllib.request.Request(base + "/robots.txt", headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                rp.parse(_decode(r.read(200_000), None).splitlines())
+        except Exception:
+            rp = None  # robots 를 못 읽으면(없음 등) 허용으로 본다
+        _ROBOTS[base] = rp if rp else False
+        rp = _ROBOTS[base]
+    if rp is False:
+        return True
+    return rp.can_fetch("HohoplayBot", url) and rp.can_fetch("*", url)
+
+
+def fetch_html(url, timeout=15):
+    if not allowed_by_robots(url):
+        return None, "robots 차단"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ko,en;q=0.5"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            ctype = (r.headers.get("Content-Type") or "").lower()
+            if ctype and "html" not in ctype:
+                return None, f"HTML 아님({ctype[:30]})"
+            raw = r.read(1_500_000)
+            return _decode(raw, r.headers.get_content_charset()), ""
+    except Exception as e:
+        return None, str(e)[:80]
+
+
+LINK_WEIGHTS = (
+    (("주차", "교통", "오시는", "찾아오", "길찾기", "위치"), 5),
+    (("이용안내", "관람안내", "이용 안내", "관람 안내", "이용규칙", "관람규칙", "유의사항", "이용수칙"), 4),
+    (("예약", "FAQ", "자주", "Q&A"), 2),
+    (("안내", "이용", "편의", "시설", "규정"), 1),
+)
+BAD_EXT = (".pdf", ".jpg", ".jpeg", ".png", ".gif", ".zip", ".hwp", ".doc", ".docx", ".xls", ".xlsx", ".mp4")
+
+
+def pick_links(base_url, links):
+    host = urllib.parse.urlparse(base_url).netloc.lower().replace("www.", "")
+    scored = {}
+    for href, text in links:
+        if not href or href.startswith(("javascript", "mailto", "tel", "#")):
+            continue
+        full = urllib.parse.urljoin(base_url, href).split("#")[0]
+        pu = urllib.parse.urlparse(full)
+        if pu.scheme not in ("http", "https") or pu.netloc.lower().replace("www.", "") != host:
+            continue
+        if pu.path.lower().endswith(BAD_EXT) or full.rstrip("/") == base_url.rstrip("/"):
+            continue
+        score = 0
+        for keys, w in LINK_WEIGHTS:
+            if any(k.lower() in text.lower() for k in keys):
+                score += w
+        if score and (full not in scored or scored[full] < score):
+            scored[full] = score
+    return [u for u, _ in sorted(scored.items(), key=lambda kv: -kv[1])[:MAX_SUBPAGES]]
+
+
+def gather_pages(url):
+    """홈페이지 + 안내성 하위 페이지의 글을 모은다. [(url, text)]"""
+    pages = []
+    html, err = fetch_html(url)
+    if not html:
+        print(f"  ✖ 홈페이지 열기 실패: {err}")
+        return pages
+    text, links = html_to_text(html)
+    pages.append((url, text[:PAGE_CHARS]))
+    for sub in pick_links(url, links):
+        time.sleep(1.5)
+        h, e = fetch_html(sub)
+        if not h:
+            print(f"  · 건너뜀 {sub[:70]} ({e})")
+            continue
+        t, _ = html_to_text(h)
+        if len(t) > 30:
+            pages.append((sub, t[:PAGE_CHARS]))
+    total = 0
+    out = []
+    for u, t in pages:
+        if total + len(t) > TOTAL_CHARS:
+            t = t[: max(0, TOTAL_CHARS - total)]
+        if t:
+            out.append((u, t))
+            total += len(t)
+    return out
+
+
 # ---------------------------------------------------------------- 대상 고르기
 def is_visible(p):
     return bool(p.get("contentid")) and not p.get("hidden")
@@ -77,8 +267,8 @@ def is_visible(p):
 
 def priority(p):
     s = 0
-    if p.get("homepage"):
-        s += 2
+    if usable_homepage(p):
+        s += 3
     if p.get("tel"):
         s += 1
     if p.get("hasDetail"):
@@ -94,7 +284,7 @@ def pick_targets(places, notes, draft, ids, count, redo=False):
     cand = []
     for p in by_id.values():
         cid = p["contentid"]
-        if cid in notes:
+        if cid in notes or not usable_homepage(p):
             continue
         if cid in draft and not redo:
             continue
@@ -104,39 +294,29 @@ def pick_targets(places, notes, draft, ids, count, redo=False):
 
 
 # ---------------------------------------------------------------- 프롬프트
-def build_prompt(p):
-    known = []
-    for label, key in (("이용요금", "fee"), ("운영시간", "hours"), ("전화", "tel"), ("홈페이지", "homepage")):
-        v = str(p.get(key) or "").strip()
-        if v:
-            known.append(f"- {label}: {v[:200]}")
-    known_txt = "\n".join(known) if known else "- (없음)"
-    return f"""너는 아이 동반 가족을 위한 방문 정보 정리자다. 감상·추천 문구 없이 확인된 사실만 정리한다.
+def build_prompt(p, pages):
+    blocks = "\n\n".join(f"=== 페이지 {i}: {u} ===\n{t}" for i, (u, t) in enumerate(pages, 1))
+    return f"""너는 아이 동반 가족을 위한 방문 정보 정리자다. 아래 [가져온 글]에 실제로 적힌 사실만 정리한다.
 
-[장소]
-이름: {p.get('title')}
-주소: {p.get('addr')}
+[장소] {p.get('title')} ({p.get('addr')})
 
-[이미 사이트에 있는 정보 — 다시 쓰지 말 것]
-{known_txt}
+[가져온 글]
+{blocks}
 
-[할 일]
-구글 검색으로 공식 안내(공식 홈페이지·지자체·공공기관·네이버 플레이스 공지)와 최근 방문 후기를 찾아 아래 3가지만 정리해라.
-1) access (주차·교통): 가까운 지하철역 이름, 주차 가능 여부, 주차가 혼잡했다는 후기, 행사 때 주차 제한
-2) rules (이용 규칙): 재입장, 음식물 반입, 예약 필요 여부, 연령 제한, 반려동물, 유모차
-3) tip (관람 팁): 아이 동반 시 추천 동선과 순서, 쉬어 갈 곳, 비 오는 날·더운 날 활용
+[할 일] 아래 3가지를 [가져온 글]에서만 찾아 정리해라.
+1) access (주차·교통): 가까운 지하철역 이름, 주차 가능 여부·주차장 이용 안내
+2) rules (이용 규칙): 재입장, 음식물 반입, 예약 필요 여부, 연령 제한, 반려동물, 유모차·휠체어
+3) tip (관람 팁): 글에 적힌 추천 관람 순서·동선, 소요시간, 쉬어 갈 곳
 
 [규칙]
-- 검색에서 확인된 것만 쓴다. 확인되지 않으면 그 항목은 빈 문자열("")로 둔다. 추측하지 않는다.
-- 버스 번호, 주차 요금 금액, 지하철 출구 번호, 도보 몇 분은 쓰지 않는다.
-- 요금·운영시간은 쓰지 않는다.
-- 후기 한두 건에서만 나온 내용은 "~했다는 후기가 있어요"처럼 근거 수준이 드러나게 쓴다.
-- 출처끼리 내용이 다르면 단정하지 말고 "자료마다 달라 방문 당일 확인이 필요해요"라고 쓴다.
-- 항목마다 1~2문장, 존댓말(~요), 이모지·마크다운 금지.
-- 확인하지 못한 항목 이름은 unverified 목록에 넣는다.
+- 글에 없는 내용은 절대 쓰지 말고 그 항목은 빈 문자열("")로 둔다. 상식이나 추측으로 채우지 않는다.
+- 항목마다 근거가 된 원문을 {{항목}}_quote 에 글에서 그대로(고쳐 쓰지 말고) 40~80자 복사해 넣는다. 근거가 없으면 비워 둔다.
+- 버스 번호, 주차 요금 금액, 지하철 출구 번호, 도보 몇 분, 입장료, 운영시간은 쓰지 않는다.
+- 항목마다 1~2문장, 존댓말(~요), 이모지·마크다운 금지. 글을 베끼지 말고 쉬운 말로 다시 쓴다.
+- 글이 오래됐거나 방문 전 확인이 필요해 보이면 문장 끝에 "방문 전 공식 안내 확인이 필요해요"를 붙인다.
 
-[출력] 아래 JSON 한 개만 출력해라. 다른 글은 쓰지 마라.
-{{"access": "", "rules": "", "tip": "", "unverified": ["access", "rules", "tip" 중 확인 못 한 것]}}
+[출력] 아래 JSON 한 개만 출력해라.
+{{"access": "", "access_quote": "", "rules": "", "rules_quote": "", "tip": "", "tip_quote": ""}}
 """
 
 
@@ -153,7 +333,6 @@ def extract_json(text):
 
 
 def sanitize(text):
-    """수치 문장 제거, 길이 제한. 결과가 비면 ''."""
     t = re.sub(r"\s+", " ", str(text or "")).strip()
     if not t:
         return ""
@@ -168,40 +347,33 @@ def sanitize(text):
     return out
 
 
-def grounding_sources(resp):
-    out, seen = [], set()
-    try:
-        for cand in (resp.candidates or [])[:1]:
-            gm = getattr(cand, "grounding_metadata", None)
-            for ch in (getattr(gm, "grounding_chunks", None) or []):
-                web = getattr(ch, "web", None)
-                uri = getattr(web, "uri", None)
-                if uri and uri not in seen:
-                    seen.add(uri)
-                    out.append({"title": getattr(web, "title", "") or "", "url": uri})
-    except Exception:
-        pass
-    return out[:8]
+def _squash(s):
+    return re.sub(r"[\s​·ㆍ…\-–—~,.:;!?\"'“”‘’()\[\]{}<>/|]+", "", str(s or ""))
+
+
+def quote_in_pages(quote, pages):
+    q = _squash(quote)
+    if len(q) < 8:
+        return False
+    return any(q in _squash(t) for _, t in pages)
 
 
 def is_transient(err):
     msg = str(err).lower()
-    # 일일 한도 소진·한도 0 은 기다려도 소용없으니 재시도하지 않는다.
     if "perday" in msg.replace(" ", "").replace("_", "") or "limit: 0" in msg:
         return False
     code = getattr(err, "code", None)
     if isinstance(code, int):
         return code in (429, 500, 502, 503, 504)
-    return any(k in msg for k in ("503", "unavailable", "timed out", "timeout", "429", "resource_exhausted", "overloaded", "connection"))
+    return any(k in msg for k in ("503", "unavailable", "timed out", "timeout", "429", "resource_exhausted", "overloaded", "connection", "deadline"))
 
 
 _ERR_SHOWN = set()
 
 
 def show_err(model, e):
-    """오류 전문을 보여 준다(한도 이름이 뒤쪽에 나온다). 같은 모델·같은 코드는 처음 한 번만 길게."""
     key = (model, str(getattr(e, "code", "")))
-    limit = 1500 if key not in _ERR_SHOWN else 120
+    limit = 600 if key not in _ERR_SHOWN else 120
     _ERR_SHOWN.add(key)
     print(f"  ⚠️ 모델 {model} 실패: {str(e)[:limit]}")
 
@@ -212,9 +384,9 @@ def discover_models(client, tried):
         for m in client.models.list():
             name = (getattr(m, "name", "") or "").replace("models/", "")
             actions = getattr(m, "supported_actions", None) or []
-            if "flash" not in name or name in tried:
+            if "flash" not in name or name in tried or re.match(r"gemini-2\.", name):
                 continue
-            if any(x in name for x in ("image", "tts", "live", "audio", "embedding", "robotics", "computer", "thinking-exp")):
+            if any(x in name for x in ("image", "tts", "live", "audio", "embedding", "robotics", "computer", "thinking-exp", "omni")):
                 continue
             if actions and "generateContent" not in actions:
                 continue
@@ -222,21 +394,16 @@ def discover_models(client, tried):
     except Exception as e:
         print(f"  ⚠️ 사용 가능 모델 조회 실패: {str(e)[:200]}")
         return []
-    found = [n for n in found if not re.match(r"gemini-2\.", n)]
+
     def _ver(n):
         m = re.match(r"gemini-(\d+)(?:\.(\d+))?", n)
         return (int(m.group(1)), int(m.group(2) or 0)) if m else (0, 0)
     found.sort(key=lambda n: (("preview" in n) or ("exp" in n), tuple(-x for x in _ver(n)), n))
-    print(f"  🔎 조회된 flash 모델(2.x 제외): {found[:8]}")
-    return found[:5]
+    return found[:4]
 
 
 def call_gemini(client, types, prompt):
-    cfg = types.GenerateContentConfig(
-        temperature=0.2,
-        max_output_tokens=1500,
-        tools=[types.Tool(google_search=types.GoogleSearch())],
-    )
+    cfg = types.GenerateContentConfig(temperature=0.1, max_output_tokens=1500)
     last = None
     models = list(MODELS)
     tried = []
@@ -253,7 +420,7 @@ def call_gemini(client, types, prompt):
             except Exception as e:
                 last = e
                 if is_transient(e) and n < 3:
-                    time.sleep(15 if n == 1 else 45)
+                    time.sleep(10 if n == 1 else 30)
                     continue
                 show_err(model, e)
                 break
@@ -263,34 +430,42 @@ def call_gemini(client, types, prompt):
     raise RuntimeError(f"모든 모델 실패: {str(last)[:300]}")
 
 
-def make_entry(p, model, resp):
-    sources = grounding_sources(resp)
+def make_entry(p, model, resp, pages):
     data = extract_json(resp.text) or {}
-    fields = {k: sanitize(data.get(k)) for k in FIELDS}
+    fields, evidence = {}, {}
+    for k in FIELDS:
+        txt = sanitize(data.get(k))
+        quote = str(data.get(k + "_quote") or "").strip()
+        if txt and quote_in_pages(quote, pages):
+            fields[k] = txt
+            evidence[k] = quote[:160]
+        else:
+            fields[k] = ""
+            if txt:
+                print(f"  ✂️ {LABELS[k]}: 원문 인용이 글에서 확인되지 않아 버림")
     unverified = [k for k in FIELDS if not fields[k]]
-    status = "draft"
-    if not sources:
-        fields = {k: "" for k in FIELDS}
-        unverified = list(FIELDS)
-        status = "no_source"
-    elif not any(fields.values()):
-        status = "empty"
     return {
         "title": p.get("title"),
         **fields,
+        "evidence": evidence,
         "unverified": unverified,
-        "sources": sources,
+        "sources": [{"title": urllib.parse.urlparse(u).netloc, "url": u} for u, _ in pages],
         "model": model,
         "draftedAt": now_kst(),
-        "status": status,
+        "status": "draft" if any(fields.values()) else "empty",
     }
+
+
+def empty_entry(p, status, why=""):
+    return {"title": p.get("title"), "access": "", "rules": "", "tip": "", "evidence": {}, "unverified": list(FIELDS),
+            "sources": [], "model": "", "draftedAt": now_kst(), "status": status, "note": why}
 
 
 # ---------------------------------------------------------------- 검토용 md
 def write_review(draft):
     lines = ["# 우리 가족 체크 초안 (자동 작성 — 승인 전)", "",
              "승인할 장소의 contentid 를 Actions `promote` 입력에 넣으면 kids_notes.json 으로 옮겨져요.",
-             "출처 링크를 열어 확인한 뒤 승인하세요. 문장이 이상하면 승인하지 말고 알려 주세요.", ""]
+             "각 문장 아래 '근거'는 공식 홈페이지 원문이에요. 출처 링크를 열어 확인한 뒤 승인하세요.", ""]
     for cid in sorted(draft):
         d = draft[cid]
         if d.get("status") == "promoted":
@@ -299,25 +474,34 @@ def write_review(draft):
         for k in FIELDS:
             v = d.get(k)
             lines.append(f"- **{LABELS[k]}**: {v if v else '(확인 못 함 — 비워 둠)'}")
+            ev = (d.get("evidence") or {}).get(k)
+            if v and ev:
+                lines.append(f"  - 근거: “{ev}”")
         if d.get("sources"):
             lines.append("- 출처: " + " · ".join(f"[{(s.get('title') or '링크')[:30]}]({s['url']})" for s in d["sources"]))
+        if d.get("note"):
+            lines.append(f"- 메모: {d['note']}")
         lines.append("")
     REVIEW.write_text("\n".join(lines), encoding="utf-8")
 
 
-# ---------------------------------------------------------------- draft / promote
+# ---------------------------------------------------------------- draft / promote / probe
+def make_client(api_key, timeout_ms=120_000):
+    from google import genai
+    from google.genai import types
+    try:
+        client = genai.Client(api_key=api_key, http_options=types.HttpOptions(api_version="v1beta", timeout=timeout_ms))
+    except Exception:
+        client = genai.Client(api_key=api_key)
+    return client, types
+
+
 def run_draft(args):
     api_key = os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
         print("❌ GEMINI_API_KEY 환경변수가 없습니다.")
         return 1
-    from google import genai
-    from google.genai import types
-    try:
-        client = genai.Client(api_key=api_key, http_options=types.HttpOptions(api_version="v1beta", timeout=120_000))
-    except Exception:
-        client = genai.Client(api_key=api_key)
-
+    client, types = make_client(api_key)
     places = load_json(PLACES, [])
     notes = load_json(NOTES, {})
     draft = load_json(DRAFT, {})
@@ -325,56 +509,63 @@ def run_draft(args):
     targets = pick_targets(places, notes, draft, ids, args.count, redo=args.redo)
     print(f"대상 {len(targets)}곳")
     ok = 0
+    gem_fail = 0
     for i, p in enumerate(targets, 1):
         cid = p["contentid"]
         print(f"[{i}/{len(targets)}] {cid} {p.get('title')}")
+        url = usable_homepage(p)
+        if not url:
+            print("  → 글을 읽을 홈페이지가 없어 건너뜀")
+            draft[cid] = empty_entry(p, "no_homepage", "홈페이지 없음 또는 SNS·블로그")
+            save_json(DRAFT, draft)
+            continue
+        pages = gather_pages(url)
+        if not pages:
+            draft[cid] = empty_entry(p, "no_source", "홈페이지 글을 가져오지 못함")
+            save_json(DRAFT, draft)
+            continue
+        print(f"  · 가져온 페이지 {len(pages)}개, 글자 {sum(len(t) for _, t in pages)}")
         try:
-            model, resp = call_gemini(client, types, build_prompt(p))
-            entry = make_entry(p, model, resp)
+            model, resp = call_gemini(client, types, build_prompt(p, pages))
+            entry = make_entry(p, model, resp, pages)
         except Exception as e:
             print(f"  ❌ 건너뜀: {str(e)[:160]}")
+            gem_fail += 1
             continue
         draft[cid] = entry
         ok += 1
-        print(f"  → {entry['status']} (출처 {len(entry['sources'])}개, 미확인 {entry['unverified']})")
-        save_json(DRAFT, draft)  # 중간 저장
+        print(f"  → {entry['status']} (미확인 {entry['unverified']})")
+        save_json(DRAFT, draft)
         if i < len(targets):
             time.sleep(SLEEP_SEC)
     save_json(DRAFT, draft)
     write_review(draft)
-    print(f"완료: {ok}/{len(targets)}곳 초안 저장")
-    if targets and ok == 0:
-        print("❌ 모든 장소가 실패했습니다. 위쪽 로그의 '건너뜀'·'모델 실패' 줄을 확인하세요.")
+    print(f"완료: 초안 {ok}곳 / 전체 {len(targets)}곳 (모델 실패 {gem_fail})")
+    if targets and ok == 0 and gem_fail:
+        print("❌ 모델 호출이 모두 실패했습니다. 위쪽 로그를 확인하세요.")
         return 1
     return 0
 
 
 def run_probe(args):
-    """모델별로 (1) 검색 없이 (2) 구글 검색 연동으로 아주 짧게 한 번씩 호출해, 어느 쪽이 막혔는지 보여 준다."""
     api_key = os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
         print("❌ GEMINI_API_KEY 환경변수가 없습니다.")
         return 1
-    from google import genai
-    from google.genai import types
-    client = genai.Client(api_key=api_key, http_options=types.HttpOptions(api_version="v1beta", timeout=60_000))
-    names = list(MODELS)
-    names += discover_models(client, names)
+    client, types = make_client(api_key, 60_000)
+    names = list(MODELS) + discover_models(client, list(MODELS))
     seen = set()
     for model in names:
         if model in seen:
             continue
         seen.add(model)
-        for label, tools in (("검색 없이", None), ("구글 검색 연동", [types.Tool(google_search=types.GoogleSearch())])):
-            cfg = types.GenerateContentConfig(temperature=0, max_output_tokens=60, tools=tools) if tools else types.GenerateContentConfig(temperature=0, max_output_tokens=60)
-            try:
-                r = client.models.generate_content(model=model, contents="한국의 수도는? 한 단어로 답해.", config=cfg)
-                print(f"✅ {model} / {label}: 성공 → {(r.text or '').strip()[:30]}")
-            except Exception as e:
-                msg = str(e)
-                kind = "한도 초과(429)" if "429" in msg else ("모델 없음(404)" if "404" in msg else "기타")
-                print(f"❌ {model} / {label}: {kind} — {msg[:200]}")
-            time.sleep(2)
+        try:
+            r = client.models.generate_content(model=model, contents="한국의 수도는? 한 단어로 답해.",
+                                               config=types.GenerateContentConfig(temperature=0, max_output_tokens=60))
+            print(f"✅ {model}: 성공 → {(r.text or '').strip()[:30]}")
+        except Exception as e:
+            print(f"❌ {model}: {str(e)[:160]}")
+        time.sleep(2)
     return 0
 
 
