@@ -1,264 +1,73 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VGTXTM4R91');
-    </script>
-    <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[게임 상식] 동키콩부터 점프킹까지: 점프 게임(Platformer)의 역사와 가로·세로 스크롤의 진화 - HOHO PLAY 커뮤니티</title>
-    <meta name="description" content="게임을 즐기면서 캐릭터를 공중으로 점프시켜 장애물을 넘거나 발판을 밟고 올라가는 경험은 모든 게이머에게 가장 익숙한 플레이 방식 중 하나입니다.">
-    <link rel="canonical" href="https://hohoplaylab.com/blog/magazine/15.html">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
-    <style>
-    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
-       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
-       .magazine-content 규칙과 같은 모양으로 맞춘다. */
-    /* [FIX] 2026-11-15: 모바일에서 긴 주소(URL)가 줄바꿈되지 않아 글 영역이 화면보다 넓어지고, 브라우저가 페이지를 축소해 보여 주던 문제 */
-    .magazine-content{overflow-wrap:anywhere;word-break:break-word;min-width:0}
-    .magazine-content a{overflow-wrap:anywhere}
-    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
-    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
-    .magazine-content strong{font-weight:800;color:#1e293b}
-    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
-    .magazine-content li{margin-bottom:8px}
-    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
-    </style>
-</head>
-<body class="min-h-screen flex flex-col">
-
-        <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-14 items-center">
-                <a href="/" class="flex items-center gap-2 cursor-pointer">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
-                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
-                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">호호 매거진</span>
-                </a>
-                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🗺️ 아이랑 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
-                            <a href="/festival/worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이 월드컵</a>
-                            <a href="/festival/camping-worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">캠핑장 월드컵</a>
-                            <a href="/festival/pick.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">오늘 어디 갈까?</a>
-                            <a href="/festival/roulette.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
-                            <a href="/festival/poster.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 포스터</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/game/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
-                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
-                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
-                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/blog/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
-                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
-                            <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
-                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
-                            <a href="/partner/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
-                        </div>
-                    </div>
-                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
-                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
-                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
-                            <a href="/terms/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
-                            <a href="/privacy/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
-                            <a href="/copyright/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
-                            <a href="/guide/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
-                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
-            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🗺️ 아이랑</div>
-                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
-                <a href="/festival/worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이 월드컵</a>
-                <a href="/festival/camping-worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">캠핑장 월드컵</a>
-                <a href="/festival/pick.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">오늘 어디 갈까?</a>
-                <a href="/festival/roulette.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
-                <a href="/festival/poster.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 포스터</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">🎮 플레이하기</div>
-                <a href="/game/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
-                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
-                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
-                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
-                <a href="/blog/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
-                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
-                <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
-                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
-                <a href="/partner/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
-                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
-                <a href="/terms/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
-                <a href="/privacy/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
-                <a href="/copyright/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
-                <a href="/guide/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
-            </div>
-        </div>
-    </nav>
-    <script>
-        function applyGameNavResponsive(){
-            var isWide = window.innerWidth >= 768;
-            var d1 = document.getElementById('g-nav-desktop');
-            var d2 = document.getElementById('g-nav-cta');
-            var m1 = document.getElementById('g-nav-cta-m');
-            var m2 = document.getElementById('g-nav-hamburger');
-            if(d1) d1.style.display = isWide ? 'flex' : 'none';
-            if(d2) d2.style.display = isWide ? 'flex' : 'none';
-            if(m1) m1.style.display = isWide ? 'none' : 'flex';
-            if(m2) m2.style.display = isWide ? 'none' : 'flex';
-            if(isWide){
-                var mm = document.getElementById('game-mobile-menu');
-                if(mm) mm.style.display = 'none';
-            }
-        }
-        applyGameNavResponsive();
-        window.addEventListener('resize', applyGameNavResponsive);
-        function toggleGameMenu(){
-            var m = document.getElementById('game-mobile-menu');
-            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
-            var isOpen = m.style.display === 'block';
-            if(!isOpen){
-                m.style.display = 'block';
-                b1.style.transform = 'translateY(6px) rotate(45deg)';
-                b2.style.opacity = '0';
-                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
-            } else {
-                m.style.display = 'none';
-                b1.style.transform = '';
-                b2.style.opacity = '1';
-                b3.style.transform = '';
-            }
-        }
-    </script>
-
-    <main class="max-w-3xl mx-auto px-4 py-10 w-full">
-    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
-
-    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">호호 매거진</span>
-        <a href="/blog/magazine/game/" class="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full" style="text-decoration:none">🎮 게임</a>
-        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
-    </div>
-    <script>
-      (function() {
-          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=post-15')
-              .then(function(r) { return r.json(); })
-              .then(function(data) {
-                  var el = document.getElementById('page-view-num');
-                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
-              })
-              .catch(function() {});
-      })();
-    </script>
-
-    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">[게임 상식] 동키콩부터 점프킹까지: 점프 게임(Platformer)의 역사와 가로·세로 스크롤의 진화</h1>
-    <p class="text-slate-500 mb-8">HOHO PLAY · 2026.09.26</p>
-
-    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><h1>[매일 읽는 게임 상식] 동키콩부터 점프킹까지: 점프 게임(Platformer)의 역사와 가로·세로 스크롤의 진화</h1>
-<p>게임을 즐기면서 캐릭터를 공중으로 점프시켜 장애물을 넘거나 발판을 밟고 올라가는 경험은 모든 게이머에게 가장 익숙한 플레이 방식 중 하나입니다. 이러한 메커니즘을 가진 장르를 보통 '플랫폼 게임(Platformer)' 또는 직관적으로 '점프 게임'이라고 부릅니다.</p>
-<p>점프 게임은 플레이어가 시각 정보를 인식하고 조작 버튼을 누르는 물리적 리듬감을 극대화한 장르로, 횡스크롤 방식의 가로형과 위로 탑을 쌓듯 올라가는 세로형으로 나뉘며 독자적인 재미 요소를 구축해 왔습니다. 매일 하나씩 알아가는 게임 상식 시리즈로 점프 게임의 탄생과 가로형 및 세로형 구조의 역사를 상세히 알아보겠습니다.</p>
-<p>---</p>
-<h2>1. 점프 게임의 탄생과 가로형(횡스크롤) 플랫폼의 역사</h2>
-<p>점프 메커니즘이 게임의 핵심 요소로 자리 잡은 것은 1980년대 초반 아케이드 오락실 기판의 발전과 궤를 같이합니다.</p>
-<h3>점프 조작의 원조 &lt;동키콩&gt;과 장르의 기틀</h3>
-<p>1981년 닌텐도에서 출시한 &lt;동키콩(Donkey Kong)&gt;은 점프 버튼을 이용하여 장애물을 넘는 개념을 최초로 대중화한 작품입니다. 당시 '점프맨'이라는 이름으로 처음 등장한 마리오는 굴러오는 경사로의 철통을 뛰어넘으며 상단으로 이동하는 구조를 보여주었습니다.</p>
-<p>이전까지의 2D 게임들이 스페이스 침략자처럼 좌우 이동과 사격에 국한되었다면, &lt;동키콩&gt;은 중력과 발판(Platform)이라는 개념을 도입하여 점프 게임이라는 새로운 장르의 포문을 열었습니다.</p>
-<h3>가로형 횡스크롤의 표준을 제시한 &lt;슈퍼 마리오 브라더스&gt;</h3>
-<p>1985년 패미컴으로 발매된 &lt;슈퍼 마리오 브라더스&gt;는 화면이 왼쪽에서 오른쪽으로 이동하는 가로형(횡스크롤) 점프 게임의 완성형을 보여주었습니다.</p>
-<p>달리는 속도와 점프 높이의 물리적 상호작용, 가속도 개념, 그리고 공중에서의 미세한 방향 조작 등 현대 플랫포머 게임이 갖춰야 할 정밀한 컨트롤 감각을 확립했습니다. 왼쪽에서 오른쪽으로 진행하는 가로형 구도는 시선의 이동 방향과 부합하여 게이머들에게 모험하는 듯한 공간감을 제공했습니다.</p>
-<p>---</p>
-<h2>2. 세로형(수직 스크롤) 점프 게임의 등장과 모바일 시대의 만남</h2>
-<p>가로형 점프 게임이 탐험과 모험에 초점을 맞췄다면, 세로형(수직 스크롤) 점프 게임은 높이 올라갈수록 커지는 추락의 위험과 한계를 시험하는 도전 의식에 집중했습니다.</p>
-<h3>오락실 세로형 점프의 고전 &lt;크레이지 클라이머&gt;와 &lt;아이스 클라이머&gt;</h3>
-<p>1980년 출시된 &lt;크레이지 클라이머(Crazy Climber)&gt;는 고층 빌딩을 외벽을 잡고 올라가는 최초의 세로 진행형 게임 중 하나였습니다. 뒤이어 1985년 &lt;아이스 클라이머(Ice Climber)&gt;는 아래에서 위로 얼음 블록을 깨며 수직으로 이동하는 점프 플레이를 선보였습니다.</p>
-<p>화면 하단이 점차 압박해 오거나 한 번 떨어지면 아래로 추락하는 수직적 구조는 플레이어에게 가로형 플레이와는 또 다른 높은 긴장감을 부여했습니다.</p>
-<h3>모바일 디바이스와 결합한 터치/기기 기울이기 방식</h3>
-<p>2000년대 후반 스마트폰의 보급은 세로형 점프 게임의 폭발적인 부흥기를 이끌었습니다. 스마트폰 화면 자체가 세로로 길쭉한 형태를 띠고 있었기 때문입니다.</p>
-<p>대표적으로 &lt;두들 점프(Doodle Jump)&gt;는 스마트폰의 자이로스코프(기기 기울이기) 센서와 세로 스크롤 방식을 결합하여 글로벌 히트를 기록했습니다. 국내에서도 카카오톡 게임하기 플랫폼을 통해 &lt;드래곤 플라이트&gt;나 다양한 수직 점프 게임들이 대중적인 인기를 끌며 대표적인 캐주얼 장르로 자리 잡았습니다.</p>
-<p>---</p>
-<h2>3. 가로형과 세로형 점프 게임의 레벨 디자인 및 심리적 차이</h2>
-<p>가로 진행과 세로 진행은 단순히 화면의 방향만 다른 것이 아니라, 플레이어가 느끼는 심리적 압박감과 레벨 디자인(맵 설계) 구조에서 명확한 차이를 보입니다.</p>
-<h3>수평적 탐험(가로형) vs 수직적 중력 압박(세로형)</h3>
-<ul><li><strong>가로형 점프 게임:</strong> 목적지를 향해 앞으로 나아가는 '진보'와 '탐험'의 느낌을 줍니다. 비밀 구역 탐색, 다양한 몬스터 배치, 스테이지 클리어형 구성에 유리합니다.</li><li><strong>세로형 점프 게임:</strong> 끊임없이 중력을 거슬러 올라가는 '도전'과 '생존'의 느낌을 강하게 줍니다. 올라간 만큼 떨어졌을 때 잃게 되는 리스크가 커서 정밀한 컨트롤을 요구합니다.</li></ul>
-<h3>고난도 '항아리류' 점프 게임으로의 현대적 재해석</h3>
-<p>최근 인디 게임 시장에서는 세로형 점프 게임의 높은 추락 리스크를 극단적으로 활용한 고난도 게임들이 큰 인기를 얻고 있습니다.</p>
-<p>&lt;겟팅 오버 이트(Getting Over It, 일명 항아리 게임)&gt;나 &lt;점프킹(Jump King)&gt;, &lt;온리 업(Only Up!)&gt; 같은 작품들은 체크포인트(저장점)를 없애거나 최하단으로 떨어질 수 있는 세로형 구조를 채택했습니다. 실수 한 번으로 몇 시간 동안 올라간 높이를 잃어버리는 매운맛 재미는 인터넷 방송과 스트리머 생태계와 맞물려 현대 점프 게임의 새로운 트렌드를 형성했습니다.</p></div>
-
-    <aside aria-label="함께 보면 좋은 페이지" style="margin-top:36px;padding:18px;border:1px solid #e2e8f0;border-radius:16px;background:#fff"><div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:12px">🔗 함께 보면 좋은 페이지</div><div style="display:grid;gap:10px"><a href="/guides/hoho-run-guide.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎮 게임</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">HOHO RUN 공략</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">높이 구간별 장애물과 화염구, 상점 비용과 부활 티켓 사용 시점을 정리한 공략입니다.</div></a><a href="/guides/hoho-dash-guide.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎮 게임</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">HOHO DASH 공략</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">거리 구간별 STAGE 변화와 아이템 판단 기준, 상점 업그레이드 순서를 정리한 공략입니다.</div></a><a href="/blog/magazine/21.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">📖 호호 매거진</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">슈퍼 마리오부터 쿠키런까지: 횡스크롤 달리기 게임(Endless Runner)의 역사와 진화</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호 매거진의 관련 글입니다.</div></a><a href="/blog/magazine/10.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">📖 호호 매거진</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">설치 없이 켜지는 웹게임은 어떻게 살아남았나: 플래시 이후 10년 흐름</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호 매거진의 관련 글입니다.</div></a></div><div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:13px;color:#64748b"><a href="/blog/magazine/game/" style="color:#4f46e5;font-weight:800;text-decoration:none">🎮 게임 글 더 보기 →</a> <span style="color:#cbd5e1">·</span> <a href="/blog/magazine/" style="color:#64748b;font-weight:700;text-decoration:none">호호 매거진 전체</a></div></aside>
-
-    <div class="mt-10 text-center">
-        <a href="/blog/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-6 py-3 rounded-full transition">← 커뮤니티로 돌아가기</a>
-    </div>
-
-
-    </div>
-    </main>
-
-    <!-- [ADD] 2026-10-24: 글 하단 HOHO PICK. 2/3/4/6번 등 기존 글과 blog/index.html과 같은 방식
-         (/hoho-pick.html을 불러와 끼우고, 안에 든 script는 다시 만들어 실행). 템플릿에 없어서
-         매거진 글을 클릭해 들어오면 빠져 있었음. -->
-    <div id="hoho-pick-placeholder" data-exclude="community" style="width:100%;box-sizing:border-box;max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
-    <script>
-    (function(){
-        var ph = document.getElementById('hoho-pick-placeholder');
-        if (!ph) return;
-        // [ADD] 2026-10-26: 이 템플릿은 커뮤니티 글(blog/posts/)과 호호 매거진 글(blog/magazine/)이
-        // 같이 쓴다. 매거진 글 아래에는 "호호 매거진" 추천이 또 나오지 않게 magazine을 빼고,
-        // 커뮤니티 글은 기존대로 community를 뺀다. 주소(경로)로 구분하므로 생성 스크립트는 안 바꿔도 된다.
-        ph.setAttribute('data-exclude', location.pathname.indexOf('/blog/magazine/') === 0 ? 'magazine' : 'community');
-        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
-            ph.innerHTML = html;
-            var scripts = ph.querySelectorAll('script');
-            for (var i = 0; i < scripts.length; i++) {
-                var old = scripts[i];
-                var s = document.createElement('script');
-                for (var j = 0; j < old.attributes.length; j++) {
-                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
-                }
-                s.textContent = old.textContent;
-                old.parentNode.replaceChild(s, old);
-            }
-        }).catch(function(){});
-    })();
-    </script>
-
-    <div id="footer-placeholder"><nav aria-label="사이트 정보" style="padding:24px 16px;text-align:center;font-size:13px;line-height:2;color:#64748b"><a href="/about/" style="color:#475569;text-decoration:none">호호플레이 소개</a> · <a href="/privacy/" style="color:#475569;text-decoration:none">개인정보처리방침</a> · <a href="/terms/" style="color:#475569;text-decoration:none">이용약관</a> · <a href="/copyright/" style="color:#475569;text-decoration:none">저작권·콘텐츠 정책</a> · <a href="/contact/" style="color:#475569;text-decoration:none">문의하기</a></nav></div>
-    <script>
-        fetch('/footer.html')
-            .then(r => r.text())
-            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
-    </script>
-
-
-</body>
-</html>
+<p style="font-size:13px;color:#64748b;margin:0 0 12px;">🗓 최종 수정: 2026년 11월 26일</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><div style="font-weight:900;margin-bottom:4px;">📌 한줄요약</div>점프 게임은 1981년 동키콩에서 시작해 슈퍼 마리오(1985)로 표준이 되었고, 2010년대 점프킹·온리 업으로 '떨어지는 공포'를 중심에 놓는 방향으로 돌아왔다.</div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#f59e0b;"><div style="font-weight:900;margin-bottom:4px;">📍 나만의 포인트</div>이 글의 선별 기준은 세 가지다. ① 출시 연도를 확인할 수 있는 작품 ② 점프의 역할(장애물 회피·등반·낙하 위험)이 달라진 작품 ③ 난이도를 숫자로 비교할 수 있는 웹게임 사례. 세로로 오르는 웹 점프 게임의 구간별 수치로 난이도 설계를 풀었다.</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">아무리 해도 같은 지점에서 떨어지는 게임이 있다. 짜증이 나는데도 다시 시작 버튼을 누르게 된다. 점프 게임이 40년 넘게 사랑받는 이유는 조작이 단순한 대신 '실수 비용'이 크게 설계되어 있기 때문이다. 연표와 구조를 함께 정리한다.</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><div style="font-weight:900;margin-bottom:6px;">📚 목차</div><ol style="margin:0;padding-left:20px;"><li style="margin:4px 0;"><a href="#donkey" style="color:#4f46e5;text-decoration:underline;">1981년 동키콩과 1985년 슈퍼 마리오 브라더스</a></li><li style="margin:4px 0;"><a href="#climber" style="color:#4f46e5;text-decoration:underline;">오르는 점프의 계보: 크레이지 클라이머, 아이스 클라이머, 두들 점프</a></li><li style="margin:4px 0;"><a href="#fall" style="color:#4f46e5;text-decoration:underline;">2017~2023년 겟팅 오버 잇·점프킹·온리 업: 떨어지는 공포</a></li><li style="margin:4px 0;"><a href="#own-run" style="color:#4f46e5;text-decoration:underline;">세로 점프 웹게임의 구간별 난이도 수치</a></li></ol></div>
+<h2 id="donkey">1981년 동키콩과 1985년 슈퍼 마리오 브라더스</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">닌텐도의 동키콩(1981)은 점프맨이 구르는 통을 뛰어넘으며 위로 오르는 구조로, 점프를 게임의 중심 조작으로 삼은 대표작이다. 이 점프맨이 나중에 마리오가 된다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">1985년 슈퍼 마리오 브라더스는 같은 점프를 횡스크롤 달리기와 결합해 표준을 만들었다. 점프 높이를 버튼 누른 시간으로 조절하는 방식이 이후 수많은 게임에 이어졌다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 동키콩(1981)이 점프를 핵심 조작으로, 슈퍼 마리오 브라더스(1985)가 횡스크롤 표준으로 만들었다.</p>
+<h2 id="climber">오르는 점프의 계보: 크레이지 클라이머, 아이스 클라이머, 두들 점프</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">1980년 크레이지 클라이머, 1985년 닌텐도의 아이스 클라이머는 위로 올라가는 구조에 초점을 맞췄다. 그리고 2009년 두들 점프는 스마트폰 기울기로 좌우를 조절하며 끝없이 오르는 방식을 대중화했다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">이 계보에서 점프는 장애물 회피가 아니라 '높이를 얻는 수단'이다. 점수가 곧 높이이기 때문에 실패하면 기록이 바로 눈에 보인다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 오르는 점프 게임은 점수 = 높이라는 직관적 기록으로 스마트폰 시대에 되살아났다.</p>
+<h2 id="fall">2017~2023년 겟팅 오버 잇·점프킹·온리 업: 떨어지는 공포</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">2017년 겟팅 오버 잇, 2019년 점프킹, 2023년 온리 업은 점프가 어려운 게 아니라 '한 번 떨어지면 많이 잃는' 것이 핵심이다. 체크포인트가 적거나 없어서 실수의 비용이 곧 재미가 된다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">이 방식은 방송과 영상 문화와도 맞았다. 실패 장면이 곧 콘텐츠가 되기 때문이다. 다만 모든 사람에게 즐거운 구조는 아니어서 반복 도전을 견디는 성향이 필요하다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 겟팅 오버 잇(2017)·점프킹(2019)·온리 업(2023)은 실패 비용을 키워 도전감을 만든다.</p>
+<h2 id="own-run">세로 점프 웹게임의 구간별 난이도 수치</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">아래 수치는 HOHO RUN과 HOHO DASH 공략 페이지(2026년 10월 기준 게임 버전)에서 직접 확인했다. 벽 사이를 튕기며 올라가는 이 게임은 점수가 올라간 높이(m)이고 체력이 없어서 한 번 부딪히면 끝난다. 1,000m부터 천사와 악마, 1,200m부터 피버·황금용 아이템이 떨어지고, 2,000m에서 장애물 빈도가 1.5배, 3,500m에서 2배, 5,000m에서 3배가 된다. 3,000m부터 화염구가 2개, 9,000m부터 3개다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">피버는 약 7초 무적에 속도 2.5배, 황금용은 약 7초 무적에 1.5배를 준다. 버섯은 충돌 1회를 막지만 거대 바위와 화염구는 막지 못한다. 가로로 달리는 대시형 게임은 2단 점프가 가능하고 방패가 충돌을 1회 막으며, 점수가 100·400·800·1,300에 이르면 스테이지 알림이 뜬다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 2,000·3,500·5,000m에서 장애물 빈도가 1.5·2·3배가 되고, 버섯은 바위와 화염구를 막지 못한다.</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#10b981;"><div style="font-weight:900;margin-bottom:6px;">✅ 한 번에 정리</div><p style="margin:0 0 6px;">· 동키콩(1981)과 슈퍼 마리오 브라더스(1985)가 점프 게임의 표준을 만들었다.</p><p style="margin:0 0 6px;">· 오르는 게임은 점수 = 높이로 기록이 직관적이다.</p><p style="margin:0 0 6px;">· 점프킹(2019)·온리 업(2023)은 실패 비용을 키워 도전감을 만들었다.</p><p style="margin:0 0 6px;">· 세로 웹 점프 게임은 2,000·3,500·5,000m에서 장애물 빈도가 단계적으로 올라간다.</p></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">점프 게임 연표</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">점프의 역할이 달라진 작품 위주로 정리했다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">연도</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">작품</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">점프의 역할</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1980</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">크레이지 클라이머</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">건물을 오르는 이동</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1981</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">동키콩</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">통을 넘는 회피와 등반</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1985</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">슈퍼 마리오 브라더스</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">높이 조절 가능한 횡스크롤 점프</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1985</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">아이스 클라이머</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">층을 오르는 점프</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2009</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">두들 점프</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">끝없이 오르는 점프</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2017</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">겟팅 오버 잇</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">낙하 위험이 큰 등반</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2019</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">점프킹</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">한 번 떨어지면 크게 손해</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2023</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">온리 업</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">3D 공간의 등반과 낙하</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">난이도를 만드는 방식 비교</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">점프 게임의 난이도가 어떤 요소에서 나오는지 비교했다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">방식</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">난이도의 원천</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">대표 사례</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">회피형</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">장애물 타이밍</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">슈퍼 마리오 브라더스</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">등반형</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">높이와 기록</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">두들 점프</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">낙하 비용형</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">실패하면 잃는 진행도</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">점프킹, 온리 업</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">빈도 증가형</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">구간마다 장애물 밀도가 상승</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">벽 튕김 웹 점프 게임</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">세로 웹 점프 게임 구간표</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">2026년 10월 기준 공략 페이지에서 확인한 구간별 변화다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">높이</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">변화</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">대비할 점</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1,000m~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">천사·악마 등장(악마는 화염구)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">악마가 보이면 방향부터 확인</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1,200m~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">피버·황금용이 약 10초마다 낙하</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">어려운 구간 앞에서 먹을 수 있는지 판단</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">2,000m~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">장애물 빈도 1.5배</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">피버·버섯을 확보하고 진입</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">3,000m~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">화염구 2개씩</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">한 방향만 피하면 맞을 수 있음</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">3,500m~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">장애물 빈도 2배</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">-</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">5,000m~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">장애물 빈도 3배(최고 단계)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">-</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">9,000m~</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">화염구 3개씩(버섯도 못 막음)</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">-</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🧭 이 글의 판단</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">점프 게임의 재미는 점프 동작이 아니라 '실수의 비용을 얼마로 설계했는가'에서 나온다고 판단한다. 체력이 있는 게임은 실수가 쌓이고, 체력이 없는 게임은 한 번의 실수가 판 전체를 끝낸다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">체력 없이 한 번 부딪히면 끝나는 웹 점프 게임이라면, 대신 구간마다 난이도가 급변하는 지점(2,000m, 3,500m, 5,000m)을 미리 알려 주는 편이 공정하다. 점프킹류의 가혹함과 웹게임의 짧은 판을 절충하려면 예고된 난이도 상승이 필요하다는 것이 이 글의 결론이다.</p>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🛠 실전 팁</div>
+<ul style="margin:0 0 16px;padding-left:20px;line-height:1.9;color:#334155;"><li style="margin:4px 0;">벽을 튕기는 점프 게임에서는 연타하지 말고 벽에 붙을 때까지 기다린 뒤 누른다.</li><li style="margin:4px 0;">2,000m 직전에 피버나 황금용, 버섯을 확보해 두고 들어간다.</li><li style="margin:4px 0;">버섯은 바위와 화염구를 막지 못하므로 높이 올라갈수록 의존하지 않는다.</li><li style="margin:4px 0;">첫 목표를 1,000m로 잡고, 그다음 1,200m의 피버·황금용 구간으로 넓힌다.</li></ul>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">❓ 자주 묻는 질문</div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 점프 게임의 시작은 무엇인가요?</p><p style="margin:0;color:#334155;">점프를 핵심 조작으로 삼은 대표작은 1981년 닌텐도의 동키콩이다. 이후 1985년 슈퍼 마리오 브라더스가 횡스크롤 형태로 표준을 만들었다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 점프킹류 게임은 왜 인기가 있나요?</p><p style="margin:0;color:#334155;">실패 장면이 곧 콘텐츠가 되고, 진행도를 크게 잃을수록 성공 시 성취감이 커진다. 다만 반복 도전을 견딜 수 있어야 즐겁다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 점프 게임 난이도는 어떻게 조절하나요?</p><p style="margin:0;color:#334155;">장애물 빈도, 체크포인트 간격, 실수 시 손실을 조절한다. 세로 웹 점프 게임은 높이 구간마다 빈도를 1.5배, 2배, 3배로 올리는 방식을 쓴다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 가로 달리기 점프와 세로 오르기 점프는 무엇이 다른가요?</p><p style="margin:0;color:#334155;">가로형은 장애물 타이밍, 세로형은 벽을 튕기는 방향 선택이 핵심이다. 가로형은 2단 점프 같은 보조가 있을 수 있다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 점프 게임에서 흔히 하는 실수는 무엇인가요?</p><p style="margin:0;color:#334155;">점프를 연타하는 것이다. 벽에 붙은 뒤에야 다음 점프가 유효한 구조라면 연타는 타이밍만 흐트러뜨린다.</p></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🔧 함께 쓰면 좋은 도구</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">세로 점프 구간을 직접 확인하려면 <a href="https://hohoplaylab.com/hoho-run.html" style="color:#4f46e5;text-decoration:underline;">HOHO RUN</a>에서 1,000m 도달부터 연습해 볼 수 있다.</p>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">📚 참고한 자료</div>
+<ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#475569;font-size:14px;"><li style="margin:3px 0;">닌텐도·닛칸 등 각 작품 공식 출시 정보, 두들 점프·겟팅 오버 잇·점프킹·온리 업 출시 정보</li><li style="margin:3px 0;">웹게임 사이트 게임 공략 페이지 (본문에 밝힌 출처, 2026년 10월 기준 게임 버전)</li></ul>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#ec4899;"><div style="font-weight:900;margin-bottom:4px;">💬 마무리 질문</div>점프 게임에서 가장 오래 막혔던 구간은 어디였나요? 몇 번 도전해서 넘었는지도 궁금합니다.</div>
+<p style="color:#6366f1;line-height:1.9;margin:8px 0 0;">#점프게임 #동키콩 #슈퍼마리오 #점프킹 #온리업 #아케이드게임 #게임역사 #게임상식 #웹게임</p>
