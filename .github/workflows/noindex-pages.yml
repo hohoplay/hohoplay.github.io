@@ -1,0 +1,42 @@
+name: Noindex Internal Pages
+
+# 사이트 주제와 무관한 내부·개인용 페이지 3개에 검색 제외(noindex)를 넣는 1회성 작업입니다.
+#   HOHO_Holdings_AI_Office_v6.html, adsense_guide_v2.html, danang_guide/danang_guide.html
+# 여러 번 실행해도 결과는 같습니다. 수동 실행(workflow_dispatch)만 가능합니다.
+#
+# [실행 전 필수] 아래 파일을 먼저 저장소에 올려 주세요.
+#   scripts/noindex_pages.py
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  noindex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: noindex 넣기
+        run: python3 scripts/noindex_pages.py --root .
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add HOHO_Holdings_AI_Office_v6.html adsense_guide_v2.html danang_guide/danang_guide.html
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 내부·개인용 페이지 3개 검색 제외(noindex)"
+            git pull --rebase
+            git push
+          fi
