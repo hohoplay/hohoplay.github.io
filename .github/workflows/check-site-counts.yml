@@ -1,0 +1,25 @@
+name: Check Site Counts
+
+# 사이트에 적힌 장소·코스·캠핑 숫자가 실제 데이터와 맞는지 점검합니다.
+# 파일을 고치거나 커밋하지 않습니다(읽기 전용). 결과는 실행 화면 맨 아래 "Summary"에 표로 나옵니다.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check
+        run: |
+          python scripts/check_site_counts.py . --no-report | tee -a "$GITHUB_STEP_SUMMARY" || true
