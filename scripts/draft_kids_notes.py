@@ -10,6 +10,10 @@
               사람이 보기 쉽게 data/kids_notes_draft_review.md 도 만든다(근거 문장·출처 링크 포함).
   2) promote: 승인한 contentid 만 data/kids_notes.json 으로 옮긴다. 그 뒤 Fetch Kids Place Images(kids-9999)로 반영.
   3) probe  : 모델이 응답하는지 아주 짧게 점검한다.
+  4) tourapi: (추천) 한국관광공사 TourAPI 의 '공식 부가정보'(주차·유모차 대여·반려동물·체험 안내)를 Vercel 프록시로 받아
+              문장 틀에 그대로 끼워 초안을 만든다. Gemini 를 쓰지 않으니 지어낼 일이 없다. 값이 비어 있으면 그 칸은 비운다.
+              장소 매칭은 '이름이 같거나 포함 + 좌표가 1.5km 이내'일 때만 인정한다.
+              환경변수: FESTIVAL_PROXY_URL (fetch_data.py 와 같은 값, .../api/festivals 형태)
 
 안전장치
   - Gemini 가 낸 문장마다 '원문 인용'을 같이 받고, 그 인용이 가져온 글 안에 실제로 있는지 코드가 대조한다. 없으면 그 칸은 버린다.
@@ -465,7 +469,7 @@ def empty_entry(p, status, why=""):
 def write_review(draft):
     lines = ["# 우리 가족 체크 초안 (자동 작성 — 승인 전)", "",
              "승인할 장소의 contentid 를 Actions `promote` 입력에 넣으면 kids_notes.json 으로 옮겨져요.",
-             "각 문장 아래 '근거'는 공식 홈페이지 원문이에요. 출처 링크를 열어 확인한 뒤 승인하세요.", ""]
+             "각 문장 아래 '근거'나 '공공데이터 원본'은 문장의 바탕이 된 원문이에요. 출처를 확인한 뒤 승인하세요.", ""]
     for cid in sorted(draft):
         d = draft[cid]
         if d.get("status") == "promoted":
@@ -477,8 +481,10 @@ def write_review(draft):
             ev = (d.get("evidence") or {}).get(k)
             if v and ev:
                 lines.append(f"  - 근거: “{ev}”")
+        if d.get("model") == "tourapi" and d.get("evidence"):
+            lines.append("- 공공데이터 원본: " + ", ".join(f"{k}={v}" for k, v in d["evidence"].items()))
         if d.get("sources"):
-            lines.append("- 출처: " + " · ".join(f"[{(s.get('title') or '링크')[:30]}]({s['url']})" for s in d["sources"]))
+            lines.append("- 출처: " + " · ".join((f"[{(s.get('title') or '링크')[:30]}]({s['url']})" if s.get("url") else (s.get("title") or "")) for s in d["sources"]))
         if d.get("note"):
             lines.append(f"- 메모: {d['note']}")
         lines.append("")
@@ -547,6 +553,239 @@ def run_draft(args):
     return 0
 
 
+# ---------------------------------------------------------------- TourAPI 공식 부가정보
+import math
+
+KIDS_TYPES = {"12": "관광지", "14": "문화시설", "28": "레포츠"}
+POS = ("가능", "있음", "있다", "O", "o", "유", "예", "YES", "Yes", "yes")
+NEG = ("불가", "불가능", "없음", "없다", "X", "x", "무", "아니오", "NO", "No", "no")
+
+
+def proxy_base():
+    u = os.environ.get("FESTIVAL_PROXY_URL", "").strip()
+    if not u:
+        return ""
+    return u.rsplit("/", 1)[0]
+
+
+def http_json(url, timeout=25):
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read().decode("utf-8", "ignore"))
+
+
+def norm_title(t):
+    t = re.sub(r"\([^)]*\)|\[[^\]]*\]", "", str(t or ""))
+    return re.sub(r"[\s\-·ㆍ_.,'\"]+", "", t).lower()
+
+
+def km(lat1, lng1, lat2, lng2):
+    try:
+        lat1, lng1, lat2, lng2 = map(float, (lat1, lng1, lat2, lng2))
+    except Exception:
+        return 9999.0
+    r = 6371.0
+    a = math.sin(math.radians(lat2 - lat1) / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(math.radians(lng2 - lng1) / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def match_place(p, items):
+    """검색 결과 중 우리 장소와 같은 곳만 고른다: (이름 같음/포함) AND (좌표 1.5km 이내). 없으면 None."""
+    mine = norm_title(p.get("title"))
+    best = None
+    for it in items:
+        if str(it.get("contenttypeid")) not in KIDS_TYPES:
+            continue
+        theirs = norm_title(it.get("title"))
+        if not mine or not theirs:
+            continue
+        same = mine == theirs
+        part = (mine in theirs or theirs in mine) and min(len(mine), len(theirs)) >= 4
+        if not (same or part):
+            continue
+        d = km(p.get("lat"), p.get("lng"), it.get("mapy"), it.get("mapx"))
+        # 이름이 완전히 같으면 1.5km, 이름이 일부만 같으면(예: '…분관') 0.5km 이내일 때만 같은 곳으로 본다.
+        if d > (1.5 if same else 0.5):
+            continue
+        score = (0 if same else 1, d)
+        if best is None or score < best[0]:
+            best = (score, it, d)
+    return best[1:] if best else None
+
+
+def clean_val(v):
+    t = re.sub(r"<[^>]+>", " ", str(v or ""))
+    t = re.sub(r"&nbsp;|&amp;", " ", t)
+    return " ".join(t.split()).strip()
+
+
+def yn(v):
+    t = clean_val(v)
+    if not t:
+        return None, ""
+    head = re.split(r"[\s,(/]", t, maxsplit=1)[0]
+    if head in POS or t.startswith("가능"):
+        return True, t
+    if head in NEG or t.startswith(("불가", "없")):
+        return False, t
+    return None, t
+
+
+def pick(item, *prefixes, exclude=()):
+    """TourAPI 필드 이름은 장소 종류마다 접미사가 달라서(parking / parkingculture / parkingleports) 접두어로 찾는다."""
+    for k, v in item.items():
+        kl = k.lower()
+        if any(kl.startswith(pf) for pf in prefixes) and not any(kl.startswith(ex) for ex in exclude):
+            c = clean_val(v)
+            if c:
+                return c
+    return ""
+
+
+def short_ok(t, n=70):
+    return bool(t) and len(t) <= n and not BANNED.search(t)
+
+
+SUFFIX = " 한국관광공사 공공데이터 기준이라 방문 전 공식 안내 확인이 필요해요."
+
+
+def sentences_from_item(item):
+    """TourAPI 부가정보에서 우리 카드 문장을 만든다. (access, rules, tip, evidence)"""
+    ev = {}
+    acc, rul, tip = [], [], []
+
+    park = pick(item, "parking", exclude=("parkingfee",))
+    if park:
+        ok, t = yn(park)
+        ev["parking"] = park[:80]
+        if ok is True:
+            acc.append("주차장이 있다고 안내돼 있어요.")
+        elif ok is False:
+            acc.append("주차장이 없거나 이용이 어렵다고 안내돼 있어요.")
+        elif short_ok(t):
+            acc.append(f"주차는 “{t}”(으)로 안내돼 있어요.")
+    pfee = pick(item, "parkingfee")
+    if pfee:
+        ev["parkingfee"] = pfee[:80]
+        if "무료" in pfee and "유료" not in pfee:
+            acc.append("주차는 무료로 안내돼 있어요.")
+        elif "유료" in pfee and "무료" not in pfee:
+            acc.append("주차는 유료로 안내돼 있어요.")
+
+    stroller = pick(item, "chkbabycarriage")
+    if stroller:
+        ev["chkbabycarriage"] = stroller[:80]
+        ok, t = yn(stroller)
+        if ok is True:
+            rul.append("유모차 대여가 가능하다고 안내돼 있어요.")
+        elif ok is False:
+            rul.append("유모차 대여는 어렵다고 안내돼 있어요.")
+    pet = pick(item, "chkpet")
+    if pet:
+        ev["chkpet"] = pet[:80]
+        ok, t = yn(pet)
+        if ok is True:
+            rul.append("반려동물 동반이 가능하다고 안내돼 있어요.")
+        elif ok is False:
+            rul.append("반려동물 동반은 어렵다고 안내돼 있어요.")
+        elif short_ok(t):
+            rul.append(f"반려동물은 “{t}”(으)로 안내돼 있어요.")
+    age = pick(item, "expagerange")
+    if age:
+        ev["expagerange"] = age[:80]
+        if short_ok(age, 40):
+            rul.append(f"체험 가능 연령은 “{age}”(으)로 안내돼 있어요.")
+    resv = pick(item, "reservation")
+    if resv:
+        ev["reservation"] = resv[:80]
+        if short_ok(resv, 60):
+            rul.append(f"예약 안내: {resv}")
+
+    guide = pick(item, "expguide")
+    if guide:
+        ev["expguide"] = guide[:120]
+        if short_ok(guide, 110):
+            tip.append(f"체험 안내: {guide}")
+
+    def join(parts, with_suffix):
+        if not parts:
+            return ""
+        text = " ".join(parts).strip()
+        if text and text[-1] not in ".요다!?":
+            text += "."
+        return text + (SUFFIX if with_suffix else "")
+    return join(acc, True), join(rul, True), join(tip, True), ev
+
+
+def tourapi_lookup(base, p):
+    """장소 이름으로 TourAPI 를 검색해 같은 곳을 찾고, 공식 부가정보를 받아 온다. (item, matched, distance_km) 또는 사유 문자열."""
+    q = re.sub(r"\([^)]*\)", "", str(p.get("title") or "")).strip()
+    try:
+        data = http_json(f"{base}/kids-image-search?keyword={urllib.parse.quote(q)}")
+    except Exception as e:
+        return f"검색 실패: {str(e)[:80]}"
+    if isinstance(data, dict) and data.get("error"):
+        return f"검색 오류: {str(data['error'])[:80]}"
+    items = (data or {}).get("items") or []
+    m = match_place(p, items)
+    if not m:
+        return "TourAPI에서 같은 장소를 찾지 못함(이름·좌표 불일치)"
+    matched, dist = m
+    try:
+        intro = http_json(f"{base}/kids-intro?contentId={matched['contentid']}&contentTypeId={matched['contenttypeid']}")
+    except Exception as e:
+        return f"부가정보 조회 실패: {str(e)[:80]}"
+    if isinstance(intro, dict) and intro.get("error"):
+        return f"부가정보 오류: {str(intro['error'])[:80]}"
+    return (intro or {}).get("item") or {}, matched, dist
+
+
+def run_tourapi(args):
+    base = proxy_base()
+    if not base:
+        print("❌ FESTIVAL_PROXY_URL 환경변수가 없습니다.")
+        return 1
+    places = load_json(PLACES, [])
+    notes = load_json(NOTES, {})
+    draft = load_json(DRAFT, {})
+    ids = [x.strip() for x in (args.ids or "").split(",") if x.strip()]
+    by_id = {p["contentid"]: p for p in places if is_visible(p)}
+    if ids:
+        targets = [by_id[i] for i in ids if i in by_id]
+    else:
+        cand = [p for cid, p in by_id.items() if cid not in notes and (args.redo or cid not in draft)]
+        targets = cand[: args.count]
+    print(f"대상 {len(targets)}곳")
+    ok = 0
+    for i, p in enumerate(targets, 1):
+        cid = p["contentid"]
+        print(f"[{i}/{len(targets)}] {cid} {p.get('title')}")
+        r = tourapi_lookup(base, p)
+        if isinstance(r, str):
+            print(f"  → {r}")
+            draft[cid] = empty_entry(p, "no_match" if "찾지 못함" in r else "error", r)
+        else:
+            item, matched, dist = r
+            a, ru, t, ev = sentences_from_item(item)
+            print(f"  · 매칭: {matched.get('title')} (타입 {matched.get('contenttypeid')}, {dist:.2f}km) / 받은 필드 {len(item)}개")
+            fields = {"access": a, "rules": ru, "tip": t}
+            draft[cid] = {
+                "title": p.get("title"), **fields, "evidence": ev,
+                "unverified": [k for k in FIELDS if not fields[k]],
+                "sources": [{"title": f"한국관광공사 TourAPI (contentId {matched.get('contentid')}, {matched.get('title')})", "url": ""}],
+                "model": "tourapi", "draftedAt": now_kst(),
+                "status": "draft" if any(fields.values()) else "empty",
+                "note": "공공데이터 필드를 문장 틀에 그대로 넣은 것(생성 AI 미사용)",
+            }
+            print(f"  → {draft[cid]['status']} (미확인 {draft[cid]['unverified']}) 근거필드 {list(ev)}")
+            ok += 1
+        save_json(DRAFT, draft)
+        time.sleep(1)
+    write_review(draft)
+    print(f"완료: 초안 {ok}곳 / 전체 {len(targets)}곳")
+    return 0
+
+
 def run_probe(args):
     api_key = os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
@@ -609,7 +848,7 @@ def run_promote(args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("mode", choices=["draft", "promote", "probe"])
+    ap.add_argument("mode", choices=["draft", "promote", "probe", "tourapi"])
     ap.add_argument("--ids", default="")
     ap.add_argument("--count", type=int, default=5)
     ap.add_argument("--redo", action="store_true")
@@ -617,6 +856,8 @@ def main():
     args = ap.parse_args()
     if args.mode == "probe":
         return run_probe(args)
+    if args.mode == "tourapi":
+        return run_tourapi(args)
     return run_draft(args) if args.mode == "draft" else run_promote(args)
 
 
