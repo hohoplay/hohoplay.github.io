@@ -259,7 +259,7 @@ def main():
         # [ADD] 2026-11-26: "우리 가족에게 맞을까?" 블록 — 3번 섹션(아이랑 갈 때 알아둘 점) 안에 들어간다.
         my_notes = ""
         _n = notes.get(cid) or {}
-        _rows = [(lbl, str(_n.get(k) or "").strip()) for lbl, k in (("추천 대상", "fitFor"), ("주의할 점", "caution"), ("가족 비용", "familyCost"))]
+        _rows = [(lbl, str(_n.get(k) or "").strip()) for lbl, k in (("추천 대상", "fitFor"), ("주차·교통", "access"), ("이용 규칙", "rules"), ("관람 팁", "tip"), ("주의할 점", "caution"), ("가족 비용", "familyCost"))]
         _rows = [(lbl, txt) for lbl, txt in _rows if txt]
         if _rows:
             my_notes = (
@@ -295,12 +295,6 @@ def main():
             .replace("{{GREETING}}", greeting)
             .replace("{{CONTENTID}}", html_escape(cid))
         )
-
-        # [ADD] 2026-11-26: 지도에서 숨긴(hidden) 장소는 상세페이지가 있어도 검색에는 나오지 않게 한다.
-        if p.get("hidden"):
-            html_out = html_out.replace(
-                f'<link rel="canonical" href="{canonical_url}">',
-                f'<link rel="canonical" href="{canonical_url}">\n<meta name="robots" content="noindex,follow">', 1)
 
         out_path = out_dir / f"{cid}.html"
         with open(out_path, "w", encoding="utf-8", newline="") as f:
