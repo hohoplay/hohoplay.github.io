@@ -1,0 +1,49 @@
+name: Unblock Kids Course Pages
+
+# 아이랑 나들이 코스 글(blog/kids-course/*.html)의 noindex 를 풀고 sitemap.xml 을 맞추는 1회성 작업입니다.
+#   1) scripts/unblock_kids_course.py : 코스 글 + 목록 페이지의 noindex 제거 (얇은 글 4편은 유지)
+#   2) scripts/sync_sitemap.py        : 검색 허용이 된 코스 글을 sitemap 에 추가, noindex 로 남은 글은 sitemap 에서 제거
+# 여러 번 실행해도 결과는 같습니다. 수동 실행(workflow_dispatch)만 가능합니다.
+#
+# [실행 전 필수] 아래 파일을 먼저 저장소에 올려 주세요.
+#   scripts/unblock_kids_course.py
+#   scripts/sync_sitemap.py
+#   scripts/add_kids_course_route.py, scripts/build_kids_course_pages.py, scripts/refresh_kids_course_text.py
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  unblock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 코스 글 noindex 해제
+        run: python3 scripts/unblock_kids_course.py --root .
+        continue-on-error: true
+
+      - name: sitemap.xml 동기화
+        run: python3 scripts/sync_sitemap.py --root . || true
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add blog/kids-course sitemap.xml
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 아이랑 코스 글 검색 허용(noindex 해제) + sitemap 동기화"
+            git pull --rebase
+            git push
+          fi
