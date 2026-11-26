@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VGTXTM4R91');
+    </script>
+    <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이랑 나들이 지도 선택 기준과 탐색 방식별 차이점 비교 가이드 - HOHO PLAY 커뮤니티</title>
+    <meta name="description" content="주말 외출 장소를 고를 때 일반 지도 앱에서 검색어 3개 이상을 번갈아 입력하며 운영시간과 주차 여부를 따로 확인하는 과정은 출발 전부터 많은 ">
+    <link rel="canonical" href="https://hohoplaylab.com/blog/magazine/68.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    /* [FIX] 2026-11-15: 모바일에서 긴 주소(URL)가 줄바꿈되지 않아 글 영역이 화면보다 넓어지고, 브라우저가 페이지를 축소해 보여 주던 문제 */
+    .magazine-content{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+    .magazine-content a{overflow-wrap:anywhere}
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+        <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="/" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">호호 매거진</span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🗺️ 아이랑 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
+                            <a href="/festival/worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이 월드컵</a>
+                            <a href="/festival/camping-worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">캠핑장 월드컵</a>
+                            <a href="/festival/pick.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">오늘 어디 갈까?</a>
+                            <a href="/festival/roulette.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+                            <a href="/festival/poster.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 포스터</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/game/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
+                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
+                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
+                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/blog/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
+                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
+                            <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
+                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
+                            <a href="/partner/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/terms/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
+                            <a href="/privacy/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
+                            <a href="/copyright/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
+                            <a href="/guide/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🗺️ 아이랑</div>
+                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
+                <a href="/festival/worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이 월드컵</a>
+                <a href="/festival/camping-worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">캠핑장 월드컵</a>
+                <a href="/festival/pick.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">오늘 어디 갈까?</a>
+                <a href="/festival/roulette.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+                <a href="/festival/poster.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 포스터</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">🎮 플레이하기</div>
+                <a href="/game/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
+                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
+                <a href="/blog/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
+                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
+                <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
+                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
+                <a href="/partner/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <a href="/terms/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
+                <a href="/privacy/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
+                <a href="/copyright/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
+                <a href="/guide/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+
+    <main class="max-w-3xl mx-auto px-4 py-10 w-full">
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
+
+    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">호호 매거진</span>
+        <a href="/blog/magazine/outing/" class="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full" style="text-decoration:none">🎪 나들이·육아</a>
+        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
+    </div>
+    <script>
+      (function() {
+          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=post-68')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                  var el = document.getElementById('page-view-num');
+                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
+              })
+              .catch(function() {});
+      })();
+    </script>
+
+    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">아이랑 나들이 지도 선택 기준과 탐색 방식별 차이점 비교 가이드</h1>
+    <p class="text-slate-500 mb-8">HOHO PLAY · 2026.11.25</p>
+
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><!--HH-HTML--><div class="hh-raw" style="white-space:normal"><div style="font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; color: #222222; line-height: 1.75; font-size: 16px; word-break: keep-all;">
+
+  <!-- 도입부 -->
+  <p style="margin: 0 0 16px 0;">주말 외출 장소를 고를 때 일반 지도 앱에서 검색어 3개 이상을 번갈아 입력하며 운영시간과 주차 여부를 따로 확인하는 과정은 출발 전부터 많은 에너지를 소모하게 만듭니다. 정확한 목적지를 입력해 빠른 경로를 찾는 길찾기 중심 지도와, 조건에 맞춰 갈 곳 후보를 먼저 좁혀주는 여가·나들이 특화 지도는 활용 단계와 정보 구조에서 뚜렷한 차이를 보입니다. 한국관광공사 TourAPI 국문 관광·행사 데이터 및 일반 포털 지도의 기본 탐색 구조(2026.11 기준)를 바탕으로, 목적지 탐색 방식별 특징과 주말 코스 결정 순서를 정리했습니다.</p>
+
+  <!-- 한줄요약 박스 -->
+  <div style="background-color: #f4f7fb; border-left: 4px solid #2b6cb0; padding: 16px 20px; margin: 24px 0; border-radius: 4px;">
+    <p style="margin: 0 0 6px 0; font-weight: 700; color: #1a365d; font-size: 15px;">📌 한줄요약</p>
+    <p style="margin: 0; font-size: 15px; color: #2d3748;">일반 포털 지도는 정확한 상호나 주소를 알 때 실시간 경로와 대중교통 환승을 확인하는 데 유리하며, 나들이 전용 지도는 목적지가 정해지지 않았을 때 권역·테마·행사 일정을 한 화면에서 좁혀 코스 후보를 고르는 데 적합합니다.</p>
+  </div>
+
+  <!-- 나만의 포인트 박스 -->
+  <div style="background-color: #fffaf0; border: 1px solid #fbd38d; padding: 16px 20px; margin: 24px 0; border-radius: 6px;">
+    <p style="margin: 0 0 10px 0; font-weight: 700; color: #9c4221; font-size: 15px;">📍 나만의 포인트</p>
+    <ul style="margin: 0; padding-left: 20px; font-size: 15px; color: #333333;">
+      <li style="margin-bottom: 6px;"><strong>탐색 단계 분리하기:</strong> '갈 곳을 고르는 단계(큐레이션·필터)'와 '정해진 곳으로 이동하는 단계(내비게이션)'를 나누면 불필요한 검색 시간을 줄일 수 있습니다.</li>
+      <li style="margin-bottom: 6px;"><strong>데이터 밀도 확인하기:</strong> 상가·음식점·병원이 모두 표시되는 범용 지도와 여가·공원·체험 시설 위주로 추려진 특화 지도는 화면 피로도 자체가 다릅니다.</li>
+      <li style="margin-bottom: 0;"><strong>교차 검증 순서 지키기:</strong> 특화 지도로 후보 2~3곳을 먼저 추린 뒤, 출발 직전 일반 포털 지도로 실시간 도로 정체와 주차장 진입로를 확인하는 것이 가장 안전합니다.</li>
+    </ul>
+  </div>
+
+  <!-- 목차 박스 -->
+  <div style="background-color: #f8f9fa; border: 1px solid #e2e8f0; padding: 16px 20px; margin: 24px 0 32px 0; border-radius: 6px;">
+    <p style="margin: 0 0 10px 0; font-weight: 700; color: #1a202c; font-size: 15px;">📚 목차</p>
+    <ol style="margin: 0; padding-left: 20px; font-size: 15px; color: #4a5568;">
+      <li style="margin-bottom: 4px;"><a href="#blog-s1" style="color: #2b6cb0; text-decoration: none;">1. 일반 포털 지도와 나들이 전용 지도는 무엇이 다를까?</a></li>
+      <li style="margin-bottom: 4px;"><a href="#blog-s2" style="color: #2b6cb0; text-decoration: none;">2. 목적지가 정해지지 않았을 때 나들이 지도가 유리한 이유는?</a></li>
+      <li style="margin-bottom: 4px;"><a href="#blog-s3" style="color: #2b6cb0; text-decoration: none;">3. 특화 지도만 믿고 출발할 때 주의해야 할 한계점은?</a></li>
+      <li style="margin-bottom: 0;"><a href="#blog-s4" style="color: #2b6cb0; text-decoration: none;">4. 검색 시간을 15분으로 줄이는 주말 코스 결정 4단계</a></li>
+    </ol>
+  </div>
+
+  <!-- 본문 1 -->
+  <h2 id="blog-s1" style="font-size: 20px; font-weight: 700; color: #1a202c; margin: 36px 0 14px 0; padding-bottom: 8px; border-bottom: 2px solid #edf2f7;">1. 일반 포털 지도와 나들이 전용 지도는 무엇이 다를까?</h2>
+  <p style="margin: 0 0 14px 0;"><strong>일반 포털 지도는 '정확한 목적지 이동'에 최적화되어 있고, 나들이 전용 지도는 '여가 목적지 발견'에 초점을 맞춘 도구입니다.</strong></p>
+  <p style="margin: 0 0 14px 0;">네이버 지도, 카카오맵, 구글 지도 같은 범용 지도 서비스는 상호명이나 주소를 입력했을 때 최단 거리, 실시간 교통 체증, 대중교통 환승 정보를 알려주는 데 압도적인 정확도를 보입니다. 반면 주말에 어디로 갈지 정하지 못한 상태에서 막연한 키워드를 입력하면 일반 식당, 카페, 상업 시설 핀이 한꺼번에 쏟아져 선택이 어려워집니다.</p>
+  <p style="margin: 0 0 14px 0;">나들이 전용 지도는 일상적인 상권 데이터를 걷어내고 공원, 박물관, 체험관, 지역 축제, 산책 코스 등 외출 목적지 위주로 정보를 분류해 보여줍니다. 데이터 출처인 한국관광공사 TourAPI 및 지자체 공공관광 데이터를 기반으로 계절별 행사와 가족 단위 방문지를 한눈에 비교하기 쉽게 설계된 것이 특징입니다.</p>
+  <p style="background-color: #f7fafc; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: #4a5568; margin: 0 0 24px 0;">📝 <strong>간단 정리:</strong> 일반 지도는 정해진 곳으로 빠르게 이동할 때 쓰고, 나들이 지도는 갈 곳 후보를 좁힐 때 씁니다.</p>
+
+  <!-- 본문 2 -->
+  <h2 id="blog-s2" style="font-size: 20px; font-weight: 700; color: #1a202c; margin: 36px 0 14px 0; padding-bottom: 8px; border-bottom: 2px solid #edf2f7;">2. 목적지가 정해지지 않았을 때 나들이 지도가 유리한 이유는?</h2>
+  <p style="margin: 0 0 14px 0;"><strong>구체적인 장소 이름을 몰라도 권역별 거리 감각과 주변 연계 코스를 지도 위에서 동시에 파악할 수 있기 때문입니다.</strong></p>
+  <p style="margin: 0 0 14px 0;">블로그나 SNS 후기를 하나씩 열어보며 코스를 짤 때는 글을 읽고, 주소를 복사해 다시 지도 앱에 붙여넣어 거리를 재는 과정을 반복해야 합니다. 특히 어린 자녀나 부모님과 동행하는 외출이라면 이동 반경을 차량 1시간 이내로 제한하거나 실내외 코스를 적절히 섞어야 하므로 위치 파악이 중요합니다.</p>
+  <p style="margin: 0 0 14px 0;">나들이 특화 지도는 화면을 축소하거나 이동하는 것만으로 특정 권역에 어떤 테마의 장소들이 모여 있는지 직관적으로 보여줍니다. 한 장소만 들르기 아쉬울 때 반경 5~10km 이내의 다른 체험 시설이나 공원을 곧바로 묶어 반나절 코스를 구성하기 수월합니다.</p>
+  <p style="background-color: #f7fafc; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: #4a5568; margin: 0 0 24px 0;">📝 <strong>간단 정리:</strong> 장소 이름 없이 권역별 나들이 스팟과 주변 연계 동선을 한 화면에서 묶을 때 탐색 효율이 높습니다.</p>
+
+  <!-- 본문 3 -->
+  <h2 id="blog-s3" style="font-size: 20px; font-weight: 700; color: #1a202c; margin: 36px 0 14px 0; padding-bottom: 8px; border-bottom: 2px solid #edf2f7;">3. 특화 지도만 믿고 출발할 때 주의해야 할 한계점은?</h2>
+  <p style="margin: 0 0 14px 0;"><strong>나들이 전용 지도는 코스 선별에는 강점이 있지만, 1분 단위의 실시간 도로 통제나 당일 임시 휴무 변동까지는 즉각 반영하지 못합니다.</strong></p>
+  <p style="margin: 0 0 14px 0;">공공데이터나 큐레이션 기반으로 구축된 지도는 정기 업데이트 주기를 따르므로 기상 악화로 인한 야외 시설 긴급 폐쇄, 축제 일정 연기, 주차장 만차 현황 등을 실시간으로 알기 어렵습니다. 또한 개별 방문객이 남긴 최근 리뷰나 현장 대기 줄 길이 같은 세부 체감 정보는 부족할 수 있습니다.</p>
+  <p style="margin: 0 0 14px 0;">따라서 나들이 지도는 어디까지나 '출발 전 후보 선정 도구'로 활용하고, 최종 목적지가 정해진 뒤에는 반드시 포털 지도 앱과 해당 시설의 공식 안내 페이지를 통해 당일 운영 여부를 교차 확인해야 헛걸음을 막을 수 있습니다.</p>
+  <p style="background-color: #f7fafc; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: #4a5568; margin: 0 0 24px 0;">📝 <strong>간단 정리:</strong> 특화 지도는 실시간 교통·당일 휴무 반영에 한계가 있으므로 출발 직전 범용 지도와 교차 확인이 필수입니다.</p>
+
+  <!-- 본문 4 -->
+  <h2 id="blog-s4" style="font-size: 20px; font-weight: 700; color: #1a202c; margin: 36px 0 14px 0; padding-bottom: 8px; border-bottom: 2px solid #edf2f7;">4. 검색 시간을 15분으로 줄이는 주말 코스 결정 4단계</h2>
+  <p style="margin: 0 0 14px 0;"><strong>나들이 지도로 후보 3곳을 먼저 압축한 뒤, 실내·외 대안을 배분하고 출발 당일 아침 일반 지도로 주차장 입구만 검증하면 준비가 끝납니다.</strong></p>
+  <p style="margin: 0 0 14px 0;">먼저 외출 가능한 총시간과 편도 이동 한계 시간(예: 40~60분)을 정한 뒤 지도에서 권역 내 후보 3곳만 고릅니다. 다음으로 비가 오거나 기온이 급변할 상황을 대비해 야외 활동지 2곳과 실내 체험관·박물관 1곳을 함께 후보군에 넣습니다.</p>
+  <p style="margin: 0 0 14px 0;">마지막으로 출발 당일 오전 일반 포털 지도 앱에 최종 목적지의 '주차장' 명칭을 직접 입력해 진입로와 실시간 소요 시간을 확인하면 현장에서 헤매는 시간을 최소화할 수 있습니다.</p>
+  <p style="background-color: #f7fafc; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: #4a5568; margin: 0 0 24px 0;">📝 <strong>간단 정리:</strong> 후보 3곳 압축 → 실내외 대안 배분 → 당일 아침 일반 지도로 주차·교통 최종 검증 순서를 권장합니다.</p>
+
+  <!-- 한 번에 정리 박스 -->
+  <div style="background-color: #ebf8ff; border: 1px solid #90cdf4; padding: 18px 20px; margin: 28px 0; border-radius: 6px;">
+    <p style="margin: 0 0 8px 0; font-weight: 700; color: #2c5282; font-size: 16px;">✅ 한 번에 정리</p>
+    <p style="margin: 0; font-size: 15px; color: #2d3748;">나들이 지도 선택의 기준은 현재 <strong>'장소를 고르는 단계인가, 이동하는 단계인가'</strong>에 달려 있습니다. 목적지 미정 상태에서는 상업 시설 핀을 배제한 나들이 특화 지도가 탐색 피로를 줄여주며, 우선순위는 <strong>① 특화 지도로 권역·테마별 후보 3곳 선별 → ② 공식 안내로 휴무·예약 조건 확인 → ③ 출발 직전 일반 지도 앱으로 실시간 교통·주차 검증</strong> 순서로 잡는 것이 좋습니다. 결국 두 지도는 서로를 대체하는 것이 아니라 탐색과 이동을 나누어 맡는 보완 관계로 쓸 때 가장 효율적입니다.</p>
+  </div>
+
+  <!-- 완성형 기본 표 3종 -->
+  <h3 style="font-size: 17px; font-weight: 700; color: #1a202c; margin: 32px 0 8px 0;">나들이 계획 단계별 탐색 도구 비교</h3>
+  <p style="margin: 0 0 10px 0; font-size: 14px; color: #4a5568;">정보 탐색 방식에 따라 어떤 도구부터 열어야 하는지 핵심 특징과 한계점을 비교했습니다.</p>
+  <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 14px; color: #2d3748;">표 1. 나들이 정보 탐색 방식별 특징 및 한계 비교</p>
+  <table style="width: 100%; border-collapse: collapse; margin: 0 0 28px 0; font-size: 14px; text-align: left;">
+    <thead>
+      <tr style="background-color: #edf2f7; color: #1a202c;">
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 22%;">구분</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 26%;">일반 포털 지도 앱</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 26%;">블로그·SNS 후기 검색</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 26%;">나들이 전용 특화 지도</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">주요 탐색 목적</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">정확한 길찾기, 대중교통, 주차 안내</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">현장 분위기, 실제 사진, 체감 후기 파악</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">권역·테마별 여가 및 가족 나들이 후보 선별</td>
+      </tr>
+      <tr style="background-color: #f8fafc;">
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">정보 구성 밀도</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">식당·상가·병원 등 모든 시설 포함</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">단일 장소 중심의 텍스트·이미지 나열</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">공원·체험관·축제 등 여가 목적지 위주 압축</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">가장 유리한 시점</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">상호명·주소가 확정된 출발 직전 단계</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">후보 2~3곳 중 최종 방문지 비교 단계</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">어디로 갈지 정하지 못한 초기 탐색 단계</td>
+      </tr>
+      <tr style="background-color: #f8fafc;">
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">주의할 한계점</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">목적지 미정 시 광고·상가 핀 과다 노출</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">위치 관계 파악을 위해 지도 앱 별도 실행 필요</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">실시간 도로 정체·당일 휴무 즉시 반영 한계</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size: 17px; font-weight: 700; color: #1a202c; margin: 32px 0 8px 0;">동행 조건 및 날씨 상황별 체크리스트</h3>
+  <p style="margin: 0 0 10px 0; font-size: 14px; color: #4a5568;">외출 당일의 기상 조건과 동반 가족 구성에 따라 출발 전 반드시 확인해야 할 항목입니다.</p>
+  <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 14px; color: #2d3748;">표 2. 외출 상황별 사전 점검 및 현장 체크리스트</p>
+  <table style="width: 100%; border-collapse: collapse; margin: 0 0 28px 0; font-size: 14px; text-align: left;">
+    <thead>
+      <tr style="background-color: #edf2f7; color: #1a202c;">
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 22%;">상황 구분</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 28%;">출발 전 확인 항목</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 25%;">필수 준비물</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 25%;">현장 주의사항</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">영유아·어린이 동반</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">유모차 대여 여부, 수유실 위치, 식사 동선</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">여벌 옷, 휴대용 돗자리, 간식, 물티슈</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">낮잠 시간대 고려해 편도 1시간 이내 유지</td>
+      </tr>
+      <tr style="background-color: #f8fafc;">
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">우천·미세먼지 예보</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">실내 체험관·박물관 사전 예약 마감 여부</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">접이식 우산, 실내화(키즈존 방문 시)</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">건물 지하 주차장 직결 여부 미리 확인</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">대중교통 이용 외출</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">역·정류장에서 입구까지 도보 이동 거리</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">교통카드, 보조배터리, 경량 백팩</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">주말 배차 간격 증가에 따른 귀가 막차 확인</td>
+      </tr>
+      <tr style="background-color: #f8fafc;">
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">연휴·혼잡 시간대</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">제1·제2 공영주차장 위치 및 수용 대수</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">대체 카페·공원 즐겨찾기 1곳 추가 저장</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">오전 10시 이전 도착 목표로 일정 앞당기기</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size: 17px; font-weight: 700; color: #1a202c; margin: 32px 0 8px 0;">실패 없는 반나절 나들이 준비 타임라인</h3>
+  <p style="margin: 0 0 10px 0; font-size: 14px; color: #4a5568;">전날 저녁부터 귀가까지 시간대별로 움직이면 불필요한 대기 시간을 줄일 수 있습니다.</p>
+  <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 14px; color: #2d3748;">표 3. 단계별·시간대별 주말 나들이 일정 배분 기준</p>
+  <table style="width: 100%; border-collapse: collapse; margin: 0 0 32px 0; font-size: 14px; text-align: left;">
+    <thead>
+      <tr style="background-color: #edf2f7; color: #1a202c;">
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 22%;">진행 단계</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 32%;">세부 일정·동선</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 20%;">권장 소요 시간</th>
+        <th style="border: 1px solid #cbd5e0; padding: 10px; width: 26%;">여유 배분 팁</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">1단계: 전날 탐색</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">권역별 후보 3곳 선별 및 휴무일·예약 확인</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">15~20분 이내</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">야외 2곳 + 실내 1곳 비율로 후보 구성</td>
+      </tr>
+      <tr style="background-color: #f8fafc;">
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">2단계: 출발 직전</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">포털 지도로 실시간 정체 및 주차장 입구 검색</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">5분 이내</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">시설 정문 대신 주차장 명칭으로 목적지 설정</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">3단계: 현장 이용</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">핵심 체험·산책 후 반경 3km 내 식사 이동</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">2시간 30분~3시간</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">점심 피크(12~13시) 피해 11시 30분 식사 권장</td>
+      </tr>
+      <tr style="background-color: #f8fafc;">
+        <td style="border: 1px solid #cbd5e0; padding: 10px; font-weight: 600;">4단계: 귀가 전 체크</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">인근 공원·카페 1곳 추가 경유 후 귀가 출발</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">1시간~1시간 30분</td>
+        <td style="border: 1px solid #cbd5e0; padding: 10px;">귀가 차량 정체 심화 전 오후 4~5시경 출발</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 이 글의 판단 -->
+  <h3 style="font-size: 18px; font-weight: 700; color: #1a202c; margin: 32px 0 12px 0;">이 글의 판단</h3>
+  <p style="margin: 0 0 24px 0;">주말 나들이 준비에서 가장 흔한 실수는 목적지가 정해지지도 않은 상태에서 일반 포털 지도를 켜고 모든 상가 정보 속에서 장소를 고르려 하는 것입니다. 이미 상호와 주소를 알고 있다면 범용 내비게이션 앱 하나면 충분하지만, 매주 새로운 외출 코스를 찾아야 하는 상황이라면 상업 핀을 배제하고 여가 스팟만 모은 특화 지도로 먼저 반경을 좁히는 편이 훨씬 합리적입니다. 탐색 단계는 특화 지도로, 이동 단계는 범용 지도로 역할을 나누어 쓰는 이원화 방식이 출발 전 피로도와 현장 시행착오를 동시에 줄여줍니다.</p>
+
+  <!-- 실전 팁 -->
+  <div style="background-color: #f0fff4; border: 1px solid #9ae6b4; padding: 16px 20px; margin: 24px 0; border-radius: 6px;">
+    <p style="margin: 0 0 10px 0; font-weight: 700; color: #22543d; font-size: 15px;">🛠 실전 팁</p>
+    <ul style="margin: 0; padding-left: 20px; font-size: 15px; color: #2d3748;">
+      <li style="margin-bottom: 6px;"><strong>검색 시간 15분 제한하기:</strong> 나들이 지도에서 지역 필터를 켠 뒤 화면에 보이는 후보 중 3곳만 메모장에 적어두고 추가 검색을 멈추세요.</li>
+      <li style="margin-bottom: 6px;"><strong>주차장 명칭으로 목적지 입력하기:</strong> 최종 목적지를 정한 뒤 일반 지도 앱에서는 시설명 대신 <code>시설명 + 주차장</code> 또는 <code>인근 공영주차장</code>으로 검색해 진입로를 먼저 확인하세요.</li>
+      <li style="margin-bottom: 0;"><strong>우천 대안 1곳 묶어두기:</strong> 야외 공원이나 축제장을 갈 때는 차로 10~15분 거리의 실내 박물관이나 대형 카페 1곳을 즐겨찾기에 함께 저장해 기상 변화에 대비하세요.</li>
+    </ul>
+  </div>
+
+  <!-- FAQ (5개 엄격 규격) -->
+  <h3 style="font-size: 18px; font-weight: 700; color: #1a202c; margin: 36px 0 14px 0; padding-bottom: 8px; border-bottom: 2px solid #edf2f7;">자주 묻는 질문 (FAQ)</h3>
+
+  <p style="margin: 0 0 4px 0; font-weight: 700; color: #2b6cb0;">Q1. 나들이 전용 지도는 일반 포털 지도 앱과 데이터 출처가 어떻게 다른가요?</p>
+  <p style="margin: 0 0 16px 0; font-size: 15px;">일반 포털 지도는 사업자 등록 기반의 모든 상업 시설과 도로망 데이터를 다루는 반면, 나들이 특화 지도는 주로 한국관광공사 TourAPI 및 지자체 공공데이터포털에 등록된 관광지·문화시설·축제 데이터를 중심으로 여가 목적지만 선별해 구성합니다.</p>
+
+  <p style="margin: 0 0 4px 0; font-weight: 700; color: #2b6cb0;">Q2. 별도의 스마트폰 앱을 설치하지 않고도 바로 지도를 볼 수 있나요?</p>
+  <p style="margin: 0 0 16px 0; font-size: 15px;">대부분의 웹 기반 나들이 지도 플랫폼은 별도 앱 설치 없이 스마트폰이나 PC 인터넷 브라우저에서 접속해 바로 지역 필터와 코스 정보를 확인할 수 있습니다.</p>
+
+  <p style="margin: 0 0 4px 0; font-weight: 700; color: #2b6cb0;">Q3. 무료 입장지와 유료 체험 시설을 지도에서 미리 구분할 수 있나요?</p>
+  <p style="margin: 0 0 16px 0; font-size: 15px;">공공데이터 기반 장소 안내는 기본 요금 유무나 무료 개방 여부를 함께 표기하는 경우가 많지만, 특별 전시나 주말 체험 프로그램은 별도 요금이 발생할 수 있으므로 방문 전 공식 안내 페이지에서 당일 기준 요금을 확인하는 것이 정확합니다.</p>
+
+  <p style="margin: 0 0 4px 0; font-weight: 700; color: #2b6cb0;">Q4. 일반 지도 앱의 '즐겨찾기 저장' 기능과 비교하면 어떤 점이 편한가요?</p>
+  <p style="margin: 0 0 16px 0; font-size: 15px;">일반 지도의 즐겨찾기는 사용자가 직접 장소를 검색해 하나씩 핀을 꽂아야 목록이 만들어지지만, 나들이 지도는 이미 테마별로 분류된 나들이 핀이 지도에 표시되어 있어 처음 가는 지역에서도 주변 연계 코스를 즉시 발견할 수 있습니다.</p>
+
+  <p style="margin: 0 0 4px 0; font-weight: 700; color: #2b6cb0;">Q5. 지역 축제나 시즌 행사는 일정이 갑자기 바뀔 수 있는데 어떻게 대비하나요?</p>
+  <p style="margin: 0 0 24px 0; font-size: 15px;">기상 악화나 주최 측 사정으로 일정이 변경될 수 있으므로, 지도에서 행사 장소를 확인한 뒤 출발 전날 해당 지자체 문화관광 홈페이지 공지사항에서 당일 정상 운영 여부를 한 번 더 확인해야 합니다.</p>
+
+  <!-- 참고한 자료 & 함께 쓰면 좋은 도구 (호호플레이 2회 언급 규격 준수) -->
+  <div style="background-color: #f8f9fa; padding: 16px 20px; margin: 28px 0; border-radius: 6px; font-size: 14px; color: #4a5568;">
+    <p style="margin: 0 0 8px 0; font-weight: 700; color: #1a202c;">📚 참고한 자료 및 함께 쓰면 좋은 도구</p>
+    <ul style="margin: 0; padding-left: 20px;">
+      <li style="margin-bottom: 4px;">한국관광공사 · TourAPI 국문 관광정보 및 지역 행사 데이터 (2026.11 조회 기준)</li>
+      <li style="margin-bottom: 4px;">데이터 출처 · 호호플레이 나들이 데이터 정리 기준 (2026.11 기준)</li>
+      <li style="margin-bottom: 0;">함께 쓰면 좋은 도구 · 권역별 가족 외출 코스와 나들이 장소를 한 화면에서 비교하고 싶다면 <a href="https://hohoplaylab.com/" style="color: #2b6cb0; text-decoration: underline;">호호플레이 아이랑 나들이 지도</a>에서 지역별 스팟을 바로 확인해 볼 수 있습니다.</li>
+    </ul>
+  </div>
+
+  <!-- 마무리 질문 -->
+  <p style="margin: 24px 0 0 0; font-weight: 600; color: #2d3748; font-size: 15px;">💬 주말 나들이 장소를 고르실 때 '짧은 이동 동선'과 '새로운 체험 콘텐츠' 중 어떤 기준을 가장 먼저 보시나요?</p>
+<p style="margin:10px 0 0;line-height:1.9;color:#64748b;font-size:14px">#나들이지도 #주말나들이 #아이랑갈만한곳 #나들이코스 #지도앱비교 #국내여행코스 #가족나들이 #주말외출 #나들이추천 #호호매거진</p>
+</div></div></div>
+
+    <aside aria-label="함께 보면 좋은 페이지" style="margin-top:36px;padding:18px;border:1px solid #e2e8f0;border-radius:16px;background:#fff"><div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:12px">🔗 함께 보면 좋은 페이지</div><div style="display:grid;gap:10px"><a href="/festival/" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">🎪 아이랑 나들이</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">아이랑 나들이 지도</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">전국 축제와 아이랑 가볼 만한 곳을 지도에서 찾아보세요.</div></a><a href="/blog/magazine/36.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">📖 호호 매거진</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">아이랑 축제 가기 전, 행사명만 믿지 말고 확인할 4가지 — 영주 사과축제 사례</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호 매거진의 관련 글입니다.</div></a><a href="/blog/magazine/39.html" style="display:block;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-decoration:none"><span style="display:inline-block;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;padding:2px 9px;border-radius:999px">📖 호호 매거진</span><div style="font-size:14px;font-weight:800;color:#1e293b;margin-top:6px;line-height:1.45;word-break:keep-all">아이와 함께하는 나들이 필수 체크리스트 &amp; 실패 없는 준비 팁</div><div style="font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.55;word-break:keep-all">호호 매거진의 관련 글입니다.</div></a></div><div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:13px;color:#64748b"><a href="/blog/magazine/outing/" style="color:#4f46e5;font-weight:800;text-decoration:none">🎪 나들이·육아 글 더 보기 →</a> <span style="color:#cbd5e1">·</span> <a href="/blog/magazine/" style="color:#64748b;font-weight:700;text-decoration:none">호호 매거진 전체</a></div></aside>
+
+    <div class="mt-10 text-center">
+        <a href="/blog/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-6 py-3 rounded-full transition">← 커뮤니티로 돌아가기</a>
+    </div>
+
+
+    </div>
+    </main>
+
+    <!-- [ADD] 2026-10-24: 글 하단 HOHO PICK. 2/3/4/6번 등 기존 글과 blog/index.html과 같은 방식
+         (/hoho-pick.html을 불러와 끼우고, 안에 든 script는 다시 만들어 실행). 템플릿에 없어서
+         매거진 글을 클릭해 들어오면 빠져 있었음. -->
+    <div id="hoho-pick-placeholder" data-exclude="community" style="width:100%;box-sizing:border-box;max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
+    <script>
+    (function(){
+        var ph = document.getElementById('hoho-pick-placeholder');
+        if (!ph) return;
+        // [ADD] 2026-10-26: 이 템플릿은 커뮤니티 글(blog/posts/)과 호호 매거진 글(blog/magazine/)이
+        // 같이 쓴다. 매거진 글 아래에는 "호호 매거진" 추천이 또 나오지 않게 magazine을 빼고,
+        // 커뮤니티 글은 기존대로 community를 뺀다. 주소(경로)로 구분하므로 생성 스크립트는 안 바꿔도 된다.
+        ph.setAttribute('data-exclude', location.pathname.indexOf('/blog/magazine/') === 0 ? 'magazine' : 'community');
+        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+            ph.innerHTML = html;
+            var scripts = ph.querySelectorAll('script');
+            for (var i = 0; i < scripts.length; i++) {
+                var old = scripts[i];
+                var s = document.createElement('script');
+                for (var j = 0; j < old.attributes.length; j++) {
+                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+                }
+                s.textContent = old.textContent;
+                old.parentNode.replaceChild(s, old);
+            }
+        }).catch(function(){});
+    })();
+    </script>
+
+    <div id="footer-placeholder"><nav aria-label="사이트 정보" style="padding:24px 16px;text-align:center;font-size:13px;line-height:2;color:#64748b"><a href="/about/" style="color:#475569;text-decoration:none">호호플레이 소개</a> · <a href="/privacy/" style="color:#475569;text-decoration:none">개인정보처리방침</a> · <a href="/terms/" style="color:#475569;text-decoration:none">이용약관</a> · <a href="/copyright/" style="color:#475569;text-decoration:none">저작권·콘텐츠 정책</a> · <a href="/contact/" style="color:#475569;text-decoration:none">문의하기</a></nav></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+
+</body>
+</html>
