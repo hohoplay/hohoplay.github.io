@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "draft = 초안 작성(사이트 영향 없음) / promote = 승인한 장소를 kids_notes.json에 반영 / probe = 모델·검색 한도 진단(호출 몇 번뿐)"
+        description: "draft = 초안 작성(사이트 영향 없음) / promote = 승인한 장소를 kids_notes.json에 반영 / probe = 모델 진단 / tourapi = 한국관광공사 공식 부가정보로 초안(추천)"
         required: true
         default: draft
         type: choice
@@ -12,6 +12,7 @@ on:
           - draft
           - promote
           - probe
+          - tourapi
       ids:
         description: "contentid 쉼표 구분 (예: kids-0066,kids-0192). draft에서 비우면 자동 선택, promote에서는 필수"
         required: false
@@ -49,6 +50,7 @@ jobs:
       - name: Run
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FESTIVAL_PROXY_URL: ${{ secrets.FESTIVAL_PROXY_URL }}
           MODE: ${{ inputs.mode }}
           IDS: ${{ inputs.ids }}
           COUNT: ${{ inputs.count }}
