@@ -604,8 +604,8 @@ def match_place(p, items):
         if not (same or part):
             continue
         d = km(p.get("lat"), p.get("lng"), it.get("mapy"), it.get("mapx"))
-        # 이름이 완전히 같으면 1.5km, 이름이 일부만 같으면(예: '…분관') 0.5km 이내일 때만 같은 곳으로 본다.
-        if d > (1.5 if same else 0.5):
+        # 이름이 완전히 같으면 3km(넓은 공원·휴양림 대비), 일부만 같으면(예: '…분관') 0.5km 이내일 때만 같은 곳으로 본다.
+        if d > (3.0 if same else 0.5):
             continue
         score = (0 if same else 1, d)
         if best is None or score < best[0]:
@@ -665,7 +665,11 @@ def sentences_from_item(item):
     free = ("무료" in (park or "") or "무료" in (pfee or "")) and "유료" not in (park or "") + (pfee or "")
     paid = (not free) and ("유료" in (park or "") + (pfee or "") or bool(re.search(r"\d[\d,]*\s*원", pfee or "")))
     if ok is True:
-        acc.append(f"주차장이 있고 {cap.group(1)}대 규모라고 안내돼 있어요." if cap else "주차장이 있다고 안내돼 있어요.")
+        # 규모(대수)나 무료/유료 같은 구체 정보가 없는 "주차장이 있다"만으로는 수백 곳에 같은 문장이 반복돼 가치가 없어 만들지 않는다.
+        if cap:
+            acc.append(f"주차장이 있고 {cap.group(1)}대 규모라고 안내돼 있어요.")
+        elif free or paid:
+            acc.append("주차장이 있다고 안내돼 있어요.")
     elif ok is False:
         acc.append("주차장이 없거나 이용이 어렵다고 안내돼 있어요.")
     elif park and short_ok(t):
@@ -681,8 +685,7 @@ def sentences_from_item(item):
         ok, t = yn(stroller)
         if ok is True:
             rul.append("유모차 대여가 가능하다고 안내돼 있어요.")
-        elif ok is False:
-            rul.append("유모차 대여 서비스는 없다고 안내돼 있어요.")
+        # '대여 서비스 없음'은 수십 곳에 똑같이 반복돼 도움이 안 되므로 쓰지 않는다. (가능한 경우만 적는다)
     pet = pick(item, "chkpet")
     if pet:
         ev["chkpet"] = pet[:80]
@@ -706,8 +709,9 @@ def sentences_from_item(item):
 
     guide = pick(item, "expguide")
     if guide:
+        guide = re.split(r"※", guide)[0].strip(" /,.")
         ev["expguide"] = guide[:120]
-        if short_ok(guide, 110):
+        if short_ok(guide, 110) and len(guide) >= 5:
             tip.append(f"체험 안내: {guide}")
 
     def join(parts, with_suffix):
@@ -720,19 +724,49 @@ def sentences_from_item(item):
     return join(acc, True), join(rul, True), join(tip, True), ev
 
 
+def search_variants(title):
+    t = re.sub(r"\([^)]*\)", "", str(title or "")).strip()
+    vs = [t]
+    if " " in t:
+        vs.append(t.replace(" ", ""))
+        toks = t.split()
+        if len(toks) >= 2 and re.match(r"^(서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주|수원|용인|파주|화성|청주|강릉)", toks[0]):
+            vs.append(" ".join(toks[1:]))
+    if "·" in t:
+        vs.append(t.split("·")[0].strip())
+    out = []
+    for v in vs:
+        if v and v not in out:
+            out.append(v)
+    return out[:4]
+
+
 def tourapi_lookup(base, p):
     """장소 이름으로 TourAPI 를 검색해 같은 곳을 찾고, 공식 부가정보를 받아 온다. (item, matched, distance_km) 또는 사유 문자열."""
-    q = re.sub(r"\([^)]*\)", "", str(p.get("title") or "")).strip()
-    try:
-        data = http_json(f"{base}/kids-image-search?keyword={urllib.parse.quote(q)}")
-    except Exception as e:
-        return f"검색 실패: {str(e)[:80]}"
-    if isinstance(data, dict) and data.get("error"):
-        return f"검색 오류: {str(data['error'])[:80]}"
-    items = (data or {}).get("items") or []
-    m = match_place(p, items)
+    seen, cands, err = {}, [], ""
+    for q in search_variants(p.get("title")):
+        try:
+            data = http_json(f"{base}/kids-image-search?keyword={urllib.parse.quote(q)}")
+        except Exception as e:
+            err = f"검색 실패: {str(e)[:80]}"
+            continue
+        if isinstance(data, dict) and data.get("error"):
+            err = f"검색 오류: {str(data['error'])[:80]}"
+            continue
+        for it in (data or {}).get("items") or []:
+            if it.get("contentid") not in seen:
+                seen[it.get("contentid")] = it
+                cands.append(it)
+        m = match_place(p, cands)
+        if m:
+            break
+        time.sleep(0.5)
+    m = match_place(p, cands)
     if not m:
-        return "TourAPI에서 같은 장소를 찾지 못함(이름·좌표 불일치)"
+        if err and not cands:
+            return err
+        desc = ", ".join(f"{c.get('title')}[{c.get('contenttypeid')}/{km(p.get('lat'), p.get('lng'), c.get('mapy'), c.get('mapx')):.1f}km]" for c in cands[:4]) or "검색 결과 없음"
+        return f"TourAPI에서 같은 장소를 찾지 못함(이름·좌표 불일치). 후보: {desc}"
     matched, dist = m
     try:
         intro = http_json(f"{base}/kids-intro?contentId={matched['contentid']}&contentTypeId={matched['contenttypeid']}")
@@ -756,7 +790,9 @@ def run_tourapi(args):
     if ids:
         targets = [by_id[i] for i in ids if i in by_id]
     else:
-        cand = [p for cid, p in by_id.items() if cid not in notes and (args.redo or cid not in draft)]
+        # redo=true 면 아직 승인(promoted)되지 않은 초안(draft·empty·no_match·error)도 전부 다시 만든다.
+        cand = [p for cid, p in by_id.items()
+                if cid not in notes and (cid not in draft or (args.redo and draft[cid].get("status") != "promoted"))]
         targets = cand[: args.count]
     print(f"대상 {len(targets)}곳")
     ok = 0
