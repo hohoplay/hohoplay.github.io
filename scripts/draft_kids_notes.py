@@ -818,6 +818,10 @@ def run_promote(args):
         return 1
     draft = load_json(DRAFT, {})
     notes = load_json(NOTES, {})
+    if ids == ["all"]:
+        # 내용이 채워진 초안(status=draft)만 전부 승인. 비어 있거나 이미 반영된 것은 제외된다.
+        ids = sorted(cid for cid, d in draft.items() if d.get("status") == "draft")
+        print(f"승인 대상 {len(ids)}곳 (status=draft 전부)")
     moved = 0
     for cid in ids:
         d = draft.get(cid)
