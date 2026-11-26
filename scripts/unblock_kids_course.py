@@ -25,7 +25,7 @@ if '--root' in sys.argv:
 DRY = '--dry-run' in sys.argv
 
 # add_kids_course_route.THIN_NOINDEX_SLUGS 와 같은 값으로 유지할 것
-THIN_NOINDEX_SLUGS = {'busan-suyeong', 'busan-buk', 'busan-yeongdo', 'seoul-seongdong'}
+THIN_NOINDEX_SLUGS = set()  # 2026-11-26: 4편 보강 완료(5곳 이상)로 noindex 해제
 NOINDEX_RE = re.compile(r'[ \t]*<meta name="robots" content="[^"]*noindex[^"]*">[ \t]*\n?')
 CANON_RE = re.compile(r'<link rel="canonical" href="([^"]*)">')
 

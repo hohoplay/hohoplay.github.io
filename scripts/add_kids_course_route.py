@@ -49,7 +49,7 @@ ROBOTS = '<meta name="robots" content="noindex,follow">'
 # [CHG] 2026-11-26: 코스 글은 이제 기본적으로 검색을 허용한다(애드센스 "핵심 서비스 글이 검색에서 빠져 있음" 대응).
 #   장소 수가 적고 본문이 짧은 글만 보강하기 전까지 noindex,follow 로 둔다.
 #   글이 보강되면 이 목록에서 slug 를 지우고 다시 실행하면 noindex 가 풀린다.
-THIN_NOINDEX_SLUGS = {'busan-suyeong', 'busan-buk', 'busan-yeongdo', 'seoul-seongdong'}
+THIN_NOINDEX_SLUGS = set()  # 2026-11-26: 4편 보강 완료(5곳 이상)로 noindex 해제
 _NOINDEX_META_RE = re.compile(r'[ \t]*<meta name="robots" content="[^"]*noindex[^"]*">[ \t]*\n?')
 
 
