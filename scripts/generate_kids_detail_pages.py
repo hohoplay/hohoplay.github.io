@@ -318,6 +318,13 @@ def main():
             .replace("{{CONTENTID}}", html_escape(cid))
         )
 
+        # [FIX] 2026-11-26: 지도에서 숨긴 장소(hidden)의 상세 페이지는 색인되지 않게 noindex 를 넣는다.
+        #   (페이지를 다시 만들 때마다 noindex 가 사라지지 않도록 생성기에서 직접 넣음)
+        if p.get("hidden"):
+            canon_tag = f'<link rel="canonical" href="{canonical_url}">'
+            if canon_tag in html_out and 'name="robots"' not in html_out:
+                html_out = html_out.replace(canon_tag, canon_tag + '\n<meta name="robots" content="noindex,follow">', 1)
+
         out_path = out_dir / f"{cid}.html"
         with open(out_path, "w", encoding="utf-8", newline="") as f:
             f.write(html_out)
