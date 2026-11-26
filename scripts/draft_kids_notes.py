@@ -293,8 +293,12 @@ def run_draft(args):
         save_json(DRAFT, draft)  # 중간 저장
         if i < len(targets):
             time.sleep(SLEEP_SEC)
+    save_json(DRAFT, draft)
     write_review(draft)
     print(f"완료: {ok}/{len(targets)}곳 초안 저장")
+    if targets and ok == 0:
+        print("❌ 모든 장소가 실패했습니다. 위쪽 로그의 '건너뜀'·'모델 실패' 줄을 확인하세요.")
+        return 1
     return 0
 
 
