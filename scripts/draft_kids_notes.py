@@ -185,11 +185,46 @@ def grounding_sources(resp):
 
 
 def is_transient(err):
+    msg = str(err).lower()
+    # 일일 한도 소진·한도 0 은 기다려도 소용없으니 재시도하지 않는다.
+    if "perday" in msg.replace(" ", "").replace("_", "") or "limit: 0" in msg:
+        return False
     code = getattr(err, "code", None)
     if isinstance(code, int):
         return code in (429, 500, 502, 503, 504)
-    msg = str(err).lower()
     return any(k in msg for k in ("503", "unavailable", "timed out", "timeout", "429", "resource_exhausted", "overloaded", "connection"))
+
+
+_ERR_SHOWN = set()
+
+
+def show_err(model, e):
+    """오류 전문을 보여 준다(한도 이름이 뒤쪽에 나온다). 같은 모델·같은 코드는 처음 한 번만 길게."""
+    key = (model, str(getattr(e, "code", "")))
+    limit = 1500 if key not in _ERR_SHOWN else 120
+    _ERR_SHOWN.add(key)
+    print(f"  ⚠️ 모델 {model} 실패: {str(e)[:limit]}")
+
+
+def discover_models(client, tried):
+    found = []
+    try:
+        for m in client.models.list():
+            name = (getattr(m, "name", "") or "").replace("models/", "")
+            actions = getattr(m, "supported_actions", None) or []
+            if "flash" not in name or name in tried:
+                continue
+            if any(x in name for x in ("image", "tts", "live", "audio", "embedding", "robotics", "computer", "thinking-exp")):
+                continue
+            if actions and "generateContent" not in actions:
+                continue
+            found.append(name)
+    except Exception as e:
+        print(f"  ⚠️ 사용 가능 모델 조회 실패: {str(e)[:200]}")
+        return []
+    found.sort(key=lambda n: (("preview" in n) or ("exp" in n), n))
+    print(f"  🔎 조회된 flash 모델: {found[:6]}")
+    return found[:3]
 
 
 def call_gemini(client, types, prompt):
@@ -199,7 +234,12 @@ def call_gemini(client, types, prompt):
         tools=[types.Tool(google_search=types.GoogleSearch())],
     )
     last = None
-    for model in MODELS:
+    models = list(MODELS)
+    tried = []
+    extra_done = False
+    while models:
+        model = models.pop(0)
+        tried.append(model)
         for n in range(1, 4):
             try:
                 resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
@@ -211,9 +251,12 @@ def call_gemini(client, types, prompt):
                 if is_transient(e) and n < 3:
                     time.sleep(15 if n == 1 else 45)
                     continue
-                print(f"  ⚠️ 모델 {model} 실패: {str(e)[:160]}")
+                show_err(model, e)
                 break
-    raise RuntimeError(f"모든 모델 실패: {last}")
+        if not models and not extra_done:
+            extra_done = True
+            models = discover_models(client, tried)
+    raise RuntimeError(f"모든 모델 실패: {str(last)[:300]}")
 
 
 def make_entry(p, model, resp):
@@ -267,7 +310,7 @@ def run_draft(args):
     from google import genai
     from google.genai import types
     try:
-        client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=120_000))
+        client = genai.Client(api_key=api_key, http_options=types.HttpOptions(api_version="v1beta", timeout=120_000))
     except Exception:
         client = genai.Client(api_key=api_key)
 
