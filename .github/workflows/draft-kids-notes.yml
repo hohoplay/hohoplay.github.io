@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "draft = 초안 작성(사이트 영향 없음) / promote = 승인한 장소를 kids_notes.json에 반영"
+        description: "draft = 초안 작성(사이트 영향 없음) / promote = 승인한 장소를 kids_notes.json에 반영 / probe = 모델·검색 한도 진단(호출 몇 번뿐)"
         required: true
         default: draft
         type: choice
         options:
           - draft
           - promote
+          - probe
       ids:
         description: "contentid 쉼표 구분 (예: kids-0066,kids-0192). draft에서 비우면 자동 선택, promote에서는 필수"
         required: false
