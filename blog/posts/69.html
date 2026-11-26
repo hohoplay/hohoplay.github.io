@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGTXTM4R91"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VGTXTM4R91');
+    </script>
+    <!-- ═══ Google AdSense (단독 실행 시 필요; index.html SPA로 열릴 때는 index.html 자체 head의 것이 사용됨) ═══ -->
+    <meta charset="UTF-8">
+    <!-- ═══ Kakao SDK (실제 공유 기능) ═══ -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+      integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+      crossorigin="anonymous"></script>
+    <script>
+      if (window.Kakao && !Kakao.isInitialized()) { Kakao.init('bb4703ea522334d716b36efe1d45fdbe'); }
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파밍·루팅·그라인딩 차이와 보상 구조: 코인 숫자로 계산해 보는 게임 성장 - HOHO PLAY 커뮤니티</title>
+    <meta name="description" content="🗓 최종 수정: 2026년 11월 26일 상점 업그레이드 가격이 1,500코인인데 한 판에 코인을 300개 모은다고 하자. 다섯 판이면 살 수 ">
+    <link rel="canonical" href="https://hohoplaylab.com/blog/posts/69.html">
+    <meta name="robots" content="noindex,follow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans KR',sans-serif;background:#f8fafc}</style>
+    <style>
+    /* [FIX] 2026-10-24: Tailwind CDN의 preflight가 h2/h3/strong/ul 기본 모양을 전부 지워서,
+       본문에 진짜 <h2>/<h3>가 들어가도 일반 문단과 똑같이 보였음. blog/index.html의
+       .magazine-content 규칙과 같은 모양으로 맞춘다. */
+    /* [FIX] 2026-11-15: 모바일에서 긴 주소(URL)가 줄바꿈되지 않아 글 영역이 화면보다 넓어지고, 브라우저가 페이지를 축소해 보여 주던 문제 */
+    .magazine-content{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+    .magazine-content a{overflow-wrap:anywhere}
+    .magazine-content h2{font-size:22px;font-weight:900;color:#1e293b;margin:32px 0 10px;line-height:1.4}
+    .magazine-content h3{font-size:17px;font-weight:800;color:#334155;margin:22px 0 8px;line-height:1.4}
+    .magazine-content strong{font-weight:800;color:#1e293b}
+    .magazine-content ul{list-style:disc;padding-left:22px;margin:12px 0}
+    .magazine-content li{margin-bottom:8px}
+    .magazine-content hr{border:0;border-top:1px solid #e2e8f0;margin:28px 0}
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+        <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <a href="/" class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-indigo-200 shadow-md" style="font-size:9px;letter-spacing:-0.5px;line-height:1.1">HOHO<br>PLAY</div>
+                    <span class="text-lg font-black tracking-tighter uppercase"><span class="text-indigo-600">HOHO</span><span class="text-violet-500"> PLAY</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-600 ml-1">공지사항</span>
+                </a>
+                <div id="g-nav-desktop" style="display:none;align-items:center;gap:2px">
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🗺️ 아이랑 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/festival/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">아이랑 나들이 지도</a>
+                            <a href="/festival/worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이 월드컵</a>
+                            <a href="/festival/camping-worldcup.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">캠핑장 월드컵</a>
+                            <a href="/festival/pick.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">오늘 어디 갈까?</a>
+                            <a href="/festival/roulette.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+                            <a href="/festival/poster.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">축제 포스터</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">🎮 플레이하기 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:160px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/game/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">전체게임</a>
+                            <a href="/vote/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">익명투표</a>
+                            <a href="/quiz/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">상식테스트</a>
+                            <a href="/fortune/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">운세</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#64748b;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">💬 소통·정보 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;left:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/blog/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">커뮤니티</a>
+                            <a href="/blog/magazine/" onclick="return true;" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">호호 매거진</a>
+                            <a href="/guides/index.html" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">게임공략</a>
+                            <a href="/dream/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">꿈해몽 사전</a>
+                            <a href="/partner/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">파트너</a>
+                        </div>
+                    </div>
+                    <div style="position:relative" onmouseenter="this.querySelector('.g-dd-menu').style.opacity='1';this.querySelector('.g-dd-menu').style.visibility='visible'" onmouseleave="this.querySelector('.g-dd-menu').style.opacity='0';this.querySelector('.g-dd-menu').style.visibility='hidden'">
+                        <button style="color:#94a3b8;font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;padding:4px 8px;background:none;border:none;cursor:pointer">약관·정책 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+                        <div class="g-dd-menu" style="position:absolute;right:0;top:100%;margin-top:8px;width:176px;background:#fff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,.15);border:1px solid #f1f5f9;padding:8px 0;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:50">
+                            <a href="/terms/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">이용약관</a>
+                            <a href="/privacy/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">개인정보처리방침</a>
+                            <a href="/copyright/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">저작권·콘텐츠 정책</a>
+                            <a href="/guide/" style="display:block;width:100%;box-sizing:border-box;text-align:left;padding:10px 16px;font-size:14px;font-weight:700;color:#475569;text-decoration:none">FAQ</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleGameMenu()" id="g-nav-hamburger" style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;gap:6px;border-radius:12px;background:none;border:none;cursor:pointer">
+                        <span id="gbar1" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar2" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                        <span id="gbar3" style="display:block;width:20px;height:2px;background:#334155;transition:.3s"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="game-mobile-menu" style="display:none;border-top:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);background:#fff">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:4px">
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:8px 16px 2px">🗺️ 아이랑</div>
+                <a href="/festival/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">아이랑 나들이 지도</a>
+                <a href="/festival/worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이 월드컵</a>
+                <a href="/festival/camping-worldcup.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">캠핑장 월드컵</a>
+                <a href="/festival/pick.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">오늘 어디 갈까?</a>
+                <a href="/festival/roulette.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">나들이·캠핑장·숲 룰렛</a>
+                <a href="/festival/poster.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">축제 포스터</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">🎮 플레이하기</div>
+                <a href="/game/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">전체게임</a>
+                <a href="/vote/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">익명투표</a>
+                <a href="/quiz/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">상식테스트</a>
+                <a href="/fortune/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">운세</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <div style="font-size:12px;font-weight:700;color:#94a3b8;padding:0 16px 2px">💬 소통·정보</div>
+                <a href="/blog/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">커뮤니티</a>
+                <a href="/blog/magazine/" onclick="return true;" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">호호 매거진</a>
+                <a href="/guides/index.html" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">게임공략</a>
+                <a href="/dream/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">꿈해몽 사전</a>
+                <a href="/partner/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#334155;text-decoration:none">파트너</a>
+                <div style="border-top:1px solid #e2e8f0;margin:8px 0"></div>
+                <a href="/terms/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">이용약관</a>
+                <a href="/privacy/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">개인정보처리방침</a>
+                <a href="/copyright/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">저작권·콘텐츠 정책</a>
+                <a href="/guide/" style="display:block;padding:12px 16px;border-radius:12px;font-weight:700;color:#94a3b8;font-size:14px;text-decoration:none">FAQ</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        function applyGameNavResponsive(){
+            var isWide = window.innerWidth >= 768;
+            var d1 = document.getElementById('g-nav-desktop');
+            var d2 = document.getElementById('g-nav-cta');
+            var m1 = document.getElementById('g-nav-cta-m');
+            var m2 = document.getElementById('g-nav-hamburger');
+            if(d1) d1.style.display = isWide ? 'flex' : 'none';
+            if(d2) d2.style.display = isWide ? 'flex' : 'none';
+            if(m1) m1.style.display = isWide ? 'none' : 'flex';
+            if(m2) m2.style.display = isWide ? 'none' : 'flex';
+            if(isWide){
+                var mm = document.getElementById('game-mobile-menu');
+                if(mm) mm.style.display = 'none';
+            }
+        }
+        applyGameNavResponsive();
+        window.addEventListener('resize', applyGameNavResponsive);
+        function toggleGameMenu(){
+            var m = document.getElementById('game-mobile-menu');
+            var b1 = document.getElementById('gbar1'), b2 = document.getElementById('gbar2'), b3 = document.getElementById('gbar3');
+            var isOpen = m.style.display === 'block';
+            if(!isOpen){
+                m.style.display = 'block';
+                b1.style.transform = 'translateY(6px) rotate(45deg)';
+                b2.style.opacity = '0';
+                b3.style.transform = 'translateY(-6px) rotate(-45deg)';
+            } else {
+                m.style.display = 'none';
+                b1.style.transform = '';
+                b2.style.opacity = '1';
+                b3.style.transform = '';
+            }
+        }
+    </script>
+
+    <main class="max-w-3xl mx-auto px-4 py-10 w-full">
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:32px 28px;">
+
+    <div class="mb-2" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">공지사항</span>
+        
+        <span id="page-view-count" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;font-weight:700">👁 <span id="page-view-num">-</span></span>
+    </div>
+    <script>
+      (function() {
+          fetch('https://old-rain-16f7.lyh0929mm.workers.dev/views?page_id=post-69')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                  var el = document.getElementById('page-view-num');
+                  if (el && typeof data.views === 'number') el.textContent = data.views.toLocaleString();
+              })
+              .catch(function() {});
+      })();
+    </script>
+
+    <h1 class="text-3xl font-black text-slate-900 mb-2 leading-tight">파밍·루팅·그라인딩 차이와 보상 구조: 코인 숫자로 계산해 보는 게임 성장</h1>
+    <p class="text-slate-500 mb-8">HOHO PLAY · 2026.11.26</p>
+
+    <div class="magazine-content space-y-4 text-slate-700 leading-relaxed" style="white-space:pre-wrap"><!--HH-HTML--><div class="hh-raw" style="white-space:normal"><p style="font-size:13px;color:#64748b;margin:0 0 12px;">🗓 최종 수정: 2026년 11월 26일</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><div style="font-weight:900;margin-bottom:4px;">📌 한줄요약</div>파밍은 반복해서 자원을 모으는 일이고, 재미와 지루함의 차이는 보상이 얼마나 자주·예측 불가능하게 나오느냐에서 갈린다.</div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#f59e0b;"><div style="font-weight:900;margin-bottom:4px;">📍 나만의 포인트</div>이 글은 파밍을 세 기준으로 본다. ① 얼마나 걸리는가(시간) ② 얼마나 확실한가(확률) ③ 얻은 것이 다음 선택을 바꾸는가(성장). 웹게임 공략 페이지에서 확인한 코인·비용 숫자로 '몇 판 더 해야 하는가'를 직접 계산했다.</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">상점 업그레이드 가격이 1,500코인인데 한 판에 코인을 300개 모은다고 하자. 다섯 판이면 살 수 있다는 계산이 서는 순간 그 판들은 지루한 반복이 아니라 목표가 있는 반복이 된다. 파밍은 이 계산이 가능한가에 따라 재미가 달라지는 활동이다.</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><div style="font-weight:900;margin-bottom:6px;">📚 목차</div><ol style="margin:0;padding-left:20px;"><li style="margin:4px 0;"><a href="#farm-loot-grind" style="color:#4f46e5;text-decoration:underline;">파밍·루팅·그라인딩은 무엇이 다른가</a></li><li style="margin:4px 0;"><a href="#variable-reward" style="color:#4f46e5;text-decoration:underline;">왜 확률이 낮을수록 더 하게 될까: 가변 보상</a></li><li style="margin:4px 0;"><a href="#genre-history" style="color:#4f46e5;text-decoration:underline;">파밍이 장르가 된 순간: 핵앤슬래시, 루터슈터, 배틀로얄</a></li><li style="margin:4px 0;"><a href="#own-calc" style="color:#4f46e5;text-decoration:underline;">코인 숫자로 계산한 '몇 판 더'</a></li><li style="margin:4px 0;"><a href="#grind-limit" style="color:#4f46e5;text-decoration:underline;">그라인딩에도 한계가 있다: 빨리 모을수록 어려워지는 구조</a></li></ol></div>
+<h2 id="farm-loot-grind">파밍·루팅·그라인딩은 무엇이 다른가</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">파밍은 특정 장소에서 같은 일을 반복해 자원을 모으는 활동 전체를 가리키는 말이다. 루팅은 몬스터를 잡은 뒤 떨어진 아이템을 줍는 행동이고, 그라인딩은 경험치나 재화를 위해 반복 사냥하는 행동에 가까워서 같은 말처럼 쓰이지만 초점이 다르다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">파밍은 '무엇을 얻는가', 루팅은 '어떻게 줍는가', 그라인딩은 '얼마나 반복하는가'에 초점이 있다. 아이템이 나오는 것을 드롭이라 하고, 드롭 확률이 낮은 아이템을 고확률 반복으로 노리는 것이 전형적인 파밍이다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 파밍은 자원 모으기 전체, 루팅은 아이템 줍기, 그라인딩은 반복 사냥이라는 초점의 차이가 있다.</p>
+<h2 id="variable-reward">왜 확률이 낮을수록 더 하게 될까: 가변 보상</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">심리학에서는 보상이 불규칙한 횟수마다 나오는 방식을 가변 비율 보상이라 부르며, 일정한 횟수마다 주는 방식보다 행동이 오래 유지된다고 알려져 있다. 언제 나올지 모르니 '한 번만 더'가 이어진다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">확률 5%의 드롭은 평균 20번에 한 번이지만, 20번 안에 못 얻을 확률이 약 36%, 59번까지 못 얻을 확률도 약 5%다. 운이 나쁜 구간이 생각보다 길다는 점이 모두를 힘들게 했고, 그 해결책이 일정 횟수 후 확정 보상을 주는 천장, 자동 줍기, 소탕(반복 전투 자동 처리) 같은 장치다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 5% 드롭은 59번째까지 못 얻을 확률도 약 5%여서 천장·자동루팅·소탕 같은 보정 장치가 생겼다.</p>
+<h2 id="genre-history">파밍이 장르가 된 순간: 핵앤슬래시, 루터슈터, 배틀로얄</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">1996년 블리자드 노스의 디아블로가 대표적인 핵앤슬래시로 자리 잡으며 '몬스터를 잡고 장비를 얻고 더 센 몬스터를 잡는' 순환을 대중화했다. 2009년 보더랜드는 이 구조를 총 쏘는 게임에 옮겨 루터슈터라는 이름을 알렸다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">배틀로얄은 파밍의 방향을 바꿨다. 한 판 안에서 아이템을 줍고 곧바로 쓰며, 판이 끝나면 모든 것이 초기화된다. 영구 성장이 아니라 한 판 안의 성장이라는 점에서, 같은 '줍기'라도 보상의 의미가 다르다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 디아블로(1996)는 영구 성장형 파밍을, 배틀로얄은 한 판 안에서 끝나는 파밍을 대표한다.</p>
+<h2 id="own-calc">코인 숫자로 계산한 '몇 판 더'</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">아래는 호호플레이의 HOHO DASH, HOHO RUN, 호호타자RPG 공략 페이지(2026년 10월 기준 게임 버전)에서 직접 확인한 수치다. 대시형 게임의 상점은 코인·자석·거인·피버 네 항목이 레벨 1에서 시작하고, 다음 레벨까지 비용이 현재 레벨 1~4 기준으로 750, 1,000, 1,250, 1,500코인이다. 코인 항목을 레벨 1에서 4까지 올리면 합계 3,000코인이 들고 획득 배율이 ×1.5에서 ×3.0이 되므로, 파밍 효율을 높이는 업그레이드가 다른 항목의 재원을 불리는 구조다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">오름형 게임은 장애물을 지날 때 가시·이동블록 5코인, 기둥 7코인, 회전함정 8코인, 바위 12코인을 준다. 상점 레벨 상한은 10이고 첫 구매 100코인에서 레벨마다 50코인씩 늘어나 단순 합산하면 10레벨까지 3,250코인이다. 부활 티켓 500코인은 바위만 지났을 때 약 42개(500÷12)에 해당한다. RPG 타자 게임은 3글자 단어를 3번 이어서 입력하면 경험치와 코인 10개씩 보너스가 붙어 총 19이고, 보호막 100코인은 이 콤보 약 5번이다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 레벨 1→4 합계 3,000코인(배율 ×1.5→×3.0), 오름형 상점 10레벨 3,250코인, 부활 티켓 500코인 같은 숫자로 '몇 판 더'를 계산할 수 있다.</p>
+<h2 id="grind-limit">그라인딩에도 한계가 있다: 빨리 모을수록 어려워지는 구조</h2>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">좋은 파밍 설계는 반복을 보상과 위험의 균형으로 잡는다. RPG 타자 게임에서는 레벨업이 빠를수록 성장 카드는 빨리 모이지만 맵 경계가 레벨업마다 500씩 좁아진다. 빨리 키울수록 이동할 공간이 줄어드는 대가를 치르는 셈이다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">이 구조는 '무한 반복으로 압도'하는 길을 막고 선택을 요구한다. 카드는 8종류에 각각 12단계까지 올릴 수 있어서 생존·처치·경제 중 무엇을 올릴지를 계속 정해야 한다. 파밍이 지루해지는 가장 흔한 원인은 반복이 아니라 '선택이 사라지는 것'이다.</p>
+<p style="background:#eef2ff;border-radius:8px;padding:10px 14px;margin:12px 0 28px;line-height:1.7;font-size:15px;color:#3730a3;">📝 간단 정리: 레벨업마다 맵 경계가 500씩 줄어드는 것처럼, 좋은 파밍은 보상에 위험이나 선택을 함께 건다.</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#10b981;"><div style="font-weight:900;margin-bottom:6px;">✅ 한 번에 정리</div><p style="margin:0 0 6px;">· 파밍은 자원 모으기, 루팅은 아이템 줍기, 그라인딩은 반복 사냥이다.</p><p style="margin:0 0 6px;">· 5% 드롭도 20번 안에 못 얻을 확률이 약 36%여서 천장 같은 장치가 생겼다.</p><p style="margin:0 0 6px;">· 코인 가격과 획득량을 알면 몇 판 더 해야 하는지 계산할 수 있다.</p><p style="margin:0 0 6px;">· 파밍이 재미있으려면 반복만이 아니라 선택과 위험이 함께 있어야 한다.</p></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">파밍 관련 용어 비교</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">비슷해 보이지만 초점이 다른 용어를 한 표로 정리했다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">용어</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">초점</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">예시</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">파밍</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">무엇을 모으는가</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">재료·장비를 얻기 위해 같은 던전 반복</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">루팅</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">아이템을 줍는 행동</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">몬스터가 떨어뜨린 상자를 여는 것</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">그라인딩</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">얼마나 반복하는가</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">경험치를 위해 같은 몬스터를 계속 처치</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">천장</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">확정 보상 장치</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">일정 횟수 후 반드시 지급</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">소탕</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">반복 전투 자동 처리</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">클리어한 단계를 버튼 하나로 반복</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">드롭 확률과 못 얻을 확률</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">확률 p로 n번 시도했을 때 한 번도 못 얻을 확률(1-p의 n제곱)을 계산한 값이다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">드롭 확률</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">시도 횟수</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">한 번도 못 얻을 확률</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">5%</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">20번</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">약 36%</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">5%</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">59번</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">약 5%</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1%</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">100번</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">약 37%</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">1%</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">300번</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">약 5%</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">직접 확인한 코인 구조</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">2026년 10월 기준 웹게임 공략 수치와 단순 계산값이다.</p>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead><tr><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">게임 유형</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">획득 기준</th><th style="border:1px solid #cbd5e1;background:#e0e7ff;padding:8px 10px;text-align:left;font-weight:800;color:#1e293b;">소비 기준</th></tr></thead><tbody>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">대시형 러닝</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">코인 배율 Lv1 ×1.5 → Lv4 ×3.0</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">레벨 1~4 구간 750/1,000/1,250코인(합계 3,000), Lv4→5는 1,500코인</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">오름형 러닝</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">가시·이동블록 5, 기둥 7, 회전함정 8, 바위 12</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">상점 최대 10레벨(첫 100코인, 레벨당 +50), 부활 티켓 500코인</td></tr>
+<tr><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">RPG 타자</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">3글자 3연속 = 19</td><td style="border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.6;">보호막 100코인, 범위 공격 300코인</td></tr>
+</tbody></table></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🧭 이 글의 판단</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">파밍의 재미는 반복의 양이 아니라 '다음 보상까지의 거리가 보이는가'에서 나온다고 판단한다. 750코인짜리 첫 업그레이드가 합계 3,000코인짜리 완성(배율 ×3.0)으로 이어진다는 걸 알면 반복이 목표가 되고, 모르면 노동이 된다.</p>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">다만 확률 드롭은 운이 나쁜 구간이 길 수 있다는 점을 처음부터 알려 주는 게 공정하다. 20번에 1번이라는 설명만 보고 시작한 사람이 40번째에 포기하는 걸 보면, 못 얻을 확률을 숫자로 알려 주는 쪽이 이용자를 존중하는 설계라고 본다.</p>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🛠 실전 팁</div>
+<ul style="margin:0 0 16px;padding-left:20px;line-height:1.9;color:#334155;"><li style="margin:4px 0;">상점 가격과 한 판 평균 코인을 먼저 계산해 '몇 판 후 구매'라는 목표를 정한다.</li><li style="margin:4px 0;">확률 드롭은 기대 횟수의 3배(5%면 약 60번)까지 안 나올 수 있다는 점을 염두에 둔다.</li><li style="margin:4px 0;">효율을 올리는 업그레이드(코인 배율, 경험치 증가)를 먼저 사는 쪽이 장기적으로 유리하다.</li><li style="margin:4px 0;">천장·소탕 기능이 있는지 확인하고, 없다면 시간 대비 효율을 따져 본다.</li></ul>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">❓ 자주 묻는 질문</div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 파밍과 그라인딩의 차이는 무엇인가요?</p><p style="margin:0;color:#334155;">파밍은 아이템·재료를 모으는 것, 그라인딩은 경험치·재화를 위해 같은 일을 반복하는 것에 초점이 있다. 실제로는 혼용되지만 목적이 다르다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 천장은 어떻게 작동하나요?</p><p style="margin:0;color:#334155;">일정 횟수 시도하면 반드시 목표 보상을 주는 보정 장치다. 예를 들어 100회 천장이라면 100번째 시도에서는 확정으로 지급된다. 게임마다 횟수와 초기화 조건이 다르다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 파밍에 드는 시간은 어떻게 어림하나요?</p><p style="margin:0;color:#334155;">목표 코인÷한 판 평균 코인으로 판 수를 구하고 판 수×한 판 시간을 곱한다. 3,000코인이 목표이고 한 판 300코인이면 10판이다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 핵앤슬래시와 루터슈터는 어떻게 다른가요?</p><p style="margin:0;color:#334155;">핵앤슬래시는 쿼터뷰 시점에서 다수의 몬스터를 베는 액션 RPG, 루터슈터는 총으로 쏘고 장비를 모으는 슈팅 게임이다. 둘 다 '잡고 줍고 강해지는' 순환이 중심이다.</p></div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;"><p style="margin:0 0 6px;font-weight:800;color:#1e293b;">Q. 자동루팅은 항상 좋은 기능인가요?</p><p style="margin:0;color:#334155;">시간은 줄지만 아이템을 직접 고르는 판단이 사라진다. 장비 종류가 많고 선택이 중요한 게임에서는 오히려 재미를 줄일 수 있다.</p></div>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">🔧 함께 쓰면 좋은 도구</div>
+<p style="line-height:1.9;margin:0 0 14px;color:#334155;">파밍 계산을 직접 해 보고 싶다면 <a href="https://hohoplaylab.com/hoho-run.html" style="color:#4f46e5;text-decoration:underline;">HOHO RUN</a>에서 장애물별 코인과 상점 비용을 비교해 볼 수 있다.</p>
+<div style="font-size:20px;font-weight:900;color:#1e293b;margin:34px 0 10px;line-height:1.4;">📚 참고한 자료</div>
+<ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#475569;font-size:14px;"><li style="margin:3px 0;">Blizzard North, Diablo(1996) 및 Gearbox, Borderlands(2009) 출시 정보</li><li style="margin:3px 0;">B. F. Skinner의 강화 계획(가변 비율) 관련 심리학 일반 자료</li><li style="margin:3px 0;">웹게임 사이트 게임 공략 페이지 (본문에 밝힌 출처, 2026년 10월 기준 게임 버전)</li><li style="margin:3px 0;">확률 계산은 (1-확률)의 시도 횟수 제곱, 필자 계산</li></ul>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #6366f1;border-radius:8px;padding:14px 16px;margin:18px 0;line-height:1.8;border-left-color:#ec4899;"><div style="font-weight:900;margin-bottom:4px;">💬 마무리 질문</div>게임에서 '한 번만 더'를 가장 오래 반복했던 보상은 무엇이었나요? 얼마나 걸렸는지도 궁금합니다.</div>
+<p style="color:#6366f1;line-height:1.9;margin:8px 0 0;">#파밍 #루팅 #그라인딩 #게임상식 #게임용어 #천장 #드롭확률 #핵앤슬래시 #루터슈터</p></div></div>
+
+    
+
+    <div class="mt-10 text-center">
+        <a href="/blog/" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black text-sm px-6 py-3 rounded-full transition">← 커뮤니티로 돌아가기</a>
+    </div>
+
+    <div style="margin-top:24px;text-align:center;">
+        <div class="text-sm font-bold text-slate-400 mb-3">🔗 이 글을 공유해보세요</div>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+            <button onclick="snsShare('facebook')" aria-label="페이스북 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">f</button>
+            <button onclick="snsShare('x')" aria-label="X 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">X</button>
+            <button onclick="snsShare('kakaot')" aria-label="카카오톡 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#fee500;color:#3c1e1e;display:flex;align-items:center;justify-content:center;font-size:18px">💬</button>
+            <button onclick="snsShare('naver')" aria-label="네이버 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#03c75a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">N</button>
+            <button onclick="snsShare('band')" aria-label="밴드 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#00c73c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">밴드</button>
+            <button onclick="snsShare('line')" aria-label="라인 공유" style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">라인</button>
+        </div>
+    </div>
+
+    <div style="padding:20px;background:#fff;border:1px solid #f1f5f9;border-radius:20px;margin-top:24px">
+        <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:14px">💬 댓글</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <input id="cmt-nickname" type="text" placeholder="닉네임" maxlength="20"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none">
+            <textarea id="cmt-content" placeholder="댓글을 남겨보세요 (최대 300자)" maxlength="300" rows="3"
+                style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;resize:vertical;outline:none;font-family:inherit"></textarea>
+            <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px">
+                <span id="cmt-status" style="font-size:12px;color:#94a3b8"></span>
+                <button id="cmt-submit" onclick="submitComment()"
+                    style="padding:9px 20px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-weight:800;font-size:13px;cursor:pointer">등록</button>
+            </div>
+        </div>
+        <div id="cmt-list" style="display:flex;flex-direction:column;gap:10px">
+            <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오는 중...</div>
+        </div>
+    </div>
+
+    </div>
+    </main>
+
+    <!-- [ADD] 2026-10-24: 글 하단 HOHO PICK. 2/3/4/6번 등 기존 글과 blog/index.html과 같은 방식
+         (/hoho-pick.html을 불러와 끼우고, 안에 든 script는 다시 만들어 실행). 템플릿에 없어서
+         매거진 글을 클릭해 들어오면 빠져 있었음. -->
+    <div id="hoho-pick-placeholder" data-exclude="community" style="width:100%;box-sizing:border-box;max-width:56rem;margin:24px auto 0;padding:0 16px;"></div>
+    <script>
+    (function(){
+        var ph = document.getElementById('hoho-pick-placeholder');
+        if (!ph) return;
+        // [ADD] 2026-10-26: 이 템플릿은 커뮤니티 글(blog/posts/)과 호호 매거진 글(blog/magazine/)이
+        // 같이 쓴다. 매거진 글 아래에는 "호호 매거진" 추천이 또 나오지 않게 magazine을 빼고,
+        // 커뮤니티 글은 기존대로 community를 뺀다. 주소(경로)로 구분하므로 생성 스크립트는 안 바꿔도 된다.
+        ph.setAttribute('data-exclude', location.pathname.indexOf('/blog/magazine/') === 0 ? 'magazine' : 'community');
+        fetch('/hoho-pick.html').then(function(r){ return r.text(); }).then(function(html){
+            ph.innerHTML = html;
+            var scripts = ph.querySelectorAll('script');
+            for (var i = 0; i < scripts.length; i++) {
+                var old = scripts[i];
+                var s = document.createElement('script');
+                for (var j = 0; j < old.attributes.length; j++) {
+                    s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+                }
+                s.textContent = old.textContent;
+                old.parentNode.replaceChild(s, old);
+            }
+        }).catch(function(){});
+    })();
+    </script>
+
+    <div id="footer-placeholder"><nav aria-label="사이트 정보" style="padding:24px 16px;text-align:center;font-size:13px;line-height:2;color:#64748b"><a href="/about/" style="color:#475569;text-decoration:none">호호플레이 소개</a> · <a href="/privacy/" style="color:#475569;text-decoration:none">개인정보처리방침</a> · <a href="/terms/" style="color:#475569;text-decoration:none">이용약관</a> · <a href="/copyright/" style="color:#475569;text-decoration:none">저작권·콘텐츠 정책</a> · <a href="/contact/" style="color:#475569;text-decoration:none">문의하기</a></nav></div>
+    <script>
+        fetch('/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').outerHTML = html; });
+    </script>
+
+    <script>
+        const COMMENTS_API = 'https://old-rain-16f7.lyh0929mm.workers.dev/comments';
+        const CMT_GAME_ID = 'post-69';
+        const INQUIRY_GAME_NAME = '커뮤니티 게시글';
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.innerText = str;
+            return d.innerHTML;
+        }
+        function formatCmtTime(ts) {
+            const diff = Date.now() - ts;
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return '방금 전';
+            if (min < 60) return min + '분 전';
+            const hr = Math.floor(min / 60);
+            if (hr < 24) return hr + '시간 전';
+            const day = Math.floor(hr / 24);
+            if (day < 7) return day + '일 전';
+            return new Date(ts).toLocaleDateString('ko-KR');
+        }
+        async function loadComments() {
+            const list = document.getElementById('cmt-list');
+            try {
+                const res = await fetch(COMMENTS_API + '?game_id=' + CMT_GAME_ID);
+                const data = await res.json();
+                if (!data.comments || data.comments.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>';
+                    return;
+                }
+                list.innerHTML = data.comments.map(c => `
+                    <div style="padding:12px 14px;background:#f8fafc;border-radius:12px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                            <span style="font-weight:800;font-size:13px;color:#334155">${escapeHtml(c.nickname)}</span>
+                            <span style="font-size:11px;color:#94a3b8">${formatCmtTime(c.created_at)}</span>
+                        </div>
+                        <div style="font-size:13px;color:#475569;line-height:1.6;white-space:pre-wrap">${escapeHtml(c.content)}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">댓글을 불러오지 못했습니다.</div>';
+            }
+        }
+        async function submitComment() {
+            const nickname = document.getElementById('cmt-nickname').value.trim();
+            const content = document.getElementById('cmt-content').value.trim();
+            const status = document.getElementById('cmt-status');
+            const btn = document.getElementById('cmt-submit');
+            if (!nickname || !content) { status.textContent = '닉네임과 내용을 입력해주세요.'; return; }
+            btn.disabled = true;
+            status.textContent = '등록 중...';
+            try {
+                const res = await fetch(COMMENTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: CMT_GAME_ID, nickname, content })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    status.textContent = data.error || '등록에 실패했습니다.';
+                    btn.disabled = false;
+                    return;
+                }
+                document.getElementById('cmt-content').value = '';
+                status.textContent = '';
+                btn.disabled = false;
+                loadComments();
+            } catch (e) {
+                status.textContent = '네트워크 오류가 발생했습니다.';
+                btn.disabled = false;
+            }
+        }
+        loadComments();
+
+        function snsShare(type){
+            // 검증된 최종 버전 (축제 지도에서 발견/수정한 문제 반영):
+            // - 카카오톡: 모바일은 OS 공유시트, PC는 카드 방식이 엉뚱한 페이지로 새는 문제가
+            //   있어 링크를 직접 보여주는 방식(prompt) 사용
+            // - 밴드: url/title만으로는 게시글 본문에 링크가 안 붙어서 본문 텍스트에 직접 포함
+            // - 팝업 크기 지정 제거 (모바일에서 팝업 차단 대상으로 취급되는 문제 방지)
+            var pageUrl = window.location.href;
+            var shareUrl = encodeURIComponent(pageUrl);
+            var title = document.title;
+            var shareTitle = encodeURIComponent(title);
+
+            if (type === 'kakaot') {
+                var isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                if (isMobileDevice && navigator.share) {
+                    navigator.share({ title: title, url: pageUrl }).catch(function () {});
+                    return;
+                }
+                prompt('아래 링크를 선택해서 복사한 뒤 카카오톡에 붙여넣어 공유해주세요', pageUrl);
+                return;
+            }
+
+            var map = {
+                facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl,
+                x: 'https://twitter.com/intent/tweet?text=' + shareTitle + '&url=' + shareUrl,
+                naver: 'https://share.naver.com/web/shareView.nhn?url=' + shareUrl + '&title=' + shareTitle,
+                band: 'https://band.us/plugin/share?body=' + encodeURIComponent(title + '\n' + pageUrl) + '&route=' + shareUrl,
+                line: 'https://social-plugins.line.me/lineit/share?url=' + shareUrl + '&text=' + shareTitle
+            };
+            if (map[type]) window.open(map[type], '_blank');
+        }
+    </script>
+
+</body>
+</html>
