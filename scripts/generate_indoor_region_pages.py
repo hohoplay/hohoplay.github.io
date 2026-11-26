@@ -33,7 +33,9 @@ data/kids_places.json의 실내/실내외 장소를 시/도 단위로 모아
       재생성).
     - REGION_SLUGS에 없는 시/도(예: 광주광역시·충청남도 — 이번 데이터에는 없음)는 데이터가
       생겨도 자동으로 매핑되므로 별도 수정 없이 바로 페이지가 생성됩니다.
-    - 광고 영역의 data-ad-slot="REPLACE_WITH_AD_SLOT_ID" 는 실제 AdSense 광고 단위 slot
+    - [FIX] 2026-11-26: 이 목록 페이지는 noindex 이고 내용이 얇아서 광고 코드를 넣지 않는다
+      (remove_ads_from_thin_pages.py 로 걷어 낸 것을 재생성이 되살리지 않도록 템플릿에서 뺌).
+      (옛 안내: data-ad-slot="REPLACE_WITH_AD_SLOT_ID" 는 실제 AdSense 광고 단위 slot
       번호로 꼭 바꿔주세요. 채우지 않으면 광고가 표시되지 않습니다(에러는 안 남).
 """
 import json
@@ -54,6 +56,11 @@ SITE_BASE = "https://hohoplaylab.com"
 REGION_ALIASES = {
     "강원도": "강원특별자치도",
     "대구": "대구광역시",
+    # [FIX] 2026-11-26: 주소 첫 단어가 줄임말·새 이름이라 건너뛰던 지역을 합친다(전북 24곳 등)
+    "서울": "서울특별시",
+    "대전": "대전광역시",
+    "전북특별자치도": "전라북도",
+    "전남광주통합특별시": "전라남도",
 }
 
 # 정규화된 지역명 -> (URL 슬러그, 표시용 짧은 이름)
@@ -95,7 +102,6 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <meta property="og:image" content="https://hohoplaylab.com/data/og-home.png">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/favicon.svg">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7990191075290055" crossorigin="anonymous"></script>
 <style>
   * {{ box-sizing: border-box; }}
   body {{ font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; }}
@@ -128,15 +134,6 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   <div class="count-note">총 {count}곳</div>
 
 {place_cards}
-  <div style="margin:24px 0; text-align:center;">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-7990191075290055"
-         data-ad-slot="REPLACE_WITH_AD_SLOT_ID"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({{}});</script>
-  </div>
 
   <p style="font-size:11px; color:#94a3b8; text-align:center; margin-top:24px; line-height:1.6;">
     위치 정보는 지역 중심 좌표를 기준으로 안내되며, 실제 방문 전 정확한 주소와 운영시간을 확인해주세요.<br>
@@ -268,6 +265,37 @@ def update_sitemap(sitemap_path, new_urls, today_str):
     sitemap_path.write_text(content, encoding="utf-8", newline="")
 
 
+INDEX_ORDER = ["서울특별시", "경기도", "인천광역시", "강원특별자치도", "대전광역시", "세종특별자치시",
+               "충청북도", "충청남도", "대구광역시", "경상북도", "경상남도", "광주광역시",
+               "전라북도", "전라남도", "부산광역시", "울산광역시", "제주특별자치도"]
+
+
+def update_index(out_dir, written):
+    """blog/indoor-kids/index.html 의 지역 카드와 '총 N곳'·'N개 시·도' 숫자를 데이터에서 다시 계산해 맞춘다."""
+    idx = out_dir / "index.html"
+    if not idx.exists():
+        return
+    html = idx.read_text(encoding="utf-8")
+    by_region = {r: (slug, cnt) for r, slug, cnt in written}
+    cards = []
+    for r in INDEX_ORDER:
+        if r not in by_region:
+            continue
+        slug, cnt = by_region[r]
+        short = REGION_SLUGS[r][1]
+        cards.append(
+            f'<li><a class="region-card" href="/blog/indoor-kids/{slug}.html"><div class="region-name">{short} 실내 나들이</div>'
+            f'<div class="region-count">장소 {cnt}곳</div></a></li>'
+        )
+    total = sum(c for _, _, c in written)
+    n_regions = len(cards)
+    html, k1 = re.subn(r'(<ul class="region-grid">\n).*?(\n</ul>)', lambda m: m.group(1) + "\n".join(cards) + m.group(2), html, count=1, flags=re.S)
+    html = re.sub(r"실내 나들이 장소 \d+곳을 전국 \d+개 시·도별로", f"실내 나들이 장소 {total}곳을 전국 {n_regions}개 시·도별로", html)
+    html = re.sub(r"전국 \d+개 시·도, 총 \d+곳", f"전국 {n_regions}개 시·도, 총 {total}곳", html)
+    idx.write_text(html, encoding="utf-8", newline="")
+    print(f"목록 페이지 갱신: {n_regions}개 시·도, 총 {total}곳 (카드 영역 교체 {k1}건)")
+
+
 def main():
     data_path = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO_ROOT / "data" / "kids_places.json"
     out_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else REPO_ROOT / "blog" / "indoor-kids"
@@ -280,6 +308,9 @@ def main():
     unmapped_regions = set()
     for p in places:
         if p.get("placeType") not in ("실내", "실내외"):
+            continue
+        # [FIX] 2026-11-26: 숨김 처리한 장소는 목록에서 뺀다 (지도·월드컵과 같은 기준)
+        if p.get("hidden"):
             continue
         region = region_of(p.get("addr", ""))
         if region not in REGION_SLUGS:
@@ -299,6 +330,8 @@ def main():
             f.write(html_out)
         new_urls.append(canonical)
         written.append((region_name, slug, len(region_places)))
+
+    update_index(out_dir, written)
 
     # [CHG] 2026-11-12: 시/도별 실내 목록은 noindex,follow 라서 sitemap에는 올리지 않는다.
     #   (sync_sitemap.py 도 noindex 페이지를 sitemap에서 제외한다) update_sitemap()은 더 이상 호출하지 않음.
