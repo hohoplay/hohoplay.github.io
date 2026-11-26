@@ -67,6 +67,7 @@ def transform(page, places, slug=''):
     for rx in DESC_RES:
         out = rx.sub(lambda m: m.group(1) + desc + m.group(2), out, count=1)
     out = rte.apply_robots(out, slug)   # 2026-11-26: 얇은 글만 noindex, 나머지는 검색 허용
+    out = rte.apply_nocopy(out)         # 2026-11-27: 본문 글자 드래그 방지
     return out, 'ok'
 
 
