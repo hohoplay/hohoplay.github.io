@@ -1,0 +1,47 @@
+name: Add No-Copy To Detail Pages
+
+# 상세페이지(festival/detail/*.html, 약 4,400개) 본문 글자를 마우스 드래그로 선택·복사하지 못하게 하는 1회성 작업입니다.
+# </head> 앞에 CSS 한 줄(user-select:none)만 추가합니다. 입력칸(댓글)과 class="allow-copy" 는 선택할 수 있습니다.
+# 여러 번 실행해도 결과는 같습니다(이미 적용된 파일은 건너뜀).
+#
+# [실행 전 필수] 아래 파일을 먼저 저장소에 올려 주세요. 그래야 이후 자동 갱신으로 새로 만들어지는 페이지에도 적용됩니다.
+#   scripts/add_no_copy_to_details.py
+#   scripts/fetch_data.py
+#   templates/kids_detail_template.html
+#   festival/detail-sheet.js
+#
+# 수동 실행(workflow_dispatch)만 가능한 1회성 작업입니다.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  add-no-copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 드래그 방지 CSS 추가
+        run: python3 scripts/add_no_copy_to_details.py
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add festival/detail
+          if git diff --cached --quiet; then
+            echo "변경된 내용이 없습니다 — 커밋하지 않습니다."
+          else
+            git commit -m "chore: 상세페이지 본문 글자 드래그 방지 CSS 추가"
+            git pull --rebase
+            git push
+          fi
