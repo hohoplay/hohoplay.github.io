@@ -350,8 +350,17 @@ def _clean_text(s):
 # 한 번 더 반복돼 보였다(본문이 <h1>/<h2>제목으로 시작하기 때문). 문단(<p>)만 이어서 쓰면
 # 제목·소제목이 빠지고, <p>가 없는 글(공지사항 등 평문)은 맨 앞에 제목이 그대로 반복될 때만 잘라낸다.
 # 같은 함수가 목록 미리보기(plain_text_excerpt)와 글의 메타 설명(render_post_html)을 같이 만든다.
+# [ADD] 2026-11-26: 매거진 글 맨 위에 "최종 수정: 2026년 11월 26일"처럼 날짜만 적은 문단을 두는
+# 글이 늘어, 목록 미리보기와 메타 설명이 날짜로 시작하는 문제가 생겼다. 날짜만 있는 문단은
+# 미리보기에서 건너뛴다("📅 수정일 2026.11.22 · 사례로 든 행사는…"처럼 뒤에 내용이 이어지면 그대로 둠).
+_DATE_ONLY_PARA_RE = re.compile(
+    r"^\W*(?:최종\s*)?(?:수정일?|업데이트)\s*[:：]?\s*\d{4}\s*[.\-년]\s*\d{1,2}\s*[.\-월]\s*\d{1,2}\s*일?\W*$"
+)
+
+
 def summary_text(content, title=""):
     paras = [_clean_text(m) for m in _PARA_RE.findall(content or "")]
+    paras = [p for p in paras if not _DATE_ONLY_PARA_RE.match(p)]
     text = " ".join(p for p in paras if p)
     if len(text) < 40:
         text = _clean_text(content)
@@ -695,6 +704,11 @@ def build_related_box_html(post, magazine_titles, post_lanes=None):
     )
 
 
+_BACK_TO_COMMUNITY_RE = re.compile(
+    r"[ \t]*<(a|button)\b[^>]*>(?:(?!</\1>).)*?커뮤니티 전체로 돌아가기(?:(?!</\1>).)*?</\1>[ \t]*\n?", re.S
+)
+
+
 def render_post_html(template, post, magazine_titles=None, post_lanes=None):
     # [FIX] 2026-09-21: post["content"]를 html_lib.escape()로 감싸고 있었음 — writer.html이
     # 실제 <h1>/<h2>/<p>/<ul><li>/<strong> 등 진짜 HTML 태그로 저장한 본문을 여기서 다시
@@ -744,6 +758,11 @@ def render_post_html(template, post, magazine_titles=None, post_lanes=None):
     # 템플릿에 이 표시가 없으면(옛 템플릿) 아무것도 지우지 않고 로그만 남긴다.
     social_re = re.compile(r'[ \t]*<!-- HH_SOCIAL_START\b[^>]*-->.*?<!-- HH_SOCIAL_END -->[ \t]*\n?', re.S)
     if post.get("category") == MAGAZINE_CATEGORY:
+        # [ADD] 2026-11-26: 매거진 글 하단의 "← 커뮤니티 전체로 돌아가기" 링크를 뺀다(대표님 요청).
+        # 템플릿(templates/community_post_template.html)은 건드리지 않고, 링크 글자를 가진 <a>/<button>만 지운다.
+        html_out, back_removed = _BACK_TO_COMMUNITY_RE.subn("", html_out)
+        if back_removed == 0:
+            print(f"⚠️ {post['id']}: '커뮤니티 전체로 돌아가기' 링크를 못 찾았습니다 (이미 없거나 템플릿 문구가 다름).", file=sys.stderr)
         html_out, removed = social_re.subn("", html_out)
         if removed == 0:
             print(
@@ -1105,6 +1124,11 @@ body { font-family: 'Noto Sans KR', sans-serif; }
 .lane-chip span { font-size: 11px; color: #94a3b8; font-weight: 800; }
 .lane-chip.on { background: #4f46e5; border-color: #4f46e5; color: #fff; }
 .lane-chip.on span { color: #c7d2fe; }
+.pager { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; margin: 28px 0 8px; }
+.pager a, .pager span { display: inline-flex; align-items: center; justify-content: center; min-width: 38px; height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; color: #475569; font-size: 14px; font-weight: 700; text-decoration: none; }
+.pager a:hover { border-color: #4f46e5; color: #4f46e5; }
+.pager .cur { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+.pager .gap { border: none; background: transparent; min-width: 20px; padding: 0; color: #94a3b8; }
 .lane-badge { display: inline-block; font-size: 11px; font-weight: 800; color: #4f46e5; background: #eef2ff; padding: 1px 9px; border-radius: 999px; margin-right: 10px; }
 </style>
 %%MM_STYLE%%</head>
@@ -1117,6 +1141,7 @@ body { font-family: 'Noto Sans KR', sans-serif; }
 <ul class="post-list">
 %%ITEMS%%
 </ul>
+%%PAGER%%
 %%BACK%%
 
 <!-- [ADD] 2026-10-17: 게임공략 페이지 하단과 같은 방식으로 HOHO PICK을 붙인다.
@@ -1199,7 +1224,7 @@ def _archive_items_html(magazine_posts, post_excerpts, post_lanes, with_badge, e
     return "\n".join(rows)
 
 
-def _render_archive_page(*, doc_title, desc, canonical, noindex, h1, intro, chips_html, items_html, back_html):
+def _render_archive_page(*, doc_title, desc, canonical, noindex, h1, intro, chips_html, items_html, back_html, pager_html=""):
     page = ARCHIVE_PAGE_TEMPLATE
     # 검색에 안 나오게 한 페이지에는 robots 메타를 넣고 광고 코드는 뺀다(공지·업데이트 글과 같은 원칙).
     robots_meta = '<meta name="robots" content="noindex,follow">\n' if noindex else ""
@@ -1214,6 +1239,7 @@ def _render_archive_page(*, doc_title, desc, canonical, noindex, h1, intro, chip
         ("%%INTRO%%", intro),
         ("%%CHIPS%%", chips_html),
         ("%%ITEMS%%", items_html),
+        ("%%PAGER%%", pager_html),
         ("%%BACK%%", back_html),
         ("%%MM_STYLE%%", MM_COMPACT_STYLE),
         ("%%HEADER%%", SITE_HEADER_HTML),
@@ -1221,6 +1247,92 @@ def _render_archive_page(*, doc_title, desc, canonical, noindex, h1, intro, chip
     ):
         page = page.replace(token, value)
     return page
+
+
+# [ADD] 2026-11-26: 매거진 글이 10개를 넘으면 한 페이지에 10개씩 나눠 보여준다(대표님 요청).
+# 1페이지는 기존 주소(/blog/magazine/)를 그대로 쓰고, 2페이지부터는 /blog/magazine/page/2/ 처럼
+# 폴더형 정적 페이지로 만든다(번호 링크가 진짜 <a>라 검색 로봇도 따라갈 수 있다).
+# 2페이지부터는 noindex,follow + 광고 코드 없음 — 목록만 있는 페이지가 검색·광고 심사에서
+# 얇은 페이지로 보이지 않게 하고, sitemap 자동 추가 대상에서도 빠진다(sync_sitemap.py는 noindex를 건너뜀).
+MAGAZINE_PAGE_SIZE = 10
+
+
+def _page_path(base_url, n):
+    """base_url('/blog/magazine/' 또는 '/blog/magazine/game/')의 n페이지 사이트 내 주소."""
+    return base_url if n == 1 else f"{base_url}page/{n}/"
+
+
+def _pager_html(base_url, page, total_pages):
+    if total_pages <= 1:
+        return ""
+    # 현재 페이지 앞뒤 2개와 처음·끝만 보여주고 나머지는 … 로 줄인다.
+    shown = sorted({1, total_pages} | {n for n in range(page - 2, page + 3) if 1 <= n <= total_pages})
+    parts = []
+    if page > 1:
+        parts.append(f'<a href="{_page_path(base_url, page - 1)}" rel="prev" aria-label="이전 페이지">‹ 이전</a>')
+    prev_n = 0
+    for n in shown:
+        if n - prev_n > 1:
+            parts.append('<span class="gap">…</span>')
+        if n == page:
+            parts.append(f'<span class="cur" aria-current="page">{n}</span>')
+        else:
+            parts.append(f'<a href="{_page_path(base_url, n)}">{n}</a>')
+        prev_n = n
+    if page < total_pages:
+        parts.append(f'<a href="{_page_path(base_url, page + 1)}" rel="next" aria-label="다음 페이지">다음 ›</a>')
+    return '<nav class="pager" aria-label="페이지 이동">' + "".join(parts) + "</nav>"
+
+
+def _prune_extra_pages(base_dir, total_pages):
+    """total_pages보다 큰 번호의 예전 페이지 폴더(base_dir/page/N/)를 지운다(글이 줄었을 때)."""
+    page_root = os.path.join(base_dir, "page")
+    if not os.path.isdir(page_root):
+        return
+    for name in sorted(os.listdir(page_root)):
+        d = os.path.join(page_root, name)
+        if not (name.isdigit() and os.path.isdir(d)) or int(name) <= max(total_pages, 1):
+            continue
+        idx = os.path.join(d, "index.html")
+        if os.path.exists(idx):
+            os.remove(idx)
+        try:
+            os.rmdir(d)
+        except OSError:
+            pass
+    try:
+        os.rmdir(page_root)  # 비었을 때만 지워짐
+    except OSError:
+        pass
+
+
+def _write_paginated_archive(*, base_dir, base_url, canonical_root, doc_title, desc, noindex, h1, intro,
+                             chips_html, list_posts, post_excerpts, post_lanes, with_badge, empty_text, back_html):
+    """목록(list_posts)을 MAGAZINE_PAGE_SIZE개씩 나눠 base_dir(1페이지)와 base_dir/page/N/(2페이지~)에 쓴다.
+    쓴 페이지 수를 돌려준다."""
+    total_pages = max(1, -(-len(list_posts) // MAGAZINE_PAGE_SIZE))
+    for page in range(1, total_pages + 1):
+        chunk = list_posts[(page - 1) * MAGAZINE_PAGE_SIZE: page * MAGAZINE_PAGE_SIZE]
+        title = doc_title if page == 1 else f"{page}페이지 - {doc_title}"
+        page_desc = desc if page == 1 else f"{desc} ({page}페이지)"
+        html_page = _render_archive_page(
+            doc_title=title,
+            desc=page_desc,
+            canonical=canonical_root + _page_path(base_url, page),
+            noindex=noindex or page > 1,
+            h1=h1,
+            intro=intro,
+            chips_html=chips_html,
+            items_html=_archive_items_html(chunk, post_excerpts, post_lanes, with_badge, empty_text),
+            back_html=back_html,
+            pager_html=_pager_html(base_url, page, total_pages),
+        )
+        out_dir = base_dir if page == 1 else os.path.join(base_dir, "page", str(page))
+        os.makedirs(out_dir, exist_ok=True)
+        with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
+            f.write(html_page)
+    _prune_extra_pages(base_dir, total_pages)
+    return total_pages
 
 
 def _sorted_magazine_posts(posts):
@@ -1249,24 +1361,27 @@ def build_magazine_archive_page(posts, post_excerpts=None, post_lanes=None):
         if lane in LANE_BY_SLUG:
             counts[lane] = counts.get(lane, 0) + 1
 
-    page = _render_archive_page(
+    # [CHG] 2026-11-26: 10개씩 페이지로 나누고, 하단의 "← 커뮤니티 전체로 돌아가기" 링크는 뺐다.
+    total_pages = _write_paginated_archive(
+        base_dir=MAGAZINE_ARCHIVE_DIR,
+        base_url=f"/blog/{MAGAZINE_ARCHIVE_SLUG}/",
+        canonical_root=SITE_ROOT,
         doc_title="호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티",
         desc="호호플레이(HOHO PLAY) 호호 매거진 게시글을 모아봅니다.",
-        canonical=MAGAZINE_ARCHIVE_URL,
         noindex=False,
         h1="📖 호호 매거진",
         intro="호호플레이(HOHO PLAY)의 호호 매거진 게시글을 모아봅니다.",
         chips_html=_lane_chips_html(counts, len(magazine_posts)),
-        items_html=_archive_items_html(magazine_posts, post_excerpts, post_lanes, True,
-                                       "아직 등록된 호호 매거진 글이 없습니다."),
-        back_html='<a class="back-link" href="/blog/">← 커뮤니티 전체로 돌아가기</a>',
+        list_posts=magazine_posts,
+        post_excerpts=post_excerpts,
+        post_lanes=post_lanes,
+        with_badge=True,
+        empty_text="아직 등록된 호호 매거진 글이 없습니다.",
+        back_html="",
     )
-    out_path = os.path.join(MAGAZINE_ARCHIVE_DIR, "index.html")
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(page)
     summary = ", ".join(f"{LANE_BY_SLUG[s][1]} {counts[s]}" for s in LANE_ORDER if counts.get(s))
     print(f"  ✓ blog/{MAGAZINE_ARCHIVE_SLUG}/index.html 갱신 완료 (매거진 글 {len(magazine_posts)}개"
-          + (f" · 분류: {summary}" if summary else "") + ")")
+          + (f" · 분류: {summary}" if summary else "") + f" · {total_pages}페이지)")
     return counts
 
 
@@ -1289,6 +1404,7 @@ def build_magazine_lane_pages(posts, post_excerpts=None, post_lanes=None):
         out_dir = lane_dir(slug)
         out_path = os.path.join(out_dir, "index.html")
         if not lane_posts:
+            _prune_extra_pages(out_dir, 0)
             if os.path.exists(out_path):
                 os.remove(out_path)
                 try:
@@ -1298,21 +1414,23 @@ def build_magazine_lane_pages(posts, post_excerpts=None, post_lanes=None):
                 print(f"  - blog/{MAGAZINE_ARCHIVE_SLUG}/{slug}/index.html 삭제 (이 분류의 글이 없음)")
             continue
         os.makedirs(out_dir, exist_ok=True)
-        page = _render_archive_page(
+        _write_paginated_archive(
+            base_dir=out_dir,
+            base_url=lane_url(slug),
+            canonical_root=SITE_ROOT,
             doc_title=f"{name} - 호호 매거진 - 호호플레이(HOHO PLAY) 커뮤니티",
             desc=intro,
-            canonical=lane_abs_url(slug),
             noindex=not LANE_PAGE_INDEXABLE,
             h1=f"{emoji} {html_lib.escape(name)}",
             intro=f"{html_lib.escape(intro)} (글 {len(lane_posts)}개)",
             chips_html=_lane_chips_html(counts, len(magazine_posts), slug),
-            items_html=_archive_items_html(lane_posts, post_excerpts, post_lanes, False, "아직 이 분류의 글이 없습니다."),
-            back_html=(f'<a class="back-link" href="/blog/{MAGAZINE_ARCHIVE_SLUG}/">← 호호 매거진 전체 보기</a>'
-                       ' <span style="color:#cbd5e1;margin:0 6px">·</span> '
-                       '<a class="back-link" href="/blog/">커뮤니티</a>'),
+            list_posts=lane_posts,
+            post_excerpts=post_excerpts,
+            post_lanes=post_lanes,
+            with_badge=False,
+            empty_text="아직 이 분류의 글이 없습니다.",
+            back_html=f'<a class="back-link" href="/blog/{MAGAZINE_ARCHIVE_SLUG}/">← 호호 매거진 전체 보기</a>',
         )
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(page)
         active.append(slug)
     print(f"  ✓ 매거진 분류 페이지 {len(active)}개 갱신 ({', '.join(LANE_BY_SLUG[s][1] for s in active)})")
     return active
