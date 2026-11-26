@@ -320,7 +320,11 @@ if det.exists():
         sm = read("sitemap.xml") or ""
         noidx = [e for e in extra if "noindex" in (det / f"{e}.html").read_text(encoding="utf-8")[:6000]]
         insm = [e for e in extra if f"{e}.html" in sm]
-        bad("상세페이지", "festival/detail", f"데이터에 없는 kids 상세 페이지 {len(extra)}개(고아 파일): 사이트맵 포함 {len(insm)}개, noindex {len(noidx)}개 — 예: {extra[:6]}")
+        msg = f"데이터에 없는 kids 상세 페이지 {len(extra)}개(고아 파일): 사이트맵 포함 {len(insm)}개, noindex {len(noidx)}개 — 예: {extra[:6]}"
+        if len(noidx) == len(extra) and not insm:
+            infos.append(msg + " (모두 noindex·사이트맵 제외라 문제 없음)")
+        else:
+            bad("상세페이지", "festival/detail", msg)
     hidden_ids = ids_all - ids_vis
     hid_exist = sorted(hidden_ids & kids_files)
     if hid_exist:
