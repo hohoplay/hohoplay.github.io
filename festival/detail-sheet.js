@@ -66,6 +66,7 @@
     '.detail-wrap>p[style*="font-size:11px"]{margin-top:12px!important;}' +
     'div:has(>#latest-magazine:empty){display:none!important;}' +
     'html{-webkit-text-size-adjust:100%;}' +
+    'html,body{-webkit-user-select:none;user-select:none;}input,textarea,select,[contenteditable="true"],.allow-copy{-webkit-user-select:text;user-select:text;}img{-webkit-user-drag:none;user-drag:none;}' +
     '</style>';
 
   // iframe 안에서 누른 링크 처리: 다른 상세 페이지는 이 팝업 안에서 교체, 그 밖의 사이트 내부 링크는 전체 창으로 이동.

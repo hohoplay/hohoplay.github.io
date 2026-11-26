@@ -444,6 +444,10 @@ def build_festival_visit_info(festival, overview, intro, date_label):
 
 
 
+# [2026-11-27] 상세페이지 본문 글자 드래그(선택) 방지. 입력칸·.allow-copy 는 선택 가능. 바꿀 땐 scripts/add_no_copy_to_details.py 의 NOCOPY 와 같은 값으로.
+NOCOPY_STYLE = '<style id="hp-nocopy">html,body{-webkit-user-select:none;user-select:none}input,textarea,select,[contenteditable="true"],.allow-copy{-webkit-user-select:text;user-select:text}img{-webkit-user-drag:none;user-drag:none}</style>'
+
+
 def build_detail_page_html(festival, overview, intro):
     """축제 1건에 대한 독립 상세페이지(festival/detail/{contentid}.html)를 만든다."""
     title = html.escape(festival.get('title') or '')
@@ -575,6 +579,7 @@ def build_detail_page_html(festival, overview, intro):
   .pt-sub {{ font-size: 12px; color: #94a3b8; margin-left: 6px; }}
   html {{ scroll-behavior: smooth; }}
 </style>
+{NOCOPY_STYLE}
 </head>
 <body>
 <div class="detail-wrap">
