@@ -222,9 +222,13 @@ def discover_models(client, tried):
     except Exception as e:
         print(f"  ⚠️ 사용 가능 모델 조회 실패: {str(e)[:200]}")
         return []
-    found.sort(key=lambda n: (("preview" in n) or ("exp" in n), n))
-    print(f"  🔎 조회된 flash 모델: {found[:6]}")
-    return found[:3]
+    found = [n for n in found if not re.match(r"gemini-2\.", n)]
+    def _ver(n):
+        m = re.match(r"gemini-(\d+)(?:\.(\d+))?", n)
+        return (int(m.group(1)), int(m.group(2) or 0)) if m else (0, 0)
+    found.sort(key=lambda n: (("preview" in n) or ("exp" in n), tuple(-x for x in _ver(n)), n))
+    print(f"  🔎 조회된 flash 모델(2.x 제외): {found[:8]}")
+    return found[:5]
 
 
 def call_gemini(client, types, prompt):
@@ -345,6 +349,35 @@ def run_draft(args):
     return 0
 
 
+def run_probe(args):
+    """모델별로 (1) 검색 없이 (2) 구글 검색 연동으로 아주 짧게 한 번씩 호출해, 어느 쪽이 막혔는지 보여 준다."""
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        print("❌ GEMINI_API_KEY 환경변수가 없습니다.")
+        return 1
+    from google import genai
+    from google.genai import types
+    client = genai.Client(api_key=api_key, http_options=types.HttpOptions(api_version="v1beta", timeout=60_000))
+    names = list(MODELS)
+    names += discover_models(client, names)
+    seen = set()
+    for model in names:
+        if model in seen:
+            continue
+        seen.add(model)
+        for label, tools in (("검색 없이", None), ("구글 검색 연동", [types.Tool(google_search=types.GoogleSearch())])):
+            cfg = types.GenerateContentConfig(temperature=0, max_output_tokens=60, tools=tools) if tools else types.GenerateContentConfig(temperature=0, max_output_tokens=60)
+            try:
+                r = client.models.generate_content(model=model, contents="한국의 수도는? 한 단어로 답해.", config=cfg)
+                print(f"✅ {model} / {label}: 성공 → {(r.text or '').strip()[:30]}")
+            except Exception as e:
+                msg = str(e)
+                kind = "한도 초과(429)" if "429" in msg else ("모델 없음(404)" if "404" in msg else "기타")
+                print(f"❌ {model} / {label}: {kind} — {msg[:200]}")
+            time.sleep(2)
+    return 0
+
+
 def run_promote(args):
     ids = [x.strip() for x in (args.ids or "").split(",") if x.strip()]
     if not ids:
@@ -385,12 +418,14 @@ def run_promote(args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("mode", choices=["draft", "promote"])
+    ap.add_argument("mode", choices=["draft", "promote", "probe"])
     ap.add_argument("--ids", default="")
     ap.add_argument("--count", type=int, default=5)
     ap.add_argument("--redo", action="store_true")
     ap.add_argument("--force", action="store_true")
     args = ap.parse_args()
+    if args.mode == "probe":
+        return run_probe(args)
     return run_draft(args) if args.mode == "draft" else run_promote(args)
 
 
