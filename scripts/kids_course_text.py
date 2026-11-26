@@ -350,6 +350,148 @@ def build_outro(region, entries):
     return '<h2 style="%s">%s 하루 일정 잡기</h2>%s' % (H2_OUT, esc(region), ''.join(parts))
 
 
+# ── 4) 비교 표 3종 + FAQ + 주의할 점 + 참고한 자료 ([2026-11-27] 추가) ───────────────────────────────
+# 질문형 소제목 · 두괄식 첫 문장 · 완성형 표 3종 · FAQ · 참고한 자료(기준월). 모든 값은 data/kids_places.json 에서 계산한다.
+# 데이터에 없는 사실(직접 다녀온 후기·추천 이유 등)은 만들지 않는다. 확인하지 못한 항목은 "방문 전 확인"으로 둔다.
+KG_START = '<!--kg:v1-->'
+KG_END = '<!--/kg:v1-->'
+# None 이면 모든 코스 글에 적용, 집합이면 그 슬러그에만 새로 넣는다(이미 표식이 있는 글은 항상 갱신).
+KG_SLUGS = None
+
+_TH = 'padding:8px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;font-weight:800;color:#1e293b'
+_TD = 'padding:8px 10px;border:1px solid #e2e8f0;vertical-align:top'
+H3_KG = 'font-size:15px;font-weight:800;color:#1e293b;margin:18px 0 6px'
+
+
+def _table(title, head, rows):
+    o = ['<p style="margin:14px 0 6px;font-weight:800;color:#1e293b">%s</p>' % esc(title),
+         '<div style="overflow-x:auto;margin:0 0 14px"><table style="border-collapse:collapse;width:100%;min-width:520px;font-size:14px;line-height:1.6">',
+         '<thead><tr>' + ''.join('<th style="%s">%s</th>' % (_TH, esc(h)) for h in head) + '</tr></thead><tbody>']
+    for r in rows:
+        o.append('<tr>' + ''.join('<td style="%s">%s</td>' % (_TD, c) for c in r) + '</tr>')
+    o.append('</tbody></table></div>')
+    return ''.join(o)
+
+
+def _fee_cell(p):
+    tag = p.get('costTag')
+    cf = child_fee(p)
+    if tag == '완전무료':
+        return '무료'
+    if tag == '확인 필요' or not tag:
+        return '확인 필요'
+    base = '유료(일부 무료 조건)' if tag.startswith('유료(') else '유료'
+    return esc(base + (' · ' + cf if cf else ''))
+
+
+def _time_cell(p):
+    w = window(p)
+    days, ok = rte.closed_days(p.get('hours'))
+    bits = []
+    if w:
+        bits.append('%s~%s' % (hm(w[0]), hm(w[1])))
+    if days:
+        bits.append(' · '.join('%s요일 휴관' % x for x in rte.DAYS if x in days))
+    return esc(' · '.join(bits)) if bits else '방문 전 확인'
+
+
+def build_kg(region, entries, ym):
+    d = profile(entries)
+    n, names, pl = d['n'], d['names'], d['pl']
+    R = esc(region)
+    o = []
+    # Q1 비 오는 날
+    indoor = d['in'] + d['mixed']
+    if d['in']:
+        a1 = '%s에서 비가 와도 갈 수 있는 실내 장소는 %d곳(%s)입니다.' % (R, len(d['in']), esc(nlist(d, d['in'], 3)))
+        if d['mixed']:
+            a1 += ' 실내외를 함께 쓰는 곳은 %d곳(%s)입니다.' % (len(d['mixed']), esc(nlist(d, d['mixed'], 2)))
+    elif d['mixed']:
+        a1 = '%s는 실내 전용 장소가 없고, 실내외를 함께 쓰는 곳이 %d곳(%s)입니다.' % (R, len(d['mixed']), esc(nlist(d, d['mixed'], 3)))
+    else:
+        a1 = '%s 코스 %d곳은 모두 야외 장소라서 비가 오는 날에는 다른 날로 미루는 편이 좋습니다.' % (R, n)
+    o.append('<h2 style="%s">%s에서 비 오는 날 갈 수 있는 곳은 어디인가요?</h2><p>%s 아래 표에서 장소별 유형·요금·운영시간을 한 번에 비교해 보세요.</p>' % (H2_OUT, R, a1))
+    rows = []
+    for i in range(n):
+        rows.append(['<a href="/festival/detail/%s.html" style="color:#4f46e5;font-weight:700">%s</a>' % (esc(entries[i][0]), esc(names[i])),
+                     esc(pl[i].get('placeType') or '확인 필요'), _fee_cell(pl[i]), _time_cell(pl[i])])
+    o.append(_table('표 1. %s 장소별 유형·요금·운영시간 비교' % region, ['장소', '유형', '요금', '운영시간·쉬는 날'], rows))
+    # Q2 무료
+    nf = len(d['free'])
+    if nf:
+        a2 = '%s에서 입장료가 없는 곳은 %d곳(%s)입니다.' % (R, nf, esc(nlist(d, d['free'], 4)))
+    else:
+        a2 = '%s 코스에는 입장료가 없는 곳이 없어서, 요금을 먼저 확인하고 고르는 편이 좋습니다.' % R
+    o.append('<h2 style="%s">%s에서 입장료 없이 갈 수 있는 곳은 어디인가요?</h2><p>%s 입장료가 없어도 체험·주차·식사에는 비용이 들 수 있어요.</p>' % (H2_OUT, R, a2))
+    srows = []
+    if d['in']:
+        srows.append(['비 오는 날', esc(nlist(d, d['in'], 4)), '운영시간·쉬는 날, 예약 필요 여부'])
+    out_like = d['out'] + d['mixed']
+    if out_like:
+        srows.append(['맑은 날', esc(nlist(d, out_like, 4)), '날씨가 나쁠 때 운영 여부'])
+    if nf:
+        srows.append(['입장료 부담 줄이기', esc(nlist(d, d['free'], 4)), '체험·주차 등 별도 비용'])
+    cf = [(i, child_fee(p)) for i, p in enumerate(pl) if p.get('costTag') != '완전무료' and child_fee(p)]
+    if cf:
+        srows.append(['아이 요금을 보고 고를 때', esc(' · '.join('%s %s' % (names[i], c) for i, c in cf[:3])), '아이 나이 기준, 보호자 요금'])
+    if d['nohours']:
+        srows.append(['운영시간이 확인되지 않은 곳', esc(nlist(d, d['nohours'], 4)), '가기 전 전화·공식 안내 확인'])
+    if len(srows) >= 2:
+        o.append(_table('표 2. 상황별로 고르는 기준', ['상황', '해당 장소', '확인할 점'], srows))
+    # Q3 하루 일정
+    o.append('<h2 style="%s">%s 코스는 어떤 순서로 다니면 되나요?</h2>' % (H2_OUT, R))
+    drows = []
+    mx = 0.0
+    for i in range(n):
+        if i == 0:
+            dist = '출발'
+        else:
+            km = rte.hav(pl[i - 1], pl[i])
+            mx = max(mx, km)
+            dist = esc('이전 장소에서 ' + dist_phrase(km))
+        w = window(pl[i])
+        drows.append([str(i + 1), esc(names[i]), dist, ('%s에 닫음' % hm(w[1])) if w else '시간 확인 필요'])
+    first = '아래 표는 이 글의 장소 순서를 기준으로 이전 장소와의 거리와 문 닫는 시간을 정리한 것입니다.'
+    o.append('<p>%s</p>' % first)
+    o.append(_table('표 3. 방문 순서별 이동 거리와 문 닫는 시간', ['순서', '장소', '이동', '문 닫는 시간'], drows))
+    # FAQ
+    faq = []
+    faq.append(('%s 코스는 하루에 다 돌 수 있나요?' % region,
+                '%s 코스는 모두 %d곳이고, 이 글의 순서대로 이동할 때 가장 긴 구간은 %s예요. 한 번에 다 도는 것보다 실내 1곳과 야외 1곳처럼 2~3곳을 고르는 편이 아이와 다니기에 무리가 적어요.' % (R, n, esc(dist_phrase(mx)))) if n >= 2 else None)
+    by_day = {}
+    for i, (c, ok) in enumerate(d['closed']):
+        for day in c:
+            by_day.setdefault(day, []).append(names[i])
+    if by_day:
+        faq.append(('%s에서 쉬는 요일이 있는 곳은 어디인가요?' % region,
+                    '확인된 휴관일은 ' + ' / '.join('%s요일: %s' % (day, esc(names_join(by_day[day], 4))) for day in rte.DAYS if day in by_day) + '입니다. 휴관일은 바뀔 수 있으니 가기 전에 한 번 더 확인해 주세요.'))
+    if d['nohours']:
+        tel = []
+        for i in d['nohours'][:3]:
+            t = (pl[i].get('tel') or '').strip()
+            tel.append('%s%s' % (esc(names[i]), (' ☎ %s' % esc(t)) if t else ''))
+        faq.append(('운영시간이 확인되지 않은 곳은 어떻게 하나요?',
+                    '운영시간을 공식 자료로 확인하지 못한 곳은 %d곳이에요: %s. 가기 전에 전화나 공식 안내로 확인해 주세요.' % (len(d['nohours']), ' · '.join(tel))))
+    if cf:
+        faq.append(('아이 요금이 따로 확인되는 곳이 있나요?',
+                    esc(' · '.join('%s %s' % (names[i], c) for i, c in cf[:4])) + '의 아이 요금이 확인돼요. 나머지는 장소별 요금 안내를 봐 주세요.'))
+    faq = [f for f in faq if f]
+    if len(faq) >= 2:
+        o.append('<h2 style="%s">자주 묻는 질문</h2>' % H2_OUT)
+        for q, a in faq[:4]:
+            o.append('<div style="margin:0 0 10px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px">'
+                     '<p style="margin:0 0 4px;font-weight:800;color:#1e293b">Q. %s</p><p style="margin:0">%s</p></div>' % (esc(q), a))
+    # 주의 + 참고
+    nu = len(d['unk_cost'])
+    o.append('<h3 style="%s">이 정보를 볼 때 주의할 점</h3>' % H3_KG)
+    o.append('<ul style="%s">%s%s%s</ul>' % (UL,
+             li('운영시간과 요금은 바뀔 수 있으니 방문 전 공식 안내로 한 번 더 확인해 주세요.'),
+             li('공식 자료로 확인하지 못한 항목은 추측하지 않고 "확인 필요" 또는 "방문 전 확인"으로 표시했어요%s.' % ('(요금 확인 필요 %d곳)' % nu if nu else '')),
+             li('"무료"는 입장료가 없다는 뜻이며 체험·주차·식사 비용까지 없다는 뜻은 아니에요.')))
+    o.append('<p style="margin:0 0 14px;font-size:13px;color:#64748b">참고한 자료: 한국관광공사 TourAPI(국문 관광정보), 각 장소의 공식 홈페이지와 지자체 안내, 호호플레이 장소 정보 정리(기준 %s).</p>' % esc(ym))
+    return ''.join(o)
+
+
 def build_meta_desc(region, entries):
     d = profile(entries)
     n = d['n']
