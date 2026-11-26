@@ -1798,6 +1798,116 @@ def update_kids_region_summary():
     print(f"festival/index.html 지역별 아이랑 장소 요약 갱신 완료 (표시 {len(places)}곳)")
 
 
+# ── "나들이 장소 고르는 기준" 안내 섹션 (festival/index.html) ──
+# [ADD] 2026-11-27: 질문형 소제목 3개 + 데이터 기반 표 3종 + 주의할 점 + 참고한 자료. 모든 숫자는 data/kids_places.json 에서 계산한다.
+KIDS_GUIDE_START = '<!-- KIDS_GUIDE_START -->'
+KIDS_GUIDE_END = '<!-- KIDS_GUIDE_END -->'
+_KG_H2 = 'font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;'
+_KG_TH = 'padding:8px 10px; border:1px solid #e2e8f0; background:#f1f5f9; text-align:left; font-weight:800; color:#1e293b;'
+_KG_TD = 'padding:8px 10px; border:1px solid #e2e8f0; vertical-align:top;'
+
+
+def _kg_table(title, head, rows):
+    out = [f'<p style="margin:14px 0 6px; font-weight:800; color:#1e293b;">{html.escape(title)}</p>',
+           '<div style="overflow-x:auto; margin:0 0 14px;"><table style="border-collapse:collapse; width:100%; min-width:520px; font-size:14px; line-height:1.6;">',
+           '<thead><tr>' + ''.join(f'<th style="{_KG_TH}">{html.escape(h)}</th>' for h in head) + '</tr></thead><tbody>']
+    for r in rows:
+        out.append('<tr>' + ''.join(f'<td style="{_KG_TD}">{c}</td>' for c in r) + '</tr>')
+    out.append('</tbody></table></div>')
+    return ''.join(out)
+
+
+def build_kids_guide_html(places):
+    n = len(places)
+    kind = {'실내': 0, '실외': 0, '실내외': 0}
+    cost = {'완전무료': 0, '유료(일부 무료 조건 있음)': 0, '유료': 0, '확인 필요': 0}
+    indoor_by_region = {}
+    for pl in places:
+        t = pl.get('placeType')
+        if t in kind:
+            kind[t] += 1
+        c = pl.get('costTag')
+        cost[c if c in cost else '확인 필요'] += 1
+        if t in ('실내', '실내외'):
+            lb = _kids_region_of(pl.get('addr', ''))
+            if lb:
+                indoor_by_region[lb] = indoor_by_region.get(lb, 0) + 1
+    in_all = kind['실내'] + kind['실내외']
+    top = sorted(indoor_by_region.items(), key=lambda kv: (-kv[1], kv[0]))[:3]
+    top_txt = ', '.join(f'{html.escape(k)} {v}곳' for k, v in top)
+    ym = (datetime.datetime.utcnow() + datetime.timedelta(hours=9)).strftime('%Y.%m')
+    P = 'style="margin:0 0 14px;"'
+    o = []
+    o.append(f'<h2 style="{_KG_H2}">나들이 장소 고르는 기준</h2>')
+    o.append(f'<p {P}>아래 숫자는 지도에 올라 있는 아이랑 나들이 장소 {n}곳을 {ym} 기준으로 센 것이며, 장소가 추가되거나 바뀌면 함께 갱신됩니다.</p>')
+    # Q1
+    o.append(f'<h3 style="font-size:16px; font-weight:800; color:#1e293b; margin:20px 0 8px;">비 오는 날 갈 수 있는 실내 장소는 몇 곳인가요?</h3>')
+    o.append(f'<p {P}>실내 {kind["실내"]}곳과 실내외 {kind["실내외"]}곳을 합친 {in_all}곳은 비가 와도 일정을 잡기 쉬운 편이고, 실외 장소는 {kind["실외"]}곳입니다. '
+             f'실내·실내외 장소가 많은 지역은 {top_txt} 순입니다. 지도 위쪽의 "실내만" 선택을 켜면 이 장소들만 골라서 볼 수 있습니다.</p>')
+    o.append(_kg_table('표 1. 장소 유형별 수와 알맞은 날씨', ['유형', '장소 수', '알맞은 날씨', '출발 전 확인할 점'], [
+        ['실내', f'{kind["실내"]}곳', '비·눈, 미세먼지, 한파·폭염', '예약·입장 시간, 휴관일'],
+        ['실내외', f'{kind["실내외"]}곳', '날씨에 따라 코스 선택', '실외 구간 운영 여부, 우천 시 대체 동선'],
+        ['실외', f'{kind["실외"]}곳', '맑고 바람이 약한 날', '비·더위 때 운영 여부, 그늘·쉬는 곳'],
+        ['전체', f'{n}곳', '지도에서 조건을 골라 좁히기', '장소별 상세 페이지의 안내'],
+    ]))
+    # Q2
+    o.append(f'<h3 style="font-size:16px; font-weight:800; color:#1e293b; margin:20px 0 8px;">입장료 없이 갈 수 있는 곳은 어디인가요?</h3>')
+    o.append(f'<p {P}>입장료가 없는 "완전무료" 장소는 {cost["완전무료"]}곳이고, 연령·대상·요일 같은 조건이 붙은 "유료(일부 무료 조건 있음)" 장소는 {cost["유료(일부 무료 조건 있음)"]}곳입니다. '
+             f'지도에서 비용 선택을 "무료만"으로 바꾸면 무료 장소부터 볼 수 있습니다. 입장료가 없어도 체험·주차·식사에는 비용이 들 수 있으니 상세 페이지를 함께 확인해 주세요.</p>')
+    o.append(_kg_table('표 2. 비용 구분별 장소 수와 보는 방법', ['비용 구분', '장소 수', '의미', '보는 방법'], [
+        ['완전무료', f'{cost["완전무료"]}곳', '입장료 없음', '체험·주차 등 별도 비용은 상세 페이지에서 확인'],
+        ['유료(일부 무료 조건 있음)', f'{cost["유료(일부 무료 조건 있음)"]}곳', '연령·대상·요일에 따라 무료인 경우가 있음', '우리 아이 나이에 해당하는지 확인'],
+        ['유료', f'{cost["유료"]}곳', '입장료·이용료가 있음', '아이·보호자 요금을 각각 확인'],
+        ['확인 필요', f'{cost["확인 필요"]}곳', '공식 자료로 요금을 확인하지 못함', '방문 전 공식 안내로 직접 확인'],
+    ]))
+    # Q3
+    o.append(f'<h3 style="font-size:16px; font-weight:800; color:#1e293b; margin:20px 0 8px;">방문 전에 무엇을 확인해야 하나요?</h3>')
+    o.append(f'<p {P}>출발 전에 운영시간·휴관일, 요금, 예약 필요 여부, 주차 네 가지를 공식 안내에서 한 번 더 확인하세요. 운영 정보는 갑자기 바뀔 수 있습니다.</p>')
+    o.append(_kg_table('표 3. 장소를 고르고 확인하는 순서', ['단계', '할 일', '확인 포인트'], [
+        ['1. 조건 선택', '지역, 실내·실외, 비용을 고릅니다', '아이 나이와 이동 시간'],
+        ['2. 후보 3곳 비교', '상세 페이지에서 요금·운영시간·휴관일을 봅니다', '아이 요금, 예약 필요 여부'],
+        ['3. 동선·주차 확인', '같은 지역의 코스 추천으로 이어서 갈 곳을 고릅니다', '주차 가능 여부, 이동 거리'],
+        ['4. 방문 전 확인', '공식 홈페이지나 전화로 최종 확인합니다', '휴관일, 임시 휴무, 운영시간 변경'],
+    ]))
+    o.append(f'<h3 style="font-size:16px; font-weight:800; color:#1e293b; margin:20px 0 8px;">이 데이터를 볼 때 주의할 점</h3>')
+    o.append('<ul style="margin:0 0 14px; padding-left:22px;">'
+             '<li style="margin-bottom:6px;">운영시간과 요금은 바뀔 수 있으니 방문 전 공식 안내로 한 번 더 확인해 주세요.</li>'
+             f'<li style="margin-bottom:6px;">공식 자료로 확인하지 못한 항목은 추측해서 채우지 않고 "확인 필요"로 표시합니다(요금 확인 필요 {cost["확인 필요"]}곳).</li>'
+             '<li style="margin-bottom:6px;">"완전무료"는 입장료가 없다는 뜻이며, 체험·주차·식사 비용까지 없다는 뜻은 아닙니다.</li></ul>')
+    o.append(f'<p style="margin:0 0 14px; font-size:13px; color:#64748b;">참고한 자료: 한국관광공사 TourAPI(국문 관광정보), 각 장소의 공식 홈페이지와 지자체 안내, 호호플레이 장소 정보 정리(기준 {ym}).</p>')
+    return '\n'.join(o)
+
+
+def update_kids_guide_section():
+    """festival/index.html 의 KIDS_GUIDE 마커 사이를 갱신한다. 마커가 없으면 '지역별 ... 한눈에 보기' 소제목 바로 앞에 새로 만든다."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    map_path = os.path.join('festival', 'index.html')
+    if not (os.path.exists(kids_path) and os.path.exists(map_path)):
+        print('나들이 장소 고르는 기준 섹션 갱신 건너뜀(파일 없음)')
+        return
+    with open(kids_path, 'r', encoding='utf-8') as f:
+        places = visible_kids(json.load(f))
+    if len(places) < 20:
+        print('kids_places.json 장소가 너무 적어(파일 이상 의심) 고르는 기준 섹션 갱신 건너뜀')
+        return
+    with open(map_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    block = f'{KIDS_GUIDE_START}\n{build_kids_guide_html(places)}\n{KIDS_GUIDE_END}'
+    si, ei = content.find(KIDS_GUIDE_START), content.find(KIDS_GUIDE_END)
+    if si != -1 and ei != -1:
+        updated = content[:si] + block + content[ei + len(KIDS_GUIDE_END):]
+    else:
+        anchor = '<h2 style="font-size:19px; font-weight:900; color:#1e293b; margin:30px 0 12px;">지역별 아이랑 나들이 장소 한눈에 보기</h2>'
+        if content.count(anchor) != 1:
+            print('고르는 기준 섹션을 넣을 자리를 찾지 못해 건너뜀')
+            return
+        updated = content.replace(anchor, block + '\n\n    ' + anchor, 1)
+    if updated != content:
+        with open(map_path, 'w', encoding='utf-8') as f:
+            f.write(updated)
+    print(f"festival/index.html 나들이 장소 고르는 기준 섹션 갱신 완료 ({len(places)}곳)")
+
+
 # ── 월드컵 두 페이지의 "후보 현황" (festival/worldcup.html, festival/camping-worldcup.html 안내 글 구간) ──
 # [ADD] 2026-10-27: 나들이 월드컵·캠핑장 월드컵 안내 글 안의 후보 수치(장소 수, 유형별, 지역별, 16강 가능 지역)가
 # 데이터가 바뀌어도 낡지 않도록, 아래 마커 사이를 data/kids_places.json / data/festivals.json 기준으로 다시 쓴다.
@@ -2249,6 +2359,7 @@ def main():
     print(f"총 수신 {len(all_items)}건, 진행중/예정 축제 {len(festivals)}건 + 자연관광지 {len(nature_spots)}건 + 캠핑장 {len(camping_spots)}건 + 수상레저 {len(watersports_spots)}건 + 무더위쉼터 {len(shelters)}건 data/festivals.json에 저장 완료.")
 
     update_map_html(all_map_items, TODAY)
+    update_kids_guide_section()
     update_kids_region_summary()
     update_kids_count_text()
     update_worldcup_stats()
