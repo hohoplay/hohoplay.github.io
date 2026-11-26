@@ -1723,13 +1723,29 @@ def build_kids_region_summary_html(places):
         cid = html.escape(str(pl.get('contentid', '')))
         return f'<a href="/festival/detail/{cid}.html" style="color:#4f46e5; font-weight:700;">{html.escape(pl.get("title", ""))}</a>'
 
+    def sigungu(pl):
+        tk = (pl.get('addr') or '').split()
+        return tk[1] if len(tk) > 1 else '기타'
+
+    def all_by_sigungu(lst):
+        """지역 안의 모든 장소를 시·구별로 묶어 이름 링크로 나열한다(장소 수가 많은 시·구 먼저)."""
+        g = {}
+        for x in lst:
+            g.setdefault(sigungu(x), []).append(x)
+        rows = []
+        for sg, items in sorted(g.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+            names = ', '.join(link(x) for x in sorted(items, key=lambda x: x.get('title', '')))
+            rows.append(f'<p style="margin:0 0 6px; font-size:14px; line-height:1.8;"><strong>{html.escape(sg)}</strong> ({len(items)}곳): {names}</p>')
+        return ''.join(rows)
+
     big = sorted([(k, v) for k, v in groups.items() if len(v) >= KIDS_SUMMARY_MIN], key=lambda kv: -len(kv[1]))
     small = sorted([(k, v) for k, v in groups.items() if len(v) < KIDS_SUMMARY_MIN], key=lambda kv: -len(kv[1]))
 
     out = []
     out.append(f'<p style="margin:0 0 14px;">운영자가 직접 골라 정리한 아이랑 나들이 장소 {total}곳을 지역별로 묶었습니다. '
                f'지역 이름 옆 숫자는 등록된 장소 수이고, 장소 이름을 누르면 운영시간·요금·위치가 담긴 상세 정보를 볼 수 있습니다. '
-               f'장소가 많은 지역은 대표 장소를, 적은 지역은 한 줄로 소개합니다.</p>')
+               f'지역마다 대표 장소를 먼저 보여 드리고, "전체 장소 보기"를 누르면 그 지역에 등록된 장소를 시·구별로 모두 확인할 수 있습니다. '
+               f'요금·운영시간은 공식 자료로 확인한 내용이며, 확인하지 못한 곳은 "확인 필요"로 표시했습니다.</p>')
     for label, lst in big:
         indoor = sum(1 for x in lst if x.get('placeType') == '실내')
         outdoor = sum(1 for x in lst if x.get('placeType') == '실외')
@@ -1743,11 +1759,14 @@ def build_kids_region_summary_html(places):
             desc = (pl.get('desc') or '').strip()
             tail = f' — {html.escape(desc)}' if len(desc) >= 15 else ''   # "무료" 같은 한두 단어짜리 설명은 생략
             out.append(f'<li style="margin-bottom:4px;">{link(pl)} <span style="font-size:13px; color:#64748b;">({html.escape(tag(pl))})</span>{tail}</li>')
-        out.append('</ul></div>')
+        out.append('</ul>')
+        out.append(f'<details style="margin-top:10px;"><summary style="cursor:pointer; font-weight:700; color:#4f46e5; font-size:14px;">{html.escape(label)} 전체 장소 보기 ({len(lst)}곳)</summary>'
+                   f'<div style="margin-top:8px;">{all_by_sigungu(lst)}</div></details>')
+        out.append('</div>')
     if small:
         parts = []
         for label, lst in small:
-            names = ', '.join(link(x) for x in sorted(lst, key=lambda x: -len(x.get('overview', '') or ''))[:3])
+            names = ', '.join(link(x) for x in sorted(lst, key=lambda x: -len(x.get('overview', '') or '')))
             parts.append(f'<strong>{html.escape(label)}</strong>({len(lst)}곳): {names}')
         out.append('<p style="margin:0 0 14px;"><strong>그 밖의 지역</strong> — 등록된 장소가 아직 많지 않은 지역입니다. ' + ' / '.join(parts) + '</p>')
     return '\n'.join(out)
