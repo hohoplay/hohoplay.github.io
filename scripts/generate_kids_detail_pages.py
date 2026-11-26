@@ -194,8 +194,12 @@ def main():
             _items.append('<li class="vc-warn">⚠️ 운영시간에 임시휴관·공사 안내가 있어요. 재개 일정을 먼저 확인해 주세요.</li>')
         if "예약" in _hf:
             _items.append('<li class="vc-warn">⚠️ 운영시간·요금 안내에 예약 관련 내용이 있어요. 예약이 필요한지 확인하고 가세요.</li>')
-        _items.append("<li><b>주차·교통</b> — 주차 가능 여부와 요금, 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.</li>")
-        _items.append("<li><b>아이 동반 시설</b> — 유모차 이용, 수유실, 반려동물 동반 가능 여부는 장소마다 달라요. 필요하면 미리 문의해 보세요.</li>")
+        # [ADD] 2026-11-26: "우리 가족 체크" 카드에 주차·교통/이용 규칙이 직접 정리돼 있는 장소는 같은 뜻의 일반 문구를 반복하지 않는다.
+        _cn = notes.get(cid) or {}
+        if not str(_cn.get("access") or "").strip():
+            _items.append("<li><b>주차·교통</b> — 주차 가능 여부와 요금, 대중교통은 공식 안내나 지도 앱에서 미리 확인하세요.</li>")
+        if not str(_cn.get("rules") or "").strip():
+            _items.append("<li><b>아이 동반 시설</b> — 유모차 이용, 수유실, 반려동물 동반 가능 여부는 장소마다 달라요. 필요하면 미리 문의해 보세요.</li>")
         _pt = str(p.get("placeType") or "").strip()
         if _pt == "실외":
             _items.append("<li><b>야외 장소예요</b> — 당일 날씨·미세먼지를 확인하고, 아이 복장과 비 올 때 갈 실내 대안을 챙겨 두세요.</li>")
@@ -212,6 +216,22 @@ def main():
         )
 
         overview_text = overview or desc
+        # [ADD] 2026-11-26: 소개 문단 안에서 "네이버 검색에는 …운영", "요금은 일반권…" 처럼 2번 섹션(요금·운영시간)을
+        # 그대로 되풀이하는 문장만 뺀다. 요금이 한마디 섞인 일반 문장(예: "입장료가 저렴해…")은 건드리지 않는다.
+        # 문단 나눔(줄바꿈)은 그대로 두고, 걸러 낸 뒤 남는 문장이 없으면 원문을 그대로 쓴다.
+        if overview_text:
+            _parts = re.split(r"(?<=[.!?])(\s+)", overview_text.strip())
+            _dup = re.compile(r"네이버 검색에는|문화비소득공제|가족권|단체권")
+            _out = []
+            for _i in range(0, len(_parts), 2):
+                _sent = _parts[_i]
+                _sep = _parts[_i + 1] if _i + 1 < len(_parts) else ""
+                if _sent.strip() and _dup.search(_sent):
+                    continue
+                _out.append(_sent + _sep)
+            _joined = "".join(_out).strip()
+            if _joined and _joined != overview_text.strip():
+                overview_text = _joined
         overview_html = html_escape(overview_text) if overview_text else "설명 정보가 없습니다."
 
         # [ADD] TourAPI 키워드 검색(scripts/fetch_kids_images.py)으로 받아온 공식 사진이
@@ -230,6 +250,8 @@ def main():
         # [ADD] 2026-11-12: 출처 표기. 장소 정보(이름·주소·설명·요금·운영시간)는 운영자가 직접 조사해 정리한 것이고,
         # 대표 사진은 TourAPI 키워드 검색으로 받아온 경우에만 한국관광공사 제공으로 표시한다(image가 있을 때만).
         source_note = "장소 정보: 호호플레이가 직접 조사·정리"
+        if str((notes.get(cid) or {}).get("access") or (notes.get(cid) or {}).get("rules") or (notes.get(cid) or {}).get("tip") or "").strip():
+            source_note = "장소 정보: 네이버 플레이스·방문 후기를 참고해 호호플레이가 정리"
         if image:
             source_note += "<br>대표 사진: 한국관광공사 TourAPI(공공데이터포털)"
         else:
@@ -269,8 +291,8 @@ def main():
                     f'      <div class="detail-row"><div class="detail-label">{lbl}</div><div class="detail-value">{html_escape(txt)}</div></div>\n'
                     for lbl, txt in _rows
                 )
-                + '      <p class="pt-mynote-sub">가족 비용은 성인 2명+아이 1명 기준으로 위의 요금 안내를 더한 값이에요. 요금은 바뀔 수 있어요.</p>\n'
-                '    </div>\n'
+                + ('      <p class="pt-mynote-sub">가족 비용은 성인 2명+아이 1명 기준으로 위의 요금 안내를 더한 값이에요. 요금은 바뀔 수 있어요.</p>\n' if any(l == "가족 비용" for l, _t in _rows) else "")
+                + '    </div>\n'
             )
 
         html_out = (
