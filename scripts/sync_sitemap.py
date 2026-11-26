@@ -53,12 +53,15 @@ ET.register_namespace("", SITEMAP_NS)
 DOMAIN = "https://hohoplaylab.com"
 
 # 새 파일이 생기면 자동으로 sitemap에 추가해줄 디렉터리 (끝에 '/' 포함, 저장소 루트 기준)
-ADD_NEW_FROM_DIRS = [
-    "blog/posts/",
-    "blog/magazine/",
-    "blog/kids-course/",           # 아이랑 코스 글 + 목록(index.html)
-    "festival/plan-guide.html",    # 일정표 사용 가이드 (startswith 비교라 파일 1개도 지정 가능)
-]
+# [ADD] 2026-10-19: blog/indoor-kids/ — 지역별 실내 장소 목록 페이지
+# (scripts/generate_indoor_region_pages.py가 생성). 이 폴더는 priority=0.6,
+# changefreq=weekly로 쓰고 있었는데, 아래 DEFAULT_CHANGEFREQ/DEFAULT_PRIORITY는
+# monthly/0.5라 자동 추가되면 그 값으로 들어간다 — 생성 스크립트가 이미 올바른
+# 값으로 sitemap을 직접 갱신해주므로, 보통은 그 값이 먼저 들어가 있어서 이 자동
+# 추가 규칙은 "생성 스크립트 실행을 깜빡했을 때"의 안전망 역할만 한다.
+# [ADD] 2026-11-26: blog/kids-course/ — 아이랑 나들이 지역 코스 글(검색 허용으로 전환). noindex 로 남겨 둔
+# 얇은 글은 아래 is_noindex 규칙이 자동으로 건너뛴다.
+ADD_NEW_FROM_DIRS = ["blog/posts/", "blog/magazine/", "blog/indoor-kids/", "blog/kids-course/"]
 
 # 파일 스캔에서 아예 제외할 디렉터리/패턴 (관리자 페이지, 백업, data 폴더 등)
 EXCLUDE_DIR_PATTERNS = [
@@ -159,6 +162,17 @@ def is_redirect_stub(file_path: str) -> bool:
     return has_refresh
 
 
+def is_noindex(file_path: str) -> bool:
+    """<meta name="robots" content="...noindex..."> 가 head에 있는 페이지인지 확인.
+    [ADD] 2026-10-28: noindex 페이지는 sitemap에 올리지 않는 게 원칙이라 자동 추가 대상에서 제외."""
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            head = f.read(4000)
+    except OSError:
+        return False
+    return bool(re.search(r'<meta\s+name=["\']robots["\']\s+content=["\'][^"\']*noindex', head, re.I))
+
+
 def load_sitemap(sitemap_path: str):
     """sitemap.xml을 파싱해서 loc -> {element, lastmod, changefreq, priority} 딕셔너리로."""
     tree = ET.parse(sitemap_path)
@@ -236,7 +250,20 @@ def main():
             removed.append(loc)
             changed = True
 
-    # 2) blog/posts, blog/magazine 밑에 새로 생긴 파일을 자동 추가
+    # 1-2) [ADD] 2026-11-26: 감시 폴더 안의 페이지가 noindex 인데 sitemap에 들어 있으면 제거
+    #      (noindex 페이지를 sitemap에 올리면 "색인 요청과 색인 거부가 동시에" 되는 모순이라 서치콘솔에 경고가 뜬다)
+    for loc, url_el in list(entries.items()):
+        rel_path = url_to_rel_path(loc)
+        if not any(rel_path.startswith(d) for d in ADD_NEW_FROM_DIRS):
+            continue
+        full_path = os.path.join(root, rel_path)
+        if os.path.isfile(full_path) and is_noindex(full_path):
+            root_el.remove(url_el)
+            del entries[loc]
+            removed.append(loc + "  (noindex 페이지)")
+            changed = True
+
+    # 2) blog/posts, blog/magazine, blog/indoor-kids, blog/kids-course 밑에 새로 생긴 파일을 자동 추가
     #    (리다이렉트 스텁은 제외)
     for rel_path in sorted(files_on_disk):
         in_watched_dir = any(rel_path.startswith(d) for d in ADD_NEW_FROM_DIRS)
@@ -250,6 +277,8 @@ def main():
         full_path = os.path.join(root, rel_path)
         if is_redirect_stub(full_path):
             continue  # 리다이렉트 스텁은 sitemap에 올리지 않음
+        if is_noindex(full_path):
+            continue  # noindex 페이지도 sitemap에 올리지 않음
         if in_watched_dir:
             new_el = make_url_element(loc, today, DEFAULT_CHANGEFREQ, DEFAULT_PRIORITY)
             root_el.append(new_el)

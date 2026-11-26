@@ -9,9 +9,9 @@ blog/kids-course/*.html (아이랑 나들이 추천 코스 글)의 문구를 dat
   3) <!--ko:v1-->…<!--/ko:v1-->  마무리 (처음 실행 때는 옛 "이 코스, 이렇게 다녀오세요" 구간을 찾아 표식으로 감싼다)
   4) <meta name="description"> / og:description / twitter:description 문구
 
-  5) <meta name="robots" content="noindex,follow"> 가 없으면 canonical 아래에 넣는다 (코스 글 전체 검색 제외)
+  5) robots 메타를 정책에 맞춘다: add_kids_course_route.THIN_NOINDEX_SLUGS 의 얇은 글만 noindex,follow, 나머지는 noindex 를 지운다 (2026-11-26 변경)
 
-바뀌지 않는 것: 장소 목록·주소·요금·전화번호·장소 설명·링크·메타태그(위 4)·공유/댓글 영역·noindex 설정.
+바뀌지 않는 것: 장소 목록·주소·요금·전화번호·장소 설명·링크·메타태그(위 4)·공유/댓글 영역. (robots 메타는 위 5번 정책을 따른다)
 기대한 패턴이 없으면 그 글은 건드리지 않고 경고만 남긴다.
 
 사용법(저장소 루트에서):  python3 scripts/refresh_kids_course_text.py [--dry-run] [--root 경로]
@@ -38,7 +38,7 @@ DESC_RES = [re.compile(r'(<meta name="description" content=")[^"]*(">)'),
             re.compile(r'(<meta name="twitter:description" content=")[^"]*(">)')]
 
 
-def transform(page, places):
+def transform(page, places, slug=''):
     region = rte.region_name(page)
     if not region:
         return None, '제목에서 지역명을 찾지 못함'
@@ -66,7 +66,7 @@ def transform(page, places):
     desc = html_lib.escape(kct.build_meta_desc(region, entries))
     for rx in DESC_RES:
         out = rx.sub(lambda m: m.group(1) + desc + m.group(2), out, count=1)
-    out = kct.ensure_noindex(out)   # 코스 글은 모두 noindex,follow (2026-11-10 결정)
+    out = rte.apply_robots(out, slug)   # 2026-11-26: 얇은 글만 noindex, 나머지는 검색 허용
     return out, 'ok'
 
 
@@ -79,7 +79,7 @@ def main():
         rel = os.path.relpath(path, ROOT)
         with open(path, 'r', encoding='utf-8') as fp:
             before = fp.read()
-        after, msg = transform(before, places)
+        after, msg = transform(before, places, os.path.basename(path))
         if after is None:
             failed += 1
             print('⚠️ %s: %s — 건드리지 않음' % (rel, msg), file=sys.stderr)
