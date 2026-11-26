@@ -1684,6 +1684,17 @@ def update_kids_count_text():
         with open(map_path, 'w', encoding='utf-8') as f:
             f.write(updated)
     print(f"festival/index.html 아이랑 장소 수 문구 갱신 완료 ({n}곳)")
+    # [ADD] 2026-11-27: 홈(index.html) 첫 배너의 '아이랑 나들이 장소 N곳'도 같은 마커로 갱신한다.
+    home_path = 'index.html'
+    if os.path.exists(home_path):
+        with open(home_path, 'r', encoding='utf-8') as f:
+            home = f.read()
+        if _KIDS_COUNT_MARKED_RE.search(home):
+            home_new = _KIDS_COUNT_MARKED_RE.sub(lambda m: marked, home, count=1)
+            if home_new != home:
+                with open(home_path, 'w', encoding='utf-8') as f:
+                    f.write(home_new)
+            print(f"index.html 첫 배너 장소 수 문구 갱신 완료 ({n}곳)")
 
 
 def build_kids_region_summary_html(places):
