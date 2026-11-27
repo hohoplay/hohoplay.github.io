@@ -177,6 +177,22 @@ def main():
                 '</div></div>\n'
             )
 
+        # [ADD] 2026-11-27: "정보 출처" 줄 — 운영자가 직접 조사한 정보와 공공기관(한국관광공사) 자료를 구분해 보여준다.
+        # 요금·운영시간 카드 안에 넣어 눈에 띄게 하고(작은 회색 글씨 푸터와 별개), 확인일 줄 바로 아래에 붙는다.
+        _src_lines = ["요금·운영시간·소개: 호호플레이가 직접 조사·정리"]
+        _nv2 = notes.get(cid) or {}
+        if any("한국관광공사 공공데이터 기준" in str(v) for v in _nv2.values()):
+            _src_lines.append("주차·이용 규칙 등 일부 안내: 한국관광공사 공공데이터(TourAPI)")
+        if any(str(v).strip() and "한국관광공사 공공데이터 기준" not in str(v) for v in _nv2.values()):
+            _src_lines.append("우리 가족 체크: 호호플레이가 따로 정리")
+        if image:
+            _src_lines.append("대표 사진: 한국관광공사 TourAPI")
+        checked_row += (
+            '    <div class="detail-row"><div class="detail-label">정보 출처</div><div class="detail-value">'
+            + "<br>".join(html_escape(x) for x in _src_lines)
+            + '</div></div>\n'
+        )
+
         # [ADD] 2026-11-10: "방문 전 체크리스트" 카드. 운영시간·요금은 바뀔 수 있으므로 방문 전에 확인할 항목을
         # 정리해 보여 준다. 장소별로 다른 부분은 이 장소의 데이터(연락처 유무, 운영시간·요금 문구, 실내/실외)에서만
         # 만든다 — 데이터에 없는 사실(주차 가능 여부, 수유실 유무 등)은 적지 않고 "확인하세요"로만 안내한다.
@@ -249,9 +265,17 @@ def main():
 
         # [ADD] 2026-11-12: 출처 표기. 장소 정보(이름·주소·설명·요금·운영시간)는 운영자가 직접 조사해 정리한 것이고,
         # 대표 사진은 TourAPI 키워드 검색으로 받아온 경우에만 한국관광공사 제공으로 표시한다(image가 있을 때만).
+        # [FIX] 2026-11-27: 한국관광공사 공공데이터(TourAPI)로 채운 안내(주차·이용 규칙·팁)가 159곳 들어오면서 "네이버 플레이스·방문 후기"
+        # 문구가 사실과 어긋났다. 출처를 (1) 운영자 직접 조사 (2) 한국관광공사 공공데이터 (3) 호호플레이가 따로 정리한 가족 체크 로 나눠 적는다.
+        _nv = notes.get(cid) or {}
+        _tour_marker = "한국관광공사 공공데이터 기준"
+        _tour_note = any(_tour_marker in str(v) for v in _nv.values())
+        _own_note = any(str(v).strip() and _tour_marker not in str(v) for v in _nv.values())
         source_note = "장소 정보: 호호플레이가 직접 조사·정리"
-        if str((notes.get(cid) or {}).get("access") or (notes.get(cid) or {}).get("rules") or (notes.get(cid) or {}).get("tip") or "").strip():
+        if _own_note:
             source_note = "장소 정보: 네이버 플레이스·방문 후기를 참고해 호호플레이가 정리"
+        if _tour_note:
+            source_note += "<br>주차·이용 규칙 등 일부 안내: 한국관광공사 공공데이터(TourAPI) 기준"
         if image:
             source_note += "<br>대표 사진: 한국관광공사 TourAPI(공공데이터포털)"
         else:
