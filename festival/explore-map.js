@@ -84,6 +84,18 @@
   }
 
   K.set = function (a) { pts = a || []; if (K.ready) drawPins(); };
+  /* 내 주변: 내 위치 표시 + 지도 이동(지도가 아직 안 열렸으면 열릴 때 적용) */
+  var meOv = null, mePos = null;
+  function applyMe(center) {
+    if (!K.ready || !map) return;
+    if (meOv) { meOv.setMap(null); meOv = null; }
+    if (!mePos) return;
+    var el = document.createElement('div'); el.className = 'mepin'; el.innerHTML = '<i></i><b>내 위치</b>';
+    meOv = new kakao.maps.CustomOverlay({ position: ll(mePos[0], mePos[1]), content: el, xAnchor: 0.5, yAnchor: 0.5, zIndex: 20 });
+    meOv.setMap(map);
+    if (center) { map.setLevel(6); map.setCenter(ll(mePos[0], mePos[1])); }
+  }
+  K.me = function (p) { mePos = p && p.length ? p : null; applyMe(true); };
   K.hover = function () { /* 기본 마커는 강조 표시를 바꾸지 않는다(예전 지도와 동일) */ };
   K.focus = function (id, st, la, ln, el) {
     if (!K.ready) return;
@@ -176,6 +188,7 @@
       '.cpin{position:relative;width:28px;height:28px}' +
       '.cpin-no{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);font-size:14px;font-weight:800;line-height:1;cursor:pointer;box-sizing:border-box}' +
       '.cpin-name{position:absolute;left:32px;top:50%;transform:translateY(-50%);max-width:130px;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;color:#1e293b;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer}' +
+      '.mepin{position:relative;width:18px;height:18px}.mepin i{display:block;width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.25),0 2px 6px rgba(0,0,0,.35);box-sizing:border-box}.mepin b{position:absolute;left:50%;top:22px;transform:translateX(-50%);padding:1px 6px;border-radius:6px;background:#2563eb;color:#fff;font-size:11px;font-weight:800;white-space:nowrap}' +
       '.place-label{display:block;max-width:140px;padding:2px 7px;margin-top:2px;background:rgba(255,255,255,.95);border:1px solid #c7d2fe;border-radius:6px;color:#1e293b;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer;font-family:inherit}';
     document.head.appendChild(s);
   }
@@ -200,6 +213,7 @@
       kakao.maps.event.addListener(map, 'idle', updateLabels);
       host.classList.add('km');
       K.ready = true;
+      applyMe(true);
       var f = host.querySelector('.kload'); if (f) f.remove();
       drawPins();
       setTimeout(function () { map.relayout(); if (window.__kready) window.__kready(); }, 100);

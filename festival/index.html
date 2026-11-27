@@ -1064,18 +1064,18 @@ pick(late?'tom':'today',late);})();
 var near=false,pos=null,rad=0,nearSec=null,nbtn=document.getElementById('nearbtn');
 cards.forEach(function(c,i){c._home=c.parentNode;c._i=i;c._la=+c.getAttribute('data-lat');c._ln=+c.getAttribute('data-lng');});
 function hav(a,b,c,d){var R=6371,t=Math.PI/180,x=(c-a)*t,y=(d-b)*t,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*t)*Math.cos(c*t)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h));}
-function nearOn(p,fake){pos=p;window.__npos=p;near=true;document.body.classList.add('near');nbtn.classList.add('on');nbtn.textContent='📍 내 주변 ✕';
+function nearOn(p,fake){pos=p;window.__npos=p;window.KMAP&&KMAP.me&&KMAP.me(p);near=true;document.body.classList.add('near');nbtn.classList.add('on');nbtn.textContent='📍 내 주변 ✕';
 var nl=document.getElementById('nlocn');nl.style.display='';nl.textContent=fake?'':'📍 내 위치 기준 가까운 코스 순서예요. (위치는 이 기기에서만 쓰고 저장하지 않아요)';
 document.getElementById('rad').style.display='block';
 if(!nearSec){nearSec=document.createElement('section');nearSec.id='r-near';nearSec.innerHTML='<h2>📍 내 주변 코스</h2><div class="grid"></div>';secs[0].parentNode.insertBefore(nearSec,secs[0]);secs.unshift(nearSec);nearSec._ar='';}
 var g=nearSec.querySelector('.grid');cards.slice().forEach(function(c){c._km=hav(pos[0],pos[1],c._la,c._ln);c.querySelector('.dist').textContent='📍 내 위치에서 약 '+c._km.toFixed(c._km<10?1:0)+'km';});
 cards.slice().sort(function(a,b){return a._km-b._km}).forEach(function(c){g.appendChild(c)});run();window.scrollTo({top:document.getElementById('r-near').getBoundingClientRect().top+scrollY-60,behavior:'smooth'});}
-function nearOff(){near=false;pos=null;window.__npos=null;rad=0;document.body.classList.remove('near');nbtn.classList.remove('on');nbtn.textContent='📍 내 주변';document.getElementById('rad').style.display='none';document.getElementById('nlocn').style.display='none';
+function nearOff(){near=false;pos=null;window.__npos=null;window.KMAP&&KMAP.me&&KMAP.me(null);rad=0;document.body.classList.remove('near');nbtn.classList.remove('on');nbtn.textContent='📍 내 주변';document.getElementById('rad').style.display='none';document.getElementById('nlocn').style.display='none';
 cards.slice().sort(function(a,b){return a._i-b._i}).forEach(function(c){c._home.appendChild(c)});if(nearSec){nearSec.parentNode.removeChild(nearSec);secs.shift();nearSec=null;}
 [].forEach.call(document.querySelectorAll('#rad .fc button'),function(x){x.classList.toggle('on',!x.getAttribute('data-v'))});run();}
 nbtn.addEventListener('click',function(){if(near){nearOff();return;}var fb=function(){var nl=document.getElementById('nlocn');nl.style.display='';nl.textContent='📍 위치를 가져오지 못했어요. 브라우저의 위치 권한을 허용한 뒤 다시 눌러 주세요.';};
-if(!navigator.geolocation){fb();return;}var done=false;var t=setTimeout(function(){if(!done){done=true;fb()}},4000);
-navigator.geolocation.getCurrentPosition(function(p){if(done)return;done=true;clearTimeout(t);nearOn([p.coords.latitude,p.coords.longitude],false)},function(){if(done)return;done=true;clearTimeout(t);fb()},{timeout:3500});});
+if(!navigator.geolocation){fb();return;}var done=false;var t=setTimeout(function(){if(!done){done=true;fb()}},16000);
+navigator.geolocation.getCurrentPosition(function(p){if(done)return;done=true;clearTimeout(t);nearOn([p.coords.latitude,p.coords.longitude],false)},function(){if(done)return;done=true;clearTimeout(t);fb()},{timeout:15000});});
 document.addEventListener('click',function(e){var a=e.target.closest('.rc');if(!a)return;var b=document.querySelector('.rg[data-k='+a.getAttribute('data-k')+']');if(b){e.preventDefault();b.click();}});
 q.addEventListener('input',run);ind.addEventListener('change',run);run();})(SC.c);
 (function(document){var q=document.getElementById('q'),ind=document.getElementById('indoor'),res=document.getElementById('sres'),list=document.getElementById('kd'),cnt=document.getElementById('cnt'),more=document.getElementById('more');
@@ -1120,10 +1120,10 @@ if(b.closest('#kt')){kind=b.getAttribute('data-v');[].forEach.call(b.parentNode.
 var g=b.parentNode.getAttribute('data-g'),v=b.getAttribute('data-v');if(g==='tp')tp=v;else if(g==='fee')fee=v;else if(g==='rad')rad=+v||0;else return;
 [].forEach.call(document.querySelectorAll('.fc[data-g='+g+']'),function(el){[].forEach.call(el.children,function(x){x.classList.toggle('on',x.getAttribute('data-v')===v)})});run();});
 
-function nearOn(p,fake){pos=p;window.__npos=p;near=true;nbtn.classList.add('on');nbtn.textContent='📍 내 주변 ✕';var nl=document.getElementById('nlocn');nl.style.display='';nl.textContent=fake?'':'📍 내 위치 기준 가까운 순서예요. (위치는 이 기기에서만 쓰고 저장하지 않아요)';document.getElementById('rad').style.display='block';run();}
-function nearOff(){near=false;pos=null;window.__npos=null;rad=0;nbtn.classList.remove('on');nbtn.textContent='📍 내 주변';document.getElementById('rad').style.display='none';document.getElementById('nlocn').style.display='none';[].forEach.call(document.querySelectorAll('#rad .fc button'),function(x){x.classList.toggle('on',!x.getAttribute('data-v'))});run();}
-nbtn.addEventListener('click',function(){if(near){nearOff();return;}var fb=function(){var nl=document.getElementById('nlocn');nl.style.display='';nl.textContent='📍 위치를 가져오지 못했어요. 브라우저의 위치 권한을 허용한 뒤 다시 눌러 주세요.';};if(!navigator.geolocation){fb();return;}var done=false;var t=setTimeout(function(){if(!done){done=true;fb()}},4000);
-navigator.geolocation.getCurrentPosition(function(p){if(done)return;done=true;clearTimeout(t);nearOn([p.coords.latitude,p.coords.longitude],false)},function(){if(done)return;done=true;clearTimeout(t);fb()},{timeout:3500});});
+function nearOn(p,fake){pos=p;window.__npos=p;window.KMAP&&KMAP.me&&KMAP.me(p);near=true;nbtn.classList.add('on');nbtn.textContent='📍 내 주변 ✕';var nl=document.getElementById('nlocn');nl.style.display='';nl.textContent=fake?'':'📍 내 위치 기준 가까운 순서예요. (위치는 이 기기에서만 쓰고 저장하지 않아요)';document.getElementById('rad').style.display='block';run();}
+function nearOff(){near=false;pos=null;window.__npos=null;window.KMAP&&KMAP.me&&KMAP.me(null);rad=0;nbtn.classList.remove('on');nbtn.textContent='📍 내 주변';document.getElementById('rad').style.display='none';document.getElementById('nlocn').style.display='none';[].forEach.call(document.querySelectorAll('#rad .fc button'),function(x){x.classList.toggle('on',!x.getAttribute('data-v'))});run();}
+nbtn.addEventListener('click',function(){if(near){nearOff();return;}var fb=function(){var nl=document.getElementById('nlocn');nl.style.display='';nl.textContent='📍 위치를 가져오지 못했어요. 브라우저의 위치 권한을 허용한 뒤 다시 눌러 주세요.';};if(!navigator.geolocation){fb();return;}var done=false;var t=setTimeout(function(){if(!done){done=true;fb()}},16000);
+navigator.geolocation.getCurrentPosition(function(p){if(done)return;done=true;clearTimeout(t);nearOn([p.coords.latitude,p.coords.longitude],false)},function(){if(done)return;done=true;clearTimeout(t);fb()},{timeout:15000});});
 document.addEventListener('click',function(e){var a=e.target.closest('.rc');if(!a)return;var b=document.querySelector('.rg[data-k='+a.getAttribute('data-k')+']');if(b){e.preventDefault();b.click();window.scrollTo({top:0,behavior:'smooth'});}});
 document.getElementById('upd').addEventListener('click',function(e){e.preventDefault();var t=document.getElementById('data-notice');t.scrollIntoView({behavior:'smooth',block:'center'});t.classList.remove('fl');void t.offsetWidth;t.classList.add('fl');});
 more.addEventListener('click',function(){draw(false)});q.addEventListener('input',run);ind.addEventListener('change',run);
@@ -1290,5 +1290,5 @@ window.PCROWS=function(rows){if(window.__view!=='l')return;api.set(rows.map(func
 var BOX={seoul:[37.7,37.4,126.8,127.2],busan:[35.3,35.0,128.9,129.3],daegu:[35.95,35.75,128.45,128.75],incheon:[37.6,37.3,126.4,126.8],daejeon:[36.5,36.2,127.2,127.55],sejong:[36.7,36.4,127.1,127.4],gyeonggi:[38.0,36.9,126.4,127.7],gangwon:[38.4,37.0,127.5,129.3],chungbuk:[37.2,36.0,127.3,128.5],gyeongbuk:[37.0,35.7,128.1,129.5],gyeongnam:[35.7,34.7,127.7,129.2],chungnam:[37.0,36.0,125.9,127.4],jeonbuk:[36.2,35.3,126.4,127.7],jeonnam:[35.4,34.3,126.1,127.5],gwangju:[35.3,35.0,126.7,127.0],ulsan:[35.7,35.4,129.0,129.45],jeju:[33.6,33.15,126.1,126.95]};api.region=function(k){if(window.KMAP&&KMAP.ready){KMAP.region(k);return}if(!visible())return;clear();if(!k||!BOX[k]){reset();dots();return;}var b=BOX[k];fit(b[1],b[0],b[2],b[3]);dots();};window.__kready=function(){if(window.PCSYNC&&PCSYNC[window.__view])PCSYNC[window.__view]()};window.PCSYNC={c:function(){syncC()},l:function(){if(window.__rows){window.PCROWS(window.__rows)}}};setTimeout(syncC,50);
 })();
 </script><script src="/festival/detail-sheet.js?v=20261122a" defer></script>
-<script src="/festival/explore-map.js?v=d400484c" defer></script>
+<script src="/festival/explore-map.js?v=cbe415d7" defer></script>
 </body></html>

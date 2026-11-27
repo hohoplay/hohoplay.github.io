@@ -226,6 +226,10 @@ def post(s, root, work):
     s = s.replace(fb_old, fb_new)
     s = s.replace("function nearOn(p,fake){pos=p;near=true;", "function nearOn(p,fake){pos=p;window.__npos=p;near=true;")
     s = s.replace("function nearOff(){near=false;pos=null;", "function nearOff(){near=false;pos=null;window.__npos=null;")
+    s = s.replace("window.__npos=p;", "window.__npos=p;window.KMAP&&KMAP.me&&KMAP.me(p);")
+    s = s.replace("window.__npos=null;", "window.__npos=null;window.KMAP&&KMAP.me&&KMAP.me(null);")
+    # 위치 허용 창에서 승인하는 시간까지 기다리도록 제한 시간을 늘린다
+    s = s.replace("if(!done){done=true;fb()}},4000)", "if(!done){done=true;fb()}},16000)").replace("{timeout:3500}", "{timeout:15000}")
     s = s.replace("nl.textContent=fake?'📍 시안에서는 위치를 못 가져와 서울시청 기준으로 보여드려요. 실제로는 내 위치 기준이에요.':",
                   "nl.textContent=fake?'':")
 
