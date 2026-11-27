@@ -1748,6 +1748,12 @@ def build_kids_region_summary_html(places):
 
     def sigungu(pl):
         tk = (pl.get('addr') or '').split()
+        # [CHG] 2026-11-27: 세종은 시·구가 없어 둘째 단어가 도로명('다솜로' 등)이 되던 것을 읍·면 단위로 묶는다(없으면 동 지역 하나로).
+        if tk and tk[0].startswith('세종'):
+            for t in tk[1:3]:
+                if len(t) > 1 and t[-1] in '읍면':
+                    return t
+            return '세종 도심(동 지역)'
         return tk[1] if len(tk) > 1 else '기타'
 
     def all_by_sigungu(lst):
@@ -1768,7 +1774,7 @@ def build_kids_region_summary_html(places):
     out.append(f'<p style="margin:0 0 14px;">운영자가 직접 골라 정리한 아이랑 나들이 장소 {total}곳을 지역별로 묶었습니다. '
                f'지역 이름 옆 숫자는 등록된 장소 수이고, 장소 이름을 누르면 운영시간·요금·위치가 담긴 상세 정보를 볼 수 있습니다. '
                f'지역마다 대표 장소를 먼저 보여 드리고, "전체 장소 보기"를 누르면 그 지역에 등록된 장소를 시·구별로 모두 확인할 수 있습니다. '
-               f'요금·운영시간은 공식 자료로 확인한 내용이며, 확인하지 못한 곳은 "확인 필요"로 표시했습니다.</p>')
+               f'요금·운영시간은 공식 자료와 운영자 조사로 확인한 내용이며, 확인하지 못한 곳은 "확인 필요"로 표시했습니다.</p>')
     for label, lst in big:
         indoor = sum(1 for x in lst if x.get('placeType') == '실내')
         outdoor = sum(1 for x in lst if x.get('placeType') == '실외')
