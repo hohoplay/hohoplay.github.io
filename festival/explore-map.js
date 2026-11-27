@@ -61,18 +61,22 @@
     clearRoute(); selId = id;
     if (el) el.classList.add('msel');
     if (st && st.length) {
+      /* 예전 지도 화면(festival/map.html 의 showCourseOnMap)과 같은 순서·같은 설정으로 그린다:
+         번호 핀 → 점선(굵기 3, #4338ca, 투명도 0.8, dash) → 그다음 화면 맞춤(setBounds).
+         도로를 따라가는 선이 아니라 장소를 순서대로 직선으로 잇는 선이다. */
       var path = st.map(function (x) { return ll(x[0], x[1]); });
-      var b = new kakao.maps.LatLngBounds(); path.forEach(function (p) { b.extend(p); });
-      map.setBounds(b, 80, 80, 80, 80);
-      /* 예전 지도 화면(map.html)과 같은 모양: 어두운 점선. 도로를 따라가는 선이 아니라 장소를 직선으로 잇는 선이다 */
-      line = new kakao.maps.Polyline({ path: path, strokeWeight: 3, strokeColor: '#4338ca', strokeOpacity: 0.8, strokeStyle: 'dash' });
-      line.setMap(map);
       st.forEach(function (x, i) {
         var d = document.createElement('div'); d.className = 'knum';
         d.innerHTML = '<b>' + (i + 1) + '</b><span>' + esc(x[2] || '') + '</span>';
-        var o = new kakao.maps.CustomOverlay({ position: path[i], content: d, yAnchor: 0.5, xAnchor: 0.5, zIndex: 8 });
+        var o = new kakao.maps.CustomOverlay({ position: path[i], content: d, yAnchor: 0.5, xAnchor: 0.5, zIndex: 10 + i });
         o.setMap(map); routeOv.push(o);
       });
+      if (path.length >= 2) {
+        line = new kakao.maps.Polyline({ path: path, strokeWeight: 3, strokeColor: '#4338ca', strokeOpacity: 0.8, strokeStyle: 'dash' });
+        line.setMap(map);
+      }
+      var b = new kakao.maps.LatLngBounds(); path.forEach(function (p) { b.extend(p); });
+      map.setBounds(b, 80, 80, 80, 80);
     } else {
       var t = (window.ITEMS || []).filter(function (x) { return x.id === id; })[0];
       map.setLevel(4); map.setCenter(ll(la, ln));
