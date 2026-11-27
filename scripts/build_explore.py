@@ -118,11 +118,15 @@ if(id||(la&&ln))K().openAt(id||'',la,ln);},500);});
 
 MAPMODE_CSS = '''<style>
 #mback{display:none}
+.maphint{display:none}
 @media(max-width:1023px){
  body.mapmode{overflow:hidden}
  body.mapmode #pcmap{display:block;position:fixed;left:0;right:0;top:80px;bottom:0;height:auto;z-index:60;border:0}
- body.mapmode #mback{display:block;position:absolute;left:10px;top:12px;z-index:6;border:0;border-radius:12px;background:#4f46e5;color:#fff;font:800 13px/1 inherit;font-family:inherit;padding:14px 12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
- body.mapmode .mtop{width:calc(100% - 190px);left:calc(50% + 28px)}
+ body.mapmode #mback{display:none!important}
+ body.mapmode .mtop{width:calc(100% - 24px);left:50%}
+ .seg a.mapt{flex:1.1;border:1.5px solid var(--pri);color:var(--pri);background:var(--card)}
+ .maphint{display:block;margin:-6px 2px 12px;font-size:12px;color:var(--sub)}
+ .rm{bottom:84px}
  body.mapmode .tkw{display:none}
  #mcard{position:absolute;left:10px;right:10px;bottom:14px;z-index:7;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
  #mcard b{display:block;font-size:15px;padding-right:28px}#mcard span{display:block;margin:2px 0 10px;font-size:12px;color:var(--sub)}
@@ -242,7 +246,8 @@ def post(s, root, work):
     # 6) 지도 탭 → 기존 지도 페이지 -----------------------------------------------------------------
     s = s.replace("else alert('시안: 모바일에서는 기존 지도 화면(/festival/)으로 이동해요.');",
                   "else if(window.KMAP)KMAP.open();")
-    s = s.replace('<a href="#">지도</a>', '<a href="#map">지도</a>')
+    s = s.replace('<a href="#">지도</a>', '<a href="#map" class="mapt">🗺️ 지도</a>')
+    s = s.replace('class="mapt">🗺️ 지도</a></nav>', 'class="mapt">🗺️ 지도</a></nav><p class="maphint">지도를 누르면 지도 페이지로 보여줘요</p>')
 
     # 7) PC 지도: 메뉴(80px) 아래에 붙이기 + 카카오맵 어댑터 위임 ------------------------------------------
     s = s.replace('</head>', '<style>@media(min-width:1024px){#pcmap{top:80px;height:calc(100vh - 80px)}}'
