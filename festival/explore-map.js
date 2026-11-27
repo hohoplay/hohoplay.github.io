@@ -91,7 +91,7 @@
     if (el) el.classList.add('msel');
     if (st && st.length) {
       /* 예전 지도(map.html showCourseOnMap)와 같은 순서·설정: 번호 핀 → 점선 → 화면 맞춤. 코스 화면에서는 클러스터를 끈다 */
-      courseMode = true; setCluster(false); clearLabels();
+      courseMode = true; clearLabels();
       var path = st.map(function (x) { return ll(x[0], x[1]); });
       st.forEach(function (x, i) {
         var wrap = document.createElement('div'); wrap.className = 'cpin';
