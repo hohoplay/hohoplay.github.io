@@ -141,16 +141,23 @@
     var c = host.querySelector('#mcard'); if (!c) return;
     var el = document.querySelector('[data-id="' + id + '"].card');
     var t = (window.ITEMS || []).filter(function (x) { return x.id === id; })[0];
-    var title = '', sub = '', btns = '';
+    var title = '', sub = '', btns = '', extra = '', im = '';
     if (el) {
       title = (el.querySelector('h3') || {}).textContent || '';
       sub = (el.querySelector('.reg') || {}).textContent || '';
       btns = '<button type="button" data-a="course">코스 자세히 보기</button><button type="button" data-a="plan" class="p">📅 일정표 만들기</button>';
     } else if (t) {
-      title = t.n; sub = (t.t === 'f' ? '🎪 축제' : '📍 아이랑 장소') + (t.s ? ' · ' + t.s : '');
-      btns = '<a href="/festival/detail/' + esc(id) + '.html">상세 보기</a>' + (t.t === 'p' ? '<button type="button" data-a="place" class="p">📅 일정표 만들기</button>' : '');
+      var fee = { free: '무료', paid: '유료' }[t.c] || '';
+      function fd(v) { v = String(v || ''); return v.length === 8 ? v.slice(0, 4) + '.' + v.slice(4, 6) + '.' + v.slice(6) : v; }
+      title = t.n; sub = (t.t === 'f' ? '🎪 축제' : '📍 아이랑 장소') + (t.s ? ' · ' + t.s : '') + (t.pt ? ' · ' + t.pt : '') + (fee ? ' · ' + fee : '');
+      if (t.t === 'f' && t.sd) extra = '<p class="mp">📅 ' + fd(t.sd) + ' ~ ' + fd(t.ed) + '</p>';
+      if (t.d) extra += '<p class="md">' + esc(String(t.d).slice(0, 70)) + (String(t.d).length > 70 ? '…' : '') + '</p>';
+      if (t.im) im = '<img class="mim" src="' + esc(t.im.replace(/^http:/, 'https:')) + '" alt="" loading="lazy" onerror="this.remove()">';
+      btns = '<a href="/festival/detail/' + esc(id) + '.html">상세 보기</a>' +
+        '<a href="https://map.kakao.com/link/to/' + encodeURIComponent(t.n) + ',' + t.la + ',' + t.ln + '" target="_blank" rel="noopener">길찾기</a>' +
+        (t.t === 'p' ? '<button type="button" data-a="place" class="p">📅 일정표</button>' : '');
     } else { return; }
-    c.innerHTML = '<button type="button" class="x" data-a="x" aria-label="닫기">✕</button><b>' + esc(title) + '</b><span>' + esc(sub) + '</span><div class="bt">' + btns + '</div>';
+    c.innerHTML = '<button type="button" class="x" data-a="x" aria-label="닫기">✕</button><div class="mrow">' + im + '<div class="mtx"><b>' + esc(title) + '</b><span>' + esc(sub) + '</span>' + extra + '</div></div><div class="bt">' + btns + '</div>';
     c.setAttribute('data-id', id); c.style.display = 'block';
   }
   host.addEventListener('click', function (e) {
@@ -169,12 +176,8 @@
       if (el0) { try { st = JSON.parse(el0.getAttribute('data-stops') || '[]'); } catch (e) { st = null; } }
       K.focus(id, st, p ? p.la : 0, p ? p.ln : 0, null); showCard(id); return;
     }
-    var el = document.querySelector('[data-id="' + id + '"].card,[data-id="' + id + '"].li');
-    if (el) {
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      el.classList.add('mfl'); setTimeout(function () { el.classList.remove('mfl'); }, 1200);
-      el.click();
-    } else if (p) { K.focus(id, null, p.la, p.ln, null); }
+    /* PC: 예전 지도처럼 핀을 누르면 지도 위에 작은 안내 팝업을 띄운다 */
+    showCard(id);
   };
 
   /* ───────── 스타일 ───────── */
@@ -188,6 +191,9 @@
       '.cpin{position:relative;width:28px;height:28px}' +
       '.cpin-no{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);font-size:14px;font-weight:800;line-height:1;cursor:pointer;box-sizing:border-box}' +
       '.cpin-name{position:absolute;left:32px;top:50%;transform:translateY(-50%);max-width:130px;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;color:#1e293b;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer}' +
+      '#pcmap #mcard{display:none}' +
+      '@media(min-width:1024px){#pcmap #mcard{position:absolute;left:12px;bottom:22px;width:370px;max-width:calc(100% - 24px);z-index:7;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25)}#mcard b{display:block;font-size:15px;padding-right:24px}#mcard span{display:block;margin:2px 0 6px;font-size:12px;color:var(--sub)}#mcard .x{position:absolute;right:8px;top:6px;border:0;background:none;color:var(--sub);font-size:16px;padding:6px;cursor:pointer}#mcard .bt{display:flex;gap:8px}#mcard .bt a,#mcard .bt button{flex:1;text-align:center;border:1px solid var(--pri);color:var(--pri);background:var(--card);border-radius:10px;padding:10px 6px;font:800 13px/1.2 inherit;font-family:inherit;text-decoration:none;cursor:pointer}#mcard .bt .p{background:var(--pri);color:#fff}}' +
+      '#mcard .mrow{display:flex;gap:10px;margin-bottom:10px}#mcard .mim{flex:none;width:64px;height:64px;border-radius:10px;object-fit:cover;background:#e2e8f0}#mcard .mtx{min-width:0;flex:1}#mcard .mp{margin:0 0 2px;font-size:12px;font-weight:700;color:var(--ink)}#mcard .md{margin:0;font-size:12px;color:var(--sub);line-height:1.45}' +
       '.mepin{position:relative;width:18px;height:18px}.mepin i{display:block;width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.25),0 2px 6px rgba(0,0,0,.35);box-sizing:border-box}.mepin b{position:absolute;left:50%;top:22px;transform:translateX(-50%);padding:1px 6px;border-radius:6px;background:#2563eb;color:#fff;font-size:11px;font-weight:800;white-space:nowrap}' +
       '.place-label{display:block;max-width:140px;padding:2px 7px;margin-top:2px;background:rgba(255,255,255,.95);border:1px solid #c7d2fe;border-radius:6px;color:#1e293b;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer;font-family:inherit}';
     document.head.appendChild(s);
