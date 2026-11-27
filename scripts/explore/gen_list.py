@@ -139,7 +139,7 @@ page=f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="
 <div class="srow"><label class="in"><input type="checkbox" id="indoor"> 🏠 실내 있는 장소만</label><button type="button" id="nearbtn" class="nb">📍 내 주변</button></div><p id="sres" class="nt" style="display:none"></p></div>
 <nav class="seg" aria-label="보기 방식"><a href="#">코스 추천</a><a href="#" class="on">전체목록</a><a href="#">지도</a></nav>
 <div class="kt" id="kt"><button type="button" class="on" data-v="">전체<em>{len(items)}</em></button><button type="button" data-v="p">📍 장소<em>{nP}</em></button><button type="button" data-v="f">🎪 축제<em>{nF}</em></button></div>
-<div class="rgwrap"><p class="rgt">지역</p><div class="rgrid" id="rgrid"><button type="button" class="rg on" data-k="" data-all="1"><span class="ic">🗺️<em>{len(items)}</em></span><span class="lb">전체 ▾</span></button>{''.join(rb(k) for k in ROW)}</div></div>
+<div class="rgwrap"><p class="rgt">지역<small class="rgh">옆으로 밀어서 더 보기 →</small></p><div class="rgrid" id="rgrid"><button type="button" class="rg on" data-k="" data-all="1"><span class="ic">🗺️<em>{len(items)}</em></span><span class="lb">전체 ▾</span></button>{''.join(rb(k) for k in ROW)}</div></div>
 <div class="fr sb2" id="subw"><p class="rgt">세부 지역</p><div class="subr fc" id="subc"></div></div>
 <div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee">{feec}</div></div>
 <div class="fr rad" id="rad"><p class="rgt">📍 내 주변 반경</p><div class="fc" data-g="rad"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="3">3km</button><button type="button" data-v="5">5km</button><button type="button" data-v="10">10km</button><button type="button" data-v="30">30km</button></div></div>
