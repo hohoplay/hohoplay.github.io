@@ -270,7 +270,97 @@ INDEX_ORDER = ["서울특별시", "경기도", "인천광역시", "강원특별�
                "전라북도", "전라남도", "부산광역시", "울산광역시", "제주특별자치도"]
 
 
-def update_index(out_dir, written):
+# ── 목록 페이지 하단 안내(표·기준·FAQ) ──
+# [ADD] 2026-11-27: 지도 페이지 하단처럼 목록 페이지에도 읽을거리를 둔다. 숫자는 모두 데이터에서 다시 계산한다.
+GUIDE_START = "<!-- INDOOR_GUIDE_START -->"
+GUIDE_END = "<!-- INDOOR_GUIDE_END -->"
+_TH = "padding:8px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;font-weight:800;color:#1e293b"
+_TD = "padding:8px 10px;border:1px solid #e2e8f0;vertical-align:top"
+_H2 = "font-size:20px;font-weight:900;color:#1e293b;margin:32px 0 8px"
+
+
+def _is_free(p):
+    return p.get("costTag") == "완전무료"
+
+
+def build_index_guide(grouped):
+    """grouped: {시·도 정식 이름: [장소…]} (실내·실내외만, 숨김 제외). 안내 구간 HTML을 만든다."""
+    esc = html_escape
+    rows = []
+    for r in INDEX_ORDER:
+        lst = grouped.get(r)
+        if not lst:
+            continue
+        slug, short = REGION_SLUGS[r]
+        n_in = sum(1 for x in lst if x.get("placeType") == "실내")
+        n_mix = sum(1 for x in lst if x.get("placeType") == "실내외")
+        rows.append((short, slug, n_in, n_mix, len(lst), sum(1 for x in lst if _is_free(x))))
+    total = sum(r[4] for r in rows)
+    t_in = sum(r[2] for r in rows)
+    t_mix = sum(r[3] for r in rows)
+    t_free = sum(r[5] for r in rows)
+    top3 = sorted(rows, key=lambda r: (-r[4], r[0]))[:3]
+    low = sorted(rows, key=lambda r: (r[4], r[0]))[:3]
+    top3_txt = ", ".join(f"{r[0]} {r[4]}곳" for r in top3)
+    low_txt = ", ".join(f"{r[0]} {r[4]}곳" for r in low)
+    free_top = sorted(rows, key=lambda r: (-r[5], r[0]))[:3]
+    free_top_txt = ", ".join(f"{r[0]} {r[5]}곳" for r in free_top)
+    ym = date.today().strftime("%Y.%m")
+
+    def table(head, body_rows):
+        h = "".join(f'<th style="{_TH}">{esc(c)}</th>' for c in head)
+        b = "".join("<tr>" + "".join(f'<td style="{_TD}">{c}</td>' for c in r) + "</tr>" for r in body_rows)
+        return (f'<div style="overflow-x:auto;margin:0 0 14px"><table style="border-collapse:collapse;width:100%;min-width:480px;font-size:14px;line-height:1.6">'
+                f"<thead><tr>{h}</tr></thead><tbody>{b}</tbody></table></div>")
+
+    t1 = table(["시·도", "실내", "실내+야외", "합계", "입장료 없음"],
+               [[f'<a href="/blog/indoor-kids/{r[1]}.html" style="color:#4f46e5;font-weight:700">{esc(r[0])}</a>', f"{r[2]}곳", f"{r[3]}곳", f"{r[4]}곳", f"{r[5]}곳"] for r in rows]
+              + [["<b>전국</b>", f"<b>{t_in}곳</b>", f"<b>{t_mix}곳</b>", f"<b>{total}곳</b>", f"<b>{t_free}곳</b>"]])
+    t2 = table(["상황", "이렇게 골라 보세요", "확인할 점"], [
+        ["비가 많이 오는 날", f"실내 {t_in}곳 중에서 고르세요. 실내+야외 {t_mix}곳은 야외 구간이 있어요.", "야외 구간이 닫히거나 미끄러운지, 비 올 때 운영하는지"],
+        ["미세먼지가 심한 날", "실내 장소를 먼저 보고, 실내+야외는 실내 시설만 이용할 수 있는지 확인하세요.", "마스크 착용 안내, 야외 체험 운영 여부"],
+        ["입장료 부담을 줄이고 싶을 때", f"입장료가 없는 {t_free}곳 중에서 고르세요(많은 순: {free_top_txt}).", "체험·주차·식사 비용은 따로 들 수 있어요"],
+        ["영유아와 함께 갈 때", "운영시간이 짧거나 예약이 필요한 곳은 피하고, 시·도 페이지에서 요금·운영시간을 먼저 보세요.", "유모차·수유실 같은 시설 정보는 없는 곳이 많아 전화 확인이 안전해요"],
+        ["장소가 적은 지역에 살 때", f"{low_txt}처럼 적은 지역은 이웃 시·도 페이지나 지도의 '실내만 보기'로 범위를 넓혀 보세요.", "이동 시간(차로 1시간 이내인지)"],
+    ])
+    faqs = [
+        ("비 오는 날 갈 수 있는 실내 장소는 전국에 몇 곳인가요?",
+         f"호호플레이 지도에 올라 있는 장소 중 실내로 분류된 곳이 {t_in}곳, 실내와 야외를 함께 쓰는 곳이 {t_mix}곳으로, 이 모음에는 합쳐서 {total}곳이 있어요."),
+        ("'실내+야외' 장소는 비 오는 날 가도 되나요?",
+         "건물 안 전시·체험과 야외 공간을 함께 쓰는 곳이라 비가 와도 실내 시설은 이용할 수 있는 경우가 많아요. 다만 야외 구간은 닫히거나 위험할 수 있으니 방문 전에 운영 여부를 확인해 주세요."),
+        ("입장료가 없는 실내 장소는 어디인가요?",
+         f"{total}곳 중 입장료가 없는 곳은 {t_free}곳이에요. 시·도별로는 {free_top_txt}으로 많아요. 위 표 1에서 시·도 페이지로 들어가면 장소마다 요금을 볼 수 있어요."),
+        ("실내 장소가 가장 많은 지역은 어디인가요?",
+         f"{top3_txt} 순으로 많아요. 반대로 {low_txt}는 장소가 적어 이웃 지역과 함께 보는 편이 좋아요."),
+        ("정보는 어디서 가져오고 얼마나 자주 확인하나요?",
+         "한국관광공사 TourAPI(공공데이터포털)와 호호플레이가 직접 정리한 내용을 바탕으로 하고, 하루 최대 3회 자동으로 확인해 바뀐 내용이 있을 때 업데이트해요. 요금·운영시간은 바뀔 수 있으니 방문 전 공식 안내로 한 번 더 확인해 주세요."),
+    ]
+    faq_html = "".join(
+        f'<div style="margin:0 0 10px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px">'
+        f'<p style="margin:0 0 4px;font-weight:800;color:#1e293b">Q. {esc(q)}</p><p style="margin:0;color:#475569">{esc(a)}</p></div>' for q, a in faqs)
+    return (
+        f'<section id="indoor-guide" style="margin-top:32px;color:#334155;font-size:15px;line-height:1.8">\n'
+        f'<h2 style="{_H2}">비 오는 날 아이랑 갈 곳, 어떻게 고르나요?</h2>\n'
+        f'<p>이 모음의 {total}곳은 아이랑 나들이 지도에 올라 있는 장소 중 유형이 실내({t_in}곳)이거나 실내+야외({t_mix}곳)인 곳이에요. '
+        f'입장료가 없는 곳은 {t_free}곳이고, 가장 많은 지역은 {top3_txt}이에요. 아래 표로 지역별 규모를 보고, 마음에 드는 시·도 페이지로 들어가 보세요.</p>\n'
+        f'<p style="margin:14px 0 6px;font-weight:800;color:#1e293b">표 1. 시·도별 실내 나들이 장소 수</p>\n{t1}\n'
+        f'<h2 style="{_H2}">상황별로 고르는 기준</h2>\n'
+        f'<p style="margin:14px 0 6px;font-weight:800;color:#1e293b">표 2. 상황별 장소 고르는 방법</p>\n{t2}\n'
+        f'<h2 style="{_H2}">실내라도 헛걸음하지 않으려면</h2>\n'
+        f'<ul style="margin:0 0 12px;padding-left:20px;list-style:disc">'
+        f'<li style="margin:0 0 6px">쉬는 요일을 먼저 확인하세요. 박물관·전시관 중에는 월요일에 쉬는 곳이 많고, 공휴일 휴관은 장소마다 달라요.</li>'
+        f'<li style="margin:0 0 6px">예약이 필요한 체험관은 비 오는 날 일찍 마감되기 쉬워요. 방문 전에 예약 여부를 확인해 주세요.</li>'
+        f'<li style="margin:0 0 6px">입장 마감 시간은 문 닫는 시간보다 이른 경우가 있어요. 오후에 간다면 마감 시간을 확인하세요.</li>'
+        f'<li style="margin:0 0 6px">주차 요금과 체험 비용은 입장료와 따로인 곳이 많아요.</li></ul>\n'
+        f'<h2 style="{_H2}">데이터 기준과 갱신</h2>\n'
+        f'<p>장소 정보는 한국관광공사 TourAPI(공공데이터포털)와 호호플레이가 직접 조사·정리한 내용이에요(기준 {ym}). 숨김 처리한 장소는 이 모음에서 빼고, '
+        f'시·도별 숫자는 데이터가 바뀔 때마다 다시 계산해요. 공식 자료로 확인하지 못한 항목은 추측하지 않고 "확인 필요"로 표시해요.</p>\n'
+        f'<h2 style="{_H2}">자주 묻는 질문</h2>\n{faq_html}\n'
+        f'</section>'
+    )
+
+
+def update_index(out_dir, written, grouped=None):
     """blog/indoor-kids/index.html 의 지역 카드와 '총 N곳'·'N개 시·도' 숫자를 데이터에서 다시 계산해 맞춘다."""
     idx = out_dir / "index.html"
     if not idx.exists():
@@ -292,6 +382,13 @@ def update_index(out_dir, written):
     html, k1 = re.subn(r'(<ul class="region-grid">\n).*?(\n</ul>)', lambda m: m.group(1) + "\n".join(cards) + m.group(2), html, count=1, flags=re.S)
     html = re.sub(r"실내 나들이 장소 \d+곳을 전국 \d+개 시·도별로", f"실내 나들이 장소 {total}곳을 전국 {n_regions}개 시·도별로", html)
     html = re.sub(r"전국 \d+개 시·도, 총 \d+곳", f"전국 {n_regions}개 시·도, 총 {total}곳", html)
+    if grouped:
+        block = f"{GUIDE_START}\n{build_index_guide(grouped)}\n{GUIDE_END}"
+        si, ei = html.find(GUIDE_START), html.find(GUIDE_END)
+        if si != -1 and ei != -1:
+            html = html[:si] + block + html[ei + len(GUIDE_END):]
+        elif html.count('<section class="tip-box">') == 1:
+            html = html.replace('<section class="tip-box">', block + '\n<section class="tip-box">', 1)
     idx.write_text(html, encoding="utf-8", newline="")
     print(f"목록 페이지 갱신: {n_regions}개 시·도, 총 {total}곳 (카드 영역 교체 {k1}건)")
 
@@ -331,7 +428,7 @@ def main():
         new_urls.append(canonical)
         written.append((region_name, slug, len(region_places)))
 
-    update_index(out_dir, written)
+    update_index(out_dir, written, grouped)
 
     # [CHG] 2026-11-12: 시/도별 실내 목록은 noindex,follow 라서 sitemap에는 올리지 않는다.
     #   (sync_sitemap.py 도 noindex 페이지를 sitemap에서 제외한다) update_sitemap()은 더 이상 호출하지 않음.

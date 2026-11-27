@@ -356,6 +356,27 @@ if _home and "HOME_KIDS_START" in _home:
     else:
         ok()
 
+# ───────────────────────── 실내 나들이 모음(blog/indoor-kids/index.html) ─────────────────────────
+_ind = read("blog/indoor-kids/index.html")
+if _ind:
+    _ip = [p for p in places if p.get("placeType") in ("실내", "실내외")]
+    _it = _ind[_ind.find("<main"):] if "<main" in _ind else _ind
+    _tt = text_of(_it)
+    _m = re.search(r"총 (\d+)곳", _tt)
+    if _m:
+        cmp("실내 모음", "blog/indoor-kids/index.html", "총 장소 수", int(_m.group(1)), len(_ip))
+    if "INDOOR_GUIDE_START" in _ind:
+        _g = _tt
+        _row = re.search(r"전국 (\d+)곳 (\d+)곳 (\d+)곳 (\d+)곳", _g)
+        if _row:
+            _a, _b, _c, _d = map(int, _row.groups())
+            cmp("실내 모음", "blog/indoor-kids/index.html", "표 1 전국 실내", _a, sum(1 for p in _ip if p.get("placeType") == "실내"))
+            cmp("실내 모음", "blog/indoor-kids/index.html", "표 1 전국 실내+야외", _b, sum(1 for p in _ip if p.get("placeType") == "실내외"))
+            cmp("실내 모음", "blog/indoor-kids/index.html", "표 1 전국 합계", _c, len(_ip))
+            cmp("실내 모음", "blog/indoor-kids/index.html", "표 1 전국 입장료 없음", _d, sum(1 for p in _ip if p.get("costTag") == "완전무료"))
+        else:
+            bad("실내 모음", "blog/indoor-kids/index.html", "표 1 전국 합계 줄을 찾지 못함")
+
 # ───────────────────────── 보고서 ─────────────────────────
 lines = [f"# 사이트 수치 일관성 점검", "", f"- 일치 확인 {oks}건 / 어긋남 {len(issues)}건", ""]
 for s in infos:
