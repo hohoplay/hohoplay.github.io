@@ -956,7 +956,7 @@ function K(){return window.KMAP}
 document.addEventListener('click',function(e){
 var o=e.target.closest('.openmap');if(o){e.preventDefault();if(K()){if(matchMedia('(min-width:1024px)').matches)window.scrollTo({top:0,behavior:'smooth'});else K().open();}return;}
 var bk=e.target.closest('#mback');if(bk){e.preventDefault();if(K())K().close();return;}
-var g=e.target.closest('a.go2');if(g){var m=/[?&]region=([a-z]+)/.exec(g.getAttribute('href')||'');if(m&&K()){e.preventDefault();var k=m[1];K().open(function(){K().region(k)});}return;}
+var g=e.target.closest('a.go2');if(g&&K()){var cc=g.closest('.card');if(cc){e.preventDefault();K().openCourse(cc.getAttribute('data-id'));return;}var m=/[?&]region=([a-z]+)/.exec(g.getAttribute('href')||'');if(m){e.preventDefault();var k=m[1];K().open(function(){K().region(k)});}return;}
 var a2=e.target.closest('.li a.a2');if(a2){var m2=/[?&]id=([^&]+)/.exec(a2.getAttribute('href')||'');if(m2&&K()){e.preventDefault();K().openAt(decodeURIComponent(m2[1]));}}});
 var q=new URLSearchParams(location.search),id=q.get('id'),la=+q.get('lat'),ln=+q.get('lng'),rg=q.get('region');
 window.addEventListener('load',function(){setTimeout(function(){
