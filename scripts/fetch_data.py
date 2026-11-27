@@ -2010,7 +2010,7 @@ def build_home_kids_html(places):
                 f'<span class="hk-name">{title}</span><span class="hk-addr">{esc(_home_kids_addr(p.get("addr")))}</span>'
                 f'<span class="hk-tag">{esc(tag)}</span></a>')
         parts.append(
-            f'            <details class="hk-region"{" open" if i == 0 else ""}><summary>{name} <span>아이랑 나들이 {totals[name]}곳</span></summary>'
+            f'            <details class="hk-region" open><summary>{name} <span>아이랑 나들이 {totals[name]}곳</span></summary>'
             f'<div class="hk-row">{"".join(cards)}</div>'
             f'<a class="hk-more" href="/festival/?region={key}">{name} {totals[name]}곳 전체 보기 →</a></details>')
     parts.append('            <p class="hk-credit">장소 정보는 호호플레이가 직접 조사·정리했고, 사진은 한국관광공사 TourAPI(공공데이터포털) 제공이에요. 요금·운영시간은 바뀔 수 있으니 방문 전 확인해 주세요.</p>')
