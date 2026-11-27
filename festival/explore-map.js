@@ -282,5 +282,8 @@
 
   window.KMAP = K;
   if (isPC()) ensure();
-  window.addEventListener('resize', function () { if (K.ready && map) map.relayout(); });
+  window.addEventListener('resize', function () {
+    if (K.ready && map) map.relayout();
+    else if (isPC() && !loading) ensure();   /* 좁은 창에서 열었다가 창을 넓히면(최대화) 그때 지도를 불러온다 */
+  });
 })();
