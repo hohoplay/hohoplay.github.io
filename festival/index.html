@@ -148,7 +148,7 @@ section{scroll-margin-top:56px}h2{font-size:19px;margin:22px 0 10px}h2 small{fon
 }
 @media(min-width:1600px){#pcmain>.wrap{width:560px;max-width:560px}.ov{width:560px}.sheet{width:560px;max-width:560px}}
 :root{--map:#dbeafe;--land:#f1f5e9}@media(prefers-color-scheme:dark){:root{--map:#0b2545;--land:#1f2d1f}}
-#pcmap svg{width:100%;height:100%;display:block}#pcmap .tip{position:absolute;left:14px;top:12px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.92);color:#334155;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+#pcmap #pcsvg{width:100%;height:100%;display:block}#pcmap .tip{position:absolute;left:14px;top:12px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.92);color:#334155;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 #pcmap .zb{position:absolute;right:14px;top:12px;display:flex;flex-direction:column;gap:6px}#pcmap .zb button{width:38px;height:38px;border:0;border-radius:10px;background:#fff;color:#334155;font-size:18px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
 #pclayer{transition:transform .5s cubic-bezier(.2,.8,.2,1);transform-origin:0 0}
 .mp{fill:#6366f1;stroke:#fff;stroke-width:1.2;cursor:pointer;vector-effect:non-scaling-stroke}.mp.f{fill:#e11d48}.mp.c{fill:#4f46e5;stroke-width:2}.mp.hl{fill:#f59e0b;stroke:#78350f;stroke-width:2}
@@ -161,7 +161,7 @@ section{scroll-margin-top:56px}h2{font-size:19px;margin:22px 0 10px}h2 small{fon
 .tkw{margin-top:6px;height:30px;border-radius:0 0 10px 10px;background:rgba(255,255,255,.92);overflow:hidden;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.1)}.tkw span{position:absolute;left:0;top:0;line-height:30px;white-space:nowrap;font-size:12px;font-weight:700;color:#334155;padding:0 12px;will-change:transform}
 .tip2{position:absolute;left:14px;bottom:12px;padding:5px 9px;border-radius:9px;background:rgba(255,255,255,.9);color:#475569;font-size:11px;font-weight:700}
 .rm{position:fixed;right:14px;bottom:18px;z-index:40;display:flex;flex-direction:column;gap:10px}.rm a,.rm button{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:20px;line-height:1;font-family:inherit;cursor:pointer;text-decoration:none}.rm small{font-size:10px;font-weight:800}.rm .up{opacity:0;pointer-events:none;transition:opacity .2s}.rm .up.on{opacity:1;pointer-events:auto}
-[hidden]{display:none!important}@media(min-width:1024px){.seg{grid-template-columns:repeat(2,1fr)!important}.seg a:nth-child(3){display:none}}</style><style>@media(min-width:1024px){#pcmap{top:80px;height:calc(100vh - 80px)}}#pcmain{position:relative}#pcmap svg,#pcmap .zb{display:none!important}#pcmap{background:#eef2f7}</style><style>
+[hidden]{display:none!important}@media(min-width:1024px){.seg{grid-template-columns:repeat(2,1fr)!important}.seg a:nth-child(3){display:none}}</style><style>@media(min-width:1024px){#pcmap{top:80px;height:calc(100vh - 80px)}}#pcmain{position:relative}#pcmap #pcsvg,#pcmap .zb{display:none!important}#pcmap{background:#eef2f7}</style><style>
 #mback{display:none}
 @media(max-width:1023px){
  body.mapmode{overflow:hidden}
@@ -1003,5 +1003,5 @@ new MutationObserver(function(){clearTimeout(tm);tm=setTimeout(syncC,120)}).obse
 window.PCROWS=function(rows){if(window.__view!=='l')return;api.set(rows.map(function(i){return {id:i.id,la:i.la,ln:i.ln,f:i.t==='f'}}));};
 var BOX={seoul:[37.7,37.4,126.8,127.2],busan:[35.3,35.0,128.9,129.3],daegu:[35.95,35.75,128.45,128.75],incheon:[37.6,37.3,126.4,126.8],daejeon:[36.5,36.2,127.2,127.55],sejong:[36.7,36.4,127.1,127.4],gyeonggi:[38.0,36.9,126.4,127.7],gangwon:[38.4,37.0,127.5,129.3],chungbuk:[37.2,36.0,127.3,128.5],gyeongbuk:[37.0,35.7,128.1,129.5],gyeongnam:[35.7,34.7,127.7,129.2],chungnam:[37.0,36.0,125.9,127.4],jeonbuk:[36.2,35.3,126.4,127.7],jeonnam:[35.4,34.3,126.1,127.5],gwangju:[35.3,35.0,126.7,127.0],ulsan:[35.7,35.4,129.0,129.45],jeju:[33.6,33.15,126.1,126.95]};api.region=function(k){if(window.KMAP&&KMAP.ready){KMAP.region(k);return}if(!visible())return;clear();if(!k||!BOX[k]){reset();dots();return;}var b=BOX[k];fit(b[1],b[0],b[2],b[3]);dots();};window.__kready=function(){if(window.PCSYNC&&PCSYNC[window.__view])PCSYNC[window.__view]()};window.PCSYNC={c:function(){syncC()},l:function(){if(window.__rows){window.PCROWS(window.__rows)}}};setTimeout(syncC,50);
 })();
-</script><script src="/festival/explore-map.js?v=18f28521" defer></script>
+</script><script src="/festival/explore-map.js?v=4fc70bab" defer></script>
 </body></html>

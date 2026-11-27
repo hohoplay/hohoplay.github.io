@@ -141,7 +141,7 @@
     var s = document.createElement('style');
     s.textContent = '' +
       '#pcmap #kmap{position:absolute;left:0;top:0;right:0;bottom:0;z-index:0}' +
-      '#pcmap.km svg,#pcmap.km .zb{display:none}' +
+      '#pcmap.km #pcsvg,#pcmap.km .zb{display:none}' +
       '.mtop{z-index:5}' +
       '.kpin{width:12px;height:12px;border-radius:50%;background:#6366f1;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;box-sizing:border-box}' +
       '.kpin.f{background:#e11d48}.kpin.c{background:#4f46e5;width:16px;height:16px}.kpin.hl{background:#f59e0b;border-color:#78350f;width:18px;height:18px}' +
