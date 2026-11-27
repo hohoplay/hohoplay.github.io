@@ -950,6 +950,29 @@ if(b){var c=b.closest('.card');if(!c)return;e.preventDefault();var sp=course(c);
 var p=e.target.closest('[data-plan]');if(p){e.preventDefault();var id=p.getAttribute('data-plan');modal(function(M){M.openPlace(id)});}});
 })();
 
+/* 상세 보기: 전체 페이지로 넘어가지 않고 아래에서 올라오는 팝업(시트)으로 보여 준다. 링크(href)는 검색엔진용으로 그대로 둔다 */
+(function(){
+var st=document.createElement('style');st.textContent='#dsheet{position:fixed;inset:0;z-index:300;display:none}#dsheet.on{display:block}#dsheet .bd{position:absolute;inset:0;background:rgba(15,23,42,.55)}'+
+'#dsheet .bx{position:absolute;left:50%;bottom:0;transform:translate(-50%,100%);width:min(720px,100%);height:92vh;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;transition:transform .28s ease}'+
+'#dsheet.on .bx.up{transform:translate(-50%,0)}#dsheet .hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #e5e7eb;font:800 14px/1 inherit;font-family:inherit}'+
+'#dsheet .hd a{color:#4f46e5;font-size:12px;text-decoration:none}#dsheet .hd button{border:0;background:#eef2ff;color:#312e81;font:800 13px/1 inherit;font-family:inherit;border-radius:10px;padding:9px 12px;cursor:pointer}#dsheet iframe{flex:1;width:100%;border:0;border-radius:0}body.dsopen{overflow:hidden}';
+document.head.appendChild(st);
+var sh=document.createElement('div');sh.id='dsheet';sh.innerHTML='<div class="bd"></div><div class="bx"><div class="hd"><span>상세 정보</span><span><a target="_blank" rel="noopener">새 창으로 열기</a> <button type="button">닫기 ✕</button></span></div><iframe title="상세 정보"></iframe></div>';
+document.body.appendChild(sh);
+var bx=sh.querySelector('.bx'),fr=sh.querySelector('iframe'),nw=sh.querySelector('.hd a'),pushed=false;
+function hide(){try{var d=fr.contentDocument;if(!d)return;var s=d.createElement('style');s.textContent='.detail-wrap>div:first-child{display:none!important}.detail-wrap{padding-top:14px!important}';d.head.appendChild(s);}catch(e){}}
+fr.addEventListener('load',hide);
+function open(h){fr.src=h;nw.href=h;sh.classList.add('on');document.body.classList.add('dsopen');requestAnimationFrame(function(){requestAnimationFrame(function(){bx.classList.add('up')})});
+try{history.pushState({ds:1},'',location.href);pushed=true}catch(e){pushed=false}}
+function shut(fromPop){bx.classList.remove('up');document.body.classList.remove('dsopen');setTimeout(function(){sh.classList.remove('on');fr.removeAttribute('src')},280);
+if(pushed&&!fromPop){pushed=false;try{history.back()}catch(e){}}else pushed=false;}
+sh.querySelector('.bd').addEventListener('click',function(){shut()});sh.querySelector('.hd button').addEventListener('click',function(){shut()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('on'))shut()});
+window.addEventListener('popstate',function(){if(sh.classList.contains('on'))shut(true)});
+document.addEventListener('click',function(e){if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey)return;
+var a=e.target.closest('a[href^="/festival/detail/"]');if(!a||a.target==='_blank')return;e.preventDefault();open(a.getAttribute('href'));});
+})();
+
 /* 지도 열기: 탭·버튼·옛 지도 링크 */
 (function(){
 function K(){return window.KMAP}
