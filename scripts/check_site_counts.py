@@ -376,6 +376,14 @@ if _ind:
             cmp("실내 모음", "blog/indoor-kids/index.html", "표 1 전국 입장료 없음", _d, sum(1 for p in _ip if p.get("costTag") == "완전무료"))
         else:
             bad("실내 모음", "blog/indoor-kids/index.html", "표 1 전국 합계 줄을 찾지 못함")
+        _gs = _ind[_ind.find("INDOOR_GUIDE_START"):_ind.find("INDOOR_GUIDE_END")]
+        _ids = {str(p.get("contentid")) for p in _ip}
+        _links = re.findall(r'href="/festival/detail/([^"/]+)\.html"', _gs)
+        _gone = [c for c in _links if c not in _ids]
+        if _gone:
+            bad("실내 모음", "blog/indoor-kids/index.html", f"실내 장소가 아니거나 숨김·삭제된 장소로 가는 링크 {_gone}")
+        elif _links:
+            ok()
 
 # ───────────────────────── 보고서 ─────────────────────────
 lines = [f"# 사이트 수치 일관성 점검", "", f"- 일치 확인 {oks}건 / 어긋남 {len(issues)}건", ""]
