@@ -422,6 +422,17 @@ def _card_text_for_numbers(card):
     return "\n".join(parts)
 
 
+def allowed_agency_names(card, fact_map):
+    """카드의 agencies 이름 + 카드 문장·연결된 사실 문장에 이미 나오는 기관 표현(예: 사실표에 적힌 '주간보호센터').
+    사람이 확인한 문장에 있는 표현은 글에서 써도 되고, 그 밖의 기관 이름은 막는다."""
+    names = [a["name"] for a in card["agencies"]]
+    source_text = _card_text_for_numbers(card) + "\n" + "\n".join(fact_map[k]["text"] for k in card["fact_refs"])
+    for m in _AGENCY_RE.findall(source_text):
+        if m not in names:
+            names.append(m)
+    return names
+
+
 def allowed_numbers(card, fact_map):
     nums = _extract_numbers(_card_text_for_numbers(card))
     for key in card["fact_refs"]:
@@ -486,8 +497,8 @@ def build_prompt(card, fact_map, recent_history, feedback=""):
 - 위 목록에 없는 숫자(기간, 금액, 비율, 횟수, 나이 등)는 어떤 형태로도 쓰지 마세요.
 
 [기관 이름 규칙]
-- 기관·단체 이름은 다음만 쓸 수 있습니다: {agency_names}
-- 보건복지부, 주민센터, 복지관 등 위 목록에 없는 기관은 언급하지 마세요.
+- 기관·단체 이름은 다음과, [상황 카드]·[확인된 사실]에 이미 적힌 표현만 쓸 수 있습니다: {agency_names}
+- 보건복지부, 주민센터, 복지관 등 위에 없는 기관은 언급하지 마세요.
 
 [출력 형식 — 반드시 아래 구분자를 정확히 그대로 포함해서 출력하세요. 인사말이나 설명 문장은 쓰지 마세요.
 TITLE/INTRO/ACTIONS/OPTIONS/BRANCHES/STEPS/FAQ/CLOSING은 필수이며, SUMMARY/CLOSINGQ는 구분자는 항상
@@ -653,7 +664,7 @@ def _parse_optional(raw):
 def check_gates(card, fact_map, sections, optional):
     """게이트 5종을 모두 검사해 (문제 목록, AI가 쓴 부분의 글자 수)를 돌려준다."""
     allowed = allowed_numbers(card, fact_map)
-    agency_names = [a["name"] for a in card["agencies"]]
+    agency_names = allowed_agency_names(card, fact_map)
     scan_keys = ("intro", "actions", "options", "branches", "steps", "faq", "closing")
     scan_text = "\n".join(sections[k] for k in scan_keys) + "\n" + "\n".join(optional.get(k, "") for k in _OPTIONAL)
 
