@@ -124,10 +124,10 @@ MAPMODE_CSS = '''<style>
  body.mapmode #pcmap{display:block;position:fixed;left:0;right:0;top:80px;bottom:0;height:auto;z-index:60;border:0}
  body.mapmode #mback{display:none!important}
  body.mapmode .mtop{width:calc(100% - 24px);left:50%}
+ body.mapmode .mtop{top:8px}body.mapmode #pcsel{padding:7px 10px;font-size:13px;border-width:1.5px;border-radius:10px}body.mapmode .tkw{margin-top:4px;height:26px}body.mapmode .tkw span{line-height:26px;font-size:11.5px}
  .seg a.mapt{flex:1.1;border:1.5px solid var(--pri);color:var(--pri);background:var(--card)}
  .maphint{display:block;margin:-6px 2px 12px;font-size:12px;color:var(--sub)}
  .rm{bottom:84px}
- body.mapmode .tkw{display:none}
  #mcard{position:absolute;left:10px;right:10px;bottom:14px;z-index:7;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
  #mcard b{display:block;font-size:15px;padding-right:28px}#mcard span{display:block;margin:2px 0 10px;font-size:12px;color:var(--sub)}
  #mcard .x{position:absolute;right:8px;top:6px;border:0;background:none;color:var(--sub);font-size:16px;padding:6px}
