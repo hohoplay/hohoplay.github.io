@@ -249,7 +249,7 @@
     d.textContent = '지도 불러오는 중…'; host.appendChild(d);
     var timer = setTimeout(function () { if (!K.ready) { var l = host.querySelector('.kload'); if (l) l.remove(); failMsg(); } }, 7000);
     var s = document.createElement('script');
-    s.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KEY + '&autoload=false&libraries=clusterer';
+    s.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KEY + '&autoload=false&libraries=services,clusterer';
     s.onload = function () { try { kakao.maps.load(function () { clearTimeout(timer); init(); }); } catch (e) { clearTimeout(timer); failMsg(); } };
     s.onerror = function () { clearTimeout(timer); var l = host.querySelector('.kload'); if (l) l.remove(); failMsg(); };
     document.head.appendChild(s);
