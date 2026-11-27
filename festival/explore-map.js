@@ -221,6 +221,17 @@
     });
   };
 
+  /* 코스 카드의 "지도로 보기": 지도를 열고 그 코스의 번호 경로(점선)를 보여 준다 */
+  K.openCourse = function (id) {
+    var el = document.querySelector('[data-id="' + id + '"].card'), st = [], la = 0, ln = 0;
+    if (el) { try { st = JSON.parse(el.getAttribute('data-stops') || '[]'); } catch (e) { st = []; } la = +el.getAttribute('data-lat'); ln = +el.getAttribute('data-lng'); }
+    K.open(function () {
+      K.focus(id, st, la, ln, null);
+      if (!isPC()) showCard(id);
+      else if (el) { el.classList.add('msel'); }
+    });
+  };
+
   window.KMAP = K;
   if (isPC()) ensure();
   window.addEventListener('resize', function () { if (K.ready && map) map.relayout(); });
