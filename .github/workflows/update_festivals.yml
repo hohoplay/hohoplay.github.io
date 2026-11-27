@@ -31,10 +31,16 @@ jobs:
           FESTIVAL_PROXY_URL: ${{ secrets.FESTIVAL_PROXY_URL }}
         run: python scripts/fetch_data.py
 
+      # [ADD] 2026-11-27: 코스 추천+전체목록 통합 페이지(festival/explore.html)를 새 데이터로 다시 만든다.
+      # 실패해도 기존 자동 업데이트(축제 데이터 커밋)는 계속되도록 continue-on-error 로 둔다.
+      - name: Build explore page
+        continue-on-error: true
+        run: python scripts/build_explore.py
+
       - name: Commit and push if changed
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/festivals.json data/shelters/ data/shelter_raw_cache.json festival/index.html festival/worldcup.html festival/camping-worldcup.html festival/roulette.html festival/detail/ festival/list.html sitemap.xml
+          git add data/festivals.json data/shelters/ data/shelter_raw_cache.json festival/index.html festival/map.html festival/worldcup.html festival/camping-worldcup.html festival/roulette.html festival/detail/ festival/list.html sitemap.xml
           git diff --staged --quiet || git commit -m "chore: 축제 데이터 자동 업데이트 $(date +'%Y-%m-%d')"
           git push
