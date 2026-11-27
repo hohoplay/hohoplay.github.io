@@ -156,6 +156,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         }})
         .catch(function () {{ /* 푸터 로드 실패해도 목록페이지 표시엔 영향 없음 */ }});
 </script>
+<script src="/festival/nav-remote.js?v=20261127a" defer></script>
 </body>
 </html>
 """
@@ -418,6 +419,8 @@ def update_index(out_dir, written, grouped=None):
             html = html[:si] + block + html[ei + len(GUIDE_END):]
         elif html.count('<section class="tip-box">') == 1:
             html = html.replace('<section class="tip-box">', block + '\n<section class="tip-box">', 1)
+    if "/festival/nav-remote.js" not in html and html.count("</body>") == 1:
+        html = html.replace("</body>", '<script src="/festival/nav-remote.js?v=20261127a" defer></script>\n</body>', 1)
     if "/festival/detail-sheet.js" not in html and html.count("</body>") == 1:
         html = html.replace("</body>", '<script src="/festival/detail-sheet.js?v=20261122a" defer></script>\n</body>', 1)
     idx.write_text(html, encoding="utf-8", newline="")
