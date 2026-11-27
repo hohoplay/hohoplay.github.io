@@ -296,7 +296,12 @@ def post(s, root, work):
     import hashlib
     mjs = os.path.join(root, 'festival/explore-map.js')
     ver = hashlib.md5(open(mjs, 'rb').read()).hexdigest()[:8] if os.path.exists(mjs) else '1'
-    s = s.replace('</body>', '<script src="/festival/explore-map.js?v=' + ver + '" defer></script>\n</body>')
+    s = s.replace('</body>', '<script src="/festival/detail-sheet.js?v=20261122a" defer></script>\n<script src="/festival/explore-map.js?v=' + ver + '" defer></script>\n</body>')
+    # 코스 탭에서도 지도에는 아이랑 장소 전체를 찍는다(지역을 고르면 그 지역만)
+    _o = "var a=[];[].forEach.call(document.querySelectorAll('#vc .card'),function(c){if(c.offsetParent===null)return;a.push({id:c.getAttribute('data-id'),la:+c.getAttribute('data-lat'),ln:+c.getAttribute('data-lng'),c:1})});api.set(a);}"
+    _n = "var rb=document.querySelector('#vc .rg.on[data-k]'),rk=rb&&!rb.hasAttribute('data-all')?rb.getAttribute('data-k'):'';var a=(window.ITEMS||[]).filter(function(i){return i.t==='p'&&(!rk||i.r===rk)}).map(function(i){return {id:i.id,la:i.la,ln:i.ln}});api.set(a);}"
+    assert _o in s
+    s = s.replace(_o, _n)
     return s
 
 

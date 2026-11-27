@@ -4,7 +4,7 @@ byt={}
 for p in P: byt.setdefault(p['title'],[]).append(p)
 def d(a,b): return math.hypot((float(a['lat'])-float(b['lat']))*111,(float(a['lng'])-float(b['lng']))*88)
 def img(u): return ('https://'+u[7:]) if (u or '').startswith('http://') else (u or '')
-SIDO={'seoul':'서울','busan':'부산','daegu':'대구','incheon':'인천','daejeon':'대전','sejong':'세종','gyeonggi':'경기','gangwon':'강원','chungbuk':'충북','gyeongbuk':'경북','gyeongnam':'경남','jeonbuk':'전북','jeju':'제주'}
+SIDO={'seoul':'서울','busan':'부산','daegu':'대구','incheon':'인천','daejeon':'대전','sejong':'세종','gyeonggi':'경기','gangwon':'강원','chungbuk':'충북','gyeongbuk':'경북','gyeongnam':'경남','chungnam':'충남','jeonbuk':'전북','jeonnam':'전남','gwangju':'광주','ulsan':'울산','jeju':'제주'}
 courses={}
 for f in sorted(glob.glob('blog/kids-course/*.html')):
     b=os.path.basename(f)
@@ -17,6 +17,37 @@ for f in sorted(glob.glob('blog/kids-course/*.html')):
     ps=[byt[n][0] for n in names if byt.get(n) and byt[n][0].get('lat')]
     if len(ps)<3: print('SKIP',b,len(names),len(ps)); continue
     courses.setdefault(key,[]).append((b[:-5],key,area,ps,len(names)))
+# [ADD] 코스 글에 담기지 않은 장소를 같은 시·군의 가까운 곳끼리 묶어 자동 코스로 채운다(모든 지역에 코스가 나오도록).
+_RKS=[('seoul',('서울',)),('daejeon',('대전',)),('daegu',('대구',)),('busan',('부산',)),('incheon',('인천',)),('gyeonggi',('경기',)),('sejong',('세종',)),('gangwon',('강원',)),('chungbuk',('충청북도','충북')),('gyeongbuk',('경상북도','경북')),('gyeongnam',('경상남도','경남')),('chungnam',('충청남도','충남')),('jeonbuk',('전북','전라북도')),('jeonnam',('전라남도','전남')),('gwangju',('광주','전남광주')),('ulsan',('울산',)),('jeju',('제주',))]
+def _rk0(a):
+    t=(a or ' ').split()[0]
+    for k,ps in _RKS:
+        if any(t.startswith(x) for x in ps): return k
+    return ''
+_shown={p['contentid'] for v in courses.values() for x in v for p in x[3][:4]}
+_unc={}
+for _p in P:
+    if _p['contentid'] in _shown or not _p.get('lat') or not _p.get('lng'): continue
+    _k=_rk0(_p['addr'])
+    if _k: _unc.setdefault(_k,[]).append(_p)
+def _sgg(p):
+    t=p['addr'].split()
+    return t[1] if len(t)>1 else t[0]
+for _k,_ps in _unc.items():
+    _rem=sorted(_ps,key=lambda p:(_sgg(p),p['title']));_n=0
+    while _rem:
+        _seed=_rem.pop(0);_grp=[_seed]
+        for _lim in (6,12,25):
+            _cand=sorted([q for q in _rem if d(_seed,q)<=_lim],key=lambda q:d(_seed,q))
+            for q in _cand:
+                if len(_grp)>=4: break
+                if q not in _grp: _grp.append(q)
+            if len(_grp)>=3: break
+        if len(_grp)<2:
+            continue
+        for q in _grp[1:]: _rem.remove(q)
+        _n+=1
+        courses.setdefault(_k,[]).append((f'auto-{_k}-{_n}',_k,SIDO[_k]+' '+_sgg(_seed),_grp,len(_grp)))
 TOPICS=[('mus','🏛️','박물관·전시',('박물관','미술관','전시','기념관','역사관','문화관','아트','뮤지엄','문학관')),
  ('sci','🔬','과학·체험',('과학','천문','체험','로봇','키자니아','우주','생태','교육')),
  ('park','🌳','공원·자연',('공원','수목원','숲','호수','해변','정원','휴양림','산책','저수지','강변','마을','섬')),
@@ -46,12 +77,12 @@ def card(slug,key,area,allp,n_all):
     th=''.join(f'<i style="background-image:url(\'{img(x.get("image"))}\')"></i>' for x in (stops+stops)[:3])
     area_short=area.split(' ',1)[1] if ' ' in area else area
     tps=sorted({t for x in stops for t in topics_of(x['title'])}); fee=fee_of(stops)
-    return f'''<article class="card" data-id="{slug}" data-stops="{html.escape(json.dumps([[float(x['lat']),float(x['lng']),x['title']] for x in stops],ensure_ascii=False))}" data-lat="{sum(float(x['lat']) for x in stops)/len(stops):.5f}" data-lng="{sum(float(x['lng']) for x in stops)/len(stops):.5f}" data-in="{sum(1 for x in stops if x.get('placeType')=='실내')}" data-ar="{html.escape(area_short)}" data-tp="{' '.join(tps)}" data-fee="{fee}"><div class="thumbs">{th}</div><div class="body"><div class="reg">{html.escape(area)}</div><h3>{html.escape(area_short)} 하루 코스</h3>
-<p class="dist"></p><p class="inb">🏠 이 코스 4곳 중 실내 {sum(1 for x in stops if x.get('placeType')=='실내')}곳 · 실내외 {sum(1 for x in stops if x.get('placeType')=='실내외')}곳</p><p class="sub">등록 {n_all}곳 중 대표 {len(stops)}곳 · 무료 {free}곳</p><ol>{li}</ol>
-<button type="button" class="go plan" data-course="{slug}">📅 이 코스로 일정표 만들기</button><a class="go2" href="/festival/?region={key}">🗺️ 지도로 보기</a><a class="more" href="/blog/kids-course/{slug}.html">코스 전체 {n_all}곳 보기 →</a></div></article>'''
-ICON={'seoul': '🗼', 'daejeon': '🔬', 'daegu': '🍎', 'busan': '🌉', 'incheon': '✈️', 'gyeonggi': '🏙️', 'sejong': '🏛️', 'gangwon': '⛰️', 'chungbuk': '🌿', 'gyeongbuk': '🏯', 'gyeongnam': '🌊', 'jeonbuk': '🍚', 'jeju': '🍊'}
+    return f'''<article class="card" data-id="{slug}" data-stops="{html.escape(json.dumps([[float(x['lat']),float(x['lng']),x['title']] for x in stops],ensure_ascii=False))}" data-lat="{sum(float(x['lat']) for x in stops)/len(stops):.5f}" data-lng="{sum(float(x['lng']) for x in stops)/len(stops):.5f}" data-in="{sum(1 for x in stops if x.get('placeType')=='실내')}" data-ar="{html.escape(area_short)}" data-tp="{' '.join(tps)}" data-fee="{fee}"><div class="thumbs">{th}</div><div class="body"><div class="reg">{html.escape(area)}{" · 자동 추천" if slug.startswith("auto-") else ""}</div><h3>{html.escape(area_short)} 하루 코스</h3>
+<p class="dist"></p><p class="inb">🏠 이 코스 {len(stops)}곳 중 실내 {sum(1 for x in stops if x.get('placeType')=='실내')}곳 · 실내외 {sum(1 for x in stops if x.get('placeType')=='실내외')}곳</p><p class="sub">등록 {n_all}곳 중 대표 {len(stops)}곳 · 무료 {free}곳</p><ol>{li}</ol>
+<button type="button" class="go plan" data-course="{slug}">📅 이 코스로 일정표 만들기</button><a class="go2" href="/festival/?region={key}">🗺️ 지도로 보기</a>{"" if slug.startswith("auto-") else f'<a class="more" href="/blog/kids-course/{slug}.html">코스 전체 {n_all}곳 보기 →</a>'}</div></article>'''
+ICON={'seoul': '🗼', 'daejeon': '🔬', 'daegu': '🍎', 'busan': '🌉', 'incheon': '✈️', 'gyeonggi': '🏙️', 'sejong': '🏛️', 'gangwon': '⛰️', 'chungbuk': '🌿', 'gyeongbuk': '🏯', 'gyeongnam': '🌊', 'chungnam': '🌾', 'jeonbuk': '🍚', 'jeonnam': '🌴', 'gwangju': '🎨', 'ulsan': '🐋', 'jeju': '🍊'}
 TOP5=['seoul','daejeon','daegu','busan','incheon']
-ROW=TOP5+['gyeonggi','sejong','gangwon','chungbuk','gyeongbuk','gyeongnam']
+ROW=TOP5+['gyeonggi','sejong','gangwon','chungbuk','gyeongbuk','gyeongnam','chungnam','jeonbuk','jeonnam','gwangju','ulsan','jeju']
 secs='';chips='';tot=0;rbtn={};subrows=''
 for key,lab in SIDO.items():
     v=courses.get(key)
@@ -62,7 +93,7 @@ for key,lab in SIDO.items():
         subrows+=f'<div class="subr fc" data-g="ar"><button type="button" class="on" data-a="">{SIDO[key]} 전체 {len(v)}</button>'+''.join(f'<button type="button" data-a="{html.escape(x[2].split(" ",1)[1] if " " in x[2] else x[2])}">{html.escape(x[2].split(" ",1)[1] if " " in x[2] else x[2])}</button>' for x in v)+'</div>'
     sub=subrows; subrows=''
     shown={p['contentid'] for x in v for p in x[3][:4]}
-    tot_k=sum(1 for p in P if p['addr'].startswith({'seoul':'서울','busan':'부산','daegu':'대구','incheon':'인천','daejeon':'대전','sejong':'세종','gyeonggi':'경기','gangwon':'강원','chungbuk':'충청북도' if False else '충북','gyeongbuk':'경북','gyeongnam':'경남','jeonbuk':'전북','jeju':'제주'}[key]) or p['addr'].startswith({'chungbuk':'충청북도','gyeongbuk':'경상북도','gyeongnam':'경상남도','jeonbuk':'전라북도'}.get(key,'§')))
+    tot_k=sum(1 for p in P if _rk0(p['addr'])==key)
     cov=f'<p class="nt cov">🗺 이 지역 아이랑 장소 <b>{tot_k}곳</b> 중 <b>{len(shown)}곳</b>이 코스에 담겨 보여요. 나머지는 코스에 못 담았거나 그날 쉬는 곳이에요. <a href="/festival/?region={key}">전체 목록으로 보기</a></p>'
     secs+=f'<section id="r-{key}"><h2>{lab} <small>코스 {len(v)}개</small></h2>{sub}{cov}<div class="grid">'+''.join(card(*x) for x in v)+'</div></section>'
 tpl=open(ASSET+'/course_cards_sample.html',encoding='utf-8').read()
