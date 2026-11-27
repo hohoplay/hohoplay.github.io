@@ -139,14 +139,16 @@
   /* ───────── 모바일 아래 카드 ───────── */
   var popOv = null;
   function hidePop() { if (popOv) { popOv.setMap(null); popOv = null; } }
-  function hideCard() { var c = host.querySelector('#mcard'); if (c) c.style.display = 'none'; hidePop(); host.classList.remove('hascard'); }
-  function showCard(id, p) {
+  function hideCard() { var c = host.querySelector('#mcard'); if (c) c.style.display = 'none'; hidePop(); host.classList.remove('hascard'); var rm0 = host.querySelector('#mrm'); if (rm0) rm0.style.bottom = ''; }
+  function showCard(id, p, custom) {
     var pc = !document.body.classList.contains('mapmode') && p;   /* PC: 누른 핀 바로 아래에 띄운다 */
     var c = pc ? null : host.querySelector('#mcard'); if (!pc && !c) return;
     var el = document.querySelector('[data-id="' + id + '"].card');
     var t = (window.ITEMS || []).filter(function (x) { return x.id === id; })[0];
     var title = '', sub = '', btns = '', extra = '', im = '';
-    if (el) {
+    if (custom) {
+      title = custom.title; sub = custom.sub; extra = custom.extra || ''; btns = custom.btns;
+    } else if (el) {
       title = (el.querySelector('h3') || {}).textContent || '';
       sub = (el.querySelector('.reg') || {}).textContent || '';
       btns = '<button type="button" data-a="course">코스 자세히 보기</button><button type="button" data-a="plan" class="p">📅 일정표 만들기</button>';
@@ -158,7 +160,7 @@
       if (t.d) extra += '<p class="md">' + esc(String(t.d).slice(0, 70)) + (String(t.d).length > 70 ? '…' : '') + '</p>';
       if (t.im) im = '<img class="mim" src="' + esc(t.im.replace(/^http:/, 'https:')) + '" alt="" loading="lazy" onerror="this.remove()">';
       btns = '<a href="/festival/detail/' + esc(id) + '.html">상세 보기</a>' +
-        '<a href="https://map.kakao.com/link/to/' + encodeURIComponent(t.n) + ',' + t.la + ',' + t.ln + '" target="_blank" rel="noopener">길찾기</a>' +
+        '<button type="button" data-a="near">📍 주변 코스</button>' +
         (t.t === 'p' ? '<button type="button" data-a="place" class="p">📅 일정표</button>' : '');
     } else { return; }
     var inner = '<button type="button" class="x" data-a="x" aria-label="닫기">✕</button><div class="mrow">' + im + '<div class="mtx"><b>' + esc(title) + '</b><span>' + esc(sub) + '</span>' + extra + '</div></div><div class="bt">' + btns + '</div>';
@@ -170,6 +172,7 @@
       return;
     }
     c.innerHTML = inner; c.setAttribute('data-id', id); c.style.display = 'block'; host.classList.add('hascard');
+    var rm = host.querySelector('#mrm'); if (rm) rm.style.bottom = (c.offsetHeight + 24) + 'px';   /* 카드 높이만큼 리모콘을 올린다 */
   }
   host.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('#mcard [data-a], .mpop [data-a]'); if (!b) return;
@@ -178,7 +181,61 @@
     if (a === 'course') { var el = document.querySelector('[data-id="' + id + '"].card'); K.close(); if (el) setTimeout(function () { el.scrollIntoView({ block: 'center' }); }, 120); return; }
     if (a === 'plan') { var el2 = document.querySelector('[data-id="' + id + '"].card .plan'); if (el2) el2.click(); return; }
     if (a === 'place' && window.__plan) window.__plan.place(id);
+    if (a === 'near') { K.near(id); return; }
+    if (a === 'nplan' && nearSpec && window.__plan && window.__plan.spec) { window.__plan.spec(nearSpec); return; }
+    if (a === 'nback') { var q = nearSeed; hideCard(); clearRoute(); if (q) K.pinClick(q.id, { id: q.id, la: q.la, ln: q.ln }); return; }
   });
+
+  /* 📍 주변 코스: 고른 장소를 시작점으로 가까운 장소 최대 3곳을 묶어 번호 핀·점선으로 보여 준다
+     (예전 지도 map.html 의 "이 장소 주변 코스"와 같은 방식: 반경 10km → 20km → 30km 로 넓혀 찾는다) */
+  var nearSpec = null, nearSeed = null;
+  function hav(a, b, c, d) {
+    var R = 6371, r = Math.PI / 180, dl = (c - a) * r, dn = (d - b) * r;
+    var x = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(a * r) * Math.cos(c * r) * Math.sin(dn / 2) * Math.sin(dn / 2);
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  K.near = function (id) {
+    if (!K.ready) return;
+    var all = window.ITEMS || [], sd = all.filter(function (x) { return x.id === id; })[0]; if (!sd) return;
+    nearSeed = sd;
+    var cand = all.filter(function (x) { return x.t === 'p' && x.id !== id && x.la && x.ln; })
+      .map(function (x) { return { it: x, km: hav(sd.la, sd.ln, x.la, x.ln) }; })
+      .sort(function (a, b) { return a.km - b.km; });
+    var radius = 10, pick = [];
+    [10, 20, 30].some(function (rr) { radius = rr; pick = cand.filter(function (c) { return c.km <= rr; }).slice(0, 3); return pick.length >= 2; });
+    /* 가까운 순으로 고른 뒤, 시작 장소에서 가까운 곳부터 이어지게 순서를 잡는다 */
+    var order = [sd], left = pick.map(function (c) { return c.it; });
+    while (left.length) {
+      var cur = order[order.length - 1], bi = 0, bd = 1e9;
+      left.forEach(function (x, i) { var d = hav(cur.la, cur.ln, x.la, x.ln); if (d < bd) { bd = d; bi = i; } });
+      order.push(left.splice(bi, 1)[0]);
+    }
+    var st = order.map(function (x) { return [x.la, x.ln, x.n]; });
+    var total = 0, legs = [];
+    for (var i = 1; i < order.length; i++) { var dd = hav(order[i - 1].la, order[i - 1].ln, order[i].la, order[i].ln); legs.push(dd); total += dd; }
+    function f1(n) { return (Math.round(n * 10) / 10).toFixed(1); }
+    /* 일정표 모달에 넘길 코스 */
+    var t = 600, rows = [{ time: '09:30', title: '집 출발', memo: '', k: 'x' }];
+    function pad(n) { return ('0' + n).slice(-2); } function fmt(m) { return pad(Math.floor(m / 60) % 24) + ':' + pad(m % 60); }
+    order.forEach(function (x, i) {
+      var memo = [];
+      if (i > 0) { memo.push('앞 장소에서 약 ' + f1(legs[i - 1]) + 'km'); t += Math.max(15, Math.round(legs[i - 1] * 4)); }
+      memo.push('머무는 시간 약 80분(예상)');
+      rows.push({ time: fmt(t), title: '📍 ' + x.n, memo: memo.join(' · '), k: 'n', pid: x.t === 'p' ? x.id : '', lat: x.la, lng: x.ln }); t += 80;
+    });
+    rows.push({ time: fmt(t + 20), title: '귀가', memo: '', k: 'out' });
+    nearSpec = { title: sd.n + ' 주변 코스', dateStr: window.__dsel || '', rows: rows };
+    var many = order.length >= 2;
+    var list = order.map(function (x, i) { return (i + 1) + '. ' + esc(x.n) + (i ? ' <em style="font-style:normal;color:var(--sub,#64748b)">(' + f1(legs[i - 1]) + 'km)</em>' : ''); }).join('<br>');
+    var custom = {
+      title: '📍 ' + sd.n + ' 주변 코스',
+      sub: many ? order.length + '곳 · 이동 약 ' + f1(total) + 'km' + (radius > 10 ? ' · 가까운 곳이 적어 ' + radius + 'km까지 찾았어요' : '') : '주변 ' + radius + 'km 안에 다른 아이랑 장소가 없어요',
+      extra: '<p class="md" style="line-height:1.6">' + list + '</p>',
+      btns: '<button type="button" data-a="nback">← 이 장소</button>' + (many ? '<button type="button" data-a="nplan" class="p">📅 일정표 만들기</button>' : '')
+    };
+    K.focus(id, many ? st : null, sd.la, sd.ln, null);
+    showCard(id, isPC() ? { la: sd.la, ln: sd.ln } : null, custom);
+  };
 
   /* 점을 눌렀을 때: PC는 목록의 그 카드로 스크롤+선택, 모바일 지도는 아래 카드 */
   K.pinClick = function (id, p) {
