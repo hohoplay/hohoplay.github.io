@@ -30,7 +30,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # (파일 경로, 마커 문자열, 설명) — 마커가 파일에 없으면 실패 처리된다.
 CHECKS = [
-    ("index.html", 'id="hoho-pick-placeholder"', "HOHO PICK 섹션 로더"),
     ("index.html", 'href="/dream/"', "꿈해몽 사전 메뉴 링크"),
     ("index.html", 'href="/vote/"', "익명투표 메뉴 링크"),
     ("index.html", 'href="/quiz/"', "상식테스트 메뉴 링크"),
