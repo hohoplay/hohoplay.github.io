@@ -2,8 +2,8 @@
  *
  * [ADD] 2026-11-27
  * festival/explore.html 의 PC(가로 1024px 이상) 화면 오른쪽 지도를 카카오맵으로 그린다.
- *  - 페이지 안에는 SVG 간이 지도(#pcsvg)가 먼저 들어 있고, 이 파일이 카카오맵을 불러오는 데 성공하면 그 위를 덮는다.
- *    카카오 SDK가 안 뜨거나(도메인 미등록·네트워크 오류 등) 6초 안에 준비되지 않으면 SVG 간이 지도를 그대로 쓴다.
+ *  - 예전 시안용 SVG 간이 지도는 화면에 보이지 않게 숨겼다(코드는 남아 있지만 display:none).
+ *    카카오 SDK가 안 뜨거나(도메인 미등록·네트워크 오류 등) 6초 안에 준비되지 않으면 안내 문구와 '지도 탭 열기' 링크만 보여준다.
  *  - 페이지(explore.html)의 코드가 부르는 API: window.KMAP.set / focus / hover / region
  *      set(points)            : 지도에 점을 찍는다. points = [{id, la, ln, c?:코스, f?:축제}]
  *      focus(id, stops, la, ln, el) : 카드를 눌렀을 때. stops가 있으면 1·2·3 번호 경로, 없으면 그 장소만 확대
@@ -100,6 +100,7 @@
   function css() {
     var s = document.createElement('style');
     s.textContent = '' +
+      '#pcmap .kfail{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-size:14px;font-weight:700;color:#475569;line-height:1.8}#pcmap .kfail a{color:#4f46e5;font-weight:800}' +
       '#pcmap #kmap{position:absolute;left:0;top:0;right:0;bottom:0;z-index:0}' +
       '#pcmap.km svg,#pcmap.km .zb,#pcmap.km .tip2{display:none}' +
       '.mtop{z-index:5}' +
@@ -128,12 +129,18 @@
   }
 
   window.KMAP = K;
-  var timer = setTimeout(function () { /* 6초 안에 준비 안 되면 간이 지도 유지 */ }, 6000);
+  function fail() {
+    if (K.ready || host.querySelector('.kfail')) return;
+    var d = document.createElement('div'); d.className = 'kfail'; d.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-size:14px;font-weight:700;color:#475569;line-height:1.8';
+    d.innerHTML = '지도를 불러오지 못했어요.<br><a href="/festival/map.html">지도 화면 열기 →</a>';
+    host.appendChild(d);
+  }
+  var timer = setTimeout(fail, 6000);
   var s = document.createElement('script');
   s.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KEY + '&autoload=false';
   s.onload = function () {
     try { kakao.maps.load(function () { clearTimeout(timer); init(); }); } catch (e) { /* 간이 지도 유지 */ }
   };
-  s.onerror = function () { /* 간이 지도 유지 */ };
+  s.onerror = function () { clearTimeout(timer); fail(); };
   document.head.appendChild(s);
 })();
