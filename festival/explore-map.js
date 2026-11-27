@@ -23,52 +23,81 @@
   var BOX = { seoul: [37.7, 37.4, 126.8, 127.2], busan: [35.3, 35.0, 128.9, 129.3], daegu: [35.95, 35.75, 128.45, 128.75], incheon: [37.6, 37.3, 126.4, 126.8], daejeon: [36.5, 36.2, 127.2, 127.55], sejong: [36.7, 36.4, 127.1, 127.4], gyeonggi: [38.0, 36.9, 126.4, 127.7], gangwon: [38.4, 37.0, 127.5, 129.3], chungbuk: [37.2, 36.0, 127.3, 128.5], gyeongbuk: [37.0, 35.7, 128.1, 129.5], gyeongnam: [35.7, 34.7, 127.7, 129.2], chungnam: [37.0, 36.0, 125.9, 127.4], jeonbuk: [36.2, 35.3, 126.4, 127.7], jeonnam: [35.4, 34.3, 126.1, 127.5], gwangju: [35.3, 35.0, 126.7, 127.0], ulsan: [35.7, 35.4, 129.0, 129.45], jeju: [33.6, 33.15, 126.1, 126.95] };
 
   var K = { ready: false };
-  var map, pts = [], pinOv = [], routeOv = [], line = null, selId = null, pinMap = {};
+  var map, clusterer = null, pts = [], markers = [], labelOv = [], routeOv = [], line = null, selId = null, courseMode = false;
   var loading = false, waiters = [], mobOpen = false;
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ll(la, ln) { return new kakao.maps.LatLng(la, ln); }
 
-  /* ───────── 점·경로 ───────── */
-  function clearPins() { pinOv.forEach(function (o) { o.setMap(null); }); pinOv = []; pinMap = {}; }
+  /* ───────── 핀·경로 (예전 지도 화면 festival/map.html 과 같은 방식) ─────────
+     기본 카카오 마커 + 클러스터(minLevel 6, 숫자 원) + 확대하면 장소 이름 라벨, 코스는 번호 원(.cpin)+점선 */
+  function nameOf(id) {
+    var t = (window.ITEMS || []).filter(function (x) { return x.id === id; })[0];
+    if (t) return t.n;
+    var c = document.querySelector('[data-id="' + id + '"].card h3');
+    return c ? c.textContent : '';
+  }
+  function clearLabels() { labelOv.forEach(function (o) { o.setMap(null); }); labelOv = []; }
+  function clearPins() {
+    clearLabels();
+    if (clusterer) { try { clusterer.clear(); } catch (e) { } }
+    markers.forEach(function (m) { m.setMap(null); }); markers = [];
+  }
+  function drawPins() {
+    clearPins();
+    markers = pts.map(function (p) {
+      var m = new kakao.maps.Marker({ position: ll(p.la, p.ln) });
+      kakao.maps.event.addListener(m, 'click', function () { K.pinClick(p.id, p); });
+      m._p = p;
+      return m;
+    });
+    if (clusterer) clusterer.addMarkers(markers); else markers.forEach(function (m) { m.setMap(map); });
+    updateLabels();
+  }
+  /* 확대했을 때(레벨 5 이하)만 화면 안 장소 이름을 보여 준다. 겹치지 않게 최대 40개 */
+  function updateLabels() {
+    clearLabels();
+    if (!map || courseMode || map.getLevel() > 5) return;
+    var bd = map.getBounds(), n = 0, used = [];
+    markers.forEach(function (m) {
+      if (n >= 40) return;
+      var pos = m.getPosition(); if (!bd.contain(pos)) return;
+      var nm = nameOf(m._p.id); if (!nm) return;
+      var pr = map.getProjection ? null : null;
+      var key = Math.round(pos.getLat() * 2000) + ',' + Math.round(pos.getLng() * 2000);
+      if (used.indexOf(key) > -1) return; used.push(key);
+      var el = document.createElement('button'); el.type = 'button'; el.className = 'place-label'; el.textContent = nm;
+      el.addEventListener('click', function (e) { e.stopPropagation(); K.pinClick(m._p.id, m._p); });
+      var o = new kakao.maps.CustomOverlay({ position: pos, content: el, xAnchor: 0.5, yAnchor: 0, zIndex: 1, clickable: true });
+      o.setMap(map); labelOv.push(o); n++;
+    });
+  }
+  function setCluster(on) { if (clusterer) { try { clusterer.setMinLevel(on ? 6 : 99); } catch (e) { } } }
   function clearRoute() {
     routeOv.forEach(function (o) { o.setMap(null); }); routeOv = [];
     if (line) { line.setMap(null); line = null; }
     [].forEach.call(document.querySelectorAll('.msel'), function (e) { e.classList.remove('msel'); });
-  }
-  function drawPins() {
-    clearPins();
-    pts.forEach(function (p) {
-      var d = document.createElement('div');
-      d.className = 'kpin' + (p.c ? ' c' : '') + (p.f ? ' f' : '') + (p.id === selId ? ' hl' : '');
-      d.setAttribute('data-id', p.id);
-      d.addEventListener('click', function (e) { e.stopPropagation(); K.pinClick(p.id, p); });
-      var o = new kakao.maps.CustomOverlay({ position: ll(p.la, p.ln), content: d, yAnchor: 0.5, xAnchor: 0.5, zIndex: p.id === selId ? 5 : 1 });
-      o.setMap(map);
-      pinOv.push(o); pinMap[p.id] = d;
-    });
+    if (courseMode) { courseMode = false; setCluster(true); }
   }
   function fitBox(la0, la1, ln0, ln1) {
     map.setBounds(new kakao.maps.LatLngBounds(ll(la0, ln0), ll(la1, ln1)), 60, 60, 60, 60);
   }
 
   K.set = function (a) { pts = a || []; if (K.ready) drawPins(); };
-  K.hover = function (id) {
-    Object.keys(pinMap).forEach(function (k) { pinMap[k].classList.toggle('hl', k === (id || selId)); });
-  };
+  K.hover = function () { /* 기본 마커는 강조 표시를 바꾸지 않는다(예전 지도와 동일) */ };
   K.focus = function (id, st, la, ln, el) {
     if (!K.ready) return;
     clearRoute(); selId = id;
     if (el) el.classList.add('msel');
     if (st && st.length) {
-      /* 예전 지도 화면(festival/map.html 의 showCourseOnMap)과 같은 순서·같은 설정으로 그린다:
-         번호 핀 → 점선(굵기 3, #4338ca, 투명도 0.8, dash) → 그다음 화면 맞춤(setBounds).
-         도로를 따라가는 선이 아니라 장소를 순서대로 직선으로 잇는 선이다. */
+      /* 예전 지도(map.html showCourseOnMap)와 같은 순서·설정: 번호 핀 → 점선 → 화면 맞춤. 코스 화면에서는 클러스터를 끈다 */
+      courseMode = true; setCluster(false); clearLabels();
       var path = st.map(function (x) { return ll(x[0], x[1]); });
       st.forEach(function (x, i) {
-        var d = document.createElement('div'); d.className = 'knum';
-        d.innerHTML = '<b>' + (i + 1) + '</b><span>' + esc(x[2] || '') + '</span>';
-        var o = new kakao.maps.CustomOverlay({ position: path[i], content: d, yAnchor: 0.5, xAnchor: 0.5, zIndex: 10 + i });
+        var wrap = document.createElement('div'); wrap.className = 'cpin';
+        wrap.innerHTML = '<div class="cpin-no">' + (i + 1) + '</div><div class="cpin-name"></div>';
+        wrap.lastChild.textContent = x[2] || '';
+        var o = new kakao.maps.CustomOverlay({ position: path[i], content: wrap, xAnchor: 0.5, yAnchor: 0.5, zIndex: 10 + i, clickable: true });
         o.setMap(map); routeOv.push(o);
       });
       if (path.length >= 2) {
@@ -80,11 +109,11 @@
     } else {
       var t = (window.ITEMS || []).filter(function (x) { return x.id === id; })[0];
       map.setLevel(4); map.setCenter(ll(la, ln));
-      var d2 = document.createElement('div'); d2.className = 'klbl'; d2.textContent = t ? t.n : '';
-      var o2 = new kakao.maps.CustomOverlay({ position: ll(la, ln), content: d2, yAnchor: 1.6, xAnchor: 0.5, zIndex: 9 });
+      var d2 = document.createElement('div'); d2.className = 'place-label'; d2.textContent = t ? t.n : '';
+      var o2 = new kakao.maps.CustomOverlay({ position: ll(la, ln), content: d2, xAnchor: 0.5, yAnchor: 0, zIndex: 9 });
       o2.setMap(map); routeOv.push(o2);
     }
-    drawPins();
+    if (!courseMode) drawPins();
   };
   K.region = function (k) {
     if (!K.ready) return;
@@ -143,12 +172,11 @@
       '#pcmap #kmap{position:absolute;left:0;top:0;right:0;bottom:0;z-index:0}' +
       '#pcmap.km #pcsvg,#pcmap.km .zb{display:none}' +
       '.mtop{z-index:5}' +
-      '.kpin{width:12px;height:12px;border-radius:50%;background:#6366f1;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;box-sizing:border-box}' +
-      '.kpin.f{background:#e11d48}.kpin.c{background:#4f46e5;width:16px;height:16px}.kpin.hl{background:#f59e0b;border-color:#78350f;width:18px;height:18px}' +
-      '.knum{display:flex;align-items:center;gap:6px;pointer-events:none}' +
-      '.knum b{width:26px;height:26px;border-radius:50%;background:#4f46e5;color:#fff;border:2px solid #fff;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(0,0,0,.35)}' +
-      '.knum span{white-space:nowrap;font-size:12px;font-weight:800;color:#1e293b;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff}' +
-      '.klbl{white-space:nowrap;padding:4px 9px;border-radius:9px;background:#fff;color:#1e293b;font-size:12px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none}';
+      /* 아래는 festival/map.html 의 같은 이름 스타일을 그대로 옮긴 것 */
+      '.cpin{position:relative;width:28px;height:28px}' +
+      '.cpin-no{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);font-size:14px;font-weight:800;line-height:1;cursor:pointer;box-sizing:border-box}' +
+      '.cpin-name{position:absolute;left:32px;top:50%;transform:translateY(-50%);max-width:130px;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;color:#1e293b;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer}' +
+      '.place-label{display:block;max-width:140px;padding:2px 7px;margin-top:2px;background:rgba(255,255,255,.95);border:1px solid #c7d2fe;border-radius:6px;color:#1e293b;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer;font-family:inherit}';
     document.head.appendChild(s);
   }
 
@@ -168,6 +196,8 @@
       map = new kakao.maps.Map(box, { center: ll(36.2, 127.8), level: 13 });
       map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
       kakao.maps.event.addListener(map, 'click', hideCard);
+      try { clusterer = new kakao.maps.MarkerClusterer({ map: map, averageCenter: true, minLevel: 6 }); } catch (e) { clusterer = null; }
+      kakao.maps.event.addListener(map, 'idle', updateLabels);
       host.classList.add('km');
       K.ready = true;
       var f = host.querySelector('.kload'); if (f) f.remove();
@@ -187,7 +217,7 @@
     d.textContent = '지도 불러오는 중…'; host.appendChild(d);
     var timer = setTimeout(function () { if (!K.ready) { var l = host.querySelector('.kload'); if (l) l.remove(); failMsg(); } }, 7000);
     var s = document.createElement('script');
-    s.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KEY + '&autoload=false';
+    s.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KEY + '&autoload=false&libraries=clusterer';
     s.onload = function () { try { kakao.maps.load(function () { clearTimeout(timer); init(); }); } catch (e) { clearTimeout(timer); failMsg(); } };
     s.onerror = function () { clearTimeout(timer); var l = host.querySelector('.kload'); if (l) l.remove(); failMsg(); };
     document.head.appendChild(s);
