@@ -59,7 +59,7 @@ document.addEventListener('click',function(e){var a=e.target.closest('.rc');if(!
 '''
 REM='''<nav class="rm" aria-label="바로가기"><button type="button" class="up" id="rmup" aria-label="맨 위로">⬆<small>위로</small></button><a href="/" aria-label="홈">🏠<small>홈</small></a></nav>'''
 CSSX='''<style>.mtop{position:absolute;left:50%;transform:translateX(-50%);top:12px;width:min(420px,calc(100% - 140px));z-index:3}#pcsel{width:100%;padding:13px 14px;border:2px solid #4f46e5;border-radius:12px;background:#fff;color:#1e293b;font-size:15px;font-weight:800;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.tkw{margin-top:6px;height:30px;border-radius:0 0 10px 10px;background:rgba(255,255,255,.92);overflow:hidden;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.1)}.tkw span{position:absolute;left:0;top:0;line-height:30px;white-space:nowrap;font-size:12px;font-weight:700;color:#334155;padding:0 12px;will-change:transform}
+.tkw{margin-top:6px;height:30px;border-radius:0 0 10px 10px;background:rgba(255,255,255,.92);overflow:hidden;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.1)}.tkw span{position:absolute;left:0;top:0;line-height:30px;white-space:nowrap;font-size:12px;font-weight:700;color:#334155;padding:0 12px;will-change:transform}.tkw span.mq{animation:tkm 9s linear infinite}@keyframes tkm{from{transform:translateX(var(--w,600px))}to{transform:translateX(-100%)}}
 .tip2{position:absolute;left:14px;bottom:12px;padding:5px 9px;border-radius:9px;background:rgba(255,255,255,.9);color:#475569;font-size:11px;font-weight:700}
 .rm{position:fixed;right:14px;bottom:18px;z-index:40;display:flex;flex-direction:column;gap:10px}.rm a,.rm button{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:20px;line-height:1;font-family:inherit;cursor:pointer;text-decoration:none}.rm small{font-size:10px;font-weight:800}.rm .up{opacity:0;pointer-events:none;transition:opacity .2s}.rm .up.on{opacity:1;pointer-events:auto}
 [hidden]{display:none!important}@media(min-width:1024px){.seg{grid-template-columns:repeat(2,1fr)!important}.seg a:nth-child(3){display:none}}</style>'''
@@ -73,9 +73,12 @@ sel.addEventListener('change',function(){var k=sel.value,root=document.getElemen
 document.addEventListener('click',function(e){var b=e.target.closest('.rg[data-k]');if(b&&!b.hasAttribute('data-all')&&!e.__fromSel){apply(b.getAttribute('data-k'));}var s2=e.target.closest('.sh-all');if(s2)apply('');},true);
 var M=['📋 전체목록: 지금 열리는 축제를 전부 볼 수 있어요','🗺️ 코스추천: 아이랑 갈만한 곳을 묶어 하루 코스로 보여드려요 (최대 4곳)','⚠️ 코스에 포함된 축제는 성격이 다양할 수 있어요 — 방문 전 한번 더 확인하세요','📍 지역을 먼저 선택하면 그 지역 코스만 바로 볼 수 있어요','💰 이용요금에서 무료만/유료만으로 비용별로 걸러볼 수 있어요'];
 var wrap=document.getElementById('tkw'),el=document.getElementById('tki'),i=0,red=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-function play(){if(!wrap||!el)return;el.textContent=M[i%M.length];i++;if(red||wrap.offsetWidth===0){setTimeout(play,8500);return;}
-var w=wrap.offsetWidth;el.style.transition='none';el.style.transform='translateX('+w+'px)';void el.offsetWidth;var iw=el.offsetWidth;el.style.transition='transform 8000ms linear';el.style.transform='translateX(-'+iw+'px)';setTimeout(play,8500);}
-play();})();
+function setT(){el.textContent=M[i%M.length];i++;}
+function setW(){el.style.setProperty('--w',(wrap.offsetWidth||600)+'px');}
+if(wrap&&el){setT();setW();
+if(red){setInterval(setT,8500);}
+else{el.classList.add('mq');el.addEventListener('animationiteration',function(){setT();setW();});window.addEventListener('resize',setW);}}
+})();
 '''
 page=f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>아이랑 갈만한 곳·축제 통합 시안 - HOHO PLAY</title>{styles}{CSSX}</head><body><div id="pcmain"><div class="wrap">{top}<div class="vw" id="vc">{viewA}</div><div class="vw" id="vl" hidden>{viewB}</div></div>{aside}</div>
 {foot}
