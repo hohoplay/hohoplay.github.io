@@ -1697,6 +1697,28 @@ def update_kids_count_text():
             print(f"index.html 첫 배너 장소 수 문구 갱신 완료 ({n}곳)")
 
 
+def update_pick_count_text():
+    """[ADD] 2026-11-27: festival/pick.html(오늘 어디 갈까)의 '전국 아이랑 나들이 장소 N곳'을 data/kids_places.json 기준으로 갱신한다.
+    예전에는 '500여 곳'이 손으로 적혀 있어 지도(676곳)와 어긋났다. meta description 안에도 있어 주석 마커 대신 문장 패턴으로 바꾼다."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    pick_path = os.path.join('festival', 'pick.html')
+    if not (os.path.exists(kids_path) and os.path.exists(pick_path)):
+        print('pick.html 장소 수 문구 갱신 건너뜀(파일 없음)')
+        return
+    with open(kids_path, 'r', encoding='utf-8') as f:
+        n = len(visible_kids(json.load(f)))
+    if n < 20:
+        print('kids_places.json 장소가 너무 적어(수신·파일 이상 의심) pick.html 장소 수 문구 갱신 건너뜀')
+        return
+    with open(pick_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    updated = re.sub(r'(나들이 장소 )\d[\d,]*\s*여?\s*곳', lambda m: f'{m.group(1)}{n}곳', content)
+    if updated != content:
+        with open(pick_path, 'w', encoding='utf-8') as f:
+            f.write(updated)
+    print(f"festival/pick.html 아이랑 장소 수 문구 갱신 완료 ({n}곳)")
+
+
 def build_kids_region_summary_html(places):
     groups = {}
     for pl in places:
@@ -2362,6 +2384,7 @@ def main():
     update_kids_guide_section()
     update_kids_region_summary()
     update_kids_count_text()
+    update_pick_count_text()
     update_worldcup_stats()
     update_roulette_stats()
 

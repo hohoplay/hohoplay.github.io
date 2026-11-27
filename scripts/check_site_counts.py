@@ -99,7 +99,7 @@ if unmapped:
     infos.append(f"주소 앞머리가 표준 시·도가 아닌 장소 있음: {unmapped} → 지역별 집계에서 따로 세지거나 빠질 수 있음")
 
 # ───────────────────────── 2. 총합 문구 (672곳 / 실내·실외·실내외) ─────────────────────────
-for rel in ("festival/index.html", "festival/roulette.html", "festival/worldcup.html", "index.html"):
+for rel in ("festival/index.html", "festival/roulette.html", "festival/worldcup.html", "festival/pick.html", "index.html"):
     h = read(rel)
     if h is None:
         bad("파일", rel, "파일 없음"); continue
