@@ -283,6 +283,32 @@ def _is_free(p):
     return p.get("costTag") == "완전무료"
 
 
+_REP_SKIP = ("에비뉴", "백화점", "호텔", "파라다이스", "공항")
+
+
+def _rep_similar(a, b):
+    ta, tb = re.sub(r"\s+", "", a.get("title") or ""), re.sub(r"\s+", "", b.get("title") or "")
+    if ta in tb or tb in ta:
+        return True
+    ka = {ta[i:i + 4] for i in range(len(ta) - 3)}
+    return any(tb[i:i + 4] in ka for i in range(len(tb) - 3))
+
+
+def pick_representatives(lst, n=3):
+    """시·도 대표 장소: 사진·소개글·운영시간이 갖춰진 곳 중 입장료 없는 곳을 앞에, 소개글이 충실한 순. 같은 시설은 겹치지 않게."""
+    full = [x for x in lst if x.get("image") and len(x.get("overview") or "") >= 80 and x.get("hours")]
+    pool = full if len(full) >= n else ([x for x in lst if x.get("image")] or list(lst))
+    pool = [x for x in pool if not any(w in (x.get("title") or "") for w in _REP_SKIP)] or pool
+    pool = sorted(pool, key=lambda x: (0 if x.get("costTag") == "완전무료" else 1, -len(x.get("overview") or ""), str(x.get("contentid"))))
+    chosen = []
+    for x in pool:
+        if len(chosen) >= n:
+            break
+        if not any(_rep_similar(x, c) for c in chosen):
+            chosen.append(x)
+    return chosen
+
+
 def build_index_guide(grouped):
     """grouped: {시·도 정식 이름: [장소…]} (실내·실내외만, 숨김 제외). 안내 구간 HTML을 만든다."""
     esc = html_escape
@@ -294,7 +320,10 @@ def build_index_guide(grouped):
         slug, short = REGION_SLUGS[r]
         n_in = sum(1 for x in lst if x.get("placeType") == "실내")
         n_mix = sum(1 for x in lst if x.get("placeType") == "실내외")
-        rows.append((short, slug, n_in, n_mix, len(lst), sum(1 for x in lst if _is_free(x))))
+        reps = " · ".join(
+            f'<a href="/festival/detail/{esc(str(x.get("contentid")))}.html" style="color:#4f46e5;font-weight:600">{esc(x.get("title") or "")}</a>'
+            for x in pick_representatives(lst))
+        rows.append((short, slug, n_in, n_mix, len(lst), sum(1 for x in lst if _is_free(x)), reps))
     total = sum(r[4] for r in rows)
     t_in = sum(r[2] for r in rows)
     t_mix = sum(r[3] for r in rows)
@@ -307,15 +336,15 @@ def build_index_guide(grouped):
     free_top_txt = ", ".join(f"{r[0]} {r[5]}곳" for r in free_top)
     ym = date.today().strftime("%Y.%m")
 
-    def table(head, body_rows):
+    def table(head, body_rows, min_w=480):
         h = "".join(f'<th style="{_TH}">{esc(c)}</th>' for c in head)
         b = "".join("<tr>" + "".join(f'<td style="{_TD}">{c}</td>' for c in r) + "</tr>" for r in body_rows)
-        return (f'<div style="overflow-x:auto;margin:0 0 14px"><table style="border-collapse:collapse;width:100%;min-width:480px;font-size:14px;line-height:1.6">'
+        return (f'<div style="overflow-x:auto;margin:0 0 14px"><table style="border-collapse:collapse;width:100%;min-width:{min_w}px;font-size:14px;line-height:1.6">'
                 f"<thead><tr>{h}</tr></thead><tbody>{b}</tbody></table></div>")
 
-    t1 = table(["시·도", "실내", "실내+야외", "합계", "입장료 없음"],
-               [[f'<a href="/blog/indoor-kids/{r[1]}.html" style="color:#4f46e5;font-weight:700">{esc(r[0])}</a>', f"{r[2]}곳", f"{r[3]}곳", f"{r[4]}곳", f"{r[5]}곳"] for r in rows]
-              + [["<b>전국</b>", f"<b>{t_in}곳</b>", f"<b>{t_mix}곳</b>", f"<b>{total}곳</b>", f"<b>{t_free}곳</b>"]])
+    t1 = table(["시·도", "실내", "실내+야외", "합계", "입장료 없음", "대표 장소(누르면 상세 정보)"],
+               [[f'<a href="/blog/indoor-kids/{r[1]}.html" style="color:#4f46e5;font-weight:700">{esc(r[0])}</a>', f"{r[2]}곳", f"{r[3]}곳", f"{r[4]}곳", f"{r[5]}곳", r[6]] for r in rows]
+              + [["<b>전국</b>", f"<b>{t_in}곳</b>", f"<b>{t_mix}곳</b>", f"<b>{total}곳</b>", f"<b>{t_free}곳</b>", ""]], min_w=760)
     t2 = table(["상황", "이렇게 골라 보세요", "확인할 점"], [
         ["비가 많이 오는 날", f"실내 {t_in}곳 중에서 고르세요. 실내+야외 {t_mix}곳은 야외 구간이 있어요.", "야외 구간이 닫히거나 미끄러운지, 비 올 때 운영하는지"],
         ["미세먼지가 심한 날", "실내 장소를 먼저 보고, 실내+야외는 실내 시설만 이용할 수 있는지 확인하세요.", "마스크 착용 안내, 야외 체험 운영 여부"],
@@ -342,7 +371,7 @@ def build_index_guide(grouped):
         f'<section id="indoor-guide" style="margin-top:32px;color:#334155;font-size:15px;line-height:1.8">\n'
         f'<h2 style="{_H2}">비 오는 날 아이랑 갈 곳, 어떻게 고르나요?</h2>\n'
         f'<p>이 모음의 {total}곳은 아이랑 나들이 지도에 올라 있는 장소 중 유형이 실내({t_in}곳)이거나 실내+야외({t_mix}곳)인 곳이에요. '
-        f'입장료가 없는 곳은 {t_free}곳이고, 가장 많은 지역은 {top3_txt}이에요. 아래 표로 지역별 규모를 보고, 마음에 드는 시·도 페이지로 들어가 보세요.</p>\n'
+        f'입장료가 없는 곳은 {t_free}곳이고, 가장 많은 지역은 {top3_txt}이에요. 아래 표로 지역별 규모를 보고, 마음에 드는 시·도 페이지로 들어가거나 대표 장소를 눌러 보세요. 대표 장소는 사진·소개·운영시간이 갖춰진 곳 가운데 입장료 없는 곳을 먼저 골랐어요.</p>\n'
         f'<p style="margin:14px 0 6px;font-weight:800;color:#1e293b">표 1. 시·도별 실내 나들이 장소 수</p>\n{t1}\n'
         f'<h2 style="{_H2}">상황별로 고르는 기준</h2>\n'
         f'<p style="margin:14px 0 6px;font-weight:800;color:#1e293b">표 2. 상황별 장소 고르는 방법</p>\n{t2}\n'
@@ -389,6 +418,8 @@ def update_index(out_dir, written, grouped=None):
             html = html[:si] + block + html[ei + len(GUIDE_END):]
         elif html.count('<section class="tip-box">') == 1:
             html = html.replace('<section class="tip-box">', block + '\n<section class="tip-box">', 1)
+    if "/festival/detail-sheet.js" not in html and html.count("</body>") == 1:
+        html = html.replace("</body>", '<script src="/festival/detail-sheet.js?v=20261122a" defer></script>\n</body>', 1)
     idx.write_text(html, encoding="utf-8", newline="")
     print(f"목록 페이지 갱신: {n_regions}개 시·도, 총 {total}곳 (카드 영역 교체 {k1}건)")
 
