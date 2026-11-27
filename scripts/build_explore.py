@@ -94,11 +94,43 @@ var mm=l.querySelector('.m');if(mm)memo.push(mm.textContent.trim());memo.push('�
 rows.push({time:fmt(t),title:'📍 '+(l.querySelector('.t')?l.querySelector('.t').textContent:''),memo:memo.join(' · '),k:'n',pid:m?m[1]:'',lat:st[i]?st[i][0]:0,lng:st[i]?st[i][1]:0});t+=80;});
 rows.push({time:fmt(t+20),title:'귀가',memo:'',k:'out'});
 var ds=window.__dsel||'';return {title:(card.querySelector('h3')?card.querySelector('h3').textContent:'추천 코스'),dateStr:ds,rows:rows};}
+window.__plan={place:function(id){modal(function(M){M.openPlace(id)})}};
 document.addEventListener('click',function(e){var b=e.target.closest('.plan[data-course]');
 if(b){var c=b.closest('.card');if(!c)return;e.preventDefault();var sp=course(c);modal(function(M){M.openCourse(sp)});return;}
 var p=e.target.closest('[data-plan]');if(p){e.preventDefault();var id=p.getAttribute('data-plan');modal(function(M){M.openPlace(id)});}});
 })();
+
+/* 지도 열기: 탭·버튼·옛 지도 링크 */
+(function(){
+function K(){return window.KMAP}
+document.addEventListener('click',function(e){
+var o=e.target.closest('.openmap');if(o){e.preventDefault();if(K()){if(matchMedia('(min-width:1024px)').matches)window.scrollTo({top:0,behavior:'smooth'});else K().open();}return;}
+var bk=e.target.closest('#mback');if(bk){e.preventDefault();if(K())K().close();return;}
+var g=e.target.closest('a.go2');if(g){var m=/[?&]region=([a-z]+)/.exec(g.getAttribute('href')||'');if(m&&K()){e.preventDefault();var k=m[1];K().open(function(){K().region(k)});}return;}
+var a2=e.target.closest('.li a.a2');if(a2){var m2=/[?&]id=([^&]+)/.exec(a2.getAttribute('href')||'');if(m2&&K()){e.preventDefault();K().openAt(decodeURIComponent(m2[1]));}}});
+var q=new URLSearchParams(location.search),id=q.get('id'),la=+q.get('lat'),ln=+q.get('lng'),rg=q.get('region');
+window.addEventListener('load',function(){setTimeout(function(){
+if(rg){var b=document.querySelector('#vc .rg[data-k="'+rg+'"]');if(b)b.click();}
+if(!K())return;
+if(id||(la&&ln))K().openAt(id||'',la,ln);},500);});
+})();
 '''
+
+MAPMODE_CSS = '''<style>
+#mback{display:none}
+@media(max-width:1023px){
+ body.mapmode{overflow:hidden}
+ body.mapmode #pcmap{display:block;position:fixed;left:0;right:0;top:80px;bottom:0;height:auto;z-index:60;border:0}
+ body.mapmode #mback{display:block;position:absolute;left:10px;top:12px;z-index:6;border:0;border-radius:12px;background:#4f46e5;color:#fff;font:800 13px/1 inherit;font-family:inherit;padding:14px 12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+ body.mapmode .mtop{width:calc(100% - 190px);left:calc(50% + 28px)}
+ body.mapmode .tkw{display:none}
+ #mcard{position:absolute;left:10px;right:10px;bottom:14px;z-index:7;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+ #mcard b{display:block;font-size:15px;padding-right:28px}#mcard span{display:block;margin:2px 0 10px;font-size:12px;color:var(--sub)}
+ #mcard .x{position:absolute;right:8px;top:6px;border:0;background:none;color:var(--sub);font-size:16px;padding:6px}
+ #mcard .bt{display:flex;gap:8px}#mcard .bt a,#mcard .bt button{flex:1;text-align:center;border:1px solid var(--pri);color:var(--pri);background:var(--card);border-radius:10px;padding:10px 6px;font:800 13px/1.2 inherit;font-family:inherit;text-decoration:none}
+ #mcard .bt .p{background:var(--pri);color:#fff}
+}
+</style>'''
 
 # 탭(코스 추천/전체목록) 사이에서 지역·검색·실내 선택을 같이 가져간다
 SYNC_JS = r'''
@@ -205,8 +237,8 @@ def post(s, root, work):
 
     # 6) 지도 탭 → 기존 지도 페이지 -----------------------------------------------------------------
     s = s.replace("else alert('시안: 모바일에서는 기존 지도 화면(/festival/)으로 이동해요.');",
-                  "else window.location.href='/festival/map.html';")
-    s = s.replace('<a href="#">지도</a>', '<a href="/festival/map.html">지도</a>')
+                  "else if(window.KMAP)KMAP.open();")
+    s = s.replace('<a href="#">지도</a>', '<a href="#map">지도</a>')
 
     # 7) PC 지도: 메뉴(80px) 아래에 붙이기 + 카카오맵 어댑터 위임 ------------------------------------------
     s = s.replace('</head>', '<style>@media(min-width:1024px){#pcmap{top:80px;height:calc(100vh - 80px)}}'
@@ -241,16 +273,14 @@ def post(s, root, work):
     notice = f'''<div id="data-notice" role="note"><h2>📌 이 페이지의 데이터 안내</h2>
 <p>축제 정보는 하루 최대 3회 자동으로 확인해 바뀐 내용이 있을 때 업데이트돼요. 데이터 기준일은 <b>{today_txt}</b>(KST)이고, 축제는 한국관광공사 TourAPI·공공데이터포털 정보예요.</p>
 <p>아이랑 갈만한 곳 <b>{n}곳</b>은 호호플레이가 직접 조사해 정리했어요. 그중 실내·실내외 장소가 <b>{indoor}곳</b>, 입장료가 없는 곳이 <b>{free}곳</b>이에요. 코스 추천 {ncourse}개는 같은 구·군에 모여 있는 장소를 묶은 거라, 쉬는 날이나 운영시간은 방문 전에 꼭 확인해 주세요.</p>
-<p>사용법: 지역·날짜·실내외·이용요금으로 좁히고, 비 예보가 있는 날은 실내 코스가 먼저 나와요. 내 주변 버튼은 누를 때만 위치를 물어봐요. 지도로 한눈에 보려면 <a href="/festival/map.html">아이랑 나들이 지도</a>, 장소·축제 선정 기준과 비 오는 날 실내 장소 통계는 지도 페이지 하단의 소개를 참고하세요.</p></div>
-<nav class="xl" aria-label="함께 보면 좋은 페이지"><a href="/festival/map.html">🗺️ 아이랑 나들이 지도</a><a href="/festival/tools.html">🧭 오늘 어디 갈지 정하기</a><a href="/festival/worldcup.html">🏆 나들이 월드컵</a><a href="/blog/kids-course/">🧒 코스 글 모아보기</a></nav>'''
+<p>사용법: 지역·날짜·실내외·이용요금으로 좁히고, 비 예보가 있는 날은 실내 코스가 먼저 나와요. 내 주변 버튼은 누를 때만 위치를 물어봐요. 지도로 한눈에 보려면 <a href="#map" class="openmap">지도 보기</a>를 눌러 보세요. 일정·요금·운영시간은 바뀔 수 있으니 방문 전 상세 페이지와 공식 안내를 꼭 확인해 주세요.</p></div>
+<nav class="xl" aria-label="함께 보면 좋은 페이지"><a href="#map" class="openmap">🗺️ 지도 열기</a><a href="/festival/tools.html">🧭 오늘 어디 갈지 정하기</a><a href="/festival/worldcup.html">🏆 나들이 월드컵</a><a href="/blog/kids-course/">🧒 코스 글 모아보기</a></nav>'''
     new_foot = f'{css_note}<div class="wrap" id="pcfoot">{regcards}{notice}</div>\n'
     s = s[:foot_a] + new_foot + s[foot_b:]
 
-    s = s.replace('href="/festival/?', 'href="/festival/map.html?')
-    # 옛 지도 주소(/festival/?id=…&lat=… 등 4천여 개 상세·글 페이지의 링크)로 들어오면 지도 페이지로 넘긴다
-    redir = ('<script>(function(){var q=location.search;if(q&&/[?&](id|lat|lng|region|course|theme|period|cost|indoor|date|pick)=/.test(q)){'
-             'location.replace("/festival/map.html"+q+location.hash);}})();</script>')
-    s = s.replace('<meta charset="UTF-8">', '<meta charset="UTF-8">' + redir, 1)
+    # 지도 화면 위 버튼·아래 카드(모바일 전체화면 지도용)와 스타일
+    s = s.replace('</aside>', '<button type="button" id="mback" aria-label="목록으로">← 목록</button><div id="mcard" style="display:none"></div></aside>', 1)
+    s = s.replace('</head>', MAPMODE_CSS + '</head>', 1)
     # 10) 메뉴(맨 위) + 공통 푸터 + 스크립트 -------------------------------------------------------------
     s = s.replace('<body><div id="pcmain">', '<body>\n' + nav_block(root) + '\n<div id="pcmain">', 1)
     s = s.replace('<nav class="rm"', footer_block(root) + '\n<nav class="rm"', 1)
