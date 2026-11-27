@@ -292,7 +292,11 @@ def post(s, root, work):
     # 첫 번째 큰 <script> 끝에 서비스용 JS를 붙인다
     end1 = s.index('</script>', k)
     s = s[:end1] + SYNC_JS + PROD_JS + s[end1:]
-    s = s.replace('</body>', '<script src="/festival/explore-map.js?v=20261127a" defer></script>\n</body>')
+    # 지도 스크립트 주소에 파일 내용 해시를 붙여, 파일이 바뀌면 브라우저가 옛 캐시를 쓰지 않고 새로 받게 한다
+    import hashlib
+    mjs = os.path.join(root, 'festival/explore-map.js')
+    ver = hashlib.md5(open(mjs, 'rb').read()).hexdigest()[:8] if os.path.exists(mjs) else '1'
+    s = s.replace('</body>', '<script src="/festival/explore-map.js?v=' + ver + '" defer></script>\n</body>')
     return s
 
 
