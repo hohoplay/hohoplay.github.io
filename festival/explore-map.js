@@ -64,8 +64,11 @@
       var path = st.map(function (x) { return ll(x[0], x[1]); });
       var b = new kakao.maps.LatLngBounds(); path.forEach(function (p) { b.extend(p); });
       map.setBounds(b, 80, 80, 80, 80);
-      line = new kakao.maps.Polyline({ path: path, strokeWeight: 4, strokeColor: '#4f46e5', strokeOpacity: .9, strokeStyle: 'shortdash' });
-      line.setMap(map);
+      /* 흰 테두리(아래) + 보라색 실선(위) 두 겹 — 지도 색과 상관없이 잘 보이게. 도로를 따라가는 선이 아니라 장소를 직선으로 잇는 선이다 */
+      var casing = new kakao.maps.Polyline({ path: path, strokeWeight: 8, strokeColor: '#ffffff', strokeOpacity: .9, strokeStyle: 'solid', zIndex: 3 });
+      var main = new kakao.maps.Polyline({ path: path, strokeWeight: 4, strokeColor: '#4338ca', strokeOpacity: 1, strokeStyle: 'solid', zIndex: 4 });
+      casing.setMap(map); main.setMap(map);
+      line = { setMap: function (m) { casing.setMap(m); main.setMap(m); } };
       st.forEach(function (x, i) {
         var d = document.createElement('div'); d.className = 'knum';
         d.innerHTML = '<b>' + (i + 1) + '</b><span>' + esc(x[2] || '') + '</span>';
