@@ -514,10 +514,7 @@
         </section>
         <!-- HOME_LATEST_END -->
 
-        <!-- 호호픽 -->
-        <div id="hoho-pick-placeholder" style="margin-bottom:40px;"></div>
-
-        <!-- 광고: 메인(홈) 한 곳만 — 호호 PICK과 호호플레이 소개 사이, 검색·배너·버튼과 떨어진 자리. 게임·다른 페이지에는 광고 없음 -->
+        <!-- 광고: 메인(홈) 한 곳만 — 최신 소식과 호호플레이 소개 사이, 검색·배너·버튼과 떨어진 자리. 게임·다른 페이지에는 광고 없음 -->
         <div class="hoho-content-ad" style="padding:8px 0 40px;text-align:center;">
             <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.08em;margin-bottom:4px;">광고</div>
             <div id="hoho-home-ad-slot"></div>
@@ -1104,24 +1101,5 @@
         })();
     </script>
 
-    <script>
-        // ═══ 호호픽 (공유 파셜) ═══
-        (function () {
-            var ph = document.getElementById('hoho-pick-placeholder');
-            if (!ph) return;
-            fetch('/hoho-pick.html')
-                .then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.text(); })
-                .then(function (html) {
-                    ph.innerHTML = html;
-                    ph.querySelectorAll('script').forEach(function (oldScript) {
-                        var newScript = document.createElement('script');
-                        if (oldScript.src) newScript.src = oldScript.src;
-                        newScript.textContent = oldScript.textContent;
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
-                    });
-                })
-                .catch(function () { ph.style.display = 'none'; });
-        })();
-    </script>
 </body>
 </html>
