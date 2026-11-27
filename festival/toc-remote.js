@@ -1,10 +1,12 @@
 /* 목차 리모컨 — 상세페이지·코스 글에서 화면 왼쪽 아래에 떠 있는 "목차" 버튼.
    페이지의 h2 소제목으로 목록을 만들고, 누르면 그 자리로 부드럽게 이동한다. 본문 목차 박스는 그대로 두고 추가로 쓰인다.
-   - 팝업(iframe) 안, 소제목이 3개 미만인 페이지에서는 만들지 않는다.
+   - 소제목이 3개 미만인 페이지에서는 만들지 않는다. 팝업(iframe) 안에서는 일정표 버튼 위에 띄운다.
    - 실패해도 페이지는 그대로 동작한다(스크립트가 없어도 본문 목차가 남는다). */
 (function () {
   'use strict';
-  try { if (window.self !== window.top) return; } catch (e) { return; }
+  // 지도·홈에서 열리는 팝업(iframe) 안에서도 쓴다. 팝업 왼쪽 아래의 "이 장소로 일정표" 버튼(높이 52px) 바로 위로 올려 겹치지 않게 한다.
+  var embedded = false;
+  try { embedded = window.self !== window.top; } catch (e) { embedded = true; }
   if (document.getElementById('toc-remote')) return;
 
   function init() {
@@ -22,6 +24,7 @@
     var css = document.createElement('style');
     css.textContent =
       '#toc-remote{position:fixed;left:12px;bottom:16px;z-index:9000;font-family:inherit}' +
+      '#toc-remote.emb{left:16px;bottom:80px;bottom:calc(80px + env(safe-area-inset-bottom,0px))}' +
       '#toc-remote .tr-btn{display:flex;align-items:center;gap:6px;border:0;border-radius:9999px;padding:10px 16px;background:#4f46e5;color:#fff;font-size:14px;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}' +
       '#toc-remote .tr-panel{display:none;position:absolute;left:0;bottom:52px;width:min(86vw,320px);max-height:60vh;overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.22);padding:8px}' +
       '#toc-remote.open .tr-panel{display:block}' +
@@ -33,6 +36,7 @@
 
     var box = document.createElement('div');
     box.id = 'toc-remote';
+    if (embedded) box.className = 'emb';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'tr-btn';
