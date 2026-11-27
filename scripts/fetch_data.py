@@ -1930,6 +1930,124 @@ def update_kids_guide_section():
     print(f"festival/index.html 나들이 장소 고르는 기준 섹션 갱신 완료 ({len(places)}곳)")
 
 
+# ── 홈(index.html) "지역별 아이랑 나들이 장소" — 서울·대전·대구·부산·인천 5곳씩 ──
+# [ADD] 2026-11-27: 홈에서 장소 상세페이지로 가는 정적 링크(이름·주소·사진). 호호픽을 홈에서 뺀 자리를 대신한다.
+# 마커 사이만 다시 쓰고, 장소·주소·사진은 data/kids_places.json 에서만 읽는다(숨김 장소 제외). 눌렀을 때의 팝업은
+# 홈에 넣은 /festival/detail-sheet.js 가 띄운다(링크는 일반 <a href> 라 스크립트가 없어도 상세페이지로 이동한다).
+HOME_KIDS_START = '<!-- HOME_KIDS_START -->'
+HOME_KIDS_END = '<!-- HOME_KIDS_END -->'
+HOME_KIDS_REGIONS = [('서울', 'seoul'), ('대전', 'daejeon'), ('대구', 'daegu'), ('부산', 'busan'), ('인천', 'incheon')]
+HOME_KIDS_PICK = 5
+HOME_KIDS_MAX_PAID = 2
+HOME_KIDS_SKIP_WORDS = ('에비뉴', '백화점', '호텔', '파라다이스', '공항')
+
+
+def _home_kids_similar(a, b):
+    ta, tb = re.sub(r'\s+', '', a.get('title') or ''), re.sub(r'\s+', '', b.get('title') or '')
+    if ta in tb or tb in ta:
+        return True
+    ka = {ta[i:i + 4] for i in range(len(ta) - 3)}
+    return any(tb[i:i + 4] in ka for i in range(len(tb) - 3))
+
+
+def _home_kids_img(url):
+    return ('https://' + url[7:]) if (url or '').startswith('http://') else (url or '')
+
+
+def _home_kids_addr(addr):
+    """카드에 보일 짧은 주소: 시·도 + 시·군·구(경기 '수원시 팔달구'처럼 구가 이어지면 구까지)."""
+    t = (addr or '').split()
+    if len(t) >= 3 and t[1].endswith('시') and t[2].endswith('구'):
+        return ' '.join(t[:3])
+    return ' '.join(t[:2])
+
+
+def build_home_kids_html(places):
+    esc = html.escape
+    cards_by = {}
+    totals = {}
+    for name, _key in HOME_KIDS_REGIONS:
+        lst = [p for p in places if (p.get('addr') or '').split(' ')[0].startswith(name)]
+        totals[name] = len(lst)
+        full = [p for p in lst if p.get('image') and len((p.get('overview') or '')) >= 80 and p.get('hours')]
+        pool = full if len(full) >= HOME_KIDS_PICK else [p for p in lst if p.get('image')] or lst
+        pool = [x for x in pool if not any(w in (x.get('title') or '') for w in HOME_KIDS_SKIP_WORDS)] or pool
+        ranked = sorted(pool, key=lambda x: (-len(x.get('overview') or ''), str(x.get('contentid'))))
+        chosen = []
+        for x in ranked:
+            if len(chosen) >= HOME_KIDS_PICK:
+                break
+            if any(_home_kids_similar(x, c) for c in chosen):
+                continue  # 같은 시설(예: 83타워 / 이월드 83타워 아이스링크)이 겹치지 않게
+            if x.get('costTag') == '유료' and sum(1 for c in chosen if c.get('costTag') == '유료') >= HOME_KIDS_MAX_PAID:
+                continue  # 유료 시설만 줄줄이 나오지 않게
+            chosen.append(x)
+        for x in ranked:  # 자리가 남으면 위 제한을 풀고 채운다
+            if len(chosen) >= HOME_KIDS_PICK:
+                break
+            if x not in chosen and not any(_home_kids_similar(x, c) for c in chosen):
+                chosen.append(x)
+        # 실내 일색이 되지 않게: 뽑힌 곳에 실외가 없으면 실외 중 가장 충실한 한 곳으로 마지막 칸을 바꾼다.
+        if chosen and not any(c.get('placeType') == '실외' for c in chosen):
+            outdoor = [x for x in ranked if x.get('placeType') == '실외' and x not in chosen]
+            if outdoor:
+                chosen[-1] = outdoor[0]
+        cards_by[name] = chosen
+
+    parts = ['<section class="home-kids" aria-label="지역별 아이랑 나들이 장소">',
+             '            <div class="home-kids-head"><h2>📍 지역별 아이랑 나들이 장소</h2><a href="/festival/">지도에서 보기 →</a></div>',
+             '            <p class="home-kids-sub">지도에 올라 있는 장소 중 사진·소개·운영시간이 갖춰진 곳을 지역마다 5곳씩 골랐어요. 누르면 상세 정보가 팝업으로 열려요.</p>']
+    for i, (name, key) in enumerate(HOME_KIDS_REGIONS):
+        cards = []
+        for p in cards_by[name]:
+            cid = esc(str(p.get('contentid')))
+            title = esc(p.get('title') or '')
+            tag = f"{p.get('placeType', '')} · {KIDS_COST_SHORT.get(p.get('costTag', ''), '비용 확인 필요')}".strip(' ·')
+            img = esc(_home_kids_img(p.get('image')), quote=True)
+            cards.append(
+                f'<a class="hk-card" href="/festival/detail/{cid}.html">'
+                f'<img src="{img}" alt="{title} 사진" width="220" height="150" loading="lazy" decoding="async">'
+                f'<span class="hk-name">{title}</span><span class="hk-addr">{esc(_home_kids_addr(p.get("addr")))}</span>'
+                f'<span class="hk-tag">{esc(tag)}</span></a>')
+        parts.append(
+            f'            <details class="hk-region"{" open" if i == 0 else ""}><summary>{name} <span>아이랑 나들이 {totals[name]}곳</span></summary>'
+            f'<div class="hk-row">{"".join(cards)}</div>'
+            f'<a class="hk-more" href="/festival/?region={key}">{name} {totals[name]}곳 전체 보기 →</a></details>')
+    parts.append('            <p class="hk-credit">장소 정보는 호호플레이가 직접 조사·정리했고, 사진은 한국관광공사 TourAPI(공공데이터포털) 제공이에요. 요금·운영시간은 바뀔 수 있으니 방문 전 확인해 주세요.</p>')
+    parts.append('        </section>')
+    return '\n'.join(parts)
+
+
+def update_home_kids_section():
+    """index.html 의 HOME_KIDS 마커 사이를 갱신한다. 마커가 없으면 HOME_LATEST_END 바로 뒤에 새로 만든다."""
+    kids_path = os.path.join('data', 'kids_places.json')
+    home_path = 'index.html'
+    if not (os.path.exists(kids_path) and os.path.exists(home_path)):
+        print('홈 지역별 장소 섹션 갱신 건너뜀(파일 없음)')
+        return
+    with open(kids_path, 'r', encoding='utf-8') as f:
+        places = visible_kids(json.load(f))
+    if len(places) < 20:
+        print('kids_places.json 장소가 너무 적어(파일 이상 의심) 홈 지역별 장소 섹션 갱신 건너뜀')
+        return
+    with open(home_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    block = f'{HOME_KIDS_START}\n        {build_home_kids_html(places)}\n        {HOME_KIDS_END}'
+    si, ei = content.find(HOME_KIDS_START), content.find(HOME_KIDS_END)
+    if si != -1 and ei != -1:
+        updated = content[:si] + block + content[ei + len(HOME_KIDS_END):]
+    else:
+        anchor = '<!-- HOME_LATEST_END -->'
+        if content.count(anchor) != 1:
+            print('홈 지역별 장소 섹션을 넣을 자리를 찾지 못해 건너뜀')
+            return
+        updated = content.replace(anchor, anchor + '\n\n        ' + block, 1)
+    if updated != content:
+        with open(home_path, 'w', encoding='utf-8') as f:
+            f.write(updated)
+    print("index.html 홈 지역별 아이랑 나들이 장소 섹션 갱신 완료")
+
+
 # ── 월드컵 두 페이지의 "후보 현황" (festival/worldcup.html, festival/camping-worldcup.html 안내 글 구간) ──
 # [ADD] 2026-10-27: 나들이 월드컵·캠핑장 월드컵 안내 글 안의 후보 수치(장소 수, 유형별, 지역별, 16강 가능 지역)가
 # 데이터가 바뀌어도 낡지 않도록, 아래 마커 사이를 data/kids_places.json / data/festivals.json 기준으로 다시 쓴다.
@@ -2385,6 +2503,7 @@ def main():
     update_kids_region_summary()
     update_kids_count_text()
     update_pick_count_text()
+    update_home_kids_section()
     update_worldcup_stats()
     update_roulette_stats()
 

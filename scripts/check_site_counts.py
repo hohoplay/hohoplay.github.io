@@ -333,6 +333,29 @@ if det.exists():
     non_kids = [f for f in det.glob("*.html") if not f.stem.startswith("kids-")]
     infos.append(f"상세 페이지 파일: kids {len(kids_files)}개, 축제 등 {len(non_kids)}개 (festivals.json {len(fests)}건)")
 
+# ───────────────────────── 홈 "지역별 아이랑 나들이 장소" ─────────────────────────
+_home = read("index.html")
+if _home and "HOME_KIDS_START" in _home:
+    _blk = _home[_home.index("HOME_KIDS_START"):_home.index("HOME_KIDS_END")]
+    _vis_ids = {str(p.get("contentid")) for p in places}
+    _cards = re.findall(r'href="/festival/detail/([^"/]+)\.html"', _blk)
+    _gone = [c for c in _cards if c not in _vis_ids]
+    if _gone:
+        bad("홈 지역별 장소", "index.html", f"숨김·삭제된 장소로 가는 링크 {_gone}")
+    else:
+        ok()
+    for _name, _sido in (("서울", "서울"), ("대전", "대전"), ("대구", "대구"), ("부산", "부산"), ("인천", "인천")):
+        _m = re.search(_name + r" <span>아이랑 나들이 (\d+)곳</span>", _blk)
+        _actual = sum(1 for p in places if (p.get("addr") or "").startswith(_sido))
+        if not _m:
+            bad("홈 지역별 장소", "index.html", f"{_name} 지역 묶음을 찾지 못함")
+        else:
+            cmp("홈 지역별 장소", "index.html", f"{_name} 장소 수", int(_m.group(1)), _actual)
+    if _blk.count("http://") or 'src="http:' in _blk:
+        bad("홈 지역별 장소", "index.html", "http:// 사진 주소 있음(혼합 콘텐츠)")
+    else:
+        ok()
+
 # ───────────────────────── 보고서 ─────────────────────────
 lines = [f"# 사이트 수치 일관성 점검", "", f"- 일치 확인 {oks}건 / 어긋남 {len(issues)}건", ""]
 for s in infos:
