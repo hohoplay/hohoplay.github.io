@@ -94,7 +94,7 @@ var mm=l.querySelector('.m');if(mm)memo.push(mm.textContent.trim());memo.push('�
 rows.push({time:fmt(t),title:'📍 '+(l.querySelector('.t')?l.querySelector('.t').textContent:''),memo:memo.join(' · '),k:'n',pid:m?m[1]:'',lat:st[i]?st[i][0]:0,lng:st[i]?st[i][1]:0});t+=80;});
 rows.push({time:fmt(t+20),title:'귀가',memo:'',k:'out'});
 var ds=window.__dsel||'';return {title:(card.querySelector('h3')?card.querySelector('h3').textContent:'추천 코스'),dateStr:ds,rows:rows};}
-window.__plan={place:function(id){modal(function(M){M.openPlace(id)})}};
+window.__plan={place:function(id){modal(function(M){M.openPlace(id)})},spec:function(sp){modal(function(M){M.openCourse(sp)})}};
 document.addEventListener('click',function(e){var b=e.target.closest('.plan[data-course]');
 if(b){var c=b.closest('.card');if(!c)return;e.preventDefault();var sp=course(c);modal(function(M){M.openCourse(sp)});return;}
 var p=e.target.closest('[data-plan]');if(p){e.preventDefault();var id=p.getAttribute('data-plan');modal(function(M){M.openPlace(id)});}});
