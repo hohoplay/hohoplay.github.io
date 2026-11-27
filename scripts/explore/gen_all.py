@@ -3,6 +3,13 @@ P=[x for x in json.load(open('data/kids_places.json')) if not x.get('hidden')]
 byt={}
 for p in P: byt.setdefault(p['title'],[]).append(p)
 def d(a,b): return math.hypot((float(a['lat'])-float(b['lat']))*111,(float(a['lng'])-float(b['lng']))*88)
+# [ADD] 사진 없는 장소는 상세 페이지와 같은 유형별 일러스트(/data/placeholders/*.svg)를 쓴다(규칙은 generate_kids_detail_pages.py 와 동일하게 그 파일을 그대로 불러옴).
+import importlib.util as _iu
+_sp=_iu.spec_from_file_location('_gkd','scripts/generate_kids_detail_pages.py'); _gkd=_iu.module_from_spec(_sp); _sp.loader.exec_module(_gkd)
+def ph_img(p): return '/data/placeholders/'+_gkd.placeholder_category(p)+'.svg'
+def img_or_ph(p):
+    u=p.get('image') or ''
+    return (('https://'+u[7:]) if u.startswith('http://') else u) or ph_img(p)
 def img(u): return ('https://'+u[7:]) if (u or '').startswith('http://') else (u or '')
 SIDO={'seoul':'서울','busan':'부산','daegu':'대구','incheon':'인천','daejeon':'대전','sejong':'세종','gyeonggi':'경기','gangwon':'강원','chungbuk':'충북','gyeongbuk':'경북','gyeongnam':'경남','chungnam':'충남','jeonbuk':'전북','jeonnam':'전남','gwangju':'광주','ulsan':'울산','jeju':'제주'}
 courses={}
@@ -74,7 +81,7 @@ def card(slug,key,area,allp,n_all):
         cost={'완전무료':'무료','유료':'유료'}.get(x.get('costTag'),'')
         li+=f'<li><a href="/festival/detail/{x["contentid"]}.html"><span class="n">{i+1}</span><span class="t">{html.escape(x["title"])}</span><span class="m">{tag}{" · "+cost if cost else ""}</span></a></li>'
         if i<len(km): li+=f'<li class="mv">↓ 약 {km[i]:.1f}km</li>'
-    th=''.join(f'<i style="background-image:url(\'{img(x.get("image"))}\')"></i>' for x in (stops+stops)[:3])
+    th=''.join(f'<i style="background-image:url(\'{img_or_ph(x)}\')"></i>' for x in (stops+stops)[:3])
     area_short=area.split(' ',1)[1] if ' ' in area else area
     tps=sorted({t for x in stops for t in topics_of(x['title'])}); fee=fee_of(stops)
     return f'''<article class="card" data-id="{slug}" data-stops="{html.escape(json.dumps([[float(x['lat']),float(x['lng']),x['title']] for x in stops],ensure_ascii=False))}" data-lat="{sum(float(x['lat']) for x in stops)/len(stops):.5f}" data-lng="{sum(float(x['lng']) for x in stops)/len(stops):.5f}" data-in="{sum(1 for x in stops if x.get('placeType')=='실내')}" data-ar="{html.escape(area_short)}" data-tp="{' '.join(tps)}" data-fee="{fee}"><div class="thumbs">{th}</div><div class="body"><div class="reg">{html.escape(area)}{" · 자동 추천" if slug.startswith("auto-") else ""}</div><h3>{html.escape(area_short)} 하루 코스</h3>

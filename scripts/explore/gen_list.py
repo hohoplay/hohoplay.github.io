@@ -1,5 +1,9 @@
 import json,re,html,datetime
 S=ROOT+'/'
+# [ADD] 사진 없는 장소는 상세 페이지와 같은 유형별 일러스트를 쓴다(generate_kids_detail_pages.py 의 규칙을 그대로 불러옴)
+import importlib.util as _iu
+_sp=_iu.spec_from_file_location('_gkd',S+'scripts/generate_kids_detail_pages.py'); _gkd=_iu.module_from_spec(_sp); _sp.loader.exec_module(_gkd)
+def ph_img(p): return '/data/placeholders/'+_gkd.placeholder_category(p)+'.svg'
 base=open(WORK+'/course_cards_all.html',encoding='utf-8').read()
 css=re.search(r'<style>.*?</style>',base,flags=re.S).group(0)
 top=base[base.index('<div class="wrap">'):base.index('<div class="sbox">')].replace('<span class="badge">디자인 시안 · 실제 데이터 · 전체 43개 코스</span>','<span class="badge">디자인 시안 · 전체목록 · 실제 데이터</span>')
@@ -28,7 +32,7 @@ for p in P:
     c='free' if tg=='완전무료' else ('paid' if tg.startswith('유료') else 'etc')
     sp=(p['addr'].split()+['',''])[1]
     d=(p.get('desc') or '').strip()
-    items.append(dict(la=round(float(p['lat']),4),ln=round(float(p['lng']),4),t='p',id=p['contentid'],n=p['title'],r=rk(p['addr']),s=sp,im=img(p.get('image')),pt=p.get('placeType') or '',c=c,tp=topics_of(p['title']),d=d[:64]))
+    items.append(dict(la=round(float(p['lat']),4),ln=round(float(p['lng']),4),t='p',id=p['contentid'],n=p['title'],r=rk(p['addr']),s=sp,im=(img(p.get('image')) or ph_img(p)),pt=p.get('placeType') or '',c=c,tp=topics_of(p['title']),d=d[:64]))
 import datetime as _dt
 today=(_dt.datetime.utcnow()+_dt.timedelta(hours=9)).strftime('%Y%m%d')
 F=[f for f in json.load(open(S+'data/festivals.json',encoding='utf-8')) if f.get('type')=='festival' and f['endDate']>=today]
