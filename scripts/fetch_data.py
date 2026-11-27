@@ -1573,7 +1573,7 @@ def build_today_html(festivals, today):
 
 def update_map_html(festivals, today):
     """festival/index.html 안의 TODAY_FESTIVALS 표시 구간을 오늘 날짜 기준으로 갱신한다."""
-    map_path = os.path.join('festival', 'index.html')
+    map_path = os.path.join('festival', 'map.html')
     if not os.path.exists(map_path):
         print(f"{map_path} 없음 — 오늘의 축제 패널 갱신 건너뜀")
         return
@@ -1662,7 +1662,7 @@ def update_kids_count_text():
     """[ADD] 2026-11-26: festival/index.html 소개문의 '아이랑 갈 만한 곳 N곳'을 data/kids_places.json 기준으로 갱신한다.
     예전에는 '570여 곳'이 손으로 적혀 있어 지역별 요약(676곳)과 어긋났다. 이제 마커 사이를 매번 다시 쓴다."""
     kids_path = os.path.join('data', 'kids_places.json')
-    map_path = os.path.join('festival', 'index.html')
+    map_path = os.path.join('festival', 'map.html')
     if not (os.path.exists(kids_path) and os.path.exists(map_path)):
         print('아이랑 장소 수 문구 갱신 건너뜀(파일 없음)')
         return
@@ -1804,7 +1804,7 @@ def build_kids_region_summary_html(places):
 def update_kids_region_summary():
     """festival/index.html 의 KIDS_REGION_SUMMARY 마커 사이를 data/kids_places.json 기준으로 갱신한다."""
     kids_path = os.path.join('data', 'kids_places.json')
-    map_path = os.path.join('festival', 'index.html')
+    map_path = os.path.join('festival', 'map.html')
     if not (os.path.exists(kids_path) and os.path.exists(map_path)):
         print('kids_places.json 또는 festival/index.html 없음 — 지역별 요약 갱신 건너뜀')
         return
@@ -1910,7 +1910,7 @@ def build_kids_guide_html(places):
 def update_kids_guide_section():
     """festival/index.html 의 KIDS_GUIDE 마커 사이를 갱신한다. 마커가 없으면 '지역별 ... 한눈에 보기' 소제목 바로 앞에 새로 만든다."""
     kids_path = os.path.join('data', 'kids_places.json')
-    map_path = os.path.join('festival', 'index.html')
+    map_path = os.path.join('festival', 'map.html')
     if not (os.path.exists(kids_path) and os.path.exists(map_path)):
         print('나들이 장소 고르는 기준 섹션 갱신 건너뜀(파일 없음)')
         return

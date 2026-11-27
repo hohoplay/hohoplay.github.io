@@ -279,7 +279,7 @@ def process(s, fname, kind, hn_block):
     return s, None
 
 
-MAP_PAGE = 'index.html'          # festival/index.html — 아이랑 나들이 지도(상단 메뉴만 동기화)
+MAP_PAGE = 'map.html'          # festival/map.html (2026-11-27: 지도 페이지가 index에서 map.html로 이동. index.html은 통합 페이지) — 아이랑 나들이 지도(상단 메뉴만 동기화)
 MAP_CSS = '''<!-- HN_MAP_CSS_START -->
 <style>
   /* 지도 화면 위에 고정 메뉴(높이 80px)가 붙으므로, 지도·목록 패널 높이에서 그만큼 뺀다 */

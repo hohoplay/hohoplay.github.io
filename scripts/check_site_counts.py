@@ -99,7 +99,7 @@ if unmapped:
     infos.append(f"주소 앞머리가 표준 시·도가 아닌 장소 있음: {unmapped} → 지역별 집계에서 따로 세지거나 빠질 수 있음")
 
 # ───────────────────────── 2. 총합 문구 (672곳 / 실내·실외·실내외) ─────────────────────────
-for rel in ("festival/index.html", "festival/roulette.html", "festival/worldcup.html", "festival/pick.html", "index.html"):
+for rel in ("festival/map.html", "festival/roulette.html", "festival/worldcup.html", "festival/pick.html", "index.html"):
     h = read(rel)
     if h is None:
         bad("파일", rel, "파일 없음"); continue
@@ -155,17 +155,17 @@ if h:
         infos.append(f"tools.html '입장료 없는 곳 {m.group(1)}곳 넘게' — 데이터 costTag 완전무료 = {free}곳 (확인용)")
 
 # ───────────────────────── 3. festival/index.html 지역별 한눈에 보기 ─────────────────────────
-h = read("festival/index.html")
+h = read("festival/map.html")
 if h:
     t = text_of(h)
     for name, cnt, a, b, c in re.findall(r"([가-힣]+)\s*\((\d+)곳\)\s*실내\s*(\d+)곳\s*·\s*실외\s*(\d+)곳\s*·\s*실내외\s*(\d+)곳", t):
         key = PAGE_NAME.get(name)
         if not key:
-            bad("지역별", "festival/index.html", f"알 수 없는 지역 이름 '{name}'"); continue
-        cmp("지역별", "festival/index.html", f"{name} 합계", int(cnt), BY_SIDO[key])
-        cmp("지역별", "festival/index.html", f"{name} 실내", int(a), BY_SIDO_TYPE[key]["실내"])
-        cmp("지역별", "festival/index.html", f"{name} 실외", int(b), BY_SIDO_TYPE[key]["실외"])
-        cmp("지역별", "festival/index.html", f"{name} 실내외", int(c), BY_SIDO_TYPE[key]["실내외"])
+            bad("지역별", "festival/map.html", f"알 수 없는 지역 이름 '{name}'"); continue
+        cmp("지역별", "festival/map.html", f"{name} 합계", int(cnt), BY_SIDO[key])
+        cmp("지역별", "festival/map.html", f"{name} 실내", int(a), BY_SIDO_TYPE[key]["실내"])
+        cmp("지역별", "festival/map.html", f"{name} 실외", int(b), BY_SIDO_TYPE[key]["실외"])
+        cmp("지역별", "festival/map.html", f"{name} 실내외", int(c), BY_SIDO_TYPE[key]["실내외"])
 
 # ───────────────────────── 4. 캠핑·숲 숫자 (roulette / camping-worldcup) ─────────────────────────
 for rel in ("festival/roulette.html", "festival/camping-worldcup.html"):

@@ -48,7 +48,7 @@ CHECKS = [
     ("blog/magazine/index.html", 'href="/festival/worldcup.html"', "상단 메뉴 '아이랑' 드롭다운 항목"),
     ("contact/index.html", 'id="hn-nav"', "상단 메뉴(문의하기)"),
     ("festival/list.html", 'id="hn-nav"', "상단 메뉴(축제 목록)"),
-    ("festival/index.html", 'id="remoteCourseBtn"', "지역별 추천 코스 보기 버튼(리모컨 메뉴)"),
+    ("festival/map.html", 'id="remoteCourseBtn"', "지역별 추천 코스 보기 버튼(리모컨 메뉴)"),
 ]
 
 
