@@ -74,6 +74,7 @@
   }
   function setCluster(on) { if (clusterer) { try { clusterer.setMinLevel(on ? 6 : 99); } catch (e) { } } }
   function clearRoute() {
+    hidePop();
     routeOv.forEach(function (o) { o.setMap(null); }); routeOv = [];
     if (line) { line.setMap(null); line = null; }
     [].forEach.call(document.querySelectorAll('.msel'), function (e) { e.classList.remove('msel'); });
@@ -136,9 +137,12 @@
   };
 
   /* ───────── 모바일 아래 카드 ───────── */
-  function hideCard() { var c = host.querySelector('#mcard'); if (c) c.style.display = 'none'; }
-  function showCard(id) {
-    var c = host.querySelector('#mcard'); if (!c) return;
+  var popOv = null;
+  function hidePop() { if (popOv) { popOv.setMap(null); popOv = null; } }
+  function hideCard() { var c = host.querySelector('#mcard'); if (c) c.style.display = 'none'; hidePop(); }
+  function showCard(id, p) {
+    var pc = !document.body.classList.contains('mapmode') && p;   /* PC: 누른 핀 바로 아래에 띄운다 */
+    var c = pc ? null : host.querySelector('#mcard'); if (!pc && !c) return;
     var el = document.querySelector('[data-id="' + id + '"].card');
     var t = (window.ITEMS || []).filter(function (x) { return x.id === id; })[0];
     var title = '', sub = '', btns = '', extra = '', im = '';
@@ -157,12 +161,19 @@
         '<a href="https://map.kakao.com/link/to/' + encodeURIComponent(t.n) + ',' + t.la + ',' + t.ln + '" target="_blank" rel="noopener">길찾기</a>' +
         (t.t === 'p' ? '<button type="button" data-a="place" class="p">📅 일정표</button>' : '');
     } else { return; }
-    c.innerHTML = '<button type="button" class="x" data-a="x" aria-label="닫기">✕</button><div class="mrow">' + im + '<div class="mtx"><b>' + esc(title) + '</b><span>' + esc(sub) + '</span>' + extra + '</div></div><div class="bt">' + btns + '</div>';
-    c.setAttribute('data-id', id); c.style.display = 'block';
+    var inner = '<button type="button" class="x" data-a="x" aria-label="닫기">✕</button><div class="mrow">' + im + '<div class="mtx"><b>' + esc(title) + '</b><span>' + esc(sub) + '</span>' + extra + '</div></div><div class="bt">' + btns + '</div>';
+    if (pc) {
+      hidePop();
+      var w = document.createElement('div'); w.className = 'mpop'; w.setAttribute('data-id', id); w.innerHTML = inner;
+      popOv = new kakao.maps.CustomOverlay({ position: ll(p.la, p.ln), content: w, xAnchor: 0.5, yAnchor: 0, zIndex: 30, clickable: true });
+      popOv.setMap(map);
+      return;
+    }
+    c.innerHTML = inner; c.setAttribute('data-id', id); c.style.display = 'block';
   }
   host.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('#mcard [data-a]'); if (!b) return;
-    var a = b.getAttribute('data-a'), id = host.querySelector('#mcard').getAttribute('data-id');
+    var b = e.target.closest && e.target.closest('#mcard [data-a], .mpop [data-a]'); if (!b) return;
+    var a = b.getAttribute('data-a'), id = b.closest('[data-id]').getAttribute('data-id');
     if (a === 'x') { hideCard(); return; }
     if (a === 'course') { var el = document.querySelector('[data-id="' + id + '"].card'); K.close(); if (el) setTimeout(function () { el.scrollIntoView({ block: 'center' }); }, 120); return; }
     if (a === 'plan') { var el2 = document.querySelector('[data-id="' + id + '"].card .plan'); if (el2) el2.click(); return; }
@@ -176,8 +187,8 @@
       if (el0) { try { st = JSON.parse(el0.getAttribute('data-stops') || '[]'); } catch (e) { st = null; } }
       K.focus(id, st, p ? p.la : 0, p ? p.ln : 0, null); showCard(id); return;
     }
-    /* PC: 예전 지도처럼 핀을 누르면 지도 위에 작은 안내 팝업을 띄운다 */
-    showCard(id);
+    /* PC: 예전 지도처럼 핀을 누르면 그 핀(이름 라벨) 바로 아래에 작은 안내 팝업을 띄운다 */
+    showCard(id, p);
   };
 
   /* ───────── 스타일 ───────── */
@@ -192,6 +203,7 @@
       '.cpin-no{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);font-size:14px;font-weight:800;line-height:1;cursor:pointer;box-sizing:border-box}' +
       '.cpin-name{position:absolute;left:32px;top:50%;transform:translateY(-50%);max-width:130px;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;color:#1e293b;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer}' +
       '#pcmap #mcard{display:none}' +
+      '.mpop{position:relative;width:300px;margin-top:34px;background:var(--card,#fff);color:var(--ink,#0f172a);border:1px solid var(--line,#e2e8f0);border-radius:14px;padding:12px 12px 10px;box-shadow:0 6px 24px rgba(0,0,0,.28);cursor:default}.mpop:before{content:"";position:absolute;left:50%;top:-7px;width:12px;height:12px;margin-left:-6px;background:var(--card,#fff);border-left:1px solid var(--line,#e2e8f0);border-top:1px solid var(--line,#e2e8f0);transform:rotate(45deg)}.mpop b{display:block;font-size:14px;padding-right:22px}.mpop span{display:block;margin:2px 0 6px;font-size:12px;color:var(--sub,#64748b)}.mpop .x{position:absolute;right:6px;top:4px;border:0;background:none;color:var(--sub,#64748b);font-size:16px;padding:6px;cursor:pointer}.mpop .bt{display:flex;gap:6px}.mpop .bt a,.mpop .bt button{flex:1;text-align:center;border:1px solid var(--pri,#4f46e5);color:var(--pri,#4f46e5);background:var(--card,#fff);border-radius:10px;padding:9px 4px;font:800 12px/1.2 inherit;font-family:inherit;text-decoration:none;cursor:pointer}.mpop .bt .p{background:var(--pri,#4f46e5);color:#fff}.mpop .mrow{display:flex;gap:10px;margin-bottom:8px}.mpop .mim{flex:none;width:56px;height:56px;border-radius:10px;object-fit:cover;background:#e2e8f0}.mpop .mtx{min-width:0;flex:1}.mpop .mp{margin:0 0 2px;font-size:12px;font-weight:700}.mpop .md{margin:0;font-size:11px;color:var(--sub,#64748b);line-height:1.45}' +
       '@media(min-width:1024px){#pcmap #mcard{position:absolute;left:12px;bottom:22px;width:370px;max-width:calc(100% - 24px);z-index:7;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25)}#mcard b{display:block;font-size:15px;padding-right:24px}#mcard span{display:block;margin:2px 0 6px;font-size:12px;color:var(--sub)}#mcard .x{position:absolute;right:8px;top:6px;border:0;background:none;color:var(--sub);font-size:16px;padding:6px;cursor:pointer}#mcard .bt{display:flex;gap:8px}#mcard .bt a,#mcard .bt button{flex:1;text-align:center;border:1px solid var(--pri);color:var(--pri);background:var(--card);border-radius:10px;padding:10px 6px;font:800 13px/1.2 inherit;font-family:inherit;text-decoration:none;cursor:pointer}#mcard .bt .p{background:var(--pri);color:#fff}}' +
       '#mcard .mrow{display:flex;gap:10px;margin-bottom:10px}#mcard .mim{flex:none;width:64px;height:64px;border-radius:10px;object-fit:cover;background:#e2e8f0}#mcard .mtx{min-width:0;flex:1}#mcard .mp{margin:0 0 2px;font-size:12px;font-weight:700;color:var(--ink)}#mcard .md{margin:0;font-size:12px;color:var(--sub);line-height:1.45}' +
       '.mepin{position:relative;width:18px;height:18px}.mepin i{display:block;width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.25),0 2px 6px rgba(0,0,0,.35);box-sizing:border-box}.mepin b{position:absolute;left:50%;top:22px;transform:translateX(-50%);padding:1px 6px;border-radius:6px;background:#2563eb;color:#fff;font-size:11px;font-weight:800;white-space:nowrap}' +
