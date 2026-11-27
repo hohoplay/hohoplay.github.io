@@ -242,7 +242,7 @@ def post(s, root, work):
 
     # 7) PC 지도: 메뉴(80px) 아래에 붙이기 + 카카오맵 어댑터 위임 ------------------------------------------
     s = s.replace('</head>', '<style>@media(min-width:1024px){#pcmap{top:80px;height:calc(100vh - 80px)}}'
-                  '#pcmain{position:relative}#pcmap svg,#pcmap .zb{display:none!important}#pcmap{background:#eef2f7}</style></head>', 1)
+                  '#pcmain{position:relative}#pcmap #pcsvg,#pcmap .zb{display:none!important}#pcmap{background:#eef2f7}</style></head>', 1)
     d1 = "var api={set:function(a){pts=a;if(visible())dots();},"
     assert d1 in s
     s = s.replace(d1, "var api={set:function(a){pts=a;if(window.KMAP&&KMAP.ready){KMAP.set(a);return}if(visible())dots();},")

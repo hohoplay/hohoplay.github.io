@@ -10,7 +10,7 @@ CSS=r'''
 }
 @media(min-width:1600px){#pcmain>.wrap{width:560px;max-width:560px}.ov{width:560px}.sheet{width:560px;max-width:560px}}
 :root{--map:#dbeafe;--land:#f1f5e9}@media(prefers-color-scheme:dark){:root{--map:#0b2545;--land:#1f2d1f}}
-#pcmap svg{width:100%;height:100%;display:block}#pcmap .tip{position:absolute;left:14px;top:12px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.92);color:#334155;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+#pcmap #pcsvg{width:100%;height:100%;display:block}#pcmap .tip{position:absolute;left:14px;top:12px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.92);color:#334155;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 #pcmap .zb{position:absolute;right:14px;top:12px;display:flex;flex-direction:column;gap:6px}#pcmap .zb button{width:38px;height:38px;border:0;border-radius:10px;background:#fff;color:#334155;font-size:18px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
 #pclayer{transition:transform .5s cubic-bezier(.2,.8,.2,1);transform-origin:0 0}
 .mp{fill:#6366f1;stroke:#fff;stroke-width:1.2;cursor:pointer;vector-effect:non-scaling-stroke}.mp.f{fill:#e11d48}.mp.c{fill:#4f46e5;stroke-width:2}.mp.hl{fill:#f59e0b;stroke:#78350f;stroke-width:2}
