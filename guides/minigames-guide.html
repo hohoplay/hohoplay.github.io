@@ -207,6 +207,11 @@
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">사용법</h3>
         <p>참여 인원수와 항목(순서, 벌칙 등)을 입력하면 사다리가 자동 생성됩니다. 각자 세로줄 하나를 선택해서 내려가면, 가로줄을 만날 때마다 옆줄로 이동하며 최종적으로 무작위 항목과 연결됩니다.</p>
 
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">내 줄이 벌칙일 확률</h3>
+        <p>항목 위치는 섞어서 배정되므로, 같은 항목을 여러 칸 넣으면 그 칸 수만큼 확률이 오릅니다. 6명이 하는 경우 내 줄이 벌칙에 연결될 확률은 다음과 같습니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">6명 중 벌칙 칸 수</th><th class="px-3 py-2 font-black whitespace-nowrap">내 줄이 벌칙일 확률</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">1칸</td><td class="px-3 py-2 align-top">16.7%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">2칸</td><td class="px-3 py-2 align-top">33.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">3칸</td><td class="px-3 py-2 align-top">50.0%</td></tr></tbody></table></div>
+        <p class="mt-3">칸 수 ÷ 인원수로 계산합니다. 6명에 벌칙 1칸이면 누구에게나 6분의 1입니다.</p>
+
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -268,6 +273,11 @@
         <p>버튼을 누르는 순간 <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">0 이상 1 미만의 난수가 0.5보다 작은지</code>를 확인해서 앞면과 뒷면을 정확히 반반의 확률로 나눕니다. 예측 여부나 이전 결과와는 완전히 무관하게, 매번 새로 결정됩니다.</p>
         <p class="text-slate-500 text-sm mt-2">즉 방금 앞면이 5번 연속 나왔다고 해서 다음엔 뒷면이 나올 확률이 높아지지 않습니다 — 매 던지기는 이전 결과와 독립적입니다.</p>
 
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">같은 면이 연속으로 나올 확률</h3>
+        <p>매 던지기는 앞면 50%, 뒷면 50%로 독립이라, 같은 면이 n번 연속으로 나올 확률은 0.5의 n제곱입니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">연속 횟수</th><th class="px-3 py-2 font-black whitespace-nowrap">확률</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">2번</td><td class="px-3 py-2 align-top">25%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">3번</td><td class="px-3 py-2 align-top">12.5%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">4번</td><td class="px-3 py-2 align-top">6.25%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">5번</td><td class="px-3 py-2 align-top">약 3.1%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">10번</td><td class="px-3 py-2 align-top">약 0.1%</td></tr></tbody></table></div>
+        <p class="mt-3">앞면이 5번 나왔어도 다음 던지기의 앞면 확률은 그대로 50%입니다.</p>
+
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -327,6 +337,11 @@
 
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">결과는 어떻게 결정되나요</h3>
         <p>버튼을 누르면 1부터 6까지의 정수 중 하나를 균등한 확률(각 16.7%)로 뽑습니다. 굴러가는 동안 화면에 잠깐씩 보이는 숫자들은 최종 결과와 무관한 연출용 눈속임이고, 진짜 결과는 애니메이션이 멈추는 바로 그 순간에 새로 뽑아 결정됩니다.</p>
+
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">두 번 굴려 더했을 때 나올 확률</h3>
+        <p>한 번에 하나씩 굴리므로 두 번 굴려 합을 내는 방식으로 2~12를 만들 수 있습니다. 가능한 경우는 모두 36가지입니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">합</th><th class="px-3 py-2 font-black whitespace-nowrap">경우의 수</th><th class="px-3 py-2 font-black whitespace-nowrap">확률</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">2</td><td class="px-3 py-2 align-top">1가지</td><td class="px-3 py-2 align-top">2.8%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">3</td><td class="px-3 py-2 align-top">2가지</td><td class="px-3 py-2 align-top">5.6%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">4</td><td class="px-3 py-2 align-top">3가지</td><td class="px-3 py-2 align-top">8.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">5</td><td class="px-3 py-2 align-top">4가지</td><td class="px-3 py-2 align-top">11.1%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">6</td><td class="px-3 py-2 align-top">5가지</td><td class="px-3 py-2 align-top">13.9%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">7</td><td class="px-3 py-2 align-top">6가지</td><td class="px-3 py-2 align-top">16.7%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">8</td><td class="px-3 py-2 align-top">5가지</td><td class="px-3 py-2 align-top">13.9%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">9</td><td class="px-3 py-2 align-top">4가지</td><td class="px-3 py-2 align-top">11.1%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">10</td><td class="px-3 py-2 align-top">3가지</td><td class="px-3 py-2 align-top">8.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">11</td><td class="px-3 py-2 align-top">2가지</td><td class="px-3 py-2 align-top">5.6%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">12</td><td class="px-3 py-2 align-top">1가지</td><td class="px-3 py-2 align-top">2.8%</td></tr></tbody></table></div>
+        <p class="mt-3">합이 7이 나올 확률이 가장 높고, 2와 12가 가장 낮습니다.</p>
 
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
@@ -389,6 +404,11 @@
         <p>많은 분들이 "바늘이 우연히 멈추는 칸"이 당첨이라고 생각하시는데, 이 게임은 순서가 반대입니다. 버튼을 누르는 순간 <b class="text-indigo-600">당첨 항목을 먼저 무작위로 결정</b>하고, 그다음 룰렛판이 5바퀴를 돈 뒤 정확히 그 항목 위치에서 멈추도록 회전 각도를 역으로 계산합니다.</p>
         <p class="text-slate-500 text-sm mt-2">즉 회전 애니메이션은 결과를 "보여주는" 연출이지, 회전 자체가 결과를 만들어내는 건 아닙니다. 항목 수가 몇 개든, 어느 위치에 있든 당첨 확률은 완전히 동일합니다.</p>
 
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">항목 수별 당첨 확률</h3>
+        <p>당첨 항목은 버튼을 누르는 순간 먼저 정해지고 칸 위치와 무관합니다. 서로 다른 항목만 넣었을 때 각 항목이 뽑힐 확률은 다음과 같습니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">항목 수</th><th class="px-3 py-2 font-black whitespace-nowrap">항목 하나의 확률</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">2개</td><td class="px-3 py-2 align-top">50.0%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">3개</td><td class="px-3 py-2 align-top">33.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">4개</td><td class="px-3 py-2 align-top">25.0%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">5개</td><td class="px-3 py-2 align-top">20.0%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">6개</td><td class="px-3 py-2 align-top">16.7%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">8개</td><td class="px-3 py-2 align-top">12.5%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">10개</td><td class="px-3 py-2 align-top">10.0%</td></tr></tbody></table></div>
+        <p class="mt-3">5개 중 한 항목을 2번 입력하면 6칸 중 2칸이 되어 그 항목은 약 33.3%가 됩니다.</p>
+
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -450,6 +470,11 @@
         <p>컴퓨터의 선택은 사용자가 무엇을 냈는지와 <b class="text-indigo-600">완전히 무관하게</b> 가위·바위·보 중 하나를 균등한 확률(각 33.3%)로 무작위로 고릅니다. 직전에 무엇을 냈는지, 얼마나 자주 냈는지 같은 패턴을 학습하거나 읽어내는 로직은 없습니다.</p>
         <p class="text-slate-500 text-sm mt-2">그래서 "컴퓨터가 내 패턴을 읽고 일부러 이긴다"는 느낌이 들 수 있지만, 실제로는 매번 독립적인 확률로만 결정됩니다.</p>
 
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">연속으로 이길 확률</h3>
+        <p>컴퓨터는 매번 가위·바위·보를 각 33.3%로 고르므로, 내가 무엇을 내든 한 판에서 이길 확률은 3분의 1입니다. 무승부 없이 n번 연속으로 이길 확률은 3분의 1의 n제곱입니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">연속 승리</th><th class="px-3 py-2 font-black whitespace-nowrap">확률</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">1번</td><td class="px-3 py-2 align-top">33.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">2번</td><td class="px-3 py-2 align-top">11.1%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">3번</td><td class="px-3 py-2 align-top">3.7%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">4번</td><td class="px-3 py-2 align-top">1.2%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">5번</td><td class="px-3 py-2 align-top">0.4%</td></tr></tbody></table></div>
+        <p class="mt-3">5연승은 약 243번에 한 번꼴이라, 짧은 연승은 실력보다 운의 영향이 큽니다.</p>
+
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -507,6 +532,11 @@
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">결과는 어떻게 결정되나요</h3>
         <p>정답은 0~9 중 서로 다른 숫자 3개로 만들어집니다. 0부터 9까지 숫자를 무작위로 완전히 섞은 뒤 앞의 3개만 잘라서 정답으로 쓰기 때문에, 같은 숫자가 두 번 들어가는 일은 절대 없습니다.</p>
         <p class="text-slate-500 text-sm mt-2">판정은 각 자리를 하나씩 대조해서, 자리와 숫자가 둘 다 맞으면 스트라이크, 숫자는 정답에 있지만 자리가 다르면 볼로 계산합니다. 스트라이크와 볼이 하나도 없으면 "아웃"이고, 3스트라이크가 나오면 정답입니다.</p>
+
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">첫 시도 결과별 남는 후보 수</h3>
+        <p>정답은 서로 다른 숫자 3개의 배열이라 모두 10×9×8 = 720가지입니다. 서로 다른 세 숫자(예: 1, 2, 3)로 첫 시도를 했을 때 결과별로 남는 후보 수입니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">결과</th><th class="px-3 py-2 font-black whitespace-nowrap">남는 후보</th><th class="px-3 py-2 font-black whitespace-nowrap">비율</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">아웃(0S 0B)</td><td class="px-3 py-2 align-top">210개</td><td class="px-3 py-2 align-top">29.2%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">0S 1B</td><td class="px-3 py-2 align-top">252개</td><td class="px-3 py-2 align-top">35.0%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">0S 2B</td><td class="px-3 py-2 align-top">63개</td><td class="px-3 py-2 align-top">8.8%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">0S 3B</td><td class="px-3 py-2 align-top">2개</td><td class="px-3 py-2 align-top">0.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">1S 0B</td><td class="px-3 py-2 align-top">126개</td><td class="px-3 py-2 align-top">17.5%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">1S 1B</td><td class="px-3 py-2 align-top">42개</td><td class="px-3 py-2 align-top">5.8%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">1S 2B</td><td class="px-3 py-2 align-top">3개</td><td class="px-3 py-2 align-top">0.4%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">2S 0B</td><td class="px-3 py-2 align-top">21개</td><td class="px-3 py-2 align-top">2.9%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">3S(정답)</td><td class="px-3 py-2 align-top">1개</td><td class="px-3 py-2 align-top">0.1%</td></tr></tbody></table></div>
+        <p class="mt-3">어떤 서로 다른 세 숫자로 시작해도 이 분포는 같습니다. 첫 시도에서 아웃이 나오면 후보가 210개로 줄고, 사용한 숫자 3개는 정답에 없다는 확실한 정보가 됩니다.</p>
 
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
@@ -575,6 +605,11 @@
         </ol>
         <p class="text-slate-500 text-sm mt-2">즉 눈앞의 승리와 즉각적인 방어는 절대 놓치지 않지만, 그보다 더 앞선 수까지 내다보는 완벽한 계산(미니맥스)은 하지 않습니다. 그래서 이론상 비기는 길은 남아있습니다.</p>
 
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">칸 종류별로 지나는 줄 수</h3>
+        <p>3×3 판에는 이길 수 있는 줄이 가로 3, 세로 3, 대각선 2로 모두 8줄입니다. 칸마다 그 칸을 지나는 줄의 수는 다음과 같습니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">칸 종류</th><th class="px-3 py-2 font-black whitespace-nowrap">칸 수</th><th class="px-3 py-2 font-black whitespace-nowrap">지나는 줄 수</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">정중앙</td><td class="px-3 py-2 align-top">1칸</td><td class="px-3 py-2 align-top">4줄</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">모서리</td><td class="px-3 py-2 align-top">4칸</td><td class="px-3 py-2 align-top">3줄</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">변(모서리 사이)</td><td class="px-3 py-2 align-top">4칸</td><td class="px-3 py-2 align-top">2줄</td></tr></tbody></table></div>
+        <p class="mt-3">중앙이나 모서리를 먼저 두라는 조언은 지나는 줄이 많은 칸이 이중 위협을 만들기 쉽기 때문입니다.</p>
+
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -633,6 +668,10 @@
         <p>시작 버튼을 누르면 신호등이 빨간불인 상태로 <b class="text-indigo-600">1~4초 사이의 무작위 시간</b>을 기다립니다. 매번 대기 시간이 달라지기 때문에 "이쯤이면 초록으로 바뀌겠지" 하고 타이밍을 예측해서 미리 누르는 게 통하지 않습니다.</p>
         <p class="text-slate-500 text-sm mt-2">화면이 초록으로 바뀌는 정확한 순간부터 클릭한 순간까지를 브라우저의 고정밀 타이머로 측정해서 밀리초(ms) 단위로 보여줍니다. 이 타이머는 일반적인 시계보다 훨씬 정밀해서, 사람의 반응 속도 차이를 세밀하게 구분할 수 있습니다.</p>
 
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">기록별 안내 문구와 대기 시간</h3>
+        <p>시작 후 신호등이 초록으로 바뀌기까지는 1~4초 사이에서 무작위로 기다립니다. 초록이 되기 전에 누르면 기록이 남지 않고, 초록 이후의 반응 시간은 ms로 표시되며 구간별로 다음 문구가 나옵니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">반응 시간</th><th class="px-3 py-2 font-black whitespace-nowrap">안내 문구</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">200ms 미만</td><td class="px-3 py-2 align-top">번개처럼 빨라요!</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">200ms 이상 300ms 미만</td><td class="px-3 py-2 align-top">아주 빨라요!</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">300ms 이상 450ms 미만</td><td class="px-3 py-2 align-top">좋아요!</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">450ms 이상</td><td class="px-3 py-2 align-top">조금만 더 집중해요!</td></tr></tbody></table></div>
+
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -690,6 +729,11 @@
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">카드는 어떻게 섞이나요</h3>
         <p>이 게임은 8종류의 그림을 2장씩, 총 16장으로 시작합니다. 게임을 새로 시작할 때마다 16장 전체를 뒤에서부터 하나씩 무작위 위치와 맞바꾸는 방식(Fisher-Yates 셔플)으로 섞기 때문에, 모든 카드가 어느 자리에나 갈 수 있는 공정한 배치가 보장됩니다.</p>
         <p class="text-slate-500 text-sm mt-2">즉 같은 그림 2장이 서로 가까운 자리에 배치될 확률이 특별히 높거나 낮지 않고, 완전히 무작위입니다.</p>
+
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">기억 없이 고를 때 짝일 확률</h3>
+        <p>카드 16장은 8종류를 2장씩 섞은 것이라, 첫 카드를 뒤집은 뒤 짝의 위치를 전혀 모르면 둘째 카드가 짝일 확률은 남은 카드 수보다 하나 적은 수분의 1입니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">남은 카드 수</th><th class="px-3 py-2 font-black whitespace-nowrap">둘째 카드가 짝일 확률</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">16장</td><td class="px-3 py-2 align-top">6.7%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">14장</td><td class="px-3 py-2 align-top">7.7%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">12장</td><td class="px-3 py-2 align-top">9.1%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">10장</td><td class="px-3 py-2 align-top">11.1%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">8장</td><td class="px-3 py-2 align-top">14.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">6장</td><td class="px-3 py-2 align-top">20.0%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">4장</td><td class="px-3 py-2 align-top">33.3%</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">2장</td><td class="px-3 py-2 align-top">100.0%</td></tr></tbody></table></div>
+        <p class="mt-3">초반에는 7% 안팎으로 낮아 운에 맡기기 어렵습니다. 본 카드의 위치를 기억해 짝을 확정하는 것이 시도 횟수를 줄이는 방법입니다.</p>
 
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
@@ -751,6 +795,11 @@
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">점점 어려워지는 원리</h3>
         <p>이 게임은 9개 구멍(3x3) 중 하나를 매번 무작위로 골라 두더지를 등장시킵니다. 여기서 중요한 건 <b class="text-indigo-600">두더지가 화면에 머무는 시간이 점수에 따라 점점 짧아진다</b>는 점입니다 — 처음엔 약 0.9초간 보이지만, 점수가 오를수록 조금씩 짧아져서 최소 0.4초까지 줄어듭니다.</p>
         <p class="text-slate-500 text-sm mt-2">즉 잘할수록 게임이 스스로 어려워지는 구조라, 실력이 늘어도 계속 긴장감 있게 즐길 수 있도록 설계되어 있습니다. 두더지가 사라진 뒤 다음 두더지가 나오기까지는 0.2~0.5초의 짧은 간격이 무작위로 주어집니다.</p>
+
+        <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">점수별 두더지가 머무는 시간</h3>
+        <p>두더지가 보이는 시간은 900ms에서 점수 1점마다 15ms씩 줄고 최소 400ms에서 멈춥니다. 다음 두더지가 나오기까지의 간격은 0.2~0.5초입니다.</p>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-slate-700 border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-800"><tr><th class="px-3 py-2 font-black whitespace-nowrap">현재 점수</th><th class="px-3 py-2 font-black whitespace-nowrap">두더지가 보이는 시간</th></tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">0점</td><td class="px-3 py-2 align-top">900ms</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">5점</td><td class="px-3 py-2 align-top">825ms</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">10점</td><td class="px-3 py-2 align-top">750ms</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">15점</td><td class="px-3 py-2 align-top">675ms</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">20점</td><td class="px-3 py-2 align-top">600ms</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">25점</td><td class="px-3 py-2 align-top">525ms</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">30점</td><td class="px-3 py-2 align-top">450ms</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 align-top">34점</td><td class="px-3 py-2 align-top">400ms</td></tr></tbody></table></div>
+        <p class="mt-3">34점부터는 최소값인 400ms로 고정됩니다.</p>
 
         <h3 class="text-lg font-black text-slate-900 mt-6 mb-2">활용 요령</h3>
         <div class="space-y-3 mt-4">
