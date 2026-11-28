@@ -214,6 +214,7 @@
     <button class="chip" data-c="유료">유료</button>
     <button class="chip" data-c="확인 필요">확인 필요</button>
     <button class="chip" data-c="__off">⛔ 운영 OFF</button>
+    <button class="chip" data-c="__noamen" title="수유실·기저귀교환대·유아의자를 하나도 체크하지 않은 곳(운영 OFF 제외)">👶 편의시설 없음·미확인</button>
   </div>
   <div class="summary" id="summary"></div>
 
@@ -507,6 +508,7 @@ function visible(){
   var list = cur.filter(function (r) {
     if (F.type && r.placeType !== F.type) return false;
     if (F.cost === '__off') { if (!r.hidden) return false; }
+    else if (F.cost === '__noamen') { if (r.hidden || AMEN_KEYS.some(function (k) { return !!r[k]; })) return false; }
     else if (F.cost && r.costTag !== F.cost) return false;
     if (q) {
       var hay = (r.contentid + ' ' + (r.title || '') + ' ' + (r.addr || '') + ' ' + (r.tel || '') + ' ' + (r.desc || '')).toLowerCase();
