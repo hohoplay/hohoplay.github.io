@@ -175,7 +175,7 @@ def head(root, title, desc, canon):
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canon}">
 <meta property="og:type" content="website">
-<meta property="og:title" content="아이랑 갈만한 곳·축제 코스 추천">
+<meta property="og:title" content="아이랑 나들이 지도 · 코스 추천">
 <meta property="og:description" content="{desc}">
 <meta property="og:url" content="{canon}">
 <meta property="og:image" content="{DOMAIN}/data/festival-og-banner.png">
@@ -216,7 +216,7 @@ def post(s, root, work):
     nfest = len(re.findall(r'"t":"f"', s))
 
     # 1) 머리말 교체 ----------------------------------------------------------------------------
-    title = '아이랑 갈만한 곳·축제 코스 추천 | HOHO PLAY'
+    title = '아이랑 나들이 지도 · 코스 추천 | HOHO PLAY'
     desc = (f'전국 17개 시·도 아이랑 갈만한 곳 {n}곳과 지금 열리는 축제를 지역·날짜·실내외·이용요금으로 골라 보고, '
             f'같은 동네 장소를 묶은 하루 코스 {ncourse}개를 확인하세요. 비 예보가 있으면 실내 코스를 먼저 보여드려요.')
     i = s.index('<style>')

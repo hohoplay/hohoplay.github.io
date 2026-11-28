@@ -242,7 +242,7 @@ MPNS={}
 exec(open(ASSET+'/mappane.py',encoding='utf-8').read(),MPNS)
 page=f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>코스 카드 시안(전체 지역) - HOHO PLAY</title>{css}<style>{MPNS['CSS']}</style></head><body><div id="pcmain"><div class="wrap">
 <span class="badge">디자인 시안 · 실제 데이터 · 전체 {tot}개 코스</span>
-<h1>🧒🎪 아이랑 갈만한 곳·축제</h1>
+<h1>🧒🎪 아이랑 나들이 지도</h1>
 <p class="lead">서울·대전·대구·부산·광주를 비롯한 전국 어디서나, 아이랑 가볼만한 곳과 지금 열리는 축제를 한 지도에서 찾아보세요. <a href="#about-map" style="color:var(--pri);font-weight:700;white-space:nowrap">이용 안내 ↓</a></p>
 {TOOLS}
 <div class="sbox"><input id="q" type="search" placeholder="지역·장소 검색 (예: 진천, 해운대, 박물관)" aria-label="지역·장소 검색" autocomplete="off">
