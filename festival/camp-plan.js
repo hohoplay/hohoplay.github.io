@@ -14,6 +14,7 @@
  *  - 입구: window.HohoCampPlan.open(champ, { mode: 'camp' | 'day' })  (mode 생략 = 'camp') — champ = { contentid, title, addr, lat?, lng?, tel?/_tel?, fee?, hours?, placeType?, costTag?, _near? }
  *          champ._near 는 nearby-pick.js 의 onPicks 콜백이 채운다([{ title, km, placeType, contentid }]).
  *
+ * [ADD] 2026-11-28 숙박 칸: 일정 아래 "🏨 숙박 넣기" — 카카오 숙박(AD5)에서 호텔·리조트·콘도·펜션·풀빌라·글램핑만 보여 준다(모텔·여관·대실 등은 뺌). 줄 종류는 식사와 같은 k:'m' (제목이 🏨 로 시작).
  * [ADD] 2026-11-23 식사 칸: 일정 아래 "🍴 식당·카페 넣기" — 앞 장소 근처 음식점(FD6)·카페(CE7)를 카카오 장소검색으로 찾아 일정에 넣는다(줄 종류 k:'m').
  *    카카오 지도 SDK(services)는 처음 누를 때만 불러온다(지도 페이지는 이미 불러와 있으면 재사용). 영업시간·메뉴는 저장하지 않고 카카오맵 확인으로 안내한다.
  *          window.HohoCampPlan.hide() — 월드컵을 다시 시작할 때 일정표를 접는다.
@@ -247,8 +248,8 @@
     // ── 확인표 항목(근처 장소 확인은 일정 줄에서 만든다) ─────────────────────────────
     function nearChecks() {
         return P.rows.filter(function (r) { return r.k === 'n' || r.k === 'f' || r.k === 'm'; }).map(function (r) {
-            var nm = String(r.title).replace(/^(?:📍|🎪|🍴)\s*/, '');
-            return ['n_' + r.id, '「' + nm + '」 ' + (r.k === 'f' ? '행사 시간·장소 확인' : (r.k === 'm' ? '영업시간·휴무·대기 확인' : '운영시간·휴관일 확인'))];
+            var nm = String(r.title).replace(/^(?:📍|🎪|🍴|🏨)\s*/, '');
+            return ['n_' + r.id, '「' + nm + '」 ' + (r.k === 'f' ? '행사 시간·장소 확인' : (r.k === 'm' ? (/^🏨/.test(r.title) ? '요금·예약·체크인 시간 확인' : '영업시간·휴무·대기 확인') : '운영시간·휴관일 확인'))];
         });
     }
     function isOn(id) { return !!P.checks[id]; }
@@ -461,7 +462,8 @@
             h += '<div class="cp-dayhd"><span>' + esc(dayLabel(d)) + '</span></div>';
             P.rows.forEach(function (r) { if (r.day === d) h += rowHtml(r); });
             h += '<button type="button" class="cp-btn small" data-act="addrow" data-day="' + d + '">＋ 일정 추가</button> ' +
-                '<button type="button" class="cp-btn small" data-act="mealopen" data-day="' + d + '">🍴 식당·카페 넣기</button>';
+                '<button type="button" class="cp-btn small" data-act="mealopen" data-day="' + d + '">🍴 식당·카페 넣기</button>' +
+                ' <button type="button" class="cp-btn small" data-act="stayopen" data-day="' + d + '">🏨 숙박 넣기</button>';
             if (mealUI && mealUI.day === d) h += '<div id="cpMeal" class="cp-meal">' + mealInner() + '</div>';
         }
 
@@ -605,9 +607,14 @@
         }
         return (best || any || {}).id || '';
     }
-    function mealOpen(d) {
+    function mealOpen(d, stay) {
         var geo = dayGeoRows(d);
         mealUI = { day: d, ref: defaultRef(d), cat: 'FD6', q: '', rad: 1000, rep: true, results: null, status: '', busy: false };
+        if (stay) {
+            // 숙박: 그날 마지막으로 위치가 있는 줄을 기준으로, 반경은 넓게(5km)
+            var lg = geo.length ? geo[geo.length - 1] : null;
+            mealUI.mode = 'stay'; mealUI.cat = 'AD5'; mealUI.kw = ''; mealUI.rad = 5000; mealUI.rep = false; mealUI.ref = lg ? lg.id : mealUI.ref;
+        }
         if (!mealUI.ref && !geo.length && !(cur && isFinite(+cur.lat) && isFinite(+cur.lng))) mealUI.status = '기준이 될 장소 위치가 없어요. 아래 검색창에 "지역 + 음식 종류"(예: 차이나타운 짜장면)를 넣어 찾아 보세요.';
     }
     function refPoint() {
@@ -617,20 +624,28 @@
         if (cur && isFinite(+cur.lat) && isFinite(+cur.lng) && cur.lat !== '' && cur.lat != null) return { lat: +cur.lat, lng: +cur.lng, name: plainTitle(cur.title) };
         return null;
     }
+    // 숙박 종류 칩: 키워드는 카카오 키워드 검색에 쓰고, 결과는 숙박(AD5)만 남긴다
+    var STAY_CHIPS = [['', '🏨 전체'], ['호텔', '호텔'], ['리조트', '리조트·콘도'], ['풀빌라', '풀빌라'], ['펜션', '펜션'], ['글램핑', '글램핑']];
+    // 모텔촌 거르기: 분류·이름에 이 말이 들어 있으면 뺀다
+    var STAY_BAD = /모텔|여관|여인숙|휴게텔|무인텔|대실|파티룸|스파룸|룸카페|찜질|사우나|호스텔|게스트하우스|MOTEL/i;
     function mealInner() {
-        var u = mealUI, h = '<h4>🍴 식당·카페 찾아서 넣기</h4>';
+        var u = mealUI, stay = u.mode === 'stay', h = '<h4>' + (stay ? '🏨 숙박 찾아서 넣기' : '🍴 식당·카페 찾아서 넣기') + '</h4>';
         var geo = dayGeoRows(u.day);
         if (geo.length) {
             h += '<div class="cp-mrow"><label for="cpMealRef">기준 장소</label><select id="cpMealRef">';
             geo.forEach(function (r) { h += '<option value="' + esc(r.id) + '"' + (r.id === u.ref ? ' selected' : '') + '>' + esc(clip(plainTitle(r.title), 20)) + (r.time ? ' (' + esc(timeVal(r.time)) + ')' : '') + '</option>'; });
             h += '</select><label for="cpMealRad">반경</label><select id="cpMealRad">';
-            [[500, '500m'], [1000, '1km'], [2000, '2km'], [3000, '3km']].forEach(function (x) { h += '<option value="' + x[0] + '"' + (x[0] === u.rad ? ' selected' : '') + '>' + x[1] + '</option>'; });
+            (stay ? [[3000, '3km'], [5000, '5km'], [10000, '10km'], [20000, '20km']] : [[500, '500m'], [1000, '1km'], [2000, '2km'], [3000, '3km']]).forEach(function (x) { h += '<option value="' + x[0] + '"' + (x[0] === u.rad ? ' selected' : '') + '>' + x[1] + '</option>'; });
             h += '</select></div>';
         }
-        h += '<div class="cp-mrow"><button type="button" class="cp-chip" data-act="mealcat" data-cat="FD6"' + (u.cat === 'FD6' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>🍚 음식점</button>' +
+        if (stay) {
+            h += '<div class="cp-mrow">';
+            STAY_CHIPS.forEach(function (c) { h += '<button type="button" class="cp-chip" data-act="staycat" data-kw="' + esc(c[0]) + '"' + (!u.q && (u.kw || '') === c[0] ? ' style="background:#eef2ff;border-style:solid"' : '') + '>' + esc(c[1]) + '</button>'; });
+            h += '</div>';
+        } else h += '<div class="cp-mrow"><button type="button" class="cp-chip" data-act="mealcat" data-cat="FD6"' + (u.cat === 'FD6' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>🍚 음식점</button>' +
             '<button type="button" class="cp-chip" data-act="mealcat" data-cat="CE7"' + (u.cat === 'CE7' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>☕ 카페</button></div>';
-        h += '<div class="cp-mrow"><input type="text" id="cpMealQ" maxlength="30" placeholder="직접 검색 (예: 칼국수, 돈까스, 키즈카페)" value="' + esc(u.q) + '" style="flex:1 1 160px"><button type="button" class="cp-btn small" data-act="mealsearch">검색</button></div>';
-        if (lunchPlaceholder(u.day)) h += '<label class="cp-chk" style="border:0;padding:2px 0"><input type="checkbox" id="cpMealRep"' + (u.rep ? ' checked' : '') + '><span>일정의 “점심” 줄을 고른 곳으로 바꾸기</span></label>';
+        h += '<div class="cp-mrow"><input type="text" id="cpMealQ" maxlength="30" placeholder="' + (stay ? '직접 검색 (예: 키즈 풀빌라, 가족 펜션, 키즈 호텔)' : '직접 검색 (예: 칼국수, 돈까스, 키즈카페)') + '" value="' + esc(u.q) + '" style="flex:1 1 160px"><button type="button" class="cp-btn small" data-act="mealsearch">검색</button></div>';
+        if (!stay && lunchPlaceholder(u.day)) h += '<label class="cp-chk" style="border:0;padding:2px 0"><input type="checkbox" id="cpMealRep"' + (u.rep ? ' checked' : '') + '><span>일정의 “점심” 줄을 고른 곳으로 바꾸기</span></label>';
         if (u.busy) h += '<div class="cp-mnote">찾는 중이에요…</div>';
         else if (u.status) h += '<div class="cp-mnote" style="color:#b45309">' + esc(u.status) + '</div>';
         if (u.results) {
@@ -641,7 +656,7 @@
                     '<button type="button" class="cp-btn small pri" data-act="mealadd" data-i="' + i + '">＋ 넣기</button></div>';
             });
         }
-        h += '<div class="cp-mnote">검색 결과는 카카오맵 기준이에요. 영업시간·휴무·메뉴·예약은 카카오맵이나 전화로 꼭 확인하세요.</div>' +
+        h += '<div class="cp-mnote">' + (stay ? '검색 결과는 카카오맵 기준이에요(모텔·여관 등은 뺐어요). 키즈 전용 여부·요금·예약 가능 여부·체크인 시간은 카카오맵이나 전화로 꼭 확인하세요.' : '검색 결과는 카카오맵 기준이에요. 영업시간·휴무·메뉴·예약은 카카오맵이나 전화로 꼭 확인하세요.') + '</div>' +
             '<div class="cp-mrow" style="margin-top:8px"><input type="text" id="cpMealMan" maxlength="30" placeholder="찾는 곳이 없으면 이름 직접 입력" style="flex:1 1 160px"><button type="button" class="cp-btn small" data-act="mealman">직접 넣기</button><button type="button" class="cp-btn small" data-act="mealclose">닫기</button></div>';
         return h;
     }
@@ -656,6 +671,9 @@
             u.busy = false;
             var S = window.kakao && kakao.maps && kakao.maps.services;
             if (S && st === S.Status.OK) {
+                if (u.mode === 'stay') {
+                    data = data.filter(function (p) { return p.category_group_code === 'AD5' && !STAY_BAD.test(String(p.category_name || '') + ' ' + String(p.place_name || '')); });
+                }
                 u.results = data.slice(0, 8).map(function (p) {
                     var parts = String(p.category_name || '').split('>').map(function (z) { return z.trim(); }).filter(Boolean);
                     var km = (pt && isFinite(+p.y) && isFinite(+p.x)) ? kmBetween(pt.lat, pt.lng, +p.y, +p.x) : null;
@@ -667,13 +685,34 @@
         };
         withKakao(function () {
             var ps = new kakao.maps.services.Places();
-            var o = { size: 10 };
+            var o = { size: u.mode === 'stay' ? 15 : 10 };
             if (pt) { o.location = new kakao.maps.LatLng(pt.lat, pt.lng); o.radius = u.rad; o.sort = kakao.maps.services.SortBy.DISTANCE; }
-            if (q) ps.keywordSearch(q, done, o); else ps.categorySearch(u.cat, done, o);
+            if (u.mode === 'stay') {
+                var kw = q || u.kw;
+                if (kw) { o.category_group_code = 'AD5'; ps.keywordSearch(kw, done, o); } else ps.categorySearch('AD5', done, o);
+            } else if (q) ps.keywordSearch(q, done, o); else ps.categorySearch(u.cat, done, o);
         }, function () { u.busy = false; u.status = '검색 서비스를 불러오지 못했어요. 아래에서 직접 넣어 주세요.'; mealRefresh(); });
     }
     // 고른 곳을 일정에 넣는다: "점심" 칸이 있고 체크돼 있으면 그 칸을 바꾸고, 아니면 기준 장소 바로 뒤에 새 줄
+    function stayPut(x) {
+        var u = mealUI, d = u.day, memo = [];
+        if (x.cat) memo.push(x.cat);
+        if (x.phone) memo.push('☎ ' + x.phone);
+        memo.push('요금·예약·체크인 확인');
+        var row = newRow(d, '', '🏨 ' + x.name, 'm'); row.memo = clip(memo.join(' · '), 100); row.tg = [['stay', '🏨 숙박']];
+        // 그날 "귀가" 줄 앞(없으면 그날 맨 끝)에 넣고, 시간은 저녁 6시 무렵
+        var at = -1; P.rows.forEach(function (rr, i) { if (at < 0 && rr.day === d && rr.k === 'out') at = i; });
+        if (at < 0) at = lastIndexOfDay(d) + 1;
+        if (at <= 0) at = P.rows.length;
+        var prev = at > 0 ? P.rows[at - 1] : null;
+        var pm = prev && /^(\d{1,2}):(\d{2})$/.exec(String(prev.time || ''));
+        row.time = (pm && +pm[1] * 60 + +pm[2] >= 17 * 60) ? timeAfter(at, '18:00') : '18:00';
+        if (x.lat != null && isFinite(x.lat) && isFinite(x.lng)) { row.lat = x.lat; row.lng = x.lng; }
+        P.rows.splice(at, 0, row);
+        mealUI = null;
+    }
     function mealPut(x) {
+        if (mealUI && mealUI.mode === 'stay') { stayPut(x); return; }
         var u = mealUI, d = u.day;
         var memo = [];
         if (x.cat) memo.push(x.cat);
@@ -711,7 +750,7 @@
             var title = plainTitle(r.title);
             if (!title) return;
             var icon, home = /^(집 출발|출발|귀가)/.test(title), meal = !home && (r.k === 'm' || /^(점심|저녁|아침|식사|간식|카페|브런치)/.test(title));
-            if (home) icon = '🏠'; else if (meal) icon = '🍴'; else icon = String(++n);
+            if (home) icon = '🏠'; else if (/^🏨/.test(String(r.title))) icon = '🏨'; else if (meal) icon = '🍴'; else icon = String(++n);
             var conn = '', place = '', hours = '';
             String(r.memo || '').split(' · ').forEach(function (m) {
                 m = m.trim();
@@ -855,6 +894,13 @@
             P.rows.splice(fi, 0, withGeo({ id: uid(), day: 1, time: timeAfter(fi, '14:30'), title: '🎪 ' + fx.f.title, memo: '행사 시간 확인 · ' + cfg.fromLabel + ' 약 ' + fmtKm(fx.km) + ' · ' + md(fx.f.startDate) + '~' + md(fx.f.endDate), k: 'f', pid: fx.f.contentid || fx.f.id || '', tg: festTags(fx.f) }, fx.f));
         } else if (act === 'mealopen') {
             mealOpen(+t.getAttribute('data-day'));
+        } else if (act === 'stayopen') {
+            mealOpen(+t.getAttribute('data-day'), true);
+        } else if (act === 'staycat') {
+            if (!mealUI) return;
+            mealUI.kw = t.getAttribute('data-kw') || ''; mealUI.q = '';
+            var qs = $('cpMealQ'); if (qs) qs.value = '';
+            mealSearch(); return;
         } else if (act === 'mealclose') {
             mealUI = null;
         } else if (act === 'mealcat') {
