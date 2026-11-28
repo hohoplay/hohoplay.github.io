@@ -111,7 +111,11 @@ for key,lab in SIDO.items():
     tot+=len(v)
     rbtn[key]=f'<button type="button" class="rg" data-k="{key}"><span class="ic">{ICON[key]}<em>{len(v)}</em></span><span class="lb">{lab}</span></button>'
     if len(v)>1:
-        subrows+=f'<div class="subr fc" data-g="ar"><button type="button" class="on" data-a="">{SIDO[key]} 전체 {len(v)}</button>'+''.join(f'<button type="button" data-a="{html.escape(x[2].split(" ",1)[1] if " " in x[2] else x[2])}">{html.escape(x[2].split(" ",1)[1] if " " in x[2] else x[2])}</button>' for x in v)+'</div>'
+        _ac={}
+        for x in v:
+            _n=x[2].split(" ",1)[1] if " " in x[2] else x[2]
+            _ac[_n]=_ac.get(_n,0)+1
+        subrows+=f'<div class="subr fc" data-g="ar"><button type="button" class="on" data-a="">{SIDO[key]} 전체 <span class="cn">{len(v)}</span></button>'+''.join(f'<button type="button" data-a="{html.escape(n)}">{html.escape(n)} <span class="cn">{c}</span></button>' for n,c in sorted(_ac.items(),key=lambda t:-t[1]))+'</div>'
     sub=subrows; subrows=''
     shown={p['contentid'] for x in v for p in x[3][:4]}
     tot_k=sum(1 for p in P if _rk0(p['addr'])==key)
@@ -141,7 +145,7 @@ section{scroll-margin-top:56px}h2{font-size:19px;margin:22px 0 10px}h2 small{fon
 .rad{display:none;margin:0 0 10px}.rad p{margin:0 0 6px}.dist{display:none;margin:0 0 6px;font-size:12px;font-weight:800;color:#be185d}body.near .dist{display:block}.nlocn{margin:0 0 8px}
 .rch{font-size:19px;margin:26px 0 4px}.rcs{margin:0 0 12px;font-size:13px;color:var(--sub);line-height:1.6}.rcg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:6px}
 .rc{display:flex;flex-direction:column;gap:3px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink)}.rc b{font-size:15px}.rc span{font-size:12px;color:var(--sub)}.rc:active{background:var(--soft)}
-.rg.z{opacity:.4}.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.subr{padding:2px 0 8px}.subr.fc{flex-wrap:wrap;overflow:visible;gap:8px}.subr.fc button{flex:0 0 auto}.subr .xmore{display:none}.subr.fold button.xh{display:none}.subr.fold .xmore{display:inline-block;border-style:dashed}.shf{margin-bottom:6px}.fr{margin:0 0 10px}.fr .rgt{margin:0 0 6px}.fc{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.fc::-webkit-scrollbar{display:none}
+.rg.z,.fc button.z{opacity:.4}.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.subr{padding:2px 0 8px}.subr.fc{flex-wrap:wrap;overflow:visible;gap:8px}.subr.fc button{flex:0 0 auto}.subr .xmore{display:none}.subr.fold button.xh{display:none}.subr.fold .xmore{display:inline-block;border-style:dashed}.shf{margin-bottom:6px}.fr{margin:0 0 10px}.fr .rgt{margin:0 0 6px}.fc{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.fc::-webkit-scrollbar{display:none}
 .fc button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}.fc button.on{background:#e11d48;border-color:#e11d48;color:#fff}
 .sbox{margin:0 0 12px}.sbox input[type=search]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:15px;font-family:inherit}
 .srow{display:flex;gap:8px;margin-top:8px;align-items:center}.srow select{flex:1;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:14px;font-family:inherit}.in{font-size:13px;font-weight:700;white-space:nowrap}
@@ -157,7 +161,8 @@ cards.forEach(function(c){c._t=(c.textContent||'').replace(/\s+/g,'').toLowerCas
 secs.forEach(function(s){s._ar='';});
 function sheet(on){sh.classList.toggle('on',on);ov.classList.toggle('on',on);}
 function run(){var w=q.value.replace(/\s+/g,'').toLowerCase(),n=0,sub=false;
-var tot0=0;secs.forEach(function(sec){var vis=0,c0=0;[].forEach.call(sec.querySelectorAll('.card'),function(c){var b0=(!w||c._t.indexOf(w)>-1)&&(!ind.checked||c._in)&&(!near||!rad||c._km<=rad)&&(!tp||c._tp.indexOf(' '+tp+' ')>-1)&&(!fee||c._fee===fee)&&(!pk||c._pk>0);var ok=b0&&(!sec._ar||c.getAttribute('data-ar')===sec._ar);if(b0)c0++;c.style.display=ok?'':'none';if(ok){vis++;n++}});sec.style.display=(vis||sec._ar)?'':'none';if(sec._ar)sub=true;
+var tot0=0;secs.forEach(function(sec){var vis=0,c0=0,am={};[].forEach.call(sec.querySelectorAll('.card'),function(c){var b0=(!w||c._t.indexOf(w)>-1)&&(!ind.checked||c._in)&&(!near||!rad||c._km<=rad)&&(!tp||c._tp.indexOf(' '+tp+' ')>-1)&&(!fee||c._fee===fee)&&(!pk||c._pk>0);var ok=b0&&(!sec._ar||c.getAttribute('data-ar')===sec._ar);if(b0){c0++;var a0=c.getAttribute('data-ar');am[a0]=(am[a0]||0)+1}c.style.display=ok?'':'none';if(ok){vis++;n++}});sec.style.display=(vis||sec._ar)?'':'none';if(sec._ar)sub=true;
+[].forEach.call(sec.querySelectorAll('.subr button'),function(b){var a=b.getAttribute('data-a'),n=a?(am[a]||0):c0,e=b.querySelector('.cn');if(e)e.textContent=n;if(a)b.classList.toggle('z',!n)});
 tot0+=c0;[].forEach.call(document.querySelectorAll('.rg[data-k="'+sec.id.slice(2)+'"]'),function(b){var e=b.querySelector('em');if(e)e.textContent=c0;b.classList.toggle('z',!c0)});});
 [].forEach.call(document.querySelectorAll('.rg[data-all] em'),function(e){e.textContent=tot0});
 if(w||tp||fee||pk||ind.checked||sub){res.style.display='';res.innerHTML=n?('검색 결과 <b>'+n+'개</b> 코스'):'맞는 코스가 없어요. 조건을 바꿔 보세요.';}else res.style.display='none';
