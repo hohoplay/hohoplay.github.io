@@ -1242,8 +1242,11 @@ s.onload=function(){if(window.HohoPlanModal)cb(window.HohoPlanModal)};s.onerror=
 /* 공유 링크(?plan=…)로 들어오면 받은 일정표를 바로 연다 (검색에 따로 잡히지 않게 noindex) */
 (function(){var m=/[?&]plan=([A-Za-z0-9_.-]+)/.exec(location.search);if(!m)return;
 var mt=document.createElement('meta');mt.name='robots';mt.content='noindex';document.head.appendChild(mt);
-function go(){modal(function(M){M.openShared(m[1])})}
-if(document.readyState==='complete')setTimeout(go,300);else window.addEventListener('load',function(){setTimeout(go,300)});})();
+var done=false;function go(){if(done)return;done=true;try{modal(function(M){M.openShared(m[1])})}catch(e){done=false}}
+/* 광고·날씨 등이 느린 폰에서는 load 이벤트가 한참 늦으므로, 화면 구조가 만들어지면(DOMContentLoaded) 바로 연다 */
+function start(){setTimeout(go,400)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+window.addEventListener('load',start);})();
 function course(card){var lis=[].slice.call(card.querySelectorAll('ol > li:not(.mv)')),mv=[].slice.call(card.querySelectorAll('ol > li.mv')),st=[];
 try{st=JSON.parse(card.getAttribute('data-stops')||'[]')}catch(e){}
 var t=600,rows=[{time:'09:30',title:'집 출발',memo:'',k:'x'}];
