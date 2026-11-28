@@ -15,7 +15,7 @@
   'use strict';
   if (window.HohoPlanModal) return;
 
-  var CP_URL = '/festival/camp-plan.js?v=20261128a';
+  var CP_URL = '/festival/camp-plan.js?v=20261128c';
   var DATA_URL = '/data/kids_places.json';
   var NEAR_KM = 10, FAR_KM = 25, WANT = 5, UNKNOWN_HOURS_PENALTY_KM = 2;
   var root, box, opened = false, pushed = false, prevOverflow = '';
@@ -230,5 +230,33 @@
     }).catch(fail);
   }
 
-  window.HohoPlanModal = { openPlace: openPlace, openCourse: openCourse, close: close };
+  // 공유 링크(/festival/?plan=…)로 받은 일정표: 링크 속 내용을 읽어 "친구가 보낸 일정표"로 연다.
+  //   받은 내용은 따로 저장되는 사본이라(hp_sharedplan_v1) 내 코스 일정표(hp_courseplan_v1)는 건드리지 않는다.
+  function failMsg(t) { var m = document.getElementById('hppMsg'); if (m) { m.style.display = 'block'; m.textContent = t; } }
+  function openShared(code) {
+    if (!code) return;
+    showBox();
+    loadCampPlan().then(function () { return window.HohoCampPlan.decodeShare(code); }).then(function (sh) {
+      if (!opened) return;
+      hideMsg();
+      window.HohoCampPlan.open({ contentid: 'shared-' + hashOf(code), title: sh.t, addr: '', _near: [] }, {
+        mode: 'day',
+        noDefaultNear: true,
+        shared: sh,
+        over: {
+          key: 'hp_sharedplan_v1', icon: '💌', placeLabel: '코스', fromLabel: '앞 장소에서', hasFest: false, noNear: '',
+          title: '🗓️ 친구가 보낸 일정표',
+          paperTitle: '🗺️ 나의 나들이 코스 일정표',
+          sub: '친구가 보낸 일정표를 내 사본으로 담아 두었어요. 시간·일정·메모를 마음대로 고쳐도 보낸 사람의 일정표는 바뀌지 않아요. 운영시간·휴관일은 방문 전에 꼭 확인하세요.',
+          checkA: CHECK_COURSE
+        }
+      });
+      box.scrollTop = 0;
+    }).catch(function (err) {
+      var t = err && err.message;
+      failMsg(t === 'nosupport' ? '이 브라우저에서는 공유 링크를 열 수 없어요. 최신 브라우저(크롬·사파리)로 열어 주세요.' : '링크가 잘못됐거나 중간에 잘렸어요. 보낸 분께 링크를 다시 받아 주세요.');
+    });
+  }
+
+  window.HohoPlanModal = { openPlace: openPlace, openCourse: openCourse, openShared: openShared, close: close };
 })();
