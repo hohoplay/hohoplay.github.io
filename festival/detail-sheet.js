@@ -296,4 +296,23 @@
   }, true);
 
   window.HohoDetailSheet = { open: open, close: close };
+
+  // [ADD] 2026-11-28: 검색(구글 등)에서 들어온 방문자는 상세 페이지 대신 "지도 페이지 + 상세 바텀시트"로 보여 준다.
+  //   상세 페이지(toc-remote.js)가 /festival/?hpsheet=/festival/detail/○○.html 로 보내면, 이 페이지가 열린 뒤 시트를 올린다.
+  //   시트를 닫으면 그 자리가 지도·코스 목록이고, 뒤로 가기는 검색결과로 돌아간다.
+  try {
+    var hm = /[?&]hpsheet=([^&#]+)/.exec(location.search);
+    if (hm) {
+      var hp = decodeURIComponent(hm[1]);
+      if (DETAIL_RE.test(hp)) {
+        try {
+          var rest = location.search.replace(/([?&])hpsheet=[^&#]*&?/, '$1').replace(/[?&]$/, '');
+          history.replaceState(history.state, '', location.pathname + rest + location.hash);
+        } catch (_) {}
+        var fire = function () { setTimeout(function () { open(hp); }, 350); };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fire);
+        else fire();
+      }
+    }
+  } catch (_) {}
 })();

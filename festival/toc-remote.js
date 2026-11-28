@@ -23,6 +23,24 @@
       }
     }
   } catch (e) { /* 실패해도 페이지는 그대로 보인다 */ }
+  // [ADD] 2026-11-28: 검색결과(구글·네이버·다음·빙)를 눌러 장소 상세페이지로 들어온 방문자는 지도 페이지 위 바텀시트로 보여 준다.
+  //   - 검색 로봇은 클릭 출처(referrer)가 없어서 이 이동을 하지 않는다. 주소를 직접 입력하거나 다른 곳에서 들어온 경우도 그대로 상세 페이지가 열린다.
+  //   - 끄려면 아래 SHEET_FROM_SEARCH 를 false 로 바꾼다. 주소 끝에 ?nosheet 를 붙여도 이동하지 않는다.
+  var SHEET_FROM_SEARCH = true;
+  try {
+    if (SHEET_FROM_SEARCH && !embedded && /^\/festival\/detail\/[^\/?#]+\.html$/.test(location.pathname) &&
+        location.search.indexOf('nosheet') < 0 && document.referrer) {
+      var rh = '';
+      try { rh = new URL(document.referrer).hostname; } catch (e) { rh = ''; }
+      var navT = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+      if (/(^|\.)(google\.[a-z.]+|naver\.com|daum\.net|bing\.com)$/.test(rh) && (!navT || navT.type === 'navigate')) {
+        document.documentElement.style.visibility = 'hidden';
+        window.setTimeout(function () { document.documentElement.style.visibility = ''; }, 2500);
+        location.replace('/festival/?hpsheet=' + encodeURIComponent(location.pathname));
+        return;
+      }
+    }
+  } catch (e) { document.documentElement.style.visibility = ''; }
   // [ADD] 2026-11-28: 구글 검색결과에서 들어오면 구글이 "검색된 문장" 위치로 페이지를 내려서 열어 준다(주소 뒤 #:~:text=).
   //   그러면 제목·소개가 가려진 채 중간부터 보이므로, 사용자가 아직 스크롤하지 않았다면 맨 위로 되돌린다.
   //   뒤로 가기·새로고침(이전 스크롤 위치 복원)과 #소제목 주소로 들어온 경우, 팝업(iframe) 안에서는 건드리지 않는다. // force-top
