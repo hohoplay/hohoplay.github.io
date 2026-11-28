@@ -83,7 +83,7 @@ setTimeout(check,300);window.__wx=check;
 /* 일정표 만들기: 코스 카드 / 전체목록 장소 */
 (function(){
 function pad(n){return ('0'+n).slice(-2)}function fmt(m){return pad(Math.floor(m/60)%24)+':'+pad(m%60)}
-function modal(cb){if(window.HohoPlanModal){cb(window.HohoPlanModal);return;}var s=document.createElement('script');s.src='/festival/plan-modal.js?v=20261128a';
+function modal(cb){if(window.HohoPlanModal){cb(window.HohoPlanModal);return;}var s=document.createElement('script');s.src='/festival/plan-modal.js?v=20261128b';
 s.onload=function(){if(window.HohoPlanModal)cb(window.HohoPlanModal)};s.onerror=function(){alert('일정표를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.')};document.head.appendChild(s);}
 function course(card){var lis=[].slice.call(card.querySelectorAll('ol > li:not(.mv)')),mv=[].slice.call(card.querySelectorAll('ol > li.mv')),st=[];
 try{st=JSON.parse(card.getAttribute('data-stops')||'[]')}catch(e){}
@@ -286,6 +286,7 @@ def post(s, root, work):
     notice = f'''<div id="data-notice" role="note"><h2>📌 이 페이지의 데이터 안내</h2>
 <p>축제 정보는 하루 최대 3회 자동으로 확인해 바뀐 내용이 있을 때 업데이트돼요. 데이터 기준일은 <b>{today_txt}</b>(KST)이고, 축제는 한국관광공사 TourAPI·공공데이터포털 정보예요.</p>
 <p>아이랑 갈만한 곳 <b>{n}곳</b>은 호호플레이가 직접 조사해 정리했어요. 그중 실내·실내외 장소가 <b>{indoor}곳</b>, 입장료가 없는 곳이 <b>{free}곳</b>이에요. 코스 추천 {ncourse}개는 같은 구·군에 모여 있는 장소를 묶은 거라, 쉬는 날이나 운영시간은 방문 전에 꼭 확인해 주세요.</p>
+<p>사진은 직접 퍼오지 않고 한국관광공사 공공데이터(TourAPI)에 등록된 사진만 불러와요. 사진이 없는 곳은 "사진 준비 중"으로 보이고, 자료에 사진이 올라오면 하루 3번 자동 갱신 때 채워져요. 자료에 사진이 없는 곳은 계속 준비 중일 수 있어요.</p>
 <p>사용법: 지역·날짜·실내외·이용요금으로 좁히고, 비 예보가 있는 날은 실내 코스가 먼저 나와요. 내 주변 버튼은 누를 때만 위치를 물어봐요. 지도로 한눈에 보려면 <a href="#map" class="openmap">지도 보기</a>를 눌러 보세요. 일정·요금·운영시간은 바뀔 수 있으니 방문 전 상세 페이지와 공식 안내를 꼭 확인해 주세요.</p></div>
 <nav class="xl" aria-label="함께 보면 좋은 페이지"><a href="#map" class="openmap">🗺️ 지도 열기</a><a href="/festival/tools.html">🧭 오늘 어디 갈지 정하기</a><a href="/festival/worldcup.html">🏆 나들이 월드컵</a><a href="/blog/kids-course/">🧒 코스 글 모아보기</a></nav>'''
     # 지도 소개·한눈에 보기(표 1~3, 지역별 요약, FAQ): fetch_data.py가 매일 갱신하는 festival/map.html 의 about-map 구간을 그대로 가져온다

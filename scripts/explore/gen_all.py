@@ -259,6 +259,7 @@ page=f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="
 <div class="nt nlocn" id="nlocn" style="display:none"></div>
 <div class="dt"><p class="rgt">언제 가나요?</p><div class="dbtn" id="dbtn"><button type="button" data-d="today"><b>오늘</b><span></span></button><button type="button" data-d="tom"><b>내일</b><span></span></button><button type="button" data-d="wk"><b>주말</b><span></span></button></div><div class="cal"><button type="button" id="dprev" aria-label="전날">◀</button><label class="cin" for="dpick"><span id="dlab">📆 날짜 직접 선택</span><input type="date" id="dpick"></label><button type="button" id="dnext" aria-label="다음날">▶</button></div><p class="nt nt-late" id="dnote"></p></div>
 <div class="nt">⏱ 예상 시간은 운영시간과 이동시간(직선거리 기준)으로 계산한 대략치예요. 방문 전 공식 운영시간을 꼭 확인하세요.</div>
+<div class="nt">📷 사진은 직접 퍼오지 않고 공공데이터(한국관광공사 TourAPI)에 등록된 사진만 불러와요. "사진 준비 중"인 곳은 자료에 사진이 올라오면 하루 3번 자동 갱신 때 채워져요.</div>
 {secs}
 </div>{MPNS['HTML']}</div>
 <div class="wrap" id="pcfoot">{FOOT}
