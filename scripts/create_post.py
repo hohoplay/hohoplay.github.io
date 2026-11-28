@@ -1841,7 +1841,7 @@ def style():
 body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding:16px}
 .wrap{max-width:720px;margin:auto}
 .hero{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:18px;padding:36px 24px;text-align:center;margin-bottom:22px}
-.hero h1{font-size:26px;margin-bottom:8px}
+.hero h2{font-size:26px;margin-bottom:8px}
 .hero p{opacity:.85;font-size:15px}
 .card{background:#fff;border-radius:14px;padding:22px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
 .card p{font-size:15px;line-height:1.85;color:#444}
@@ -2576,7 +2576,7 @@ def build_quote_post(today_str):
 
     <!-- 헤더 -->
     <div class="qc-date">{today_str} · {category}</div>
-    <h1 class="qc-title">📖 오늘의 명언</h1>
+    <h2 class="qc-title">📖 오늘의 명언</h2>
     <p class="qc-sub">{author_ko}{("의 말로 전해지는 한 줄" if unsure else (("이" if (ord(author_ko[-1]) - 0xAC00) % 28 != 0 else "가") + " 오늘 당신에게 건네는 한 줄"))}</p>
     <div class="qc-rule">&middot; &middot; &middot;</div>
 
@@ -3441,7 +3441,7 @@ def build_zodiac_post(z, today_str):
     content = f"""{style()}
 <div class="wrap">
   <div class="hero">
-    <h1>{z['emoji']} {z['kr']} 오늘의 운세</h1>
+    <h2>{z['emoji']} {z['kr']} 오늘의 운세</h2>
     <p>{today_sync} · {z['date']}</p>
     <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">
@@ -3832,7 +3832,7 @@ def build_chinese_post(c, today_str):
     content = f"""{style()}
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
-    <h1>{c['emoji']} {c['kr']} 오늘의 운세</h1>
+    <h2>{c['emoji']} {c['kr']} 오늘의 운세</h2>
     <p>{today_sync} · {', '.join(map(str, c['years']))}</p>
     <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">
@@ -4782,7 +4782,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
         content_html = f"""{style()}
 <div class="wrap">
   <div class="hero">
-    <h1>📅 {z['emoji']} {z['kr']} 주간운세</h1>
+    <h2>📅 {z['emoji']} {z['kr']} 주간운세</h2>
     <p>{week_range} · {z['date']}</p>
     <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:3px 12px;border-radius:20px;font-size:12px">{signal}</div>
@@ -4853,7 +4853,7 @@ def build_zodiac_weekly_post(today_str, combine=False):
         content_c = f"""{style()}
 <div class="wrap">
   <div class="hero">
-    <h1>📅 12별자리 주간운세</h1>
+    <h2>📅 12별자리 주간운세</h2>
     <p>{week_range} · {week_label}</p>
   </div>
 
@@ -5210,7 +5210,7 @@ def build_chinese_monthly_post(today_str, combine=False):
         content_html = f"""{style()}
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
-    <h1>🌙 {c['emoji']} {c['kr']} 월간운세</h1>
+    <h2>🌙 {c['emoji']} {c['kr']} 월간운세</h2>
     <p>{month_str}</p>
     <div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.2);
                 padding:3px 12px;border-radius:20px;font-size:12px">{headline[:25]}</div>
@@ -5318,7 +5318,7 @@ def build_chinese_monthly_post(today_str, combine=False):
         content_c = f"""{style()}
 <div class="wrap">
   <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
-    <h1>🌙 12띠 월간운세</h1>
+    <h2>🌙 12띠 월간운세</h2>
     <p>{month_str}</p>
   </div>
 
@@ -5745,7 +5745,7 @@ def build_omnibus_post(today_str: str) -> tuple:
         return f"""
   <div class="novel-page" id="{card_id}">
     <div class="novel-date">{today_str} · {season}</div>
-    <h1 class="novel-title">🌙 별과띠가만나는시간</h1>
+    <h2 class="novel-title">🌙 별과띠가만나는시간</h2>
     <p class="novel-subtitle">오늘 하늘이 당신에게 건네는 이야기</p>
     <h2 class="novel-part">{part_label} · {part_name}</h2>
     <div class="novel-rule">&middot; &middot; &middot;</div>
@@ -6261,7 +6261,7 @@ def build_omnibus_weekly_post(today_str: str) -> tuple:
 <div class="wrap">
   <div class="novel-page">
     <div class="novel-date">{week_range} · {week_label} · {season}</div>
-    <h1 class="novel-title">🌙 별과띠가만나는시간 · 이번 주 TOP5</h1>
+    <h2 class="novel-title">🌙 별과띠가만나는시간 · 이번 주 TOP5</h2>
     <p class="novel-subtitle">이번 주 내 별자리와 내 띠, 두 기운이 가장 잘 어우러지는 조합</p>
     <div class="novel-rule">&middot; &middot; &middot;</div>
     <p class="novel-opening">{opening}</p>
@@ -6388,7 +6388,7 @@ def _story_card(card_id, icon_title, subtitle, part_label, part_name, today_str,
     return f"""
   <div class="novel-page" id="{card_id}">
     <div class="novel-date">{today_str} · {season}</div>
-    <h1 class="novel-title">{icon_title}</h1>
+    <h2 class="novel-title">{icon_title}</h2>
     <p class="novel-subtitle">{subtitle}</p>
     <h2 class="novel-part">{part_label} · {part_name}</h2>
     <div class="novel-rule">&middot; &middot; &middot;</div>
