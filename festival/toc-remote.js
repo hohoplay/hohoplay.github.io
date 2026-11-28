@@ -7,6 +7,22 @@
   // 지도·홈에서 열리는 팝업(iframe) 안에서도 쓴다. 팝업 왼쪽 아래의 "이 장소로 일정표" 버튼(높이 52px) 바로 위로 올려 겹치지 않게 한다.
   var embedded = false;
   try { embedded = window.self !== window.top; } catch (e) { embedded = true; }
+  // [ADD] 2026-11-28: 장소 상세페이지는 위에서부터 핵심 정보(기본 정보·운영시간)가 먼저 보이게 한다.
+  //   - 본문 목차 박스는 접어 둔다(제목만 보이고, 눌러서 펼치거나 아래 "목차" 버튼을 쓴다).
+  //   - 사진이 없어 "사진 준비 중" 일러스트가 들어간 곳은 그림을 작게 줄인다(실제 사진은 그대로 둔다).
+  try {
+    if (location.pathname.indexOf('/festival/detail/') === 0) {
+      var tocBox = document.querySelector('details.pt-toc');
+      if (tocBox) tocBox.removeAttribute('open');
+      var phs = document.querySelectorAll('img.detail-image');
+      for (var k = 0; k < phs.length; k++) {
+        if ((phs[k].getAttribute('src') || '').indexOf('/data/placeholders/') === 0) {
+          phs[k].style.maxWidth = '170px';
+          phs[k].style.marginBottom = '14px';
+        }
+      }
+    }
+  } catch (e) { /* 실패해도 페이지는 그대로 보인다 */ }
   if (document.getElementById('toc-remote')) return;
 
   function init() {
