@@ -376,7 +376,9 @@
             '#cp-print-host .cpp .rt-r.rev .rt-u,#cpPaper .cpp .rt-r.rev .rt-u{right:auto;left:-16px;border:2px solid #64748b;border-right:0;border-radius:14px 0 0 14px}' +
             '#cp-print-host .cpp .rt-r.rev .rt-d,#cpPaper .cpp .rt-r.rev .rt-d{left:auto;right:0;transform:translateX(50%)}' +
             '#cp-print-host .cpp .rt-sn .rt-d,#cpPaper .cpp .rt-sn .rt-d{background:#fff;padding:0 2px;z-index:1}' +
+            '#cpPaper .cpp h2.pb{margin-top:22px;padding-top:10px;border-top:2px dashed #94a3b8}' +   // 화면 미리보기: 여기서부터 2장째
             '@media print{' +
+            '#cp-print-host .cpp h2.pb{break-before:page;page-break-before:always;margin-top:0}' +   // PDF·인쇄: 출발 전 확인표는 2장째 맨 위에서 시작
             'body.cp-printing > *:not(#cp-print-host){display:none!important}' +
             'body.cp-printing #cp-print-host{display:block!important}' +
             '@page{size:A4;margin:12mm}' +
@@ -538,7 +540,7 @@
         // 메모
         h += '<h3>📝 메모</h3><textarea id="cpNote" maxlength="600" placeholder="예약 번호, 차량 번호, 같이 가는 사람, 장볼 목록 등을 적어 두세요.">' + esc(P.note) + '</textarea>';
 
-        h += '<h3>📄 일정표 미리보기 <span style="font-size:11.5px;font-weight:600;color:#94a3b8">(A4 한 장)</span></h3><div id="cpPaper" class="cp-paper">' + paperHtml() + '</div>';
+        h += '<h3>📄 일정표 미리보기 <span style="font-size:11.5px;font-weight:600;color:#94a3b8">(A4 2장 · 1장 일정 / 2장 확인표)</span></h3><div id="cpPaper" class="cp-paper">' + paperHtml() + '</div>';
         h += '<div class="cp-acts"><button type="button" class="cp-btn pri" data-act="print">🖨️ 일정표 인쇄·PDF 저장</button><button type="button" class="cp-btn" data-act="reset">↺ 처음 상태로</button></div>';
         h += '<div class="cp-share"><div class="cp-sh-t">📤 일정표 보내기</div>' +
             '<div class="cp-sub" style="margin:0 0 8px">링크를 받은 사람은 이 일정표를 자기 폰에서 열어 고칠 수 있어요. 보낸 사람의 일정표는 바뀌지 않아요.</div>' +
@@ -1177,7 +1179,7 @@
             h += '</table>';
         }
         function ck(id, text) { return '<div class="ck">' + (isOn(id) ? '☑' : '☐') + ' ' + esc(text) + '</div>'; }
-        h += '<h2>출발 전 확인표</h2><div class="cols">';
+        h += '<h2 class="pb">출발 전 확인표</h2><div class="cols">';
         cfg.checkA.forEach(function (c) { h += ck(c[0], fill(c[1])); });
         nearChecks().forEach(function (c) { h += ck(c[0], c[1]); });
         h += '</div><h2>준비물</h2><div class="cols">';
