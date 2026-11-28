@@ -26,6 +26,19 @@ def rk(addr):
     return ''
 def img(u): return ('https://'+u[7:]) if (u or '').startswith('http://') else (u or '')
 items=[]
+def _pk_load():
+    try:
+        d=json.load(open(S+'data/kids_notes_draft.json',encoding='utf-8'))
+    except Exception:
+        return set()
+    out=set()
+    for k,v in d.items():
+        if v.get('model')!='tourapi': continue
+        for ek,ev in (v.get('evidence') or {}).items():
+            if ek.startswith('parking') and not ek.startswith('parkingfee') and '가능' in str(ev) and '불가' not in str(ev):
+                out.add(k)
+    return out
+PKSET=_pk_load()
 P=[x for x in json.load(open(S+'data/kids_places.json',encoding='utf-8')) if not x.get('hidden')]
 for p in P:
     tg=p.get('costTag') or ''
@@ -33,6 +46,7 @@ for p in P:
     sp=(p['addr'].split()+['',''])[1]
     d=(p.get('desc') or '').strip()
     items.append(dict(la=round(float(p['lat']),4),ln=round(float(p['lng']),4),t='p',id=p['contentid'],n=p['title'],r=rk(p['addr']),s=sp,im=(img(p.get('image')) or ph_img(p)),pt=p.get('placeType') or '',c=c,tp=topics_of(p['title']),d=d[:64]))
+    if p['contentid'] in PKSET: items[-1]['pk']=1
 import datetime as _dt
 today=(_dt.datetime.utcnow()+_dt.timedelta(hours=9)).strftime('%Y%m%d')
 F=[f for f in json.load(open(S+'data/festivals.json',encoding='utf-8')) if f.get('type')=='festival' and f['endDate']>=today]
@@ -52,9 +66,9 @@ def rb(k): return f'<button type="button" class="rg" data-k="{k}"><span class="i
 nP=sum(1 for i in items if i['t']=='p'); nF=len(items)-nP
 tpc=''.join(f'<button type="button" data-v="{k}">{ic} {lb}</button>' for k,ic,lb,_ in TOPICS)
 feec='<button type="button" class="on" data-v="">전체</button><button type="button" data-v="free">🆓 무료</button><button type="button" data-v="paid">💳 유료</button><button type="button" data-v="etc">❔ 요금 확인 필요</button>'
-sheet=f'''<div class="ov" id="ov"></div><div class="sheet" id="sheet" role="dialog" aria-label="전체 지역"><div class="sh-h"><b>📍 전체 지역</b><button type="button" class="sh-x" id="shx" aria-label="닫기">✕</button></div><div class="shf"><div class="fr"><p class="rgt">주제 <small style="font-weight:600">(장소에만 적용)</small></p><div class="fc" data-g="tp"><button type="button" class="on" data-v="">전체</button>{tpc}</div></div><div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee">{feec}</div></div></div><p class="rgt">지역</p><div class="rgrid sh" id="shgrid">{''.join(rb(k) for k,_,_,_ in REG)}</div><button type="button" class="sh-all" data-k="">🗺️ 전국 전체 보기 ({len(items)})</button></div>'''
+sheet=f'''<div class="ov" id="ov"></div><div class="sheet" id="sheet" role="dialog" aria-label="전체 지역"><div class="sh-h"><b>📍 전체 지역</b><button type="button" class="sh-x" id="shx" aria-label="닫기">✕</button></div><div class="shf"><div class="fr"><p class="rgt">주제 <small style="font-weight:600">(장소에만 적용)</small></p><div class="fc" data-g="tp"><button type="button" class="on" data-v="">전체</button>{tpc}</div></div><div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee">{feec}</div></div><div class="fr"><p class="rgt">주차</p><div class="fc" data-g="pk"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="1">🅿️ 주차 가능</button></div><p class="pkn">공식 자료에서 주차 가능으로 확인된 곳만 걸러요(축제 제외). 자료가 없는 곳은 빠질 수 있어요.</p></div></div><p class="rgt">지역</p><div class="rgrid sh" id="shgrid">{''.join(rb(k) for k,_,_,_ in REG)}</div><button type="button" class="sh-all" data-k="">🗺️ 전국 전체 보기 ({len(items)})</button></div>'''
 EXTRA_CSS='''<style>
-.kd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.li{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.kd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.li{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
 .li .ph{position:relative;aspect-ratio:4/3;background:#c7d2fe center/cover no-repeat}.li .bd{position:absolute;left:8px;top:8px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;color:#fff}.bd.p{background:#4f46e5}.bd.f{background:#e11d48}
 .li .bx{padding:10px 10px 12px;display:flex;flex-direction:column;gap:5px;flex:1}.li h3{margin:0;font-size:14px;line-height:1.35;word-break:keep-all}.li .mt{font-size:11px;font-weight:700;color:var(--sub);display:flex;gap:4px;flex-wrap:wrap}
 .li .mt i{font-style:normal;padding:2px 6px;border-radius:6px;background:var(--soft);color:var(--pri)}.li .mt i.fr0{background:#dcfce7;color:#166534}.li .mt i.pd{background:#fef3c7;color:#92400e}.li p{margin:0;font-size:12px;color:var(--sub);line-height:1.5}
@@ -69,7 +83,7 @@ EXTRA_CSS='''<style>
 JS=r'''<script>
 var ITEMS=__DATA__;
 (function(){var q=document.getElementById('q'),ind=document.getElementById('indoor'),res=document.getElementById('sres'),list=document.getElementById('kd'),cnt=document.getElementById('cnt'),more=document.getElementById('more');
-var st='',sub='',tp='',fee='',kind='',shown=0,PAGE=24,rows=[],W=['일','월','화','수','목','금','토'];
+var st='',sub='',tp='',fee='',pk='',kind='',shown=0,PAGE=24,rows=[],W=['일','월','화','수','목','금','토'];
 var sh=document.getElementById('sheet'),ov=document.getElementById('ov'),bs=[].slice.call(document.querySelectorAll('.rg[data-k]'));
 var dsel=null,near=false,pos=null,rad=0,nbtn=document.getElementById('nearbtn');
 function hav(a,b,c,d){var R=6371,t=Math.PI/180,x=(c-a)*t,y=(d-b)*t,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*t)*Math.cos(c*t)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h));} /* 선택한 날짜 범위 [from,to] yyyymmdd */
@@ -77,17 +91,17 @@ ITEMS.forEach(function(i){i._t=(i.n+i.s+(i.d||'')).replace(/\s+/g,'').toLowerCas
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function fd(s){return (+s.slice(4,6))+'.'+(+s.slice(6,8))}
 function card(i){var dk=(near&&i._km!=null)?'<p class="dist" style="display:block">📍 내 위치에서 약 '+i._km.toFixed(i._km<10?1:0)+'km</p>':'';var m='',a='',ph='<div class="ph" style="'+(i.im?'background-image:url('+i.im+')':'')+'" role="img" aria-label="'+esc(i.n)+'">'+(i.im?'':'<span class="fb">'+(i.t==='f'?'🎪':({mus:'🏛️',sci:'🔬',park:'🌳',lib:'📚',play:'🎠',zoo:'🐠'}[i.tp[0]]||'📍'))+'</span>')+'<span class="bd '+i.t+'">'+(i.t==='p'?'📍 장소':'🎪 축제')+'</span></div>';
-if(i.t==='p'){m=(i.pt?'<i>'+({'실내':'🏠 실내','실외':'🌳 실외','실내외':'🔀 실내외'}[i.pt]||i.pt)+'</i>':'')+'<i class="'+(i.c==='free'?'fr0':i.c==='paid'?'pd':'')+'">'+({free:'무료',paid:'유료',etc:'요금 확인'}[i.c])+'</i>'+(i.s?'<i>'+esc(i.s)+'</i>':'');
+if(i.t==='p'){m=(i.pk?'<i>🅿️ 주차</i>':'')+(i.pt?'<i>'+({'실내':'🏠 실내','실외':'🌳 실외','실내외':'🔀 실내외'}[i.pt]||i.pt)+'</i>':'')+'<i class="'+(i.c==='free'?'fr0':i.c==='paid'?'pd':'')+'">'+({free:'무료',paid:'유료',etc:'요금 확인'}[i.c])+'</i>'+(i.s?'<i>'+esc(i.s)+'</i>':'');
 a='<a class="a1" href="/festival/detail/'+i.id+'.html">상세 보기</a><button type="button" class="a2" data-plan="'+i.id+'">📅 일정표 만들기</button>';}
 else{m='<i>📅 '+fd(i.sd)+' ~ '+fd(i.ed)+'</i><i class="'+(i.c==='free'?'fr0':i.c==='paid'?'pd':'')+'">'+({free:'무료',paid:'유료',etc:'요금 확인'}[i.c])+'</i>';
 a='<a class="a1" href="/festival/detail/'+i.id+'.html">상세 보기</a><a class="a2" href="/festival/?id='+i.id+'">🗺️ 지도로 보기</a>';}
 return '<article class="li" data-id="'+i.id+'">'+ph+'<div class="bx"><div class="mt">'+m+'</div><h3>'+esc(i.n)+'</h3>'+dk+'<p>'+esc(i.d||'')+'</p><div class="ac">'+a+'</div></div></article>';}
 function filt(){var w=q.value.replace(/\s+/g,'').toLowerCase();
-rows=ITEMS.filter(function(i){if(kind&&i.t!==kind)return false;if(st&&i.r!==st)return false;if(sub&&i.s!==sub)return false;if(fee&&i.c!==fee)return false;
+rows=ITEMS.filter(function(i){if(kind&&i.t!==kind)return false;if(st&&i.r!==st)return false;if(sub&&i.s!==sub)return false;if(fee&&i.c!==fee)return false;if(pk&&i.pk!==1)return false;
 if(tp&&(i.t!=='p'||i.tp.indexOf(tp)<0))return false;if(ind.checked&&!(i.t==='p'&&i.pt!=='실외'))return false;
 if(w&&i._t.indexOf(w)<0)return false;if(near){i._km=hav(pos[0],pos[1],i.la,i.ln);if(rad&&i._km>rad)return false;}
 if(dsel&&i.t==='f'&&!(i.sd<=dsel[1]&&i.ed>=dsel[0]))return false;return true;});if(near)rows.sort(function(a,b){return a._km-b._km});}
-function counts(){var base=ITEMS.filter(function(i){return (!st||i.r===st)&&(!sub||i.s===sub)&&(!fee||i.c===fee)&&(!(tp&&i.t==='p')||i.tp.indexOf(tp)>=0)&&(!tp||i.t==='p'||kind==='f')&&(!dsel||i.t!=='f'||(i.sd<=dsel[1]&&i.ed>=dsel[0]))});
+function counts(){var base=ITEMS.filter(function(i){return (!st||i.r===st)&&(!sub||i.s===sub)&&(!fee||i.c===fee)&&(!pk||i.pk===1)&&(!(tp&&i.t==='p')||i.tp.indexOf(tp)>=0)&&(!tp||i.t==='p'||kind==='f')&&(!dsel||i.t!=='f'||(i.sd<=dsel[1]&&i.ed>=dsel[0]))});
 var np=base.filter(function(i){return i.t==='p'}).length;document.querySelector('#kt [data-v=""] em').textContent=base.length;document.querySelector('#kt [data-v=p] em').textContent=np;document.querySelector('#kt [data-v=f] em').textContent=base.length-np;}
 function draw(reset){window.__rows=rows;if(window.PCROWS)PCROWS(rows);if(reset){shown=0;list.innerHTML='';}var next=rows.slice(shown,shown+PAGE);list.insertAdjacentHTML('beforeend',next.map(card).join(''));shown+=next.length;
 more.style.display=shown<rows.length?'':'none';more.textContent='더 보기 ('+(rows.length-shown)+'개 남음)';
@@ -107,7 +121,7 @@ document.addEventListener('click',function(e){var b=e.target.closest('.fc button
 if(b.hasAttribute('data-x')){b.parentNode.classList.remove('fold');return;}
 if(b.closest('#subc')){sub=b.getAttribute('data-a');[].forEach.call(b.parentNode.children,function(x){x.classList.toggle('on',x===b)});run();return;}
 if(b.closest('#kt')){kind=b.getAttribute('data-v');[].forEach.call(b.parentNode.children,function(x){x.classList.toggle('on',x===b)});run();return;}
-var g=b.parentNode.getAttribute('data-g'),v=b.getAttribute('data-v');if(g==='tp')tp=v;else if(g==='fee')fee=v;else if(g==='rad')rad=+v||0;else return;
+var g=b.parentNode.getAttribute('data-g'),v=b.getAttribute('data-v');if(g==='tp')tp=v;else if(g==='fee')fee=v;else if(g==='pk')pk=v;else if(g==='rad')rad=+v||0;else return;
 [].forEach.call(document.querySelectorAll('.fc[data-g='+g+']'),function(el){[].forEach.call(el.children,function(x){x.classList.toggle('on',x.getAttribute('data-v')===v)})});run();});
 
 function nearOn(p,fake){pos=p;near=true;nbtn.classList.add('on');nbtn.textContent='📍 내 주변 ✕';var nl=document.getElementById('nlocn');nl.style.display='';nl.textContent=fake?'📍 시안에서는 위치를 못 가져와 서울시청 기준으로 보여드려요. 실제로는 내 위치 기준이에요.':'📍 내 위치 기준 가까운 순서예요. (위치는 이 기기에서만 쓰고 저장하지 않아요)';document.getElementById('rad').style.display='block';run();}
@@ -141,7 +155,7 @@ page=f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="
 <div class="kt" id="kt"><button type="button" class="on" data-v="">전체<em>{len(items)}</em></button><button type="button" data-v="p">📍 장소<em>{nP}</em></button><button type="button" data-v="f">🎪 축제<em>{nF}</em></button></div>
 <div class="rgwrap"><p class="rgt">지역<small class="rgh">옆으로 밀어서 더 보기 →</small></p><div class="rgrid" id="rgrid"><button type="button" class="rg on" data-k="" data-all="1"><span class="ic">🗺️<em>{len(items)}</em></span><span class="lb">전체 ▾</span></button>{''.join(rb(k) for k in ROW)}</div></div>
 <div class="fr sb2" id="subw"><p class="rgt">세부 지역</p><div class="subr fc" id="subc"></div></div>
-<div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee">{feec}</div></div>
+<div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee">{feec}</div></div><div class="fr"><p class="rgt">주차</p><div class="fc" data-g="pk"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="1">🅿️ 주차 가능</button></div><p class="pkn">공식 자료에서 주차 가능으로 확인된 곳만 걸러요(축제 제외). 자료가 없는 곳은 빠질 수 있어요.</p></div>
 <div class="fr rad" id="rad"><p class="rgt">📍 내 주변 반경</p><div class="fc" data-g="rad"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="3">3km</button><button type="button" data-v="5">5km</button><button type="button" data-v="10">10km</button><button type="button" data-v="30">30km</button></div></div>
 <div class="nt nlocn" id="nlocn" style="display:none"></div>
 {sheet}
