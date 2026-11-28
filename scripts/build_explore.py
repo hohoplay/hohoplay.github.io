@@ -83,7 +83,7 @@ setTimeout(check,300);window.__wx=check;
 /* 일정표 만들기: 코스 카드 / 전체목록 장소 */
 (function(){
 function pad(n){return ('0'+n).slice(-2)}function fmt(m){return pad(Math.floor(m/60)%24)+':'+pad(m%60)}
-function modal(cb){if(window.HohoPlanModal){cb(window.HohoPlanModal);return;}var s=document.createElement('script');s.src='/festival/plan-modal.js?v=20261123a';
+function modal(cb){if(window.HohoPlanModal){cb(window.HohoPlanModal);return;}var s=document.createElement('script');s.src='/festival/plan-modal.js?v=20261128a';
 s.onload=function(){if(window.HohoPlanModal)cb(window.HohoPlanModal)};s.onerror=function(){alert('일정표를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.')};document.head.appendChild(s);}
 function course(card){var lis=[].slice.call(card.querySelectorAll('ol > li:not(.mv)')),mv=[].slice.call(card.querySelectorAll('ol > li.mv')),st=[];
 try{st=JSON.parse(card.getAttribute('data-stops')||'[]')}catch(e){}
@@ -94,6 +94,10 @@ var mm=l.querySelector('.m');if(mm)memo.push(mm.textContent.trim());memo.push('�
 rows.push({time:fmt(t),title:'📍 '+(l.querySelector('.t')?l.querySelector('.t').textContent:''),memo:memo.join(' · '),k:'n',pid:m?m[1]:'',lat:st[i]?st[i][0]:0,lng:st[i]?st[i][1]:0});t+=80;});
 rows.push({time:fmt(t+20),title:'귀가',memo:'',k:'out'});
 var ds=window.__dsel||'';return {title:(card.querySelector('h3')?card.querySelector('h3').textContent:'추천 코스'),dateStr:ds,rows:rows};}
+/* 일정표 위에서 "상세보기"를 누르면 상세 팝업이 일정표 아래에 깔려 안 보였다 → 그때만 팝업을 일정표 위로 올린다 */
+document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;var s=document.getElementById('hpSheetRoot');
+if(t.closest('#hpPlanRoot a.cp-detail')){if(s){s.style.zIndex='2147483700';s.setAttribute('data-over','1');}}
+else if(s&&t.closest('#hpSheetRoot .hp-plan')){s.style.zIndex='';s.removeAttribute('data-over');}});
 window.__plan={place:function(id){modal(function(M){M.openPlace(id)})},spec:function(sp){modal(function(M){M.openCourse(sp)})}};
 document.addEventListener('click',function(e){var b=e.target.closest('.plan[data-course]');
 if(b){var c=b.closest('.card');if(!c)return;e.preventDefault();var sp=course(c);modal(function(M){M.openCourse(sp)});return;}
