@@ -63,7 +63,12 @@
       if (opened && (e.key === 'Escape' || e.key === 'Esc')) { e.preventDefault(); e.stopPropagation(); close(); }
     }, true);
     // 휴대폰 뒤로가기: 일정표를 먼저 닫는다.
-    window.addEventListener('popstate', function () { if (opened) { pushed = false; hardClose(); } });
+    window.addEventListener('popstate', function () {
+      // 일정표 위에서 "상세보기" 팝업을 열었다가 뒤로가기로 팝업만 닫을 때는 일정표를 그대로 둔다.
+      var sh = document.getElementById('hpSheetRoot');
+      if (sh && sh.getAttribute('data-over') === '1' && sh.classList.contains('hp-on')) return;
+      if (opened) { pushed = false; hardClose(); }
+    });
   }
 
   function showBox() {
