@@ -368,6 +368,14 @@
             '#cp-print-host .cpp .rt-nm,#cpPaper .cpp .rt-nm{font-size:11.5px;font-weight:700;line-height:1.3;margin-top:4px;padding:0 3px;overflow-wrap:anywhere;min-height:2.6em}' +
             '#cp-print-host .cpp .rt-tm,#cpPaper .cpp .rt-tm{font-size:11px;color:#334155;margin-top:1px}' +
             '#cp-print-host .cpp .rt-hr,#cpPaper .cpp .rt-hr{font-size:10px;color:#64748b;margin-top:1px;line-height:1.3;padding:0 2px}' +
+            '#cp-print-host .cpp .rt-sn,#cpPaper .cpp .rt-sn{margin:4px 0 8px}' +
+            '#cp-print-host .cpp .rt-r,#cpPaper .cpp .rt-r{display:flex;position:relative;margin:0 16px 14px;padding-top:16px}' +
+            '#cp-print-host .cpp .rt-r.rev,#cpPaper .cpp .rt-r.rev{flex-direction:row-reverse}' +
+            '#cp-print-host .cpp .rt-sn .rt-n,#cpPaper .cpp .rt-sn .rt-n{flex:0 0 33.3333%;min-width:0;box-sizing:border-box}' +
+            '#cp-print-host .cpp .rt-u,#cpPaper .cpp .rt-u{position:absolute;top:28px;bottom:-42px;right:-16px;width:16px;box-sizing:border-box;border:2px solid #64748b;border-left:0;border-radius:0 14px 14px 0}' +
+            '#cp-print-host .cpp .rt-r.rev .rt-u,#cpPaper .cpp .rt-r.rev .rt-u{right:auto;left:-16px;border:2px solid #64748b;border-right:0;border-radius:14px 0 0 14px}' +
+            '#cp-print-host .cpp .rt-r.rev .rt-d,#cpPaper .cpp .rt-r.rev .rt-d{left:auto;right:0;transform:translateX(50%)}' +
+            '#cp-print-host .cpp .rt-sn .rt-d,#cpPaper .cpp .rt-sn .rt-d{background:#fff;padding:0 2px;z-index:1}' +
             '@media print{' +
             'body.cp-printing > *:not(#cp-print-host){display:none!important}' +
             'body.cp-printing #cp-print-host{display:block!important}' +
@@ -453,7 +461,13 @@
         for (var i = 0; i < a.length; i++) fit(a[i]);
     }
     var fitTimer = 0;
-    function onResize() { clearTimeout(fitTimer); fitTimer = setTimeout(fitAll, 120); }
+    function onResize() {
+        clearTimeout(fitTimer);
+        fitTimer = setTimeout(function () {
+            fitAll();
+            if (P && cur && lastRoutePer !== routePer()) { var pp = $('cpPaper'); if (pp) pp.innerHTML = paperHtml(); }   // 폰을 가로·세로로 돌리면 이동 순서 그림 모양도 바꾼다
+        }, 120);
+    }
 
     function render() {
         var h = '';
@@ -1102,19 +1116,41 @@
         });
         return out;
     }
+    // 이동 순서 그림. 넓은 화면·인쇄는 한 줄(예전 그대로), 좁은 폰 화면은 3곳씩 꺾어 U자·S자 모양으로 이어 그린다.
+    var lastRoutePer = -1;
+    function routePer() { return (window.innerWidth || 1000) <= 640 ? 3 : 0; }
+    function routeNode(x, i, offL, offR) {
+        return '<div class="rt-n">' + (i > 0 && x.conn ? '<span class="rt-d">' + esc(x.conn) + '</span>' : '') +
+            '<div class="rt-t"><i' + (offL ? ' class="off"' : '') + '></i><b>' + esc(x.icon) + '</b><i' + (offR ? ' class="off"' : '') + '></i></div>' +
+            '<div class="rt-nm">' + esc(x.title) + '</div>' +
+            (x.time ? '<div class="rt-tm">' + esc(x.time) + '</div>' : '') +
+            (x.place ? '<div class="rt-hr">' + esc(x.place) + '</div>' : '') +
+            (x.hours ? '<div class="rt-hr">' + esc(x.hours) + '</div>' : '') + '</div>';
+    }
     function routeHtml(d) {
         if (cfg.kind === 'camp') return '';
         var st = routeStops(d);
         if (st.length < 3 || st.length > 9) return '';
-        var h = '<div class="rt-cap">🧭 이동 순서 · 거리는 직선 기준이에요. 가는 방법과 시간은 지도앱에서 확인하세요.</div><div class="rt">';
-        st.forEach(function (x, i) {
-            h += '<div class="rt-n">' + (i > 0 && x.conn ? '<span class="rt-d">' + esc(x.conn) + '</span>' : '') +
-                '<div class="rt-t"><i' + (i === 0 ? ' class="off"' : '') + '></i><b>' + esc(x.icon) + '</b><i' + (i === st.length - 1 ? ' class="off"' : '') + '></i></div>' +
-                '<div class="rt-nm">' + esc(x.title) + '</div>' +
-                (x.time ? '<div class="rt-tm">' + esc(x.time) + '</div>' : '') +
-                (x.place ? '<div class="rt-hr">' + esc(x.place) + '</div>' : '') +
-                (x.hours ? '<div class="rt-hr">' + esc(x.hours) + '</div>' : '') + '</div>';
-        });
+        var per = routePer();
+        lastRoutePer = per;
+        var h = '<div class="rt-cap">🧭 이동 순서 · 거리는 직선 기준이에요. 가는 방법과 시간은 지도앱에서 확인하세요.</div>';
+        if (per && st.length > per) {
+            h += '<div class="rt-sn">';
+            for (var ri = 0; ri * per < st.length; ri++) {
+                var rev = ri % 2 === 1, rw = st.slice(ri * per, ri * per + per);
+                h += '<div class="rt-r' + (rev ? ' rev' : '') + '">';
+                rw.forEach(function (x, j) {
+                    var gi = ri * per + j;
+                    // 오른쪽으로 가는 줄은 왼쪽 선이 "들어오는" 선, 왼쪽으로 가는 줄은 오른쪽 선이 들어오는 선이다. 맨 처음·맨 끝 점의 바깥 선만 감춘다.
+                    h += routeNode(x, gi, rev ? gi === st.length - 1 : gi === 0, rev ? false : gi === st.length - 1);
+                });
+                if ((ri + 1) * per < st.length) h += '<span class="rt-u"></span>';   // 줄 끝에서 다음 줄로 꺾이는 선
+                h += '</div>';
+            }
+            return h + '</div>';
+        }
+        h += '<div class="rt">';
+        st.forEach(function (x, i) { h += routeNode(x, i, i === 0, i === st.length - 1); });
         return h + '</div>';
     }
     function paperHtml() {
