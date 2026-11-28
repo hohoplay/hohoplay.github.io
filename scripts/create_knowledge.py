@@ -156,7 +156,7 @@ def knowledge_style():
 body{font-family:'Noto Sans KR',sans-serif;background:#f8f9ff;color:#333;padding:16px}
 .wrap{max-width:720px;margin:auto}
 .hero{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:18px;padding:36px 24px;text-align:center;margin-bottom:22px}
-.hero h1{font-size:24px;margin-bottom:8px}
+.hero h2{font-size:24px;margin-bottom:8px}
 .hero p{opacity:.85;font-size:14px}
 .card{background:#fff;border-radius:14px;padding:26px 24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
 .card h2{font-size:18px;color:#4c1d95;margin:22px 0 10px}
@@ -1376,7 +1376,7 @@ def run(count=1, draft=False):
         content = f"""{knowledge_style()}
 <div class="wrap">
   <div class="hero">
-    <h1>{emoji} {_E(title)}</h1>
+    <h2>{emoji} {_E(title)}</h2>
     <p>운세 상식</p>
   </div>
   {disclosure_html}
