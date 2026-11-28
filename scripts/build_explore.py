@@ -50,30 +50,44 @@ def sub1(s, old, new, must=True):
 # ───────────────────────── 서비스용 JS (날씨·위치·날짜·일정표·탭 연동) ─────────────────────────
 PROD_JS = r'''
 (function(){
-var API='https://festival-api-proxy.vercel.app/api/weather',TH=60,cache={},seq=0,auto=false;
+var API='https://festival-api-proxy.vercel.app/api/weather',TH=60,COLD_NOTE=0,COLD_INDOOR=-3,cache={},seq=0,auto=false;
 var C={seoul:[37.56,126.98],busan:[35.18,129.07],daegu:[35.87,128.6],incheon:[37.46,126.7],daejeon:[36.35,127.38],sejong:[36.48,127.29],gyeonggi:[37.4,127.2],gangwon:[37.75,128.3],chungbuk:[36.63,127.49],gyeongbuk:[36.4,128.7],gyeongnam:[35.3,128.3],chungnam:[36.5,126.8],jeonbuk:[35.8,127.1],jeonnam:[34.9,126.9],gwangju:[35.16,126.85],ulsan:[35.54,129.31],jeju:[33.4,126.55]};
 var L={seoul:'서울',busan:'부산',daegu:'대구',incheon:'인천',daejeon:'대전',sejong:'세종',gyeonggi:'경기',gangwon:'강원',chungbuk:'충북',gyeongbuk:'경북',gyeongnam:'경남',chungnam:'충남',jeonbuk:'전북',jeonnam:'전남',gwangju:'광주',ulsan:'울산',jeju:'제주'};
 function pad(n){return ('0'+n).slice(-2)}
 function kst(){return new Date(Date.now()+9*3600000)}
 function ymd(d){return ''+d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())}
 function selDate(){var s=window.__dsel;if(s)return s.replace(/-/g,'');return ymd(kst())}
+function num(v){return v==null||v===''||!isFinite(v)?null:+v}
+function minT(rows,from){var c=null;rows.forEach(function(f){var t=String(f.time),v=num(f.tmp!=null?f.tmp:(f.temp!=null?f.temp:f.t));if(v==null||t<from||t>'2100')return;if(!c||v<c.v)c={v:v,h:+t.slice(0,2)}});return c}
 function rainFor(data,ds){if(!data)return null;var today=ymd(kst())===ds;
-if(Array.isArray(data.forecast)&&data.forecast.length){var nh=pad(kst().getUTCHours())+'00',from=today&&nh>'0900'?nh:'0900';
-var rows=data.forecast.filter(function(f){return f&&f.date===ds&&String(f.time)>=from&&String(f.time)<='2100'&&isFinite(f.pop)});
-if(!rows.length)return null;var m=0;rows.forEach(function(f){if(f.pop>m)m=f.pop});return {rain:m>=TH,pop:m};}
-if(today&&typeof data.willRain==='boolean')return {rain:data.willRain,pop:data.maxPop};return null;}
+if(Array.isArray(data.forecast)&&data.forecast.length){var nh=pad(kst().getUTCHours())+'00',from=today&&nh>'0900'?nh:'0900',fc=today&&nh>'0600'?nh:'0600';
+var day=data.forecast.filter(function(f){return f&&f.date===ds});
+var rows=day.filter(function(f){return String(f.time)>=from&&String(f.time)<='2100'&&isFinite(f.pop)});
+var o={rain:false,pop:NaN,kind:'',cold:minT(day,fc),coldIn:minT(day,from)};
+if(rows.length){var m=0,s={};rows.forEach(function(f){if(f.pop>m)m=f.pop});o.rain=m>=TH;o.pop=m;
+rows.forEach(function(f){var y=num(f.pty!=null?f.pty:f.PTY);if(f.pop>=TH&&y>0)s[y===4?1:y]=1});
+o.kind=s[3]&&!s[1]&&!s[2]?'눈':(s[1]&&!s[2]&&!s[3]?'비':'비·눈');}
+return (rows.length||o.cold)?o:null;}
+if(today&&typeof data.willRain==='boolean')return {rain:data.willRain,pop:data.maxPop,kind:'비·눈',cold:null,coldIn:null};return null;}
 function pt(){if(window.__npos)return {la:window.__npos[0],ln:window.__npos[1],lab:'내 위치'};
 var b=document.querySelector('#vc .rg.on[data-k]'),k=b&&b.getAttribute('data-k');if(k&&C[k])return {la:C[k][0],ln:C[k][1],lab:L[k]};return {la:C.seoul[0],ln:C.seoul[1],lab:'서울'};}
 function get(p){var key=p.la.toFixed(2)+','+p.ln.toFixed(2),h=cache[key];if(h&&Date.now()-h.at<600000)return Promise.resolve(h.d);
 var ct=window.AbortController?new AbortController():null,tm=ct?setTimeout(function(){ct.abort()},4000):null;
 return fetch(API+'?lat='+p.la+'&lng='+p.ln,ct?{signal:ct.signal}:undefined).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(tm)clearTimeout(tm);if(d&&!d.error)cache[key]={at:Date.now(),d:d};return d});}
-function apply(on,txt){var r=document.getElementById('rain'),w=document.getElementById('wxn');if(!r||!w)return;
+function apply(on,txt,cls){var r=document.getElementById('rain'),w=document.getElementById('wxn');if(!r||!w)return;
+w.className='wxn'+(cls?' '+cls:'');
 if(on){w.innerHTML=txt;w.style.display='';}else{w.style.display='none';}
 if(r.checked!==on){r.checked=on;r.dispatchEvent(new Event('change'));}if(on)w.style.display='';}
+function note(txt){apply(false);var w=document.getElementById('wxn');if(!w)return;w.className='wxn cold';w.innerHTML=txt;w.style.display='';}
+function dayLab(ds){var k=kst();if(ds===ymd(k))return '오늘';if(ds===ymd(new Date(k.getTime()+86400000)))return '내일';return (+ds.slice(4,6))+'월 '+(+ds.slice(6,8))+'일';}
+function cph(c){return (c.h<12?'아침':c.h<18?'낮':'저녁')+' '+Math.round(c.v)+'도까지 떨어져요';}
 function check(){if(window.__view!=='c')return;var p=pt(),ds=selDate(),my=++seq;
-get(p).then(function(d){if(my!==seq)return;var i=rainFor(d,ds);
-if(i&&i.rain){var t=ds===ymd(kst())?'오늘':(+ds.slice(4,6))+'월 '+(+ds.slice(6,8))+'일';
-apply(true,'☔ <b>'+p.lab+' 기준 '+t+' 비 예보'+(isFinite(i.pop)?' (강수확률 '+i.pop+'%)':'')+'</b> — <b>실내 코스를 먼저</b> 보여드려요. 실내 장소가 많은 코스가 위로 올라옵니다.');auto=true;}
+get(p).then(function(d){if(my!==seq)return;var i=rainFor(d,ds),t=dayLab(ds);
+if(i&&i.rain){var ic=i.kind==='눈'?'❄️':'☔',h=ic+' <b>'+p.lab+' 기준 '+t+' '+i.kind+' 예보'+(isFinite(i.pop)?' (강수확률 '+i.pop+'%)':'')+'</b>';
+if(i.cold&&i.cold.v<=COLD_NOTE)h+=' · 🧣 <b>'+cph(i.cold)+'</b>';
+apply(true,h+' — <b>실내 코스를 먼저</b> 보여드려요. 실내 장소가 많은 코스가 위로 올라옵니다.');auto=true;}
+else if(i&&i.coldIn&&i.coldIn.v<=COLD_INDOOR){apply(true,'🧣 <b>'+p.lab+' 기준 '+t+' '+cph(i.cold)+'</b> — <b>실내 코스를 먼저</b> 보여드려요. 실내 장소가 많은 코스가 위로 올라옵니다.','cold');auto=true;}
+else if(i&&i.cold&&i.cold.v<=COLD_NOTE){note('🧣 <b>'+p.lab+' 기준 '+t+' '+cph(i.cold)+'</b> — 따뜻하게 입고 나가세요. 실내 코스도 함께 살펴보세요.');auto=false;}
 else{apply(false);auto=false;}}).catch(function(){});}
 var tm2=null;function later(){clearTimeout(tm2);tm2=setTimeout(check,500)}
 document.addEventListener('click',later,true);document.addEventListener('change',later,true);
@@ -218,7 +232,7 @@ def post(s, root, work):
     # 1) 머리말 교체 ----------------------------------------------------------------------------
     title = '아이랑 나들이 지도 · 코스 추천 | HOHO PLAY'
     desc = (f'전국 17개 시·도 아이랑 갈만한 곳 {n}곳과 지금 열리는 축제를 지역·날짜·실내외·이용요금으로 골라 보고, '
-            f'같은 동네 장소를 묶은 하루 코스 {ncourse}개를 확인하세요. 비 예보가 있으면 실내 코스를 먼저 보여드려요.')
+            f'같은 동네 장소를 묶은 하루 코스 {ncourse}개를 확인하세요. 비·눈 예보나 한파가 있으면 실내 코스를 먼저 보여드려요.')
     i = s.index('<style>')
     css = s[i:s.index('</head>')]
     s = head(root, title, desc, f'{DOMAIN}/festival/') + css + '</head>' + s[s.index('</head>') + 7:]
@@ -295,7 +309,7 @@ def post(s, root, work):
 <p>축제 정보는 하루 최대 3회 자동으로 확인해 바뀐 내용이 있을 때 업데이트돼요. 데이터 기준일은 <b>{today_txt}</b>(KST)이고, 축제는 한국관광공사 TourAPI·공공데이터포털 정보예요.</p>
 <p>아이랑 갈만한 곳 <b>{n}곳</b>은 호호플레이가 직접 조사해 정리했어요. 그중 실내·실내외 장소가 <b>{indoor}곳</b>, 입장료가 없는 곳이 <b>{free}곳</b>이에요. 코스 추천 {ncourse}개는 같은 구·군에 모여 있는 장소를 묶은 거라, 쉬는 날이나 운영시간은 방문 전에 꼭 확인해 주세요.</p>
 <p>사진은 직접 퍼오지 않고 한국관광공사 공공데이터(TourAPI)에 등록된 사진만 불러와요. 사진이 없는 곳은 "사진 준비 중"으로 보이고, 자료에 사진이 올라오면 하루 3번 자동 갱신 때 채워져요. 자료에 사진이 없는 곳은 계속 준비 중일 수 있어요.</p>
-<p>사용법: 지역·날짜·실내외·이용요금으로 좁히고, 비 예보가 있는 날은 실내 코스가 먼저 나와요. 내 주변 버튼은 누를 때만 위치를 물어봐요. 지도로 한눈에 보려면 <a href="#map" class="openmap">지도 보기</a>를 눌러 보세요. 일정·요금·운영시간은 바뀔 수 있으니 방문 전 상세 페이지와 공식 안내를 꼭 확인해 주세요.</p></div>
+<p>사용법: 지역·날짜·실내외·이용요금으로 좁히고, 비·눈 예보나 한파가 있는 날은 실내 코스가 먼저 나와요. 내 주변 버튼은 누를 때만 위치를 물어봐요. 지도로 한눈에 보려면 <a href="#map" class="openmap">지도 보기</a>를 눌러 보세요. 일정·요금·운영시간은 바뀔 수 있으니 방문 전 상세 페이지와 공식 안내를 꼭 확인해 주세요.</p></div>
 <nav class="xl" aria-label="함께 보면 좋은 페이지"><a href="#map" class="openmap">🗺️ 지도 열기</a><a href="/festival/tools.html">🧭 오늘 어디 갈지 정하기</a><a href="/festival/worldcup.html">🏆 나들이 월드컵</a><a href="/blog/kids-course/">🧒 코스 글 모아보기</a></nav>'''
     # 지도 소개·한눈에 보기(표 1~3, 지역별 요약, FAQ): fetch_data.py가 매일 갱신하는 festival/map.html 의 about-map 구간을 그대로 가져온다
     mp = open(os.path.join(root, MAP_REL), encoding='utf-8').read()
