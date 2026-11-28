@@ -113,6 +113,13 @@
     var cfg = MODES.camp;
     function fill(t) { return String(t == null ? '' : t).replace(/\{P\}/g, cfg.placeLabel); }
 
+    // [ADD] 2026-11-28: 일정표 종이의 메모 칸에서 거리 표시("앞 장소에서 약 1.5km" · "같은 곳")만 진한 주황색으로 눈에 띄게 한다. 나머지 글자는 그대로.
+    function memoHtml(m) {
+        return String(m == null ? '' : m).split(' · ').map(function (seg) {
+            var h = esc(seg);
+            return (/에서 약\s*[\d.,]+\s*(km|m)\b|같은 곳/i.test(seg)) ? '<b style="color:#c2410c;font-weight:800">' + h + '</b>' : h;
+        }).join(' · ');
+    }
     function esc(s) {
         return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
             return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -364,7 +371,7 @@
             '#cp-print-host .cpp .rt-t i,#cpPaper .cpp .rt-t i{flex:1;height:0;border-top:2px solid #64748b}' +
             '#cp-print-host .cpp .rt-t i.off,#cpPaper .cpp .rt-t i.off{border-top-color:transparent}' +
             '#cp-print-host .cpp .rt-t b,#cpPaper .cpp .rt-t b{flex:none;width:26px;height:26px;box-sizing:border-box;border:2px solid #334155;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#111;background:#fff;line-height:1}' +
-            '#cp-print-host .cpp .rt-d,#cpPaper .cpp .rt-d{position:absolute;left:0;top:-15px;transform:translateX(-50%);font-size:10px;color:#475569;white-space:nowrap}' +
+            '#cp-print-host .cpp .rt-d,#cpPaper .cpp .rt-d{position:absolute;left:0;top:-15px;transform:translateX(-50%);font-size:10.5px;font-weight:800;color:#c2410c;white-space:nowrap}' +
             '#cp-print-host .cpp .rt-nm,#cpPaper .cpp .rt-nm{font-size:11.5px;font-weight:700;line-height:1.3;margin-top:4px;padding:0 3px;overflow-wrap:anywhere;min-height:2.6em}' +
             '#cp-print-host .cpp .rt-tm,#cpPaper .cpp .rt-tm{font-size:11px;color:#334155;margin-top:1px}' +
             '#cp-print-host .cpp .rt-hr,#cpPaper .cpp .rt-hr{font-size:10px;color:#64748b;margin-top:1px;line-height:1.3;padding:0 2px}' +
@@ -1173,7 +1180,7 @@
                 if (r.day !== d) return;
                 any = true;
                 var tgs = rowTags(r).map(function (t) { return t[1]; }).join(' · ');
-                h += '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.title) + (tgs ? '<div style="font-size:11px;color:#555">' + esc(tgs) + '</div>' : '') + '</td><td>' + esc(r.memo) + (r.info && r.info.a ? '<div style="font-size:11px;color:#555">📍 ' + esc(r.info.a) + '</div>' : '') + '</td></tr>';
+                h += '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.title) + (tgs ? '<div style="font-size:11px;color:#555">' + esc(tgs) + '</div>' : '') + '</td><td>' + memoHtml(r.memo) + (r.info && r.info.a ? '<div style="font-size:11px;color:#555">📍 ' + esc(r.info.a) + '</div>' : '') + '</td></tr>';
             });
             if (!any) h += '<tr><td colspan="3">&nbsp;</td></tr>';
             h += '</table>';
