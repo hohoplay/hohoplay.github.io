@@ -320,7 +320,7 @@
     if (!mobOpen) {
       mobOpen = true;
       document.body.classList.add('mapmode');
-      try { history.pushState({ kmap: 1 }, '', location.href); } catch (e) { }
+      try { if (!(history.state && history.state.kmap)) history.pushState({ kmap: 1 }, '', location.href); } catch (e) { }
     }
     ensure(function () {
       if (map) map.relayout();
@@ -334,7 +334,8 @@
     document.body.classList.remove('mapmode'); hideCard();
     if (!fromPop) { try { if (history.state && history.state.kmap) history.back(); } catch (e) { } }
   };
-  window.addEventListener('popstate', function () { if (mobOpen) K.close(true); });
+  /* 지도 위에서 일정표·상세 팝업을 닫을 때도 뒤로가기(popstate)가 오는데, 그때는 지도 기록(kmap)이 남아 있으니 지도를 닫지 않는다 */
+  window.addEventListener('popstate', function () { if (mobOpen && !(history.state && history.state.kmap)) K.close(true); });
 
   /* 옛 지도 링크(?id=…&lat=…&lng=… / ?region=…): 전체목록으로 바꾸고 그 자리를 지도에 보여 준다 */
   K.openAt = function (id, la, ln) {
@@ -365,6 +366,8 @@
     r.innerHTML = '<button type="button" id="mlist" aria-label="목록으로">☰<small>목록</small></button><a href="/" aria-label="홈">🏠<small>홈</small></a>';
     host.appendChild(r);
     r.querySelector('#mlist').addEventListener('click', function () { K.close(); });
+    /* 홈: 지도 기록·팝업 상태와 상관없이 바로 메인으로 이동 */
+    r.querySelector('a').addEventListener('click', function (e) { e.preventDefault(); location.assign('/'); });
   })();
 
   window.KMAP = K;
