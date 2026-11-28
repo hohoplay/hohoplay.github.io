@@ -5,6 +5,20 @@ Disallow: /festival/detail/
 Disallow: /scripts/
 # 사이트가 내부에서 불러 쓰는 데이터 파일(CSV)은 검색 결과에 노출되지 않게 막는다(JSON은 지도 렌더링에 쓰이므로 그대로 둔다)
 Disallow: /data/*.csv$
+# 사이트 화면에서 쓰지 않는 내부 작업용 데이터(JSON·MD)는 검색 로봇이 읽지 않게 막는다.
+# 화면에 쓰이는 data/festivals.json, data/kids_places.json, data/encyclopedia_index.json 은 그대로 열어 둔다.
+# JS 파일은 페이지를 그리는 데 필요해서 막지 않는다.
+Disallow: /data/shelters/
+Disallow: /data/shelter_raw_cache.json
+Disallow: /data/geocode_cache.json
+Disallow: /data/kids_notes
+Disallow: /data/knowledge_state.json
+Disallow: /data/dolbom_
+Disallow: /data/fortune_feed.json
+Disallow: /data/manual_festivals.json
+Disallow: /data/coord_overrides.json
+Disallow: /data/quote_state.json
+Disallow: /salon-status/
 Disallow: /.github/
 
 User-agent: Mediapartners-Google
