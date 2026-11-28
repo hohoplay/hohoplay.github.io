@@ -283,6 +283,20 @@
             '#campPlan .cp-tcol .cp-time{width:100%}' +
             '#campPlan .cp-detail{display:block;text-align:center;font-size:12px;font-weight:800;color:#4f46e5;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:5px 0;text-decoration:none;line-height:1.2}' +
             '#campPlan .cp-detail:hover{background:#e0e7ff}' +
+            '#campPlan button.cp-rinfo{width:100%;cursor:pointer;font-family:inherit;-webkit-appearance:none;appearance:none;color:#047857;background:#ecfdf5;border-color:#a7f3d0}' +
+            '#campPlan button.cp-rinfo:hover{background:#d1fae5}' +
+            '#campPlan .cp-mm{margin:0 0 14px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#fff}' +
+            '#campPlan .cp-mmh{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:12.5px;font-weight:800;color:#334155}' +
+            '#campPlan .cp-mmh button{border:1px solid #c7d2fe;background:#fff;color:#4f46e5;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800;line-height:1.2;font-family:inherit;cursor:pointer}' +
+            '#campPlan .cp-mmh button.on{background:#4f46e5;color:#fff;border-color:#4f46e5}' +
+            '#campPlan .cp-mmm{height:210px;background:#e2e8f0;position:relative}' +
+            '#campPlan .cp-mmn{font-size:11.5px;color:#64748b;line-height:1.5;padding:6px 10px;background:#f8fafc}' +
+            '#campPlan .cp-pin{width:26px;height:26px;border-radius:50%;background:#4f46e5;color:#fff;font:900 13px/22px sans-serif;text-align:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer}' +
+            '#campPlan .cp-row.cp-flash{outline:3px solid #a5b4fc;outline-offset:2px;border-radius:12px;transition:outline-color .3s}' +
+            '#campPlan .cp-share{margin-top:16px;padding:12px 14px;border:1px solid #c7d2fe;border-radius:14px;background:#f5f7ff}' +
+            '#campPlan .cp-sh-t{font-size:14px;font-weight:900;color:#312e81;margin-bottom:4px}' +
+            '#campPlan .cp-shl{display:block;font-size:12.5px;font-weight:800;color:#334155;line-height:1.5}#campPlan .cp-shl span{font-weight:600;color:#64748b}' +
+            '#campPlan .cp-shurl{width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:10px;font-size:12px;color:#334155;background:#fff}' +
             '#campPlan .cp-col textarea,#campPlan .cp-add textarea{min-height:0;resize:none;overflow:hidden;line-height:1.45;display:block;white-space:pre-wrap;overflow-wrap:anywhere}' +
             '#campPlan .cp-col textarea{width:100%}' +
             '#campPlan .cp-add textarea{flex:1 1 auto;width:auto;min-width:0}' +
@@ -409,6 +423,7 @@
             '<div class="cp-tcol">' +
             '<input class="cp-time" type="time" step="300" value="' + esc(timeVal(r.time)) + '" data-f="time" aria-label="시간 (직접 입력하거나 선택, 예 13:30)">' +
             (pid ? '<a class="cp-detail" href="/festival/detail/' + pid + '.html" aria-label="장소 상세페이지 (팝업)">상세보기</a>' : '') +
+            (r.info ? '<button type="button" class="cp-detail cp-rinfo" data-act="rowinfo" aria-label="장소 정보 (팝업)">정보보기</button>' : '') +
             '</div>' +
             '<div class="cp-col">' +
             '<textarea class="cp-title" rows="1" maxlength="60" data-f="title" placeholder="일정" aria-label="일정">' + esc(r.title) + '</textarea>' +
@@ -445,6 +460,8 @@
         h += '<a href="#result" class="cp-back" data-act="back">↑ 결과로 돌아가기</a>';
         h += '<h2>' + cfg.title + '</h2>';
         h += '<p class="cp-sub">' + fill(cfg.sub) + '</p>';
+
+        h += '<div id="cpMMslot" style="display:none"></div>';   // 코스 미니맵(번호 핀 + 점선)
 
         // 캠핑장 정보
         h += '<div class="cp-box"><div class="cp-cname">' + cfg.icon + ' ' + esc(cur.title) + '</div>';
@@ -509,8 +526,14 @@
 
         h += '<h3>📄 일정표 미리보기 <span style="font-size:11.5px;font-weight:600;color:#94a3b8">(A4 한 장)</span></h3><div id="cpPaper" class="cp-paper">' + paperHtml() + '</div>';
         h += '<div class="cp-acts"><button type="button" class="cp-btn pri" data-act="print">🖨️ 일정표 인쇄·PDF 저장</button><button type="button" class="cp-btn" data-act="reset">↺ 처음 상태로</button></div>';
+        h += '<div class="cp-share"><div class="cp-sh-t">📤 일정표 보내기</div>' +
+            '<div class="cp-sub" style="margin:0 0 8px">링크를 받은 사람은 이 일정표를 자기 폰에서 열어 고칠 수 있어요. 보낸 사람의 일정표는 바뀌지 않아요.</div>' +
+            '<label class="cp-shl"><input type="checkbox" id="cpShareMemo"> 메모도 같이 보내기 <span>(예약번호·전화번호 등이 있으면 끄세요)</span></label>' +
+            '<div class="cp-acts" style="margin-top:8px"><button type="button" class="cp-btn pri" data-act="share">📤 공유</button><button type="button" class="cp-btn" data-act="sharecopy">🔗 링크 복사</button></div>' +
+            '<input type="text" id="cpShareUrl" class="cp-shurl" readonly style="display:none" aria-label="공유 링크"><div id="cpShareMsg" class="cp-sub" style="margin:6px 0 0" role="status"></div></div>';
         h += '<div class="cp-hint"><b style="color:#334155">PDF로 저장하는 방법</b><br>인쇄 창에서 <b>대상(프린터)</b> 칸을 눌러 “PDF로 저장”(또는 “Microsoft Print to PDF”)을 고른 뒤, 오른쪽 아래 버튼이 “저장”으로 바뀌면 누르세요. 편집한 내용은 이 기기에만 저장되고 서버로 보내지 않아요.</div>';
         root.innerHTML = h;
+        mmAttach();
         fitAll();
         updateDateNote();
         if (cfg.hasFest && P.fest) updateFest();
@@ -764,10 +787,11 @@
             try { history.back(); } catch (_) { window.__cpInfoSkip = false; }
         }
     }
-    function infoOpen(x, idx) {
+    function infoOpen(x, idx, rowKind) {
         infoCss(); infoBuild();
         infoIdx = idx;
-        var u = mealUI || {}, pt = refPoint();
+        var u = mealUI || {}, pt = (mealUI && !rowKind) ? refPoint() : null;
+        if (rowKind) u = { mode: rowKind === 'stay' ? 'stay' : '', kid: rowKind === 'kid' };   // 일정 줄에서 연 팝업: 안내문만 종류에 맞추고, '일정에 넣기'는 뺀다
         var note = u.mode === 'stay' ? '요금·예약 가능 여부·체크인 시간·키즈 시설 여부는 카카오맵이나 전화로 꼭 확인하세요.'
             : (u.kid ? '이용 요금·예약·연령 제한·양말 지참 여부는 카카오맵이나 전화로 꼭 확인하세요.' : '영업시간·휴무일·메뉴·예약은 카카오맵이나 전화로 꼭 확인하세요.');
         var h = '<h3>' + esc(x.name) + '</h3><div class="ci-tags">' + (x.cat ? '<i>' + esc(x.cat) + '</i>' : '') +
@@ -778,7 +802,7 @@
             '<div class="ci-note">' + esc(note) + ' 사진·후기는 카카오맵에서 볼 수 있어요.</div>' +
             '<div class="ci-act">' + (x.phone ? '<a href="tel:' + esc(String(x.phone).replace(/[^\d+]/g, '')) + '">📞 전화</a>' : '') +
             (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">🗺️ 카카오맵</a>' : '') +
-            '<button type="button" class="p" data-ci="add">＋ 일정에 넣기</button></div>';
+            (rowKind ? '' : '<button type="button" class="p" data-ci="add">＋ 일정에 넣기</button>') + '</div>';
         infoEl.querySelector('.ci-c').innerHTML = h;
         infoEl.querySelector('.ci-pn').scrollTop = 0;
         if (!infoEl.classList.contains('on')) {
@@ -802,12 +826,22 @@
         }, 320);
     }
 
+    // 일정에 넣은 줄에 장소 정보(이름·분류·주소·전화·카카오맵 주소·위치)를 함께 저장해 두고, 줄의 "정보보기"로 같은 팝업을 다시 연다.
+    //   직접 쓴 이름처럼 정보가 없으면 저장하지 않는다(버튼도 안 나온다). m: stay=숙박, kid=키즈카페, meal=식당·카페
+    function mkInfo(x, m) {
+        if (!x || !(x.addr || x.phone || x.url || (x.lat != null && isFinite(x.lat)))) return null;
+        var o = { n: String(x.name || '').slice(0, 40), c: String(x.cat || '').slice(0, 30), a: String(x.addr || '').slice(0, 80), p: String(x.phone || '').slice(0, 30), m: m };
+        if (/^https?:\/\//.test(x.url || '')) o.u = x.url;
+        if (x.lat != null && isFinite(x.lat) && isFinite(x.lng)) { o.la = +x.lat; o.lo = +x.lng; }
+        return o;
+    }
     function stayPut(x) {
         var u = mealUI, d = u.day, memo = [];
         if (x.cat) memo.push(x.cat);
         if (x.phone) memo.push('☎ ' + x.phone);
         memo.push('요금·예약·체크인 확인');
         var row = newRow(d, '', '🏨 ' + x.name, 'm'); row.memo = clip(memo.join(' · '), 100); row.tg = [['stay', '🏨 숙박']];
+        var inf0 = mkInfo(x, 'stay'); if (inf0) row.info = inf0;
         // 그날 "귀가" 줄 앞(없으면 그날 맨 끝)에 넣고, 시간은 저녁 6시 무렵
         var at = -1; P.rows.forEach(function (rr, i) { if (at < 0 && rr.day === d && rr.k === 'out') at = i; });
         if (at < 0) at = lastIndexOfDay(d) + 1;
@@ -845,7 +879,192 @@
             P.rows.splice(at, 0, row);
         }
         if (x.lat != null && isFinite(x.lat) && isFinite(x.lng)) { row.lat = x.lat; row.lng = x.lng; } else { delete row.lat; delete row.lng; }
+        var inf1 = mkInfo(x, u.kid ? 'kid' : 'meal'); if (inf1) row.info = inf1; else delete row.info;
         mealUI = null;
+    }
+
+    // ── 코스 미니맵 ───────────────────────────────────────────────────────────────────
+    //   일정 줄 가운데 위치(lat·lng)가 있는 곳을 순서대로 번호 핀 + 점선으로 이어 일정표 맨 위에 보여 준다. 선은 직선(실제 길과 다름).
+    //   지도는 한 번만 만들고, 일정이 바뀔 때마다 핀과 선만 다시 그린다. 지도 SDK 는 이미 불러와져 있으면 그대로 쓴다.
+    var mmWrap = null, mmMap = null, mmObjs = [], mmDay = 1, mmLock = true, mmTimer = 0;
+    function geoOk(r) { return !!r && r.lat != null && r.lat !== '' && r.lng != null && r.lng !== '' && isFinite(+r.lat) && isFinite(+r.lng); }
+    function mmCount() { var n = 0; if (P) P.rows.forEach(function (r) { if (geoOk(r)) n++; }); return n; }
+    function mmEnsure(ok, fail) {
+        function have() { return window.kakao && kakao.maps && kakao.maps.Map && kakao.maps.Polyline && kakao.maps.CustomOverlay && kakao.maps.LatLngBounds; }
+        if (have()) { ok(); return; }
+        if (window.kakao && kakao.maps && kakao.maps.load) {
+            try { kakao.maps.load(function () { have() ? ok() : fail(); }); } catch (e) { fail(); }
+            return;
+        }
+        withKakao(function () { have() ? ok() : fail(); }, fail);
+    }
+    function mmSoon() { clearTimeout(mmTimer); mmTimer = setTimeout(mmUpdate, 40); }
+    function mmAttach() {
+        var sl = $('cpMMslot');
+        if (!sl || !P || !mmCount()) return;
+        if (mmWrap) { sl.style.display = ''; sl.appendChild(mmWrap); }   // 일정표를 다시 그려도 지도는 그대로 옮겨 붙인다(깜빡임·재생성 방지)
+        mmSoon();
+    }
+    function mmApplyLock() { try { mmMap.setDraggable(!mmLock); mmMap.setZoomable(!mmLock); } catch (e) { /* 무시 */ } }
+    function mmUpdate() {
+        var sl = $('cpMMslot');
+        if (!sl || !P || !root) return;
+        if (!mmCount()) { sl.style.display = 'none'; return; }
+        sl.style.display = '';
+        if (!mmWrap) { mmWrap = document.createElement('div'); mmWrap.className = 'cp-mm'; mmWrap.innerHTML = '<div class="cp-mmh"></div><div class="cp-mmm"></div><div class="cp-mmn"></div>'; }
+        if (mmWrap.parentNode !== sl) sl.appendChild(mmWrap);
+        if (mmDay > P.days || mmDay < 1) mmDay = 1;
+        var hd = '<span>🗺️ 코스 한눈에</span>';
+        if (P.days > 1) { for (var d = 1; d <= P.days; d++) hd += '<button type="button" data-act="mmday" data-d="' + d + '" class="' + (d === mmDay ? 'on' : '') + '">' + d + '일차</button>'; }
+        hd += '<button type="button" data-act="mmlock" style="margin-left:auto">' + (mmLock ? '🔒 고정됨 · 눌러서 움직이기' : '🔓 움직이는 중 · 눌러서 고정') + '</button>';
+        mmWrap.querySelector('.cp-mmh').innerHTML = hd;
+        var pts = [], miss = 0;
+        P.rows.forEach(function (r) { if (r.day !== mmDay) return; if (geoOk(r)) pts.push({ id: r.id, la: +r.lat, lo: +r.lng }); else miss++; });
+        var box = mmWrap.querySelector('.cp-mmm');
+        mmWrap.querySelector('.cp-mmn').textContent = (pts.length ? '번호는 일정 순서예요. 선은 직선이라 실제 길과 달라요.' : '이 날은 지도에 표시할 장소가 아직 없어요.') +
+            (pts.length && miss ? ' 위치 정보가 없는 ' + miss + '줄은 지도에 안 나와요.' : '');
+        box.style.display = pts.length ? '' : 'none';
+        if (!pts.length) return;
+        mmEnsure(function () { mmDraw(box, pts); }, function () { if (!mmMap) box.innerHTML = '<div style="padding:18px;font-size:12.5px;color:#64748b">지도를 불러오지 못했어요.</div>'; });
+    }
+    function mmDraw(box, pts) {
+        try {
+            if (!box.offsetWidth) return;   // 일정표가 닫혀 있을 때는 그리지 않는다(다음에 열 때 그린다)
+            if (!mmMap || mmMap._box !== box) {
+                mmMap = new kakao.maps.Map(box, { center: new kakao.maps.LatLng(pts[0].la, pts[0].lo), level: 6 });
+                mmMap._box = box;
+            }
+            mmApplyLock();
+            try { mmMap.relayout(); } catch (e) { /* 무시 */ }
+            mmObjs.forEach(function (o) { try { o.setMap(null); } catch (e) { /* 무시 */ } });
+            mmObjs = [];
+            var path = pts.map(function (q) { return new kakao.maps.LatLng(q.la, q.lo); });
+            if (path.length > 1) {
+                var pl = new kakao.maps.Polyline({ path: path, strokeWeight: 4, strokeColor: '#4f46e5', strokeOpacity: 0.85, strokeStyle: 'dash' });
+                pl.setMap(mmMap); mmObjs.push(pl);
+            }
+            pts.forEach(function (q, i) {
+                var el = document.createElement('div');
+                el.className = 'cp-pin'; el.textContent = String(i + 1);
+                el.addEventListener('click', function () {
+                    var re = root && root.querySelector('.cp-row[data-id="' + q.id + '"]');
+                    if (!re) return;
+                    try { re.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e2) { re.scrollIntoView(); }
+                    re.classList.add('cp-flash'); setTimeout(function () { re.classList.remove('cp-flash'); }, 1400);
+                });
+                var ov = new kakao.maps.CustomOverlay({ position: path[i], content: el, xAnchor: 0.5, yAnchor: 0.5, zIndex: 3 });
+                ov.setMap(mmMap); mmObjs.push(ov);
+            });
+            if (path.length === 1) { mmMap.setCenter(path[0]); mmMap.setLevel(4); }
+            else { var bd = new kakao.maps.LatLngBounds(); path.forEach(function (q) { bd.extend(q); }); mmMap.setBounds(bd, 30, 30, 30, 30); }
+        } catch (e) { /* 지도가 안 그려져도 일정표 사용에는 지장 없다 */ }
+    }
+
+    // ── 일정표 공유(링크) ──────────────────────────────────────────────────────────────
+    //   일정 내용을 JSON → 압축(지원 브라우저) → base64url 로 링크(/festival/?plan=…)에 담는다. 서버가 없어 링크에 모든 내용이 들어간다.
+    //   받는 쪽(plan-modal.js)은 decodeShare 로 읽고, 내용을 모두 걸러(길이·종류·주소 형식 검사) 사본으로 저장한다.
+    var SHARE_KINDS = { x: 1, n: 1, f: 1, m: 1, out: 1 };
+    var SHARE_TG = { '': 1, 'in': 1, out: 1, free: 1, stay: 1, meal: 1, kid: 1 };
+    function str(v, n) { return String(v == null ? '' : v).slice(0, n); }
+    function r5(v) { return Math.round(+v * 1e5) / 1e5; }
+    function shareBuild(withMemo) {
+        var o = { v: 1, t: str(cur && cur.title, 40), n: P.days, r: [] };
+        if (withMemo && P.note) o.o = str(P.note, 600);
+        P.rows.forEach(function (r) {
+            var q = { d: r.day, t: timeVal(r.time), x: str(r.title, 60) };
+            if (withMemo && r.memo) q.m = str(r.memo, 100);
+            if (SHARE_KINDS[r.k] && r.k !== 'x') q.k = r.k;
+            var pid = rowPid(r); if (pid) q.p = pid;
+            if (geoOk(r)) q.l = [r5(r.lat), r5(r.lng)];
+            var tg = rowTags(r); if (tg && tg.length) q.g = tg.map(function (t) { return [t[0] || '', t[1]]; });
+            if (r.info) q.i = r.info;
+            o.r.push(q);
+        });
+        return o;
+    }
+    function shareClean(o) {
+        if (!o || o.v !== 1 || !Array.isArray(o.r) || !o.r.length) return null;
+        var days = Math.max(1, Math.min(7, parseInt(o.n, 10) || 1)), rows = [];
+        o.r.slice(0, 60).forEach(function (q) {
+            if (!q || typeof q !== 'object') return;
+            var r = { id: uid(), day: Math.max(1, Math.min(days, parseInt(q.d, 10) || 1)), time: timeVal(q.t), title: str(q.x, 60), memo: str(q.m, 100), k: SHARE_KINDS[q.k] ? q.k : 'x' };
+            if (typeof q.p === 'string' && /^[A-Za-z0-9_-]{1,24}$/.test(q.p)) r.pid = q.p;
+            if (Array.isArray(q.l) && isFinite(+q.l[0]) && isFinite(+q.l[1]) && Math.abs(+q.l[0]) <= 90 && Math.abs(+q.l[1]) <= 180) { r.lat = +q.l[0]; r.lng = +q.l[1]; }
+            if (Array.isArray(q.g)) {
+                var tg = [];
+                q.g.slice(0, 4).forEach(function (t) { if (Array.isArray(t) && SHARE_TG.hasOwnProperty(String(t[0] || ''))) tg.push([String(t[0] || ''), str(t[1], 20)]); });
+                if (tg.length) r.tg = tg;
+            }
+            if (q.i && typeof q.i === 'object') {
+                var inf = mkInfo({ name: q.i.n, cat: q.i.c, addr: q.i.a, phone: q.i.p, url: q.i.u, lat: q.i.la, lng: q.i.lo }, (q.i.m === 'stay' || q.i.m === 'kid') ? q.i.m : 'meal');
+                if (inf) r.info = inf;
+            }
+            rows.push(r);
+        });
+        if (!rows.length) return null;
+        return { t: str(o.t, 40) || '친구가 보낸 코스', n: days, o: str(o.o, 600), r: rows };
+    }
+    function fromShared(sh) {
+        return { v: 1, mode: 'day', id: '', date: '', days: sh.n, rows: sh.r, checks: {}, extra: [], note: sh.o || '', fest: false };
+    }
+    function b64uEnc(u8) {
+        var s = '';
+        for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+        return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function b64uDec(t) {
+        t = String(t).replace(/-/g, '+').replace(/_/g, '/');
+        while (t.length % 4) t += '=';
+        var b = atob(t), u = new Uint8Array(b.length);
+        for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+        return u;
+    }
+    function streamBytes(tf, u8) {
+        var w = tf.writable.getWriter();
+        w.write(u8); w.close();
+        return new Response(tf.readable).arrayBuffer().then(function (ab) { return new Uint8Array(ab); });
+    }
+    function shareEncode(obj) {
+        var u8 = new TextEncoder().encode(JSON.stringify(obj));
+        if (typeof CompressionStream === 'function') {
+            try { return streamBytes(new CompressionStream('deflate-raw'), u8).then(function (z) { return 'z.' + b64uEnc(z); }); } catch (e) { /* 압축 없이 */ }
+        }
+        return Promise.resolve('u.' + b64uEnc(u8));
+    }
+    function decodeShare(code) {
+        code = String(code || '');
+        if (code.length > 12000) return Promise.reject(new Error('long'));
+        var kind = code.slice(0, 2), p;
+        try {
+            var u8 = b64uDec(code.slice(2));
+            if (kind === 'u.') p = Promise.resolve(u8);
+            else if (kind === 'z.' && typeof DecompressionStream === 'function') p = streamBytes(new DecompressionStream('deflate-raw'), u8);
+            else return Promise.reject(new Error('nosupport'));
+        } catch (e) { return Promise.reject(e); }
+        return p.then(function (bytes) {
+            var c = shareClean(JSON.parse(new TextDecoder().decode(bytes)));
+            if (!c) throw new Error('bad');
+            return c;
+        });
+    }
+    function shareMsg(t) { var e = $('cpShareMsg'); if (e) e.textContent = t || ''; }
+    function shareMake(cb) {
+        var m = $('cpShareMemo');
+        shareMsg('링크를 만드는 중…');
+        shareEncode(shareBuild(!!(m && m.checked))).then(function (code) {
+            if (code.length > 7000) { shareMsg('일정이 너무 길어 링크로 보내기 어려워요. 줄을 줄이거나 "메모도 같이 보내기"를 꺼 보세요.'); return; }
+            var url = location.origin + '/festival/?plan=' + code;
+            var inp = $('cpShareUrl'); if (inp) { inp.value = url; inp.style.display = ''; }
+            shareMsg('');
+            cb(url);
+        }, function () { shareMsg('링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.'); });
+    }
+    function copyText(url, done) {
+        function fb() {
+            try { var inp = $('cpShareUrl'); if (inp) { inp.focus(); inp.select(); inp.setSelectionRange(0, 99999); } done(!!document.execCommand('copy')); } catch (e) { done(false); }
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { done(true); }, fb);
+        else fb();
     }
 
     // ── 인쇄용 종이 ─────────────────────────────────────────────────────────────────
@@ -916,7 +1135,7 @@
                 if (r.day !== d) return;
                 any = true;
                 var tgs = rowTags(r).map(function (t) { return t[1]; }).join(' · ');
-                h += '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.title) + (tgs ? '<div style="font-size:11px;color:#555">' + esc(tgs) + '</div>' : '') + '</td><td>' + esc(r.memo) + '</td></tr>';
+                h += '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.title) + (tgs ? '<div style="font-size:11px;color:#555">' + esc(tgs) + '</div>' : '') + '</td><td>' + esc(r.memo) + (r.info && r.info.a ? '<div style="font-size:11px;color:#555">📍 ' + esc(r.info.a) + '</div>' : '') + '</td></tr>';
             });
             if (!any) h += '<tr><td colspan="3">&nbsp;</td></tr>';
             h += '</table>';
@@ -969,6 +1188,25 @@
         if (act === 'back') {
             e.preventDefault();
             var rs = $('result'); if (rs && rs.scrollIntoView) rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        if (act === 'mmday') { mmDay = +t.getAttribute('data-d') || 1; mmUpdate(); return; }
+        if (act === 'mmlock') { mmLock = !mmLock; mmUpdate(); return; }
+        if (act === 'share') {
+            shareMake(function (url) {
+                if (navigator.share) {
+                    navigator.share({ title: '나들이 일정표', text: (cur && cur.title ? cur.title : '나들이') + ' 일정표를 보내요', url: url }).then(function () { shareMsg('공유했어요.'); }, function (err) {
+                        if (err && err.name === 'AbortError') { shareMsg(''); return; }
+                        copyText(url, function (ok) { shareMsg(ok ? '공유창을 열 수 없어 링크를 복사했어요. 카카오톡이나 문자에 붙여넣어 보내세요.' : '아래 링크를 길게 눌러 복사해 주세요.'); });
+                    });
+                } else {
+                    copyText(url, function (ok) { shareMsg(ok ? '링크를 복사했어요. 카카오톡이나 문자에 붙여넣어 보내세요.' : '아래 링크를 길게 눌러 복사해 주세요.'); });
+                }
+            });
+            return;
+        }
+        if (act === 'sharecopy') {
+            shareMake(function (url) { copyText(url, function (ok) { shareMsg(ok ? '링크를 복사했어요. 카카오톡이나 문자에 붙여넣어 보내세요.' : '아래 링크를 길게 눌러 복사해 주세요.'); }); });
             return;
         }
         if (act === 'up' || act === 'down') {
@@ -1033,6 +1271,11 @@
             if (!mealUI || !mealUI.results) return;
             var ix = mealUI.results[+t.getAttribute('data-i')]; if (!ix) return;
             infoOpen(ix, +t.getAttribute('data-i')); return;
+        } else if (act === 'rowinfo') {
+            var ri0 = rowIndex(id); var rr0 = ri0 >= 0 ? P.rows[ri0] : null;
+            if (!rr0 || !rr0.info) return;
+            var f0 = rr0.info;
+            infoOpen({ name: f0.n || plainTitle(rr0.title), cat: f0.c, addr: f0.a, phone: f0.p, url: f0.u || '', lat: f0.la != null ? f0.la : null, lng: f0.lo != null ? f0.lo : null }, -1, f0.m || 'meal'); return;
         } else if (act === 'mealadd') {
             if (!mealUI || !mealUI.results) return;
             var mx = mealUI.results[+t.getAttribute('data-i')]; if (!mx) return;
@@ -1178,6 +1421,8 @@
             var pid = champ.contentid + (opts && opts.variant ? ':' + String(opts.variant) : '');
             defNearOff = !!(opts && opts.noDefaultNear);
             P = load(pid);
+            mmDay = 1;
+            if (!P && opts && opts.shared) { P = fromShared(opts.shared); P.id = pid; }   // 공유 링크로 받은 일정표: 받은 내용을 사본으로 저장한다
             // [ADD] 2026-11-22: opts.rows — 지도의 코스 카드처럼 여러 곳을 한 번에 담은 일정표. 저장된 일정이 없을 때(그리고 "처음 상태로")만 이 줄들로 채운다.
             //   rows: [{ time:'10:00', title, memo, k:'x'|'n'|'f', pid?, src? }]  (src = costTag·placeType 가 든 장소 정보 → 실내/야외·무료/유료 배지)
             seedRows = (opts && Array.isArray(opts.rows) && opts.rows.length) ? opts.rows : null;
@@ -1186,8 +1431,10 @@
             render();
             sec.style.display = 'block';
             fitAll();
+            mmSoon();
             try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { sec.scrollIntoView(); }
         },
+        decodeShare: decodeShare,
         hide: function () {
             var s = $('campPlan');
             if (s) s.style.display = 'none';
