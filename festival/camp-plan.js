@@ -1194,8 +1194,8 @@
         if (act === 'mmlock') { mmLock = !mmLock; mmUpdate(); return; }
         if (act === 'share') {
             shareMake(function (url) {
-                if (navigator.share) {
-                    navigator.share({ title: '나들이 일정표', text: (cur && cur.title ? cur.title : '나들이') + ' 일정표를 보내요', url: url }).then(function () { shareMsg('공유했어요.'); }, function (err) {
+                if (navigator.share) {   // 제목·글을 같이 주면 카카오톡 전송이 실패하는 폰이 있어 링크만 넘긴다
+                    navigator.share({ url: url }).then(function () { shareMsg('공유했어요.'); }, function (err) {
                         if (err && err.name === 'AbortError') { shareMsg(''); return; }
                         copyText(url, function (ok) { shareMsg(ok ? '공유창을 열 수 없어 링크를 복사했어요. 카카오톡이나 문자에 붙여넣어 보내세요.' : '아래 링크를 길게 눌러 복사해 주세요.'); });
                     });
