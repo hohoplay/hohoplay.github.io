@@ -63,6 +63,20 @@ TOPICS=[('mus','🏛️','박물관·전시',('박물관','미술관','전시','
  ('zoo','🐠','동물·수족관',('동물','수족관','아쿠아','아쿠아리움','곤충','펭귄','사파리','해양'))]
 def topics_of(title):
     return [k for k,_,_,kw in TOPICS if any(w in title for w in kw)]
+# 주차 가능 확인 장소: 한국관광공사 TourAPI 공식 부가정보(주차시설)가 "가능"인 곳만 (AI가 쓴 글·후기는 쓰지 않는다)
+def _pk_load():
+    try:
+        d=json.load(open('data/kids_notes_draft.json',encoding='utf-8'))
+    except Exception:
+        return set()
+    out=set()
+    for k,v in d.items():
+        if v.get('model')!='tourapi': continue
+        for ek,ev in (v.get('evidence') or {}).items():
+            if ek.startswith('parking') and not ek.startswith('parkingfee') and '가능' in str(ev) and '불가' not in str(ev):
+                out.add(k)
+    return out
+PKSET=_pk_load()
 def fee_of(ps):
     tags=[p.get('costTag') or '' for p in ps]
     if all(t=='완전무료' for t in tags): return 'free'
@@ -84,7 +98,7 @@ def card(slug,key,area,allp,n_all):
     th=''.join(f'<i style="background-image:url(\'{img_or_ph(x)}\')"></i>' for x in (stops+stops)[:3])
     area_short=area.split(' ',1)[1] if ' ' in area else area
     tps=sorted({t for x in stops for t in topics_of(x['title'])}); fee=fee_of(stops)
-    return f'''<article class="card" data-id="{slug}" data-stops="{html.escape(json.dumps([[float(x['lat']),float(x['lng']),x['title']] for x in stops],ensure_ascii=False))}" data-lat="{sum(float(x['lat']) for x in stops)/len(stops):.5f}" data-lng="{sum(float(x['lng']) for x in stops)/len(stops):.5f}" data-in="{sum(1 for x in stops if x.get('placeType')=='실내')}" data-ar="{html.escape(area_short)}" data-tp="{' '.join(tps)}" data-fee="{fee}"><div class="thumbs">{th}</div><div class="body"><div class="reg">{html.escape(area)}{" · 자동 추천" if slug.startswith("auto-") else ""}</div><h3>{html.escape(area_short)} 하루 코스</h3>
+    return f'''<article class="card" data-id="{slug}" data-stops="{html.escape(json.dumps([[float(x['lat']),float(x['lng']),x['title']] for x in stops],ensure_ascii=False))}" data-lat="{sum(float(x['lat']) for x in stops)/len(stops):.5f}" data-lng="{sum(float(x['lng']) for x in stops)/len(stops):.5f}" data-in="{sum(1 for x in stops if x.get('placeType')=='실내')}" data-ar="{html.escape(area_short)}" data-tp="{' '.join(tps)}" data-fee="{fee}" data-pk="{sum(1 for x in stops if x['contentid'] in PKSET)}"><div class="thumbs">{th}</div><div class="body"><div class="reg">{html.escape(area)}{" · 자동 추천" if slug.startswith("auto-") else ""}</div><h3>{html.escape(area_short)} 하루 코스</h3>
 <p class="dist"></p><p class="inb">🏠 이 코스 {len(stops)}곳 중 실내 {sum(1 for x in stops if x.get('placeType')=='실내')}곳 · 실내외 {sum(1 for x in stops if x.get('placeType')=='실내외')}곳</p><p class="sub">등록 {n_all}곳 중 대표 {len(stops)}곳 · 무료 {free}곳</p><ol>{li}</ol>
 <button type="button" class="go plan" data-course="{slug}">📅 이 코스로 일정표 만들기</button><a class="go2" href="/festival/?region={key}">🗺️ 지도로 보기</a>{"" if slug.startswith("auto-") else f'<a class="more" href="/blog/kids-course/{slug}.html">코스 전체 {n_all}곳 보기 →</a>'}</div></article>'''
 ICON={'seoul': '🗼', 'daejeon': '🔬', 'daegu': '🍎', 'busan': '🌉', 'incheon': '✈️', 'gyeonggi': '🏙️', 'sejong': '🏛️', 'gangwon': '⛰️', 'chungbuk': '🌿', 'gyeongbuk': '🏯', 'gyeongnam': '🌊', 'chungnam': '🌾', 'jeonbuk': '🍚', 'jeonnam': '🌴', 'gwangju': '🎨', 'ulsan': '🐋', 'jeju': '🍊'}
@@ -127,7 +141,7 @@ section{scroll-margin-top:56px}h2{font-size:19px;margin:22px 0 10px}h2 small{fon
 .rad{display:none;margin:0 0 10px}.rad p{margin:0 0 6px}.dist{display:none;margin:0 0 6px;font-size:12px;font-weight:800;color:#be185d}body.near .dist{display:block}.nlocn{margin:0 0 8px}
 .rch{font-size:19px;margin:26px 0 4px}.rcs{margin:0 0 12px;font-size:13px;color:var(--sub);line-height:1.6}.rcg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:6px}
 .rc{display:flex;flex-direction:column;gap:3px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink)}.rc b{font-size:15px}.rc span{font-size:12px;color:var(--sub)}.rc:active{background:var(--soft)}
-.subr{padding:2px 0 8px}.subr.fc{flex-wrap:wrap;overflow:visible;gap:8px}.subr.fc button{flex:0 0 auto}.subr .xmore{display:none}.subr.fold button.xh{display:none}.subr.fold .xmore{display:inline-block;border-style:dashed}.shf{margin-bottom:6px}.fr{margin:0 0 10px}.fr .rgt{margin:0 0 6px}.fc{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.fc::-webkit-scrollbar{display:none}
+.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.subr{padding:2px 0 8px}.subr.fc{flex-wrap:wrap;overflow:visible;gap:8px}.subr.fc button{flex:0 0 auto}.subr .xmore{display:none}.subr.fold button.xh{display:none}.subr.fold .xmore{display:inline-block;border-style:dashed}.shf{margin-bottom:6px}.fr{margin:0 0 10px}.fr .rgt{margin:0 0 6px}.fc{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.fc::-webkit-scrollbar{display:none}
 .fc button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}.fc button.on{background:#e11d48;border-color:#e11d48;color:#fff}
 .sbox{margin:0 0 12px}.sbox input[type=search]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:15px;font-family:inherit}
 .srow{display:flex;gap:8px;margin-top:8px;align-items:center}.srow select{flex:1;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:14px;font-family:inherit}.in{font-size:13px;font-weight:700;white-space:nowrap}
@@ -136,15 +150,15 @@ section{scroll-margin-top:56px}h2{font-size:19px;margin:22px 0 10px}h2 small{fon
 .more{display:block;text-align:center;margin-top:8px;font-size:12px;font-weight:700;color:var(--pri);text-decoration:none}
 </style>''')
 JS=r'''<script>
-(function(){var q=document.getElementById('q'),ind=document.getElementById('indoor'),res=document.getElementById('sres'),st='',tp='',fee='';
+(function(){var q=document.getElementById('q'),ind=document.getElementById('indoor'),res=document.getElementById('sres'),st='',tp='',fee='',pk='';
 var cards=[].slice.call(document.querySelectorAll('.card')),secs=[].slice.call(document.querySelectorAll('section[id^=r-]'));
 var bs=[].slice.call(document.querySelectorAll('.rg[data-k]')),sh=document.getElementById('sheet'),ov=document.getElementById('ov');
-cards.forEach(function(c){c._t=(c.textContent||'').replace(/\s+/g,'').toLowerCase();c._in=/실내/.test(c.textContent);c._tp=' '+(c.getAttribute('data-tp')||'')+' ';c._fee=c.getAttribute('data-fee');});
+cards.forEach(function(c){c._t=(c.textContent||'').replace(/\s+/g,'').toLowerCase();c._in=/실내/.test(c.textContent);c._tp=' '+(c.getAttribute('data-tp')||'')+' ';c._fee=c.getAttribute('data-fee');c._pk=+c.getAttribute('data-pk')||0;});
 secs.forEach(function(s){s._ar='';});
 function sheet(on){sh.classList.toggle('on',on);ov.classList.toggle('on',on);}
 function run(){var w=q.value.replace(/\s+/g,'').toLowerCase(),n=0,sub=false;
-secs.forEach(function(sec){var vis=0;[].forEach.call(sec.querySelectorAll('.card'),function(c){var ok=(!w||c._t.indexOf(w)>-1)&&(!sec._ar||c.getAttribute('data-ar')===sec._ar)&&(!ind.checked||c._in)&&(!near||!rad||c._km<=rad)&&(!tp||c._tp.indexOf(' '+tp+' ')>-1)&&(!fee||c._fee===fee);c.style.display=ok?'':'none';if(ok){vis++;n++}});sec.style.display=(vis||sec._ar)?'':'none';if(sec._ar)sub=true;});
-if(w||tp||fee||ind.checked||sub){res.style.display='';res.innerHTML=n?('검색 결과 <b>'+n+'개</b> 코스'):'맞는 코스가 없어요. 조건을 바꿔 보세요.';}else res.style.display='none';
+secs.forEach(function(sec){var vis=0;[].forEach.call(sec.querySelectorAll('.card'),function(c){var ok=(!w||c._t.indexOf(w)>-1)&&(!sec._ar||c.getAttribute('data-ar')===sec._ar)&&(!ind.checked||c._in)&&(!near||!rad||c._km<=rad)&&(!tp||c._tp.indexOf(' '+tp+' ')>-1)&&(!fee||c._fee===fee)&&(!pk||c._pk>0);c.style.display=ok?'':'none';if(ok){vis++;n++}});sec.style.display=(vis||sec._ar)?'':'none';if(sec._ar)sub=true;});
+if(w||tp||fee||pk||ind.checked||sub){res.style.display='';res.innerHTML=n?('검색 결과 <b>'+n+'개</b> 코스'):'맞는 코스가 없어요. 조건을 바꿔 보세요.';}else res.style.display='none';
 bs.forEach(function(b){var k=b.getAttribute('data-k');b.classList.toggle('on',b.hasAttribute('data-all')?st==='':k===st);});}
 bs.forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');
 if(b.hasAttribute('data-all')){sheet(true);return;}
@@ -154,7 +168,7 @@ document.getElementById('shx').addEventListener('click',function(){sheet(false)}
 document.addEventListener('click',function(e){var b=e.target.closest('.fc button');if(!b)return;
 if(b.parentNode.classList.contains('subr')){var sec=b.closest('section');sec._ar=b.getAttribute('data-a');[].forEach.call(b.parentNode.children,function(x){x.classList.toggle('on',x===b)});run();return;}
 var g=b.parentNode.getAttribute('data-g'),v=b.getAttribute('data-v');
-if(g==='rad'){rad=+v||0}else if(g==='tp')tp=v;else fee=v;[].forEach.call(document.querySelectorAll('.fc[data-g='+g+']'),function(el){[].forEach.call(el.children,function(x){x.classList.toggle('on',x.getAttribute('data-v')===v)})});run();});
+if(g==='rad'){rad=+v||0}else if(g==='tp')tp=v;else if(g==='pk')pk=v;else fee=v;[].forEach.call(document.querySelectorAll('.fc[data-g='+g+']'),function(el){[].forEach.call(el.children,function(x){x.classList.toggle('on',x.getAttribute('data-v')===v)})});run();});
 secs.forEach(function(sec){var g=sec.querySelector('.grid');g._o=[].slice.call(g.children);});
 document.getElementById('rain').addEventListener('change',function(){var on=this.checked;document.body.classList.toggle('rain',on);document.getElementById('wxn').style.display=on?'':'none';
 secs.forEach(function(sec){var g=sec.querySelector('.grid'),a=g._o.slice();if(on)a.sort(function(x,y){return (+y.getAttribute('data-in'))-(+x.getAttribute('data-in'))||g._o.indexOf(x)-g._o.indexOf(y)});a.forEach(function(c){g.appendChild(c)});});});
@@ -227,9 +241,9 @@ page=f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="
 <div class="wx"><label class="sw"><input type="checkbox" id="rain"><span class="tg"></span><span>☔ 날씨 궂은 날 미리보기 <small>(시안용 스위치)</small></span></label><p class="wxn" id="wxn" style="display:none">☔ 오늘 비 예보 <b>(강수확률 70%)</b> — <b>실내 코스를 먼저</b> 보여드려요. 각 지역에서 실내 장소가 많은 코스가 위로 올라옵니다. <small style="display:block;margin-top:4px;color:#475569">※ 70%는 시안용 예시 숫자예요. 실제로는 선택한 날짜 낮(9~21시) 최대 강수확률이 들어가요.</small></p></div>
 <nav class="seg" aria-label="보기 방식"><a href="#" class="on">코스 추천</a><a href="#">전체목록</a><a href="#">지도</a></nav>
 <div class="rgwrap"><p class="rgt">지역<small class="rgh">옆으로 밀어서 더 보기 →</small></p><div class="rgrid" id="rgrid"><button type="button" class="rg on" data-k="" data-all="1"><span class="ic">🗺️<em>{tot}</em></span><span class="lb">전체 ▾</span></button>{''.join(rbtn[k] for k in ROW if k in rbtn)}</div></div>
-<div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="free">🆓 전부 무료</button><button type="button" data-v="paid">💳 유료 장소 포함</button><button type="button" data-v="etc">❔ 요금 확인 필요</button></div></div>
+<div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="free">🆓 전부 무료</button><button type="button" data-v="paid">💳 유료 장소 포함</button><button type="button" data-v="etc">❔ 요금 확인 필요</button></div></div><div class="fr"><p class="rgt">주차</p><div class="fc" data-g="pk"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="1">🅿️ 주차 가능한 곳 포함</button></div><p class="pkn">공식 자료에서 주차 가능으로 확인된 곳만 걸러요. 자료가 없는 곳은 빠질 수 있어요.</p></div>
 <div class="ov" id="ov"></div><div class="sheet" id="sheet" role="dialog" aria-label="전체 지역"><div class="sh-h"><b>📍 전체 지역</b><button type="button" class="sh-x" id="shx" aria-label="닫기">✕</button></div><div class="shf"><div class="fr"><p class="rgt">주제</p><div class="fc" data-g="tp"><button type="button" class="on" data-v="">전체</button>{''.join(f'<button type="button" data-v="{k}">{ic} {lb}</button>' for k,ic,lb,_ in TOPICS)}</div></div>
-<div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="free">🆓 전부 무료</button><button type="button" data-v="paid">💳 유료 장소 포함</button><button type="button" data-v="etc">❔ 요금 확인 필요</button></div></div>
+<div class="fr"><p class="rgt">이용요금</p><div class="fc" data-g="fee"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="free">🆓 전부 무료</button><button type="button" data-v="paid">💳 유료 장소 포함</button><button type="button" data-v="etc">❔ 요금 확인 필요</button></div></div><div class="fr"><p class="rgt">주차</p><div class="fc" data-g="pk"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="1">🅿️ 주차 가능한 곳 포함</button></div><p class="pkn">공식 자료에서 주차 가능으로 확인된 곳만 걸러요. 자료가 없는 곳은 빠질 수 있어요.</p></div>
 </div><p class="rgt">지역</p><div class="rgrid sh" id="shgrid">{''.join(rbtn[k] for k in rbtn)}</div><button type="button" class="sh-all" data-k="">🗺️ 전국 전체 코스 보기 ({tot})</button></div>
 <div class="fr rad" id="rad"><p class="rgt">📍 내 주변 반경</p><div class="fc" data-g="rad"><button type="button" class="on" data-v="">전체</button><button type="button" data-v="5">5km</button><button type="button" data-v="10">10km</button><button type="button" data-v="30">30km</button><button type="button" data-v="60">60km</button></div></div>
 <div class="nt nlocn" id="nlocn" style="display:none"></div>
