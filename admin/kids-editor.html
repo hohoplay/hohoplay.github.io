@@ -239,6 +239,8 @@
      그 사이 자동화(좌표·사진 보정 등)가 같은 파일을 바꿨어도, 내가 바꾼 항목만 골라 합쳐서 저장한다.
    - [2026-11-28] 장소마다 "육아 편의시설"(수유실 nursingRoom · 기저귀교환대 diaperTable · 유아의자 highChair)을 체크할 수 있다.
      있는 것을 확인한 곳만 true 로 저장되고, 체크를 풀면 항목이 지워진다(= 아직 확인 안 함). CSV 에도 같은 이름의 열(Y 표시)이 들어간다.
+   - [2026-11-28] 세 시설마다 위치·이용 안내 글(nursingRoomNote · diaperTableNote · highChairNote)을 적을 수 있다. 글을 쓰면 '있음' 체크가 자동으로 켜지고,
+     체크를 풀어도 글은 남는다(상세페이지·지도에서는 체크된 시설의 글만 쓴다). 글을 비우면 항목이 지워진다.
    - 저장한 항목에는 updatedAt("YYYY-MM-DD HH:mm", 한국시간)이 기록되어 목록에 "최근 수정"으로 보인다.
    - 지도는 JSON을 바로 읽으므로 1~2분 뒤 반영되고, 상세페이지(festival/detail)는
      Actions의 "Fetch Kids Place Images"를 실행해야 새 내용으로 다시 만들어진다(저장 후 버튼이 나온다).
@@ -250,6 +252,7 @@ var OPTIONAL_STR = ['fee','hours','tel','homepage','image','overview','ageWarnin
 /* [ADD] 2026-11-28: 육아 편의시설 체크(수유실·기저귀교환대·유아의자). 확인된 곳만 true 로 저장하고, 체크를 풀면 항목 자체를 지운다(= 아직 확인 안 함). */
 var AMENITIES = [['nursingRoom','🍼','수유실'], ['diaperTable','🚼','기저귀교환대'], ['highChair','🪑','유아의자']];
 var AMEN_KEYS = AMENITIES.map(function (a) { return a[0]; });
+var AMEN_NOTE_KEYS = AMEN_KEYS.map(function (k) { return k + 'Note'; });   // 위치·이용 안내 글 (예: 1층 안내데스크 옆)
 var PAGE_SIZE = 20;
 var LS_CFG = 'kpe_cfg', LS_TOKEN = 'kpe_token', LS_DRAFT = 'kpe_draft_v1';
 
@@ -541,7 +544,7 @@ function rowHead(r){
   if (!hasVal(r.hours)) flags += '<span class="flag">🕘 운영시간 없음</span>';
   if (r.hidden) flags = '<span class="flag" style="color:#b42318;background:#fee4e2;font-weight:700">⛔ 운영 OFF · 지도·코스에 안 나와요</span>' + flags;
   if (r.coordLock) flags += '<span class="flag" style="color:var(--pine-deep);background:var(--pine-mist)">📍 좌표 고정</span>';
-  AMENITIES.forEach(function (a) { if (r[a[0]]) flags += '<span class="flag" style="color:#067647;background:#dcfae6;font-weight:700">' + a[1] + ' ' + a[2] + '</span>'; });
+  AMENITIES.forEach(function (a) { if (r[a[0]]) { var an = r[a[0] + 'Note']; flags += '<span class="flag" style="color:#067647;background:#dcfae6;font-weight:700"' + (an ? ' title="' + esc(an) + '"' : '') + '>' + a[1] + ' ' + a[2] + (an ? ' · ' + esc(an.length > 14 ? an.slice(0, 14) + '…' : an) : '') + '</span>'; } });
   var upd;
   if (dirty) upd = '<div class="upd pending">🟡 저장 전 변경 있음 — 저장하면 수정일이 기록돼요</div>';
   else if (hasVal(r.updatedAt)) upd = '<div class="upd">✏️ 최근 수정 ' + esc(r.updatedAt) + ' <span style="opacity:.7">(' + esc(agoText(r.updatedAt)) + ')</span></div>';
@@ -636,9 +639,12 @@ function buildForm(r){
     '<img class="preview" id="pv-' + esc(id) + '" alt=""' + (hasVal(r.image) ? ' src="' + esc(r.image) + '"' : ' style="display:none"') + ' onerror="this.style.display=\'none\'" onload="this.style.display=\'block\'"></div>';
   h += fld('연령 주의', 'ageWarning', r.ageWarning, { full: true, ph: '예: 영유아 비권장 / 12세 이상 (필요할 때만)' });
   h += fld('정보 확인 시기', 'checkedAt', r.checkedAt, { ph: '예: 2026-11' });
-  h += '<div class="full"><label class="f">👶 육아 편의시설 <span style="font-weight:400">(있는 것을 확인한 곳만 체크 · 체크 안 함 = 아직 확인 안 함)</span></label>' +
+  h += '<div class="full"><label class="f">👶 육아 편의시설 <span style="font-weight:400">(있는 것을 확인한 곳만 체크 · 체크 안 함 = 아직 확인 안 함 · 칸에 글을 쓰면 자동으로 체크돼요)</span></label>' +
     '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
-    AMENITIES.map(function (a) { return '<label class="check" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #d0d5dd;border-radius:10px;font-weight:700;background:' + (r[a[0]] ? '#ecfdf3' : '#fff') + '"><input type="checkbox" data-f="' + a[0] + '"' + (r[a[0]] ? ' checked' : '') + '> ' + a[1] + ' ' + a[2] + '</label>'; }).join('') +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px">' +
+    AMENITIES.map(function (a) { var nk = a[0] + 'Note'; return '<div class="amen" style="display:flex;flex-direction:column;gap:6px"><label class="check" style="display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #d0d5dd;border-radius:10px;font-weight:700;background:' + (r[a[0]] ? '#ecfdf3' : '#fff') + '"><input type="checkbox" data-f="' + a[0] + '"' + (r[a[0]] ? ' checked' : '') + '> ' + a[1] + ' ' + a[2] + '</label>' +
+      '<input class="in" data-f="' + nk + '" value="' + esc(r[nk] == null ? '' : r[nk]) + '" placeholder="' + esc(a[2] + ' 위치·안내 (예: 1층 안내데스크 옆)') + '"></div>'; }).join('') +
+    '</div>' +
     '</div></div>';
   h += '<div style="display:flex;flex-direction:column;gap:6px;justify-content:flex-end">' +
     '<label class="check"><input type="checkbox" data-f="hasDetail"' + (r.hasDetail !== false ? ' checked' : '') + '> 상세페이지 만들기</label>' +
@@ -663,6 +669,17 @@ function setField(r, key, el){
   if (AMEN_KEYS.indexOf(key) >= 0) {
     if (el.checked) r[key] = true; else delete r[key];
     var amb = el.closest('label'); if (amb) amb.style.background = el.checked ? '#ecfdf3' : '#fff';
+    return;
+  }
+  if (AMEN_NOTE_KEYS.indexOf(key) >= 0) {
+    var nv = el.value.trim();
+    if (nv === '') delete r[key]; else r[key] = nv;
+    var fk = key.slice(0, -4);
+    if (nv !== '' && r[fk] !== true) {      // 글을 쓰면 '있음' 체크도 같이 켠다
+      r[fk] = true;
+      var am = el.closest('.amen'), cbx = am && am.querySelector('input[type=checkbox][data-f="' + fk + '"]');
+      if (cbx) { cbx.checked = true; var lb = cbx.closest('label'); if (lb) lb.style.background = '#ecfdf3'; }
+    }
     return;
   }
   if (key === 'hasDetail') { r.hasDetail = !!el.checked; return; }
@@ -990,7 +1007,7 @@ $('#jsonBtn').addEventListener('click', function () {
   download('kids_places.json', JSON.stringify(out, null, 2) + '\n', 'application/json');
   toast('kids_places.json을 내려받았어요 (data/ 폴더에 덮어쓰면 돼요)', 3000);
 });
-var CSV_COLS = ['contentid','title','addr','lat','lng','placeType','costTag','fee','hours','tel','homepage','desc','overview','image','ageWarning','checkedAt','updatedAt','nursingRoom','diaperTable','highChair'];
+var CSV_COLS = ['contentid','title','addr','lat','lng','placeType','costTag','fee','hours','tel','homepage','desc','overview','image','ageWarning','checkedAt','updatedAt','nursingRoom','diaperTable','highChair','nursingRoomNote','diaperTableNote','highChairNote'];
 function csvCell(v){ var s = v == null ? '' : String(v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
 $('#exportBtn').addEventListener('click', function () {
   var lines = [CSV_COLS.join(',')];
@@ -1019,7 +1036,8 @@ var ALIAS = {
   costTag: ['costtag','cost','비용','비용구분','요금구분'], fee: ['fee','요금','입장료','이용요금','요금상세'], hours: ['hours','운영시간','이용시간'],
   tel: ['tel','phone','전화','전화번호','연락처'], homepage: ['homepage','url','홈페이지','사이트'], desc: ['desc','description','한줄설명','설명'],
   overview: ['overview','상세설명','소개','상세'], image: ['image','이미지','사진','대표사진'], ageWarning: ['agewarning','연령주의'], checkedAt: ['checkedat','정보확인시기','확인시기'],
-  nursingRoom: ['nursingroom','수유실'], diaperTable: ['diapertable','기저귀교환대','기저귀교환실','기저귀'], highChair: ['highchair','유아의자','유아용의자','아기의자']
+  nursingRoom: ['nursingroom','수유실'], diaperTable: ['diapertable','기저귀교환대','기저귀교환실','기저귀'], highChair: ['highchair','유아의자','유아용의자','아기의자'],
+  nursingRoomNote: ['nursingroomnote','수유실위치','수유실안내','수유실메모'], diaperTableNote: ['diapertablenote','기저귀교환대위치','기저귀교환대안내','기저귀교환대메모'], highChairNote: ['highchairnote','유아의자위치','유아의자안내','유아의자메모']
 };
 function mapYN(v){   // 수유실·기저귀교환대·유아의자 칸: Y/O/1/있음/예/✓ → true, N/X/0/없음/아니오 → false, 빈 칸 → null(건드리지 않음)
   v = String(v || '').replace(/\s/g, '').toLowerCase(); if (v === '') return null;
@@ -1062,7 +1080,7 @@ function planImport(text){
     var data = {};
     ['title','addr','desc','fee','hours','tel','homepage','overview','image','ageWarning','checkedAt'].forEach(function (k) { var v = get(row, k); if (v !== '') data[k] = v; });
     var la = parseFloat(get(row, 'lat')), ln = parseFloat(get(row, 'lng')); if (isFinite(la) && isFinite(ln)) { data.lat = la; data.lng = ln; }
-    AMEN_KEYS.forEach(function (k) { var yn = mapYN(get(row, k)); if (yn !== null) data[k] = yn; });
+    AMEN_KEYS.forEach(function (k) { var yn = mapYN(get(row, k)); if (yn !== null) data[k] = yn; var nt = get(row, k + 'Note'); if (nt !== '') { data[k + 'Note'] = nt; if (yn === null) data[k] = true; } });
     var pt = mapType(get(row, 'placeType')); if (pt) data.placeType = pt;
     if (get(row, 'costTag') !== '') data.costTag = mapCost(get(row, 'costTag'));
     var ex = cid ? pool.filter(function (r) { return r.contentid === cid; })[0] : null;
