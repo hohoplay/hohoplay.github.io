@@ -117,7 +117,7 @@ section{scroll-margin-top:56px}h2{font-size:19px;margin:22px 0 10px}h2 small{fon
 .rad{display:none;margin:0 0 10px}.rad p{margin:0 0 6px}.dist{display:none;margin:0 0 6px;font-size:12px;font-weight:800;color:#be185d}.vw.near .dist{display:block}.nlocn{margin:0 0 8px}
 .rch{font-size:19px;margin:26px 0 4px}.rcs{margin:0 0 12px;font-size:13px;color:var(--sub);line-height:1.6}.rcg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:6px}
 .rc{display:flex;flex-direction:column;gap:3px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink)}.rc b{font-size:15px}.rc span{font-size:12px;color:var(--sub)}.rc:active{background:var(--soft)}
-.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.subr{padding:2px 0 8px}.subr.fc{flex-wrap:wrap;overflow:visible;gap:8px}.subr.fc button{flex:0 0 auto}.subr .xmore{display:none}.subr.fold button.xh{display:none}.subr.fold .xmore{display:inline-block;border-style:dashed}.shf{margin-bottom:6px}.fr{margin:0 0 10px}.fr .rgt{margin:0 0 6px}.fc{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.fc::-webkit-scrollbar{display:none}
+.rg.z{opacity:.4}.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.subr{padding:2px 0 8px}.subr.fc{flex-wrap:wrap;overflow:visible;gap:8px}.subr.fc button{flex:0 0 auto}.subr .xmore{display:none}.subr.fold button.xh{display:none}.subr.fold .xmore{display:inline-block;border-style:dashed}.shf{margin-bottom:6px}.fr{margin:0 0 10px}.fr .rgt{margin:0 0 6px}.fc{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.fc::-webkit-scrollbar{display:none}
 .fc button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}.fc button.on{background:#e11d48;border-color:#e11d48;color:#fff}
 .sbox{margin:0 0 12px}.sbox input[type=search]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:15px;font-family:inherit}
 .srow{display:flex;gap:8px;margin-top:8px;align-items:center}.srow select{flex:1;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:14px;font-family:inherit}.in{font-size:13px;font-weight:700;white-space:nowrap}
@@ -125,7 +125,7 @@ section{scroll-margin-top:56px}h2{font-size:19px;margin:22px 0 10px}h2 small{fon
 .nt{margin:0 0 8px;padding:8px 10px;border-radius:8px;background:var(--soft);color:var(--pri);font-size:12px;line-height:1.6}.nt a{color:var(--pri);font-weight:800}.cov{background:#ecfdf5;color:#065f46;margin:0 0 10px}.cov a{color:#047857}
 .more{display:block;text-align:center;margin-top:8px;font-size:12px;font-weight:700;color:var(--pri);text-decoration:none}
 </style><style>
-.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.kd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.li{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.rg.z{opacity:.4}.pkn{margin:4px 0 0;font-size:11px;color:var(--sub)}.kd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.li{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
 .li .ph{position:relative;aspect-ratio:4/3;background:#c7d2fe center/cover no-repeat}.li .bd{position:absolute;left:8px;top:8px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;color:#fff}.bd.p{background:#4f46e5}.bd.f{background:#e11d48}
 .li .bx{padding:10px 10px 12px;display:flex;flex-direction:column;gap:5px;flex:1}.li h3{margin:0;font-size:14px;line-height:1.35;word-break:keep-all}.li .mt{font-size:11px;font-weight:700;color:var(--sub);display:flex;gap:4px;flex-wrap:wrap}
 .li .mt i{font-style:normal;padding:2px 6px;border-radius:6px;background:var(--soft);color:var(--pri)}.li .mt i.fr0{background:#dcfce7;color:#166534}.li .mt i.pd{background:#fef3c7;color:#92400e}.li p{margin:0;font-size:12px;color:var(--sub);line-height:1.5}
@@ -1028,7 +1028,9 @@ cards.forEach(function(c){c._t=(c.textContent||'').replace(/\s+/g,'').toLowerCas
 secs.forEach(function(s){s._ar='';});
 function sheet(on){sh.classList.toggle('on',on);ov.classList.toggle('on',on);}
 function run(){var w=q.value.replace(/\s+/g,'').toLowerCase(),n=0,sub=false;
-secs.forEach(function(sec){var vis=0;[].forEach.call(sec.querySelectorAll('.card'),function(c){var ok=(!w||c._t.indexOf(w)>-1)&&(!sec._ar||c.getAttribute('data-ar')===sec._ar)&&(!ind.checked||c._in)&&(!near||!rad||c._km<=rad)&&(!tp||c._tp.indexOf(' '+tp+' ')>-1)&&(!fee||c._fee===fee)&&(!pk||c._pk>0);c.style.display=ok?'':'none';if(ok){vis++;n++}});sec.style.display=(vis||sec._ar)?'':'none';if(sec._ar)sub=true;});
+var tot0=0;secs.forEach(function(sec){var vis=0,c0=0;[].forEach.call(sec.querySelectorAll('.card'),function(c){var b0=(!w||c._t.indexOf(w)>-1)&&(!ind.checked||c._in)&&(!near||!rad||c._km<=rad)&&(!tp||c._tp.indexOf(' '+tp+' ')>-1)&&(!fee||c._fee===fee)&&(!pk||c._pk>0);var ok=b0&&(!sec._ar||c.getAttribute('data-ar')===sec._ar);if(b0)c0++;c.style.display=ok?'':'none';if(ok){vis++;n++}});sec.style.display=(vis||sec._ar)?'':'none';if(sec._ar)sub=true;
+tot0+=c0;[].forEach.call(document.querySelectorAll('.rg[data-k="'+sec.id.slice(2)+'"]'),function(b){var e=b.querySelector('em');if(e)e.textContent=c0;b.classList.toggle('z',!c0)});});
+[].forEach.call(document.querySelectorAll('.rg[data-all] em'),function(e){e.textContent=tot0});
 if(w||tp||fee||pk||ind.checked||sub){res.style.display='';res.innerHTML=n?('검색 결과 <b>'+n+'개</b> 코스'):'맞는 코스가 없어요. 조건을 바꿔 보세요.';}else res.style.display='none';
 bs.forEach(function(b){var k=b.getAttribute('data-k');b.classList.toggle('on',b.hasAttribute('data-all')?st==='':k===st);});}
 bs.forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');
@@ -1096,11 +1098,15 @@ a='<a class="a1" href="/festival/detail/'+i.id+'.html">상세 보기</a><button 
 else{m='<i>📅 '+fd(i.sd)+' ~ '+fd(i.ed)+'</i><i class="'+(i.c==='free'?'fr0':i.c==='paid'?'pd':'')+'">'+({free:'무료',paid:'유료',etc:'요금 확인'}[i.c])+'</i>';
 a='<a class="a1" href="/festival/detail/'+i.id+'.html">상세 보기</a><a class="a2" href="/festival/?id='+i.id+'">🗺️ 지도로 보기</a>';}
 return '<article class="li" data-id="'+i.id+'">'+ph+'<div class="bx"><div class="mt">'+m+'</div><h3>'+esc(i.n)+'</h3>'+dk+'<p>'+esc(i.d||'')+'</p><div class="ac">'+a+'</div></div></article>';}
-function filt(){var w=q.value.replace(/\s+/g,'').toLowerCase();
-rows=ITEMS.filter(function(i){if(kind&&i.t!==kind)return false;if(st&&i.r!==st)return false;if(sub&&i.s!==sub)return false;if(fee&&i.c!==fee)return false;if(pk&&i.pk!==1)return false;
+function okf(i,w,noReg){if(kind&&i.t!==kind)return false;if(!noReg&&st&&i.r!==st)return false;if(!noReg&&sub&&i.s!==sub)return false;if(fee&&i.c!==fee)return false;if(pk&&i.pk!==1)return false;
 if(tp&&(i.t!=='p'||i.tp.indexOf(tp)<0))return false;if(ind.checked&&!(i.t==='p'&&i.pt!=='실외'))return false;
-if(w&&i._t.indexOf(w)<0)return false;if(near){i._km=hav(pos[0],pos[1],i.la,i.ln);if(rad&&i._km>rad)return false;}
-if(dsel&&i.t==='f'&&!(i.sd<=dsel[1]&&i.ed>=dsel[0]))return false;return true;});if(near)rows.sort(function(a,b){return a._km-b._km});}
+if(w&&i._t.indexOf(w)<0)return false;if(near){var km=hav(pos[0],pos[1],i.la,i.ln);if(!noReg)i._km=km;if(rad&&km>rad)return false;}
+if(dsel&&i.t==='f'&&!(i.sd<=dsel[1]&&i.ed>=dsel[0]))return false;return true;}
+function filt(){var w=q.value.replace(/\s+/g,'').toLowerCase();
+rows=ITEMS.filter(function(i){return okf(i,w,false)});if(near)rows.sort(function(a,b){return a._km-b._km});}
+/* 지역 버튼의 숫자: 지역을 뺀 나머지 조건(요금·주차·주제·축제/장소·날짜·검색·내 주변)에 맞는 개수로 바꾼다 */
+function rcounts(){var w=q.value.replace(/\s+/g,'').toLowerCase(),m={},t=0;ITEMS.forEach(function(i){if(okf(i,w,true)){m[i.r]=(m[i.r]||0)+1;t++}});
+[].forEach.call(document.querySelectorAll('.rg'),function(b){var e=b.querySelector('em');if(!e)return;var k=b.getAttribute('data-k'),n=k?(m[k]||0):t;e.textContent=n;if(k)b.classList.toggle('z',!n)});}
 function counts(){var base=ITEMS.filter(function(i){return (!st||i.r===st)&&(!sub||i.s===sub)&&(!fee||i.c===fee)&&(!pk||i.pk===1)&&(!(tp&&i.t==='p')||i.tp.indexOf(tp)>=0)&&(!tp||i.t==='p'||kind==='f')&&(!dsel||i.t!=='f'||(i.sd<=dsel[1]&&i.ed>=dsel[0]))});
 var np=base.filter(function(i){return i.t==='p'}).length;document.querySelector('#kt [data-v=""] em').textContent=base.length;document.querySelector('#kt [data-v=p] em').textContent=np;document.querySelector('#kt [data-v=f] em').textContent=base.length-np;}
 function draw(reset){window.__rows=rows;if(window.PCROWS)PCROWS(rows);if(reset){shown=0;list.innerHTML='';}var next=rows.slice(shown,shown+PAGE);list.insertAdjacentHTML('beforeend',next.map(card).join(''));shown+=next.length;
@@ -1111,7 +1117,7 @@ function subs(){var w=document.getElementById('subw'),el=document.getElementById
 var m={};ITEMS.forEach(function(i){if(i.r===st&&i.s)m[i.s]=(m[i.s]||0)+1});var k=Object.keys(m).sort(function(a,b){return m[b]-m[a]});
 if(k.length<2){w.style.display='none';return;}
 el.innerHTML='<button type="button" class="on" data-a="">'+document.querySelector('.rg[data-k='+st+'] .lb').textContent+' 전체</button>'+k.map(function(x,n){return '<button type="button" class="'+(n>=9?'xh':'')+'" data-a="'+esc(x)+'">'+esc(x)+' '+m[x]+'</button>'}).join('')+(k.length>9?'<button type="button" class="xmore" data-x="1">+ '+(k.length-9)+'곳 더보기 ▾</button>':'');el.classList.toggle('fold',k.length>9);w.style.display='block';}
-function run(){filt();counts();draw(true);var on=q.value||ind.checked||st||tp||fee||kind;res.style.display='none';
+function run(){filt();counts();rcounts();draw(true);var on=q.value||ind.checked||st||tp||fee||kind;res.style.display='none';
 bs.forEach(function(b){var k=b.getAttribute('data-k');b.classList.toggle('on',b.hasAttribute('data-all')?st==='':k===st)});}
 function sheetT(on){sh.classList.toggle('on',on);ov.classList.toggle('on',on);}
 bs.forEach(function(b){b.addEventListener('click',function(){if(b.hasAttribute('data-all')){sheetT(true);return;}st=b.getAttribute('data-k');sub='';sheetT(false);subs();run();});});
