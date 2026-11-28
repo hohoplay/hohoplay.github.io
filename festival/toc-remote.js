@@ -23,6 +23,28 @@
       }
     }
   } catch (e) { /* 실패해도 페이지는 그대로 보인다 */ }
+  // [ADD] 2026-11-28: 구글 검색결과에서 들어오면 구글이 "검색된 문장" 위치로 페이지를 내려서 열어 준다(주소 뒤 #:~:text=).
+  //   그러면 제목·소개가 가려진 채 중간부터 보이므로, 사용자가 아직 스크롤하지 않았다면 맨 위로 되돌린다.
+  //   뒤로 가기·새로고침(이전 스크롤 위치 복원)과 #소제목 주소로 들어온 경우, 팝업(iframe) 안에서는 건드리지 않는다. // force-top
+  try {
+    if (!embedded && location.pathname.indexOf('/festival/detail/') === 0 && !location.hash) {
+      var navE = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+      if (!navE || navE.type === 'navigate') {
+        var touched = false;
+        ['wheel', 'touchstart', 'touchmove', 'keydown', 'mousedown', 'pointerdown'].forEach(function (ev) {
+          window.addEventListener(ev, function () { touched = true; }, { passive: true, once: true });
+        });
+        var toTop = function () {
+          if (!touched && (window.pageYOffset || document.documentElement.scrollTop) > 0) {
+            try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, 0); }
+          }
+        };
+        toTop();
+        if (document.readyState !== 'complete') window.addEventListener('load', toTop);
+        [120, 400, 900, 1800].forEach(function (ms) { setTimeout(toTop, ms); });
+      }
+    }
+  } catch (e) { /* 실패해도 페이지는 그대로 보인다 */ }
   if (document.getElementById('toc-remote')) return;
 
   function init() {
