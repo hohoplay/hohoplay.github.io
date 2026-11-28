@@ -248,7 +248,7 @@
     // ── 확인표 항목(근처 장소 확인은 일정 줄에서 만든다) ─────────────────────────────
     function nearChecks() {
         return P.rows.filter(function (r) { return r.k === 'n' || r.k === 'f' || r.k === 'm'; }).map(function (r) {
-            var nm = String(r.title).replace(/^(?:📍|🎪|🍴|🏨)\s*/, '');
+            var nm = String(r.title).replace(/^(?:📍|🎪|🍴|🏨|🎠)\s*/, '');
             return ['n_' + r.id, '「' + nm + '」 ' + (r.k === 'f' ? '행사 시간·장소 확인' : (r.k === 'm' ? (/^🏨/.test(r.title) ? '요금·예약·체크인 시간 확인' : '영업시간·휴무·대기 확인') : '운영시간·휴관일 확인'))];
         });
     }
@@ -643,9 +643,10 @@
             STAY_CHIPS.forEach(function (c) { h += '<button type="button" class="cp-chip" data-act="staycat" data-kw="' + esc(c[0]) + '"' + (!u.q && (u.kw || '') === c[0] ? ' style="background:#eef2ff;border-style:solid"' : '') + '>' + esc(c[1]) + '</button>'; });
             h += '</div>';
         } else h += '<div class="cp-mrow"><button type="button" class="cp-chip" data-act="mealcat" data-cat="FD6"' + (u.cat === 'FD6' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>🍚 음식점</button>' +
-            '<button type="button" class="cp-chip" data-act="mealcat" data-cat="CE7"' + (u.cat === 'CE7' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>☕ 카페</button></div>';
+            '<button type="button" class="cp-chip" data-act="mealcat" data-cat="CE7"' + (u.cat === 'CE7' && !u.q ? ' style="background:#eef2ff;border-style:solid"' : '') + '>☕ 카페</button>' +
+            '<button type="button" class="cp-chip" data-act="mealkid"' + (u.kid ? ' style="background:#eef2ff;border-style:solid"' : '') + '>🎠 키즈카페</button></div>';
         h += '<div class="cp-mrow"><input type="text" id="cpMealQ" maxlength="30" placeholder="' + (stay ? '직접 검색 (예: 키즈 풀빌라, 가족 펜션, 키즈 호텔)' : '직접 검색 (예: 칼국수, 돈까스, 키즈카페)') + '" value="' + esc(u.q) + '" style="flex:1 1 160px"><button type="button" class="cp-btn small" data-act="mealsearch">검색</button></div>';
-        if (!stay && lunchPlaceholder(u.day)) h += '<label class="cp-chk" style="border:0;padding:2px 0"><input type="checkbox" id="cpMealRep"' + (u.rep ? ' checked' : '') + '><span>일정의 “점심” 줄을 고른 곳으로 바꾸기</span></label>';
+        if (!stay && !u.kid && lunchPlaceholder(u.day)) h += '<label class="cp-chk" style="border:0;padding:2px 0"><input type="checkbox" id="cpMealRep"' + (u.rep ? ' checked' : '') + '><span>일정의 “점심” 줄을 고른 곳으로 바꾸기</span></label>';
         if (u.busy) h += '<div class="cp-mnote">찾는 중이에요…</div>';
         else if (u.status) h += '<div class="cp-mnote" style="color:#b45309">' + esc(u.status) + '</div>';
         if (u.results) {
@@ -653,7 +654,8 @@
             u.results.forEach(function (x, i) {
                 h += '<div class="cp-mres"><div><b>' + esc(x.name) + '</b><div class="mi">' + esc(x.cat) + (x.km != null ? ' · 기준 장소에서 약 ' + esc(fmtKm(x.km)) : '') + (x.addr ? '<br>' + esc(x.addr) : '') + (x.phone ? ' · ☎ ' + esc(x.phone) : '') + '</div>' +
                     (x.url ? '<a class="mi" href="' + esc(x.url) + '" target="_blank" rel="noopener">카카오맵에서 보기 ↗</a>' : '') + '</div>' +
-                    '<button type="button" class="cp-btn small pri" data-act="mealadd" data-i="' + i + '">＋ 넣기</button></div>';
+                    '<div style="display:flex;flex-direction:column;gap:6px;flex:none"><button type="button" class="cp-btn small" data-act="mealinfo" data-i="' + i + '">정보 보기</button>' +
+                    '<button type="button" class="cp-btn small pri" data-act="mealadd" data-i="' + i + '">＋ 넣기</button></div></div>';
             });
         }
         h += '<div class="cp-mnote">' + (stay ? '검색 결과는 카카오맵 기준이에요(모텔·여관 등은 뺐어요). 키즈 전용 여부·요금·예약 가능 여부·체크인 시간은 카카오맵이나 전화로 꼭 확인하세요.' : '검색 결과는 카카오맵 기준이에요. 영업시간·휴무·메뉴·예약은 카카오맵이나 전화로 꼭 확인하세요.') + '</div>' +
@@ -673,6 +675,10 @@
             if (S && st === S.Status.OK) {
                 if (u.mode === 'stay') {
                     data = data.filter(function (p) { return p.category_group_code === 'AD5' && !STAY_BAD.test(String(p.category_name || '') + ' ' + String(p.place_name || '')); });
+                }
+                if (u.kid) {
+                    var kd = data.filter(function (p) { return /키즈|놀이터|놀이방|실내놀이/.test(String(p.category_name || '') + ' ' + String(p.place_name || '')); });
+                    if (kd.length) data = kd;
                 }
                 u.results = data.slice(0, 8).map(function (p) {
                     var parts = String(p.category_name || '').split('>').map(function (z) { return z.trim(); }).filter(Boolean);
@@ -694,6 +700,108 @@
         }, function () { u.busy = false; u.status = '검색 서비스를 불러오지 못했어요. 아래에서 직접 넣어 주세요.'; mealRefresh(); });
     }
     // 고른 곳을 일정에 넣는다: "점심" 칸이 있고 체크돼 있으면 그 칸을 바꾸고, 아니면 기준 장소 바로 뒤에 새 줄
+
+    // ── 장소 정보 팝업 (식당·카페·숙박·키즈카페 검색 결과) ──────────────────────────────
+    //   카카오 장소검색이 준 정보(이름·분류·주소·전화·거리·위치)만 보여 주고, 사진·영업시간·후기는 카카오맵 링크로 안내한다.
+    //   장소 상세처럼 아래에서 올라오고, 닫기(✕)는 오른쪽 아래. 팝업 안에서 바로 일정에 넣을 수 있다.
+    var infoEl = null, infoPushed = false, infoIdx = -1, infoMap = null;
+    function infoCss() {
+        if (document.getElementById('cpInfoCss')) return;
+        var st = document.createElement('style'); st.id = 'cpInfoCss';
+        st.textContent = '#cpInfo{position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483640;display:none;font-family:inherit}#cpInfo.on{display:block}' +
+            '#cpInfo .ci-bd{position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(15,23,42,.45)}' +
+            '#cpInfo .ci-pn{position:absolute;left:0;right:0;bottom:0;max-height:82vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:10px 18px 24px;box-shadow:0 -8px 30px rgba(0,0,0,.25);transform:translateY(100%);transition:transform .28s ease;max-width:640px;margin:0 auto;-webkit-overflow-scrolling:touch}' +
+            '#cpInfo.up .ci-pn{transform:none}' +
+            '#cpInfo .ci-bar{width:44px;height:5px;border-radius:3px;background:#cbd5e1;margin:0 auto 12px}' +
+            '#cpInfo h3{margin:0 0 4px;font-size:18px;line-height:1.35;color:#0f172a;word-break:keep-all}' +
+            '#cpInfo .ci-tags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}#cpInfo .ci-tags i{font-style:normal;font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;background:#eef2ff;color:#4338ca}' +
+            '#cpInfo .ci-row{font-size:14px;line-height:1.6;color:#334155;margin:4px 0;word-break:keep-all}#cpInfo .ci-row b{color:#0f172a}' +
+            '#cpInfo .ci-map{height:170px;border-radius:12px;margin:12px 0;background:#e2e8f0;overflow:hidden}' +
+            '#cpInfo .ci-note{font-size:12.5px;color:#64748b;line-height:1.55;margin:8px 0 14px;padding:10px 12px;background:#f8fafc;border-radius:10px}' +
+            '#cpInfo .ci-act{display:flex;gap:8px;flex-wrap:wrap;padding-right:70px;min-height:52px}' +
+            '#cpInfo .ci-act a,#cpInfo .ci-act button{flex:1 1 auto;text-align:center;border:1px solid #4f46e5;color:#4f46e5;background:#fff;border-radius:12px;padding:12px 10px;font:800 14px/1.2 inherit;font-family:inherit;text-decoration:none;cursor:pointer}' +
+            '#cpInfo .ci-act .p{background:#4f46e5;color:#fff}' +
+            '#cpInfo .ci-x{position:fixed;right:16px;bottom:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:3;width:52px;height:52px;border-radius:50%;border:0;background:#0f172a;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}';
+        document.head.appendChild(st);
+    }
+    function infoBuild() {
+        if (infoEl) return;
+        infoEl = document.createElement('div'); infoEl.id = 'cpInfo';
+        infoEl.innerHTML = '<div class="ci-bd"></div><div class="ci-pn" role="dialog" aria-label="장소 정보"><div class="ci-bar"></div><div class="ci-c"></div></div><button type="button" class="ci-x" aria-label="닫기">✕</button>';
+        document.body.appendChild(infoEl);
+        infoEl.querySelector('.ci-bd').addEventListener('click', function () { infoClose(); });
+        infoEl.querySelector('.ci-x').addEventListener('click', function () { infoClose(); });
+        infoEl.addEventListener('click', function (e) {
+            var b = e.target.closest ? e.target.closest('[data-ci="add"]') : null;
+            if (!b) return;
+            var i = infoIdx; infoClose(true);
+            setTimeout(function () { var btn = document.querySelector('#cpMeal [data-act="mealadd"][data-i="' + i + '"]'); if (btn) btn.click(); }, 60);
+        });
+        window.addEventListener('keydown', function (e) {
+            if (infoEl && infoEl.classList.contains('on') && (e.key === 'Escape' || e.key === 'Esc')) { e.preventDefault(); e.stopPropagation(); infoClose(); }
+        }, true);
+        // 휴대폰 뒤로가기: 팝업만 닫는다(일정표 창은 그대로). plan-modal.js 가 이 표시를 보고 일정표를 닫지 않는다.
+        window.addEventListener('popstate', function () {
+            if (infoEl && infoEl.classList.contains('on')) { infoPushed = false; infoHide(); }
+            setTimeout(function () { window.__cpInfoSkip = false; }, 0);
+        });
+    }
+    function infoHide() {
+        if (!infoEl) return;
+        infoEl.classList.remove('up');
+        var el = infoEl; setTimeout(function () { if (!el.classList.contains('up')) el.classList.remove('on'); }, 300);
+        infoMap = null;
+        document.documentElement.style.overflow = infoPrevOv;
+    }
+    var infoPrevOv = '';
+    function infoClose(noBack) {
+        if (!infoEl || !infoEl.classList.contains('on')) return;
+        infoHide();
+        if (infoPushed) {
+            infoPushed = false;
+            window.__cpInfoSkip = true;
+            setTimeout(function () { window.__cpInfoSkip = false; }, 700);
+            try { history.back(); } catch (_) { window.__cpInfoSkip = false; }
+        }
+    }
+    function infoOpen(x, idx) {
+        infoCss(); infoBuild();
+        infoIdx = idx;
+        var u = mealUI || {}, pt = refPoint();
+        var note = u.mode === 'stay' ? '요금·예약 가능 여부·체크인 시간·키즈 시설 여부는 카카오맵이나 전화로 꼭 확인하세요.'
+            : (u.kid ? '이용 요금·예약·연령 제한·양말 지참 여부는 카카오맵이나 전화로 꼭 확인하세요.' : '영업시간·휴무일·메뉴·예약은 카카오맵이나 전화로 꼭 확인하세요.');
+        var h = '<h3>' + esc(x.name) + '</h3><div class="ci-tags">' + (x.cat ? '<i>' + esc(x.cat) + '</i>' : '') +
+            (x.km != null ? '<i>' + esc((pt && pt.name ? clip(pt.name, 14) + '에서 ' : '기준 장소에서 ') + '약 ' + fmtKm(x.km)) + '</i>' : '') + '</div>' +
+            (x.addr ? '<div class="ci-row"><b>주소</b> ' + esc(x.addr) + '</div>' : '') +
+            (x.phone ? '<div class="ci-row"><b>전화</b> ' + esc(x.phone) + '</div>' : '') +
+            ((x.lat != null && isFinite(x.lat)) ? '<div class="ci-map" id="ciMap"></div>' : '') +
+            '<div class="ci-note">' + esc(note) + ' 사진·후기는 카카오맵에서 볼 수 있어요.</div>' +
+            '<div class="ci-act">' + (x.phone ? '<a href="tel:' + esc(String(x.phone).replace(/[^\d+]/g, '')) + '">📞 전화</a>' : '') +
+            (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">🗺️ 카카오맵</a>' : '') +
+            '<button type="button" class="p" data-ci="add">＋ 일정에 넣기</button></div>';
+        infoEl.querySelector('.ci-c').innerHTML = h;
+        infoEl.querySelector('.ci-pn').scrollTop = 0;
+        if (!infoEl.classList.contains('on')) {
+            infoPrevOv = document.documentElement.style.overflow;
+            document.documentElement.style.overflow = 'hidden';
+            infoEl.classList.add('on');
+            void infoEl.offsetHeight;
+            try { history.pushState({ cpInfo: 1 }, '', location.href); infoPushed = true; window.__cpInfoSkip = false; } catch (_) { infoPushed = false; }
+        }
+        infoEl.classList.add('up');
+        // 작은 지도(카카오 지도 라이브러리가 있을 때만)
+        setTimeout(function () {
+            try {
+                var box = document.getElementById('ciMap');
+                if (!box || !window.kakao || !kakao.maps || !kakao.maps.Map || x.lat == null) { if (box) box.style.display = 'none'; return; }
+                var pos = new kakao.maps.LatLng(x.lat, x.lng);
+                infoMap = new kakao.maps.Map(box, { center: pos, level: 4 });
+                new kakao.maps.Marker({ position: pos }).setMap(infoMap);
+                infoMap.relayout(); infoMap.setCenter(pos);
+            } catch (_) { var b2 = document.getElementById('ciMap'); if (b2) b2.style.display = 'none'; }
+        }, 320);
+    }
+
     function stayPut(x) {
         var u = mealUI, d = u.day, memo = [];
         if (x.cat) memo.push(x.cat);
@@ -719,7 +827,11 @@
         if (x.phone) memo.push('☎ ' + x.phone);
         memo.push('영업시간 확인');
         var data = { title: '🍴 ' + x.name, memo: clip(memo.join(' · '), 100), k: 'm', tg: [['meal', '🍴 식당·카페']] };
-        var lp = u.rep ? lunchPlaceholder(d) : null;
+        if (u.kid) {   // 키즈카페: 점심 칸은 바꾸지 않고 새 줄로 넣는다(요금·예약·연령 확인 안내)
+            memo.pop(); memo.push('요금·예약·연령 제한 확인');
+            data = { title: '🎠 ' + x.name, memo: clip(memo.join(' · '), 100), k: 'm', tg: [['kid', '🎠 키즈카페']] };
+        }
+        var lp = (u.rep && !u.kid) ? lunchPlaceholder(d) : null;
         var row;
         if (lp) { row = lp; row.title = data.title; row.memo = data.memo; row.k = 'm'; row.tg = data.tg; delete row.pid; }
         else {
@@ -729,7 +841,7 @@
             row = newRow(d, '', data.title, 'm'); row.memo = data.memo; row.tg = data.tg;
             var prev = at > 0 ? P.rows[at - 1] : null;
             var pm = prev && /^(\d{1,2}):(\d{2})$/.exec(String(prev.time || ''));
-            row.time = (pm && +pm[1] * 60 + +pm[2] >= 11 * 60 + 30) ? timeAfter(at, '12:00') : '12:00';
+            row.time = u.kid ? timeAfter(at, '14:00') : ((pm && +pm[1] * 60 + +pm[2] >= 11 * 60 + 30) ? timeAfter(at, '12:00') : '12:00');
             P.rows.splice(at, 0, row);
         }
         if (x.lat != null && isFinite(x.lat) && isFinite(x.lng)) { row.lat = x.lat; row.lng = x.lng; } else { delete row.lat; delete row.lng; }
@@ -750,7 +862,7 @@
             var title = plainTitle(r.title);
             if (!title) return;
             var icon, home = /^(집 출발|출발|귀가)/.test(title), meal = !home && (r.k === 'm' || /^(점심|저녁|아침|식사|간식|카페|브런치)/.test(title));
-            if (home) icon = '🏠'; else if (/^🏨/.test(String(r.title))) icon = '🏨'; else if (meal) icon = '🍴'; else icon = String(++n);
+            if (home) icon = '🏠'; else if (/^🏨/.test(String(r.title))) icon = '🏨'; else if (/^🎠/.test(String(r.title))) icon = '🎠'; else if (meal) icon = '🍴'; else icon = String(++n);
             var conn = '', place = '', hours = '';
             String(r.memo || '').split(' · ').forEach(function (m) {
                 m = m.trim();
@@ -903,15 +1015,24 @@
             mealSearch(); return;
         } else if (act === 'mealclose') {
             mealUI = null;
+        } else if (act === 'mealkid') {
+            if (!mealUI) return;
+            mealUI.kid = true; mealUI.q = '키즈카페'; if (mealUI.rad < 3000) mealUI.rad = 3000;   // 키즈카페는 드물어서 반경을 3km로 넓혀 찾는다
+            mealSearch(); return;
         } else if (act === 'mealcat') {
             if (!mealUI) return;
+            mealUI.kid = false;
             mealUI.cat = t.getAttribute('data-cat') === 'CE7' ? 'CE7' : 'FD6'; mealUI.q = '';
             var qi = $('cpMealQ'); if (qi) qi.value = '';
             mealSearch(); return;
         } else if (act === 'mealsearch') {
             if (!mealUI) return;
-            var qv = $('cpMealQ'); mealUI.q = qv ? qv.value : '';
+            var qv = $('cpMealQ'); mealUI.q = qv ? qv.value : ''; mealUI.kid = /키즈/.test(mealUI.q);
             mealSearch(); return;
+        } else if (act === 'mealinfo') {
+            if (!mealUI || !mealUI.results) return;
+            var ix = mealUI.results[+t.getAttribute('data-i')]; if (!ix) return;
+            infoOpen(ix, +t.getAttribute('data-i')); return;
         } else if (act === 'mealadd') {
             if (!mealUI || !mealUI.results) return;
             var mx = mealUI.results[+t.getAttribute('data-i')]; if (!mx) return;
