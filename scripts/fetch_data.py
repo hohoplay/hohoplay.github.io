@@ -2284,7 +2284,7 @@ def update_roulette_stats():
         items = json.load(f)
     camps = [it for it in items if it.get('type') == 'camping' and it.get('title') and it.get('contentid')]
     forests = [it for it in items if it.get('type') == 'park' and it.get('title') and it.get('contentid') and _forest_kinds(it.get('title', ''))]
-    if len(kids) < 20 or len(camps) < 50 or len(forests) < 20:
+    if len(kids) < 20 or len(camps) < 50 or len(forests) < 5:   # 숲 기준을 20→5로 낮춤: 19곳이 돼도 갱신이 멈추지 않게 (수신 실패는 0~몇 곳으로 떨어지므로 5 미만이면 계속 건너뜀)
         print('룰렛 후보 현황: 데이터가 너무 적어(수신 실패 의심) 갱신 건너뜀')
         return
     _replace_between_markers(os.path.join('festival', 'roulette.html'), RL_START, RL_END,
