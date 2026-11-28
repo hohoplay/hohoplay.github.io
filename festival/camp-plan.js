@@ -309,6 +309,7 @@
             '#campPlan .cp-add textarea{flex:1 1 auto;width:auto;min-width:0}' +
             '#campPlan .cp-title{font-weight:800}' +
             '#campPlan .cp-memo{font-size:13px!important;color:#475569}' +
+            '#campPlan .cp-km{display:inline-block;margin-top:5px;padding:4px 10px;border:1px solid #fdba74;border-radius:8px;background:#fff7ed;font-size:13px;font-weight:800;line-height:1.3;color:#c2410c}' +
             '#campPlan .cp-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}' +
             '#campPlan .cp-bd{display:inline-block;font-size:11.5px;font-weight:800;line-height:1;padding:4px 8px;border-radius:999px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}' +
             '#campPlan .cp-bd.in,#campPlan .cp-bd.out{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}' +
@@ -434,6 +435,14 @@
         if (h > 23 || m > 59) return '';
         return ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2);
     }
+    // [ADD] 2026-11-28: 편집 화면에서도 거리 표시("앞 장소에서 약 1.5km" · "같은 곳")가 잘 보이게, 메모 칸 아래에 진한 주황색 표시를 따로 띄운다. 메모 글자는 그대로 두고 표시만 추가한다.
+    function kmChip(m) {
+        var segs = String(m == null ? '' : m).split(' · ');
+        for (var q = 0; q < segs.length; q++) {
+            if (/에서 약\s*[\d.,]+\s*(km|m)\b|같은 곳/i.test(segs[q])) return '<div class="cp-km">📏 ' + esc(segs[q].trim()) + '</div>';
+        }
+        return '';
+    }
     function rowHtml(r) {
         var pid = rowPid(r);
         return '<div class="cp-row" data-id="' + r.id + '">' +
@@ -445,6 +454,7 @@
             '<div class="cp-col">' +
             '<textarea class="cp-title" rows="1" maxlength="60" data-f="title" placeholder="일정" aria-label="일정">' + esc(r.title) + '</textarea>' +
             '<textarea class="cp-memo" rows="1" maxlength="100" data-f="memo" placeholder="메모 (예: 예약번호, 준비할 것)" aria-label="메모">' + esc(r.memo) + '</textarea>' +
+            kmChip(r.memo) +
             chipsHtml(rowTags(r)) +
             '</div>' +
             '<div class="cp-btns">' +
@@ -1364,6 +1374,11 @@
                     if (!oldNm || plainTitle(t.value).indexOf(oldNm) < 0) { delete rr0.lat; delete rr0.lng; }
                 }
                 rr0[f] = t.value; save();
+                if (f === 'memo') {   // 메모를 고치면 주황색 거리 표시도 같이 바꾼다
+                    var oldKm = rowEl.querySelector('.cp-km'), newKm = kmChip(t.value);
+                    if (oldKm && oldKm.parentNode) oldKm.parentNode.removeChild(oldKm);
+                    if (newKm) t.insertAdjacentHTML('afterend', newKm);
+                }
             }
         } else if (t.id === 'cpExtraIn') { if (/[\r\n]/.test(t.value)) t.value = t.value.replace(/[\r\n]+/g, ' '); fit(t); }
         else if (t.id === 'cpMealQ') { if (mealUI) mealUI.q = t.value; }
